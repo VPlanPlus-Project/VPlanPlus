@@ -26,6 +26,9 @@ class OnboardingViewModel @Inject constructor(
         )
     }
 
+    fun newScreen() {
+        _state.value = _state.value.copy(isLoading = false, currentErrorType = ErrorType.NONE)
+    }
     suspend fun onSchoolIdSubmit() {
         _state.value = _state.value.copy(isLoading = true)
         schoolUseCases.checkSchoolIdOnline(state.value.schoolId).onEach { result ->
@@ -37,11 +40,43 @@ class OnboardingViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
+    fun onUsernameInput(username: String) {
+        _state.value = _state.value.copy(username = username)
+    }
+
+    fun onPasswordInput(password: String) {
+        _state.value = _state.value.copy(password = password)
+    }
+
+    fun onPasswordVisibilityToggle() {
+        _state.value = _state.value.copy(passwordVisible = !state.value.passwordVisible)
+    }
+
+    suspend fun onLogin() {
+        _state.value = _state.value.copy(isLoading = true)
+        schoolUseCases.login(
+            state.value.schoolId,
+            state.value.username,
+            state.value.password
+        ).onEach { result ->
+            _state.value = _state.value.copy(
+                isLoading = false,
+                currentErrorType = result,
+                loginSuccessful = result == ErrorType.NONE
+            )
+        }.launchIn(viewModelScope)
+    }
 }
 
 data class OnboardingState(
     val schoolId: String = "",
     val schoolIdState: SchoolIdCheckResult = SchoolIdCheckResult.INVALID,
+
+    val username: String = "",
+    val password: String = "",
+    val passwordVisible: Boolean = false,
+    val loginSuccessful: Boolean = false,
+
     val currentErrorType: ErrorType = ErrorType.NONE,
     val isLoading: Boolean = false
 )

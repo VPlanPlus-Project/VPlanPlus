@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.domain.usecase
 
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.util.ErrorType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -18,6 +19,10 @@ class SchoolUseCases(
 
     suspend fun checkSchoolIdOnline(schoolId: String): Flow<SchoolIdCheckResult> {
         return flowOf(schoolRepository.checkSchoolId(schoolId))
+    }
+
+    suspend fun login(schoolId: String, username: String, password: String): Flow<ErrorType> {
+        return schoolRepository.login(schoolId, username, password)
     }
 }
 

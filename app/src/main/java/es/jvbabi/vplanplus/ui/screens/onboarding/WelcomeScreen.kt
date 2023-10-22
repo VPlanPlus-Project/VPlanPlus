@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +41,7 @@ fun OnboardingWelcomeScreen(
                     style = MaterialTheme.typography.headlineLarge
                 )
                 Text(text = stringResource(id = R.string.onboarding_welcomeText))
+                LinearProgressIndicator()
             }
             Button(onClick = { navController.navigate(Screen.OnboardingSchoolIdScreen.route) }, modifier = Modifier
                 .padding(16.dp)

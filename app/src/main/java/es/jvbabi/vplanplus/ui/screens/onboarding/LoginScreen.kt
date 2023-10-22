@@ -9,10 +9,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -22,63 +26,86 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.ErrorType
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun OnboardingSchoolIdScreen(
+fun OnboardingLoginScreen(
     navController: NavHostController,
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
 
-    if (state.schoolIdState == SchoolIdCheckResult.VALID) {
+    if (state.loginSuccessful) {
         viewModel.newScreen()
-        navController.navigate(Screen.OnboardingLoginScreen.route)
+        navController.navigate(Screen.HomeScreen.route) {
+            popUpTo(0)
+        }
     }
-
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize()
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
+            Column {
                 Text(
-                    text = stringResource(id = R.string.onboarding_schoolIdTitle),
+                    text = stringResource(id = R.string.onboarding_credentialsTitle),
                     style = MaterialTheme.typography.headlineLarge
                 )
-                Text(text = stringResource(id = R.string.onboarding_schoolIdText))
+                Text(
+                    text = stringResource(id = R.string.onboarding_credentialsText)
+                )
                 TextField(
-                    value = state.schoolId,
+                    value = state.username,
                     singleLine = true,
-
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    onValueChange = { viewModel.onSchoolIdInput(it.take(8)) },
-                    label = { Text(text = stringResource(id = R.string.onboarding_schoolIdHint)) },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(top = 16.dp)
+                        .padding(top = 16.dp),
+                    label = { Text(text = stringResource(id = R.string.username)) },
+                    onValueChange = { viewModel.onUsernameInput(it) }
+                )
+
+                TextField(
+                    value = state.password,
+                    onValueChange = { viewModel.onPasswordInput(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    label = { Text("Password") },
+                    singleLine = true,
+                    placeholder = { Text("Password") },
+                    visualTransformation = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    trailingIcon = {
+                        val image = if (state.passwordVisible)
+                            Icons.Default.Visibility
+                        else Icons.Default.VisibilityOff
+
+                        IconButton(onClick = { viewModel.onPasswordVisibilityToggle() }) {
+                            Icon(imageVector = image, "")
+                        }
+                    }
                 )
 
                 when (state.currentErrorType) {
-                    ErrorType.NOT_FOUND -> {
+                    ErrorType.UNAUTHORIZED -> {
                         Text(
-                            text = stringResource(id = R.string.onboarding_schoolIdNotFound),
+                            text = stringResource(id = R.string.onboarding_credentialsUnauthorized),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                         )
@@ -90,21 +117,18 @@ fun OnboardingSchoolIdScreen(
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
-
                     else -> {}
                 }
             }
-
             Button(
                 onClick = {
                     coroutineScope.launch {
-                        viewModel.onSchoolIdSubmit()
+                        viewModel.onLogin()
                     }
                 },
                 modifier = Modifier
-                    .padding(16.dp)
                     .fillMaxWidth(),
-                enabled = !state.isLoading && state.schoolIdState == SchoolIdCheckResult.SYNTACTICALLY_CORRECT
+                enabled = state.username.isNotEmpty() && state.password.isNotEmpty() && !state.isLoading
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     if (state.isLoading) CircularProgressIndicator(
@@ -122,7 +146,7 @@ fun OnboardingSchoolIdScreen(
 }
 
 @Composable
-@Preview(showBackground = true)
-fun SchoolIdScreenPreview() {
-    OnboardingSchoolIdScreen(navController = rememberNavController())
+@Preview
+fun OnboardingLoginScreenPreview() {
+    OnboardingLoginScreen(rememberNavController())
 }
