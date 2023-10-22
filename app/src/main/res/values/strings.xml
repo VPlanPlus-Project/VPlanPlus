@@ -1,3 +1,16 @@
 <resources>
     <string name="app_name">VPlanPlus</string>
+    <string name="onboarding_welcomeText">Welcome to VplanPlus! The onboarding process will help you connect to your schools stundenplan24 instance.</string>
+    <string name="lets_go">Let\'s go!</string>
+    <string name="onboarding_schoolIdTitle">Enter your schools id</string>
+    <string name="onboarding_schoolIdText">It\'s an eight-digit number provided by your school.</string>
+    <string name="onboarding_schoolIdHint">School ID</string>
+    <string name="next">Next</string>
+    <string name="onboarding_schoolIdNotFound">That school id does not exist.</string>
+    <string name="onboarding_credentialsTitle">Login to your account</string>
+    <string name="onboarding_credentialsText">Enter your username (probably \'schueler\') and password. These credentials are provided by your institute.</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="unknownError">An unknown error occurred.</string>
+    <string name="onboarding_credentialsUnauthorized">These credentials aren\'t correct</string>
 </resources>

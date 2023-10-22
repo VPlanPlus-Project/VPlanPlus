@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VPlanPlus</string>
+    <string name="onboarding_welcomeText">Willkommen bei VPlanPlus. Der Onboarding-Prozess wird dir beim Verbinden zur Stundenplan24 Instanz deiner Schule helfen!</string>
+    <string name="lets_go">Start</string>
+    <string name="onboarding_schoolIdTitle">Schul-ID eingeben</string>
+    <string name="onboarding_schoolIdText">Eine 8-stellige Nummer, welche von deiner Schule ausgehändigt wird.</string>
+    <string name="onboarding_schoolIdHint">Schul-ID</string>
+    <string name="next">Weiter</string>
+    <string name="onboarding_schoolIdNotFound">Diese Schul-ID existiert nicht.</string>
+    <string name="onboarding_credentialsTitle">Zugangsdaten angeben</string>
+    <string name="onboarding_credentialsText">Gib deinen Benutzernamen (vermutlich \'schueler\') und dein Passwort an. Diese Zugangsdaten werden über deine Institution bekannt gegeben.</string>
+    <string name="username">Benutzername</string>
+    <string name="password">Passwort</string>
+    <string name="unknownError">Ein unbekannter Fehler ist aufgetreten</string>
+    <string name="onboarding_credentialsUnauthorized">Diese Zugangsdaten sind nicht korrekt</string>
+</resources>
