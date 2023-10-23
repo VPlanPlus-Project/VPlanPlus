@@ -21,7 +21,7 @@ class SchoolRepositoryImpl(
         return schoolDao.getAll()
     }
 
-    override suspend fun checkSchoolId(schoolId: String): SchoolIdCheckResult {
+    override suspend fun checkSchoolId(schoolId: String): SchoolIdCheckResult? {
         return try {
             val response: HttpResponse =
                 HttpClient().request("https://www.stundenplan24.de/$schoolId") {
@@ -30,7 +30,7 @@ class SchoolRepositoryImpl(
             if (response.status.value == 403) SchoolIdCheckResult.VALID else SchoolIdCheckResult.NOT_FOUND
         } catch (e: UnknownHostException) {
             Log.d("SchoolRepositoryImpl", "offline")
-            SchoolIdCheckResult.NO_INTERNET
+            null
         }
     }
 

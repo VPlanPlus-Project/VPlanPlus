@@ -39,8 +39,8 @@ class OnboardingViewModel @Inject constructor(
                 schoolIdState = result,
                 currentErrorType = when (result) {
                     SchoolIdCheckResult.VALID -> ErrorType.NONE
-                    SchoolIdCheckResult.NO_INTERNET -> ErrorType.NO_INTERNET
                     SchoolIdCheckResult.NOT_FOUND -> ErrorType.NOT_FOUND
+                    null -> ErrorType.NO_INTERNET
                     else -> ErrorType.OTHER
                 }
             )
@@ -77,7 +77,7 @@ class OnboardingViewModel @Inject constructor(
 
 data class OnboardingState(
     val schoolId: String = "",
-    val schoolIdState: SchoolIdCheckResult = SchoolIdCheckResult.INVALID,
+    val schoolIdState: SchoolIdCheckResult? = SchoolIdCheckResult.INVALID,
 
     val username: String = "",
     val password: String = "",
@@ -85,5 +85,5 @@ data class OnboardingState(
     val loginSuccessful: Boolean = false,
 
     val currentErrorType: ErrorType = ErrorType.NONE,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
 )

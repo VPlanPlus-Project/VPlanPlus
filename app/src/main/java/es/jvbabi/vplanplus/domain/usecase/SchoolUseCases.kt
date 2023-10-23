@@ -18,7 +18,7 @@ class SchoolUseCases(
         return if (schoolId.length == 8 && schoolId.toIntOrNull() != null) SchoolIdCheckResult.SYNTACTICALLY_CORRECT else SchoolIdCheckResult.INVALID
     }
 
-    suspend fun checkSchoolIdOnline(schoolId: String): Flow<SchoolIdCheckResult> {
+    suspend fun checkSchoolIdOnline(schoolId: String): Flow<SchoolIdCheckResult?> {
         return flowOf(schoolRepository.checkSchoolId(schoolId))
     }
 
@@ -31,6 +31,5 @@ enum class SchoolIdCheckResult {
     INVALID,
     VALID,
     SYNTACTICALLY_CORRECT,
-    NOT_FOUND,
-    NO_INTERNET
+    NOT_FOUND
 }

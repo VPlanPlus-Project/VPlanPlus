@@ -113,7 +113,7 @@ fun OnboardingSchoolIdScreen(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth(),
-                enabled = !state.isLoading && state.schoolIdState == SchoolIdCheckResult.SYNTACTICALLY_CORRECT || state.schoolIdState == SchoolIdCheckResult.NO_INTERNET
+                enabled = !state.isLoading && (state.schoolIdState == SchoolIdCheckResult.SYNTACTICALLY_CORRECT || state.schoolIdState == null)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     if (state.isLoading) CircularProgressIndicator(

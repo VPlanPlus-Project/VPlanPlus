@@ -8,6 +8,6 @@ import kotlinx.coroutines.flow.Flow
 interface SchoolRepository {
     fun getSchools(): Flow<List<School>>
 
-    suspend fun checkSchoolId(schoolId: String): SchoolIdCheckResult
+    suspend fun checkSchoolId(schoolId: String): SchoolIdCheckResult?
     suspend fun login(schoolId: String, username: String, password: String): Flow<ErrorType>
 }
