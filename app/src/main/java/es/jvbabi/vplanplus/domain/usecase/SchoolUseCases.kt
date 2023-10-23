@@ -1,8 +1,6 @@
 package es.jvbabi.vplanplus.domain.usecase
 
-import android.util.Log
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
-import es.jvbabi.vplanplus.util.ErrorType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -22,7 +20,7 @@ class SchoolUseCases(
         return flowOf(schoolRepository.checkSchoolId(schoolId))
     }
 
-    suspend fun login(schoolId: String, username: String, password: String): Flow<ErrorType> {
+    suspend fun login(schoolId: String, username: String, password: String): Response {
         return schoolRepository.login(schoolId, username, password)
     }
 }
@@ -32,4 +30,12 @@ enum class SchoolIdCheckResult {
     VALID,
     SYNTACTICALLY_CORRECT,
     NOT_FOUND
+}
+
+enum class Response {
+    SUCCESS,
+    WRONG_CREDENTIALS,
+    NO_INTERNET,
+    NONE,
+    OTHER
 }

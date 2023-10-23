@@ -4,14 +4,17 @@ import android.util.Log
 import es.jvbabi.vplanplus.data.source.SchoolDao
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
-import es.jvbabi.vplanplus.util.ErrorType
 import io.ktor.client.HttpClient
+import io.ktor.client.network.sockets.ConnectTimeoutException
+import io.ktor.client.plugins.HttpRequestTimeoutException
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.request.basicAuth
 import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import java.net.UnknownHostException
 
 class SchoolRepositoryImpl(
@@ -38,15 +41,35 @@ class SchoolRepositoryImpl(
         schoolId: String,
         username: String,
         password: String
-    ): Flow<ErrorType> {
-        val response: HttpResponse =
-            HttpClient().request("https://www.stundenplan24.de/$schoolId") {
-                method = HttpMethod.Get
+    ): Response {
+        return try {
+            val response: HttpResponse =
+                HttpClient {
+                    install(HttpTimeout) {
+                        requestTimeoutMillis = 5000
+                        connectTimeoutMillis = 5000
+                        socketTimeoutMillis = 5000
+                    }
+                }.request("https://www.stundenplan24.de/$schoolId/wplan") {
+                    method = HttpMethod.Get
+                    basicAuth(username, password)
+                }
+            Log.d("SchoolRepositoryImpl", "status: ${response.status.value}")
+            when (response.status.value) {
+                200 -> Response.SUCCESS
+                403 -> Response.WRONG_CREDENTIALS
+                else -> Response.OTHER
             }
-        return flowOf(when (response.status.value) {
-            200 -> ErrorType.NONE
-            403 -> ErrorType.UNAUTHORIZED
-            else -> ErrorType.OTHER
-        })
+        }catch (e: Exception) {
+            when (e) {
+                is UnknownHostException -> return Response.NO_INTERNET
+                is ConnectTimeoutException -> return Response.NO_INTERNET
+                is HttpRequestTimeoutException -> return Response.NO_INTERNET
+                else -> {
+                    Log.d("SchoolRepositoryImpl", "other error: ${e.javaClass.name} ${e.message}")
+                    return Response.OTHER
+                }
+            }
+        }
     }
 }

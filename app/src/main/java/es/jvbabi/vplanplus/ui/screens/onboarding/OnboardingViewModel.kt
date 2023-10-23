@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.util.ErrorType
@@ -30,6 +31,7 @@ class OnboardingViewModel @Inject constructor(
     fun newScreen() {
         _state.value = _state.value.copy(isLoading = false, currentErrorType = ErrorType.NONE)
     }
+
     suspend fun onSchoolIdSubmit() {
         _state.value = _state.value.copy(isLoading = true)
         schoolUseCases.checkSchoolIdOnline(state.value.schoolId).onEach { result ->
@@ -61,17 +63,13 @@ class OnboardingViewModel @Inject constructor(
 
     suspend fun onLogin() {
         _state.value = _state.value.copy(isLoading = true)
-        schoolUseCases.login(
-            state.value.schoolId,
-            state.value.username,
-            state.value.password
-        ).onEach { result ->
-            _state.value = _state.value.copy(
-                isLoading = false,
-                currentErrorType = result,
-                loginSuccessful = result == ErrorType.NONE
+        _state.value = _state.value.copy(
+            isLoading = false, currentResponseType = schoolUseCases.login(
+                state.value.schoolId,
+                state.value.username,
+                state.value.password
             )
-        }.launchIn(viewModelScope)
+        )
     }
 }
 
@@ -84,6 +82,7 @@ data class OnboardingState(
     val passwordVisible: Boolean = false,
     val loginSuccessful: Boolean = false,
 
-    val currentErrorType: ErrorType = ErrorType.NONE,
+    @Deprecated("Use currentResponseType") val currentErrorType: ErrorType = ErrorType.NONE,
+    val currentResponseType: Response = Response.NONE,
     val isLoading: Boolean = false,
 )

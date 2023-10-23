@@ -13,8 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.*
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,11 +33,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.util.ErrorType
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingLoginScreen(
     navController: NavHostController,
@@ -102,15 +100,22 @@ fun OnboardingLoginScreen(
                     }
                 )
 
-                when (state.currentErrorType) {
-                    ErrorType.UNAUTHORIZED -> {
+                when (state.currentResponseType) {
+                    Response.WRONG_CREDENTIALS -> {
                         Text(
                             text = stringResource(id = R.string.onboarding_credentialsUnauthorized),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
-                    ErrorType.OTHER -> {
+                    Response.NO_INTERNET -> {
+                        Text(
+                            text = stringResource(id = R.string.noInternet),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
+                    Response.OTHER -> {
                         Text(
                             text = stringResource(id = R.string.unknownError),
                             style = MaterialTheme.typography.bodyMedium,
