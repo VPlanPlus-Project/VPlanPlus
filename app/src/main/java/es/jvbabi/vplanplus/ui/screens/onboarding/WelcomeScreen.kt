@@ -18,40 +18,32 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 
 @Composable
 fun OnboardingWelcomeScreen(
     navController: NavHostController,
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Column(
-            verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(16.dp),
-            ) {
-                Text(
-                    text = stringResource(id = R.string.app_name),
-                    style = MaterialTheme.typography.headlineLarge
-                )
-                Text(text = stringResource(id = R.string.onboarding_welcomeText))
-            }
-            Button(onClick = { navController.navigate(Screen.OnboardingSchoolIdScreen.route) }, modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-            ) {
-                Text(text = stringResource(id = R.string.lets_go))
-            }
-        }
+    Welcome(
+        onButtonClick = { navController.navigate(Screen.OnboardingSchoolIdScreen.route) })
+}
+
+@Composable
+fun Welcome(
+    onButtonClick: () -> Unit
+) {
+    OnboardingScreen(
+        title = stringResource(id = R.string.app_name),
+        text = stringResource(id = R.string.onboarding_welcomeText),
+        buttonText = stringResource(id = R.string.lets_go),
+        isLoading = false,
+        enabled = true,
+        onButtonClick = { onButtonClick() }) {
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun OnboardingWelcomeScreenPreview() {
-    OnboardingWelcomeScreen(navController = rememberNavController())
+    Welcome {}
 }
