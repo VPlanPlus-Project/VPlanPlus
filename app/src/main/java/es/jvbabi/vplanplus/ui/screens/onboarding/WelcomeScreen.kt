@@ -50,7 +50,7 @@ fun OnboardingWelcomeScreen(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun OnboardingWelcomeScreenPreview() {
     OnboardingWelcomeScreen(navController = rememberNavController())

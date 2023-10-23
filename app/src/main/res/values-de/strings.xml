@@ -15,4 +15,6 @@
     <string name="unknownError">Ein unbekannter Fehler ist aufgetreten</string>
     <string name="onboarding_credentialsUnauthorized">Diese Zugangsdaten sind nicht korrekt</string>
     <string name="noInternet">Es konnte keine Serververbindung hergestellt werden. Bitte prüfe deine Internetverbindung.</string>
+    <string name="onboarding_firstProfileTitle">Wähle dein erstes Profil</string>
+    <string name="onboarding_firstProfileText">Abhängig von deiner Rolle an deiner Schule musst du hier auswählen, ob die die Datenansicht für Schüler oder Lehrer sehen möchtest. Du kannst aber trotzdem später nach den jeweils anderen Daten suchen.</string>
 </resources>

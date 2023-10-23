@@ -14,4 +14,6 @@
     <string name="unknownError">An unknown error occurred.</string>
     <string name="onboarding_credentialsUnauthorized">These credentials aren\'t correct</string>
     <string name="noInternet">Couldn\'t establish a connection to the server. Please check your internet connection.</string>
+    <string name="onboarding_firstProfileTitle">Choose your first profile</string>
+    <string name="onboarding_firstProfileText">Depending on your role at school you\'ll need to choose wether you want to see the data for teachers or students. Don\'t worry, you can still search for the other one later.</string>
 </resources>
