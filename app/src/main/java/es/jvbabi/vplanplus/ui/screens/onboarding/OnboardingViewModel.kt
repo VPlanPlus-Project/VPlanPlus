@@ -9,7 +9,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
-import es.jvbabi.vplanplus.util.ErrorType
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -29,7 +28,7 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun newScreen() {
-        _state.value = _state.value.copy(isLoading = false, currentErrorType = ErrorType.NONE)
+        _state.value = _state.value.copy(isLoading = false, currentResponseType = Response.NONE)
     }
 
     suspend fun onSchoolIdSubmit() {
@@ -39,11 +38,11 @@ class OnboardingViewModel @Inject constructor(
             _state.value = _state.value.copy(
                 isLoading = false,
                 schoolIdState = result,
-                currentErrorType = when (result) {
-                    SchoolIdCheckResult.VALID -> ErrorType.NONE
-                    SchoolIdCheckResult.NOT_FOUND -> ErrorType.NOT_FOUND
-                    null -> ErrorType.NO_INTERNET
-                    else -> ErrorType.OTHER
+                currentResponseType = when (result) {
+                    SchoolIdCheckResult.VALID -> Response.SUCCESS
+                    SchoolIdCheckResult.NOT_FOUND -> Response.NOT_FOUND
+                    null -> Response.NO_INTERNET
+                    else -> Response.OTHER
                 }
             )
         }.launchIn(viewModelScope)
@@ -82,7 +81,6 @@ data class OnboardingState(
     val passwordVisible: Boolean = false,
     val loginSuccessful: Boolean = false,
 
-    @Deprecated("Use currentResponseType") val currentErrorType: ErrorType = ErrorType.NONE,
     val currentResponseType: Response = Response.NONE,
     val isLoading: Boolean = false,
 )

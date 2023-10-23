@@ -37,5 +37,6 @@ enum class Response {
     WRONG_CREDENTIALS,
     NO_INTERNET,
     NONE,
-    OTHER
+    OTHER,
+    NOT_FOUND
 }
