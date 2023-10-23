@@ -40,7 +40,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingLoginScreen(
     navController: NavHostController,
-    viewModel: OnboardingViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel
 ) {
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
@@ -156,5 +156,5 @@ fun OnboardingLoginScreen(
 @Composable
 @Preview
 fun OnboardingLoginScreenPreview() {
-    OnboardingLoginScreen(rememberNavController())
+    OnboardingLoginScreen(rememberNavController(), hiltViewModel())
 }

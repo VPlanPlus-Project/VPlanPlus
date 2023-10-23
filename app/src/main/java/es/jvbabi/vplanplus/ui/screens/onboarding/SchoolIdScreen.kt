@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -29,16 +27,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.util.ErrorType
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingSchoolIdScreen(
     navController: NavHostController,
-    viewModel: OnboardingViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel
 ) {
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
@@ -76,22 +73,22 @@ fun OnboardingSchoolIdScreen(
                         .padding(top = 16.dp)
                 )
 
-                when (state.currentErrorType) {
-                    ErrorType.NOT_FOUND -> {
+                when (state.currentResponseType) {
+                    Response.NOT_FOUND -> {
                         Text(
                             text = stringResource(id = R.string.onboarding_schoolIdNotFound),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
-                    ErrorType.NO_INTERNET -> {
+                    Response.NO_INTERNET -> {
                         Text(
                             text = stringResource(id = R.string.noInternet),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
-                    ErrorType.OTHER -> {
+                    Response.OTHER -> {
                         Text(
                             text = stringResource(id = R.string.unknownError),
                             style = MaterialTheme.typography.bodyMedium,
@@ -133,5 +130,5 @@ fun OnboardingSchoolIdScreen(
 @Composable
 @Preview(showBackground = true)
 fun SchoolIdScreenPreview() {
-    OnboardingSchoolIdScreen(navController = rememberNavController())
+    OnboardingSchoolIdScreen(navController = rememberNavController(), hiltViewModel())
 }

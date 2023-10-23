@@ -8,11 +8,13 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
 
 @Composable
 fun NavigationGraph(
-    navController: NavHostController
+    navController: NavHostController,
+    onboardingViewModel: OnboardingViewModel
 ) {
     NavHost(
         navController = navController,
@@ -27,11 +29,11 @@ fun NavigationGraph(
         }
 
         composable(route = Screen.OnboardingSchoolIdScreen.route) {
-            OnboardingSchoolIdScreen(navController)
+            OnboardingSchoolIdScreen(navController, onboardingViewModel)
         }
 
         composable(route = Screen.OnboardingLoginScreen.route) {
-            OnboardingLoginScreen(navController)
+            OnboardingLoginScreen(navController, onboardingViewModel)
         }
     }
 }

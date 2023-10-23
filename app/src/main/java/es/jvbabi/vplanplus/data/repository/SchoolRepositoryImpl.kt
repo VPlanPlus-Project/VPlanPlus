@@ -54,10 +54,10 @@ class SchoolRepositoryImpl(
                     method = HttpMethod.Get
                     basicAuth(username, password)
                 }
-            Log.d("SchoolRepositoryImpl", "status: ${response.status.value}")
+            Log.d("SchoolRepositoryImpl", "called https://www.stundenplan24.de/$schoolId/wplan; status: ${response.status.value}")
             when (response.status.value) {
                 200 -> Response.SUCCESS
-                403 -> Response.WRONG_CREDENTIALS
+                401 -> Response.WRONG_CREDENTIALS
                 else -> Response.OTHER
             }
         }catch (e: Exception) {
