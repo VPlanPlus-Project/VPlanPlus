@@ -14,4 +14,5 @@
     <string name="password">Passwort</string>
     <string name="unknownError">Ein unbekannter Fehler ist aufgetreten</string>
     <string name="onboarding_credentialsUnauthorized">Diese Zugangsdaten sind nicht korrekt</string>
+    <string name="noInternet">Es konnte keine Serververbindung hergestellt werden. Bitte prüfe deine Internetverbindung.</string>
 </resources>

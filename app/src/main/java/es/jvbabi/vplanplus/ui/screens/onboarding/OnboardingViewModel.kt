@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -32,10 +33,16 @@ class OnboardingViewModel @Inject constructor(
     suspend fun onSchoolIdSubmit() {
         _state.value = _state.value.copy(isLoading = true)
         schoolUseCases.checkSchoolIdOnline(state.value.schoolId).onEach { result ->
+            Log.d("OnboardingViewModel", "onSchoolIdSubmit: $result")
             _state.value = _state.value.copy(
                 isLoading = false,
                 schoolIdState = result,
-                currentErrorType = if (result == SchoolIdCheckResult.NOT_FOUND) ErrorType.NOT_FOUND else ErrorType.NONE
+                currentErrorType = when (result) {
+                    SchoolIdCheckResult.VALID -> ErrorType.NONE
+                    SchoolIdCheckResult.NO_INTERNET -> ErrorType.NO_INTERNET
+                    SchoolIdCheckResult.NOT_FOUND -> ErrorType.NOT_FOUND
+                    else -> ErrorType.OTHER
+                }
             )
         }.launchIn(viewModelScope)
     }

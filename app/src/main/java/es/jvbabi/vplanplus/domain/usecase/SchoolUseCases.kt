@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.usecase
 
+import android.util.Log
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.util.ErrorType
 import kotlinx.coroutines.flow.Flow
@@ -30,5 +31,6 @@ enum class SchoolIdCheckResult {
     INVALID,
     VALID,
     SYNTACTICALLY_CORRECT,
-    NOT_FOUND
+    NOT_FOUND,
+    NO_INTERNET
 }

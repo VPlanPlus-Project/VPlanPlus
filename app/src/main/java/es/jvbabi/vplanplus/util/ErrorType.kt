@@ -4,5 +4,6 @@ enum class ErrorType {
     NONE,
     NOT_FOUND,
     UNAUTHORIZED,
-    OTHER
+    OTHER,
+    NO_INTERNET
 }

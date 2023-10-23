@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -83,6 +84,13 @@ fun OnboardingSchoolIdScreen(
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
+                    ErrorType.NO_INTERNET -> {
+                        Text(
+                            text = stringResource(id = R.string.noInternet),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.error,
+                        )
+                    }
                     ErrorType.OTHER -> {
                         Text(
                             text = stringResource(id = R.string.unknownError),
@@ -98,13 +106,14 @@ fun OnboardingSchoolIdScreen(
             Button(
                 onClick = {
                     coroutineScope.launch {
+                        Log.d("OnboardingSchoolIdScreen", "submitting schoolId ${state.schoolId}")
                         viewModel.onSchoolIdSubmit()
                     }
                 },
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth(),
-                enabled = !state.isLoading && state.schoolIdState == SchoolIdCheckResult.SYNTACTICALLY_CORRECT
+                enabled = !state.isLoading && state.schoolIdState == SchoolIdCheckResult.SYNTACTICALLY_CORRECT || state.schoolIdState == SchoolIdCheckResult.NO_INTERNET
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     if (state.isLoading) CircularProgressIndicator(

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
+import android.util.Log
 import es.jvbabi.vplanplus.data.source.SchoolDao
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
@@ -11,6 +12,7 @@ import io.ktor.client.statement.HttpResponse
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import java.net.UnknownHostException
 
 class SchoolRepositoryImpl(
     private val schoolDao: SchoolDao
@@ -20,11 +22,16 @@ class SchoolRepositoryImpl(
     }
 
     override suspend fun checkSchoolId(schoolId: String): SchoolIdCheckResult {
-        val response: HttpResponse =
-            HttpClient().request("https://www.stundenplan24.de/$schoolId") {
-                method = HttpMethod.Get
-            }
-        return if (response.status.value == 403) SchoolIdCheckResult.VALID else SchoolIdCheckResult.NOT_FOUND
+        return try {
+            val response: HttpResponse =
+                HttpClient().request("https://www.stundenplan24.de/$schoolId") {
+                    method = HttpMethod.Get
+                }
+            if (response.status.value == 403) SchoolIdCheckResult.VALID else SchoolIdCheckResult.NOT_FOUND
+        } catch (e: UnknownHostException) {
+            Log.d("SchoolRepositoryImpl", "offline")
+            SchoolIdCheckResult.NO_INTERNET
+        }
     }
 
     override suspend fun login(

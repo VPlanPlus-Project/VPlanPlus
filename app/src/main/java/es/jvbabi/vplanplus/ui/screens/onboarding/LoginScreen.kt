@@ -13,7 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -131,13 +131,16 @@ fun OnboardingLoginScreen(
                 enabled = state.username.isNotEmpty() && state.password.isNotEmpty() && !state.isLoading
             ) {
                 Box(contentAlignment = Alignment.Center) {
-                    if (state.isLoading) CircularProgressIndicator(
-                        strokeWidth = 2.dp,
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(24.dp)
-                            .padding(6.dp)
-                    )
+                    if (state.isLoading) {
+                        CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(24.dp)
+                                .padding(6.dp)
+                        )
+                    }
                     else Text(text = stringResource(id = R.string.next))
                 }
             }
