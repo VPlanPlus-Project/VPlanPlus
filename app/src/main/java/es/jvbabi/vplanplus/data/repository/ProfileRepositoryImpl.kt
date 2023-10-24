@@ -1,8 +1,16 @@
 package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.data.source.ProfileDao
+import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.request.basicAuth
+import io.ktor.client.request.request
+import io.ktor.client.statement.bodyAsText
+import io.ktor.http.HttpMethod.Companion.Get
 import kotlinx.coroutines.flow.Flow
 
 class ProfileRepositoryImpl(
@@ -14,5 +22,33 @@ class ProfileRepositoryImpl(
 
     override fun createProfile(schoolId: String, type: String) {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun getClassesOnline(
+        username: String,
+        password: String,
+        schoolId: String
+    ): List<Classes> {
+        val response = HttpClient {
+            install(HttpTimeout) {
+                requestTimeoutMillis = 5000
+                connectTimeoutMillis = 5000
+                socketTimeoutMillis = 5000
+            }
+        }.request("https://www.stundenplan24.de/$schoolId/wplan/wdatenk/SPlanKl_Basis.xml") {
+            method = Get
+            basicAuth(username, password)
+        }
+        val baseData = BaseDataParserStudents(response.bodyAsText())
+        val classes = ArrayList<Classes>()
+        baseData.classes.forEach {
+            classes.add(
+                Classes(
+                    className = it,
+                    schoolId = schoolId,
+                )
+            )
+        }
+        return classes
     }
 }

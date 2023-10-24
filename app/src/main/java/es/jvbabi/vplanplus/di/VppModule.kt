@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.source.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import javax.inject.Singleton
@@ -52,5 +53,11 @@ object VppModule {
     @Singleton
     fun provideProfileUseCases(repository: ProfileRepository): ProfileUseCases {
         return ProfileUseCases(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideOnboardingUseCases(repository: ProfileRepository): OnboardingUseCases {
+        return OnboardingUseCases(repository)
     }
 }

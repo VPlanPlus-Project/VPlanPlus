@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val schoolUseCases: SchoolUseCases
+    private val schoolUseCases: SchoolUseCases,
+    private val onboardingUseCases: OnboardingUseCases
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
@@ -82,8 +84,22 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = true)
 
         if (state.value.firstProfile == FirstProfile.STUDENT) {
-
+            _state.value = _state.value.copy(
+                classList = onboardingUseCases.getClassesOnlineStudent(
+                    state.value.schoolId,
+                    state.value.username,
+                    state.value.password
+                ).map { it.className }
+            )
         }
+    }
+
+    fun onClassSelect(className: String) {
+        _state.value = _state.value.copy(selectedClass = className)
+    }
+
+    fun onClassSubmit() {
+
     }
 }
 
@@ -102,6 +118,7 @@ data class OnboardingState(
     val firstProfile: FirstProfile? = null,
 
     val classList: List<String> = listOf(),
+    val selectedClass: String? = null,
 )
 
 enum class FirstProfile {
