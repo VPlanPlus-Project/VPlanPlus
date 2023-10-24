@@ -35,7 +35,7 @@ fun OnboardingClassListScreen(
 
     ClassListScreen(state = state, onClassSelect = { onboardingViewModel.onClassSelect(it) }) {
         coroutineScope.launch { onboardingViewModel.onClassSubmit() }
-        navController.navigate(Screen.HomeScreen.route) { popUpTo(0) }
+        navController.navigate(Screen.OnboardingSetupScreen.route) { popUpTo(0) }
     }
 }
 

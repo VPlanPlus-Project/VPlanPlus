@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.repository
 import android.util.Log
 import es.jvbabi.vplanplus.data.source.SchoolDao
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
@@ -13,6 +14,7 @@ import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.request.basicAuth
 import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import kotlinx.coroutines.flow.Flow
 import java.net.UnknownHostException
@@ -73,14 +75,41 @@ class SchoolRepositoryImpl(
         }
     }
 
-    override suspend fun createSchool(schoolId: String, username: String, password: String) {
+    override suspend fun createSchool(schoolId: String, username: String, password: String, name: String) {
         schoolDao.insert(
             School(
                 id = schoolId,
                 username = username,
                 password = password,
-                name = "Schule $schoolId"
+                name = name
             )
         )
+    }
+
+    override suspend fun updateSchoolName(schoolId: String, name: String) {
+        schoolDao.updateName(schoolId, name)
+    }
+
+    override suspend fun getSchoolNameOnline(
+        schoolId: String,
+        username: String,
+        password: String
+    ): String {
+        try {
+            val response = HttpClient {
+                install(HttpTimeout) {
+                    requestTimeoutMillis = 5000
+                    connectTimeoutMillis = 5000
+                    socketTimeoutMillis = 5000
+                }
+            }.request("https://www.stundenplan24.de/$schoolId/wplan/wdatenk/SPlanKl_Basis.xml") {
+                method = HttpMethod.Get
+                basicAuth(username, password)
+            }
+            val baseData = BaseDataParserStudents(response.bodyAsText())
+            return baseData.schoolName
+        } catch (e: Exception) {
+            return ""
+        }
     }
 }

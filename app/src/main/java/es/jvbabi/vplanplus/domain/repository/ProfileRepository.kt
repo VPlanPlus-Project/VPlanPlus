@@ -6,9 +6,10 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProfileRepository {
     fun getProfiles(): Flow<List<Profile>>
-    fun createProfile(
-        schoolId: String,
-        type: String,
+    suspend fun createProfile(
+        referenceId: Int,
+        type: Int,
+        name: String
     )
 
     suspend fun getClassesOnline(username: String, password: String, schoolId: String): List<Classes>

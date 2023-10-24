@@ -15,4 +15,7 @@ abstract class SchoolDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(school: School)
+
+    @Query("UPDATE school SET name = :name WHERE id = :schoolId")
+    abstract suspend fun updateName(schoolId: String, name: String)
 }

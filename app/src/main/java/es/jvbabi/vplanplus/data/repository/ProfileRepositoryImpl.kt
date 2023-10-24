@@ -20,8 +20,8 @@ class ProfileRepositoryImpl(
         return profileDao.getProfiles()
     }
 
-    override fun createProfile(schoolId: String, type: String) {
-        TODO("Not yet implemented")
+    override suspend fun createProfile(referenceId: Int, type: Int, name: String) {
+        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name))
     }
 
     override suspend fun getClassesOnline(

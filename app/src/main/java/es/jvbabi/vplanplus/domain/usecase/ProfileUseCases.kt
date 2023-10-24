@@ -13,4 +13,8 @@ class ProfileUseCases(
             profiles -> profiles.isNotEmpty()
         }
     }
+
+    suspend fun createStudentProfile(classId: Int, name: String) {
+        profileRepository.createProfile(referenceId = classId, type = 0, name = name)
+    }
 }

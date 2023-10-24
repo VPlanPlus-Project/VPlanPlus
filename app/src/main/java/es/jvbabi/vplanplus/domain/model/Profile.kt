@@ -11,8 +11,8 @@ import androidx.room.PrimaryKey
     ]
 )
 data class Profile(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val type: Int, // TODO change to enum
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    val type: Int, // TODO change to enum; 0 student, 1 teacher, 2 room
     val name: String,
-    val reference: String, // can be class name, teacher short or room number
+    val referenceId: Int, // can be class id, teacher id or room id
 )
