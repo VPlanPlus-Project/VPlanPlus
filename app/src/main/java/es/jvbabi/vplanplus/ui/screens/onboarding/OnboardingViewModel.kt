@@ -69,6 +69,17 @@ class OnboardingViewModel @Inject constructor(
                 state.value.password
             )
         )
+        if (state.value.currentResponseType == Response.SUCCESS) {
+            _state.value = _state.value.copy(loginSuccessful = true)
+        }
+    }
+
+    fun onFirstProfileSelect(firstProfile: FirstProfile) {
+        _state.value = _state.value.copy(firstProfile = firstProfile)
+    }
+
+    suspend fun onFirstProfileSubmit() {
+        _state.value = _state.value.copy(isLoading = true)
     }
 }
 
@@ -83,4 +94,10 @@ data class OnboardingState(
 
     val currentResponseType: Response = Response.NONE,
     val isLoading: Boolean = false,
+
+    val firstProfile: FirstProfile? = null,
 )
+
+enum class FirstProfile {
+    TEACHER, STUDENT
+}

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
@@ -37,7 +38,8 @@ fun OnboardingLoginScreen(
 
     if (state.loginSuccessful) {
         viewModel.newScreen()
-        navController.navigate(Screen.HomeScreen.route) {
+        Log.d("OnboardingLoginScreen", "Login successful")
+        navController.navigate(Screen.OnboardingFirstProfileScreen.route) {
             popUpTo(0)
         }
     }

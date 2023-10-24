@@ -16,5 +16,9 @@
     <string name="onboarding_credentialsUnauthorized">Diese Zugangsdaten sind nicht korrekt</string>
     <string name="noInternet">Es konnte keine Serververbindung hergestellt werden. Bitte prüfe deine Internetverbindung.</string>
     <string name="onboarding_firstProfileTitle">Wähle dein erstes Profil</string>
-    <string name="onboarding_firstProfileText">Abhängig von deiner Rolle an deiner Schule musst du hier auswählen, ob die die Datenansicht für Schüler oder Lehrer sehen möchtest. Du kannst aber trotzdem später nach den jeweils anderen Daten suchen.</string>
+    <string name="onboarding_firstProfileText">Abhängig von deiner Rolle an deiner Schule musst du hier auswählen, ob du die Datenansicht für Schüler oder Lehrer sehen möchtest. Du kannst aber trotzdem später nach den jeweils anderen Daten suchen.</string>
+    <string name="onboarding_firstProfileStudentTitle">Schüler</string>
+    <string name="onboarding_firstProfileStudentText">Wähle dieses Profil, um standartmäßig Klassenpläne angezeigt zu bekommen. Falls du ein Elternteil bist, wähle auch dieses Profil.</string>
+    <string name="onboarding_firstProfileTeacherTitle">Lehrer</string>
+    <string name="onboarding_firstProfileTeacherText">Falls du eine Lehrkraft bist, wähle dieses Profil.</string>
 </resources>
