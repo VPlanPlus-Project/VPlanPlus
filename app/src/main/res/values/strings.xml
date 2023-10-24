@@ -20,4 +20,6 @@
     <string name="onboarding_firstProfileStudentText">Choose this profile if you want to see the plan for a class by default. If you\'re a parent, choose this profile too.</string>
     <string name="onboarding_firstProfileTeacherTitle">Teacher</string>
     <string name="onboarding_firstProfileTeacherText">If you\'re a teacher, choose this profile.</string>
+    <string name="onboarding_studentChooseClassText">If you need to add multiple classes, you can do so by creating a new profile in settings.</string>
+    <string name="onboarding_studentChooseClassTitle">Choose your class</string>
 </resources>

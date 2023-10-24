@@ -80,6 +80,10 @@ class OnboardingViewModel @Inject constructor(
 
     suspend fun onFirstProfileSubmit() {
         _state.value = _state.value.copy(isLoading = true)
+
+        if (state.value.firstProfile == FirstProfile.STUDENT) {
+
+        }
     }
 }
 
@@ -96,6 +100,8 @@ data class OnboardingState(
     val isLoading: Boolean = false,
 
     val firstProfile: FirstProfile? = null,
+
+    val classList: List<String> = listOf(),
 )
 
 enum class FirstProfile {

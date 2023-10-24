@@ -23,6 +23,10 @@ class SchoolUseCases(
     suspend fun login(schoolId: String, username: String, password: String): Response {
         return schoolRepository.login(schoolId, username, password)
     }
+
+    suspend fun createSchool(schoolId: String, username: String, password: String) {
+        schoolRepository.createSchool(schoolId, username, password)
+    }
 }
 
 enum class SchoolIdCheckResult {

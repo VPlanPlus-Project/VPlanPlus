@@ -21,4 +21,6 @@
     <string name="onboarding_firstProfileStudentText">Wähle dieses Profil, um standartmäßig Klassenpläne angezeigt zu bekommen. Falls du ein Elternteil bist, wähle auch dieses Profil.</string>
     <string name="onboarding_firstProfileTeacherTitle">Lehrer</string>
     <string name="onboarding_firstProfileTeacherText">Falls du eine Lehrkraft bist, wähle dieses Profil.</string>
+    <string name="onboarding_studentChooseClassText">Falls du mehrere Klassen hinzufügen musst, kannst du später in den Einstellungen ein neues Profil anlegen.</string>
+    <string name="onboarding_studentChooseClassTitle">Wähle deine Klasse</string>
 </resources>

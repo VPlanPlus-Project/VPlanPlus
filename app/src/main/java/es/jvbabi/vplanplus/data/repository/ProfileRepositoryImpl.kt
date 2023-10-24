@@ -11,4 +11,8 @@ class ProfileRepositoryImpl(
     override fun getProfiles(): Flow<List<Profile>> {
         return profileDao.getProfiles()
     }
+
+    override fun createProfile(schoolId: String, type: String) {
+        TODO("Not yet implemented")
+    }
 }

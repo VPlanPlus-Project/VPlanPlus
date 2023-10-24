@@ -10,4 +10,5 @@ interface SchoolRepository {
 
     suspend fun checkSchoolId(schoolId: String): SchoolIdCheckResult?
     suspend fun login(schoolId: String, username: String, password: String): Response
+    suspend fun createSchool(schoolId: String, username: String, password: String)
 }

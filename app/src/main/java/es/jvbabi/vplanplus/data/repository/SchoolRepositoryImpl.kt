@@ -72,4 +72,15 @@ class SchoolRepositoryImpl(
             }
         }
     }
+
+    override suspend fun createSchool(schoolId: String, username: String, password: String) {
+        schoolDao.insert(
+            School(
+                id = schoolId,
+                username = username,
+                password = password,
+                name = "Schule $schoolId"
+            )
+        )
+    }
 }
