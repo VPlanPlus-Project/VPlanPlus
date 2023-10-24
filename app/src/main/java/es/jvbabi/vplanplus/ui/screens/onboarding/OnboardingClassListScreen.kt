@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,6 +23,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingClassListScreen(
@@ -29,9 +31,10 @@ fun OnboardingClassListScreen(
     onboardingViewModel: OnboardingViewModel
 ) {
     val state = onboardingViewModel.state.value
+    val coroutineScope = rememberCoroutineScope()
 
     ClassListScreen(state = state, onClassSelect = { onboardingViewModel.onClassSelect(it) }) {
-        onboardingViewModel.onClassSubmit()
+        coroutineScope.launch { onboardingViewModel.onClassSubmit() }
         navController.navigate(Screen.HomeScreen.route) { popUpTo(0) }
     }
 }
@@ -131,7 +134,25 @@ fun ClassListItem(
 @Composable
 fun ClassListScreenPreview() {
     ClassListScreen(
-        state = OnboardingState(classList = listOf("1a", "1b", "1c", "2a", "2b", "2c", "3a", "3b", "3c", "4a", "4b", "4c", "5a", "5b", "5c")),
+        state = OnboardingState(
+            classList = listOf(
+                "1a",
+                "1b",
+                "1c",
+                "2a",
+                "2b",
+                "2c",
+                "3a",
+                "3b",
+                "3c",
+                "4a",
+                "4b",
+                "4c",
+                "5a",
+                "5b",
+                "5c"
+            )
+        ),
         onClassSelect = {},
         onButtonClick = {}
     )

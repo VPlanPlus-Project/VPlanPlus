@@ -98,8 +98,12 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(selectedClass = className)
     }
 
-    fun onClassSubmit() {
+    suspend fun onClassSubmit() {
+        _state.value = _state.value.copy(isLoading = true)
 
+
+
+        _state.value = _state.value.copy(isLoading = false)
     }
 }
 
