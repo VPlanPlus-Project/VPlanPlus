@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
     ]
 )
 data class School(
-    @PrimaryKey val id: Int,
+    @PrimaryKey val id: String,
     val name: String,
     val username: String,
     val password: String,

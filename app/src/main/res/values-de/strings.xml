@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VPlanPlus</string>
+    <string name="onboarding_welcomeText">Willkommen bei VPlanPlus. Der Onboarding-Prozess wird dir beim Verbinden zur Stundenplan24 Instanz deiner Schule helfen!</string>
+    <string name="lets_go">Start</string>
+    <string name="onboarding_schoolIdTitle">Schul-ID eingeben</string>
+    <string name="onboarding_schoolIdText">Eine 8-stellige Nummer, welche von deiner Schule ausgehändigt wird.</string>
+    <string name="onboarding_schoolIdHint">Schul-ID</string>
+    <string name="next">Weiter</string>
+    <string name="onboarding_schoolIdNotFound">Diese Schul-ID existiert nicht.</string>
+    <string name="onboarding_credentialsTitle">Zugangsdaten angeben</string>
+    <string name="onboarding_credentialsText">Gib deinen Benutzernamen (vermutlich \'schueler\') und dein Passwort an. Diese Zugangsdaten werden über deine Institution bekannt gegeben.</string>
+    <string name="username">Benutzername</string>
+    <string name="password">Passwort</string>
+    <string name="unknownError">Ein unbekannter Fehler ist aufgetreten</string>
+    <string name="onboarding_credentialsUnauthorized">Diese Zugangsdaten sind nicht korrekt</string>
+    <string name="noInternet">Es konnte keine Serververbindung hergestellt werden. Bitte prüfe deine Internetverbindung.</string>
+    <string name="onboarding_firstProfileTitle">Wähle dein erstes Profil</string>
+    <string name="onboarding_firstProfileText">Abhängig von deiner Rolle an deiner Schule musst du hier auswählen, ob du die Datenansicht für Schüler oder Lehrer sehen möchtest. Du kannst aber trotzdem später nach den jeweils anderen Daten suchen.</string>
+    <string name="onboarding_firstProfileStudentTitle">Schüler</string>
+    <string name="onboarding_firstProfileStudentText">Wähle dieses Profil, um standartmäßig Klassenpläne angezeigt zu bekommen. Falls du ein Elternteil bist, wähle auch dieses Profil.</string>
+    <string name="onboarding_firstProfileTeacherTitle">Lehrer</string>
+    <string name="onboarding_firstProfileTeacherText">Falls du eine Lehrkraft bist, wähle dieses Profil.</string>
+    <string name="onboarding_studentChooseClassText">Falls du mehrere Klassen hinzufügen musst, kannst du später in den Einstellungen ein neues Profil anlegen.</string>
+    <string name="onboarding_studentChooseClassTitle">Wähle deine Klasse</string>
+</resources>

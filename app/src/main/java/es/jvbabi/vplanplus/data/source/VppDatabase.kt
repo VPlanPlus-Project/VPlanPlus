@@ -18,9 +18,11 @@ import es.jvbabi.vplanplus.domain.model.Teacher
         School::class,
         Teacher::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
+    abstract val profileDao: ProfileDao
+    abstract val classDao: ClassDao
 }
