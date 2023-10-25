@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Holiday
+import es.jvbabi.vplanplus.domain.model.Week
 import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -158,6 +159,18 @@ class OnboardingViewModel @Inject constructor(
                 )
             })
 
+            baseDataUseCases.insertWeeks(
+                baseData.schoolWeeks.map {
+                    Week(
+                        schoolId = state.value.schoolId,
+                        week = it.week,
+                        start = it.start,
+                        end = it.end,
+                        type = it.type
+                    )
+                }
+            )
+
             keyValueUseCases.set(
                 Keys.ACTIVE_PROFILE.name,
                 profileUseCases.getProfileByClassId(classId).id.toString()
@@ -169,11 +182,11 @@ class OnboardingViewModel @Inject constructor(
 }
 
 data class OnboardingState(
-    val schoolId: String = "10063764",
+    val schoolId: String = "",
     val schoolIdState: SchoolIdCheckResult? = SchoolIdCheckResult.INVALID,
 
-    val username: String = "schueler",
-    val password: String = "kxG7tRm",
+    val username: String = "",
+    val password: String = "",
     val passwordVisible: Boolean = false,
     val loginSuccessful: Boolean = false,
 

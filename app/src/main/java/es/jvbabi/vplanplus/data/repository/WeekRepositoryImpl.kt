@@ -7,7 +7,12 @@ import es.jvbabi.vplanplus.domain.repository.WeekRepository
 class WeekRepositoryImpl(
     private val weekDao: WeekDao
 ) : WeekRepository {
-    override suspend fun insertWeek(week: Week) {
-        weekDao.insertWeek(week)
+    override suspend fun insertWeeks(weeks: List<Week>) {
+        weeks.map { it.schoolId }.toSet().forEach {
+            weekDao.deleteWeeksBySchoolId(it)
+        }
+        weeks.forEach {
+            weekDao.insertWeek(it)
+        }
     }
 }

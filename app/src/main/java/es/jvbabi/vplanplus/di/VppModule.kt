@@ -132,7 +132,7 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideBaseDataUseCases(baseDataRepository: BaseDataRepository): BaseDataUseCases {
-        return BaseDataUseCases(baseDataRepository)
+    fun provideBaseDataUseCases(baseDataRepository: BaseDataRepository, weekRepository: WeekRepository): BaseDataUseCases {
+        return BaseDataUseCases(baseDataRepository, weekRepository)
     }
 }
