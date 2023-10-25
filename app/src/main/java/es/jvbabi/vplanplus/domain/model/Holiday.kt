@@ -20,4 +20,8 @@ data class Holiday(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val schoolId: String?,
     val timestamp: Long,
-)
+) {
+    override fun toString(): String {
+        return "Holiday(id=$id, schoolId=$schoolId, timestamp=$timestamp)"
+    }
+}

@@ -34,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.screens.Screen
+import java.time.LocalDate
 
 @Composable
 fun HomeScreen(
@@ -85,7 +86,9 @@ fun HomeScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .clickable {
-                            Toast.makeText(context, "Not implemented", LENGTH_SHORT).show()
+                            Toast
+                                .makeText(context, "Not implemented", LENGTH_SHORT)
+                                .show()
                         },
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
@@ -120,7 +123,9 @@ fun HomeScreenContent(
                             .clip(RoundedCornerShape(20.dp))
                             .background(color = MaterialTheme.colorScheme.secondary)
                             .clickable(enabled = true) {
-                                Toast.makeText(context, "Not implemented", LENGTH_SHORT).show()
+                                Toast
+                                    .makeText(context, "Not implemented", LENGTH_SHORT)
+                                    .show()
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -130,6 +135,13 @@ fun HomeScreenContent(
                         )
                     }
                 }
+            }
+
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(text = "Next holiday: ${state.nextHoliday}")
             }
         }
     }
@@ -142,7 +154,8 @@ fun HomeScreenPreview() {
         HomeState(
             initDone = true,
             activeProfileFound = true,
-            activeProfileShortText = "9e"
+            activeProfileShortText = "9e",
+            nextHoliday = LocalDate.now()
         )
     )
 }

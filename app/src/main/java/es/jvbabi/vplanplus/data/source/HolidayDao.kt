@@ -8,7 +8,7 @@ import es.jvbabi.vplanplus.domain.model.Holiday
 @Dao
 abstract class HolidayDao {
 
-    @Query("SELECT * FROM holiday WHERE schoolId = :schoolId")
+    @Query("SELECT * FROM holiday WHERE schoolId = :schoolId OR schoolId IS NULL")
     abstract suspend fun getHolidaysBySchoolId(schoolId: String): List<Holiday>
 
     @Upsert
