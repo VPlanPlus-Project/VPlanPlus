@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.data.source
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import es.jvbabi.vplanplus.domain.model.Classes
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.Lesson
@@ -11,6 +10,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Teacher
+import es.jvbabi.vplanplus.domain.model.Week
 
 @Database(
     entities = [
@@ -22,7 +22,8 @@ import es.jvbabi.vplanplus.domain.model.Teacher
         Teacher::class,
         KeyValue::class,
         Holiday::class,
-        DefaultLesson::class
+        DefaultLesson::class,
+        Week::class
     ],
     version = 2,
     exportSchema = false
@@ -33,4 +34,5 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val classDao: ClassDao
     abstract val keyValueDao: KeyValueDao
     abstract val holidayDao: HolidayDao
+    abstract val weekDao: WeekDao
 }

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.model.xml
 
+import es.jvbabi.vplanplus.util.DateUtils
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -12,12 +13,10 @@ class BaseDataParserStudents(val xml: String) {
 
     var schoolName: String
     val classes = mutableListOf<String>()
+    val schoolWeeks = mutableListOf<BaseDataSchoolWeek>()
 
-    /**
-     * List of holidays.
-     */
     val holidays =
-        mutableListOf<Pair<Triple<Int, Int, Int>, Boolean>>() // Pair<<year, month, day>, is public holiday>
+        mutableListOf<Pair<Triple<Int, Int, Int>, Boolean>>() // Pair<<year, month, day>, is public holiday> TODO convert to class
 
     init {
         val serializer: Serializer = Persister()
@@ -33,6 +32,29 @@ class BaseDataParserStudents(val xml: String) {
                 ), it.isPublicHoliday == "1"
             )
         })
+        schoolWeeks.addAll(rootObject.schoolWeeks!!.map {
+            val startString = it.start.split(".")
+            val endString = it.end.split(".")
+
+            val startTimestamp = DateUtils.getDayTimestamp(
+                year = startString[2].toInt(),
+                month = startString[1].toInt(),
+                day = startString[0].toInt()
+            )
+
+            val endTimestamp = DateUtils.getDayTimestamp(
+                year = endString[2].toInt(),
+                month = endString[1].toInt(),
+                day = endString[0].toInt()
+            )
+
+            BaseDataSchoolWeek(
+                start = startTimestamp,
+                end = endTimestamp,
+                type = it.type,
+                week = it.week.toInt()
+            )
+        })
         classes.addAll(rootObject.classes!!.map { it.schoolClass })
     }
 }
@@ -44,6 +66,9 @@ private class Splan {
 
     @field:ElementList(name = "FreieTage", entry = "ft")
     var holidays: List<Holiday>? = null
+
+    @field:ElementList(name = "Schulwochen", entry = "Sw")
+    var schoolWeeks: List<SchoolWeek>? = null
 
     @field:ElementList(name = "Klassen")
     var classes: List<SchoolClass>? = null
@@ -66,3 +91,18 @@ private class Holiday {
     @field:Attribute(name = "feier", required = false)
     var isPublicHoliday: String = ""
 }
+
+@Root(name = "Schulwochen", strict = false)
+private class SchoolWeek {
+    @field:Attribute(name = "SwDatumVon", required = true) var start: String = ""
+    @field:Attribute(name = "SwDatumBis", required = true) var end: String = ""
+    @field:Attribute(name = "SwWo", required = true) var type: String = ""
+    @field:Text(required = true) var week: String = ""
+}
+
+data class BaseDataSchoolWeek(
+    val start: Long,
+    val end: Long,
+    val type: String,
+    val week: Int
+)
