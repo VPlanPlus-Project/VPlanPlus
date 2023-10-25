@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.source
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -18,7 +19,8 @@ import es.jvbabi.vplanplus.domain.model.Teacher
         Room::class,
         School::class,
         Teacher::class,
-        KeyValue::class
+        KeyValue::class,
+        Holiday::class
     ],
     version = 2,
     exportSchema = false
@@ -28,4 +30,5 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val profileDao: ProfileDao
     abstract val classDao: ClassDao
     abstract val keyValueDao: KeyValueDao
+    abstract val holidayDao: HolidayDao
 }
