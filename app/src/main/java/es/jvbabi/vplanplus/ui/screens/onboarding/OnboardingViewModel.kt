@@ -6,6 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Holiday
+import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
+import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
@@ -15,6 +18,7 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
+import es.jvbabi.vplanplus.util.DateUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.launchIn
@@ -29,10 +33,13 @@ class OnboardingViewModel @Inject constructor(
     private val onboardingUseCases: OnboardingUseCases,
     private val classUseCases: ClassUseCases,
     private val keyValueUseCases: KeyValueUseCases,
-    private val holidayUseCases: HolidayUseCases
+    private val holidayUseCases: HolidayUseCases,
+    private val baseDataUseCases: BaseDataUseCases,
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
+
+    lateinit var baseData: BaseDataParserStudents
 
     fun onSchoolIdInput(schoolId: String) {
         _state.value = _state.value.copy(
@@ -76,13 +83,20 @@ class OnboardingViewModel @Inject constructor(
 
     suspend fun onLogin() {
         _state.value = _state.value.copy(isLoading = true)
-        _state.value = _state.value.copy(
-            isLoading = false, currentResponseType = schoolUseCases.login(
-                state.value.schoolId,
-                state.value.username,
-                state.value.password
-            )
+
+        val baseData = baseDataUseCases.getBaseDataXml(
+            schoolId = state.value.schoolId,
+            username = state.value.username,
+            password = state.value.password
         )
+
+        _state.value = _state.value.copy(
+            isLoading = false,
+            currentResponseType = baseData.response
+        )
+
+        if (baseData.data != null) this.baseData = baseData.data
+
         if (state.value.currentResponseType == Response.SUCCESS) {
             _state.value = _state.value.copy(loginSuccessful = true)
         }
@@ -92,16 +106,12 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(firstProfile = firstProfile)
     }
 
-    suspend fun onFirstProfileSubmit() {
+    fun onFirstProfileSubmit() {
         _state.value = _state.value.copy(isLoading = true)
 
         if (state.value.firstProfile == FirstProfile.STUDENT) {
             _state.value = _state.value.copy(
-                classList = onboardingUseCases.getClassesOnlineStudent(
-                    state.value.schoolId,
-                    state.value.username,
-                    state.value.password
-                ).map { it.className }
+                classList = baseData.classes,
             )
         }
     }
@@ -115,17 +125,13 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = true)
         GlobalScope.launch {
 
-            val name = schoolUseCases.getSchoolNameOnline(
-                schoolId = state.value.schoolId,
-                username = state.value.username,
-                password = state.value.password
-            )
             schoolUseCases.createSchool(
                 schoolId = state.value.schoolId,
                 username = state.value.username,
                 password = state.value.password,
-                name = name
+                name = baseData.schoolName
             )
+
             state.value.classList.forEach {
                 classUseCases.createClass(
                     schoolId = state.value.schoolId,
@@ -141,11 +147,21 @@ class OnboardingViewModel @Inject constructor(
                 name = state.value.selectedClass!!
             )
 
-            holidayUseCases.getHolidaysBySchoolIdOnline(state.value.schoolId, state.value.username, state.value.password).data.forEach {
-                holidayUseCases.insertHoliday(it)
-            }
+            holidayUseCases.insertHolidays(baseData.holidays.map {
+                Holiday(
+                    schoolId = if (it.second) null else state.value.schoolId,
+                    timestamp = DateUtils.getDayTimestamp(
+                        year = it.first.first,
+                        month = it.first.second,
+                        day = it.first.third
+                    )
+                )
+            })
 
-            keyValueUseCases.set(Keys.ACTIVE_PROFILE.name, profileUseCases.getProfileByClassId(classId).id.toString())
+            keyValueUseCases.set(
+                Keys.ACTIVE_PROFILE.name,
+                profileUseCases.getProfileByClassId(classId).id.toString()
+            )
             _state.value = _state.value.copy(isLoading = false)
         }
 
@@ -153,11 +169,11 @@ class OnboardingViewModel @Inject constructor(
 }
 
 data class OnboardingState(
-    val schoolId: String = "",
+    val schoolId: String = "10063764",
     val schoolIdState: SchoolIdCheckResult? = SchoolIdCheckResult.INVALID,
 
-    val username: String = "",
-    val password: String = "",
+    val username: String = "schueler",
+    val password: String = "kxG7tRm",
     val passwordVisible: Boolean = false,
     val loginSuccessful: Boolean = false,
 
