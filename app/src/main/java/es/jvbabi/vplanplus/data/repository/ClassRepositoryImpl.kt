@@ -12,4 +12,8 @@ class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
     override suspend fun getClassIdBySchoolIdAndClassName(schoolId: String, className: String): Int {
         return classDao.getClassIdBySchoolIdAndClassName(schoolId = schoolId, className = className)
     }
+
+    override suspend fun getClassById(id: Int): Classes {
+        return classDao.getClassById(id = id)
+    }
 }

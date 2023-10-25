@@ -8,15 +8,18 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.source.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
+import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
@@ -26,6 +29,8 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object VppModule {
+
+    // Database
     @Provides
     @Singleton
     fun provideVppDatabase(app: Application): VppDatabase {
@@ -39,6 +44,7 @@ object VppModule {
             .build()
     }
 
+    // Repositories
     @Provides
     @Singleton
     fun provideSchoolRepository(db: VppDatabase): SchoolRepository {
@@ -62,6 +68,14 @@ object VppModule {
     fun provideClassRepository(db: VppDatabase): ClassRepository {
         return ClassRepositoryImpl(db.classDao)
     }
+
+    @Provides
+    @Singleton
+    fun provideHolidayRepository(db: VppDatabase): HolidayRepository {
+        return HolidayRepositoryImpl(db.holidayDao)
+    }
+
+    // Use cases
 
     @Provides
     @Singleton
@@ -91,5 +105,11 @@ object VppModule {
     @Singleton
     fun provideClassUseCases(repository: ClassRepository): ClassUseCases {
         return ClassUseCases(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHolidayUseCases(repository: HolidayRepository): HolidayUseCases {
+        return HolidayUseCases(repository)
     }
 }

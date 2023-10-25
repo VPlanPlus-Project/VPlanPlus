@@ -23,4 +23,5 @@
     <string name="onboarding_firstProfileTeacherText">Falls du eine Lehrkraft bist, wähle dieses Profil.</string>
     <string name="onboarding_studentChooseClassText">Falls du mehrere Klassen hinzufügen musst, kannst du später in den Einstellungen ein neues Profil anlegen.</string>
     <string name="onboarding_studentChooseClassTitle">Wähle deine Klasse</string>
+    <string name="home_search">Suche nach Räumen, Lehrern…</string>
 </resources>

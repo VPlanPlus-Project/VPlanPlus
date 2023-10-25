@@ -14,4 +14,7 @@ abstract class ClassDao {
 
     @Query("SELECT id FROM classes WHERE schoolId = :schoolId AND className = :className")
     abstract suspend fun getClassIdBySchoolIdAndClassName(schoolId: String, className: String): Int
+
+    @Query("SELECT * FROM classes WHERE id = :id")
+    abstract suspend fun getClassById(id: Int): Classes
 }
