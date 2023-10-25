@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.source
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.Lesson
@@ -20,7 +21,8 @@ import es.jvbabi.vplanplus.domain.model.Teacher
         School::class,
         Teacher::class,
         KeyValue::class,
-        Holiday::class
+        Holiday::class,
+        DefaultLesson::class
     ],
     version = 2,
     exportSchema = false
