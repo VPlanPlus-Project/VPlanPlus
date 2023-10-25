@@ -7,17 +7,22 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.VppDatabase
+import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.repository.WeekRepository
+import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
@@ -75,6 +80,18 @@ object VppModule {
         return HolidayRepositoryImpl(db.holidayDao)
     }
 
+    @Provides
+    @Singleton
+    fun provideWeekRepository(db: VppDatabase): WeekRepository {
+        return WeekRepositoryImpl(db.weekDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBaseDataRepository(db: VppDatabase): BaseDataRepository {
+        return BaseDataRepositoryImpl()
+    }
+
     // Use cases
 
     @Provides
@@ -111,5 +128,11 @@ object VppModule {
     @Singleton
     fun provideHolidayUseCases(repository: HolidayRepository): HolidayUseCases {
         return HolidayUseCases(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBaseDataUseCases(baseDataRepository: BaseDataRepository, weekRepository: WeekRepository): BaseDataUseCases {
+        return BaseDataUseCases(baseDataRepository, weekRepository)
     }
 }
