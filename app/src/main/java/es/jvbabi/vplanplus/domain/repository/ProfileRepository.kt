@@ -13,4 +13,7 @@ interface ProfileRepository {
     )
 
     suspend fun getClassesOnline(username: String, password: String, schoolId: String): List<Classes>
+
+    suspend fun getProfileByReferenceId(referenceId: Int, type: Int): Profile
+    suspend fun getProfileById(id: Int): Profile
 }

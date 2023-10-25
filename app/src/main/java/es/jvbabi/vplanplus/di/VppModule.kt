@@ -8,13 +8,16 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.source.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
@@ -44,6 +47,12 @@ object VppModule {
 
     @Provides
     @Singleton
+    fun provideKeyValueRepository(db: VppDatabase): KeyValueRepository {
+        return KeyValueRepositoryImpl(db.keyValueDao)
+    }
+
+    @Provides
+    @Singleton
     fun provideProfileRepository(db: VppDatabase): ProfileRepository {
         return ProfileRepositoryImpl(db.profileDao)
     }
@@ -62,8 +71,14 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideProfileUseCases(repository: ProfileRepository): ProfileUseCases {
-        return ProfileUseCases(repository)
+    fun provideKeyValueUseCases(repository: KeyValueRepository): KeyValueUseCases {
+        return KeyValueUseCases(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileUseCases(repository: ProfileRepository, keyValueRepository: KeyValueRepository): ProfileUseCases {
+        return ProfileUseCases(repository, keyValueRepository)
     }
 
     @Provides

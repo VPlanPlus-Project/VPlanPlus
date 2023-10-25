@@ -1,20 +1,24 @@
 package es.jvbabi.vplanplus.domain.usecase
 
+import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 class ProfileUseCases(
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
+    private val keyValueRepository: KeyValueRepository
 ) {
-
-    fun atLeastOneProfileExists(): Flow<Boolean> {
-        return profileRepository.getProfiles().map {
-            profiles -> profiles.isNotEmpty()
-        }
-    }
 
     suspend fun createStudentProfile(classId: Int, name: String) {
         profileRepository.createProfile(referenceId = classId, type = 0, name = name)
+    }
+
+    suspend fun getProfileByClassId(classId: Int): Profile {
+        return profileRepository.getProfileByReferenceId(referenceId = classId, type = 0)
+    }
+
+    suspend fun getActiveProfile(): Profile? {
+        val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE.name) ?: return null
+        return profileRepository.getProfileById(id = activeProfileId.toInt())
     }
 }

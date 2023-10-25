@@ -51,4 +51,12 @@ class ProfileRepositoryImpl(
         }
         return classes
     }
+
+    override suspend fun getProfileByReferenceId(referenceId: Int, type: Int): Profile {
+        return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type)
+    }
+
+    override suspend fun getProfileById(id: Int): Profile {
+        return profileDao.getProfileById(id = id)
+    }
 }

@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
@@ -24,7 +26,8 @@ class OnboardingViewModel @Inject constructor(
     private val schoolUseCases: SchoolUseCases,
     private val profileUseCases: ProfileUseCases,
     private val onboardingUseCases: OnboardingUseCases,
-    private val classUseCases: ClassUseCases
+    private val classUseCases: ClassUseCases,
+    private val keyValueUseCases: KeyValueUseCases
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
@@ -127,13 +130,15 @@ class OnboardingViewModel @Inject constructor(
                     className = it
                 )
             }
+            val classId = classUseCases.getClassIdBySchoolIdAndClassName(
+                schoolId = state.value.schoolId,
+                className = state.value.selectedClass!!,
+            )
             profileUseCases.createStudentProfile(
-                classId = classUseCases.getClassIdBySchoolIdAndClassName(
-                    schoolId = state.value.schoolId,
-                    className = state.value.selectedClass!!,
-                ),
+                classId = classId,
                 name = state.value.selectedClass!!
             )
+            keyValueUseCases.set(Keys.ACTIVE_PROFILE.name, profileUseCases.getProfileByClassId(classId).id.toString())
             _state.value = _state.value.copy(isLoading = false)
         }
 

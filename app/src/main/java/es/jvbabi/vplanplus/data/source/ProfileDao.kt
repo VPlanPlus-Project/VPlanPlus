@@ -14,4 +14,10 @@ abstract class ProfileDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(profile: Profile)
+
+    @Query("SELECT * FROM profile WHERE referenceId = :referenceId AND type = :type")
+    abstract suspend fun getProfileByReferenceId(referenceId: Int, type: Int): Profile
+
+    @Query("SELECT * FROM profile WHERE id = :id")
+    abstract suspend fun getProfileById(id: Int): Profile
 }
