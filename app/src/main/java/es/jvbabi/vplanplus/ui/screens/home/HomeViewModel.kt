@@ -5,13 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
-import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val schoolUseCases: SchoolUseCases,
+    private val classUseCases: ClassUseCases,
     private val profileUseCases: ProfileUseCases
 ) : ViewModel() {
 
@@ -23,10 +23,17 @@ class HomeViewModel @Inject constructor(
     suspend fun init() {
         activeProfile = profileUseCases.getActiveProfile()
         _state.value = _state.value.copy(initDone = true, activeProfileFound = activeProfile != null)
+        if (activeProfile != null) {
+            if (activeProfile!!.type == 0) {
+                val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
+                _state.value = _state.value.copy(activeProfileShortText = profileClass.className)
+            }
+        }
     }
 }
 
 data class HomeState(
     val initDone: Boolean = false,
-    val activeProfileFound: Boolean = false
+    val activeProfileFound: Boolean = false,
+    val activeProfileShortText: String = ""
 )
