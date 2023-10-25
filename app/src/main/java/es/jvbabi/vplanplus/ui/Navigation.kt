@@ -11,6 +11,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navigation
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingClassListScreen
@@ -47,56 +48,63 @@ fun NavigationGraph(
         navController = navController,
         startDestination = Screen.HomeScreen.route
     ) {
+
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(navController)
         }
 
-        composable(
-            route = Screen.OnboardingWelcomeScreen.route,
-            enterTransition = enterSlideTransition,
-            exitTransition = exitSlideTransition
+        navigation(
+            route = Screen.Onboarding.route,
+            startDestination = Screen.OnboardingWelcomeScreen.route
         ) {
-            OnboardingWelcomeScreen(navController)
-        }
 
-        composable(
-            route = Screen.OnboardingSchoolIdScreen.route,
-            enterTransition = enterSlideTransition,
-            exitTransition = exitSlideTransition
-        ) {
-            OnboardingSchoolIdScreen(navController, onboardingViewModel)
-        }
+            composable(
+                route = Screen.OnboardingWelcomeScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                OnboardingWelcomeScreen(navController)
+            }
 
-        composable(
-            route = Screen.OnboardingLoginScreen.route,
-            enterTransition = enterSlideTransition,
-            exitTransition = exitSlideTransition
-        ) {
-            OnboardingLoginScreen(navController, onboardingViewModel)
-        }
+            composable(
+                route = Screen.OnboardingSchoolIdScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                OnboardingSchoolIdScreen(navController, onboardingViewModel)
+            }
 
-        composable(
-            route = Screen.OnboardingFirstProfileScreen.route,
-            enterTransition = enterSlideTransition,
-            exitTransition = exitSlideTransition
-        ) {
-            OnboardingFirstProfileScreen(navController, onboardingViewModel)
-        }
+            composable(
+                route = Screen.OnboardingLoginScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                OnboardingLoginScreen(navController, onboardingViewModel)
+            }
 
-        composable(
-            route = Screen.OnboardingClassListScreen.route,
-            enterTransition = enterSlideTransition,
-            exitTransition = exitSlideTransition
-        ) {
-            OnboardingClassListScreen(navController, onboardingViewModel)
-        }
+            composable(
+                route = Screen.OnboardingFirstProfileScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                OnboardingFirstProfileScreen(navController, onboardingViewModel)
+            }
 
-        composable(
-            route = Screen.OnboardingSetupScreen.route,
-            enterTransition = enterSlideTransition,
-            exitTransition = exitSlideTransition
-        ) {
-            OnboardingSetupScreen(navController, onboardingViewModel)
+            composable(
+                route = Screen.OnboardingClassListScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                OnboardingClassListScreen(navController, onboardingViewModel)
+            }
+
+            composable(
+                route = Screen.OnboardingSetupScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                OnboardingSetupScreen(navController, onboardingViewModel)
+            }
         }
     }
 }
