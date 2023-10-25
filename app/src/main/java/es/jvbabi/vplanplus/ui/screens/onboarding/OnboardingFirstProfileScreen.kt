@@ -5,6 +5,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -15,12 +16,14 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 import kotlinx.coroutines.launch
@@ -64,13 +67,22 @@ fun FirstProfileScreen(
         onButtonClick = { onButtonClick() }) {
 
         ProfileCard(
-            title = stringResource(id = R.string.onboarding_firstProfileStudentTitle),
+            title = {
+                Text(text = stringResource(id = R.string.onboarding_firstProfileStudentTitle), style = MaterialTheme.typography.headlineSmall)
+            },
             text = stringResource(id = R.string.onboarding_firstProfileStudentText),
             isSelected = state.firstProfile == FirstProfile.STUDENT,
         ) { onProfileSelect(FirstProfile.STUDENT) }
 
         ProfileCard(
-            title = stringResource(id = R.string.onboarding_firstProfileTeacherTitle),
+            title = {
+                Row(
+                    verticalAlignment = CenterVertically,
+                ) {
+                    Text(text = stringResource(id = R.string.onboarding_firstProfileTeacherTitle), style = MaterialTheme.typography.headlineSmall)
+                    Badge(color = MaterialTheme.colorScheme.tertiary, "Not working")
+                }
+            },
             text = stringResource(id = R.string.onboarding_firstProfileTeacherText),
             isSelected = state.firstProfile == FirstProfile.TEACHER,
         ) { onProfileSelect(FirstProfile.TEACHER) }
@@ -81,7 +93,7 @@ fun FirstProfileScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileCard(
-    title: String,
+    title: @Composable () -> Unit,
     text: String,
     isSelected: Boolean,
     onProfileSelect: () -> Unit,
@@ -104,10 +116,7 @@ fun ProfileCard(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
+                    title()
                     Text(
                         text = text,
                     )
@@ -132,10 +141,7 @@ fun ProfileCard(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.headlineSmall
-                    )
+                    title()
                     Text(
                         text = text,
                     )
