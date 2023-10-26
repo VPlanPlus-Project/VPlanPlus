@@ -14,4 +14,8 @@ data class Classes(
     @PrimaryKey(autoGenerate = true) val id: Int? = null,
     val schoolId: String,
     val className: String,
-)
+) {
+    override fun toString(): String {
+        return "Classes(id=$id, schoolId='$schoolId', className='$className')"
+    }
+}

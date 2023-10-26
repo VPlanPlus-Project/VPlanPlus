@@ -1,16 +1,13 @@
 package es.jvbabi.vplanplus.domain.usecase
 
+import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 
 class SchoolUseCases(
     private val schoolRepository: SchoolRepository
 ) {
-    fun atLeastOneSchoolExists(): Flow<Boolean> {
-        return schoolRepository.getSchools().map { schools -> schools.isNotEmpty() }
-    }
 
     fun checkSchoolId(schoolId: String): SchoolIdCheckResult {
         return if (schoolId.length == 8 && schoolId.toIntOrNull() != null) SchoolIdCheckResult.SYNTACTICALLY_CORRECT else SchoolIdCheckResult.INVALID
@@ -34,6 +31,10 @@ class SchoolUseCases(
             username = username,
             password = password
         )
+    }
+
+    suspend fun getSchoolFromId(schoolId: String): School {
+        return schoolRepository.getSchoolFromId(schoolId)
     }
 }
 

@@ -11,10 +11,14 @@ import androidx.room.PrimaryKey
     ]
 )
 data class Lesson(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    val defaultLessonId: Int?,
     val lesson: Int,
-    val subject: String,
-    val classId: String,
-    val teacherId: String,
-    val roomId: String,
+    val classId: Int,
+    val changedSubject: String?,
+    val changedTeacherId: Int?,
+    val roomId: Int?,
+    val changedInfo: String,
+    val roomIsChanged: Boolean,
+    val timestamp: Long
 )

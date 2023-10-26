@@ -6,9 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.BaseData
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.Week
-import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
@@ -40,7 +40,7 @@ class OnboardingViewModel @Inject constructor(
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
 
-    lateinit var baseData: BaseDataParserStudents
+    lateinit var baseData: BaseData
 
     fun onSchoolIdInput(schoolId: String) {
         _state.value = _state.value.copy(
@@ -112,7 +112,7 @@ class OnboardingViewModel @Inject constructor(
 
         if (state.value.firstProfile == FirstProfile.STUDENT) {
             _state.value = _state.value.copy(
-                classList = baseData.classes,
+                classList = baseData.students.classes,
             )
         }
     }
@@ -130,7 +130,7 @@ class OnboardingViewModel @Inject constructor(
                 schoolId = state.value.schoolId,
                 username = state.value.username,
                 password = state.value.password,
-                name = baseData.schoolName
+                name = baseData.students.schoolName
             )
 
             state.value.classList.forEach {
@@ -148,7 +148,7 @@ class OnboardingViewModel @Inject constructor(
                 name = state.value.selectedClass!!
             )
 
-            holidayUseCases.insertHolidays(baseData.holidays.map {
+            holidayUseCases.insertHolidays(baseData.students.holidays.map {
                 Holiday(
                     schoolId = if (it.second) null else state.value.schoolId,
                     timestamp = DateUtils.getDayTimestamp(
@@ -160,7 +160,7 @@ class OnboardingViewModel @Inject constructor(
             })
 
             baseDataUseCases.insertWeeks(
-                baseData.schoolWeeks.map {
+                baseData.students.schoolWeeks.map {
                     Week(
                         schoolId = state.value.schoolId,
                         week = it.week,
@@ -169,6 +169,11 @@ class OnboardingViewModel @Inject constructor(
                         type = it.type
                     )
                 }
+            )
+
+            baseDataUseCases.processBaseData(
+                schoolId = state.value.schoolId,
+                baseData = baseData
             )
 
             keyValueUseCases.set(

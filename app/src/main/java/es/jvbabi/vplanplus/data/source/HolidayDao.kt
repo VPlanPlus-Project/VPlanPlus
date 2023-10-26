@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.data.source
 
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import es.jvbabi.vplanplus.domain.model.Holiday
@@ -16,4 +17,10 @@ abstract class HolidayDao {
 
     @Query("DELETE FROM holiday WHERE schoolId = :schoolId")
     abstract suspend fun deleteHolidaysBySchoolId(schoolId: String)
+
+    @Query("SELECT * FROM holiday WHERE (schoolId = :schoolId OR schoolId IS NULL) AND timestamp = :timestamp")
+    abstract suspend fun find(schoolId: String?, timestamp: Long): Holiday?
+
+    @Delete
+    abstract suspend fun deleteHoliday(holiday: Holiday)
 }
