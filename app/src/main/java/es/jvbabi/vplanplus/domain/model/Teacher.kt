@@ -11,8 +11,7 @@ import androidx.room.PrimaryKey
     ]
 )
 data class Teacher(
-    @PrimaryKey(autoGenerate = true) val id: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
     val acronym: String,
-    val name: String,
-    val schoolId: Int,
+    val schoolId: String,
 )

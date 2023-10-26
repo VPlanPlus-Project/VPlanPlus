@@ -37,4 +37,5 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val holidayDao: HolidayDao
     abstract val weekDao: WeekDao
     abstract val defaultLessonDao: DefaultLessonDao
+    abstract val teacherDao: TeacherDao
 }

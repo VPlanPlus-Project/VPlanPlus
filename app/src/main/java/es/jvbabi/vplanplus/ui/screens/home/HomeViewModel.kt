@@ -53,6 +53,11 @@ class HomeViewModel @Inject constructor(
 
     suspend fun getVPlanData() {
         val vPlanData = vPlanUseCases.getVPlanData(school!!, LocalDate.now())
+        if (vPlanData.data == null) {
+            Log.d("VPlanData", "null")
+            return
+        }
+        vPlanUseCases.processVplanData(vPlanData.data)
         Log.d("VPlanData", vPlanData.toString())
     }
 }

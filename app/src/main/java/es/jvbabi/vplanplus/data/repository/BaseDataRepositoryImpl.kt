@@ -13,6 +13,7 @@ import io.ktor.client.request.basicAuth
 import io.ktor.client.request.request
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
+import java.net.ConnectException
 import java.net.UnknownHostException
 
 class BaseDataRepositoryImpl(
@@ -37,7 +38,7 @@ class BaseDataRepositoryImpl(
             OnlineResponse(BaseDataParserStudents(response.bodyAsText()), Response.SUCCESS)
         } catch (e: Exception) {
             when (e) {
-                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException -> return OnlineResponse(null, Response.NO_INTERNET)
+                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> return OnlineResponse(null, Response.NO_INTERNET)
                 else -> {
                     Log.d("HolidayRepositoryImpl", "other error: ${e.javaClass.name} ${e.message}")
                     return OnlineResponse(null, Response.OTHER)

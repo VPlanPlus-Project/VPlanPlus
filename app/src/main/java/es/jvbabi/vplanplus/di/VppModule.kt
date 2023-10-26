@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.VppDatabase
@@ -24,6 +25,7 @@ import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
@@ -109,6 +111,12 @@ object VppModule {
         return VPlanRepositoryImpl()
     }
 
+    @Provides
+    @Singleton
+    fun provideTeacherRepository(db: VppDatabase): TeacherRepository {
+        return TeacherRepositoryImpl(db.teacherDao)
+    }
+
     // Use cases
 
     @Provides
@@ -125,7 +133,10 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideProfileUseCases(repository: ProfileRepository, keyValueRepository: KeyValueRepository): ProfileUseCases {
+    fun provideProfileUseCases(
+        repository: ProfileRepository,
+        keyValueRepository: KeyValueRepository
+    ): ProfileUseCases {
         return ProfileUseCases(repository, keyValueRepository)
     }
 
@@ -149,13 +160,26 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideBaseDataUseCases(baseDataRepository: BaseDataRepository, weekRepository: WeekRepository): BaseDataUseCases {
+    fun provideBaseDataUseCases(
+        baseDataRepository: BaseDataRepository,
+        weekRepository: WeekRepository
+    ): BaseDataUseCases {
         return BaseDataUseCases(baseDataRepository, weekRepository)
     }
 
     @Provides
     @Singleton
-    fun provideVPlanUseCases(vPlanRepository: VPlanRepository): VPlanUseCases {
-        return VPlanUseCases(vPlanRepository)
+    fun provideVPlanUseCases(
+        vPlanRepository: VPlanRepository,
+        defaultLessonRepository: DefaultLessonRepository,
+        classRepository: ClassRepository,
+        teacherRepository: TeacherRepository
+    ): VPlanUseCases {
+        return VPlanUseCases(
+            vPlanRepository,
+            defaultLessonRepository,
+            classRepository,
+            teacherRepository
+        )
     }
 }

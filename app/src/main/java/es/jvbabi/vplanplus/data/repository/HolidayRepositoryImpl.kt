@@ -28,7 +28,9 @@ class HolidayRepositoryImpl(
     }
 
     override suspend fun insertHoliday(holiday: Holiday) {
-        holidayDao.deleteHolidaysBySchoolId(holiday.schoolId?:"")
+        holidayDao.find(holiday.schoolId, holiday.timestamp)?.let {
+            holidayDao.deleteHoliday(it)
+        }
         holidayDao.insertHoliday(holiday)
     }
 
