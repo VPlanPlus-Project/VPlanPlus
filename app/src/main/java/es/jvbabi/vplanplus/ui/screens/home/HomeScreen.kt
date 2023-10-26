@@ -17,12 +17,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.screens.Screen
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 
 @Composable
@@ -42,6 +45,7 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect("Init") {
         viewModel.init()
@@ -52,13 +56,18 @@ fun HomeScreen(
             popUpTo(0)
         }
     } else {
-        HomeScreenContent(state = state)
+        HomeScreenContent(state = state, onGetVPlan = {
+            coroutineScope.launch {
+                viewModel.getVPlanData()
+            }
+        })
     }
 }
 
 @Composable
 fun HomeScreenContent(
     state: HomeState,
+    onGetVPlan: () -> Unit
 ) {
     val context = LocalContext.current
     if (!state.initDone) {
@@ -141,7 +150,16 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
             ) {
-                Text(text = "Next holiday: ${state.nextHoliday}")
+                Column {
+                    Text(text = "Next holiday: ${state.nextHoliday}")
+                    Button(
+                        onClick = {
+                            onGetVPlan()
+                        }
+                    ) {
+                        Text(text = "Get VPlan data")
+                    }
+                }
             }
         }
     }
@@ -155,7 +173,7 @@ fun HomeScreenPreview() {
             initDone = true,
             activeProfileFound = true,
             activeProfileShortText = "9e",
-            nextHoliday = LocalDate.now()
+            nextHoliday = LocalDate.now(),
         )
-    )
+    ) {}
 }

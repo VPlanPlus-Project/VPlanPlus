@@ -112,4 +112,8 @@ class SchoolRepositoryImpl(
             return ""
         }
     }
+
+    override suspend fun getSchoolFromId(schoolId: String): School {
+        return schoolDao.getSchoolFromId(schoolId)
+    }
 }

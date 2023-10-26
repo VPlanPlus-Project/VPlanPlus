@@ -9,18 +9,22 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -29,6 +33,7 @@ import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
+import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import javax.inject.Singleton
 
 @Module
@@ -92,6 +97,18 @@ object VppModule {
         return BaseDataRepositoryImpl()
     }
 
+    @Provides
+    @Singleton
+    fun provideDefaultLessonRepository(db: VppDatabase): DefaultLessonRepository {
+        return DefaultLessonRepositoryImpl(db.defaultLessonDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideVPlanRepository(): VPlanRepository {
+        return VPlanRepositoryImpl()
+    }
+
     // Use cases
 
     @Provides
@@ -134,5 +151,11 @@ object VppModule {
     @Singleton
     fun provideBaseDataUseCases(baseDataRepository: BaseDataRepository, weekRepository: WeekRepository): BaseDataUseCases {
         return BaseDataUseCases(baseDataRepository, weekRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideVPlanUseCases(vPlanRepository: VPlanRepository): VPlanUseCases {
+        return VPlanUseCases(vPlanRepository)
     }
 }

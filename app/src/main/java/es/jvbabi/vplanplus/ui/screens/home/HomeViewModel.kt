@@ -6,9 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
+import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
+import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
 import javax.inject.Inject
@@ -17,13 +20,16 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val profileUseCases: ProfileUseCases,
-    private val holidayUseCases: HolidayUseCases
+    private val holidayUseCases: HolidayUseCases,
+    private val vPlanUseCases: VPlanUseCases,
+    private val schoolUseCases: SchoolUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
 
     private var activeProfile: Profile? = null
+    private var school: School? = null
 
     suspend fun init() {
         activeProfile = profileUseCases.getActiveProfile()
@@ -34,6 +40,7 @@ class HomeViewModel @Inject constructor(
                 val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
                 _state.value = _state.value.copy(activeProfileShortText = profileClass.className)
                 schoolId = profileClass.schoolId
+                school = schoolUseCases.getSchoolFromId(schoolId)
             }
 
             val holidays = holidayUseCases.getHolidaysBySchoolId(schoolId!!)
@@ -42,6 +49,11 @@ class HomeViewModel @Inject constructor(
             }
             _state.value = _state.value.copy(nextHoliday = holidays.find { it.timestamp > DateUtils.getCurrentDayTimestamp() }?.let { DateUtils.getDateFromTimestamp(it.timestamp) })
         }
+    }
+
+    suspend fun getVPlanData() {
+        val vPlanData = vPlanUseCases.getVPlanData(school!!, LocalDate.now())
+        Log.d("VPlanData", vPlanData.toString())
     }
 }
 
