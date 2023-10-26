@@ -44,9 +44,7 @@ class HomeViewModel @Inject constructor(
             }
 
             val holidays = holidayUseCases.getHolidaysBySchoolId(schoolId!!)
-            holidays.forEach {
-                Log.d("Holiday", it.toString())
-            }
+
             _state.value = _state.value.copy(nextHoliday = holidays.find { it.timestamp > DateUtils.getCurrentDayTimestamp() }?.let { DateUtils.getDateFromTimestamp(it.timestamp) })
         }
     }

@@ -36,6 +36,7 @@ class WplanVpXmlHoliday {
 @Root(name = "Kopf", strict = false)
 class WplanVpXmlHead {
     @field:Element(name = "zeitstempel") var timestampString: String? = null
+    @field:Element(name = "DatumPlan") var date: String? = null
 }
 
 @Root(name = "Klasse")
@@ -57,9 +58,10 @@ class WplanVpXmlDefaultLesson {
     @field:Text var lessonId: Int? = null
 }
 
-@Root(name = "Unterricht")
+@Root(name = "Std")
 class WplanVpXmlLesson {
     @field:Element(name = "St") var lesson: Int = 0
+    @field:Element(name = "Nr", required = false) var defaultLessonVpId: Int? = null
     @field:Element(name = "Fa") var subject: WplanVpXmlSubject = WplanVpXmlSubject()
     @field:Element(name = "Le") var teacher: WplanVpXmlTeacher = WplanVpXmlTeacher()
     @field:Element(name = "Ra") var room: WplanVpXmlRoom = WplanVpXmlRoom()

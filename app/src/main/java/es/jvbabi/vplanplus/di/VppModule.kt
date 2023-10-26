@@ -12,7 +12,9 @@ import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
@@ -23,7 +25,9 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
@@ -117,6 +121,18 @@ object VppModule {
         return TeacherRepositoryImpl(db.teacherDao)
     }
 
+    @Provides
+    @Singleton
+    fun provideLessonRepository(db: VppDatabase): LessonRepository {
+        return LessonRepositoryImpl(db.defaultLessonDao, db.lessonDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideRoomRepository(db: VppDatabase): RoomRepository {
+        return RoomRepositoryImpl(db.roomDao)
+    }
+
     // Use cases
 
     @Provides
@@ -171,15 +187,19 @@ object VppModule {
     @Singleton
     fun provideVPlanUseCases(
         vPlanRepository: VPlanRepository,
+        lessonRepository: LessonRepository,
         defaultLessonRepository: DefaultLessonRepository,
         classRepository: ClassRepository,
-        teacherRepository: TeacherRepository
+        teacherRepository: TeacherRepository,
+        roomRepository: RoomRepository
     ): VPlanUseCases {
         return VPlanUseCases(
-            vPlanRepository,
-            defaultLessonRepository,
-            classRepository,
-            teacherRepository
+            vPlanRepository = vPlanRepository,
+            lessonRepository = lessonRepository,
+            defaultLessonRepository = defaultLessonRepository,
+            classRepository = classRepository,
+            teacherReository = teacherRepository,
+            roomRepository = roomRepository
         )
     }
 }

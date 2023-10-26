@@ -8,6 +8,8 @@ import org.simpleframework.xml.Root
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
+import java.time.LocalDate
+import java.time.ZoneId
 
 class BaseDataParserStudents(val xml: String) {
 
@@ -42,15 +44,20 @@ class BaseDataParserStudents(val xml: String) {
                 day = startString[0].toInt()
             )
 
-            val endTimestamp = DateUtils.getDayTimestamp(
-                year = endString[2].toInt(),
-                month = endString[1].toInt(),
-                day = endString[0].toInt()
-            )
+            val localDateFromNumbers = { // Kotlin does not detect correct method on LocalDate.of(year, month, day)
+                year: Int, month: Int, day: Int ->
+                LocalDate.of(year, month, day)
+            }
+
+            val end = localDateFromNumbers(
+                endString[2].toInt(),
+                endString[1].toInt(),
+                endString[0].toInt()
+            ).atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toEpochSecond()
 
             BaseDataSchoolWeek(
                 start = startTimestamp,
-                end = endTimestamp,
+                end = end,
                 type = it.type,
                 week = it.week.toInt()
             )

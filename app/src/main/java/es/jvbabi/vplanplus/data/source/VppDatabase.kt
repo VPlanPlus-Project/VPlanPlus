@@ -38,4 +38,6 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val weekDao: WeekDao
     abstract val defaultLessonDao: DefaultLessonDao
     abstract val teacherDao: TeacherDao
+    abstract val lessonDao: LessonDao
+    abstract val roomDao: RoomDao
 }

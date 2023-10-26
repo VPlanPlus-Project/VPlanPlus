@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
     ]
 )
 data class Room(
-    @PrimaryKey(autoGenerate = true) val id: Int,
-    val schoolId: Int,
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
+    val schoolId: String,
     val name: String,
 )

@@ -15,4 +15,8 @@ class DefaultLessonRepositoryImpl(
         defaultLessonDao.deleteDefaultLessonBySchoolIdAndVpId(df.schoolId, df.vpId)
         defaultLessonDao.insertDefaultLesson(df)
     }
+
+    override suspend fun getDefaultLessonByVpId(schoolId: String, vpId: Int): DefaultLesson {
+        return defaultLessonDao.getDefaultLessonByVpId(schoolId, vpId)
+    }
 }

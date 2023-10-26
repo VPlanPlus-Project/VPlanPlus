@@ -17,6 +17,10 @@ object DateUtils {
         return startOfDay.toInstant().toEpochMilli()/1000
     }
 
+    fun getDayTimestamp(localDate: LocalDate): Long {
+        return getDayTimestamp(localDate.year, localDate.monthValue, localDate.dayOfMonth)
+    }
+
     fun getDateFromTimestamp(timestamp: Long): LocalDate {
         return Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
     }
