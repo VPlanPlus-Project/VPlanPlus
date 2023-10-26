@@ -17,6 +17,9 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.DateUtils
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -61,15 +64,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun getVPlanData() {
-        val vPlanData = vPlanUseCases.getVPlanData(school!!, LocalDate.now())
-        if (vPlanData.data == null) {
-            Log.d("VPlanData", "null")
-            return
+    @OptIn(DelicateCoroutinesApi::class)
+    fun getVPlanData() {
+        GlobalScope.launch {
+            val vPlanData = vPlanUseCases.getVPlanData(school!!, LocalDate.now())
+            if (vPlanData.data == null) {
+                Log.d("VPlanData", "null")
+                return@launch
+            }
+            vPlanUseCases.processVplanData(vPlanData.data)
+            Log.d("VPlanData", vPlanData.toString())
+            init()
         }
-        vPlanUseCases.processVplanData(vPlanData.data)
-        Log.d("VPlanData", vPlanData.toString())
-        init()
     }
 }
 
