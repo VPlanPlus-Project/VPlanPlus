@@ -18,4 +18,8 @@ class TeacherRepositoryImpl(
     override suspend fun find(schoolId: String, acronym: String): Teacher? {
         return teacherDao.find(schoolId, acronym)
     }
+
+    override suspend fun getTeacherById(id: Int): Teacher? {
+        return teacherDao.getTeacherById(id)
+    }
 }

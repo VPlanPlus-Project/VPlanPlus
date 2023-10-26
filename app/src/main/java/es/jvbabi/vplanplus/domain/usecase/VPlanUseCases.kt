@@ -87,22 +87,25 @@ class VPlanUseCases(
                         room = roomRepository.getRoomByName(vPlanData.schoolId, lesson.room.room)
                     }
                 }
-                val teacherId = if (lesson.teacher.teacherChanged == "LeAe") {
-                    teacherReository.find(schoolId = vPlanData.schoolId, acronym = lesson.teacher.teacher)!!.id
+                val teacherId = if (lesson.teacher.teacherChanged == "LeGeaendert") {
+                    try {
+                        teacherReository.find(schoolId = vPlanData.schoolId, acronym = lesson.teacher.teacher)?.id?:-1
+                    } catch (e: NullPointerException) {
+                        Log.e("ERROR", e.stackTraceToString())
+                    }
                 } else {
                     null
                 }
-                Log.d("VPlanUseCases", "processVplanData: ${dbClass.className} ${lesson.lesson} ${lesson.subject.subject} ${lesson.teacher.teacher} ${lesson.room.room}")
                 lessonRepository.insertLesson(
                     Lesson(
                         defaultLessonId = defaultLesson?.id,
                         classId = dbClass.id,
                         roomId = room?.id!!,
                         changedInfo = lesson.info,
-                        changedSubject = if (lesson.subject.subjectChanged == "FaAe") lesson.subject.subject else null,
+                        changedSubject = if (lesson.subject.subjectChanged == "FaGeaendert") lesson.subject.subject else null,
                         changedTeacherId = teacherId,
                         lesson = lesson.lesson,
-                        roomIsChanged = lesson.room.roomChanged == "RaAe",
+                        roomIsChanged = lesson.room.roomChanged == "RaGeaendert",
                         timestamp = DateUtils.getDayTimestamp(planDate)
                     )
                 )

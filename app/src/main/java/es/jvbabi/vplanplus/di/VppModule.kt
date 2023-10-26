@@ -37,6 +37,7 @@ import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
+import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
@@ -220,5 +221,23 @@ object VppModule {
     @Singleton
     fun provideLessonUseCases(lessonRepository: LessonRepository): LessonUseCases {
         return LessonUseCases(lessonRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideHomeUseCases(
+        lessonRepository: LessonRepository,
+        teacherRepository: TeacherRepository,
+        classRepository: ClassRepository,
+        roomRepository: RoomRepository,
+        lessonTimeRepository: LessonTimeRepository
+    ): HomeUseCases {
+        return HomeUseCases(
+            lessonRepository = lessonRepository,
+            teacherRepository = teacherRepository,
+            classRepository = classRepository,
+            roomRepository = roomRepository,
+            lessonTimeRepository = lessonTimeRepository
+        )
     }
 }

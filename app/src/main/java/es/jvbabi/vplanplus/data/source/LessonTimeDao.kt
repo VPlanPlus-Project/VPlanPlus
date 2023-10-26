@@ -12,4 +12,7 @@ abstract class LessonTimeDao {
 
     @Query("DELETE FROM lesson_time WHERE classId = :classId")
     abstract suspend fun deleteLessonTimes(classId: Int)
+
+    @Query("SELECT * FROM lesson_time WHERE classId = :classId")
+    abstract suspend fun getLessonTimesByClassId(classId: Int): List<LessonTime>
 }

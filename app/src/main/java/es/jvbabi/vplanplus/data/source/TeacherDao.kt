@@ -15,4 +15,7 @@ abstract class TeacherDao {
 
     @Query("SELECT * FROM teacher WHERE schoolId = :schoolId AND acronym = :acronym")
     abstract suspend fun find(schoolId: String, acronym: String): Teacher?
+
+    @Query("SELECT * FROM teacher WHERE id = :id")
+    abstract suspend fun getTeacherById(id: Int): Teacher?
 }

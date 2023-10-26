@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
+import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
@@ -26,7 +27,8 @@ class HomeViewModel @Inject constructor(
     private val holidayUseCases: HolidayUseCases,
     private val vPlanUseCases: VPlanUseCases,
     private val schoolUseCases: SchoolUseCases,
-    private val lessonUseCases: LessonUseCases
+    private val lessonUseCases: LessonUseCases,
+    private val homeUseCases: HomeUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -37,7 +39,8 @@ class HomeViewModel @Inject constructor(
 
     suspend fun init() {
         activeProfile = profileUseCases.getActiveProfile()
-        _state.value = _state.value.copy(initDone = true, activeProfileFound = activeProfile != null)
+        _state.value =
+            _state.value.copy(initDone = true, activeProfileFound = activeProfile != null)
         if (activeProfile != null) {
             var schoolId: String? = null
             if (activeProfile!!.type == 0) {
@@ -45,14 +48,16 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(activeProfileShortText = profileClass.className)
                 schoolId = profileClass.schoolId
                 school = schoolUseCases.getSchoolFromId(schoolId)
-
-                val lessons = lessonUseCases.getTodayLessonForClass(activeProfile!!.referenceId)
-                _state.value = _state.value.copy(lessons = lessons)
             }
 
             val holidays = holidayUseCases.getHolidaysBySchoolId(schoolId!!)
 
-            _state.value = _state.value.copy(nextHoliday = holidays.find { it.timestamp > DateUtils.getCurrentDayTimestamp() }?.let { DateUtils.getDateFromTimestamp(it.timestamp) })
+            _state.value =
+                _state.value.copy(
+                    nextHoliday = holidays.find { it.timestamp > DateUtils.getCurrentDayTimestamp() }
+                    ?.let { DateUtils.getDateFromTimestamp(it.timestamp) },
+                    lessons = homeUseCases.getTodayLessons(activeProfile!!)
+                )
         }
     }
 
@@ -64,6 +69,7 @@ class HomeViewModel @Inject constructor(
         }
         vPlanUseCases.processVplanData(vPlanData.data)
         Log.d("VPlanData", vPlanData.toString())
+        init()
     }
 }
 
@@ -72,5 +78,5 @@ data class HomeState(
     val activeProfileFound: Boolean = false,
     val activeProfileShortText: String = "",
     val nextHoliday: LocalDate? = null,
-    val lessons: List<Pair<Lesson, DefaultLesson?>> = listOf()
+    val lessons: List<es.jvbabi.vplanplus.ui.screens.home.Lesson> = listOf()
 )

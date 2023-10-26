@@ -1,10 +1,12 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
+import android.annotation.SuppressLint
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +17,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
@@ -37,12 +41,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -74,6 +79,7 @@ fun HomeScreenContent(
     state: HomeState,
     onGetVPlan: () -> Unit
 ) {
+    val scrollState = rememberScrollState()
     val context = LocalContext.current
     if (!state.initDone) {
         Box(
@@ -154,6 +160,7 @@ fun HomeScreenContent(
             Box(
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
+
             ) {
                 Column {
                     Text(text = "Next holiday: ${state.nextHoliday}")
@@ -167,34 +174,58 @@ fun HomeScreenContent(
                 }
             }
 
-            Column {
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .verticalScroll(scrollState, enabled = true)
+            ) {
+                if (state.lessons.isNotEmpty()) {
+                    state.lessons.map { it.lessonNumber }.toSet().forEach {
+                        Row(
+                        ) {
+                            state.lessons.filter { lesson -> lesson.lessonNumber == it }.forEach {
+                                if (calculateProgress(it.start, LocalTime.now().toString(), it.end).toInt() in 0..1) {
+                                    CurrentLessonCard(lesson = it)
+                                } else {
+                                    LessonCard(lesson = it)
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
 }
 
 @Composable
-fun CurrentLessonCard(lesson: es.jvbabi.vplanplus.ui.screens.home.Lesson) {
+fun CurrentLessonCard(lesson: Lesson) {
     Card(
         modifier = Modifier
+            .padding(8.dp)
             .fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
+                .height(if (lesson.info == "") 100.dp else 130.dp)
         ) {
+            val formatter = DateTimeFormatter.ofPattern("HH:mm")
+            val time = LocalTime.now()
+            val currentTime = time.format(formatter)
+            val percentage = calculateProgress(lesson.start, currentTime, lesson.end)
+
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .fillMaxWidth(lesson.progress.toFloat())
+                    .fillMaxWidth(percentage.toFloat())
                     .fillMaxHeight()
             ) {}
             Box(
                 modifier = Modifier
                     .padding(16.dp)
             ) {
-                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()) {
+                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column {
                         Text(text = "Jetzt:", style = MaterialTheme.typography.titleSmall)
                         Row {
@@ -203,10 +234,52 @@ fun CurrentLessonCard(lesson: es.jvbabi.vplanplus.ui.screens.home.Lesson) {
                             Text(text = lesson.room, style = MaterialTheme.typography.titleLarge, color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
                         }
                         Text(text = lesson.teacher, style = MaterialTheme.typography.titleMedium, color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                        Text(text = lesson.info, style = MaterialTheme.typography.bodyMedium)
                     }
                     SubjectIcon(subject = lesson.subject, modifier = Modifier
                         .height(70.dp)
                         .width(70.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun LessonCard(lesson: Lesson) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(if (lesson.info == "") 70.dp else 100.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
+                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                    Column {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(text = lesson.lessonNumber.toString(), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(end = 8.dp))
+                            Column {
+                                Row {
+                                    Text(text = lesson.subject, style = MaterialTheme.typography.titleMedium, color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                                    Text(text = " • ", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                                    Text(text = lesson.room, style = MaterialTheme.typography.titleMedium, color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                                    Text(text = " • ", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                                    Text(text = lesson.teacher, style = MaterialTheme.typography.titleMedium, color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                                }
+                                if (lesson.info != "") Text(text = lesson.info, maxLines = 2)
+                            }
+                        }
+                    }
+                    SubjectIcon(subject = lesson.subject, modifier = Modifier
+                        .height(50.dp)
+                        .width(50.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
                 }
             }
         }
@@ -222,11 +295,32 @@ fun CurrentLessonCardPreview() {
             teacher = "Tec",
             room = "208",
             roomChanged = true,
-            progress = 0.8,
+            start = "21:00",
+            end = "21:45",
+            className = "9e",
+            lessonNumber = 1,
+            info = "Info!"
         )
     )
 }
 
+
+@Composable
+@Preview
+fun LessonCardPreview() {
+    LessonCard(
+        lesson = Lesson(
+            subject = "Informatik",
+            teacher = "Tec",
+            room = "208",
+            roomChanged = true,
+            start = "8:00",
+            end = "8:45",
+            className = "9e",
+            lessonNumber = 1,
+        )
+    )
+}
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview() {
@@ -237,26 +331,42 @@ fun HomeScreenPreview() {
             activeProfileShortText = "9e",
             nextHoliday = LocalDate.now(),
             lessons = listOf(
-                Pair(
-                    Lesson(
-                        defaultLessonId = 0,
-                        lesson = 0,
-                        classId = 0,
-                        timestamp = 0L,
-                        changedTeacherId = null,
-                        changedSubject = null,
-                        changedInfo = "Test Info",
-                        roomId = 203,
-                        roomIsChanged = false
-                    ),
-                    DefaultLesson(
-                        schoolId = "0",
-                        vpId = 0,
-                        subject = "Test Subject",
-                        teacherId = 0
-                    )
+                Lesson(
+                    subject = "Informatik",
+                    teacher = "Tec",
+                    room = "208",
+                    roomChanged = true,
+                    start = "21:00",
+                    end = "21:45",
+                    className = "9e",
+                    lessonNumber = 1
+                ),
+                Lesson(
+                    subject = "Biologie",
+                    teacher = "Pfl",
+                    room = "307",
+                    roomChanged = false,
+                    teacherChanged = true,
+                    start = "8:00",
+                    end = "21:45",
+                    className = "9e",
+                    lessonNumber = 2,
+                    info = "Hier eine Info :)"
                 )
             )
         )
     ) {}
+}
+
+@SuppressLint("SimpleDateFormat")
+fun calculateProgress(start: String, current: String, end: String): Double {
+    val dateFormat = SimpleDateFormat("HH:mm")
+    val startTime = dateFormat.parse(start)!!
+    val currentTime = dateFormat.parse(current)!!
+    val endTime = dateFormat.parse(end)!!
+
+    val totalTime = (endTime.time - startTime.time).toDouble()
+    val elapsedTime = (currentTime.time - startTime.time).toDouble()
+
+    return (elapsedTime / totalTime)
 }

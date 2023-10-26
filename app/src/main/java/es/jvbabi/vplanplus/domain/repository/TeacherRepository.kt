@@ -6,4 +6,5 @@ interface TeacherRepository {
     suspend fun createTeacher(schoolId: String, acronym: String)
     suspend fun getTeachersBySchoolId(schoolId: String): List<Teacher>
     suspend fun find(schoolId: String, acronym: String): Teacher?
+    suspend fun getTeacherById(id: Int): Teacher?
 }
