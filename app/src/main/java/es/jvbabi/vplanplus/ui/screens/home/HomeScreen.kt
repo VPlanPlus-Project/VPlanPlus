@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -161,8 +166,65 @@ fun HomeScreenContent(
                     }
                 }
             }
+
+            Column {
+            }
         }
     }
+}
+
+@Composable
+fun CurrentLessonCard(lesson: es.jvbabi.vplanplus.ui.screens.home.Lesson) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    .fillMaxWidth(lesson.progress.toFloat())
+                    .fillMaxHeight()
+            ) {}
+            Box(
+                modifier = Modifier
+                    .padding(16.dp)
+            ) {
+                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize()) {
+                    Column {
+                        Text(text = "Jetzt:", style = MaterialTheme.typography.titleSmall)
+                        Row {
+                            Text(text = lesson.subject, style = MaterialTheme.typography.titleLarge, color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                            Text(text = " • ", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
+                            Text(text = lesson.room, style = MaterialTheme.typography.titleLarge, color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                        }
+                        Text(text = lesson.teacher, style = MaterialTheme.typography.titleMedium, color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                    }
+                    SubjectIcon(subject = lesson.subject, modifier = Modifier
+                        .height(70.dp)
+                        .width(70.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun CurrentLessonCardPreview() {
+    CurrentLessonCard(
+        lesson = Lesson(
+            subject = "Informatik",
+            teacher = "Tec",
+            room = "208",
+            roomChanged = true,
+            progress = 0.8,
+        )
+    )
 }
 
 @Composable
@@ -174,6 +236,27 @@ fun HomeScreenPreview() {
             activeProfileFound = true,
             activeProfileShortText = "9e",
             nextHoliday = LocalDate.now(),
+            lessons = listOf(
+                Pair(
+                    Lesson(
+                        defaultLessonId = 0,
+                        lesson = 0,
+                        classId = 0,
+                        timestamp = 0L,
+                        changedTeacherId = null,
+                        changedSubject = null,
+                        changedInfo = "Test Info",
+                        roomId = 203,
+                        roomIsChanged = false
+                    ),
+                    DefaultLesson(
+                        schoolId = "0",
+                        vpId = 0,
+                        subject = "Test Subject",
+                        teacherId = 0
+                    )
+                )
+            )
         )
     ) {}
 }

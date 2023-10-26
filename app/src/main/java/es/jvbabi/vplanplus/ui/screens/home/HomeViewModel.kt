@@ -5,10 +5,13 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
+import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
@@ -22,7 +25,8 @@ class HomeViewModel @Inject constructor(
     private val profileUseCases: ProfileUseCases,
     private val holidayUseCases: HolidayUseCases,
     private val vPlanUseCases: VPlanUseCases,
-    private val schoolUseCases: SchoolUseCases
+    private val schoolUseCases: SchoolUseCases,
+    private val lessonUseCases: LessonUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -41,6 +45,9 @@ class HomeViewModel @Inject constructor(
                 _state.value = _state.value.copy(activeProfileShortText = profileClass.className)
                 schoolId = profileClass.schoolId
                 school = schoolUseCases.getSchoolFromId(schoolId)
+
+                val lessons = lessonUseCases.getTodayLessonForClass(activeProfile!!.referenceId)
+                _state.value = _state.value.copy(lessons = lessons)
             }
 
             val holidays = holidayUseCases.getHolidaysBySchoolId(schoolId!!)
@@ -64,5 +71,6 @@ data class HomeState(
     val initDone: Boolean = false,
     val activeProfileFound: Boolean = false,
     val activeProfileShortText: String = "",
-    val nextHoliday: LocalDate? = null
+    val nextHoliday: LocalDate? = null,
+    val lessons: List<Pair<Lesson, DefaultLesson?>> = listOf()
 )
