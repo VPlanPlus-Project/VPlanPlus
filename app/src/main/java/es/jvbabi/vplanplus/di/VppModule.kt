@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
@@ -26,6 +27,7 @@ import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
+import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
@@ -99,8 +101,18 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideBaseDataRepository(db: VppDatabase): BaseDataRepository {
-        return BaseDataRepositoryImpl()
+    fun provideLessonTimeRepository(db: VppDatabase): LessonTimeRepository {
+        return LessonTimeRepositoryImpl(db.lessonTimeDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideBaseDataRepository(
+        db: VppDatabase,
+        classRepository: ClassRepository,
+        lessonTimeRepository: LessonTimeRepository
+    ): BaseDataRepository {
+        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository)
     }
 
     @Provides
