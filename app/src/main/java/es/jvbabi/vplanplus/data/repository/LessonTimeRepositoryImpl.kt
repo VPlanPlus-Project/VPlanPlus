@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.data.source.LessonTimeDao
+import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 
@@ -11,7 +12,11 @@ class LessonTimeRepositoryImpl(
         lessonTimeDao.insertLessonTime(lessonTime)
     }
 
-    override suspend fun deleteLessonTimes(classId: Int) {
-        lessonTimeDao.deleteLessonTimes(classId)
+    override suspend fun deleteLessonTimes(`class`: Classes) {
+        lessonTimeDao.deleteLessonTimes(`class`.id!!)
+    }
+
+    override suspend fun getLessonTimesByClass(`class`: Classes): List<LessonTime> {
+        return lessonTimeDao.getLessonTimesByClassId(`class`.id!!)
     }
 }

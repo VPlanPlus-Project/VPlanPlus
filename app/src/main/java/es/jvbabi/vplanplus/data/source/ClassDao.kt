@@ -10,11 +10,11 @@ import es.jvbabi.vplanplus.domain.model.Classes
 abstract class ClassDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insertClass(classObj: Classes)
+    abstract suspend fun insertClass(classObj: Classes): Long
 
-    @Query("SELECT id FROM classes WHERE schoolId = :schoolId AND className = :className")
-    abstract suspend fun getClassIdBySchoolIdAndClassName(schoolId: String, className: String): Int
+    @Query("SELECT * FROM classes WHERE schoolId = :schoolId AND className = :className")
+    abstract suspend fun getClassBySchoolIdAndClassName(schoolId: Long, className: String): Classes?
 
     @Query("SELECT * FROM classes WHERE id = :id")
-    abstract suspend fun getClassById(id: Int): Classes
+    abstract suspend fun getClassById(id: Long): Classes
 }

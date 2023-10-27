@@ -20,14 +20,14 @@ class ProfileRepositoryImpl(
         return profileDao.getProfiles()
     }
 
-    override suspend fun createProfile(referenceId: Int, type: Int, name: String) {
+    override suspend fun createProfile(referenceId: Long, type: Int, name: String) {
         profileDao.insert(Profile(referenceId = referenceId, type = type, name = name))
     }
 
     override suspend fun getClassesOnline(
         username: String,
         password: String,
-        schoolId: String
+        schoolId: Long
     ): List<Classes> {
         val response = HttpClient {
             install(HttpTimeout) {
@@ -52,11 +52,11 @@ class ProfileRepositoryImpl(
         return classes
     }
 
-    override suspend fun getProfileByReferenceId(referenceId: Int, type: Int): Profile {
+    override suspend fun getProfileByReferenceId(referenceId: Long, type: Int): Profile {
         return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type)
     }
 
-    override suspend fun getProfileById(id: Int): Profile {
+    override suspend fun getProfileById(id: Long): Profile {
         return profileDao.getProfileById(id = id)
     }
 }

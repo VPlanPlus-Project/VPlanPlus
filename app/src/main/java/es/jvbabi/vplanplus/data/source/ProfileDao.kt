@@ -16,8 +16,8 @@ abstract class ProfileDao {
     abstract suspend fun insert(profile: Profile)
 
     @Query("SELECT * FROM profile WHERE referenceId = :referenceId AND type = :type")
-    abstract suspend fun getProfileByReferenceId(referenceId: Int, type: Int): Profile
+    abstract suspend fun getProfileByReferenceId(referenceId: Long, type: Int): Profile
 
     @Query("SELECT * FROM profile WHERE id = :id")
-    abstract suspend fun getProfileById(id: Int): Profile
+    abstract suspend fun getProfileById(id: Long): Profile
 }

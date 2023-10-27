@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
-import androidx.room.Index
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 /**
@@ -12,13 +12,18 @@ import androidx.room.PrimaryKey
  */
 @Entity(
     tableName = "holiday",
-    indices = [
-        Index(value = ["id",], unique = true)
+    foreignKeys = [
+         ForeignKey(
+             entity = School::class,
+             parentColumns = ["id"],
+             childColumns = ["schoolId"],
+             onDelete = ForeignKey.CASCADE
+         )
     ]
 )
 data class Holiday(
-    @PrimaryKey(autoGenerate = true) val id: Int = 0,
-    val schoolId: String?,
+    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    val schoolId: Long?,
     val timestamp: Long,
 ) {
     override fun toString(): String {

@@ -8,11 +8,11 @@ import es.jvbabi.vplanplus.util.DateUtils
 class HolidayRepositoryImpl(
     private val holidayDao: HolidayDao
 ) : HolidayRepository {
-    override suspend fun getHolidaysBySchoolId(schoolId: String): List<Holiday> {
+    override suspend fun getHolidaysBySchoolId(schoolId: Long): List<Holiday> {
         return holidayDao.getHolidaysBySchoolId(schoolId)
     }
 
-    override suspend fun getTodayHoliday(schoolId: String): Holiday? {
+    override suspend fun getTodayHoliday(schoolId: Long): Holiday? {
         return holidayDao.getHolidaysBySchoolId(schoolId).find {
             it.timestamp == DateUtils.getCurrentDayTimestamp()
         }
@@ -20,7 +20,7 @@ class HolidayRepositoryImpl(
 
     override suspend fun insertHolidays(holidays: List<Holiday>) {
         holidays.map { it.schoolId }.toSet().forEach {
-            holidayDao.deleteHolidaysBySchoolId(it?:"")
+            holidayDao.deleteHolidaysBySchoolId(it?:return@forEach)
         }
         holidays.forEach {
             holidayDao.insertHoliday(it)
@@ -34,7 +34,7 @@ class HolidayRepositoryImpl(
         holidayDao.insertHoliday(holiday)
     }
 
-    override suspend fun deleteHolidaysBySchoolId(schoolId: String) {
+    override suspend fun deleteHolidaysBySchoolId(schoolId: Long) {
         holidayDao.deleteHolidaysBySchoolId(schoolId)
     }
 }

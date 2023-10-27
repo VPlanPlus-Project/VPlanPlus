@@ -9,16 +9,16 @@ class ProfileUseCases(
     private val keyValueRepository: KeyValueRepository
 ) {
 
-    suspend fun createStudentProfile(classId: Int, name: String) {
+    suspend fun createStudentProfile(classId: Long, name: String) {
         profileRepository.createProfile(referenceId = classId, type = 0, name = name)
     }
 
-    suspend fun getProfileByClassId(classId: Int): Profile {
+    suspend fun getProfileByClassId(classId: Long): Profile {
         return profileRepository.getProfileByReferenceId(referenceId = classId, type = 0)
     }
 
     suspend fun getActiveProfile(): Profile? {
         val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE.name) ?: return null
-        return profileRepository.getProfileById(id = activeProfileId.toInt())
+        return profileRepository.getProfileById(id = activeProfileId.toLong())
     }
 }

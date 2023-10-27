@@ -10,7 +10,6 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Teacher
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Week
 
@@ -24,9 +23,8 @@ import es.jvbabi.vplanplus.domain.model.Week
         Teacher::class,
         KeyValue::class,
         Holiday::class,
-        DefaultLesson::class,
         Week::class,
-        LessonTime::class
+        LessonTime::class,
     ],
     version = 2,
     exportSchema = false
@@ -38,7 +36,6 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val keyValueDao: KeyValueDao
     abstract val holidayDao: HolidayDao
     abstract val weekDao: WeekDao
-    abstract val defaultLessonDao: DefaultLessonDao
     abstract val teacherDao: TeacherDao
     abstract val lessonDao: LessonDao
     abstract val roomDao: RoomDao

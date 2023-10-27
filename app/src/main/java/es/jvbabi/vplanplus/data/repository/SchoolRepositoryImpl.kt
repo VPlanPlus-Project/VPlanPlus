@@ -26,7 +26,7 @@ class SchoolRepositoryImpl(
         return schoolDao.getAll()
     }
 
-    override suspend fun checkSchoolId(schoolId: String): SchoolIdCheckResult? {
+    override suspend fun checkSchoolId(schoolId: Long): SchoolIdCheckResult? {
         return try {
             val response: HttpResponse =
                 HttpClient().request("https://www.stundenplan24.de/$schoolId") {
@@ -40,7 +40,7 @@ class SchoolRepositoryImpl(
     }
 
     override suspend fun login(
-        schoolId: String,
+        schoolId: Long,
         username: String,
         password: String
     ): Response {
@@ -75,7 +75,7 @@ class SchoolRepositoryImpl(
         }
     }
 
-    override suspend fun createSchool(schoolId: String, username: String, password: String, name: String) {
+    override suspend fun createSchool(schoolId: Long, username: String, password: String, name: String) {
         schoolDao.insert(
             School(
                 id = schoolId,
@@ -86,12 +86,12 @@ class SchoolRepositoryImpl(
         )
     }
 
-    override suspend fun updateSchoolName(schoolId: String, name: String) {
+    override suspend fun updateSchoolName(schoolId: Long, name: String) {
         schoolDao.updateName(schoolId, name)
     }
 
     override suspend fun getSchoolNameOnline(
-        schoolId: String,
+        schoolId: Long,
         username: String,
         password: String
     ): String {
@@ -113,7 +113,7 @@ class SchoolRepositoryImpl(
         }
     }
 
-    override suspend fun getSchoolFromId(schoolId: String): School {
+    override suspend fun getSchoolFromId(schoolId: Long): School {
         return schoolDao.getSchoolFromId(schoolId)
     }
 }

@@ -55,7 +55,7 @@ class OnboardingViewModel @Inject constructor(
 
     suspend fun onSchoolIdSubmit() {
         _state.value = _state.value.copy(isLoading = true)
-        schoolUseCases.checkSchoolIdOnline(state.value.schoolId).onEach { result ->
+        schoolUseCases.checkSchoolIdOnline(state.value.schoolId.toLong()).onEach { result ->
             Log.d("OnboardingViewModel", "onSchoolIdSubmit: $result")
             _state.value = _state.value.copy(
                 isLoading = false,
@@ -86,7 +86,7 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = true)
 
         val baseData = baseDataUseCases.getBaseDataXml(
-            schoolId = state.value.schoolId,
+            schoolId = state.value.schoolId.toLong(),
             username = state.value.username,
             password = state.value.password
         )
@@ -127,7 +127,7 @@ class OnboardingViewModel @Inject constructor(
         GlobalScope.launch {
 
             schoolUseCases.createSchool(
-                schoolId = state.value.schoolId,
+                schoolId = state.value.schoolId.toLong(),
                 username = state.value.username,
                 password = state.value.password,
                 name = baseData.students.schoolName
@@ -135,22 +135,22 @@ class OnboardingViewModel @Inject constructor(
 
             state.value.classList.forEach {
                 classUseCases.createClass(
-                    schoolId = state.value.schoolId,
+                    schoolId = state.value.schoolId.toLong(),
                     className = it
                 )
             }
-            val classId = classUseCases.getClassIdBySchoolIdAndClassName(
-                schoolId = state.value.schoolId,
+            val `class` = classUseCases.getClassBySchoolIdAndClassName(
+                schoolId = state.value.schoolId.toLong(),
                 className = state.value.selectedClass!!,
-            )
+            )!!
             profileUseCases.createStudentProfile(
-                classId = classId,
+                classId = `class`.id!!,
                 name = state.value.selectedClass!!
             )
 
             holidayUseCases.insertHolidays(baseData.students.holidays.map {
                 Holiday(
-                    schoolId = if (it.second) null else state.value.schoolId,
+                    schoolId = if (it.second) null else state.value.schoolId.toLong(),
                     timestamp = DateUtils.getDayTimestamp(
                         year = it.first.first,
                         month = it.first.second,
@@ -162,7 +162,7 @@ class OnboardingViewModel @Inject constructor(
             baseDataUseCases.insertWeeks(
                 baseData.students.schoolWeeks.map {
                     Week(
-                        schoolId = state.value.schoolId,
+                        schoolId = state.value.schoolId.toLong(),
                         week = it.week,
                         start = it.start,
                         end = it.end,
@@ -172,13 +172,13 @@ class OnboardingViewModel @Inject constructor(
             )
 
             baseDataUseCases.processBaseData(
-                schoolId = state.value.schoolId,
+                schoolId = state.value.schoolId.toLong(),
                 baseData = baseData
             )
 
             keyValueUseCases.set(
                 Keys.ACTIVE_PROFILE.name,
-                profileUseCases.getProfileByClassId(classId).id.toString()
+                profileUseCases.getProfileByClassId(`class`.id).id.toString()
             )
             _state.value = _state.value.copy(isLoading = false)
         }

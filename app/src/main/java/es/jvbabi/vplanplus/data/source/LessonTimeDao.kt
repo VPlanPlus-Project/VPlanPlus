@@ -11,5 +11,8 @@ abstract class LessonTimeDao {
     abstract suspend fun insertLessonTime(lessonTime: LessonTime)
 
     @Query("DELETE FROM lesson_time WHERE classId = :classId")
-    abstract suspend fun deleteLessonTimes(classId: Int)
+    abstract suspend fun deleteLessonTimes(classId: Long)
+
+    @Query("SELECT * FROM lesson_time WHERE classId = :classId")
+    abstract suspend fun getLessonTimesByClassId(classId: Long): List<LessonTime>
 }

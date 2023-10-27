@@ -26,7 +26,7 @@ class BaseDataRepositoryImpl(
     private val lessonTimeRepository: LessonTimeRepository,
 ) : BaseDataRepository {
     override suspend fun getBaseData(
-        schoolId: String,
+        schoolId: Long,
         username: String,
         password: String
     ): OnlineResponse<BaseData?> {
@@ -80,16 +80,16 @@ class BaseDataRepositoryImpl(
         // TODO implement from OnboardingViewModel
     }
 
-    override suspend fun processBaseDataWeeks(schoolId: String, weekData: WeekData) {
+    override suspend fun processBaseDataWeeks(schoolId: Long, weekData: WeekData) {
         weekData.weekDataObject.classes!!.forEach {
             val currentClass =
-                classRepository.getClassIdBySchoolIdAndClassName(schoolId, it.schoolClass)
+                classRepository.getClassBySchoolIdAndClassName(schoolId, it.schoolClass)!!
             lessonTimeRepository.deleteLessonTimes(currentClass)
             it.lessons!!.forEach lessonInsert@{ lesson ->
                 if (lesson.from == "") return@lessonInsert
                 lessonTimeRepository.insertLessonTime(
                     LessonTime(
-                        classId = currentClass,
+                        classId = currentClass.id!!,
                         lessonNumber = lesson.lessonNumber,
                         start = lesson.from,
                         end = lesson.to

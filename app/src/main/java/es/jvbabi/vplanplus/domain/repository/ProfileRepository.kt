@@ -6,14 +6,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface ProfileRepository {
     fun getProfiles(): Flow<List<Profile>>
-    suspend fun createProfile(
-        referenceId: Int,
-        type: Int,
-        name: String
-    )
-
-    suspend fun getClassesOnline(username: String, password: String, schoolId: String): List<Classes>
-
-    suspend fun getProfileByReferenceId(referenceId: Int, type: Int): Profile
-    suspend fun getProfileById(id: Int): Profile
+    suspend fun createProfile(referenceId: Long, type: Int, name: String)
+    suspend fun getClassesOnline(username: String, password: String, schoolId: Long): List<Classes>
+    suspend fun getProfileByReferenceId(referenceId: Long, type: Int): Profile
+    suspend fun getProfileById(id: Long): Profile
 }
