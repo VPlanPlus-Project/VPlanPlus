@@ -5,11 +5,15 @@ import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.DesktopWindows
+import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Forest
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Nature
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Psychology
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.Science
+import androidx.compose.material.icons.filled.SportsSoccer
+import androidx.compose.material.icons.filled.WaterfallChart
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -25,6 +29,11 @@ fun SubjectIcon(subject: String, modifier: Modifier, tint: Color = Color.Unspeci
         "grw" -> Icon(imageVector = Icons.Default.AccountBalance, contentDescription = null, modifier = modifier)
         "englisch", "eng", "en" -> Icon(imageVector = Icons.Default.Language, contentDescription = null, modifier = modifier)
         "geografie", "geo" -> Icon(imageVector = Icons.Default.Place, contentDescription = null, modifier = modifier)
+        "chemie", "ch", "cha" -> Icon(imageVector = Icons.Default.Science, contentDescription = null, modifier = modifier)
+        "physik", "ph", "pha" -> Icon(imageVector = Icons.Default.WaterfallChart, contentDescription = null, modifier = modifier)
+        "ethik", "eth" -> Icon(imageVector = Icons.Default.Psychology, contentDescription = null, modifier = modifier)
+        "sport", "spo", "sp", "spw", "spm" -> Icon(imageVector = Icons.Default.SportsSoccer, contentDescription = null, modifier = modifier)
+        "-" -> Icon(imageVector = Icons.Default.EventBusy, contentDescription = null, modifier = modifier)
         else -> Icon(imageVector = Icons.Default.School, contentDescription = null, modifier = modifier)
     }
 }

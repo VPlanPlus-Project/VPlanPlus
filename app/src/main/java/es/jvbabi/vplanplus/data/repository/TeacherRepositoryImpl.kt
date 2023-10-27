@@ -17,6 +17,7 @@ class TeacherRepositoryImpl(
     }
 
     override suspend fun find(school: School, acronym: String, createIfNotExists: Boolean): Teacher? {
+        if (acronym == "&amp;nbsp;") return null
         val teacher = teacherDao.find(school.id!!, acronym)
         if (teacher == null && createIfNotExists && acronym.isNotBlank()) {
             val id = teacherDao.insertTeacher(Teacher(schoolId = school.id, acronym = acronym))

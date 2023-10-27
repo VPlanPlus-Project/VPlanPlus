@@ -25,6 +25,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -179,13 +180,19 @@ fun HomeScreenContent(
                     .padding(16.dp)
             ) {
                 if (state.lessons.isNotEmpty()) {
+                    var lastIsCurrent: Boolean? = null
                     LazyColumn {
                         items(state.lessons) {
-                            if (calculateProgress(it.start, LocalTime.now().toString(), it.end).toInt() in 0..1) {
-                                CurrentLessonCard(lesson = it)
-                            } else {
-                                LessonCard(lesson = it)
-                            }
+                            lastIsCurrent =
+                                if (calculateProgress(it.start, LocalTime.now().toString(), it.end) in 0.0..0.99) {
+                                    if (lastIsCurrent == false) HorizontalDivider()
+                                    CurrentLessonCard(lesson = it)
+                                    true
+                                } else {
+                                    if (lastIsCurrent == true) HorizontalDivider()
+                                    LessonCard(lesson = it)
+                                    false
+                                }
                         }
                     }
                 }
@@ -223,7 +230,7 @@ fun CurrentLessonCard(lesson: Lesson) {
             ) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column {
-                        Text(text = "Jetzt:", style = MaterialTheme.typography.titleSmall)
+                        Text(text = "Jetzt: ", style = MaterialTheme.typography.titleSmall)
                         Row {
                             Text(text = lesson.subject, style = MaterialTheme.typography.titleLarge, color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
                             Text(text = " • ", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
@@ -333,7 +340,7 @@ fun HomeScreenPreview() {
                     room = "208",
                     roomChanged = true,
                     start = "21:00",
-                    end = "21:45",
+                    end = "22:00",
                     className = "9e",
                     lessonNumber = 1
                 ),
@@ -343,8 +350,8 @@ fun HomeScreenPreview() {
                     room = "307",
                     roomChanged = false,
                     teacherChanged = true,
-                    start = "8:00",
-                    end = "21:45",
+                    start = "22:00",
+                    end = "23:00",
                     className = "9e",
                     lessonNumber = 2,
                     info = "Hier eine Info :)"

@@ -21,6 +21,7 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun getRoomByName(school: School, name: String, createIfNotExists: Boolean): Room? {
+        if (name == "&amp;nbsp;") return null
         val room = roomDao.getRoomByName(school.id!!, name)
         if (room == null && createIfNotExists) {
             val id = roomDao.insertRoom(Room(schoolId = school.id, name = name))

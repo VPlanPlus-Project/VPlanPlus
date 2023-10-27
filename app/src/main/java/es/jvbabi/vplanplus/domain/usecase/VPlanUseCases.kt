@@ -50,7 +50,7 @@ class VPlanUseCases(
                     return@lesson // TODO handle this
                 }
                 Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
-                val room = roomRepository.getRoomByName(school, lesson.room.room, true)!!
+                var room = roomRepository.getRoomByName(school, lesson.room.room, true)!!
                 val roomChanged = lesson.room.roomChanged == "RaGeaendert"
                 val originalTeacher = teacherReository.find(school, it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson?.teacherShort?:"", true)!!
                 val changedTeacher = if (lesson.teacher.teacherChanged == "LeGeaendert") {
@@ -59,8 +59,10 @@ class VPlanUseCases(
                     null
                 }
 
-                val originalSubject = it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson?.subjectShort?:"-"
-                val changedSubject = if (lesson.subject.subjectChanged == "FaGeaendert") lesson.subject.subject else null
+                var originalSubject = it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson?.subjectShort?:"-"
+                var changedSubject = if (lesson.subject.subjectChanged == "FaGeaendert") lesson.subject.subject else null
+                if (listOf("&nbsp;", "&amp;nbsp;", "---").contains(originalSubject)) originalSubject = "-"
+                if (listOf("&nbsp;", "&amp;nbsp;", "---").contains(changedSubject)) changedSubject = "-"
                 lessonRepository.insertLesson(
                     Lesson(
                         classId = `class`.id!!,
