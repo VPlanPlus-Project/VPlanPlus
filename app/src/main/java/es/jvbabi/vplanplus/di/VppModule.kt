@@ -9,7 +9,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
@@ -23,7 +22,6 @@ import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
-import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -119,12 +117,6 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideDefaultLessonRepository(db: VppDatabase): DefaultLessonRepository {
-        return DefaultLessonRepositoryImpl(db.defaultLessonDao)
-    }
-
-    @Provides
-    @Singleton
     fun provideVPlanRepository(): VPlanRepository {
         return VPlanRepositoryImpl()
     }
@@ -138,7 +130,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideLessonRepository(db: VppDatabase): LessonRepository {
-        return LessonRepositoryImpl(db.defaultLessonDao, db.lessonDao)
+        return LessonRepositoryImpl(db.lessonDao)
     }
 
     @Provides
@@ -202,18 +194,18 @@ object VppModule {
     fun provideVPlanUseCases(
         vPlanRepository: VPlanRepository,
         lessonRepository: LessonRepository,
-        defaultLessonRepository: DefaultLessonRepository,
         classRepository: ClassRepository,
         teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository
+        roomRepository: RoomRepository,
+        schoolRepository: SchoolRepository
     ): VPlanUseCases {
         return VPlanUseCases(
             vPlanRepository = vPlanRepository,
             lessonRepository = lessonRepository,
-            defaultLessonRepository = defaultLessonRepository,
             classRepository = classRepository,
             teacherReository = teacherRepository,
-            roomRepository = roomRepository
+            roomRepository = roomRepository,
+            schoolRepository = schoolRepository
         )
     }
 

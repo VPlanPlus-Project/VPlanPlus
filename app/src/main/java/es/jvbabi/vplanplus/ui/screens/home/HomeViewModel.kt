@@ -5,8 +5,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -45,7 +43,7 @@ class HomeViewModel @Inject constructor(
         _state.value =
             _state.value.copy(initDone = true, activeProfileFound = activeProfile != null)
         if (activeProfile != null) {
-            var schoolId: String? = null
+            var schoolId: Long? = null
             if (activeProfile!!.type == 0) {
                 val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
                 _state.value = _state.value.copy(activeProfileShortText = profileClass.className)

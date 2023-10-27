@@ -12,13 +12,13 @@ class BaseDataUseCases(
     private val weekRepository: WeekRepository
 ) {
 
-    suspend fun getBaseDataXml(schoolId: String, username: String, password: String): OnlineResponse<BaseData?> {
+    suspend fun getBaseDataXml(schoolId: Long, username: String, password: String): OnlineResponse<BaseData?> {
         return baseDataRepository.getBaseData(schoolId, username, password)
     }
 
     suspend fun insertWeeks(weeks: List<Week>) = weekRepository.insertWeeks(weeks)
 
-    suspend fun processBaseData(schoolId: String, baseData: BaseData) {
+    suspend fun processBaseData(schoolId: Long, baseData: BaseData) {
         baseDataRepository.processBaseData(schoolId, baseData)
     }
 }

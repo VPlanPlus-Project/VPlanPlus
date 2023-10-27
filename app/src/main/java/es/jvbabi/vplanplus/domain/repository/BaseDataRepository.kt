@@ -8,17 +8,17 @@ import es.jvbabi.vplanplus.domain.model.xml.WeekData
 interface BaseDataRepository {
 
     suspend fun getBaseData(
-        schoolId: String,
+        schoolId: Long,
         username: String,
         password: String,
     ): OnlineResponse<BaseData?>
 
-    suspend fun processBaseData(schoolId: String, baseData: BaseData) {
+    suspend fun processBaseData(schoolId: Long, baseData: BaseData) {
         processBaseDataStudents(baseData.students)
         processBaseDataWeeks(schoolId, baseData.weekData)
     }
 
     suspend fun processBaseDataStudents(baseDataParserStudents: BaseDataParserStudents)
-    suspend fun processBaseDataWeeks(schoolId: String, weekData: WeekData)
+    suspend fun processBaseDataWeeks(schoolId: Long, weekData: WeekData)
 
 }

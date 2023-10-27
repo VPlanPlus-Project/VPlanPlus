@@ -30,7 +30,7 @@ class VPlanRepositoryImpl : VPlanRepository {
                 method = Get
                 basicAuth(school.username, school.password)
             }
-            OnlineResponse(VPlanData(response.bodyAsText(), school.id), Response.SUCCESS)
+            OnlineResponse(VPlanData(response.bodyAsText(), school.id!!), Response.SUCCESS)
         } catch (e: Exception) {
             when (e) {
                 is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException -> OnlineResponse(null, Response.NO_INTERNET)

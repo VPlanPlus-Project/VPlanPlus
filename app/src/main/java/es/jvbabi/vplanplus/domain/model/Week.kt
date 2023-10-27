@@ -1,18 +1,23 @@
 package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
-import androidx.room.Index
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 @Entity(
     tableName = "weeks",
-    indices = [
-        Index(value = ["id"], unique = true)
+    foreignKeys = [
+        ForeignKey(
+            entity = School::class,
+            parentColumns = ["id"],
+            childColumns = ["schoolId"],
+            onDelete = ForeignKey.CASCADE
+        )
     ]
 )
 data class Week(
-    @PrimaryKey(autoGenerate = true) val id: Int? = null,
-    val schoolId: String,
+    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    val schoolId: Long,
     val week: Int,
     val start: Long,
     val end: Long,

@@ -11,5 +11,5 @@ abstract class WeekDao {
     abstract suspend fun insertWeek(week: Week)
 
     @Query("DELETE FROM weeks WHERE schoolId = :schoolId")
-    abstract suspend fun deleteWeeksBySchoolId(schoolId: String)
+    abstract suspend fun deleteWeeksBySchoolId(schoolId: Long)
 }

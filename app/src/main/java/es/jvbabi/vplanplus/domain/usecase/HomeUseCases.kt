@@ -25,26 +25,23 @@ class HomeUseCases(
             }
             else -> null
         }!!
-        return lessons.sortedBy { it.first.lesson }.map {
+        return lessons.sortedBy { it.lesson }.map {
             try {
-                val teacher = teacherRepository.getTeacherById(if (it.first.changedTeacherId != null) it.first.changedTeacherId!! else it.second!!.teacherId)
-                val dbClass = classRepository.getClassById(it.first.classId)
-                val room = roomRepository.getRoomById(it.first.roomId!!)
-                val times = lessonTimeRepository.getLessonTimesByClassId(dbClass.id!!)
-                var subject = if (it.first.changedSubject != null) it.first.changedSubject!! else it.second!!.subject
-                if (subject == "---") subject = "-"
+                val `class` = classRepository.getClassById(it.classId)
+                val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[it.lesson-1]
                 Lesson(
-                    className = dbClass.className,
-                    subject = subject,
-                    teacher = teacher?.acronym?:"-",
-                    room = if(room.name == "&nbsp;") "-" else room.name,
-                    subjectChanged = it.first.changedSubject != null,
-                    teacherChanged = it.first.changedTeacherId != null,
-                    roomChanged = it.first.roomIsChanged,
-                    start = times.find { time -> time.lessonNumber == it.first.lesson }!!.start,
-                    end = times.find { time -> time.lessonNumber == it.first.lesson }!!.end,
-                    lessonNumber = it.first.lesson,
-                    info = it.first.changedInfo
+                    className = `class`.className,
+                    lessonNumber = it.lesson,
+                    info = it.info,
+                    roomChanged = it.roomIsChanged,
+                    room = roomRepository.getRoomById(it.originalRoomId!!).name,
+                    subjectChanged = it.changedSubject != null,
+                    subject = it.changedSubject ?: it.originalSubject,
+                    teacherChanged = it.changedTeacherId != null,
+                    teacher = teacherRepository.getTeacherById(it.changedTeacherId?:it.originalTeacherId?:-1)?.acronym ?: "Error",
+                    start = lessonTime.start,
+                    end = lessonTime.end
+
                 )
             } catch (e: Exception) {
                 Log.e("HomeUseCases", "getTodayLessons: ${e.stackTraceToString()}")

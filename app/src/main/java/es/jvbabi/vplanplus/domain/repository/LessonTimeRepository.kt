@@ -1,9 +1,10 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.LessonTime
 
 interface LessonTimeRepository {
     suspend fun insertLessonTime(lessonTime: LessonTime)
-    suspend fun deleteLessonTimes(classId: Int)
-    suspend fun getLessonTimesByClassId(classId: Int): List<LessonTime>
+    suspend fun deleteLessonTimes(`class`: Classes)
+    suspend fun getLessonTimesByClass(`class`: Classes): List<LessonTime>
 }

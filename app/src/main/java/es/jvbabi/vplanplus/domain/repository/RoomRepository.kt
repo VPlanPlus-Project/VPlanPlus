@@ -1,11 +1,12 @@
 package es.jvbabi.vplanplus.domain.repository
 
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.model.School
 
 interface RoomRepository {
 
-    suspend fun getRooms(schoolId: String): List<Room>
-    suspend fun getRoomById(roomId: Int): Room
+    suspend fun getRooms(schoolId: Long): List<Room>
+    suspend fun getRoomById(roomId: Long): Room
     suspend fun createRoom(room: Room)
-    suspend fun getRoomByName(schoolId: String, name: String): Room?
+    suspend fun getRoomByName(school: School, name: String, createIfNotExists: Boolean = false): Room?
 }

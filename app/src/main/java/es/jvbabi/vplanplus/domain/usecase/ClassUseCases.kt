@@ -10,15 +10,15 @@ class ClassUseCases(private val classRepository: ClassRepository) {
      * @param schoolId the id of the school the class belongs to
      * @param className the name of the class (e.g. 6c)
      */
-    suspend fun createClass(schoolId: String, className: String) {
+    suspend fun createClass(schoolId: Long, className: String) {
         classRepository.createClass(schoolId = schoolId, className = className)
     }
 
-    suspend fun getClassIdBySchoolIdAndClassName(schoolId: String, className: String): Int {
-        return classRepository.getClassIdBySchoolIdAndClassName(schoolId = schoolId, className = className)
+    suspend fun getClassBySchoolIdAndClassName(schoolId: Long, className: String): Classes? {
+        return classRepository.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)
     }
 
-    suspend fun getClassById(id: Int): Classes {
+    suspend fun getClassById(id: Long): Classes {
         return classRepository.getClassById(id)
     }
 }

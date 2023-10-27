@@ -7,7 +7,7 @@ class OnboardingUseCases(
     private val profileRepository: ProfileRepository
 ) {
     suspend fun getClassesOnlineStudent(
-        schoolId: String,
+        schoolId: Long,
         username: String,
         password: String,
     ): List<Classes> {
