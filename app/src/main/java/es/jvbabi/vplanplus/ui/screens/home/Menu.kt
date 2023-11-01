@@ -153,8 +153,8 @@ fun Menu(
                         .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
                 ) {
                     Column {
-                        ButtonRow(Icons.Outlined.Settings, "Settings", onClick = { onSettingsClicked() })
-                        ButtonRow(Icons.Outlined.DeveloperMode, "Repository", onClick = { onRepositoryClicked() })
+                        ButtonRow(Icons.Outlined.Settings, stringResource(id = R.string.home_menuSettings), onClick = { onSettingsClicked() })
+                        ButtonRow(Icons.Outlined.DeveloperMode, stringResource(id = R.string.home_menuRepository), onClick = { onRepositoryClicked() })
                     }
                 }
             }

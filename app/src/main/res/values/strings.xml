@@ -25,4 +25,6 @@
     <string name="home_search">Search for rooms, teachers…</string>
     <string name="home_menuProfileList">Profiles</string>
     <string name="home_menuManageProfiles">Manage profiles</string>
+    <string name="home_menuRepository">Code-Repository</string>
+    <string name="home_menuSettings">Settings</string>
 </resources>
