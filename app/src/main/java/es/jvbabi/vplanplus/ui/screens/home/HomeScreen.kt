@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -80,7 +79,6 @@ fun HomeScreenContent(
     state: HomeState,
     onGetVPlan: () -> Unit
 ) {
-    val scrollState = rememberScrollState()
     val context = LocalContext.current
     if (!state.initDone) {
         Box(
@@ -166,11 +164,19 @@ fun HomeScreenContent(
                 Column {
                     Text(text = "Next holiday: ${state.nextHoliday}")
                     Button(
+                        enabled = !state.isLoading,
                         onClick = {
                             onGetVPlan()
                         }
                     ) {
-                        Text(text = "Get VPlan data")
+                        if (state.isLoading) CircularProgressIndicator(
+                            strokeWidth = 2.dp,
+                            modifier = Modifier
+                                .width(24.dp)
+                                .height(24.dp)
+                                .padding(6.dp)
+                        )
+                        else Text(text = "Get VPlan data")
                     }
                 }
             }
@@ -333,6 +339,7 @@ fun HomeScreenPreview() {
             activeProfileFound = true,
             activeProfileShortText = "9e",
             nextHoliday = LocalDate.now(),
+            isLoading = true,
             lessons = listOf(
                 Lesson(
                     subject = "Informatik",

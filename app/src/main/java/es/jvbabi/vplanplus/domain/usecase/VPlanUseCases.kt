@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.domain.usecase
 
-import android.util.Log
 import es.jvbabi.vplanplus.domain.OnlineResponse
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
@@ -49,10 +48,10 @@ class VPlanUseCases(
                 if (`class`.className == "VERW") {
                     return@lesson // TODO handle this
                 }
-                Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
-                var room = roomRepository.getRoomByName(school, lesson.room.room, true)!!
+                //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
+                val room = roomRepository.getRoomByName(school, lesson.room.room, true)!!
                 val roomChanged = lesson.room.roomChanged == "RaGeaendert"
-                val originalTeacher = teacherReository.find(school, it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson?.teacherShort?:"", true)!!
+                val originalTeacher = teacherReository.find(school, it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson?.teacherShort?:"", true)
                 val changedTeacher = if (lesson.teacher.teacherChanged == "LeGeaendert") {
                     teacherReository.find(school, lesson.teacher.teacher, true)
                 } else {
@@ -71,7 +70,7 @@ class VPlanUseCases(
                         originalRoomId = room.id!!,
                         originalSubject = originalSubject,
                         changedSubject = changedSubject,
-                        originalTeacherId = originalTeacher.id,
+                        originalTeacherId = originalTeacher?.id,
                         changedTeacherId = changedTeacher?.id,
                         lesson = lesson.lesson,
                         dayTimestamp = DateUtils.getDayTimestamp(planDate)
