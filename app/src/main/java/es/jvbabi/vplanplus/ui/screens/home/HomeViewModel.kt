@@ -15,9 +15,6 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.DateUtils
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -62,18 +59,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    fun getVPlanData() {
-        GlobalScope.launch {
-            val vPlanData = vPlanUseCases.getVPlanData(school!!, LocalDate.now())
-            if (vPlanData.data == null) {
-                Log.d("VPlanData", "null")
-                return@launch
-            }
-            vPlanUseCases.processVplanData(vPlanData.data)
-            Log.d("VPlanData", vPlanData.toString())
-            init()
+    suspend fun getVPlanData() {
+        _state.value = _state.value.copy(isLoading = true)
+        val vPlanData = vPlanUseCases.getVPlanData(school!!, LocalDate.now())
+        if (vPlanData.data == null) {
+            Log.d("VPlanData", "null")
+            _state.value = _state.value.copy(isLoading = false)
+            return
         }
+        vPlanUseCases.processVplanData(vPlanData.data)
+        Log.d("VPlanData", vPlanData.toString())
+        init()
+        _state.value = _state.value.copy(isLoading = false)
     }
 }
 
@@ -82,5 +79,6 @@ data class HomeState(
     val activeProfileFound: Boolean = false,
     val activeProfileShortText: String = "",
     val nextHoliday: LocalDate? = null,
-    val lessons: List<es.jvbabi.vplanplus.ui.screens.home.Lesson> = listOf()
+    val lessons: List<Lesson> = listOf(),
+    val isLoading: Boolean = false
 )
