@@ -69,7 +69,7 @@ fun HomeScreen(
         viewModel.init()
     }
 
-    if (state.initDone && !state.activeProfileFound) {
+    if (state.initDone && state.activeProfile == null) {
         navHostController.navigate(Screen.OnboardingWelcomeScreen.route) {
             popUpTo(0)
         }
@@ -89,7 +89,7 @@ fun HomeScreen(
         exit = fadeOut(animationSpec = TweenSpec(200))
     ) {
         Menu(
-            profiles = listOf(),
+            profiles = state.profiles,
             selectedProfile = MenuProfile(0, "10a"),
             onProfileClicked = {
                 Toast.makeText(context, "Not implemented", LENGTH_SHORT).show()
@@ -179,7 +179,7 @@ fun HomeScreenContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = state.activeProfileShortText,
+                            text = state.activeProfile?.name?:"--",
                             color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
@@ -366,8 +366,6 @@ fun HomeScreenPreview() {
     HomeScreenContent(
         HomeState(
             initDone = true,
-            activeProfileFound = true,
-            activeProfileShortText = "9e",
             nextHoliday = LocalDate.now(),
             isLoading = true,
             lessons = listOf(
