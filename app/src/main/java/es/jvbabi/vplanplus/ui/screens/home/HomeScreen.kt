@@ -3,6 +3,10 @@ package es.jvbabi.vplanplus.ui.screens.home
 import android.annotation.SuppressLint
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -70,14 +74,34 @@ fun HomeScreen(
             coroutineScope.launch {
                 viewModel.getVPlanData()
             }
+        }, onMenuOpened = {
+            viewModel.onOpenMenuClicked()
         })
+    }
+    val context = LocalContext.current
+    AnimatedVisibility(
+        visible = state.isMenuOpened,
+        enter = fadeIn(animationSpec = TweenSpec(200)),
+        exit = fadeOut(animationSpec = TweenSpec(200))
+    ) {
+        Menu(
+            profiles = listOf(),
+            selectedProfile = MenuProfile(0, "10a"),
+            onProfileClicked = {
+                Toast.makeText(context, "Not implemented", LENGTH_SHORT).show()
+            },
+            onCloseClicked = {
+                viewModel.onCloseMenuClicked()
+            }
+        )
     }
 }
 
 @Composable
 fun HomeScreenContent(
     state: HomeState,
-    onGetVPlan: () -> Unit
+    onGetVPlan: () -> Unit,
+    onMenuOpened: () -> Unit = {}
 ) {
     val context = LocalContext.current
     if (!state.initDone) {
@@ -142,9 +166,7 @@ fun HomeScreenContent(
                             .clip(RoundedCornerShape(20.dp))
                             .background(color = MaterialTheme.colorScheme.secondary)
                             .clickable(enabled = true) {
-                                Toast
-                                    .makeText(context, "Not implemented", LENGTH_SHORT)
-                                    .show()
+                                onMenuOpened()
                             },
                         contentAlignment = Alignment.Center
                     ) {
@@ -364,8 +386,10 @@ fun HomeScreenPreview() {
                     info = "Hier eine Info :)"
                 )
             )
-        )
-    ) {}
+        ),
+        onGetVPlan = {},
+        onMenuOpened = {}
+    )
 }
 
 @SuppressLint("SimpleDateFormat")

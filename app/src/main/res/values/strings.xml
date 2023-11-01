@@ -23,4 +23,6 @@
     <string name="onboarding_studentChooseClassText">If you need to add multiple classes, you can do so by creating a new profile in settings.</string>
     <string name="onboarding_studentChooseClassTitle">Choose your class</string>
     <string name="home_search">Search for rooms, teachers…</string>
+    <string name="home_menuProfileList">Profiles</string>
+    <string name="home_menuManageProfiles">Manage profiles</string>
 </resources>

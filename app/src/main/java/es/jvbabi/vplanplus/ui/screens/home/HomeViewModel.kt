@@ -70,6 +70,14 @@ class HomeViewModel @Inject constructor(
         init()
         _state.value = _state.value.copy(isLoading = false)
     }
+
+    fun onOpenMenuClicked() {
+        _state.value = _state.value.copy(isMenuOpened = true)
+    }
+
+    fun onCloseMenuClicked() {
+        _state.value = _state.value.copy(isMenuOpened = false)
+    }
 }
 
 data class HomeState(
@@ -78,5 +86,6 @@ data class HomeState(
     val activeProfileShortText: String = "",
     val nextHoliday: LocalDate? = null,
     val lessons: List<Lesson> = listOf(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isMenuOpened: Boolean = false
 )
