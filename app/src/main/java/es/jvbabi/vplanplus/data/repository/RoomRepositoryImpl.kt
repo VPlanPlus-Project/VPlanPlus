@@ -29,4 +29,14 @@ class RoomRepositoryImpl(
         }
         return room
     }
+
+    override suspend fun deleteRoomsBySchoolId(schoolId: Long) {
+        roomDao.deleteRoomsBySchoolId(schoolId)
+    }
+
+    override suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>) {
+        rooms.forEach {
+            createRoom(Room(schoolId = schoolId, name = it))
+        }
+    }
 }

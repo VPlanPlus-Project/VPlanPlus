@@ -9,4 +9,6 @@ interface RoomRepository {
     suspend fun getRoomById(roomId: Long): Room
     suspend fun createRoom(room: Room)
     suspend fun getRoomByName(school: School, name: String, createIfNotExists: Boolean = false): Room?
+    suspend fun deleteRoomsBySchoolId(schoolId: Long)
+    suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>)
 }

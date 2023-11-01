@@ -113,9 +113,11 @@ object VppModule {
         classRepository: ClassRepository,
         lessonTimeRepository: LessonTimeRepository,
         holidayRepository: HolidayRepository,
-        weekRepository: WeekRepository
+        weekRepository: WeekRepository,
+        roomRepository: RoomRepository,
+        teacherRepository: TeacherRepository
     ): BaseDataRepository {
-        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository)
+        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository, roomRepository, teacherRepository)
     }
 
     @Provides

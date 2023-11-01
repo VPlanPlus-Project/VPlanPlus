@@ -19,4 +19,7 @@ abstract class RoomDao {
 
     @Query("SELECT * FROM room WHERE schoolId = :schoolId AND name = :name")
     abstract suspend fun getRoomByName(schoolId: Long, name: String): Room?
+
+    @Query("DELETE FROM room WHERE schoolId = :schoolId")
+    abstract suspend fun deleteRoomsBySchoolId(schoolId: Long)
 }

@@ -29,4 +29,14 @@ class TeacherRepositoryImpl(
     override suspend fun getTeacherById(id: Long): Teacher? {
         return teacherDao.getTeacherById(id)
     }
+
+    override suspend fun deleteTeachersBySchoolId(schoolId: Long) {
+        teacherDao.deleteTeachersBySchoolId(schoolId)
+    }
+
+    override suspend fun insertTeachersByAcronym(schoolId: Long, teachers: List<String>) {
+        teachers.forEach {
+            createTeacher(schoolId, it)
+        }
+    }
 }

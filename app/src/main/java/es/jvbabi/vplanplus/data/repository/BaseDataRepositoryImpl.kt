@@ -13,6 +13,8 @@ import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
+import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
 import java.time.LocalDate
@@ -21,7 +23,9 @@ class BaseDataRepositoryImpl(
     private val classRepository: ClassRepository,
     private val lessonTimeRepository: LessonTimeRepository,
     private val holidayRepository: HolidayRepository,
-    private val weekRepository: WeekRepository
+    private val weekRepository: WeekRepository,
+    private val roomRepository: RoomRepository,
+    private val teacherRepository: TeacherRepository
 ) : BaseDataRepository {
 
     override suspend fun processBaseData(schoolId: Long, baseData: XmlBaseData) {
@@ -43,6 +47,11 @@ class BaseDataRepositoryImpl(
                 )
             }
         }
+        roomRepository.deleteRoomsBySchoolId(schoolId)
+        roomRepository.insertRoomsByName(schoolId, baseData.roomNames)
+
+        teacherRepository.deleteTeachersBySchoolId(schoolId)
+        teacherRepository.insertTeachersByAcronym(schoolId, baseData.teacherShorts)
     }
 
     override suspend fun getFullBaseData(
