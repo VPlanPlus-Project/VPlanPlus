@@ -71,14 +71,15 @@ fun Menu(
     ) {
         Box(
             modifier = Modifier
-                .width(300.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .fillMaxWidth(0.9f)
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Column {
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
                     contentAlignment = Alignment.CenterStart
                 ) {
                     IconButton(onClick = { onCloseClicked() }) {
@@ -166,14 +167,27 @@ fun ButtonRow(icon: ImageVector, text: String, onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(vertical = 4.dp)
+            .height(50.dp)
+            .clip(RoundedCornerShape(8.dp))
             .clickable {
                 onClick()
             },
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(imageVector = icon, contentDescription = text, tint = MaterialTheme.colorScheme.onPrimaryContainer)
-        Text(text = text, modifier = Modifier.padding(start = 16.dp), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onPrimaryContainer)
+        Icon(
+            imageVector = icon,
+            contentDescription = text,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .width(24.dp)
+        )
+        Text(text = text,
+            modifier = Modifier.padding(start = 12.dp),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )
     }
 }
 

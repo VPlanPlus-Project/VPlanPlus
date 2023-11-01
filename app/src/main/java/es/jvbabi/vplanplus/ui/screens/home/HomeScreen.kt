@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.compose.animation.AnimatedVisibility
@@ -42,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -52,6 +55,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+
 
 @Composable
 fun HomeScreen(
@@ -92,6 +96,10 @@ fun HomeScreen(
             },
             onCloseClicked = {
                 viewModel.onCloseMenuClicked()
+            },
+            onRepositoryClicked = {
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Julius-Babies/VPlanPlus/"))
+                startActivity(context, browserIntent, null)
             }
         )
     }
