@@ -1,8 +1,14 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,6 +44,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -48,6 +55,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+
 
 @Composable
 fun HomeScreen(
@@ -61,7 +69,7 @@ fun HomeScreen(
         viewModel.init()
     }
 
-    if (state.initDone && !state.activeProfileFound) {
+    if (state.initDone && state.activeProfile == null) {
         navHostController.navigate(Screen.OnboardingWelcomeScreen.route) {
             popUpTo(0)
         }
@@ -70,14 +78,38 @@ fun HomeScreen(
             coroutineScope.launch {
                 viewModel.getVPlanData()
             }
+        }, onMenuOpened = {
+            viewModel.onOpenMenuClicked()
         })
+    }
+    val context = LocalContext.current
+    AnimatedVisibility(
+        visible = state.isMenuOpened,
+        enter = fadeIn(animationSpec = TweenSpec(200)),
+        exit = fadeOut(animationSpec = TweenSpec(200))
+    ) {
+        Menu(
+            profiles = state.profiles,
+            selectedProfile = MenuProfile(0, "10a"),
+            onProfileClicked = {
+                Toast.makeText(context, "Not implemented", LENGTH_SHORT).show()
+            },
+            onCloseClicked = {
+                viewModel.onCloseMenuClicked()
+            },
+            onRepositoryClicked = {
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Julius-Babies/VPlanPlus/"))
+                startActivity(context, browserIntent, null)
+            }
+        )
     }
 }
 
 @Composable
 fun HomeScreenContent(
     state: HomeState,
-    onGetVPlan: () -> Unit
+    onGetVPlan: () -> Unit,
+    onMenuOpened: () -> Unit = {}
 ) {
     val context = LocalContext.current
     if (!state.initDone) {
@@ -142,14 +174,12 @@ fun HomeScreenContent(
                             .clip(RoundedCornerShape(20.dp))
                             .background(color = MaterialTheme.colorScheme.secondary)
                             .clickable(enabled = true) {
-                                Toast
-                                    .makeText(context, "Not implemented", LENGTH_SHORT)
-                                    .show()
+                                onMenuOpened()
                             },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = state.activeProfileShortText,
+                            text = state.activeProfile?.name?:"--",
                             color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
@@ -336,8 +366,6 @@ fun HomeScreenPreview() {
     HomeScreenContent(
         HomeState(
             initDone = true,
-            activeProfileFound = true,
-            activeProfileShortText = "9e",
             nextHoliday = LocalDate.now(),
             isLoading = true,
             lessons = listOf(
@@ -364,8 +392,10 @@ fun HomeScreenPreview() {
                     info = "Hier eine Info :)"
                 )
             )
-        )
-    ) {}
+        ),
+        onGetVPlan = {},
+        onMenuOpened = {}
+    )
 }
 
 @SuppressLint("SimpleDateFormat")

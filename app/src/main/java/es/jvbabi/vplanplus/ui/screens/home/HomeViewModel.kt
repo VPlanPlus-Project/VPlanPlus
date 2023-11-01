@@ -36,13 +36,13 @@ class HomeViewModel @Inject constructor(
 
     suspend fun init() {
         activeProfile = profileUseCases.getActiveProfile()
+        _state.value = _state.value.copy(activeProfile = activeProfile?.toMenuProfile())
         _state.value =
-            _state.value.copy(initDone = true, activeProfileFound = activeProfile != null)
+            _state.value.copy(initDone = true)
         if (activeProfile != null) {
             var schoolId: Long? = null
             if (activeProfile!!.type == 0) {
                 val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
-                _state.value = _state.value.copy(activeProfileShortText = profileClass.className)
                 schoolId = profileClass.schoolId
                 school = schoolUseCases.getSchoolFromId(schoolId)
             }
@@ -52,7 +52,8 @@ class HomeViewModel @Inject constructor(
             _state.value =
                 _state.value.copy(
                     nextHoliday = holidays.find { it.date.isAfter(LocalDate.now()) }?.date,
-                    lessons = homeUseCases.getTodayLessons(activeProfile!!)
+                    lessons = homeUseCases.getTodayLessons(activeProfile!!),
+                    profiles = profileUseCases.getProfiles().map { MenuProfile(it.id!!, it.name) }
                 )
         }
     }
@@ -70,13 +71,22 @@ class HomeViewModel @Inject constructor(
         init()
         _state.value = _state.value.copy(isLoading = false)
     }
+
+    fun onOpenMenuClicked() {
+        _state.value = _state.value.copy(isMenuOpened = true)
+    }
+
+    fun onCloseMenuClicked() {
+        _state.value = _state.value.copy(isMenuOpened = false)
+    }
 }
 
 data class HomeState(
     val initDone: Boolean = false,
-    val activeProfileFound: Boolean = false,
-    val activeProfileShortText: String = "",
     val nextHoliday: LocalDate? = null,
     val lessons: List<Lesson> = listOf(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isMenuOpened: Boolean = false,
+    val profiles: List<MenuProfile> = listOf(),
+    val activeProfile: MenuProfile? = null
 )

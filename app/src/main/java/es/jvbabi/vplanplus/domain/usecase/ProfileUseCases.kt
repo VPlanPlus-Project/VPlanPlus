@@ -21,4 +21,8 @@ class ProfileUseCases(
         val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE.name) ?: return null
         return profileRepository.getProfileById(id = activeProfileId.toLong())
     }
+
+    suspend fun getProfiles(): List<Profile> {
+        return profileRepository.getProfiles()
+    }
 }
