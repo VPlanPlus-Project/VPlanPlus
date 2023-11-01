@@ -19,7 +19,8 @@ import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
-import es.jvbabi.vplanplus.data.source.VppDatabase
+import es.jvbabi.vplanplus.data.source.database.VppDatabase
+import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -58,6 +59,7 @@ object VppModule {
             "vpp.db"
         )
             .fallbackToDestructiveMigration() // TODO: Remove for production
+            .addTypeConverter(DayConverter())
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
     }
@@ -108,11 +110,12 @@ object VppModule {
     @Provides
     @Singleton
     fun provideBaseDataRepository(
-        db: VppDatabase,
         classRepository: ClassRepository,
-        lessonTimeRepository: LessonTimeRepository
+        lessonTimeRepository: LessonTimeRepository,
+        holidayRepository: HolidayRepository,
+        weekRepository: WeekRepository
     ): BaseDataRepository {
-        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository)
+        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository)
     }
 
     @Provides
@@ -184,9 +187,8 @@ object VppModule {
     @Singleton
     fun provideBaseDataUseCases(
         baseDataRepository: BaseDataRepository,
-        weekRepository: WeekRepository
     ): BaseDataUseCases {
-        return BaseDataUseCases(baseDataRepository, weekRepository)
+        return BaseDataUseCases(baseDataRepository)
     }
 
     @Provides

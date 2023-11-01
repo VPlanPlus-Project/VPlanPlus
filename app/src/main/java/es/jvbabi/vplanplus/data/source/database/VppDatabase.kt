@@ -1,7 +1,19 @@
-package es.jvbabi.vplanplus.data.source
+package es.jvbabi.vplanplus.data.source.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
+import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
+import es.jvbabi.vplanplus.data.source.database.dao.ClassDao
+import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
+import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao
+import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
+import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
+import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
+import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
+import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
+import es.jvbabi.vplanplus.data.source.database.dao.TeacherDao
+import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
@@ -29,6 +41,7 @@ import es.jvbabi.vplanplus.domain.model.Week
     version = 2,
     exportSchema = false
 )
+@TypeConverters(DayConverter::class)
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
     abstract val profileDao: ProfileDao

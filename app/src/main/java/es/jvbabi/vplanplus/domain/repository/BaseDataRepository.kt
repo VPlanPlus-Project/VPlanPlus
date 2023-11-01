@@ -1,24 +1,16 @@
 package es.jvbabi.vplanplus.domain.repository
 
-import es.jvbabi.vplanplus.domain.OnlineResponse
-import es.jvbabi.vplanplus.domain.model.BaseData
-import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
-import es.jvbabi.vplanplus.domain.model.xml.WeekData
+import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.model.XmlBaseData
 
 interface BaseDataRepository {
 
-    suspend fun getBaseData(
+    suspend fun processBaseData(schoolId: Long, baseData: XmlBaseData)
+
+    suspend fun getFullBaseData(
         schoolId: Long,
         username: String,
         password: String,
-    ): OnlineResponse<BaseData?>
-
-    suspend fun processBaseData(schoolId: Long, baseData: BaseData) {
-        processBaseDataStudents(baseData.students)
-        processBaseDataWeeks(schoolId, baseData.weekData)
-    }
-
-    suspend fun processBaseDataStudents(baseDataParserStudents: BaseDataParserStudents)
-    suspend fun processBaseDataWeeks(schoolId: Long, weekData: WeekData)
+    ): DataResponse<XmlBaseData?>
 
 }

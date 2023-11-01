@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
-import es.jvbabi.vplanplus.data.source.RoomDao
+import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository

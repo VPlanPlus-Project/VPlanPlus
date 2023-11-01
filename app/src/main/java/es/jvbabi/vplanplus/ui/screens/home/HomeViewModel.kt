@@ -14,7 +14,6 @@ import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
-import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -52,8 +51,7 @@ class HomeViewModel @Inject constructor(
 
             _state.value =
                 _state.value.copy(
-                    nextHoliday = holidays.find { it.timestamp > DateUtils.getCurrentDayTimestamp() }
-                    ?.let { DateUtils.getDateFromTimestamp(it.timestamp) },
+                    nextHoliday = holidays.find { it.date.isAfter(LocalDate.now()) }?.date,
                     lessons = homeUseCases.getTodayLessons(activeProfile!!)
                 )
         }
