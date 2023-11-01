@@ -26,7 +26,7 @@ class VPlanRepositoryImpl : VPlanRepository {
                     connectTimeoutMillis = 5000
                     socketTimeoutMillis = 5000
                 }
-            }.request("https://www.stundenplan24.de/${school.id}/wplan/wdatenk/WPlanKl_${date.year}${date.monthValue}${date.dayOfMonth}.xml") {
+            }.request("https://www.stundenplan24.de/${school.id}/wplan/wdatenk/WPlanKl_${date.year}${date.monthValue}${date.dayOfMonth.toString().padStart(2, '0')}.xml") {
                 method = Get
                 basicAuth(school.username, school.password)
             }
@@ -35,7 +35,7 @@ class VPlanRepositoryImpl : VPlanRepository {
             when (e) {
                 is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException -> OnlineResponse(null, Response.NO_INTERNET)
                 else -> {
-                    Log.d("HolidayRepositoryImpl", "other error: ${e.javaClass.name} ${e.message}")
+                    Log.d(this.javaClass.name, "other error: ${e.javaClass.name} ${e.stackTraceToString()}")
                     OnlineResponse(null, Response.OTHER)
                 }
             }
