@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.data.repository
 
 import android.util.Log
-import es.jvbabi.vplanplus.domain.OnlineResponse
+import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
@@ -18,7 +18,7 @@ import java.net.UnknownHostException
 import java.time.LocalDate
 
 class VPlanRepositoryImpl : VPlanRepository {
-    override suspend fun getVPlanData(school: School, date: LocalDate): OnlineResponse<VPlanData?> {
+    override suspend fun getVPlanData(school: School, date: LocalDate): DataResponse<VPlanData?> {
         return try {
             val response = HttpClient {
                 install(HttpTimeout) {
@@ -30,13 +30,13 @@ class VPlanRepositoryImpl : VPlanRepository {
                 method = Get
                 basicAuth(school.username, school.password)
             }
-            OnlineResponse(VPlanData(response.bodyAsText(), school.id!!), Response.SUCCESS)
+            DataResponse(VPlanData(response.bodyAsText(), school.id!!), Response.SUCCESS)
         } catch (e: Exception) {
             when (e) {
-                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException -> OnlineResponse(null, Response.NO_INTERNET)
+                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(null, Response.NO_INTERNET)
                 else -> {
                     Log.d(this.javaClass.name, "other error: ${e.javaClass.name} ${e.stackTraceToString()}")
-                    OnlineResponse(null, Response.OTHER)
+                    DataResponse(null, Response.OTHER)
                 }
             }
         }

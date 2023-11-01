@@ -6,9 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.BaseData
-import es.jvbabi.vplanplus.domain.model.Holiday
-import es.jvbabi.vplanplus.domain.model.Week
+import es.jvbabi.vplanplus.domain.model.XmlBaseData
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
@@ -19,7 +17,6 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
-import es.jvbabi.vplanplus.util.DateUtils
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.launchIn
@@ -40,7 +37,7 @@ class OnboardingViewModel @Inject constructor(
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
 
-    lateinit var baseData: BaseData
+    lateinit var baseData: XmlBaseData
 
     fun onSchoolIdInput(schoolId: String) {
         _state.value = _state.value.copy(
@@ -85,7 +82,7 @@ class OnboardingViewModel @Inject constructor(
     suspend fun onLogin() {
         _state.value = _state.value.copy(isLoading = true)
 
-        val baseData = baseDataUseCases.getBaseDataXml(
+        val baseData = baseDataUseCases.getBaseData(
             schoolId = state.value.schoolId.toLong(),
             username = state.value.username,
             password = state.value.password
@@ -112,7 +109,7 @@ class OnboardingViewModel @Inject constructor(
 
         if (state.value.firstProfile == FirstProfile.STUDENT) {
             _state.value = _state.value.copy(
-                classList = baseData.students.classes,
+                classList = baseData.classNames,
             )
         }
     }
@@ -130,15 +127,14 @@ class OnboardingViewModel @Inject constructor(
                 schoolId = state.value.schoolId.toLong(),
                 username = state.value.username,
                 password = state.value.password,
-                name = baseData.students.schoolName
+                name = baseData.schoolName
             )
 
-            state.value.classList.forEach {
-                classUseCases.createClass(
-                    schoolId = state.value.schoolId.toLong(),
-                    className = it
-                )
-            }
+            baseDataUseCases.processBaseData(
+                schoolId = state.value.schoolId.toLong(),
+                baseData = baseData
+            )
+
             val `class` = classUseCases.getClassBySchoolIdAndClassName(
                 schoolId = state.value.schoolId.toLong(),
                 className = state.value.selectedClass!!,
@@ -146,34 +142,6 @@ class OnboardingViewModel @Inject constructor(
             profileUseCases.createStudentProfile(
                 classId = `class`.id!!,
                 name = state.value.selectedClass!!
-            )
-
-            holidayUseCases.insertHolidays(baseData.students.holidays.map {
-                Holiday(
-                    schoolId = if (it.second) null else state.value.schoolId.toLong(),
-                    timestamp = DateUtils.getDayTimestamp(
-                        year = it.first.first,
-                        month = it.first.second,
-                        day = it.first.third
-                    )
-                )
-            })
-
-            baseDataUseCases.insertWeeks(
-                baseData.students.schoolWeeks.map {
-                    Week(
-                        schoolId = state.value.schoolId.toLong(),
-                        week = it.week,
-                        start = it.start,
-                        end = it.end,
-                        type = it.type
-                    )
-                }
-            )
-
-            baseDataUseCases.processBaseData(
-                schoolId = state.value.schoolId.toLong(),
-                baseData = baseData
             )
 
             keyValueUseCases.set(

@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
-import es.jvbabi.vplanplus.data.source.RoomDao
+import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -28,5 +28,15 @@ class RoomRepositoryImpl(
             return roomDao.getRoomById(id)
         }
         return room
+    }
+
+    override suspend fun deleteRoomsBySchoolId(schoolId: Long) {
+        roomDao.deleteRoomsBySchoolId(schoolId)
+    }
+
+    override suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>) {
+        rooms.forEach {
+            createRoom(Room(schoolId = schoolId, name = it))
+        }
     }
 }

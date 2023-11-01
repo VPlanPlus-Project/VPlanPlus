@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
-import es.jvbabi.vplanplus.data.source.ClassDao
+import es.jvbabi.vplanplus.data.source.database.dao.ClassDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 
@@ -20,5 +20,15 @@ class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
 
     override suspend fun getClassById(id: Long): Classes {
         return classDao.getClassById(id = id)
+    }
+
+    override suspend fun insertClasses(schoolId: Long, classes: List<String>) {
+        classes.forEach { className ->
+            classDao.insertClass(Classes(schoolId = schoolId, className = className))
+        }
+    }
+
+    override suspend fun deleteClassesBySchoolId(schoolId: Long) {
+        classDao.deleteClassesBySchoolId(schoolId = schoolId)
     }
 }

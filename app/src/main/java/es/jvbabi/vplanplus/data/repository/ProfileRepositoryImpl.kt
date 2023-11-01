@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.data.repository
 
-import es.jvbabi.vplanplus.data.source.ProfileDao
+import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
+import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
@@ -39,7 +39,7 @@ class ProfileRepositoryImpl(
             method = Get
             basicAuth(username, password)
         }
-        val baseData = BaseDataParserStudents(response.bodyAsText())
+        val baseData = ClassBaseData(response.bodyAsText())
         val classes = ArrayList<Classes>()
         baseData.classes.forEach {
             classes.add(
