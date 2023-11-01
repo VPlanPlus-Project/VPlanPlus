@@ -7,5 +7,10 @@ Beiträge aus der Community sind prinzipiell gern' gesehen.
 
 ## Screenshots
 
-### Home-Ansicht
-![Screenshot_1698852317](https://github.com/Julius-Babies/VPlanPlus/assets/66371497/6f34b3a3-6420-444e-a81b-589578a95d12)
+### Onboarding
+
+![Screenshot_1698859329](https://github.com/Julius-Babies/VPlanPlus/assets/66371497/de63b5e9-37e5-4923-bf4d-443202a537ba)
+![Screenshot_1698859372](https://github.com/Julius-Babies/VPlanPlus/assets/66371497/eedef209-8faf-4583-ad8b-801ac4e95a24)
+![Screenshot_1698859399](https://github.com/Julius-Babies/VPlanPlus/assets/66371497/d5c17573-373f-4e53-b959-3b33dd485007)
+![Screenshot_1698859415](https://github.com/Julius-Babies/VPlanPlus/assets/66371497/552555e9-177f-4ae2-a5c8-d6b6635d12eb)
+![Screenshot_1698859432](https://github.com/Julius-Babies/VPlanPlus/assets/66371497/d7afb390-5ec5-4f6f-923a-0f56e73a1f4d)
