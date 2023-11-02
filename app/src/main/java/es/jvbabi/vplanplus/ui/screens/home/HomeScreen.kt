@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -216,19 +215,13 @@ fun HomeScreenContent(
                     .padding(16.dp)
             ) {
                 if (state.lessons.isNotEmpty()) {
-                    var lastIsCurrent: Boolean? = null
                     LazyColumn {
-                        items(state.lessons) {
-                            lastIsCurrent =
-                                if (calculateProgress(it.start, LocalTime.now().toString(), it.end) in 0.0..0.99) {
-                                    if (lastIsCurrent == false) HorizontalDivider()
-                                    CurrentLessonCard(lesson = it)
-                                    true
-                                } else {
-                                    if (lastIsCurrent == true) HorizontalDivider()
-                                    LessonCard(lesson = it)
-                                    false
-                                }
+                        items(state.lessons.sortedBy { it.lessonNumber }) {
+                            if (calculateProgress(it.start, LocalTime.now().toString(), it.end) in 0.0..0.99) {
+                                CurrentLessonCard(lesson = it)
+                            } else {
+                                LessonCard(lesson = it)
+                            }
                         }
                     }
                 }
