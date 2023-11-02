@@ -1,7 +1,7 @@
 # VPlanPlus
 
 Diese App ist ein Android Client für das stundenplan24.de System.
-Die App ist Kotlin im Android Jetpack Compose Framework mit dem Ansatz von MVVM und Clean Architecture (wenn auch ausbaufähig) geschrieben und wird stetig weiterentwickelt.
+Die App ist in Kotlin und dem Android Jetpack Compose Framework mit dem Ansatz von MVVM und Clean Architecture (wenn auch ausbaufähig) geschrieben und wird stetig weiterentwickelt.
 
 Beiträge aus der Community sind prinzipiell gern' gesehen.
 
