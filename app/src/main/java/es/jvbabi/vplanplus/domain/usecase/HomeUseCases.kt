@@ -28,7 +28,7 @@ class HomeUseCases(
         return lessons.sortedBy { it.lesson }.map {
             try {
                 val `class` = classRepository.getClassById(it.classId)
-                val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[it.lesson-1]
+                val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[it.lesson]
                 Lesson(
                     className = `class`.className,
                     lessonNumber = it.lesson,
