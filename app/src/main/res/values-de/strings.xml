@@ -30,4 +30,6 @@
     <string name="home_menuSettings">Einstellungen</string>
     <string name="settings_profileTitle">Profile</string>
     <string name="settings_profileSubtitle">Verwalten deiner Ansichtsprofile</string>
+    <string name="profileManagement_title">Profilverwaltung</string>
+    <string name="back">Zurück</string>
 </resources>
