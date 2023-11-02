@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingClassListScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingFirstProfileScreen
@@ -21,6 +22,7 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
+import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 
 @Composable
 fun NavigationGraph(
@@ -51,6 +53,14 @@ fun NavigationGraph(
 
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(navController)
+        }
+
+        composable(route = Screen.SettingsScreen.route) {
+            SettingsScreen(navController)
+        }
+
+        composable(route = Screen.SettingsProfileScreen.route) {
+            ProfileManagementScreen(navController)
         }
 
         navigation(

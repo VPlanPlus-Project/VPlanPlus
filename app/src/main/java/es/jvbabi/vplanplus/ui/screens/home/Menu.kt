@@ -61,18 +61,20 @@ fun Menu(
     selectedProfile: MenuProfile,
     onSettingsClicked: () -> Unit = {},
     onRepositoryClicked: () -> Unit = {},
+    onManageProfilesClicked: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.7f))
-            .noRippleClickable { onCloseClicked() },
+            .noRippleClickable(enabled = true) { onCloseClicked() },
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .clip(RoundedCornerShape(16.dp))
+                .noRippleClickable(enabled = true, onClick = { })
                 .background(MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Column {
@@ -139,7 +141,7 @@ fun Menu(
                                     }
                                 }
                             }
-                            TextButton(onClick = { /*TODO*/ }, modifier = Modifier.padding(start = 0.dp)) {
+                            TextButton(onClick = { onManageProfilesClicked() }, modifier = Modifier.padding(start = 0.dp)) {
                                 Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.padding(start = 0.dp))
                                 Text(text = stringResource(id = R.string.home_menuManageProfiles))
                             }
@@ -204,10 +206,12 @@ data class MenuProfile(
 
 // https://www.droidcon.com/2023/02/16/remove-ripple-effect-from-clickable-and-toggleable-widget-in-jetpack-compose/
 inline fun Modifier.noRippleClickable(
-    crossinline onClick: () -> Unit
+    enabled: Boolean = false,
+    crossinline onClick: () -> Unit,
 ): Modifier = composed {
     clickable(
         indication = null,
+        enabled = enabled,
         interactionSource = remember { MutableInteractionSource() }) {
         onClick()
     }

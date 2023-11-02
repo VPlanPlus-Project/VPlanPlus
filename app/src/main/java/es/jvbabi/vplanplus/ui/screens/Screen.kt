@@ -10,4 +10,7 @@ sealed class Screen(val route: String) {
     object OnboardingFirstProfileScreen: Screen("onboarding/first_profile_screen")
     object OnboardingClassListScreen: Screen("onboarding/class_list_screen")
     object OnboardingSetupScreen: Screen("onboarding/setup_screen")
+
+    object SettingsScreen: Screen("settings/main")
+    object SettingsProfileScreen: Screen("settings/profile")
 }
