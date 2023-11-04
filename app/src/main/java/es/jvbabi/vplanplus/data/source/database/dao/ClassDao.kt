@@ -20,4 +20,7 @@ abstract class ClassDao {
 
     @Query("DELETE FROM classes WHERE schoolId = :schoolId")
     abstract suspend fun deleteClassesBySchoolId(schoolId: Long)
+
+    @Query("SELECT * FROM classes WHERE schoolId = :schoolId")
+    abstract suspend fun getClassesBySchoolId(schoolId: Long): List<Classes>
 }

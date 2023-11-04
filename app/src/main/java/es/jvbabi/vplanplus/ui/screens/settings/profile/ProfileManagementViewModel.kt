@@ -56,6 +56,8 @@ class ProfileManagementViewModel @Inject constructor(
             )
         })
     }
+
+    suspend fun getSchoolByName(schoolName: String) = schoolUseCases.getSchoolByName(schoolName)
 }
 
 data class ProfileManagementState(

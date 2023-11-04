@@ -9,14 +9,16 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingClassListScreen
-import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingFirstProfileScreen
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
@@ -97,7 +99,21 @@ fun NavigationGraph(
                 enterTransition = enterSlideTransition,
                 exitTransition = exitSlideTransition
             ) {
-                OnboardingFirstProfileScreen(navController, onboardingViewModel)
+                OnboardingAddProfileScreen(navController, onboardingViewModel)
+            }
+
+            composable(
+                route = Screen.OnboardingNewProfileScreen.route + "/{schoolId}",
+                arguments = listOf(
+                    navArgument("schoolId") {
+                        type = NavType.LongType
+                    }
+                ),
+            ) {
+                val schoolId = it.arguments!!.getLong("schoolId")
+                onboardingViewModel.setIsFirstProfile(false)
+                onboardingViewModel.onAutomaticSchoolIdInput(schoolId)
+                OnboardingAddProfileScreen(navController, onboardingViewModel)
             }
 
             composable(

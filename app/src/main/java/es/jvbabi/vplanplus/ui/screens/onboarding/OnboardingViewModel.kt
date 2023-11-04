@@ -17,8 +17,6 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -104,13 +102,19 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(firstProfile = firstProfile)
     }
 
-    fun onFirstProfileSubmit() {
+    suspend fun onFirstProfileSubmit() {
         _state.value = _state.value.copy(isLoading = true)
 
         if (state.value.firstProfile == FirstProfile.STUDENT) {
-            _state.value = _state.value.copy(
-                classList = baseData.classNames,
-            )
+            if (state.value.isFirstProfile) {
+                _state.value = _state.value.copy(
+                    classList = baseData.classNames,
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    classList = classUseCases.getClassesBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.className },
+                )
+            }
         }
     }
 
@@ -118,23 +122,9 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(selectedClass = className)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
     suspend fun onClassSubmit() {
         _state.value = _state.value.copy(isLoading = true)
-        GlobalScope.launch {
-
-            schoolUseCases.createSchool(
-                schoolId = state.value.schoolId.toLong(),
-                username = state.value.username,
-                password = state.value.password,
-                name = baseData.schoolName
-            )
-
-            baseDataUseCases.processBaseData(
-                schoolId = state.value.schoolId.toLong(),
-                baseData = baseData
-            )
-
+        viewModelScope.launch {
             val `class` = classUseCases.getClassBySchoolIdAndClassName(
                 schoolId = state.value.schoolId.toLong(),
                 className = state.value.selectedClass!!,
@@ -144,13 +134,41 @@ class OnboardingViewModel @Inject constructor(
                 name = state.value.selectedClass!!
             )
 
-            keyValueUseCases.set(
-                Keys.ACTIVE_PROFILE.name,
-                profileUseCases.getProfileByClassId(`class`.id).id.toString()
-            )
+            if (state.value.isFirstProfile) {
+                schoolUseCases.createSchool(
+                    schoolId = state.value.schoolId.toLong(),
+                    username = state.value.username,
+                    password = state.value.password,
+                    name = baseData.schoolName
+                )
+
+                baseDataUseCases.processBaseData(
+                    schoolId = state.value.schoolId.toLong(),
+                    baseData = baseData
+                )
+
+                keyValueUseCases.set(
+                    Keys.ACTIVE_PROFILE.name,
+                    profileUseCases.getProfileByClassId(`class`.id).id.toString()
+                )
+            }
             _state.value = _state.value.copy(isLoading = false)
         }
 
+    }
+
+    fun onAutomaticSchoolIdInput(schoolId: Long) {
+        val school = schoolUseCases.getSchoolFromId(schoolId)
+        _state.value = _state.value.copy(
+            schoolId = schoolId.toString(),
+            schoolIdState = SchoolIdCheckResult.VALID,
+            username = school.username,
+            password = school.password
+        )
+    }
+
+    fun setIsFirstProfile(isFirstProfile: Boolean) {
+        _state.value = _state.value.copy(isFirstProfile = isFirstProfile)
     }
 }
 
@@ -170,6 +188,8 @@ data class OnboardingState(
 
     val classList: List<String> = listOf(),
     val selectedClass: String? = null,
+
+    val isFirstProfile: Boolean = true
 )
 
 enum class FirstProfile {

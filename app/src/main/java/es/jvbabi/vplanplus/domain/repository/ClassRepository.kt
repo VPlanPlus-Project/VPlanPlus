@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.domain.repository
 
 import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.School
 
 interface ClassRepository {
 
@@ -9,4 +10,5 @@ interface ClassRepository {
     suspend fun getClassById(id: Long): Classes
     suspend fun insertClasses(schoolId: Long, classes: List<String>)
     suspend fun deleteClassesBySchoolId(schoolId: Long)
+    suspend fun getClassesBySchool(school: School): List<Classes>
 }

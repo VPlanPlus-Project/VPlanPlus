@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,6 +28,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -44,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.screens.Screen
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileManagementScreen(
@@ -51,13 +55,20 @@ fun ProfileManagementScreen(
     viewModel: ProfileManagementViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+    val scope = rememberCoroutineScope()
     LaunchedEffect("Init") {
         if (state.schools.isEmpty() && !state.isLoading) viewModel.init()
     }
 
     ProfileManagementScreenContent(
         { navController.popBackStack() },
-        state
+        state,
+        {
+            scope.launch {
+                val school = viewModel.getSchoolByName(it).id!!
+                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/$school")
+            }
+        }
     )
 }
 
@@ -65,7 +76,8 @@ fun ProfileManagementScreen(
 @Composable
 fun ProfileManagementScreenContent(
     onBackClicked: () -> Unit = {},
-    state: ProfileManagementState
+    state: ProfileManagementState,
+    onNewSchoolProfileClicked: (schoolName: String) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -117,7 +129,11 @@ fun ProfileManagementScreenContent(
                                 school.profiles.forEach {
                                     ProfileCard(type = it.type, name = it.name)
                                 }
-                                ProfileCard(type = -1, name = "+")
+                                ProfileCard(
+                                    type = -1,
+                                    name = "+",
+                                    modifier = Modifier.clickable { onNewSchoolProfileClicked(school.name) }
+                                )
                             }
                         }
                     }
@@ -129,11 +145,11 @@ fun ProfileManagementScreenContent(
 }
 
 @Composable
-fun ProfileCard(type: Int, name: String) {
+fun ProfileCard(type: Int, name: String, modifier: Modifier = Modifier) {
     Card(
         colors = CardDefaults.cardColors(),
         border = if (type != -1) BorderStroke(1.dp, Color.Black) else null,
-        modifier = Modifier
+        modifier = modifier
             .padding(end = 16.dp)
             .size(width = 80.dp, height = 80.dp)
             .dashedBorder(if (type == -1) 2.dp else 0.dp, Color.Black, 8.dp)

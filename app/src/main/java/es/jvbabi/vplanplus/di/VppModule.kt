@@ -60,6 +60,7 @@ object VppModule {
         )
             .fallbackToDestructiveMigration() // TODO: Remove for production
             .addTypeConverter(DayConverter())
+            .allowMainThreadQueries()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
     }

@@ -29,9 +29,9 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun OnboardingFirstProfileScreen(
+fun OnboardingAddProfileScreen(
     navController: NavHostController,
-    viewModel: OnboardingViewModel
+    viewModel: OnboardingViewModel,
 ) {
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
@@ -41,7 +41,7 @@ fun OnboardingFirstProfileScreen(
         navController.navigate(Screen.OnboardingClassListScreen.route) { popUpTo(0) }
     }
 
-    FirstProfileScreen(
+    AddProfileScreen(
         state = state,
         onProfileSelect = { viewModel.onFirstProfileSelect(it) },
         onButtonClick = {
@@ -53,13 +53,13 @@ fun OnboardingFirstProfileScreen(
 }
 
 @Composable
-fun FirstProfileScreen(
+fun AddProfileScreen(
     state: OnboardingState,
     onProfileSelect: (FirstProfile) -> Unit,
     onButtonClick: () -> Unit,
 ) {
     OnboardingScreen(
-        title = stringResource(id = R.string.onboarding_firstProfileTitle),
+        title = if (state.isFirstProfile) stringResource(id = R.string.onboarding_firstProfileTitle) else stringResource(id = R.string.onboarding_newProfileTitle),
         text = stringResource(id = R.string.onboarding_firstProfileText),
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
@@ -154,6 +154,6 @@ fun ProfileCard(
 
 @Composable
 @Preview(showBackground = true)
-fun OnboardingFirstProfileScreenPreview() {
-    FirstProfileScreen(state = OnboardingState(firstProfile = FirstProfile.STUDENT), onProfileSelect = {}, onButtonClick = {})
+fun OnboardingNewProfileScreenPreview() {
+    AddProfileScreen(state = OnboardingState(firstProfile = FirstProfile.STUDENT, isFirstProfile = false), onProfileSelect = {}, onButtonClick = {})
 }

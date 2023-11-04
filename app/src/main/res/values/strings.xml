@@ -31,4 +31,5 @@
     <string name="settings_profileSubtitle">Manage your viewing profiles</string>
     <string name="profileManagement_title">Profile management</string>
     <string name="back">Back</string>
+    <string name="onboarding_newProfileTitle">Add new profile</string>
 </resources>
