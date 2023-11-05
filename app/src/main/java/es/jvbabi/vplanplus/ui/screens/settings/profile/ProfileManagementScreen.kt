@@ -46,12 +46,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileManagementScreen(
     navController: NavHostController,
+    onNewProfileClicked: (school: School) -> Unit = {},
     viewModel: ProfileManagementViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -65,8 +67,9 @@ fun ProfileManagementScreen(
         state,
         {
             scope.launch {
-                val school = viewModel.getSchoolByName(it).id!!
-                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/$school")
+                val school = viewModel.getSchoolByName(it)
+                onNewProfileClicked(school)
+                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.id!!}")
             }
         }
     )

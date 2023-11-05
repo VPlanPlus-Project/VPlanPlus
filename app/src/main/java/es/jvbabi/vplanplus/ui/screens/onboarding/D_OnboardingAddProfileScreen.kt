@@ -46,7 +46,7 @@ fun OnboardingAddProfileScreen(
         onProfileSelect = { viewModel.onFirstProfileSelect(it) },
         onButtonClick = {
             coroutineScope.launch {
-                viewModel.onFirstProfileSubmit()
+                viewModel.onProfileSubmit()
             }
         }
     )
@@ -55,15 +55,15 @@ fun OnboardingAddProfileScreen(
 @Composable
 fun AddProfileScreen(
     state: OnboardingState,
-    onProfileSelect: (FirstProfile) -> Unit,
+    onProfileSelect: (ProfileType) -> Unit,
     onButtonClick: () -> Unit,
 ) {
     OnboardingScreen(
-        title = if (state.isFirstProfile) stringResource(id = R.string.onboarding_firstProfileTitle) else stringResource(id = R.string.onboarding_newProfileTitle),
+        title = if (state.task == Task.CREATE_SCHOOL) stringResource(id = R.string.onboarding_firstProfileTitle) else stringResource(id = R.string.onboarding_newProfileTitle),
         text = stringResource(id = R.string.onboarding_firstProfileText),
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
-        enabled = state.firstProfile != null,
+        enabled = state.profileType != null,
         onButtonClick = { onButtonClick() }) {
 
         ProfileCard(
@@ -71,8 +71,8 @@ fun AddProfileScreen(
                 Text(text = stringResource(id = R.string.onboarding_firstProfileStudentTitle), style = MaterialTheme.typography.headlineSmall)
             },
             text = stringResource(id = R.string.onboarding_firstProfileStudentText),
-            isSelected = state.firstProfile == FirstProfile.STUDENT,
-        ) { onProfileSelect(FirstProfile.STUDENT) }
+            isSelected = state.profileType == ProfileType.STUDENT,
+        ) { onProfileSelect(ProfileType.STUDENT) }
 
         ProfileCard(
             title = {
@@ -84,8 +84,8 @@ fun AddProfileScreen(
                 }
             },
             text = stringResource(id = R.string.onboarding_firstProfileTeacherText),
-            isSelected = state.firstProfile == FirstProfile.TEACHER,
-        ) { onProfileSelect(FirstProfile.TEACHER) }
+            isSelected = state.profileType == ProfileType.TEACHER,
+        ) { onProfileSelect(ProfileType.TEACHER) }
 
     }
 }
@@ -155,5 +155,5 @@ fun ProfileCard(
 @Composable
 @Preview(showBackground = true)
 fun OnboardingNewProfileScreenPreview() {
-    AddProfileScreen(state = OnboardingState(firstProfile = FirstProfile.STUDENT, isFirstProfile = false), onProfileSelect = {}, onButtonClick = {})
+    AddProfileScreen(state = OnboardingState(profileType = ProfileType.STUDENT, task = Task.CREATE_PROFILE), onProfileSelect = {}, onButtonClick = {})
 }

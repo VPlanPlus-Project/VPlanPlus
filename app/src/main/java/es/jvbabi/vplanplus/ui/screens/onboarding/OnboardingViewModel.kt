@@ -9,10 +9,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
-import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
@@ -26,28 +24,44 @@ import javax.inject.Inject
 class OnboardingViewModel @Inject constructor(
     private val schoolUseCases: SchoolUseCases,
     private val profileUseCases: ProfileUseCases,
-    private val onboardingUseCases: OnboardingUseCases,
     private val classUseCases: ClassUseCases,
     private val keyValueUseCases: KeyValueUseCases,
-    private val holidayUseCases: HolidayUseCases,
     private val baseDataUseCases: BaseDataUseCases,
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
 
-    lateinit var baseData: XmlBaseData
+    private lateinit var baseData: XmlBaseData
 
+    // UI TEXT INPUT EVENT HANDLERS
     fun onSchoolIdInput(schoolId: String) {
         _state.value = _state.value.copy(
             schoolId = schoolId,
             schoolIdState = schoolUseCases.checkSchoolId(schoolId)
         )
     }
+    fun onUsernameInput(username: String) {
+        _state.value = _state.value.copy(username = username)
+    }
+    fun onPasswordInput(password: String) {
+        _state.value = _state.value.copy(password = password)
+    }
+    fun onPasswordVisibilityToggle() {
+        _state.value = _state.value.copy(passwordVisible = !state.value.passwordVisible)
+    }
+
+
+    fun reset() {
+        _state.value = OnboardingState()
+    }
 
     fun newScreen() {
         _state.value = _state.value.copy(isLoading = false, currentResponseType = Response.NONE)
     }
 
+    /**
+     * Called when user clicks next button on [OnboardingSchoolIdScreen]
+     */
     suspend fun onSchoolIdSubmit() {
         _state.value = _state.value.copy(isLoading = true)
         schoolUseCases.checkSchoolIdOnline(state.value.schoolId.toLong()).onEach { result ->
@@ -65,18 +79,9 @@ class OnboardingViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onUsernameInput(username: String) {
-        _state.value = _state.value.copy(username = username)
-    }
-
-    fun onPasswordInput(password: String) {
-        _state.value = _state.value.copy(password = password)
-    }
-
-    fun onPasswordVisibilityToggle() {
-        _state.value = _state.value.copy(passwordVisible = !state.value.passwordVisible)
-    }
-
+    /**
+     * Called when user clicks next button on [OnboardingLoginScreen]
+     */
     suspend fun onLogin() {
         _state.value = _state.value.copy(isLoading = true)
 
@@ -98,15 +103,21 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun onFirstProfileSelect(firstProfile: FirstProfile) {
-        _state.value = _state.value.copy(firstProfile = firstProfile)
+    /**
+     * Called when user clicks profile card on [OnboardingAddProfileScreen]
+     */
+    fun onFirstProfileSelect(profileType: ProfileType?) {
+        _state.value = _state.value.copy(profileType = profileType)
     }
 
-    suspend fun onFirstProfileSubmit() {
+    /**
+     * Called when user clicks next button on [OnboardingAddProfileScreen]
+     */
+    suspend fun onProfileSubmit() {
         _state.value = _state.value.copy(isLoading = true)
 
-        if (state.value.firstProfile == FirstProfile.STUDENT) {
-            if (state.value.isFirstProfile) {
+        if (state.value.profileType == ProfileType.STUDENT) {
+            if (state.value.task == Task.CREATE_SCHOOL) {
                 _state.value = _state.value.copy(
                     classList = baseData.classNames,
                 )
@@ -122,19 +133,14 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(selectedClass = className)
     }
 
+    /**
+     * Called when user clicks next button on [OnboardingClassListScreen]
+     */
     suspend fun onClassSubmit() {
         _state.value = _state.value.copy(isLoading = true)
         viewModelScope.launch {
-            val `class` = classUseCases.getClassBySchoolIdAndClassName(
-                schoolId = state.value.schoolId.toLong(),
-                className = state.value.selectedClass!!,
-            )!!
-            profileUseCases.createStudentProfile(
-                classId = `class`.id!!,
-                name = state.value.selectedClass!!
-            )
 
-            if (state.value.isFirstProfile) {
+            if (state.value.task == Task.CREATE_SCHOOL) {
                 schoolUseCases.createSchool(
                     schoolId = state.value.schoolId.toLong(),
                     username = state.value.username,
@@ -146,12 +152,21 @@ class OnboardingViewModel @Inject constructor(
                     schoolId = state.value.schoolId.toLong(),
                     baseData = baseData
                 )
-
-                keyValueUseCases.set(
-                    Keys.ACTIVE_PROFILE.name,
-                    profileUseCases.getProfileByClassId(`class`.id).id.toString()
-                )
             }
+
+            val `class` = classUseCases.getClassBySchoolIdAndClassName(
+                schoolId = state.value.schoolId.toLong(),
+                className = state.value.selectedClass!!,
+            )!!
+            profileUseCases.createStudentProfile(
+                classId = `class`.id!!,
+                name = state.value.selectedClass!!
+            )
+
+            keyValueUseCases.set(
+                Keys.ACTIVE_PROFILE.name,
+                profileUseCases.getProfileByClassId(`class`.id).id.toString()
+            )
             _state.value = _state.value.copy(isLoading = false)
         }
 
@@ -163,12 +178,13 @@ class OnboardingViewModel @Inject constructor(
             schoolId = schoolId.toString(),
             schoolIdState = SchoolIdCheckResult.VALID,
             username = school.username,
-            password = school.password
+            password = school.password,
+            loginSuccessful = true
         )
     }
 
-    fun setIsFirstProfile(isFirstProfile: Boolean) {
-        _state.value = _state.value.copy(isFirstProfile = isFirstProfile)
+    fun setTask(task: Task) {
+        _state.value = _state.value.copy(task = task)
     }
 }
 
@@ -184,14 +200,17 @@ data class OnboardingState(
     val currentResponseType: Response = Response.NONE,
     val isLoading: Boolean = false,
 
-    val firstProfile: FirstProfile? = null,
+    val profileType: ProfileType? = null,
+    val task: Task = Task.CREATE_SCHOOL,
 
     val classList: List<String> = listOf(),
     val selectedClass: String? = null,
-
-    val isFirstProfile: Boolean = true
 )
 
-enum class FirstProfile {
+enum class ProfileType {
     TEACHER, STUDENT
+}
+
+enum class Task {
+    CREATE_SCHOOL, CREATE_PROFILE
 }
