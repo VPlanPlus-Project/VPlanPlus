@@ -104,7 +104,8 @@ fun HomeScreen(
             profiles = state.profiles,
             selectedProfile = MenuProfile(0, "10a"),
             onProfileClicked = {
-                Toast.makeText(context, "Not implemented", LENGTH_SHORT).show()
+                menuOpened = false
+                viewModel.onProfileSelected(it)
             },
             onCloseClicked = {
                 menuOpened = false

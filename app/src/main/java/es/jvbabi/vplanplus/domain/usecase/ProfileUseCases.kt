@@ -25,4 +25,8 @@ class ProfileUseCases(
     suspend fun getProfiles(): List<Profile> {
         return profileRepository.getProfiles()
     }
+
+    suspend fun setActiveProfile(profileId: Long) {
+        keyValueRepository.set(key = Keys.ACTIVE_PROFILE.name, value = profileId.toString())
+    }
 }
