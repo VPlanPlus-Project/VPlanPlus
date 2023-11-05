@@ -63,7 +63,7 @@ fun YesNoDialog(
 fun YesNoDialogPreview() {
     YesNoDialog(
         icon = Icons.Default.Delete,
-        title = "Deleteing stuff",
+        title = "Deleting stuff",
         message = "Are you sure you want to delete this stuff?",
     )
 }
