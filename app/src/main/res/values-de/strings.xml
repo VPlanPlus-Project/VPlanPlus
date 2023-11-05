@@ -33,4 +33,6 @@
     <string name="profileManagement_title">Profilverwaltung</string>
     <string name="back">Zurück</string>
     <string name="onboarding_newProfileTitle">Neues Profil anlegen</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
 </resources>
