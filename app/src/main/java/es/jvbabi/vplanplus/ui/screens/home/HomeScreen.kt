@@ -102,7 +102,7 @@ fun HomeScreen(
     ) {
         Menu(
             profiles = state.profiles,
-            selectedProfile = MenuProfile(0, "10a"),
+            selectedProfile = state.activeProfile!!,
             onProfileClicked = {
                 menuOpened = false
                 viewModel.onProfileSelected(it)
