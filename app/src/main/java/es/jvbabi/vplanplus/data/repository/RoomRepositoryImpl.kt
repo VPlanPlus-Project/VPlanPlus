@@ -39,4 +39,8 @@ class RoomRepositoryImpl(
             createRoom(Room(schoolId = schoolId, name = it))
         }
     }
+
+    override suspend fun getRoomsBySchool(school: School): List<Room> {
+        return roomDao.getRoomsBySchool(school.id!!)
+    }
 }

@@ -47,15 +47,15 @@ fun ProfileOptionsScreen(
     onButtonClick: () -> Unit,
 ) {
     OnboardingScreen(
-        title = when (state.profileType) {
+        title = when (state.profileType!!) {
             ProfileType.STUDENT -> stringResource(id = R.string.onboarding_studentChooseClassTitle)
             ProfileType.TEACHER -> stringResource(id = R.string.onboarding_teacherChooseTeacherTitle)
-            else -> ""
+            ProfileType.ROOM -> stringResource(id = R.string.onboarding_roomChooseRoomTitle)
         },
         text = when (state.profileType) {
             ProfileType.STUDENT -> stringResource(id = R.string.onboarding_studentChooseClassText)
             ProfileType.TEACHER -> stringResource(id = R.string.onboarding_teacherChooseTeacherText)
-            else -> ""
+            ProfileType.ROOM -> stringResource(id = R.string.onboarding_roomChooseRoomText)
         },
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
@@ -173,6 +173,19 @@ fun TeacherListScreenPreview() {
         state = OnboardingState(
             profileType = ProfileType.TEACHER,
             profileOptions = listOf("Bac", "Mei", "Kra", "Vle")
+        ),
+        onClassSelect = {},
+        onButtonClick = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun RoomListScreenPreview() {
+    ProfileOptionsScreen(
+        state = OnboardingState(
+            profileType = ProfileType.ROOM,
+            profileOptions = listOf("108", "109", "TH1", "TH2", "K17", "207", "208")
         ),
         onClassSelect = {},
         onButtonClick = {}

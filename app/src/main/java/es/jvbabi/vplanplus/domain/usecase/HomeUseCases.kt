@@ -27,7 +27,9 @@ class HomeUseCases(
             ProfileType.TEACHER -> {
                 lessonRepository.getLessonsForTeacher(profile.referenceId, LocalDate.now())
             }
-            ProfileType.ROOM -> TODO()
+            ProfileType.ROOM -> {
+                lessonRepository.getLessonsForRoom(profile.referenceId, LocalDate.now())
+            }
         }
         return lessons.sortedBy { it.lesson }.map {
             try {

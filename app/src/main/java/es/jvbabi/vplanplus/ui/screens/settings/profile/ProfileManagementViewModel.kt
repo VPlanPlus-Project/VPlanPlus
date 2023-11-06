@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
@@ -18,7 +19,8 @@ class ProfileManagementViewModel @Inject constructor(
     private val profileUseCases: ProfileUseCases,
     private val classUseCases: ClassUseCases,
     private val schoolUseCases: SchoolUseCases,
-    private val teacherRepostitory: TeacherRepository
+    private val teacherRepostitory: TeacherRepository,
+    private val roomRepository: RoomRepository
 ): ViewModel() {
 
     private val _state = mutableStateOf(ProfileManagementState())
@@ -72,7 +74,27 @@ class ProfileManagementViewModel @Inject constructor(
                         )
                     }
                 }
-                ProfileType.ROOM -> TODO()
+                ProfileType.ROOM -> {
+                    val room = roomRepository.getRoomById(it.referenceId)
+                    val school = schoolUseCases.getSchoolFromId(room.schoolId)
+                    if (schools.containsKey(school.name)) {
+                        schools[school.name] = schools[school.name]!!.plus(
+                            ProfileManagementProfile(
+                                id = it.id!!,
+                                name = it.name,
+                                type = it.type
+                            )
+                        )
+                    } else {
+                        schools[school.name] = listOf(
+                            ProfileManagementProfile(
+                                id = it.id!!,
+                                name = it.name,
+                                type = it.type
+                            )
+                        )
+                    }
+                }
             }
         }
 

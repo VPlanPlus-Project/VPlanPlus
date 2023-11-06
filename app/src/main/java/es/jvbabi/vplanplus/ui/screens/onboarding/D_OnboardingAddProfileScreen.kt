@@ -80,6 +80,11 @@ fun AddProfileScreen(
             isSelected = state.profileType == ProfileType.TEACHER,
         ) { onProfileSelect(ProfileType.TEACHER) }
 
+        ProfileCard(
+            title = { Text(text = stringResource(id = R.string.onboarding_firstProfileRoomTitle), style = MaterialTheme.typography.headlineSmall) },
+            text = stringResource(id = R.string.onboarding_firstProfileRoomText),
+            isSelected = state.profileType == ProfileType.ROOM
+        ) { onProfileSelect(ProfileType.ROOM) }
     }
 }
 

@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 
@@ -14,7 +15,8 @@ class ProfileUseCases(
     private val schoolRepository: SchoolRepository,
     private val classRepository: ClassRepository,
     private val keyValueRepository: KeyValueRepository,
-    private val teacherRepository: TeacherRepository
+    private val teacherRepository: TeacherRepository,
+    private val roomRepository: RoomRepository
 ) {
 
     suspend fun createStudentProfile(classId: Long, name: String) {
@@ -25,12 +27,20 @@ class ProfileUseCases(
         profileRepository.createProfile(referenceId = teacherId, type = ProfileType.TEACHER, name = name)
     }
 
+    suspend fun createRoomProfile(roomId: Long, name: String) {
+        profileRepository.createProfile(referenceId = roomId, type = ProfileType.ROOM, name = name)
+    }
+
     suspend fun getProfileByClassId(classId: Long): Profile {
         return profileRepository.getProfileByReferenceId(referenceId = classId, type = ProfileType.STUDENT)
     }
 
     suspend fun getProfileByTeacherId(teacherId: Long): Profile {
         return profileRepository.getProfileByReferenceId(referenceId = teacherId, type = ProfileType.TEACHER)
+    }
+
+    suspend fun getProfileByRoomId(roomId: Long): Profile {
+        return profileRepository.getProfileByReferenceId(referenceId = roomId, type = ProfileType.ROOM)
     }
 
     suspend fun getActiveProfile(): Profile? {
@@ -66,7 +76,8 @@ class ProfileUseCases(
                 schoolRepository.getSchoolFromId(schoolId = teacher!!.schoolId)
             }
             ProfileType.ROOM -> {
-                TODO()
+                val room = roomRepository.getRoomById(profile.referenceId)
+                schoolRepository.getSchoolFromId(schoolId = room.schoolId)
             }
         }
     }

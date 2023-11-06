@@ -42,4 +42,8 @@
     <string name="profileManagement_addNewSchool">Schule hinzufügen</string>
     <string name="onboarding_teacherChooseTeacherTitle">Lehrer auswählen</string>
     <string name="onboarding_teacherChooseTeacherText">Finde dein Kürzel. Falls du als Klassenlehrer den Plan deiner Klasse sehen möchtest, kannst du ein Klassenprofil später in den Einstellungen anlegen.</string>
+    <string name="onboarding_firstProfileRoomTitle">Raum</string>
+    <string name="onboarding_firstProfileRoomText">Wähle dieses Profil, um die Zeitpläne für einen bestimmten Raum an deiner Schule anzuzeigen.</string>
+    <string name="onboarding_roomChooseRoomTitle">Wähle einen Raum</string>
+    <string name="onboarding_roomChooseRoomText">Hier kannst du einen Raum auswählen, der an deiner Schule gefunden wurde.</string>
 </resources>

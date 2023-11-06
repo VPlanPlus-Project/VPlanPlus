@@ -41,4 +41,8 @@
     <string name="profileManagement_addNewSchool">Add school</string>
     <string name="onboarding_teacherChooseTeacherTitle">Choose teacher</string>
     <string name="onboarding_teacherChooseTeacherText">Find your acronym. If you want to see your class as well, you can add another profile in settings later.</string>
+    <string name="onboarding_firstProfileRoomTitle">Room</string>
+    <string name="onboarding_firstProfileRoomText">Choose this profile to view the schedules for a specific room at your school.</string>
+    <string name="onboarding_roomChooseRoomTitle">Choose a room</string>
+    <string name="onboarding_roomChooseRoomText">Here you can select a room that has been found at your school.</string>
 </resources>
