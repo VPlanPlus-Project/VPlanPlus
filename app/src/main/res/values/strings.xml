@@ -39,4 +39,6 @@
     <string name="profileManagement_lastProfileError">You can\'t delete the last existing profile for this school</string>
     <string name="ok">OK</string>
     <string name="profileManagement_addNewSchool">Add school</string>
+    <string name="onboarding_teacherChooseTeacherTitle">Choose teacher</string>
+    <string name="onboarding_teacherChooseTeacherText">Find your acronym. If you want to see your class as well, you can add another profile in settings later.</string>
 </resources>

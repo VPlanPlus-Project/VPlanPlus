@@ -12,7 +12,7 @@ import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
-import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingClassListScreen
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingProfileOptionListScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
@@ -105,11 +105,11 @@ fun NavigationGraph(
             }
 
             composable(
-                route = Screen.OnboardingClassListScreen.route,
+                route = Screen.OnboardingProfileSelectScreen.route,
                 enterTransition = enterSlideTransition,
                 exitTransition = exitSlideTransition
             ) {
-                OnboardingClassListScreen(navController, onboardingViewModel)
+                OnboardingProfileOptionListScreen(navController, onboardingViewModel)
             }
 
             composable(

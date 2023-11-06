@@ -165,13 +165,15 @@ object VppModule {
         repository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
         schoolRepository: SchoolRepository,
-        classRepository: ClassRepository
+        classRepository: ClassRepository,
+        teacherRepository: TeacherRepository
     ): ProfileUseCases {
         return ProfileUseCases(
             profileRepository = repository,
             keyValueRepository = keyValueRepository,
             schoolRepository = schoolRepository,
-            classRepository = classRepository
+            classRepository = classRepository,
+            teacherRepository = teacherRepository
         )
     }
 
