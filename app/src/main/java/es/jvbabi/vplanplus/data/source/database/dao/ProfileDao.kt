@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileType
 
 @Dao
 abstract class ProfileDao {
@@ -15,7 +16,7 @@ abstract class ProfileDao {
     abstract suspend fun insert(profile: Profile)
 
     @Query("SELECT * FROM profile WHERE referenceId = :referenceId AND type = :type")
-    abstract suspend fun getProfileByReferenceId(referenceId: Long, type: Int): Profile
+    abstract suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): Profile
 
     @Query("SELECT * FROM profile WHERE id = :id")
     abstract suspend fun getProfileById(id: Long): Profile

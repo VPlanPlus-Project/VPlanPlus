@@ -6,7 +6,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -28,7 +30,8 @@ class OnboardingViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val baseDataUseCases: BaseDataUseCases,
-    private val teacherRepository: TeacherRepository
+    private val teacherRepository: TeacherRepository,
+    private val roomRepository: RoomRepository
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
@@ -138,6 +141,16 @@ class OnboardingViewModel @Inject constructor(
                     profileOptions = teacherRepository.getTeachersBySchoolId(state.value.schoolId.toLong()).map { it.acronym },
                 )
             }
+        } else if (state.value.profileType == ProfileType.ROOM) {
+            if (state.value.task == Task.CREATE_SCHOOL) {
+                _state.value = _state.value.copy(
+                    profileOptions = baseData.roomNames,
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    profileOptions = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.name },
+                )
+            }
         }
     }
 
@@ -194,6 +207,14 @@ class OnboardingViewModel @Inject constructor(
                         profileUseCases.getProfileByTeacherId(teacher.id).id.toString()
                     )
                 }
+                ProfileType.ROOM -> {
+                    val room = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).find { it.name == state.value.selectedProfileOption!! }!!
+                    profileUseCases.createRoomProfile(roomId = room.id!!, name = room.name)
+                    keyValueUseCases.set(
+                        Keys.ACTIVE_PROFILE.name,
+                        profileUseCases.getProfileByRoomId(room.id).id.toString()
+                    )
+                }
             }
 
             _state.value = _state.value.copy(isLoading = false)
@@ -235,10 +256,6 @@ data class OnboardingState(
     val profileOptions: List<String> = listOf(),
     val selectedProfileOption: String? = null,
 )
-
-enum class ProfileType {
-    TEACHER, STUDENT
-}
 
 enum class Task {
     CREATE_SCHOOL, CREATE_PROFILE

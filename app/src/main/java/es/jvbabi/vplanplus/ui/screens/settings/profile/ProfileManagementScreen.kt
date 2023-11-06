@@ -54,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
@@ -209,7 +210,7 @@ fun ProfileManagementScreenContent(
                                     )
                                 }
                                 ProfileCard(
-                                    type = -1,
+                                    type = null,
                                     name = "+",
                                     modifier = Modifier.clickable { onNewSchoolProfileClicked(school.name) }
                                 )
@@ -224,14 +225,14 @@ fun ProfileManagementScreenContent(
 }
 
 @Composable
-fun ProfileCard(type: Int, name: String, modifier: Modifier = Modifier) {
+fun ProfileCard(type: ProfileType?, name: String, modifier: Modifier = Modifier) {
     Card(
         colors = CardDefaults.cardColors(),
-        border = if (type != -1) BorderStroke(1.dp, Color.Black) else null,
+        border = if (type != null) BorderStroke(1.dp, Color.Black) else null,
         modifier = modifier
             .padding(end = 16.dp)
             .size(width = 80.dp, height = 80.dp)
-            .dashedBorder(if (type == -1) 2.dp else 0.dp, Color.Black, 8.dp)
+            .dashedBorder(if (type == null) 2.dp else 0.dp, Color.Black, 8.dp)
     ) {
         Box(
             modifier = Modifier
@@ -244,14 +245,13 @@ fun ProfileCard(type: Int, name: String, modifier: Modifier = Modifier) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.SpaceAround
             ) {
-                if (type != -1) {
+                if (type != null) {
                     Text(text = name, style = MaterialTheme.typography.headlineSmall)
                     Text(
                         text = when (type) {
-                            0 -> "Klasse"
-                            1 -> "Lehrer"
-                            2 -> "Raum"
-                            else -> "Unbekannt"
+                            ProfileType.STUDENT -> "Klasse" // TODO stringResource
+                            ProfileType.TEACHER -> "Lehrer"
+                            ProfileType.ROOM -> "Raum"
                         }, style = MaterialTheme.typography.bodyMedium
                     )
                 } else {
@@ -266,7 +266,7 @@ fun ProfileCard(type: Int, name: String, modifier: Modifier = Modifier) {
 @Preview
 @Composable
 fun ProfileCardPreview() {
-    ProfileCard(0, "7a")
+    ProfileCard(ProfileType.STUDENT, "7a")
 }
 
 @Composable
@@ -281,17 +281,17 @@ fun ProfileManagementScreenPreview() {
                         ProfileManagementProfile(
                             id = 0,
                             name = "7a",
-                            type = 0
+                            type = ProfileType.STUDENT
                         ),
                         ProfileManagementProfile(
                             id = 1,
                             name = "207",
-                            type = 2
+                            type = ProfileType.ROOM
                         ),
                         ProfileManagementProfile(
                             id = 3,
                             name = "Mul",
-                            type = 1
+                            type = ProfileType.TEACHER
                         )
                     )
                 ),
@@ -301,7 +301,7 @@ fun ProfileManagementScreenPreview() {
                         ProfileManagementProfile(
                             id = 4,
                             name = "Mul",
-                            type = 1
+                            type = ProfileType.TEACHER
                         ),
                     )
                 )

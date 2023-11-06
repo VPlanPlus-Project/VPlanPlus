@@ -21,6 +21,7 @@ import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
+import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -60,6 +61,7 @@ object VppModule {
         )
             .fallbackToDestructiveMigration() // TODO: Remove for production
             .addTypeConverter(DayConverter())
+            .addTypeConverter(ProfileTypeConverter())
             .allowMainThreadQueries()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
@@ -166,14 +168,16 @@ object VppModule {
         keyValueRepository: KeyValueRepository,
         schoolRepository: SchoolRepository,
         classRepository: ClassRepository,
-        teacherRepository: TeacherRepository
+        teacherRepository: TeacherRepository,
+        roomRepository: RoomRepository
     ): ProfileUseCases {
         return ProfileUseCases(
             profileRepository = repository,
             keyValueRepository = keyValueRepository,
             schoolRepository = schoolRepository,
             classRepository = classRepository,
-            teacherRepository = teacherRepository
+            teacherRepository = teacherRepository,
+            roomRepository = roomRepository
         )
     }
 

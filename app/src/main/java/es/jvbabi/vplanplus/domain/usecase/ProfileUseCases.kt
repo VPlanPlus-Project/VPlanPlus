@@ -1,10 +1,12 @@
 package es.jvbabi.vplanplus.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 
@@ -13,23 +15,32 @@ class ProfileUseCases(
     private val schoolRepository: SchoolRepository,
     private val classRepository: ClassRepository,
     private val keyValueRepository: KeyValueRepository,
-    private val teacherRepository: TeacherRepository
+    private val teacherRepository: TeacherRepository,
+    private val roomRepository: RoomRepository
 ) {
 
     suspend fun createStudentProfile(classId: Long, name: String) {
-        profileRepository.createProfile(referenceId = classId, type = 0, name = name)
+        profileRepository.createProfile(referenceId = classId, type = ProfileType.STUDENT, name = name)
     }
 
     suspend fun createTeacherProfile(teacherId: Long, name: String) {
-        profileRepository.createProfile(referenceId = teacherId, type = 1, name = name)
+        profileRepository.createProfile(referenceId = teacherId, type = ProfileType.TEACHER, name = name)
+    }
+
+    suspend fun createRoomProfile(roomId: Long, name: String) {
+        profileRepository.createProfile(referenceId = roomId, type = ProfileType.ROOM, name = name)
     }
 
     suspend fun getProfileByClassId(classId: Long): Profile {
-        return profileRepository.getProfileByReferenceId(referenceId = classId, type = 0)
+        return profileRepository.getProfileByReferenceId(referenceId = classId, type = ProfileType.STUDENT)
     }
 
     suspend fun getProfileByTeacherId(teacherId: Long): Profile {
-        return profileRepository.getProfileByReferenceId(referenceId = teacherId, type = 1)
+        return profileRepository.getProfileByReferenceId(referenceId = teacherId, type = ProfileType.TEACHER)
+    }
+
+    suspend fun getProfileByRoomId(roomId: Long): Profile {
+        return profileRepository.getProfileByReferenceId(referenceId = roomId, type = ProfileType.ROOM)
     }
 
     suspend fun getActiveProfile(): Profile? {
@@ -56,16 +67,17 @@ class ProfileUseCases(
     suspend fun getSchoolFromProfileId(profileId: Long): School {
         val profile = profileRepository.getProfileById(id = profileId)
         return when (profile.type) {
-            0 -> {
+            ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
                 schoolRepository.getSchoolFromId(schoolId = `class`.schoolId)
             }
-            1 -> {
+            ProfileType.TEACHER -> {
                 val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
                 schoolRepository.getSchoolFromId(schoolId = teacher!!.schoolId)
             }
-            else -> {
-                TODO("This should never happen")
+            ProfileType.ROOM -> {
+                val room = roomRepository.getRoomById(profile.referenceId)
+                schoolRepository.getSchoolFromId(schoolId = room.schoolId)
             }
         }
     }

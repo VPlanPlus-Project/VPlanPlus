@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 import kotlinx.coroutines.launch
@@ -79,6 +80,11 @@ fun AddProfileScreen(
             isSelected = state.profileType == ProfileType.TEACHER,
         ) { onProfileSelect(ProfileType.TEACHER) }
 
+        ProfileCard(
+            title = { Text(text = stringResource(id = R.string.onboarding_firstProfileRoomTitle), style = MaterialTheme.typography.headlineSmall) },
+            text = stringResource(id = R.string.onboarding_firstProfileRoomText),
+            isSelected = state.profileType == ProfileType.ROOM
+        ) { onProfileSelect(ProfileType.ROOM) }
     }
 }
 
