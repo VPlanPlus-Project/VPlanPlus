@@ -71,6 +71,11 @@ class ProfileManagementViewModel @Inject constructor(
 
     fun deleteProfile(profile: ProfileManagementProfile) {
         viewModelScope.launch {
+            val school = profileUseCases.getSchoolFromProfileId(profile.id)
+            if (profileUseCases.getProfilesBySchoolId(school.id!!).size == 1) {
+                setDeleteProfileResult(ProfileManagementDeletionResult.LAST_PROFILE)
+                return@launch
+            }
             val activeProfile = profileUseCases.getActiveProfile()!!
             if (activeProfile.id == profile.id) {
                 profileUseCases.setActiveProfile(
@@ -78,8 +83,13 @@ class ProfileManagementViewModel @Inject constructor(
                 )
             }
             profileUseCases.deleteProfile(profile.id)
+            setDeleteProfileResult(ProfileManagementDeletionResult.SUCCESS)
             init()
         }
+    }
+
+    fun setDeleteProfileResult(result: ProfileManagementDeletionResult?) {
+        _state.value = state.value.copy(deleteProfileResult = result)
     }
 }
 
@@ -87,6 +97,7 @@ data class ProfileManagementState(
     val schools: List<ProfileManagementSchool> = emptyList(),
     val isLoading: Boolean = false,
     val deleteProfileDialogProfile: ProfileManagementProfile? = null,
+    val deleteProfileResult: ProfileManagementDeletionResult? = null,
 )
 
 data class ProfileManagementSchool(
@@ -99,3 +110,8 @@ data class ProfileManagementProfile(
     val name: String,
     val type: Int
 )
+
+enum class ProfileManagementDeletionResult {
+    SUCCESS,
+    LAST_PROFILE,
+}

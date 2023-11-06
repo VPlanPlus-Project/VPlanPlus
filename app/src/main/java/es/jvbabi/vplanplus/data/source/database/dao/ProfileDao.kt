@@ -22,4 +22,7 @@ abstract class ProfileDao {
 
     @Query("DELETE FROM profile WHERE id = :profileId")
     abstract suspend fun deleteProfile(profileId: Long)
+
+    @Query("SELECT * FROM profile WHERE referenceId IN (SELECT id FROM classes WHERE schoolId = :schoolId) OR referenceId IN (SELECT id FROM teacher WHERE schoolId = :schoolId) OR referenceId IN (SELECT id FROM room WHERE schoolId = :schoolId)")
+    abstract suspend fun getProfilesBySchoolId(schoolId: Long): List<Profile>
 }

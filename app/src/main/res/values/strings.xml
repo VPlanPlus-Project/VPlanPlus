@@ -36,4 +36,6 @@
     <string name="no">No</string>
     <string name="profileManagement_deleteProfileDialogTitle">Delete profile</string>
     <string name="profileManagement_deleteProfileDialogText">Do you want to delete profile \'%1$s\'?</string>
+    <string name="profileManagement_lastProfileError">You can\'t delete the last existing profile for this school</string>
+    <string name="ok">OK</string>
 </resources>
