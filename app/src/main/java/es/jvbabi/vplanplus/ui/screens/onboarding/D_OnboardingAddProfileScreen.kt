@@ -5,7 +5,6 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
@@ -16,14 +15,12 @@ import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 import kotlinx.coroutines.launch
@@ -76,12 +73,7 @@ fun AddProfileScreen(
 
         ProfileCard(
             title = {
-                Row(
-                    verticalAlignment = CenterVertically,
-                ) {
-                    Text(text = stringResource(id = R.string.onboarding_firstProfileTeacherTitle), style = MaterialTheme.typography.headlineSmall)
-                    Badge(color = MaterialTheme.colorScheme.tertiary, "Not working")
-                }
+                Text(text = stringResource(id = R.string.onboarding_firstProfileTeacherTitle), style = MaterialTheme.typography.headlineSmall)
             },
             text = stringResource(id = R.string.onboarding_firstProfileTeacherText),
             isSelected = state.profileType == ProfileType.TEACHER,
