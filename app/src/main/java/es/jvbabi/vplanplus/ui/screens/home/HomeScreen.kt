@@ -10,7 +10,10 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -44,8 +47,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
@@ -297,6 +303,7 @@ fun CurrentLessonCard(lesson: Lesson) {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LessonCard(lesson: Lesson) {
     Card(
@@ -314,18 +321,46 @@ fun LessonCard(lesson: Lesson) {
                     .padding(16.dp)
             ) {
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f, false)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(text = lesson.lessonNumber.toString(), style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer, modifier = Modifier.padding(end = 8.dp))
+                            Text(
+                                text = lesson.lessonNumber.toString(),
+                                style = MaterialTheme.typography.titleLarge.copy(textDecoration = if (lesson.subjectChanged && lesson.subject == "-") TextDecoration.LineThrough else null),
+                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                modifier = Modifier.padding(end = 8.dp),
+                            )
                             Column {
-                                Row {
+                                val onSecondaryContainerColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                Row(
+                                    modifier = if (lesson.subjectChanged && lesson.subject == "-") Modifier.drawBehind {
+                                        drawLine(
+                                            color = onSecondaryContainerColor,
+                                            start = Offset(0f, size.height / 2-1f),
+                                            end = Offset(size.width, size.height / 2-1f),
+                                            strokeWidth = 4f
+                                        )
+                                    } else Modifier
+                                ) {
                                     Text(text = lesson.subject, style = MaterialTheme.typography.titleMedium, color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
                                     Text(text = " • ", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
                                     Text(text = lesson.room, style = MaterialTheme.typography.titleMedium, color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
                                     Text(text = " • ", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
                                     Text(text = lesson.teacher, style = MaterialTheme.typography.titleMedium, color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
                                 }
-                                if (lesson.info != "") Text(text = lesson.info, maxLines = 2)
+                                if (lesson.info != "") {
+                                    Text(
+                                        text = lesson.info,
+                                        maxLines = 1,
+                                        modifier = Modifier
+                                            .padding(end = 8.dp)
+                                            .basicMarquee(
+                                                // Animate forever.
+                                                iterations = Int.MAX_VALUE,
+                                                velocity = 80.dp,
+                                                spacing = MarqueeSpacing(12.dp)
+                                            )
+                                    )
+                                }
                             }
                         }
                     }
@@ -393,7 +428,8 @@ fun HomeScreenPreview() {
                     lessonNumber = 1
                 ),
                 Lesson(
-                    subject = "Biologie",
+                    subject = "-",
+                    subjectChanged = true,
                     teacher = "Pfl",
                     room = "307",
                     roomChanged = false,
@@ -403,6 +439,18 @@ fun HomeScreenPreview() {
                     className = "9e",
                     lessonNumber = 2,
                     info = "Hier eine Info :)"
+                ),
+                Lesson(
+                    subject = "Biologie",
+                    teacher = "Pfl",
+                    room = "307",
+                    roomChanged = false,
+                    teacherChanged = true,
+                    start = "22:00",
+                    end = "23:00",
+                    className = "9e",
+                    lessonNumber = 2,
+                    info = "Hier eine sehr lange Information, die sich über mehrere Zeilen erstrecken würde. :)"
                 )
             )
         ),
