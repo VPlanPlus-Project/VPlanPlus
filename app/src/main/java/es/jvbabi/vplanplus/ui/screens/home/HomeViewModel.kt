@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -45,11 +46,11 @@ class HomeViewModel @Inject constructor(
             _state.value.copy(initDone = true)
         if (activeProfile != null) {
             var schoolId: Long? = null
-            if (activeProfile!!.type == 0) {
+            if (activeProfile!!.type == ProfileType.STUDENT) {
                 val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
                 schoolId = profileClass.schoolId
                 school = schoolUseCases.getSchoolFromId(schoolId)
-            } else if (activeProfile!!.type == 1) {
+            } else if (activeProfile!!.type == ProfileType.TEACHER) {
                 val profileTeacher = teacherRepository.getTeacherById(activeProfile!!.referenceId)
                 schoolId = profileTeacher!!.schoolId
                 school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)

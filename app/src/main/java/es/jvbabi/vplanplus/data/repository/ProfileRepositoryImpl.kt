@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.repository
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import io.ktor.client.HttpClient
@@ -19,7 +20,7 @@ class ProfileRepositoryImpl(
         return profileDao.getProfiles()
     }
 
-    override suspend fun createProfile(referenceId: Long, type: Int, name: String) {
+    override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String) {
         profileDao.insert(Profile(referenceId = referenceId, type = type, name = name))
     }
 
@@ -51,7 +52,7 @@ class ProfileRepositoryImpl(
         return classes
     }
 
-    override suspend fun getProfileByReferenceId(referenceId: Long, type: Int): Profile {
+    override suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): Profile {
         return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type)
     }
 

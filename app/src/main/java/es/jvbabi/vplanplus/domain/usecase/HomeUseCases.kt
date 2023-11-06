@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.domain.usecase
 
 import android.util.Log
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
@@ -20,14 +21,14 @@ class HomeUseCases(
     suspend fun getTodayLessons(profile: Profile): List<Lesson> {
         Log.d("HomeUseCases", "getTodayLessons: ${profile.type}")
         val lessons = when (profile.type) {
-            0 -> {
+            ProfileType.STUDENT -> {
                 lessonRepository.getLessonsForClass(profile.referenceId, LocalDate.now())
             }
-            1 -> {
+            ProfileType.TEACHER -> {
                 lessonRepository.getLessonsForTeacher(profile.referenceId, LocalDate.now())
             }
-            else -> null
-        }!!
+            ProfileType.ROOM -> TODO()
+        }
         return lessons.sortedBy { it.lesson }.map {
             try {
                 val `class` = classRepository.getClassById(it.classId)

@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
@@ -194,6 +195,7 @@ class OnboardingViewModel @Inject constructor(
                         profileUseCases.getProfileByTeacherId(teacher.id).id.toString()
                     )
                 }
+                ProfileType.ROOM -> { TODO() }
             }
 
             _state.value = _state.value.copy(isLoading = false)
@@ -235,10 +237,6 @@ data class OnboardingState(
     val profileOptions: List<String> = listOf(),
     val selectedProfileOption: String? = null,
 )
-
-enum class ProfileType {
-    TEACHER, STUDENT
-}
 
 enum class Task {
     CREATE_SCHOOL, CREATE_PROFILE

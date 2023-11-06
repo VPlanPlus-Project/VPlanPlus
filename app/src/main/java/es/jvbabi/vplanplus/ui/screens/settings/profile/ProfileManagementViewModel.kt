@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
@@ -29,7 +30,7 @@ class ProfileManagementViewModel @Inject constructor(
         val schools = mutableMapOf<String, List<ProfileManagementProfile>>()
         dbProfiles.forEach {
             when (it.type) {
-                0 -> {
+                ProfileType.STUDENT -> {
                     val `class` = classUseCases.getClassById(it.referenceId)
                     val school = schoolUseCases.getSchoolFromId(`class`.schoolId)
                     if (schools.containsKey(school.name)) {
@@ -50,7 +51,7 @@ class ProfileManagementViewModel @Inject constructor(
                         )
                     }
                 }
-                1 -> {
+                ProfileType.TEACHER -> {
                     val teacher = teacherRepostitory.getTeacherById(it.referenceId)
                     val school = schoolUseCases.getSchoolFromId(teacher!!.schoolId)
                     if (schools.containsKey(school.name)) {
@@ -71,6 +72,7 @@ class ProfileManagementViewModel @Inject constructor(
                         )
                     }
                 }
+                ProfileType.ROOM -> TODO()
             }
         }
 
@@ -131,7 +133,7 @@ data class ProfileManagementSchool(
 data class ProfileManagementProfile(
     val id: Long,
     val name: String,
-    val type: Int
+    val type: ProfileType
 )
 
 enum class ProfileManagementDeletionResult {
