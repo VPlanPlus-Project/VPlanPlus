@@ -20,5 +20,8 @@ abstract class SchoolDao {
     abstract suspend fun updateName(schoolId: Long, name: String)
 
     @Query("SELECT * FROM school WHERE id = :schoolId")
-    abstract suspend fun getSchoolFromId(schoolId: Long): School
+    abstract fun getSchoolFromId(schoolId: Long): School
+
+    @Query("SELECT * FROM school WHERE name = :schoolName")
+    abstract suspend fun getSchoolByName(schoolName: String): School
 }

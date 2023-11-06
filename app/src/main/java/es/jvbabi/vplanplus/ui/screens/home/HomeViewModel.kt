@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
@@ -14,6 +15,7 @@ import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -72,12 +74,12 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = false)
     }
 
-    fun onOpenMenuClicked() {
-        _state.value = _state.value.copy(isMenuOpened = true)
-    }
+    fun onProfileSelected(profileId: Long) {
+        viewModelScope.launch {
+            profileUseCases.setActiveProfile(profileId)
 
-    fun onCloseMenuClicked() {
-        _state.value = _state.value.copy(isMenuOpened = false)
+            init()
+        }
     }
 }
 
@@ -86,7 +88,6 @@ data class HomeState(
     val nextHoliday: LocalDate? = null,
     val lessons: List<Lesson> = listOf(),
     val isLoading: Boolean = false,
-    val isMenuOpened: Boolean = false,
     val profiles: List<MenuProfile> = listOf(),
     val activeProfile: MenuProfile? = null
 )

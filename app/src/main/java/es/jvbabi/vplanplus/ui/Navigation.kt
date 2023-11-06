@@ -1,48 +1,32 @@
 package es.jvbabi.vplanplus.ui
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
+import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingClassListScreen
-import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingFirstProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
+import es.jvbabi.vplanplus.ui.screens.onboarding.Task
+import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
+import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
     onboardingViewModel: OnboardingViewModel
 ) {
-
-    val enterSlideTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?) =
-        {
-            slideIntoContainer(
-                AnimatedContentTransitionScope.SlideDirection.Left,
-                animationSpec = tween(300)
-            ) + fadeIn(animationSpec = tween(300))
-        }
-
-    val exitSlideTransition: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?) =
-        {
-            slideOutOfContainer(
-                AnimatedContentTransitionScope.SlideDirection.Left,
-                animationSpec = tween(300)
-            ) + fadeOut(animationSpec = tween(300))
-        }
 
     NavHost(
         navController = navController,
@@ -51,6 +35,25 @@ fun NavigationGraph(
 
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(navController)
+        }
+
+        composable(route = Screen.SettingsScreen.route) {
+            SettingsScreen(navController)
+        }
+
+        composable(route = Screen.SettingsProfileScreen.route) {
+            ProfileManagementScreen(
+                navController = navController,
+                onNewProfileClicked = {
+                    onboardingViewModel.reset()
+                    onboardingViewModel.setTask(Task.CREATE_PROFILE)
+                    onboardingViewModel.onAutomaticSchoolIdInput(it.id!!)
+                },
+                onNewSchoolClicked = {
+                    onboardingViewModel.reset()
+                    onboardingViewModel.setTask(Task.CREATE_SCHOOL)
+                }
+            )
         }
 
         navigation(
@@ -87,7 +90,18 @@ fun NavigationGraph(
                 enterTransition = enterSlideTransition,
                 exitTransition = exitSlideTransition
             ) {
-                OnboardingFirstProfileScreen(navController, onboardingViewModel)
+                OnboardingAddProfileScreen(navController, onboardingViewModel)
+            }
+
+            composable(
+                route = Screen.OnboardingNewProfileScreen.route + "/{schoolId}",
+                arguments = listOf(
+                    navArgument("schoolId") {
+                        type = NavType.LongType
+                    }
+                ),
+            ) {
+                OnboardingAddProfileScreen(navController, onboardingViewModel)
             }
 
             composable(

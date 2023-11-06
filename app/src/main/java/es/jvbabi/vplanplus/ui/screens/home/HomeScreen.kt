@@ -5,6 +5,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.fadeIn
@@ -35,7 +36,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,6 +68,7 @@ fun HomeScreen(
 ) {
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
+    var menuOpened by remember { mutableStateOf(false) }
 
     LaunchedEffect("Init") {
         viewModel.init()
@@ -78,27 +84,41 @@ fun HomeScreen(
                 viewModel.getVPlanData()
             }
         }, onMenuOpened = {
-            viewModel.onOpenMenuClicked()
+            menuOpened = true
         })
     }
     val context = LocalContext.current
+
+    BackHandler(enabled = menuOpened, onBack = {
+        if (menuOpened) {
+            menuOpened = false
+        }
+    })
+
     AnimatedVisibility(
-        visible = state.isMenuOpened,
+        visible = menuOpened,
         enter = fadeIn(animationSpec = TweenSpec(200)),
         exit = fadeOut(animationSpec = TweenSpec(200))
     ) {
         Menu(
             profiles = state.profiles,
-            selectedProfile = MenuProfile(0, "10a"),
+            selectedProfile = state.activeProfile!!,
             onProfileClicked = {
-                Toast.makeText(context, "Not implemented", LENGTH_SHORT).show()
+                menuOpened = false
+                viewModel.onProfileSelected(it)
             },
             onCloseClicked = {
-                viewModel.onCloseMenuClicked()
+                menuOpened = false
             },
             onRepositoryClicked = {
                 val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Julius-Babies/VPlanPlus/"))
                 startActivity(context, browserIntent, null)
+            },
+            onSettingsClicked = {
+                navHostController.navigate(Screen.SettingsScreen.route)
+            },
+            onManageProfilesClicked = {
+                navHostController.navigate(Screen.SettingsProfileScreen.route)
             }
         )
     }

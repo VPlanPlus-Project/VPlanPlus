@@ -60,6 +60,7 @@ object VppModule {
         )
             .fallbackToDestructiveMigration() // TODO: Remove for production
             .addTypeConverter(DayConverter())
+            .allowMainThreadQueries()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
     }
@@ -162,9 +163,16 @@ object VppModule {
     @Singleton
     fun provideProfileUseCases(
         repository: ProfileRepository,
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        schoolRepository: SchoolRepository,
+        classRepository: ClassRepository
     ): ProfileUseCases {
-        return ProfileUseCases(repository, keyValueRepository)
+        return ProfileUseCases(
+            profileRepository = repository,
+            keyValueRepository = keyValueRepository,
+            schoolRepository = schoolRepository,
+            classRepository = classRepository
+        )
     }
 
     @Provides

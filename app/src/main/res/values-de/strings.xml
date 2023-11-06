@@ -28,4 +28,16 @@
     <string name="home_menuManageProfiles">Profile verwalten</string>
     <string name="home_menuRepository">Quellcode</string>
     <string name="home_menuSettings">Einstellungen</string>
+    <string name="settings_profileTitle">Profile</string>
+    <string name="settings_profileSubtitle">Verwalten deiner Ansichtsprofile</string>
+    <string name="profileManagement_title">Profilverwaltung</string>
+    <string name="back">Zurück</string>
+    <string name="onboarding_newProfileTitle">Neues Profil anlegen</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="profileManagement_deleteProfileDialogText">Möchtest du das Profil \'%1$s\' löschen?</string>
+    <string name="profileManagement_deleteProfileDialogTitle">Profil löschen</string>
+    <string name="profileManagement_lastProfileError">Du kannst das letzte Profil dieser Schule nicht löschen</string>
+    <string name="ok">Ok</string>
+    <string name="profileManagement_addNewSchool">Schule hinzufügen</string>
 </resources>
