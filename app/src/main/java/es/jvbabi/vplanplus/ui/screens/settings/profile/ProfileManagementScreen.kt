@@ -17,10 +17,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -53,6 +55,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
@@ -61,6 +64,7 @@ import kotlinx.coroutines.launch
 fun ProfileManagementScreen(
     navController: NavHostController,
     onNewProfileClicked: (school: School) -> Unit = {},
+    onNewSchoolClicked: () -> Unit,
     viewModel: ProfileManagementViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -82,7 +86,11 @@ fun ProfileManagementScreen(
         onProfileDeleteDialogOpen = { viewModel.onProfileDeleteDialogOpen(it) },
         onProfileDeleteDialogClose = { viewModel.onProfileDeleteDialogClose() },
         onProfileDeleteDialogYes = { viewModel.deleteProfile(it) },
-        onSnackbarDone = { viewModel.setDeleteProfileResult(null) }
+        onSnackbarDone = { viewModel.setDeleteProfileResult(null) },
+        onNewSchoolClicked = {
+            onNewSchoolClicked()
+            navController.navigate(Screen.OnboardingSchoolIdScreen.route)
+        }
     )
 }
 
@@ -93,7 +101,7 @@ fun ProfileManagementScreenContent(
     onBackClicked: () -> Unit = {},
     state: ProfileManagementState,
     onNewSchoolProfileClicked: (schoolName: String) -> Unit = {},
-
+    onNewSchoolClicked: () -> Unit = {},
     onProfileDeleteDialogOpen: (profile: ProfileManagementProfile) -> Unit = {},
     onProfileDeleteDialogClose: () -> Unit = {},
     onProfileDeleteDialogYes: (profile: ProfileManagementProfile) -> Unit = {},
@@ -116,6 +124,18 @@ fun ProfileManagementScreenContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors()
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { onNewSchoolClicked() },
+                text = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(text = stringResource(id = R.string.profileManagement_addNewSchool))
+                        Badge(color = Color.Magenta, text = "Untested")
+                    }
+                },
+                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) }
             )
         }
     ) { pv ->
@@ -286,11 +306,7 @@ fun ProfileManagementScreenPreview() {
                     )
                 )
             ),
-            deleteProfileDialogProfile = ProfileManagementProfile(
-                id = 1,
-                name = "207",
-                type = 2
-            ),
+            deleteProfileDialogProfile = null,
             deleteProfileResult = ProfileManagementDeletionResult.LAST_PROFILE
         )
     )

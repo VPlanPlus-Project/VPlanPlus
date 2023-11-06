@@ -48,6 +48,10 @@ fun NavigationGraph(
                     onboardingViewModel.reset()
                     onboardingViewModel.setTask(Task.CREATE_PROFILE)
                     onboardingViewModel.onAutomaticSchoolIdInput(it.id!!)
+                },
+                onNewSchoolClicked = {
+                    onboardingViewModel.reset()
+                    onboardingViewModel.setTask(Task.CREATE_SCHOOL)
                 }
             )
         }

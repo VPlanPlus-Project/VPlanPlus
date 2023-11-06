@@ -39,4 +39,5 @@
     <string name="profileManagement_deleteProfileDialogTitle">Profil löschen</string>
     <string name="profileManagement_lastProfileError">Du kannst das letzte Profil dieser Schule nicht löschen</string>
     <string name="ok">Ok</string>
+    <string name="profileManagement_addNewSchool">Schule hinzufügen</string>
 </resources>
