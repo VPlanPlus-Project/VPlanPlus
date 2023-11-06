@@ -20,15 +20,9 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = Teacher::class,
-            parentColumns = ["id"],
-            childColumns = ["changedTeacherId"],
-            onDelete = ForeignKey.CASCADE
-        ),
-        ForeignKey(
             entity = Room::class,
             parentColumns = ["id"],
-            childColumns = ["originalRoomId"],
+            childColumns = ["roomId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
@@ -39,7 +33,7 @@ data class Lesson(
     val classId: Long,
     val originalSubject: String,
     val originalTeacherId: Long?,
-    val originalRoomId: Long?,
+    val roomId: Long?,
     val changedSubject: String?,
     val changedTeacherId: Long?,
     val roomIsChanged: Boolean,

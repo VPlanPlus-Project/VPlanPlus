@@ -34,11 +34,11 @@ class HomeUseCases(
                     lessonNumber = it.lesson,
                     info = it.info,
                     roomChanged = it.roomIsChanged,
-                    room = roomRepository.getRoomById(it.originalRoomId!!).name,
+                    room = if (it.roomId == null) "-" else roomRepository.getRoomById(it.roomId).name,
                     subjectChanged = it.changedSubject != null,
                     subject = it.changedSubject ?: it.originalSubject,
                     teacherChanged = it.changedTeacherId != null,
-                    teacher = teacherRepository.getTeacherById(it.changedTeacherId?:it.originalTeacherId?:-1)?.acronym ?: "Error",
+                    teacher = teacherRepository.getTeacherById(it.changedTeacherId?:it.originalTeacherId?:-1)?.acronym ?: "-",
                     start = lessonTime.start,
                     end = lessonTime.end
 
