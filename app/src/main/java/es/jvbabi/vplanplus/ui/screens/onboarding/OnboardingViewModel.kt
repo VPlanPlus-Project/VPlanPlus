@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
+import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
@@ -27,6 +28,7 @@ class OnboardingViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val baseDataUseCases: BaseDataUseCases,
+    private val teacherRepository: TeacherRepository
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
@@ -141,6 +143,7 @@ class OnboardingViewModel @Inject constructor(
         viewModelScope.launch {
 
             if (state.value.task == Task.CREATE_SCHOOL) {
+
                 schoolUseCases.createSchool(
                     schoolId = state.value.schoolId.toLong(),
                     username = state.value.username,
