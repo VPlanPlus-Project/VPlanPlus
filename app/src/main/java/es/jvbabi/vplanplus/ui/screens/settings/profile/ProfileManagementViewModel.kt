@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
@@ -15,7 +16,8 @@ import javax.inject.Inject
 class ProfileManagementViewModel @Inject constructor(
     private val profileUseCases: ProfileUseCases,
     private val classUseCases: ClassUseCases,
-    private val schoolUseCases: SchoolUseCases
+    private val schoolUseCases: SchoolUseCases,
+    private val teacherRepostitory: TeacherRepository
 ): ViewModel() {
 
     private val _state = mutableStateOf(ProfileManagementState())
@@ -30,6 +32,27 @@ class ProfileManagementViewModel @Inject constructor(
                 0 -> {
                     val `class` = classUseCases.getClassById(it.referenceId)
                     val school = schoolUseCases.getSchoolFromId(`class`.schoolId)
+                    if (schools.containsKey(school.name)) {
+                        schools[school.name] = schools[school.name]!!.plus(
+                            ProfileManagementProfile(
+                                id = it.id!!,
+                                name = it.name,
+                                type = it.type
+                            )
+                        )
+                    } else {
+                        schools[school.name] = listOf(
+                            ProfileManagementProfile(
+                                id = it.id!!,
+                                name = it.name,
+                                type = it.type
+                            )
+                        )
+                    }
+                }
+                1 -> {
+                    val teacher = teacherRepostitory.getTeacherById(it.referenceId)
+                    val school = schoolUseCases.getSchoolFromId(teacher!!.schoolId)
                     if (schools.containsKey(school.name)) {
                         schools[school.name] = schools[school.name]!!.plus(
                             ProfileManagementProfile(

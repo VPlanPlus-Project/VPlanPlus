@@ -36,9 +36,9 @@ fun OnboardingAddProfileScreen(
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
 
-    if (state.classList.isNotEmpty()) {
+    if (state.profileOptions.isNotEmpty() && state.profileType != null) {
         viewModel.newScreen()
-        navController.navigate(Screen.OnboardingClassListScreen.route) { popUpTo(0) }
+        navController.navigate(Screen.OnboardingProfileSelectScreen.route) { popUpTo(0) }
     }
 
     AddProfileScreen(
@@ -46,7 +46,7 @@ fun OnboardingAddProfileScreen(
         onProfileSelect = { viewModel.onFirstProfileSelect(it) },
         onButtonClick = {
             coroutineScope.launch {
-                viewModel.onProfileSubmit()
+                viewModel.onProfileTypeSubmit()
             }
         }
     )

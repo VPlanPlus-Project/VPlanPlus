@@ -115,30 +115,40 @@ class OnboardingViewModel @Inject constructor(
     /**
      * Called when user clicks next button on [OnboardingAddProfileScreen]
      */
-    suspend fun onProfileSubmit() {
+    suspend fun onProfileTypeSubmit() {
         _state.value = _state.value.copy(isLoading = true)
 
         if (state.value.profileType == ProfileType.STUDENT) {
             if (state.value.task == Task.CREATE_SCHOOL) {
                 _state.value = _state.value.copy(
-                    classList = baseData.classNames,
+                    profileOptions = baseData.classNames,
                 )
             } else {
                 _state.value = _state.value.copy(
-                    classList = classUseCases.getClassesBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.className },
+                    profileOptions = classUseCases.getClassesBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.className },
+                )
+            }
+        } else if (state.value.profileType == ProfileType.TEACHER) {
+            if (state.value.task == Task.CREATE_SCHOOL) {
+                _state.value = _state.value.copy(
+                    profileOptions = baseData.teacherShorts,
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    profileOptions = teacherRepository.getTeachersBySchoolId(state.value.schoolId.toLong()).map { it.acronym },
                 )
             }
         }
     }
 
-    fun onClassSelect(className: String) {
-        _state.value = _state.value.copy(selectedClass = className)
+    fun onProfileSelect(p: String) {
+        _state.value = _state.value.copy(selectedProfileOption = p)
     }
 
     /**
-     * Called when user clicks next button on [OnboardingClassListScreen]
+     * Called when user clicks next button on [OnboardingProfileOptionListScreen]
      */
-    suspend fun onClassSubmit() {
+    suspend fun onProfileSubmit() {
         _state.value = _state.value.copy(isLoading = true)
         viewModelScope.launch {
 
@@ -157,19 +167,35 @@ class OnboardingViewModel @Inject constructor(
                 )
             }
 
-            val `class` = classUseCases.getClassBySchoolIdAndClassName(
-                schoolId = state.value.schoolId.toLong(),
-                className = state.value.selectedClass!!,
-            )!!
-            profileUseCases.createStudentProfile(
-                classId = `class`.id!!,
-                name = state.value.selectedClass!!
-            )
+            when (state.value.profileType!!) {
+                ProfileType.STUDENT -> {
+                    val `class` = classUseCases.getClassBySchoolIdAndClassName(
+                        schoolId = state.value.schoolId.toLong(),
+                        className = state.value.selectedProfileOption!!,
+                    )!!
+                    profileUseCases.createStudentProfile(
+                        classId = `class`.id!!,
+                        name = state.value.selectedProfileOption!!
+                    )
+                    keyValueUseCases.set(
+                        Keys.ACTIVE_PROFILE.name,
+                        profileUseCases.getProfileByClassId(`class`.id).id.toString()
+                    )
+                }
+                ProfileType.TEACHER -> {
+                    val teacher = teacherRepository.find(
+                        school = schoolUseCases.getSchoolFromId(state.value.schoolId.toLong()),
+                        acronym = state.value.selectedProfileOption!!,
+                        createIfNotExists = false
+                    )!!
+                    profileUseCases.createTeacherProfile(teacherId = teacher.id!!, name = teacher.acronym)
+                    keyValueUseCases.set(
+                        Keys.ACTIVE_PROFILE.name,
+                        profileUseCases.getProfileByTeacherId(teacher.id).id.toString()
+                    )
+                }
+            }
 
-            keyValueUseCases.set(
-                Keys.ACTIVE_PROFILE.name,
-                profileUseCases.getProfileByClassId(`class`.id).id.toString()
-            )
             _state.value = _state.value.copy(isLoading = false)
         }
 
@@ -206,8 +232,8 @@ data class OnboardingState(
     val profileType: ProfileType? = null,
     val task: Task = Task.CREATE_SCHOOL,
 
-    val classList: List<String> = listOf(),
-    val selectedClass: String? = null,
+    val profileOptions: List<String> = listOf(),
+    val selectedProfileOption: String? = null,
 )
 
 enum class ProfileType {

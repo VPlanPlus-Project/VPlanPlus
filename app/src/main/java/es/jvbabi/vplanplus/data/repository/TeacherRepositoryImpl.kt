@@ -13,7 +13,7 @@ class TeacherRepositoryImpl(
     }
 
     override suspend fun getTeachersBySchoolId(schoolId: Long): List<Teacher> {
-        TODO("Not yet implemented")
+        return teacherDao.getTeachersBySchoolId(schoolId = schoolId)
     }
 
     override suspend fun find(school: School, acronym: String, createIfNotExists: Boolean): Teacher? {

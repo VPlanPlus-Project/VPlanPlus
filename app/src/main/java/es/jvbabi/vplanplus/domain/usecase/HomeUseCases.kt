@@ -23,6 +23,9 @@ class HomeUseCases(
             0 -> {
                 lessonRepository.getLessonsForClass(profile.referenceId, LocalDate.now())
             }
+            1 -> {
+                lessonRepository.getLessonsForTeacher(profile.referenceId, LocalDate.now())
+            }
             else -> null
         }!!
         return lessons.sortedBy { it.lesson }.map {

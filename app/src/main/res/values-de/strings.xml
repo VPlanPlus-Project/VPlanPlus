@@ -40,4 +40,6 @@
     <string name="profileManagement_lastProfileError">Du kannst das letzte Profil dieser Schule nicht löschen</string>
     <string name="ok">Ok</string>
     <string name="profileManagement_addNewSchool">Schule hinzufügen</string>
+    <string name="onboarding_teacherChooseTeacherTitle">Lehrer auswählen</string>
+    <string name="onboarding_teacherChooseTeacherText">Finde dein Kürzel. Falls du als Klassenlehrer den Plan deiner Klasse sehen möchtest, kannst du ein Klassenprofil später in den Einstellungen anlegen.</string>
 </resources>

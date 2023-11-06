@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
@@ -27,7 +28,8 @@ class HomeViewModel @Inject constructor(
     private val vPlanUseCases: VPlanUseCases,
     private val schoolUseCases: SchoolUseCases,
     private val lessonUseCases: LessonUseCases,
-    private val homeUseCases: HomeUseCases
+    private val homeUseCases: HomeUseCases,
+    private val teacherRepository: TeacherRepository
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -47,6 +49,10 @@ class HomeViewModel @Inject constructor(
                 val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
                 schoolId = profileClass.schoolId
                 school = schoolUseCases.getSchoolFromId(schoolId)
+            } else if (activeProfile!!.type == 1) {
+                val profileTeacher = teacherRepository.getTeacherById(activeProfile!!.referenceId)
+                schoolId = profileTeacher!!.schoolId
+                school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
             }
 
             val holidays = holidayUseCases.getHolidaysBySchoolId(schoolId!!)

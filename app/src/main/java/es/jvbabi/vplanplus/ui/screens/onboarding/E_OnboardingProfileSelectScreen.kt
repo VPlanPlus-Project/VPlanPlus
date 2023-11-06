@@ -26,49 +26,55 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun OnboardingClassListScreen(
+fun OnboardingProfileOptionListScreen(
     navController: NavHostController,
     onboardingViewModel: OnboardingViewModel
 ) {
     val state = onboardingViewModel.state.value
     val coroutineScope = rememberCoroutineScope()
 
-    ClassListScreen(state = state, onClassSelect = { onboardingViewModel.onClassSelect(it) }) {
-        coroutineScope.launch { onboardingViewModel.onClassSubmit() }
+    ProfileOptionsScreen(state = state, onClassSelect = { onboardingViewModel.onProfileSelect(it) }) {
+        coroutineScope.launch { onboardingViewModel.onProfileSubmit() }
         navController.navigate(Screen.OnboardingSetupScreen.route) { popUpTo(0) }
     }
 }
 
 @Composable
-fun ClassListScreen(
+fun ProfileOptionsScreen(
     state: OnboardingState,
     onClassSelect: (String) -> Unit,
     onButtonClick: () -> Unit,
 ) {
     OnboardingScreen(
-        title = stringResource(id = R.string.onboarding_studentChooseClassTitle),
-        text = stringResource(id = R.string.onboarding_studentChooseClassText),
+        title = when (state.profileType) {
+            ProfileType.STUDENT -> stringResource(id = R.string.onboarding_studentChooseClassTitle)
+            ProfileType.TEACHER -> stringResource(id = R.string.onboarding_teacherChooseTeacherTitle)
+            else -> ""
+        },
+        text = when (state.profileType) {
+            ProfileType.STUDENT -> stringResource(id = R.string.onboarding_studentChooseClassText)
+            ProfileType.TEACHER -> stringResource(id = R.string.onboarding_teacherChooseTeacherText)
+            else -> ""
+        },
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
-        enabled = !state.isLoading && state.selectedClass != null,
+        enabled = !state.isLoading && state.selectedProfileOption != null,
         onButtonClick = { onButtonClick() }) {
 
         Column {
-            state.classList.forEach {
-                ClassListItem(
+            state.profileOptions.forEach {
+                ProfileOptionsItem(
                     className = it,
-                    isSelected = state.selectedClass == it
+                    isSelected = state.selectedProfileOption == it
                 ) { onClassSelect(it) }
             }
         }
-
-
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClassListItem(
+fun ProfileOptionsItem(
     className: String,
     isSelected: Boolean,
     onClick: () -> Unit
@@ -133,9 +139,10 @@ fun ClassListItem(
 @Preview(showBackground = true)
 @Composable
 fun ClassListScreenPreview() {
-    ClassListScreen(
+    ProfileOptionsScreen(
         state = OnboardingState(
-            classList = listOf(
+            profileType = ProfileType.STUDENT,
+            profileOptions = listOf(
                 "1a",
                 "1b",
                 "1c",
@@ -152,6 +159,19 @@ fun ClassListScreenPreview() {
                 "5b",
                 "5c"
             )
+        ),
+        onClassSelect = {},
+        onButtonClick = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun TeacherListScreenPreview() {
+    ProfileOptionsScreen(
+        state = OnboardingState(
+            profileType = ProfileType.TEACHER,
+            profileOptions = listOf("Bac", "Mei", "Kra", "Vle")
         ),
         onClassSelect = {},
         onButtonClick = {}

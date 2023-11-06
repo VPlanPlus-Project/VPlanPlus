@@ -6,20 +6,30 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 
 class ProfileUseCases(
     private val profileRepository: ProfileRepository,
     private val schoolRepository: SchoolRepository,
     private val classRepository: ClassRepository,
-    private val keyValueRepository: KeyValueRepository
+    private val keyValueRepository: KeyValueRepository,
+    private val teacherRepository: TeacherRepository
 ) {
 
     suspend fun createStudentProfile(classId: Long, name: String) {
         profileRepository.createProfile(referenceId = classId, type = 0, name = name)
     }
 
+    suspend fun createTeacherProfile(teacherId: Long, name: String) {
+        profileRepository.createProfile(referenceId = teacherId, type = 1, name = name)
+    }
+
     suspend fun getProfileByClassId(classId: Long): Profile {
         return profileRepository.getProfileByReferenceId(referenceId = classId, type = 0)
+    }
+
+    suspend fun getProfileByTeacherId(teacherId: Long): Profile {
+        return profileRepository.getProfileByReferenceId(referenceId = teacherId, type = 1)
     }
 
     suspend fun getActiveProfile(): Profile? {
@@ -49,6 +59,10 @@ class ProfileUseCases(
             0 -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
                 schoolRepository.getSchoolFromId(schoolId = `class`.schoolId)
+            }
+            1 -> {
+                val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
+                schoolRepository.getSchoolFromId(schoolId = teacher!!.schoolId)
             }
             else -> {
                 TODO("This should never happen")
