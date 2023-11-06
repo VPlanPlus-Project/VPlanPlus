@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,6 +48,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
 
@@ -63,15 +65,18 @@ fun ProfileManagementScreen(
     }
 
     ProfileManagementScreenContent(
-        { navController.popBackStack() },
-        state,
-        {
+        onBackClicked = { navController.popBackStack() },
+        state = state,
+        onNewSchoolProfileClicked = {
             scope.launch {
                 val school = viewModel.getSchoolByName(it)
                 onNewProfileClicked(school)
                 navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.id!!}")
             }
-        }
+        },
+        onProfileDeleteDialogOpen = { viewModel.onProfileDeleteDialogOpen(it) },
+        onProfileDeleteDialogClose = { viewModel.onProfileDeleteDialogClose() },
+        onProfileDeleteDialogYes = { viewModel.deleteProfile(it) }
     )
 }
 
@@ -80,7 +85,11 @@ fun ProfileManagementScreen(
 fun ProfileManagementScreenContent(
     onBackClicked: () -> Unit = {},
     state: ProfileManagementState,
-    onNewSchoolProfileClicked: (schoolName: String) -> Unit = {}
+    onNewSchoolProfileClicked: (schoolName: String) -> Unit = {},
+
+    onProfileDeleteDialogOpen: (profile: ProfileManagementProfile) -> Unit = {},
+    onProfileDeleteDialogClose: () -> Unit = {},
+    onProfileDeleteDialogYes: (profile: ProfileManagementProfile) -> Unit = {},
 ) {
     Scaffold(
         topBar = {
@@ -104,8 +113,22 @@ fun ProfileManagementScreenContent(
                 .padding(pv)
                 .padding(horizontal = 16.dp)
         ) {
+            if (state.deleteProfileDialogProfile != null) {
+                YesNoDialog(
+                    icon = Icons.Default.Delete,
+                    title = stringResource(id = R.string.profileManagement_deleteProfileDialogTitle),
+                    message = stringResource(id = R.string.profileManagement_deleteProfileDialogText, state.deleteProfileDialogProfile.name),
+                    onYes = {
+                        onProfileDeleteDialogYes(state.deleteProfileDialogProfile)
+                        onProfileDeleteDialogClose()
+                    },
+                    onNo = {
+                        onProfileDeleteDialogClose()
+                    }
+                )
+            }
             LazyColumn {
-                items (state.schools.sortedBy { it.name }) { school ->
+                items(state.schools.sortedBy { it.name }) { school ->
                     Card(
                         colors = CardDefaults.cardColors(),
                         modifier = Modifier
@@ -130,7 +153,11 @@ fun ProfileManagementScreenContent(
                                     .padding(start = 16.dp, bottom = 16.dp),
                             ) {
                                 school.profiles.forEach {
-                                    ProfileCard(type = it.type, name = it.name)
+                                    ProfileCard(
+                                        type = it.type,
+                                        name = it.name,
+                                        modifier = Modifier.clickable { onProfileDeleteDialogOpen(it) }
+                                    )
                                 }
                                 ProfileCard(
                                     type = -1,
@@ -170,12 +197,14 @@ fun ProfileCard(type: Int, name: String, modifier: Modifier = Modifier) {
             ) {
                 if (type != -1) {
                     Text(text = name, style = MaterialTheme.typography.headlineSmall)
-                    Text(text = when (type) {
-                        0 -> "Klasse"
-                        1 -> "Lehrer"
-                        2 -> "Raum"
-                        else -> "Unbekannt"
-                    }, style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        text = when (type) {
+                            0 -> "Klasse"
+                            1 -> "Lehrer"
+                            2 -> "Raum"
+                            else -> "Unbekannt"
+                        }, style = MaterialTheme.typography.bodyMedium
+                    )
                 } else {
                     Text(text = "+", style = MaterialTheme.typography.headlineMedium)
                 }
@@ -227,7 +256,12 @@ fun ProfileManagementScreenPreview() {
                         ),
                     )
                 )
-            )
+            ),
+            deleteProfileDialogProfile = ProfileManagementProfile(
+                id = 1,
+                name = "207",
+                type = 2
+            ),
         )
     )
 }

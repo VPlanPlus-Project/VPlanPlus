@@ -3,10 +3,12 @@ package es.jvbabi.vplanplus.ui.screens.settings.profile
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -58,11 +60,33 @@ class ProfileManagementViewModel @Inject constructor(
     }
 
     suspend fun getSchoolByName(schoolName: String) = schoolUseCases.getSchoolByName(schoolName)
+
+    fun onProfileDeleteDialogOpen(profile: ProfileManagementProfile) {
+        _state.value = state.value.copy(deleteProfileDialogProfile = profile)
+    }
+
+    fun onProfileDeleteDialogClose() {
+        _state.value = state.value.copy(deleteProfileDialogProfile = null)
+    }
+
+    fun deleteProfile(profile: ProfileManagementProfile) {
+        viewModelScope.launch {
+            val activeProfile = profileUseCases.getActiveProfile()!!
+            if (activeProfile.id == profile.id) {
+                profileUseCases.setActiveProfile(
+                    profileUseCases.getProfiles().find { it.id != profile.id }?.id?:-1
+                )
+            }
+            profileUseCases.deleteProfile(profile.id)
+            init()
+        }
+    }
 }
 
 data class ProfileManagementState(
     val schools: List<ProfileManagementSchool> = emptyList(),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val deleteProfileDialogProfile: ProfileManagementProfile? = null,
 )
 
 data class ProfileManagementSchool(

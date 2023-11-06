@@ -58,4 +58,8 @@ class ProfileRepositoryImpl(
     override suspend fun getProfileById(id: Long): Profile {
         return profileDao.getProfileById(id = id)
     }
+
+    override suspend fun deleteProfile(profileId: Long) {
+        profileDao.deleteProfile(profileId = profileId)
+    }
 }

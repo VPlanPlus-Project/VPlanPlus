@@ -34,4 +34,6 @@
     <string name="onboarding_newProfileTitle">Add new profile</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="profileManagement_deleteProfileDialogTitle">Delete profile</string>
+    <string name="profileManagement_deleteProfileDialogText">Do you want to delete profile \'%1$s\'?</string>
 </resources>

@@ -29,4 +29,8 @@ class ProfileUseCases(
     suspend fun setActiveProfile(profileId: Long) {
         keyValueRepository.set(key = Keys.ACTIVE_PROFILE.name, value = profileId.toString())
     }
+
+    suspend fun deleteProfile(profileId: Long) {
+        profileRepository.deleteProfile(profileId = profileId)
+    }
 }
