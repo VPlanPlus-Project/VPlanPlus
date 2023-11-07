@@ -119,7 +119,10 @@ fun HomeScreen(
                 menuOpened = false
             },
             onRepositoryClicked = {
-                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/Julius-Babies/VPlanPlus/"))
+                val browserIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://github.com/Julius-Babies/VPlanPlus/")
+                )
                 startActivity(context, browserIntent, null)
             },
             onSettingsClicked = {
@@ -206,7 +209,7 @@ fun HomeScreenContent(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = state.activeProfile?.name?:"--",
+                            text = state.activeProfile?.name ?: "--",
                             color = MaterialTheme.colorScheme.onSecondary
                         )
                     }
@@ -242,15 +245,17 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .padding(16.dp)
             ) {
-                if (state.lessons.isNotEmpty()) {
+                if (state.lessons[state.date]?.isNotEmpty() == true) {
                     Log.d("HomeScreen", "RECOMPOSED!")
                     LazyColumn {
                         items(
-                            state.lessons.sortedBy { it.lessonNumber },
+                            state.lessons[state.date]!!.sortedBy { it.lessonNumber },
                             key = { it.id }
                         ) {
                             Log.d("HomeScreen", "ITEM: ${it.id}")
-                            if ((calculateProgress(it.start, LocalTime.now().toString(), it.end)?:-1.0) in 0.0..0.99) {
+                            if ((calculateProgress(it.start, LocalTime.now().toString(), it.end)
+                                    ?: -1.0) in 0.0..0.99
+                            ) {
                                 CurrentLessonCard(lesson = it)
                             } else {
                                 LessonCard(lesson = it)
@@ -283,27 +288,49 @@ fun CurrentLessonCard(lesson: Lesson) {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .fillMaxWidth((percentage?:0).toFloat())
+                    .fillMaxWidth((percentage ?: 0).toFloat())
                     .fillMaxHeight()
             ) {}
             Box(
                 modifier = Modifier
                     .padding(16.dp)
             ) {
-                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Column {
                         Text(text = "Jetzt: ", style = MaterialTheme.typography.titleSmall)
                         Row {
-                            Text(text = lesson.subject, style = MaterialTheme.typography.titleLarge, color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
-                            Text(text = " • ", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                            Text(text = lesson.room, style = MaterialTheme.typography.titleLarge, color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                            Text(
+                                text = lesson.subject,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Text(
+                                text = " • ",
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSecondaryContainer
+                            )
+                            Text(
+                                text = lesson.room,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                            )
                         }
-                        Text(text = lesson.teacher, style = MaterialTheme.typography.titleMedium, color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                        Text(
+                            text = lesson.teacher,
+                            style = MaterialTheme.typography.titleMedium,
+                            color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                        )
                         Text(text = lesson.info, style = MaterialTheme.typography.bodyMedium)
                     }
-                    SubjectIcon(subject = lesson.subject, modifier = Modifier
-                        .height(70.dp)
-                        .width(70.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                    SubjectIcon(
+                        subject = lesson.subject, modifier = Modifier
+                            .height(70.dp)
+                            .width(70.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                 }
             }
         }
@@ -327,7 +354,11 @@ fun LessonCard(lesson: Lesson) {
                 modifier = Modifier
                     .padding(16.dp)
             ) {
-                Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxSize(), verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Column(modifier = Modifier.weight(1f, false)) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
@@ -337,22 +368,43 @@ fun LessonCard(lesson: Lesson) {
                                 modifier = Modifier.padding(end = 8.dp),
                             )
                             Column {
-                                val onSecondaryContainerColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                val onSecondaryContainerColor =
+                                    MaterialTheme.colorScheme.onSecondaryContainer
                                 Row(
                                     modifier = if (lesson.subjectChanged && lesson.subject == "-") Modifier.drawBehind {
                                         drawLine(
                                             color = onSecondaryContainerColor,
-                                            start = Offset(0f, size.height / 2-1f),
-                                            end = Offset(size.width, size.height / 2-1f),
+                                            start = Offset(0f, size.height / 2 - 1f),
+                                            end = Offset(size.width, size.height / 2 - 1f),
                                             strokeWidth = 4f
                                         )
                                     } else Modifier
                                 ) {
-                                    Text(text = lesson.subject, style = MaterialTheme.typography.titleMedium, color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
-                                    Text(text = " • ", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                                    Text(text = lesson.room, style = MaterialTheme.typography.titleMedium, color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
-                                    Text(text = " • ", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSecondaryContainer)
-                                    Text(text = lesson.teacher, style = MaterialTheme.typography.titleMedium, color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer)
+                                    Text(
+                                        text = lesson.subject,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = " • ",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = lesson.room,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = " • ",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
+                                    Text(
+                                        text = lesson.teacher,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                                    )
                                 }
                                 if (lesson.info != "") {
                                     Text(
@@ -371,9 +423,11 @@ fun LessonCard(lesson: Lesson) {
                             }
                         }
                     }
-                    SubjectIcon(subject = lesson.subject, modifier = Modifier
-                        .height(50.dp)
-                        .width(50.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer)
+                    SubjectIcon(
+                        subject = lesson.subject, modifier = Modifier
+                            .height(50.dp)
+                            .width(50.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
                 }
             }
         }
@@ -417,6 +471,7 @@ fun LessonCardPreview() {
         )
     )
 }
+
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview() {
@@ -425,44 +480,46 @@ fun HomeScreenPreview() {
             initDone = true,
             nextHoliday = LocalDate.now(),
             isLoading = true,
-            lessons = listOf(
-                Lesson(
-                    id = 0,
-                    subject = "Informatik",
-                    teacher = "Tec",
-                    room = "208",
-                    roomChanged = true,
-                    start = "21:00",
-                    end = "22:00",
-                    className = "9e",
-                    lessonNumber = 1
-                ),
-                Lesson(
-                    id = 1,
-                    subject = "-",
-                    subjectChanged = true,
-                    teacher = "Pfl",
-                    room = "307",
-                    roomChanged = false,
-                    teacherChanged = true,
-                    start = "22:00",
-                    end = "23:00",
-                    className = "9e",
-                    lessonNumber = 2,
-                    info = "Hier eine Info :)"
-                ),
-                Lesson(
-                    id = 2,
-                    subject = "Biologie",
-                    teacher = "Pfl",
-                    room = "307",
-                    roomChanged = false,
-                    teacherChanged = true,
-                    start = "22:00",
-                    end = "23:00",
-                    className = "9e",
-                    lessonNumber = 2,
-                    info = "Hier eine sehr lange Information, die sich über mehrere Zeilen erstrecken würde. :)"
+            lessons = hashMapOf(
+                LocalDate.now() to listOf(
+                    Lesson(
+                        id = 0,
+                        subject = "Informatik",
+                        teacher = "Tec",
+                        room = "208",
+                        roomChanged = true,
+                        start = "21:00",
+                        end = "22:00",
+                        className = "9e",
+                        lessonNumber = 1
+                    ),
+                    Lesson(
+                        id = 1,
+                        subject = "-",
+                        subjectChanged = true,
+                        teacher = "Pfl",
+                        room = "307",
+                        roomChanged = false,
+                        teacherChanged = true,
+                        start = "22:00",
+                        end = "23:00",
+                        className = "9e",
+                        lessonNumber = 2,
+                        info = "Hier eine Info :)"
+                    ),
+                    Lesson(
+                        id = 2,
+                        subject = "Biologie",
+                        teacher = "Pfl",
+                        room = "307",
+                        roomChanged = false,
+                        teacherChanged = true,
+                        start = "22:00",
+                        end = "23:00",
+                        className = "9e",
+                        lessonNumber = 2,
+                        info = "Hier eine sehr lange Information, die sich über mehrere Zeilen erstrecken würde. :)"
+                    )
                 )
             )
         ),

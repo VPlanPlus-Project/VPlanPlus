@@ -71,7 +71,10 @@ class HomeViewModel @Inject constructor(
                 _state.value =
                     _state.value.copy(
                         nextHoliday = holidays.find { it.date.isAfter(LocalDate.now()) }?.date,
-                        lessons = homeUseCases.getTodayLessons(activeProfile!!),
+                        lessons = state.value.lessons.apply {
+                            this.remove(state.value.date)
+                            this[state.value.date] = homeUseCases.getLessons(activeProfile!!, state.value.date)
+                        },
                         profiles = profileUseCases.getProfiles().map { MenuProfile(it.id!!, it.name) }
                     )
             }
@@ -83,14 +86,17 @@ class HomeViewModel @Inject constructor(
 
     suspend fun getVPlanData() {
         _state.value = _state.value.copy(isLoading = true)
-        val vPlanData = vPlanUseCases.getVPlanData(school!!, LocalDate.now())
-        if (vPlanData.data == null) {
-            Log.d("VPlanData", "null")
-            _state.value = _state.value.copy(isLoading = false)
-            return
+
+        repeat(3) { i ->
+            val vPlanData = vPlanUseCases.getVPlanData(school!!, state.value.date.plusDays(i-1L)) // TODO optimize
+            if (vPlanData.data == null) {
+                Log.d("VPlanData $i", "null")
+                _state.value = _state.value.copy(isLoading = false)
+                return@repeat
+            }
+            vPlanUseCases.processVplanData(vPlanData.data)
+            Log.d("VPlanData", vPlanData.toString())
         }
-        vPlanUseCases.processVplanData(vPlanData.data)
-        Log.d("VPlanData", vPlanData.toString())
         init(true)
         _state.value = _state.value.copy(isLoading = false)
     }
@@ -106,8 +112,9 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val initDone: Boolean = false,
     val nextHoliday: LocalDate? = null,
-    val lessons: List<Lesson> = listOf(),
+    val lessons: HashMap<LocalDate, List<Lesson>> = hashMapOf(),
     val isLoading: Boolean = false,
     val profiles: List<MenuProfile> = listOf(),
-    val activeProfile: MenuProfile? = null
+    val activeProfile: MenuProfile? = null,
+    val date: LocalDate = LocalDate.now()
 )

@@ -18,17 +18,17 @@ class HomeUseCases(
     private val roomRepository: RoomRepository,
     private val lessonTimeRepository: LessonTimeRepository
 ) {
-    suspend fun getTodayLessons(profile: Profile): List<Lesson> {
-        Log.d("HomeUseCases", "getTodayLessons: ${profile.type}")
+    suspend fun getLessons(profile: Profile, date: LocalDate): List<Lesson> {
+        Log.d("HomeUseCases", "getLessons: ${profile.type} at $date")
         val lessons = when (profile.type) {
             ProfileType.STUDENT -> {
-                lessonRepository.getLessonsForClass(profile.referenceId, LocalDate.now())
+                lessonRepository.getLessonsForClass(profile.referenceId, date)
             }
             ProfileType.TEACHER -> {
-                lessonRepository.getLessonsForTeacher(profile.referenceId, LocalDate.now())
+                lessonRepository.getLessonsForTeacher(profile.referenceId, date)
             }
             ProfileType.ROOM -> {
-                lessonRepository.getLessonsForRoom(profile.referenceId, LocalDate.now())
+                lessonRepository.getLessonsForRoom(profile.referenceId, date)
             }
         }
         var id = -1L
