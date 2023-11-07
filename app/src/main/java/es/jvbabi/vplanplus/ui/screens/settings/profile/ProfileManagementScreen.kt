@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -40,6 +41,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
@@ -231,9 +233,10 @@ fun ProfileCard(type: ProfileType?, name: String, modifier: Modifier = Modifier)
         border = if (type != null) BorderStroke(1.dp, Color.Black) else null,
         modifier = Modifier
             .padding(end = 16.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .then(modifier)
             .size(width = 80.dp, height = 80.dp)
             .dashedBorder(if (type == null) 2.dp else 0.dp, Color.Black, 8.dp)
-            .then(modifier)
     ) {
         Box(
             modifier = Modifier
