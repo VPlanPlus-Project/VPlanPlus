@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
 data class Lesson(
+    val id: Long,
     val className: String,
     val lessonNumber: Int,
     val subject: String,

@@ -31,11 +31,14 @@ class HomeUseCases(
                 lessonRepository.getLessonsForRoom(profile.referenceId, LocalDate.now())
             }
         }
+        var id = -1L
         return lessons.sortedBy { it.lesson }.map {
+            id++
             try {
                 val `class` = classRepository.getClassById(it.classId)
                 val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`).getOrNull(it.lesson)
                 Lesson(
+                    id = id,
                     className = `class`.className,
                     lessonNumber = it.lesson,
                     info = it.info,
@@ -47,11 +50,11 @@ class HomeUseCases(
                     teacher = teacherRepository.getTeacherById(it.changedTeacherId?:it.originalTeacherId?:-1)?.acronym ?: "-",
                     start = lessonTime?.start?:"",
                     end = lessonTime?.end?:""
-
                 )
             } catch (e: Exception) {
                 Log.e("HomeUseCases", "getTodayLessons: ${e.stackTraceToString()}")
                 Lesson(
+                    id = id,
                     className = "Error",
                     subject = e.message ?: "Error",
                     teacher = "Error",
@@ -65,7 +68,6 @@ class HomeUseCases(
                     info = e.stackTraceToString()
                 )
             }
-
         }
     }
 }

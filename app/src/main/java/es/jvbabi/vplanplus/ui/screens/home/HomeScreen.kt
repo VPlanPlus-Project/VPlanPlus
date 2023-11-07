@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.ui.screens.home
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
@@ -242,8 +243,13 @@ fun HomeScreenContent(
                     .padding(16.dp)
             ) {
                 if (state.lessons.isNotEmpty()) {
+                    Log.d("HomeScreen", "RECOMPOSED!")
                     LazyColumn {
-                        items(state.lessons.sortedBy { it.lessonNumber }) {
+                        items(
+                            state.lessons.sortedBy { it.lessonNumber },
+                            key = { it.id }
+                        ) {
+                            Log.d("HomeScreen", "ITEM: ${it.id}")
                             if ((calculateProgress(it.start, LocalTime.now().toString(), it.end)?:-1.0) in 0.0..0.99) {
                                 CurrentLessonCard(lesson = it)
                             } else {
@@ -379,6 +385,7 @@ fun LessonCard(lesson: Lesson) {
 fun CurrentLessonCardPreview() {
     CurrentLessonCard(
         lesson = Lesson(
+            id = 0,
             subject = "Informatik",
             teacher = "Tec",
             room = "208",
@@ -398,6 +405,7 @@ fun CurrentLessonCardPreview() {
 fun LessonCardPreview() {
     LessonCard(
         lesson = Lesson(
+            id = 0,
             subject = "Informatik",
             teacher = "Tec",
             room = "208",
@@ -419,6 +427,7 @@ fun HomeScreenPreview() {
             isLoading = true,
             lessons = listOf(
                 Lesson(
+                    id = 0,
                     subject = "Informatik",
                     teacher = "Tec",
                     room = "208",
@@ -429,6 +438,7 @@ fun HomeScreenPreview() {
                     lessonNumber = 1
                 ),
                 Lesson(
+                    id = 1,
                     subject = "-",
                     subjectChanged = true,
                     teacher = "Pfl",
@@ -442,6 +452,7 @@ fun HomeScreenPreview() {
                     info = "Hier eine Info :)"
                 ),
                 Lesson(
+                    id = 2,
                     subject = "Biologie",
                     teacher = "Pfl",
                     room = "307",

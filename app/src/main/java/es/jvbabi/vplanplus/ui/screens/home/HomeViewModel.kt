@@ -14,10 +14,10 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
-import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -29,7 +29,6 @@ class HomeViewModel @Inject constructor(
     private val holidayUseCases: HolidayUseCases,
     private val vPlanUseCases: VPlanUseCases,
     private val schoolUseCases: SchoolUseCases,
-    private val lessonUseCases: LessonUseCases,
     private val homeUseCases: HomeUseCases,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository
@@ -41,35 +40,44 @@ class HomeViewModel @Inject constructor(
     private var activeProfile: Profile? = null
     private var school: School? = null
 
-    suspend fun init() {
-        activeProfile = profileUseCases.getActiveProfile()
-        _state.value = _state.value.copy(activeProfile = activeProfile?.toMenuProfile())
-        _state.value =
-            _state.value.copy(initDone = true)
-        if (activeProfile != null) {
-            var schoolId: Long? = null
-            if (activeProfile!!.type == ProfileType.STUDENT) {
-                val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
-                schoolId = profileClass.schoolId
-                school = schoolUseCases.getSchoolFromId(schoolId)
-            } else if (activeProfile!!.type == ProfileType.TEACHER) {
-                val profileTeacher = teacherRepository.getTeacherById(activeProfile!!.referenceId)
-                schoolId = profileTeacher!!.schoolId
-                school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
-            } else if (activeProfile!!.type == ProfileType.ROOM) {
-                val room = roomRepository.getRoomById(activeProfile!!.referenceId)
-                schoolId = room.schoolId
-                school = schoolUseCases.getSchoolFromId(room.schoolId)
+    suspend fun init(oneTime: Boolean = false) {
+        viewModelScope.launch {
+            activeProfile = profileUseCases.getActiveProfile()
+            _state.value = _state.value.copy(activeProfile = activeProfile?.toMenuProfile())
+            _state.value =
+                _state.value.copy(initDone = true)
+            if (activeProfile != null) {
+                var schoolId: Long? = null
+                when (activeProfile!!.type) {
+                    ProfileType.STUDENT -> {
+                        val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
+                        schoolId = profileClass.schoolId
+                        school = schoolUseCases.getSchoolFromId(schoolId)
+                    }
+                    ProfileType.TEACHER -> {
+                        val profileTeacher = teacherRepository.getTeacherById(activeProfile!!.referenceId)
+                        schoolId = profileTeacher!!.schoolId
+                        school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
+                    }
+                    ProfileType.ROOM -> {
+                        val room = roomRepository.getRoomById(activeProfile!!.referenceId)
+                        schoolId = room.schoolId
+                        school = schoolUseCases.getSchoolFromId(room.schoolId)
+                    }
+                }
+
+                val holidays = holidayUseCases.getHolidaysBySchoolId(schoolId)
+
+                _state.value =
+                    _state.value.copy(
+                        nextHoliday = holidays.find { it.date.isAfter(LocalDate.now()) }?.date,
+                        lessons = homeUseCases.getTodayLessons(activeProfile!!),
+                        profiles = profileUseCases.getProfiles().map { MenuProfile(it.id!!, it.name) }
+                    )
             }
 
-            val holidays = holidayUseCases.getHolidaysBySchoolId(schoolId!!)
-
-            _state.value =
-                _state.value.copy(
-                    nextHoliday = holidays.find { it.date.isAfter(LocalDate.now()) }?.date,
-                    lessons = homeUseCases.getTodayLessons(activeProfile!!),
-                    profiles = profileUseCases.getProfiles().map { MenuProfile(it.id!!, it.name) }
-                )
+            delay(5000)
+            if (!oneTime) init()
         }
     }
 
@@ -83,15 +91,14 @@ class HomeViewModel @Inject constructor(
         }
         vPlanUseCases.processVplanData(vPlanData.data)
         Log.d("VPlanData", vPlanData.toString())
-        init()
+        init(true)
         _state.value = _state.value.copy(isLoading = false)
     }
 
     fun onProfileSelected(profileId: Long) {
         viewModelScope.launch {
             profileUseCases.setActiveProfile(profileId)
-
-            init()
+            init(true)
         }
     }
 }
