@@ -107,6 +107,10 @@ class HomeViewModel @Inject constructor(
             init(true)
         }
     }
+
+    fun setViewType(viewType: ViewType) {
+        _state.value = _state.value.copy(viewMode = viewType)
+    }
 }
 
 data class HomeState(
@@ -116,5 +120,10 @@ data class HomeState(
     val isLoading: Boolean = false,
     val profiles: List<MenuProfile> = listOf(),
     val activeProfile: MenuProfile? = null,
-    val date: LocalDate = LocalDate.now()
+    val date: LocalDate = LocalDate.now(),
+    val viewMode: ViewType = ViewType.DAY
 )
+
+enum class ViewType {
+    WEEK, DAY
+}

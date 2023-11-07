@@ -9,6 +9,7 @@ import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -29,6 +30,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
@@ -50,9 +54,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
@@ -87,6 +93,12 @@ fun HomeScreen(
             popUpTo(0)
         }
     } else {
+        Button(onClick = {
+            if (state.viewMode == ViewType.WEEK) viewModel.setViewType(ViewType.DAY)
+            else viewModel.setViewType(ViewType.WEEK)
+        }) {
+            Text(text = "WEEK")
+        }
         HomeScreenContent(state = state, onGetVPlan = {
             coroutineScope.launch {
                 viewModel.getVPlanData()
@@ -135,6 +147,7 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
     state: HomeState,
@@ -222,6 +235,34 @@ fun HomeScreenContent(
 
             ) {
                 Column {
+                    val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE/2, pageCount = { Int.MAX_VALUE })
+                    val width by animateFloatAsState(targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
+                        label = "Plan View Changed Animation"
+                    )
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier
+                            .clickable {
+                                val clickedItem = pagerState.settledPage % Int.MAX_VALUE
+                                Log.d("HomeScreen", "Clicked item: $clickedItem")
+                            },
+                        pageSize = PageSize.Fixed(width.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier.width(200.dp)
+                        ) pagerItem@{
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = state.viewMode == ViewType.WEEK,
+                                enter = fadeIn(animationSpec = TweenSpec(200)),
+                                exit = fadeOut(animationSpec = TweenSpec(200))
+                            ) { Text(text = "I am text nr $it", overflow = TextOverflow.Ellipsis, maxLines = 1) }
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = state.viewMode == ViewType.DAY,
+                                enter = fadeIn(animationSpec = TweenSpec(200)),
+                                exit = fadeOut(animationSpec = TweenSpec(200))
+                            ) { Text(text = "$it", overflow = TextOverflow.Ellipsis, maxLines = 1) }
+                        }
+                    }
                     Text(text = "Next holiday: ${state.nextHoliday}")
                     Button(
                         enabled = !state.isLoading,
@@ -246,13 +287,11 @@ fun HomeScreenContent(
                     .padding(16.dp)
             ) {
                 if (state.lessons[state.date]?.isNotEmpty() == true) {
-                    Log.d("HomeScreen", "RECOMPOSED!")
                     LazyColumn {
                         items(
                             state.lessons[state.date]!!.sortedBy { it.lessonNumber },
                             key = { it.id }
                         ) {
-                            Log.d("HomeScreen", "ITEM: ${it.id}")
                             if ((calculateProgress(it.start, LocalTime.now().toString(), it.end)
                                     ?: -1.0) in 0.0..0.99
                             ) {
