@@ -220,7 +220,11 @@ fun HomeScreenContent(
                         pageSize = PageSize.Fixed(width.dp),
                         verticalAlignment = Alignment.Top,
                     ) { dayOfWeek ->
-                        Column {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .padding(top = 8.dp)
+                        ) {
                             val date = state.date.atStartOfWeek().plusDays(dayOfWeek.toLong())
                             if (state.lessons[date] == null) {
                                 Text(text = "No lessons")
