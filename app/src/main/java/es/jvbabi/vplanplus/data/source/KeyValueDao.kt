@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.source.database.dao
+package es.jvbabi.vplanplus.data.source
 
 import androidx.room.Dao
 import androidx.room.Query

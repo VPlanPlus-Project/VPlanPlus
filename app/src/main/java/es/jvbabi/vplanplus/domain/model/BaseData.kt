@@ -1,14 +1,9 @@
 package es.jvbabi.vplanplus.domain.model
 
-import es.jvbabi.vplanplus.domain.model.xml.BaseDataSchoolWeek
+import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
+import es.jvbabi.vplanplus.domain.model.xml.WeekData
 
-
-data class XmlBaseData(
-    val classNames: List<String>,
-    val teacherShorts: List<String>,
-    val roomNames: List<String>,
-    val schoolName: String,
-    val holidays: List<Holiday>,
-    val weeks: List<BaseDataSchoolWeek>,
-    val lessonTimes: Map<String, Map<Int, Pair<String, String>>>
+data class BaseData(
+    val students: BaseDataParserStudents,
+    val weekData: WeekData
 )

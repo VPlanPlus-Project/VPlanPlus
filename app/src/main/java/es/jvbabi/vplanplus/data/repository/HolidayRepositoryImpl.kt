@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.data.repository
 
-import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
+import es.jvbabi.vplanplus.data.source.HolidayDao
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
-import java.time.LocalDate
+import es.jvbabi.vplanplus.util.DateUtils
 
 class HolidayRepositoryImpl(
     private val holidayDao: HolidayDao
@@ -14,15 +14,11 @@ class HolidayRepositoryImpl(
 
     override suspend fun getTodayHoliday(schoolId: Long): Holiday? {
         return holidayDao.getHolidaysBySchoolId(schoolId).find {
-            it.date.isEqual(LocalDate.now())
+            it.timestamp == DateUtils.getCurrentDayTimestamp()
         }
     }
 
-    /**
-     * Deletes all holidays with the same schoolId as the ones in the list and inserts the new ones
-     * @param holidays List of holidays to insert
-     */
-    override suspend fun replaceHolidays(holidays: List<Holiday>) {
+    override suspend fun insertHolidays(holidays: List<Holiday>) {
         holidays.map { it.schoolId }.toSet().forEach {
             holidayDao.deleteHolidaysBySchoolId(it?:return@forEach)
         }
@@ -32,7 +28,7 @@ class HolidayRepositoryImpl(
     }
 
     override suspend fun insertHoliday(holiday: Holiday) {
-        holidayDao.find(holiday.schoolId, holiday.date)?.let {
+        holidayDao.find(holiday.schoolId, holiday.timestamp)?.let {
             holidayDao.deleteHoliday(it)
         }
         holidayDao.insertHoliday(holiday)

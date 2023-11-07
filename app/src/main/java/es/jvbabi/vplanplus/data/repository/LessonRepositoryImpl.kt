@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
-import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
+import es.jvbabi.vplanplus.data.source.LessonDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.repository.LessonRepository

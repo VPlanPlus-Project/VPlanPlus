@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.Classes
-import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 
 class ClassUseCases(private val classRepository: ClassRepository) {
@@ -21,9 +20,5 @@ class ClassUseCases(private val classRepository: ClassRepository) {
 
     suspend fun getClassById(id: Long): Classes {
         return classRepository.getClassById(id)
-    }
-
-    suspend fun getClassesBySchool(school: School): List<Classes> {
-        return classRepository.getClassesBySchool(school)
     }
 }

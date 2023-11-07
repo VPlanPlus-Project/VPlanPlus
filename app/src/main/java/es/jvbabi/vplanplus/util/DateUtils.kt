@@ -24,8 +24,4 @@ object DateUtils {
     fun getDateFromTimestamp(timestamp: Long): LocalDate {
         return Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
     }
-
-    fun LocalDate.atStartOfWeek(): LocalDate {
-        return this.minusDays(this.dayOfWeek.value.toLong() - 1)
-    }
 }

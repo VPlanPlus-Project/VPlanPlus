@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.source.database.dao
+package es.jvbabi.vplanplus.data.source
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -18,7 +18,4 @@ abstract class TeacherDao {
 
     @Query("SELECT * FROM teacher WHERE id = :id")
     abstract suspend fun getTeacherById(id: Long): Teacher?
-
-    @Query("DELETE FROM teacher WHERE schoolId = :schoolId")
-    abstract suspend fun deleteTeachersBySchoolId(schoolId: Long)
 }

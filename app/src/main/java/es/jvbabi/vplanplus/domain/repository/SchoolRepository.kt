@@ -13,6 +13,5 @@ interface SchoolRepository {
     suspend fun createSchool(schoolId: Long, username: String, password: String, name: String)
     suspend fun updateSchoolName(schoolId: Long, name: String)
     suspend fun getSchoolNameOnline(schoolId: Long, username: String, password: String): String
-    fun getSchoolFromId(schoolId: Long): School
-    suspend fun getSchoolByName(schoolName: String): School
+    suspend fun getSchoolFromId(schoolId: Long): School
 }

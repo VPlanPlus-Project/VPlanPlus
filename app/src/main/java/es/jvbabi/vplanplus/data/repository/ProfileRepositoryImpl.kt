@@ -1,10 +1,9 @@
 package es.jvbabi.vplanplus.data.repository
 
-import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
+import es.jvbabi.vplanplus.data.source.ProfileDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.ProfileType
-import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
+import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpTimeout
@@ -12,15 +11,16 @@ import io.ktor.client.request.basicAuth
 import io.ktor.client.request.request
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod.Companion.Get
+import kotlinx.coroutines.flow.Flow
 
 class ProfileRepositoryImpl(
     private val profileDao: ProfileDao
 ): ProfileRepository {
-    override suspend fun getProfiles(): List<Profile> {
+    override fun getProfiles(): Flow<List<Profile>> {
         return profileDao.getProfiles()
     }
 
-    override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String) {
+    override suspend fun createProfile(referenceId: Long, type: Int, name: String) {
         profileDao.insert(Profile(referenceId = referenceId, type = type, name = name))
     }
 
@@ -39,7 +39,7 @@ class ProfileRepositoryImpl(
             method = Get
             basicAuth(username, password)
         }
-        val baseData = ClassBaseData(response.bodyAsText())
+        val baseData = BaseDataParserStudents(response.bodyAsText())
         val classes = ArrayList<Classes>()
         baseData.classes.forEach {
             classes.add(
@@ -52,19 +52,11 @@ class ProfileRepositoryImpl(
         return classes
     }
 
-    override suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): Profile {
+    override suspend fun getProfileByReferenceId(referenceId: Long, type: Int): Profile {
         return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type)
     }
 
     override suspend fun getProfileById(id: Long): Profile {
         return profileDao.getProfileById(id = id)
-    }
-
-    override suspend fun deleteProfile(profileId: Long) {
-        profileDao.deleteProfile(profileId = profileId)
-    }
-
-    override suspend fun getProfilesBySchoolId(schoolId: Long): List<Profile> {
-        return profileDao.getProfilesBySchoolId(schoolId = schoolId)
     }
 }

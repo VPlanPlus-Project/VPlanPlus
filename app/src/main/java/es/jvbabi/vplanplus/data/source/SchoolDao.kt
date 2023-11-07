@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.source.database.dao
+package es.jvbabi.vplanplus.data.source
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -20,8 +20,5 @@ abstract class SchoolDao {
     abstract suspend fun updateName(schoolId: Long, name: String)
 
     @Query("SELECT * FROM school WHERE id = :schoolId")
-    abstract fun getSchoolFromId(schoolId: Long): School
-
-    @Query("SELECT * FROM school WHERE name = :schoolName")
-    abstract suspend fun getSchoolByName(schoolName: String): School
+    abstract suspend fun getSchoolFromId(schoolId: Long): School
 }

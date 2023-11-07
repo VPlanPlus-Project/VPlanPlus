@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.domain.model.xml
 
-import es.jvbabi.vplanplus.domain.model.Week
+import es.jvbabi.vplanplus.util.DateUtils
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -9,8 +9,9 @@ import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
 import java.time.LocalDate
+import java.time.ZoneId
 
-class ClassBaseData(val xml: String) {
+class BaseDataParserStudents(val xml: String) {
 
     var schoolName: String
     val classes = mutableListOf<String>()
@@ -37,25 +38,25 @@ class ClassBaseData(val xml: String) {
             val startString = it.start.split(".")
             val endString = it.end.split(".")
 
+            val startTimestamp = DateUtils.getDayTimestamp(
+                year = startString[2].toInt(),
+                month = startString[1].toInt(),
+                day = startString[0].toInt()
+            )
+
             val localDateFromNumbers = { // Kotlin does not detect correct method on LocalDate.of(year, month, day)
-                    year: Int, month: Int, day: Int ->
+                year: Int, month: Int, day: Int ->
                 LocalDate.of(year, month, day)
             }
-
-            val start = localDateFromNumbers(
-                startString[2].toInt(),
-                startString[1].toInt(),
-                startString[0].toInt()
-            )
 
             val end = localDateFromNumbers(
                 endString[2].toInt(),
                 endString[1].toInt(),
                 endString[0].toInt()
-            )
+            ).atTime(23, 59, 59).atZone(ZoneId.systemDefault()).toEpochSecond()
 
             BaseDataSchoolWeek(
-                start = start,
+                start = startTimestamp,
                 end = end,
                 type = it.type,
                 week = it.week.toInt()
@@ -107,18 +108,8 @@ private class SchoolWeek {
 }
 
 data class BaseDataSchoolWeek(
-    val start: LocalDate,
-    val end: LocalDate,
+    val start: Long,
+    val end: Long,
     val type: String,
     val week: Int
-) {
-    fun toWeek(schoolId: Long): Week {
-        return Week(
-            week = week,
-            start = start,
-            end = end,
-            type = type,
-            schoolId = schoolId
-        )
-    }
-}
+)

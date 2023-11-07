@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.source.database.dao
+package es.jvbabi.vplanplus.data.source
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -13,7 +13,7 @@ abstract class LessonDao {
     @Query("SELECT * FROM lesson WHERE ((changedTeacherId IS NULL AND originalTeacherId = :teacherId) OR changedTeacherId = :teacherId) AND dayTimestamp = :timestamp")
     abstract suspend fun getLessonsByTeacher(teacherId: Long, timestamp: Long): List<Lesson>
 
-    @Query("SELECT * FROM lesson WHERE roomId = :roomId AND dayTimestamp = :timestamp")
+    @Query("SELECT * FROM lesson WHERE originalRoomId = :roomId AND dayTimestamp = :timestamp")
     abstract suspend fun getLessonsByRoom(roomId: Long, timestamp: Long): List<Lesson>
 
     @Query("DELETE FROM lesson WHERE classId = :classId AND dayTimestamp = :timestamp")

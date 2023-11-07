@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.source.database.dao
+package es.jvbabi.vplanplus.data.source
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -19,10 +19,4 @@ abstract class RoomDao {
 
     @Query("SELECT * FROM room WHERE schoolId = :schoolId AND name = :name")
     abstract suspend fun getRoomByName(schoolId: Long, name: String): Room?
-
-    @Query("DELETE FROM room WHERE schoolId = :schoolId")
-    abstract suspend fun deleteRoomsBySchoolId(schoolId: Long)
-
-    @Query("SELECT * FROM room WHERE schoolId = :schoolId")
-    abstract suspend fun getRoomsBySchool(schoolId: Long): List<Room>
 }

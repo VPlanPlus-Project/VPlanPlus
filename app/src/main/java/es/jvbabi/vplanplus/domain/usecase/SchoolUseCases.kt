@@ -17,10 +17,6 @@ class SchoolUseCases(
         return flowOf(schoolRepository.checkSchoolId(schoolId))
     }
 
-    suspend fun getSchoolByName(schoolName: String): School {
-        return schoolRepository.getSchoolByName(schoolName)
-    }
-
     suspend fun login(schoolId: Long, username: String, password: String): Response {
         return schoolRepository.login(schoolId, username, password)
     }
@@ -37,7 +33,7 @@ class SchoolUseCases(
         )
     }
 
-    fun getSchoolFromId(schoolId: Long): School {
+    suspend fun getSchoolFromId(schoolId: Long): School {
         return schoolRepository.getSchoolFromId(schoolId)
     }
 }
