@@ -46,4 +46,7 @@
     <string name="onboarding_firstProfileRoomText">Wähle dieses Profil, um die Zeitpläne für einen bestimmten Raum an deiner Schule anzuzeigen.</string>
     <string name="onboarding_roomChooseRoomTitle">Wähle einen Raum</string>
     <string name="onboarding_roomChooseRoomText">Hier kannst du einen Raum auswählen, der an deiner Schule gefunden wurde.</string>
+    <string name="today">Heute</string>
+    <string name="tomorrow">Morgen</string>
+    <string name="yesterday">Gestern</string>
 </resources>

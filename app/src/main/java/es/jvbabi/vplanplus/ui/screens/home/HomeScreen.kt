@@ -13,6 +13,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ViewDay
 import androidx.compose.material.icons.filled.ViewWeek
@@ -49,16 +51,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
@@ -70,6 +77,7 @@ import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -101,7 +109,7 @@ fun HomeScreen(
                 coroutineScope.launch {
                     delay(450)
                     if (it == ViewType.WEEK) lessonPagerState.animateScrollToPage(0)
-                    if (it == ViewType.DAY) lessonPagerState.animateScrollToPage(state.date.dayOfWeek.value-1)
+                    if (it == ViewType.DAY) lessonPagerState.animateScrollToPage(state.date.dayOfWeek.value - 1)
                 }
             }, lessonPagerState = lessonPagerState
         )
@@ -171,67 +179,105 @@ fun HomeScreenContent(
             CircularProgressIndicator()
         }
     } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize(),
+        Box(
+            modifier = Modifier.fillMaxSize()
         ) {
-            SearchBar(state.activeProfile?.name ?: "", onMenuOpened) {}
-            Box(
-                modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
-                contentAlignment = Alignment.CenterEnd
+            Column(
+                modifier = Modifier
+                    .fillMaxSize(),
             ) {
-                SingleChoiceSegmentedButtonRow {
-                    SegmentedButton(
-                        selected = state.viewMode == ViewType.WEEK,
-                        onClick = { onViewModeChanged(ViewType.WEEK) },
-                        shape = MaterialTheme.shapes.small,
-                    ) {
-                        Icon(imageVector = Icons.Default.ViewWeek, contentDescription = null)
-                    }
-                    SegmentedButton(
-                        selected = state.viewMode == ViewType.DAY,
-                        onClick = { onViewModeChanged(ViewType.DAY) },
-                        shape = MaterialTheme.shapes.small,
-                    ) {
-                        Icon(imageVector = Icons.Default.ViewDay, contentDescription = null)
+                SearchBar(state.activeProfile?.name ?: "", onMenuOpened) {}
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(end = 8.dp),
+                    contentAlignment = Alignment.CenterEnd
+                ) {
+                    SingleChoiceSegmentedButtonRow {
+                        SegmentedButton(
+                            selected = state.viewMode == ViewType.WEEK,
+                            onClick = { onViewModeChanged(ViewType.WEEK) },
+                            shape = MaterialTheme.shapes.small,
+                        ) {
+                            Icon(imageVector = Icons.Default.ViewWeek, contentDescription = null)
+                        }
+                        SegmentedButton(
+                            selected = state.viewMode == ViewType.DAY,
+                            onClick = { onViewModeChanged(ViewType.DAY) },
+                            shape = MaterialTheme.shapes.small,
+                        ) {
+                            Icon(imageVector = Icons.Default.ViewDay, contentDescription = null)
+                        }
                     }
                 }
-            }
-            Column {
-                val width by animateFloatAsState(
-                    targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
-                    label = "Plan View Changed Animation"
-                )
-                HorizontalPager(
-                    state = lessonPagerState,
-                    pageSize = PageSize.Fixed(width.dp),
-                    verticalAlignment = Alignment.Top,
-                ) { dayOfWeek ->
-                    Column {
-                        val date = state.date.atStartOfWeek().plusDays(dayOfWeek.toLong())
-                        Text(text = "Day: $date, ${date.dayOfWeek}")
-                        if (state.lessons[date] == null) {
-                            Text(text = "No lessons")
-                            return@HorizontalPager
-                        }
-                        LazyColumn {
-                            items(
-                                state.lessons[date]!!.sortedBy { it.lessonNumber },
-                                key = { it.id }
-                            ) {
-                                if ((calculateProgress(it.start, LocalTime.now().toString(), it.end)
-                                        ?: -1.0) in 0.0..0.99
-                                    &&
-                                    date == LocalDate.now()
+                Column {
+                    val width by animateFloatAsState(
+                        targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
+                        label = "Plan View Changed Animation"
+                    )
+                    HorizontalPager(
+                        state = lessonPagerState,
+                        pageSize = PageSize.Fixed(width.dp),
+                        verticalAlignment = Alignment.Top,
+                    ) { dayOfWeek ->
+                        Column {
+                            val date = state.date.atStartOfWeek().plusDays(dayOfWeek.toLong())
+                            if (state.lessons[date] == null) {
+                                Text(text = "No lessons")
+                                return@HorizontalPager
+                            }
+                            LazyColumn {
+                                items(
+                                    state.lessons[date]!!.sortedBy { it.lessonNumber },
+                                    key = { it.id }
                                 ) {
-                                    CurrentLessonCard(lesson = it, width = width)
-                                } else {
-                                    LessonCard(lesson = it, width = width)
+                                    if ((calculateProgress(
+                                            it.start,
+                                            LocalTime.now().toString(),
+                                            it.end
+                                        )
+                                            ?: -1.0) in 0.0..0.99
+                                        &&
+                                        date == LocalDate.now()
+                                    ) {
+                                        CurrentLessonCard(lesson = it, width = width)
+                                    } else {
+                                        LessonCard(lesson = it, width = width)
+                                    }
                                 }
                             }
                         }
                     }
                 }
+            }
+            val scope = rememberCoroutineScope()
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(bottom = 16.dp)
+                    .shadow(10.dp, shape = RoundedCornerShape(20.dp))
+                    .height(40.dp)
+                    .width(100.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                    .clickable {
+                        scope.launch {
+                            lessonPagerState.animateScrollToPage(LocalDate.now().dayOfWeek.value - 1)
+                        }
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                val visibleDate =
+                    state.date.atStartOfWeek().plusDays(lessonPagerState.currentPage.toLong())
+                val text = if (visibleDate == LocalDate.now()) stringResource(id = R.string.today)
+                else if (visibleDate.minusDays(1L) == LocalDate.now()) stringResource(id = R.string.tomorrow)
+                else if (visibleDate.plusDays(1L) == LocalDate.now()) stringResource(id = R.string.yesterday)
+                else visibleDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+                Text(
+                    text = text,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    modifier = Modifier.alpha(1 - abs(lessonPagerState.currentPageOffsetFraction) * 2)
+                )
             }
         }
     }
@@ -451,7 +497,8 @@ fun HomeScreenPreview() {
         HomeState(
             initDone = true,
             isLoading = true,
-            lessons = hashMapOf(
+            lessons =
+            hashMapOf(
                 LocalDate.now() to listOf(
                     Lesson(
                         id = 0,
@@ -493,6 +540,7 @@ fun HomeScreenPreview() {
                     )
                 )
             )
+
         ),
         onMenuOpened = {}
     )

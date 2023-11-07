@@ -35,48 +35,57 @@ class HomeViewModel @Inject constructor(
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
 
-    private var activeProfile: Profile? = null
+    private lateinit var activeProfile: Profile
     private var school: School? = null
 
     suspend fun init() {
-        activeProfile = profileUseCases.getActiveProfile()
-        _state.value = _state.value.copy(activeProfile = activeProfile?.toMenuProfile())
+        activeProfile = profileUseCases.getActiveProfile() ?: return
+        _state.value =
+            _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
         val startOfWeek = state.value.date.atStartOfWeek()
-        if (activeProfile != null) {
-            val schoolId: Long?
-            when (activeProfile!!.type) {
-                ProfileType.STUDENT -> {
-                    val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
-                    schoolId = profileClass.schoolId
-                    school = schoolUseCases.getSchoolFromId(schoolId)
-                }
-                ProfileType.TEACHER -> {
-                    val profileTeacher = teacherRepository.getTeacherById(activeProfile!!.referenceId)!!
-                    school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
-                }
-                ProfileType.ROOM -> {
-                    val room = roomRepository.getRoomById(activeProfile!!.referenceId)
-                    school = schoolUseCases.getSchoolFromId(room.schoolId)
-                }
+        val schoolId: Long?
+        when (activeProfile.type) {
+            ProfileType.STUDENT -> {
+                val profileClass = classUseCases.getClassById(activeProfile.referenceId)
+                schoolId = profileClass.schoolId
+                school = schoolUseCases.getSchoolFromId(schoolId)
             }
 
-            repeat(5) { i ->
-                Log.d("HomeViewModel", "Updating view $i for ${activeProfile!!.name} at ${startOfWeek.plusDays(i.toLong())}")
-                updateView(activeProfile!!, startOfWeek.plusDays(i.toLong()))
+            ProfileType.TEACHER -> {
+                val profileTeacher = teacherRepository.getTeacherById(activeProfile.referenceId)!!
+                school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
+            }
+
+            ProfileType.ROOM -> {
+                val room = roomRepository.getRoomById(activeProfile.referenceId)
+                school = schoolUseCases.getSchoolFromId(room.schoolId)
             }
         }
+
+        repeat(5) { i ->
+            Log.d(
+                "HomeViewModel",
+                "Updating view $i for ${activeProfile.name} at ${startOfWeek.plusDays(i.toLong())}"
+            )
+            updateView(activeProfile, startOfWeek.plusDays(i.toLong()))
+        }
+
+        _state.value =
+            _state.value.copy(profiles = profileUseCases.getProfiles().map { it.toMenuProfile() })
+
         _state.value =
             _state.value.copy(initDone = true)
     }
 
     private suspend fun updateView(profile: Profile, date: LocalDate) {
         val lessons = homeUseCases.getLessons(profile, date)
-        if (lessons.isEmpty()) Log.d("HomeViewModel", "No lessons found for ${activeProfile!!.name} at $date")
+        if (lessons.isEmpty()) Log.d(
+            "HomeViewModel",
+            "No lessons found for ${activeProfile.name} at $date"
+        )
         _state.value =
             _state.value.copy(
-                lessons = state.value.lessons.apply {
-                    this[date] = lessons
-                }
+                lessons = state.value.lessons.plus(date to lessons),
             )
     }
 
@@ -85,7 +94,7 @@ class HomeViewModel @Inject constructor(
 
         val startOfWeek = state.value.date.atStartOfWeek()
         repeat(5) { i ->
-            val date = startOfWeek.plusDays(i-1L)
+            val date = startOfWeek.plusDays(i - 1L)
             val vPlanData = vPlanUseCases.getVPlanData(school!!, date)
             if (vPlanData.data == null) {
                 Log.d("VPlanData $i", "null")
@@ -94,7 +103,7 @@ class HomeViewModel @Inject constructor(
             }
             vPlanUseCases.processVplanData(vPlanData.data)
             Log.d("VPlanData", vPlanData.toString())
-            updateView(activeProfile!!, date)
+            updateView(activeProfile, date)
         }
         _state.value = _state.value.copy(isLoading = false)
     }
@@ -113,7 +122,7 @@ class HomeViewModel @Inject constructor(
 
 data class HomeState(
     val initDone: Boolean = false,
-    val lessons: HashMap<LocalDate, List<Lesson>> = hashMapOf(),
+    val lessons: Map<LocalDate, List<Lesson>> = mapOf(),
     val isLoading: Boolean = false,
     val profiles: List<MenuProfile> = listOf(),
     val activeProfile: MenuProfile? = null,

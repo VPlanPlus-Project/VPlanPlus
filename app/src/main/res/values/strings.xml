@@ -45,4 +45,7 @@
     <string name="onboarding_firstProfileRoomText">Choose this profile to view the schedules for a specific room at your school.</string>
     <string name="onboarding_roomChooseRoomTitle">Choose a room</string>
     <string name="onboarding_roomChooseRoomText">Here you can select a room that has been found at your school.</string>
+    <string name="today">Today</string>
+    <string name="tomorrow">Tomorrow</string>
+    <string name="yesterday">Yesterday</string>
 </resources>
