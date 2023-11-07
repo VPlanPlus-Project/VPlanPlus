@@ -34,7 +34,7 @@ fun SearchBar(
 ) {
     Box(
         modifier = Modifier
-            .padding(16.dp)
+            .padding(8.dp)
             .clip(RoundedCornerShape(25.dp))
             .background(color = MaterialTheme.colorScheme.secondaryContainer)
             .fillMaxWidth()

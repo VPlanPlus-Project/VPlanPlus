@@ -29,9 +29,16 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ViewDay
+import androidx.compose.material.icons.filled.ViewWeek
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,7 +59,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import es.jvbabi.vplanplus.ui.common.LoadingButton
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
@@ -75,7 +81,8 @@ fun HomeScreen(
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
     var menuOpened by remember { mutableStateOf(false) }
-    val lessonPagerState = rememberPagerState(initialPage = LocalDate.now().dayOfWeek.value-1, pageCount = { 7 })
+    val lessonPagerState =
+        rememberPagerState(initialPage = LocalDate.now().dayOfWeek.value - 1, pageCount = { 7 })
 
     LaunchedEffect("Init") {
         viewModel.init()
@@ -86,28 +93,18 @@ fun HomeScreen(
             popUpTo(0)
         }
     } else {
-        HomeScreenContent(state = state, onGetVPlan = {
-            coroutineScope.launch {
-                viewModel.getVPlanData()
-            }
-        }, onMenuOpened = {
-            menuOpened = true
-        }, testCallback = {
-            if (state.viewMode == ViewType.DAY) {
-                viewModel.setViewType(ViewType.WEEK)
+        HomeScreenContent(state = state,
+            onMenuOpened = {
+                menuOpened = true
+            }, onViewModeChanged = {
+                viewModel.setViewType(it)
                 coroutineScope.launch {
-                    delay(400)
-                    lessonPagerState.animateScrollToPage(0)
+                    delay(450)
+                    if (it == ViewType.WEEK) lessonPagerState.animateScrollToPage(0)
+                    if (it == ViewType.DAY) lessonPagerState.animateScrollToPage(state.date.dayOfWeek.value-1)
                 }
-            }
-            else {
-                viewModel.setViewType(ViewType.DAY)
-                coroutineScope.launch {
-                    delay(400)
-                    lessonPagerState.animateScrollToPage(state.date.dayOfWeek.value)
-                }
-            }
-        }, lessonPagerState = lessonPagerState)
+            }, lessonPagerState = lessonPagerState
+        )
     }
     val context = LocalContext.current
 
@@ -132,6 +129,12 @@ fun HomeScreen(
             onCloseClicked = {
                 menuOpened = false
             },
+            onRefreshClicked = {
+                coroutineScope.launch {
+                    viewModel.getVPlanData()
+                    menuOpened = false
+                }
+            },
             onRepositoryClicked = {
                 val browserIntent = Intent(
                     Intent.ACTION_VIEW,
@@ -149,14 +152,15 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
     state: HomeState,
-    onGetVPlan: () -> Unit,
     onMenuOpened: () -> Unit = {},
-    testCallback: () -> Unit = {},
-    lessonPagerState: PagerState = rememberPagerState(initialPage = LocalDate.now().dayOfWeek.value, pageCount = { 5 })
+    onViewModeChanged: (type: ViewType) -> Unit = {},
+    lessonPagerState: PagerState = rememberPagerState(
+        initialPage = LocalDate.now().dayOfWeek.value,
+        pageCount = { 5 })
 ) {
     if (!state.initDone) {
         Box(
@@ -171,16 +175,31 @@ fun HomeScreenContent(
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            SearchBar(state.activeProfile?.name ?: "", onMenuOpened, testCallback)
-
-            Box {
-                Column {
-                    LoadingButton(content = { Text(text = "Get VPlan data") }, onClick = { onGetVPlan() }, loading = state.isLoading)
+            SearchBar(state.activeProfile?.name ?: "", onMenuOpened) {}
+            Box(
+                modifier = Modifier.fillMaxWidth().padding(end = 8.dp),
+                contentAlignment = Alignment.CenterEnd
+            ) {
+                SingleChoiceSegmentedButtonRow {
+                    SegmentedButton(
+                        selected = state.viewMode == ViewType.WEEK,
+                        onClick = { onViewModeChanged(ViewType.WEEK) },
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Icon(imageVector = Icons.Default.ViewWeek, contentDescription = null)
+                    }
+                    SegmentedButton(
+                        selected = state.viewMode == ViewType.DAY,
+                        onClick = { onViewModeChanged(ViewType.DAY) },
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Icon(imageVector = Icons.Default.ViewDay, contentDescription = null)
+                    }
                 }
             }
-
             Column {
-                val width by animateFloatAsState(targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
+                val width by animateFloatAsState(
+                    targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
                     label = "Plan View Changed Animation"
                 )
                 HorizontalPager(
@@ -475,7 +494,6 @@ fun HomeScreenPreview() {
                 )
             )
         ),
-        onGetVPlan = {},
         onMenuOpened = {}
     )
 }
