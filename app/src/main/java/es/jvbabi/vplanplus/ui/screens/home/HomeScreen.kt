@@ -3,9 +3,6 @@ package es.jvbabi.vplanplus.ui.screens.home
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
-import android.widget.Toast
-import android.widget.Toast.LENGTH_SHORT
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
@@ -16,8 +13,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,14 +27,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -51,22 +42,22 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.LoadingButton
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -75,6 +66,7 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     navHostController: NavHostController,
@@ -83,6 +75,7 @@ fun HomeScreen(
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
     var menuOpened by remember { mutableStateOf(false) }
+    val lessonPagerState = rememberPagerState(initialPage = LocalDate.now().dayOfWeek.value-1, pageCount = { 7 })
 
     LaunchedEffect("Init") {
         viewModel.init()
@@ -93,19 +86,28 @@ fun HomeScreen(
             popUpTo(0)
         }
     } else {
-        Button(onClick = {
-            if (state.viewMode == ViewType.WEEK) viewModel.setViewType(ViewType.DAY)
-            else viewModel.setViewType(ViewType.WEEK)
-        }) {
-            Text(text = "WEEK")
-        }
         HomeScreenContent(state = state, onGetVPlan = {
             coroutineScope.launch {
                 viewModel.getVPlanData()
             }
         }, onMenuOpened = {
             menuOpened = true
-        })
+        }, testCallback = {
+            if (state.viewMode == ViewType.DAY) {
+                viewModel.setViewType(ViewType.WEEK)
+                coroutineScope.launch {
+                    delay(400)
+                    lessonPagerState.animateScrollToPage(0)
+                }
+            }
+            else {
+                viewModel.setViewType(ViewType.DAY)
+                coroutineScope.launch {
+                    delay(400)
+                    lessonPagerState.animateScrollToPage(state.date.dayOfWeek.value)
+                }
+            }
+        }, lessonPagerState = lessonPagerState)
     }
     val context = LocalContext.current
 
@@ -152,9 +154,10 @@ fun HomeScreen(
 fun HomeScreenContent(
     state: HomeState,
     onGetVPlan: () -> Unit,
-    onMenuOpened: () -> Unit = {}
+    onMenuOpened: () -> Unit = {},
+    testCallback: () -> Unit = {},
+    lessonPagerState: PagerState = rememberPagerState(initialPage = LocalDate.now().dayOfWeek.value, pageCount = { 5 })
 ) {
-    val context = LocalContext.current
     if (!state.initDone) {
         Box(
             modifier = Modifier
@@ -168,136 +171,44 @@ fun HomeScreenContent(
             modifier = Modifier
                 .fillMaxSize(),
         ) {
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(25.dp))
-                    .background(color = MaterialTheme.colorScheme.secondaryContainer)
-                    .fillMaxWidth()
-                    .height(50.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .clickable {
-                            Toast
-                                .makeText(context, "Not implemented", LENGTH_SHORT)
-                                .show()
-                        },
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.padding(start = 16.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .height(20.dp),
-                            tint = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                        Text(
-                            text = stringResource(id = R.string.home_search),
-                            color = MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                            .height(40.dp)
-                            .width(40.dp)
-                            .border(
-                                width = 1.dp,
-                                color = MaterialTheme.colorScheme.secondary,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .clip(RoundedCornerShape(20.dp))
-                            .background(color = MaterialTheme.colorScheme.secondary)
-                            .clickable(enabled = true) {
-                                onMenuOpened()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = state.activeProfile?.name ?: "--",
-                            color = MaterialTheme.colorScheme.onSecondary
-                        )
-                    }
-                }
-            }
+            SearchBar(state.activeProfile?.name ?: "", onMenuOpened, testCallback)
 
-            Box(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-
-            ) {
+            Box {
                 Column {
-                    val pagerState = rememberPagerState(initialPage = Int.MAX_VALUE/2, pageCount = { Int.MAX_VALUE })
-                    val width by animateFloatAsState(targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
-                        label = "Plan View Changed Animation"
-                    )
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier
-                            .clickable {
-                                val clickedItem = pagerState.settledPage % Int.MAX_VALUE
-                                Log.d("HomeScreen", "Clicked item: $clickedItem")
-                            },
-                        pageSize = PageSize.Fixed(width.dp),
-                    ) {
-                        Box(
-                            modifier = Modifier.width(200.dp)
-                        ) pagerItem@{
-                            androidx.compose.animation.AnimatedVisibility(
-                                visible = state.viewMode == ViewType.WEEK,
-                                enter = fadeIn(animationSpec = TweenSpec(200)),
-                                exit = fadeOut(animationSpec = TweenSpec(200))
-                            ) { Text(text = "I am text nr $it", overflow = TextOverflow.Ellipsis, maxLines = 1) }
-                            androidx.compose.animation.AnimatedVisibility(
-                                visible = state.viewMode == ViewType.DAY,
-                                enter = fadeIn(animationSpec = TweenSpec(200)),
-                                exit = fadeOut(animationSpec = TweenSpec(200))
-                            ) { Text(text = "$it", overflow = TextOverflow.Ellipsis, maxLines = 1) }
-                        }
-                    }
-                    Text(text = "Next holiday: ${state.nextHoliday}")
-                    Button(
-                        enabled = !state.isLoading,
-                        onClick = {
-                            onGetVPlan()
-                        }
-                    ) {
-                        if (state.isLoading) CircularProgressIndicator(
-                            strokeWidth = 2.dp,
-                            modifier = Modifier
-                                .width(24.dp)
-                                .height(24.dp)
-                                .padding(6.dp)
-                        )
-                        else Text(text = "Get VPlan data")
-                    }
+                    LoadingButton(content = { Text(text = "Get VPlan data") }, onClick = { onGetVPlan() }, loading = state.isLoading)
                 }
             }
 
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                if (state.lessons[state.date]?.isNotEmpty() == true) {
-                    LazyColumn {
-                        items(
-                            state.lessons[state.date]!!.sortedBy { it.lessonNumber },
-                            key = { it.id }
-                        ) {
-                            if ((calculateProgress(it.start, LocalTime.now().toString(), it.end)
-                                    ?: -1.0) in 0.0..0.99
+            Column {
+                val width by animateFloatAsState(targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
+                    label = "Plan View Changed Animation"
+                )
+                HorizontalPager(
+                    state = lessonPagerState,
+                    pageSize = PageSize.Fixed(width.dp),
+                    verticalAlignment = Alignment.Top,
+                ) { dayOfWeek ->
+                    Column {
+                        val date = state.date.atStartOfWeek().plusDays(dayOfWeek.toLong())
+                        Text(text = "Day: $date, ${date.dayOfWeek}")
+                        if (state.lessons[date] == null) {
+                            Text(text = "No lessons")
+                            return@HorizontalPager
+                        }
+                        LazyColumn {
+                            items(
+                                state.lessons[date]!!.sortedBy { it.lessonNumber },
+                                key = { it.id }
                             ) {
-                                CurrentLessonCard(lesson = it)
-                            } else {
-                                LessonCard(lesson = it)
+                                if ((calculateProgress(it.start, LocalTime.now().toString(), it.end)
+                                        ?: -1.0) in 0.0..0.99
+                                    &&
+                                    date == LocalDate.now()
+                                ) {
+                                    CurrentLessonCard(lesson = it, width = width)
+                                } else {
+                                    LessonCard(lesson = it, width = width)
+                                }
                             }
                         }
                     }
@@ -308,11 +219,11 @@ fun HomeScreenContent(
 }
 
 @Composable
-fun CurrentLessonCard(lesson: Lesson) {
+fun CurrentLessonCard(lesson: Lesson, width: Float) {
     Card(
         modifier = Modifier
+            .width(width.dp)
             .padding(8.dp)
-            .fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
@@ -378,11 +289,11 @@ fun CurrentLessonCard(lesson: Lesson) {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LessonCard(lesson: Lesson) {
+fun LessonCard(lesson: Lesson, width: Float) {
     Card(
         modifier = Modifier
+            .width(width.dp)
             .padding(8.dp)
-            .fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
@@ -477,6 +388,7 @@ fun LessonCard(lesson: Lesson) {
 @Preview
 fun CurrentLessonCardPreview() {
     CurrentLessonCard(
+        width = 200f,
         lesson = Lesson(
             id = 0,
             subject = "Informatik",
@@ -497,6 +409,7 @@ fun CurrentLessonCardPreview() {
 @Preview
 fun LessonCardPreview() {
     LessonCard(
+        width = 200f,
         lesson = Lesson(
             id = 0,
             subject = "Informatik",
@@ -511,13 +424,13 @@ fun LessonCardPreview() {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview(showBackground = true)
 fun HomeScreenPreview() {
     HomeScreenContent(
         HomeState(
             initDone = true,
-            nextHoliday = LocalDate.now(),
             isLoading = true,
             lessons = hashMapOf(
                 LocalDate.now() to listOf(

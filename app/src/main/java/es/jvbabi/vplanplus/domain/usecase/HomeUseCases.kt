@@ -19,7 +19,6 @@ class HomeUseCases(
     private val lessonTimeRepository: LessonTimeRepository
 ) {
     suspend fun getLessons(profile: Profile, date: LocalDate): List<Lesson> {
-        Log.d("HomeUseCases", "getLessons: ${profile.type} at $date")
         val lessons = when (profile.type) {
             ProfileType.STUDENT -> {
                 lessonRepository.getLessonsForClass(profile.referenceId, date)
