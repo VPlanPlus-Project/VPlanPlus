@@ -229,10 +229,11 @@ fun ProfileCard(type: ProfileType?, name: String, modifier: Modifier = Modifier)
     Card(
         colors = CardDefaults.cardColors(),
         border = if (type != null) BorderStroke(1.dp, Color.Black) else null,
-        modifier = modifier
+        modifier = Modifier
             .padding(end = 16.dp)
             .size(width = 80.dp, height = 80.dp)
             .dashedBorder(if (type == null) 2.dp else 0.dp, Color.Black, 8.dp)
+            .then(modifier)
     ) {
         Box(
             modifier = Modifier
