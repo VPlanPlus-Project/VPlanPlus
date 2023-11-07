@@ -6,22 +6,18 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.BaseData
-import es.jvbabi.vplanplus.domain.model.Holiday
-import es.jvbabi.vplanplus.domain.model.Week
+import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.XmlBaseData
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
+import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
-import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
-import es.jvbabi.vplanplus.util.DateUtils
-import kotlinx.coroutines.DelicateCoroutinesApi
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -31,28 +27,46 @@ import javax.inject.Inject
 class OnboardingViewModel @Inject constructor(
     private val schoolUseCases: SchoolUseCases,
     private val profileUseCases: ProfileUseCases,
-    private val onboardingUseCases: OnboardingUseCases,
     private val classUseCases: ClassUseCases,
     private val keyValueUseCases: KeyValueUseCases,
-    private val holidayUseCases: HolidayUseCases,
     private val baseDataUseCases: BaseDataUseCases,
+    private val teacherRepository: TeacherRepository,
+    private val roomRepository: RoomRepository
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
 
-    lateinit var baseData: BaseData
+    private lateinit var baseData: XmlBaseData
 
+    // UI TEXT INPUT EVENT HANDLERS
     fun onSchoolIdInput(schoolId: String) {
         _state.value = _state.value.copy(
             schoolId = schoolId,
             schoolIdState = schoolUseCases.checkSchoolId(schoolId)
         )
     }
+    fun onUsernameInput(username: String) {
+        _state.value = _state.value.copy(username = username)
+    }
+    fun onPasswordInput(password: String) {
+        _state.value = _state.value.copy(password = password)
+    }
+    fun onPasswordVisibilityToggle() {
+        _state.value = _state.value.copy(passwordVisible = !state.value.passwordVisible)
+    }
+
+
+    fun reset() {
+        _state.value = OnboardingState()
+    }
 
     fun newScreen() {
         _state.value = _state.value.copy(isLoading = false, currentResponseType = Response.NONE)
     }
 
+    /**
+     * Called when user clicks next button on [OnboardingSchoolIdScreen]
+     */
     suspend fun onSchoolIdSubmit() {
         _state.value = _state.value.copy(isLoading = true)
         schoolUseCases.checkSchoolIdOnline(state.value.schoolId.toLong()).onEach { result ->
@@ -70,22 +84,13 @@ class OnboardingViewModel @Inject constructor(
         }.launchIn(viewModelScope)
     }
 
-    fun onUsernameInput(username: String) {
-        _state.value = _state.value.copy(username = username)
-    }
-
-    fun onPasswordInput(password: String) {
-        _state.value = _state.value.copy(password = password)
-    }
-
-    fun onPasswordVisibilityToggle() {
-        _state.value = _state.value.copy(passwordVisible = !state.value.passwordVisible)
-    }
-
+    /**
+     * Called when user clicks next button on [OnboardingLoginScreen]
+     */
     suspend fun onLogin() {
         _state.value = _state.value.copy(isLoading = true)
 
-        val baseData = baseDataUseCases.getBaseDataXml(
+        val baseData = baseDataUseCases.getBaseData(
             schoolId = state.value.schoolId.toLong(),
             username = state.value.username,
             password = state.value.password
@@ -103,86 +108,133 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun onFirstProfileSelect(firstProfile: FirstProfile) {
-        _state.value = _state.value.copy(firstProfile = firstProfile)
+    /**
+     * Called when user clicks profile card on [OnboardingAddProfileScreen]
+     */
+    fun onFirstProfileSelect(profileType: ProfileType?) {
+        _state.value = _state.value.copy(profileType = profileType)
     }
 
-    fun onFirstProfileSubmit() {
+    /**
+     * Called when user clicks next button on [OnboardingAddProfileScreen]
+     */
+    suspend fun onProfileTypeSubmit() {
         _state.value = _state.value.copy(isLoading = true)
 
-        if (state.value.firstProfile == FirstProfile.STUDENT) {
-            _state.value = _state.value.copy(
-                classList = baseData.students.classes,
-            )
+        if (state.value.profileType == ProfileType.STUDENT) {
+            if (state.value.task == Task.CREATE_SCHOOL) {
+                _state.value = _state.value.copy(
+                    profileOptions = baseData.classNames,
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    profileOptions = classUseCases.getClassesBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.className },
+                )
+            }
+        } else if (state.value.profileType == ProfileType.TEACHER) {
+            if (state.value.task == Task.CREATE_SCHOOL) {
+                _state.value = _state.value.copy(
+                    profileOptions = baseData.teacherShorts,
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    profileOptions = teacherRepository.getTeachersBySchoolId(state.value.schoolId.toLong()).map { it.acronym },
+                )
+            }
+        } else if (state.value.profileType == ProfileType.ROOM) {
+            if (state.value.task == Task.CREATE_SCHOOL) {
+                _state.value = _state.value.copy(
+                    profileOptions = baseData.roomNames,
+                )
+            } else {
+                _state.value = _state.value.copy(
+                    profileOptions = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.name },
+                )
+            }
         }
     }
 
-    fun onClassSelect(className: String) {
-        _state.value = _state.value.copy(selectedClass = className)
+    fun onProfileSelect(p: String) {
+        _state.value = _state.value.copy(selectedProfileOption = p)
     }
 
-    @OptIn(DelicateCoroutinesApi::class)
-    suspend fun onClassSubmit() {
+    /**
+     * Called when user clicks next button on [OnboardingProfileOptionListScreen]
+     */
+    suspend fun onProfileSubmit() {
         _state.value = _state.value.copy(isLoading = true)
-        GlobalScope.launch {
+        viewModelScope.launch {
 
-            schoolUseCases.createSchool(
-                schoolId = state.value.schoolId.toLong(),
-                username = state.value.username,
-                password = state.value.password,
-                name = baseData.students.schoolName
-            )
+            if (state.value.task == Task.CREATE_SCHOOL) {
 
-            state.value.classList.forEach {
-                classUseCases.createClass(
+                schoolUseCases.createSchool(
                     schoolId = state.value.schoolId.toLong(),
-                    className = it
+                    username = state.value.username,
+                    password = state.value.password,
+                    name = baseData.schoolName
+                )
+
+                baseDataUseCases.processBaseData(
+                    schoolId = state.value.schoolId.toLong(),
+                    baseData = baseData
                 )
             }
-            val `class` = classUseCases.getClassBySchoolIdAndClassName(
-                schoolId = state.value.schoolId.toLong(),
-                className = state.value.selectedClass!!,
-            )!!
-            profileUseCases.createStudentProfile(
-                classId = `class`.id!!,
-                name = state.value.selectedClass!!
-            )
 
-            holidayUseCases.insertHolidays(baseData.students.holidays.map {
-                Holiday(
-                    schoolId = if (it.second) null else state.value.schoolId.toLong(),
-                    timestamp = DateUtils.getDayTimestamp(
-                        year = it.first.first,
-                        month = it.first.second,
-                        day = it.first.third
-                    )
-                )
-            })
-
-            baseDataUseCases.insertWeeks(
-                baseData.students.schoolWeeks.map {
-                    Week(
+            when (state.value.profileType!!) {
+                ProfileType.STUDENT -> {
+                    val `class` = classUseCases.getClassBySchoolIdAndClassName(
                         schoolId = state.value.schoolId.toLong(),
-                        week = it.week,
-                        start = it.start,
-                        end = it.end,
-                        type = it.type
+                        className = state.value.selectedProfileOption!!,
+                    )!!
+                    profileUseCases.createStudentProfile(
+                        classId = `class`.id!!,
+                        name = state.value.selectedProfileOption!!
+                    )
+                    keyValueUseCases.set(
+                        Keys.ACTIVE_PROFILE.name,
+                        profileUseCases.getProfileByClassId(`class`.id).id.toString()
                     )
                 }
-            )
+                ProfileType.TEACHER -> {
+                    val teacher = teacherRepository.find(
+                        school = schoolUseCases.getSchoolFromId(state.value.schoolId.toLong()),
+                        acronym = state.value.selectedProfileOption!!,
+                        createIfNotExists = false
+                    )!!
+                    profileUseCases.createTeacherProfile(teacherId = teacher.id!!, name = teacher.acronym)
+                    keyValueUseCases.set(
+                        Keys.ACTIVE_PROFILE.name,
+                        profileUseCases.getProfileByTeacherId(teacher.id).id.toString()
+                    )
+                }
+                ProfileType.ROOM -> {
+                    val room = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).find { it.name == state.value.selectedProfileOption!! }!!
+                    profileUseCases.createRoomProfile(roomId = room.id!!, name = room.name)
+                    keyValueUseCases.set(
+                        Keys.ACTIVE_PROFILE.name,
+                        profileUseCases.getProfileByRoomId(room.id).id.toString()
+                    )
+                }
+            }
 
-            baseDataUseCases.processBaseData(
-                schoolId = state.value.schoolId.toLong(),
-                baseData = baseData
-            )
-
-            keyValueUseCases.set(
-                Keys.ACTIVE_PROFILE.name,
-                profileUseCases.getProfileByClassId(`class`.id).id.toString()
-            )
             _state.value = _state.value.copy(isLoading = false)
         }
 
+    }
+
+    fun onAutomaticSchoolIdInput(schoolId: Long) {
+        val school = schoolUseCases.getSchoolFromId(schoolId)
+        _state.value = _state.value.copy(
+            schoolId = schoolId.toString(),
+            schoolIdState = SchoolIdCheckResult.VALID,
+            username = school.username,
+            password = school.password,
+            loginSuccessful = true
+        )
+    }
+
+    fun setTask(task: Task) {
+        _state.value = _state.value.copy(task = task)
     }
 }
 
@@ -198,12 +250,13 @@ data class OnboardingState(
     val currentResponseType: Response = Response.NONE,
     val isLoading: Boolean = false,
 
-    val firstProfile: FirstProfile? = null,
+    val profileType: ProfileType? = null,
+    val task: Task = Task.CREATE_SCHOOL,
 
-    val classList: List<String> = listOf(),
-    val selectedClass: String? = null,
+    val profileOptions: List<String> = listOf(),
+    val selectedProfileOption: String? = null,
 )
 
-enum class FirstProfile {
-    TEACHER, STUDENT
+enum class Task {
+    CREATE_SCHOOL, CREATE_PROFILE
 }

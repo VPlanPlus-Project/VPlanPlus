@@ -21,69 +21,88 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 import kotlinx.coroutines.launch
 
 @Composable
-fun OnboardingClassListScreen(
+fun OnboardingAddProfileScreen(
     navController: NavHostController,
-    onboardingViewModel: OnboardingViewModel
+    viewModel: OnboardingViewModel,
 ) {
-    val state = onboardingViewModel.state.value
+    val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
 
-    ClassListScreen(state = state, onClassSelect = { onboardingViewModel.onClassSelect(it) }) {
-        coroutineScope.launch { onboardingViewModel.onClassSubmit() }
-        navController.navigate(Screen.OnboardingSetupScreen.route) { popUpTo(0) }
+    if (state.profileOptions.isNotEmpty() && state.profileType != null) {
+        viewModel.newScreen()
+        navController.navigate(Screen.OnboardingProfileSelectScreen.route) { popUpTo(0) }
     }
+
+    AddProfileScreen(
+        state = state,
+        onProfileSelect = { viewModel.onFirstProfileSelect(it) },
+        onButtonClick = {
+            coroutineScope.launch {
+                viewModel.onProfileTypeSubmit()
+            }
+        }
+    )
 }
 
 @Composable
-fun ClassListScreen(
+fun AddProfileScreen(
     state: OnboardingState,
-    onClassSelect: (String) -> Unit,
+    onProfileSelect: (ProfileType) -> Unit,
     onButtonClick: () -> Unit,
 ) {
     OnboardingScreen(
-        title = stringResource(id = R.string.onboarding_studentChooseClassTitle),
-        text = stringResource(id = R.string.onboarding_studentChooseClassText),
+        title = if (state.task == Task.CREATE_SCHOOL) stringResource(id = R.string.onboarding_firstProfileTitle) else stringResource(id = R.string.onboarding_newProfileTitle),
+        text = stringResource(id = R.string.onboarding_firstProfileText),
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
-        enabled = !state.isLoading && state.selectedClass != null,
+        enabled = state.profileType != null,
         onButtonClick = { onButtonClick() }) {
 
-        Column {
-            state.classList.forEach {
-                ClassListItem(
-                    className = it,
-                    isSelected = state.selectedClass == it
-                ) { onClassSelect(it) }
-            }
-        }
+        ProfileCard(
+            title = {
+                Text(text = stringResource(id = R.string.onboarding_firstProfileStudentTitle), style = MaterialTheme.typography.headlineSmall)
+            },
+            text = stringResource(id = R.string.onboarding_firstProfileStudentText),
+            isSelected = state.profileType == ProfileType.STUDENT,
+        ) { onProfileSelect(ProfileType.STUDENT) }
 
+        ProfileCard(
+            title = {
+                Text(text = stringResource(id = R.string.onboarding_firstProfileTeacherTitle), style = MaterialTheme.typography.headlineSmall)
+            },
+            text = stringResource(id = R.string.onboarding_firstProfileTeacherText),
+            isSelected = state.profileType == ProfileType.TEACHER,
+        ) { onProfileSelect(ProfileType.TEACHER) }
 
+        ProfileCard(
+            title = { Text(text = stringResource(id = R.string.onboarding_firstProfileRoomTitle), style = MaterialTheme.typography.headlineSmall) },
+            text = stringResource(id = R.string.onboarding_firstProfileRoomText),
+            isSelected = state.profileType == ProfileType.ROOM
+        ) { onProfileSelect(ProfileType.ROOM) }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ClassListItem(
-    className: String,
+fun ProfileCard(
+    title: @Composable () -> Unit,
+    text: String,
     isSelected: Boolean,
-    onClick: () -> Unit
+    onProfileSelect: () -> Unit,
 ) {
-    val borderAlpha =
-        animateFloatAsState(targetValue = if (isSelected) 1f else 0f, label = "BorderAlpha")
+    val borderAlpha = animateFloatAsState(targetValue = if (isSelected) 1f else 0f, label = "BorderAlpha")
     if (isSelected) {
         OutlinedCard(
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surfaceVariant,
             ),
-            border = BorderStroke(
-                1.dp,
-                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = borderAlpha.value)
-            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = borderAlpha.value)),
             modifier = Modifier
                 .padding(PaddingValues(0.dp, 4.dp))
                 .fillMaxWidth(),
@@ -95,9 +114,9 @@ fun ClassListItem(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column {
+                    title()
                     Text(
-                        text = className,
-                        style = MaterialTheme.typography.headlineSmall
+                        text = text,
                     )
 
                 }
@@ -111,7 +130,7 @@ fun ClassListItem(
             modifier = Modifier
                 .padding(PaddingValues(0.dp, 4.dp))
                 .fillMaxWidth(),
-            onClick = { onClick() }
+            onClick = { onProfileSelect() }
         ) {
             Column(
                 modifier = Modifier
@@ -120,40 +139,19 @@ fun ClassListItem(
                 verticalArrangement = Arrangement.SpaceBetween,
             ) {
                 Column {
+                    title()
                     Text(
-                        text = className,
-                        style = MaterialTheme.typography.headlineSmall
+                        text = text,
                     )
+
                 }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun ClassListScreenPreview() {
-    ClassListScreen(
-        state = OnboardingState(
-            classList = listOf(
-                "1a",
-                "1b",
-                "1c",
-                "2a",
-                "2b",
-                "2c",
-                "3a",
-                "3b",
-                "3c",
-                "4a",
-                "4b",
-                "4c",
-                "5a",
-                "5b",
-                "5c"
-            )
-        ),
-        onClassSelect = {},
-        onButtonClick = {}
-    )
+@Preview(showBackground = true)
+fun OnboardingNewProfileScreenPreview() {
+    AddProfileScreen(state = OnboardingState(profileType = ProfileType.STUDENT, task = Task.CREATE_PROFILE), onProfileSelect = {}, onButtonClick = {})
 }

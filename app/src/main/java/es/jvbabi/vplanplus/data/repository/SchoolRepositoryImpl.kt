@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.data.repository
 
 import android.util.Log
-import es.jvbabi.vplanplus.data.source.SchoolDao
+import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.domain.model.xml.BaseDataParserStudents
+import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
@@ -106,14 +106,18 @@ class SchoolRepositoryImpl(
                 method = HttpMethod.Get
                 basicAuth(username, password)
             }
-            val baseData = BaseDataParserStudents(response.bodyAsText())
+            val baseData = ClassBaseData(response.bodyAsText())
             return baseData.schoolName
         } catch (e: Exception) {
             return ""
         }
     }
 
-    override suspend fun getSchoolFromId(schoolId: Long): School {
+    override fun getSchoolFromId(schoolId: Long): School {
         return schoolDao.getSchoolFromId(schoolId)
+    }
+
+    override suspend fun getSchoolByName(schoolName: String): School {
+        return schoolDao.getSchoolByName(schoolName)
     }
 }

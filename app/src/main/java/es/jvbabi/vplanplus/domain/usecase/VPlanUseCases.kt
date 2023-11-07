@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.domain.usecase
 
-import android.util.Log
-import es.jvbabi.vplanplus.domain.OnlineResponse
+import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -25,7 +25,7 @@ class VPlanUseCases(
     private val roomRepository: RoomRepository,
     private val schoolRepository: SchoolRepository
 ) {
-    suspend fun getVPlanData(school: School, date: LocalDate): OnlineResponse<VPlanData?> {
+    suspend fun getVPlanData(school: School, date: LocalDate): DataResponse<VPlanData?> {
         return vPlanRepository.getVPlanData(school, date)
     }
 
@@ -46,20 +46,24 @@ class VPlanUseCases(
             // set lessons
             lessonRepository.deleteLessonForClass(`class`, planDate)
             it.lessons!!.forEach lesson@{ lesson ->
+
+                val defaultLesson = it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson
+
                 if (`class`.className == "VERW") {
                     return@lesson // TODO handle this
                 }
-                Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
-                var room = roomRepository.getRoomByName(school, lesson.room.room, true)!!
+                //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
+                val room = if (DefaultValues.isEmpty(lesson.room.room)) null else roomRepository.getRoomByName(school, lesson.room.room, true)
                 val roomChanged = lesson.room.roomChanged == "RaGeaendert"
-                val originalTeacher = teacherReository.find(school, it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson?.teacherShort?:"", true)!!
-                val changedTeacher = if (lesson.teacher.teacherChanged == "LeGeaendert") {
-                    teacherReository.find(school, lesson.teacher.teacher, true)
+                val originalTeacher = teacherReository.find(school, defaultLesson?.teacherShort?:"", true)
+                val changedTeacherId = if (lesson.teacher.teacher != defaultLesson?.teacherShort) {
+                    if (DefaultValues.isEmpty(lesson.teacher.teacher)) -1L
+                    else teacherReository.find(school, lesson.teacher.teacher, true)!!.id
                 } else {
                     null
                 }
 
-                var originalSubject = it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson?.subjectShort?:"-"
+                var originalSubject = defaultLesson?.subjectShort?:"-"
                 var changedSubject = if (lesson.subject.subjectChanged == "FaGeaendert") lesson.subject.subject else null
                 if (listOf("&nbsp;", "&amp;nbsp;", "---").contains(originalSubject)) originalSubject = "-"
                 if (listOf("&nbsp;", "&amp;nbsp;", "---").contains(changedSubject)) changedSubject = "-"
@@ -68,11 +72,11 @@ class VPlanUseCases(
                         classId = `class`.id!!,
                         info = lesson.info,
                         roomIsChanged = roomChanged,
-                        originalRoomId = room.id!!,
+                        roomId = room?.id,
                         originalSubject = originalSubject,
                         changedSubject = changedSubject,
-                        originalTeacherId = originalTeacher.id,
-                        changedTeacherId = changedTeacher?.id,
+                        originalTeacherId = originalTeacher?.id,
+                        changedTeacherId = changedTeacherId,
                         lesson = lesson.lesson,
                         dayTimestamp = DateUtils.getDayTimestamp(planDate)
                     )
