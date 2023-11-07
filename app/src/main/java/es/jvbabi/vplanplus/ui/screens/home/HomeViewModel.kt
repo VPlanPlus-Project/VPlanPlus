@@ -12,12 +12,11 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
-import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
-import kotlinx.coroutines.delay
+import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -26,7 +25,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val profileUseCases: ProfileUseCases,
-    private val holidayUseCases: HolidayUseCases,
     private val vPlanUseCases: VPlanUseCases,
     private val schoolUseCases: SchoolUseCases,
     private val homeUseCases: HomeUseCases,
@@ -37,77 +35,101 @@ class HomeViewModel @Inject constructor(
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
 
-    private var activeProfile: Profile? = null
+    private lateinit var activeProfile: Profile
     private var school: School? = null
 
-    suspend fun init(oneTime: Boolean = false) {
-        viewModelScope.launch {
-            activeProfile = profileUseCases.getActiveProfile()
-            _state.value = _state.value.copy(activeProfile = activeProfile?.toMenuProfile())
-            _state.value =
-                _state.value.copy(initDone = true)
-            if (activeProfile != null) {
-                var schoolId: Long? = null
-                when (activeProfile!!.type) {
-                    ProfileType.STUDENT -> {
-                        val profileClass = classUseCases.getClassById(activeProfile!!.referenceId)
-                        schoolId = profileClass.schoolId
-                        school = schoolUseCases.getSchoolFromId(schoolId)
-                    }
-                    ProfileType.TEACHER -> {
-                        val profileTeacher = teacherRepository.getTeacherById(activeProfile!!.referenceId)
-                        schoolId = profileTeacher!!.schoolId
-                        school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
-                    }
-                    ProfileType.ROOM -> {
-                        val room = roomRepository.getRoomById(activeProfile!!.referenceId)
-                        schoolId = room.schoolId
-                        school = schoolUseCases.getSchoolFromId(room.schoolId)
-                    }
-                }
-
-                val holidays = holidayUseCases.getHolidaysBySchoolId(schoolId)
-
-                _state.value =
-                    _state.value.copy(
-                        nextHoliday = holidays.find { it.date.isAfter(LocalDate.now()) }?.date,
-                        lessons = homeUseCases.getTodayLessons(activeProfile!!),
-                        profiles = profileUseCases.getProfiles().map { MenuProfile(it.id!!, it.name) }
-                    )
+    suspend fun init() {
+        activeProfile = profileUseCases.getActiveProfile() ?: return
+        _state.value =
+            _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
+        val startOfWeek = state.value.date.atStartOfWeek()
+        val schoolId: Long?
+        when (activeProfile.type) {
+            ProfileType.STUDENT -> {
+                val profileClass = classUseCases.getClassById(activeProfile.referenceId)
+                schoolId = profileClass.schoolId
+                school = schoolUseCases.getSchoolFromId(schoolId)
             }
 
-            delay(5000)
-            if (!oneTime) init()
+            ProfileType.TEACHER -> {
+                val profileTeacher = teacherRepository.getTeacherById(activeProfile.referenceId)!!
+                school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
+            }
+
+            ProfileType.ROOM -> {
+                val room = roomRepository.getRoomById(activeProfile.referenceId)
+                school = schoolUseCases.getSchoolFromId(room.schoolId)
+            }
         }
+
+        repeat(5) { i ->
+            Log.d(
+                "HomeViewModel",
+                "Updating view $i for ${activeProfile.name} at ${startOfWeek.plusDays(i.toLong())}"
+            )
+            updateView(activeProfile, startOfWeek.plusDays(i.toLong()))
+        }
+
+        _state.value =
+            _state.value.copy(profiles = profileUseCases.getProfiles().map { it.toMenuProfile() })
+
+        _state.value =
+            _state.value.copy(initDone = true)
+    }
+
+    private suspend fun updateView(profile: Profile, date: LocalDate) {
+        val lessons = homeUseCases.getLessons(profile, date)
+        if (lessons.isEmpty()) Log.d(
+            "HomeViewModel",
+            "No lessons found for ${activeProfile.name} at $date"
+        )
+        _state.value =
+            _state.value.copy(
+                lessons = state.value.lessons.plus(date to lessons),
+            )
     }
 
     suspend fun getVPlanData() {
         _state.value = _state.value.copy(isLoading = true)
-        val vPlanData = vPlanUseCases.getVPlanData(school!!, LocalDate.now())
-        if (vPlanData.data == null) {
-            Log.d("VPlanData", "null")
-            _state.value = _state.value.copy(isLoading = false)
-            return
+
+        val startOfWeek = state.value.date.atStartOfWeek()
+        repeat(5) { i ->
+            val date = startOfWeek.plusDays(i - 1L)
+            val vPlanData = vPlanUseCases.getVPlanData(school!!, date)
+            if (vPlanData.data == null) {
+                Log.d("VPlanData $i", "null")
+                _state.value = _state.value.copy(isLoading = false)
+                return@repeat
+            }
+            vPlanUseCases.processVplanData(vPlanData.data)
+            Log.d("VPlanData", vPlanData.toString())
+            updateView(activeProfile, date)
         }
-        vPlanUseCases.processVplanData(vPlanData.data)
-        Log.d("VPlanData", vPlanData.toString())
-        init(true)
         _state.value = _state.value.copy(isLoading = false)
     }
 
     fun onProfileSelected(profileId: Long) {
         viewModelScope.launch {
             profileUseCases.setActiveProfile(profileId)
-            init(true)
+            init()
         }
+    }
+
+    fun setViewType(viewType: ViewType) {
+        _state.value = _state.value.copy(viewMode = viewType)
     }
 }
 
 data class HomeState(
     val initDone: Boolean = false,
-    val nextHoliday: LocalDate? = null,
-    val lessons: List<Lesson> = listOf(),
+    val lessons: Map<LocalDate, List<Lesson>> = mapOf(),
     val isLoading: Boolean = false,
     val profiles: List<MenuProfile> = listOf(),
-    val activeProfile: MenuProfile? = null
+    val activeProfile: MenuProfile? = null,
+    val date: LocalDate = LocalDate.now(),
+    val viewMode: ViewType = ViewType.DAY
 )
+
+enum class ViewType {
+    WEEK, DAY
+}

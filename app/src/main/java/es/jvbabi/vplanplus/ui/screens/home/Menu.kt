@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.DeveloperMode
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,6 +60,7 @@ fun Menu(
     onProfileClicked: (profileId: Long) -> Unit = {},
     profiles: List<MenuProfile>,
     selectedProfile: MenuProfile,
+    onRefreshClicked: () -> Unit = {},
     onSettingsClicked: () -> Unit = {},
     onRepositoryClicked: () -> Unit = {},
     onManageProfilesClicked: () -> Unit = {},
@@ -155,6 +157,7 @@ fun Menu(
                         .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
                 ) {
                     Column {
+                        ButtonRow(Icons.Outlined.Refresh, text = "Refresh", onClick = { onRefreshClicked() })
                         ButtonRow(Icons.Outlined.Settings, stringResource(id = R.string.home_menuSettings), onClick = { onSettingsClicked() })
                         ButtonRow(Icons.Outlined.DeveloperMode, stringResource(id = R.string.home_menuRepository), onClick = { onRepositoryClicked() })
                     }
