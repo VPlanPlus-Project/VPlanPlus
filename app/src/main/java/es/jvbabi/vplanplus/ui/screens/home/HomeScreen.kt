@@ -61,6 +61,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
@@ -243,7 +244,7 @@ fun HomeScreenContent(
                 if (state.lessons.isNotEmpty()) {
                     LazyColumn {
                         items(state.lessons.sortedBy { it.lessonNumber }) {
-                            if (calculateProgress(it.start, LocalTime.now().toString(), it.end) in 0.0..0.99) {
+                            if ((calculateProgress(it.start, LocalTime.now().toString(), it.end)?:-1.0) in 0.0..0.99) {
                                 CurrentLessonCard(lesson = it)
                             } else {
                                 LessonCard(lesson = it)
@@ -276,7 +277,7 @@ fun CurrentLessonCard(lesson: Lesson) {
             Box(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .fillMaxWidth(percentage.toFloat())
+                    .fillMaxWidth((percentage?:0).toFloat())
                     .fillMaxHeight()
             ) {}
             Box(
@@ -460,14 +461,18 @@ fun HomeScreenPreview() {
 }
 
 @SuppressLint("SimpleDateFormat")
-fun calculateProgress(start: String, current: String, end: String): Double {
-    val dateFormat = SimpleDateFormat("HH:mm")
-    val startTime = dateFormat.parse(start)!!
-    val currentTime = dateFormat.parse(current)!!
-    val endTime = dateFormat.parse(end)!!
+fun calculateProgress(start: String, current: String, end: String): Double? {
+    return try {
+        val dateFormat = SimpleDateFormat("HH:mm")
+        val startTime = dateFormat.parse(start)!!
+        val currentTime = dateFormat.parse(current)!!
+        val endTime = dateFormat.parse(end)!!
 
-    val totalTime = (endTime.time - startTime.time).toDouble()
-    val elapsedTime = (currentTime.time - startTime.time).toDouble()
+        val totalTime = (endTime.time - startTime.time).toDouble()
+        val elapsedTime = (currentTime.time - startTime.time).toDouble()
 
-    return (elapsedTime / totalTime)
+        (elapsedTime / totalTime)
+    } catch (e: ParseException) {
+        null
+    }
 }

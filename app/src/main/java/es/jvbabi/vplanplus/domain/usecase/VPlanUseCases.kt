@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.domain.usecase
 
-import android.util.Log
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
@@ -48,7 +47,7 @@ class VPlanUseCases(
             lessonRepository.deleteLessonForClass(`class`, planDate)
             it.lessons!!.forEach lesson@{ lesson ->
 
-                val defaultLesson = it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson!!
+                val defaultLesson = it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson
 
                 if (`class`.className == "VERW") {
                     return@lesson // TODO handle this
@@ -56,15 +55,15 @@ class VPlanUseCases(
                 //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
                 val room = if (DefaultValues.isEmpty(lesson.room.room)) null else roomRepository.getRoomByName(school, lesson.room.room, true)
                 val roomChanged = lesson.room.roomChanged == "RaGeaendert"
-                val originalTeacher = teacherReository.find(school, defaultLesson.teacherShort?:"", true)
-                val changedTeacherId = if (lesson.teacher.teacher != defaultLesson.teacherShort) {
+                val originalTeacher = teacherReository.find(school, defaultLesson?.teacherShort?:"", true)
+                val changedTeacherId = if (lesson.teacher.teacher != defaultLesson?.teacherShort) {
                     if (DefaultValues.isEmpty(lesson.teacher.teacher)) -1L
                     else teacherReository.find(school, lesson.teacher.teacher, true)!!.id
                 } else {
                     null
                 }
 
-                var originalSubject = it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson?.subjectShort?:"-"
+                var originalSubject = defaultLesson?.subjectShort?:"-"
                 var changedSubject = if (lesson.subject.subjectChanged == "FaGeaendert") lesson.subject.subject else null
                 if (listOf("&nbsp;", "&amp;nbsp;", "---").contains(originalSubject)) originalSubject = "-"
                 if (listOf("&nbsp;", "&amp;nbsp;", "---").contains(changedSubject)) changedSubject = "-"

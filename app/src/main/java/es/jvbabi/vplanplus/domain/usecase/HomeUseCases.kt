@@ -34,7 +34,7 @@ class HomeUseCases(
         return lessons.sortedBy { it.lesson }.map {
             try {
                 val `class` = classRepository.getClassById(it.classId)
-                val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[it.lesson]
+                val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`).getOrNull(it.lesson)
                 Lesson(
                     className = `class`.className,
                     lessonNumber = it.lesson,
@@ -45,8 +45,8 @@ class HomeUseCases(
                     subject = it.changedSubject ?: it.originalSubject,
                     teacherChanged = it.changedTeacherId != null,
                     teacher = teacherRepository.getTeacherById(it.changedTeacherId?:it.originalTeacherId?:-1)?.acronym ?: "-",
-                    start = lessonTime.start,
-                    end = lessonTime.end
+                    start = lessonTime?.start?:"",
+                    end = lessonTime?.end?:""
 
                 )
             } catch (e: Exception) {
