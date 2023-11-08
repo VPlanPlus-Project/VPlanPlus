@@ -236,9 +236,14 @@ class OnboardingViewModel @Inject constructor(
     fun setTask(task: Task) {
         _state.value = _state.value.copy(task = task)
     }
+
+    fun setOnboardingCause(cause: OnboardingCause) {
+        _state.value = _state.value.copy(onboardingCause = cause)
+    }
 }
 
 data class OnboardingState(
+    val onboardingCause: OnboardingCause = OnboardingCause.FIRST_START,
     val schoolId: String = "",
     val schoolIdState: SchoolIdCheckResult? = SchoolIdCheckResult.INVALID,
 
@@ -259,4 +264,8 @@ data class OnboardingState(
 
 enum class Task {
     CREATE_SCHOOL, CREATE_PROFILE
+}
+
+enum class OnboardingCause {
+    FIRST_START, NEW_PROFILE
 }

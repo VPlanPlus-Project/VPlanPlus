@@ -83,7 +83,9 @@ fun ProfileManagementScreen(
             scope.launch {
                 val school = viewModel.getSchoolByName(it)
                 onNewProfileClicked(school)
-                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.id!!}")
+                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.id!!}") {
+                    popUpTo(Screen.SettingsProfileScreen.route)
+                }
             }
         },
         onProfileDeleteDialogOpen = { viewModel.onProfileDeleteDialogOpen(it) },
