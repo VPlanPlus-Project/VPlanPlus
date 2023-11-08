@@ -79,4 +79,8 @@ class LessonRepositoryImpl(
             )
         }
     }
+
+    override suspend fun deleteAllLessons() {
+        lessonDao.deleteAll()
+    }
 }

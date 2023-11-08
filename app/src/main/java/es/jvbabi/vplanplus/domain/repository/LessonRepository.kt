@@ -12,4 +12,6 @@ interface LessonRepository {
     suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate)
 
     suspend fun insertLesson(lesson: Lesson)
+
+    suspend fun deleteAllLessons()
 }

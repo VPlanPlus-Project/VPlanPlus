@@ -6,7 +6,8 @@ import androidx.work.Configuration
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import dagger.hilt.android.HiltAndroidApp
-import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
+import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.worker.SyncWorker
 import javax.inject.Inject
 
@@ -14,21 +15,25 @@ import javax.inject.Inject
 class VppApplication : Application(), Configuration.Provider {
 
     @Inject
-    lateinit var profileRepository: ProfileRepository
+    lateinit var profileUseCases: ProfileUseCases
+
+    @Inject
+    lateinit var vPlanUseCases: VPlanUseCases
 
     override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
-        .setWorkerFactory(SyncWorkerFactory(profileRepository))
+        .setWorkerFactory(SyncWorkerFactory(profileUseCases, vPlanUseCases))
         .build()
 }
 
 class SyncWorkerFactory @Inject constructor(
-    private val profileRepository: ProfileRepository
+    private val profileUseCases: ProfileUseCases,
+    private val vPlanUseCases: VPlanUseCases
 ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters
     ): SyncWorker {
-        return SyncWorker(appContext, workerParameters, profileRepository)
+        return SyncWorker(appContext, workerParameters, profileUseCases, vPlanUseCases)
     }
 }

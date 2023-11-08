@@ -21,4 +21,7 @@ abstract class LessonDao {
 
     @Insert
     abstract suspend fun insert(lesson: Lesson): Long
+
+    @Query("DELETE FROM lesson")
+    abstract suspend fun deleteAll()
 }

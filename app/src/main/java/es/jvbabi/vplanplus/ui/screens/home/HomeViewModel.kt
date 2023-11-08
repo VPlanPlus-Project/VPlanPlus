@@ -114,6 +114,13 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = false)
     }
 
+    fun deletePlans() {
+        viewModelScope.launch {
+            vPlanUseCases.deletePlans()
+            init()
+        }
+    }
+
     fun onProfileSelected(profileId: Long) {
         viewModelScope.launch {
             profileUseCases.setActiveProfile(profileId)
