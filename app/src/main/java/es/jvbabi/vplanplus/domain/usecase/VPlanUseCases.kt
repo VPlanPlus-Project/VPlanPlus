@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.domain.usecase
 
-import android.util.Log
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
@@ -63,7 +62,6 @@ class VPlanUseCases(
                 //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
                 val rooms = if (DefaultValues.isEmpty(lesson.room.room)) emptyList() else {
                     var rooms = lesson.room.room
-                    Log.d("VPlanUseCases", "Processing rooms $rooms")
                     if (roomRepository.getRoomByName(school, rooms, false) == null) {
                         rooms = " $rooms "
                         roomRepository.getRoomsBySchool(school).filter { room ->
@@ -71,19 +69,21 @@ class VPlanUseCases(
                             regex.containsMatchIn(rooms)
                         }
                     } else {
-                        Log.d("VPlanUseCases", " Room $rooms found")
                         listOf(roomRepository.getRoomByName(school, rooms, false)!!)
                     }
                 }
                 val roomChanged = lesson.room.roomChanged == "RaGeaendert"
-                val originalTeacher =
-                    teacherReository.find(school, defaultLesson?.teacherShort ?: "", true)
-                val changedTeacherId = if (lesson.teacher.teacher != defaultLesson?.teacherShort) {
-                    if (DefaultValues.isEmpty(lesson.teacher.teacher)) -1L
-                    else teacherReository.find(school, lesson.teacher.teacher, true)!!.id
-                } else {
-                    null
+
+                val teachers = if (DefaultValues.isEmpty(lesson.teacher.teacher)) emptyList() else {
+                    if (lesson.teacher.teacher.contains(",")) {
+                        teacherReository.getTeachersBySchoolId(school.id!!).filter { teacher ->
+                            lesson.teacher.teacher.split(",").contains(teacher.acronym)
+                        }
+                    } else {
+                        listOf(teacherReository.find(school, lesson.teacher.teacher, true)!!)
+                    }
                 }
+                val teacherChanged = lesson.teacher.teacherChanged == "LeGeaendert"
 
                 var originalSubject = defaultLesson?.subjectShort ?: "-"
                 var changedSubject =
@@ -101,13 +101,14 @@ class VPlanUseCases(
                         classId = `class`.id!!,
                         info = lesson.info,
                         roomIsChanged = roomChanged,
+                        teacherIsChanged = teacherChanged,
                         originalSubject = originalSubject,
                         changedSubject = changedSubject,
-                        originalTeacherId = originalTeacher?.id,
-                        changedTeacherId = changedTeacherId,
                         lesson = lesson.lesson,
                         dayTimestamp = DateUtils.getDayTimestamp(planDate)
-                    ).withRooms(rooms)
+                    )
+                        .withRooms(rooms)
+                        .withTeachers(teachers)
                 )
             }
         }

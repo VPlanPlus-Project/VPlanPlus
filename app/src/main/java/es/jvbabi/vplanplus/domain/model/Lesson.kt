@@ -15,17 +15,9 @@ import androidx.room.PrimaryKey
             childColumns = ["classId"],
             onDelete = ForeignKey.CASCADE
         ),
-        ForeignKey(
-            entity = Teacher::class,
-            parentColumns = ["id"],
-            childColumns = ["originalTeacherId"],
-            onDelete = ForeignKey.CASCADE
-        ),
     ],
     indices = [
         Index(value = ["classId"]),
-        Index(value = ["originalTeacherId"]),
-        Index(value = ["changedTeacherId"]),
     ]
 )
 data class Lesson(
@@ -33,26 +25,33 @@ data class Lesson(
     val lesson: Int,
     val classId: Long,
     val originalSubject: String,
-    val originalTeacherId: Long?,
     val changedSubject: String?,
-    val changedTeacherId: Long?,
     val roomIsChanged: Boolean,
+    val teacherIsChanged: Boolean,
     val info: String,
     val dayTimestamp: Long
 ) {
     @Ignore
     var rooms: List<Room> = listOf()
 
+    @Ignore
+    var teachers: List<Teacher> = listOf()
+
     fun withRooms(rooms: List<Room>): Lesson {
         this.rooms = rooms
         return this
     }
 
+    fun withTeachers(teachers: List<Teacher>): Lesson {
+        this.teachers = teachers
+        return this
+    }
+
     override fun toString(): String {
-        return "Lesson(id=$id, lesson=$lesson, classId=$classId, originalSubject='$originalSubject', originalTeacherId=$originalTeacherId, changedSubject=$changedSubject, changedTeacherId=$changedTeacherId, roomIsChanged=$roomIsChanged, info='$info', dayTimestamp=$dayTimestamp, rooms=${
-            rooms.joinToString(
-                ", "
-            ) { it.name }
+        return "Lesson(id=$id, lesson=$lesson, classId=$classId, originalSubject='$originalSubject', changedSubject=$changedSubject, roomIsChanged=$roomIsChanged, info='$info', dayTimestamp=$dayTimestamp, rooms=${
+            rooms.joinToString(", ") { it.name }
+        }, teachers=${
+            teachers.joinToString(", ") { it.acronym }
         })"
     }
 }

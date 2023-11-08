@@ -5,7 +5,7 @@ data class Lesson(
     val className: String,
     val lessonNumber: Int,
     val subject: String,
-    val teacher: String,
+    val teacher: List<String>,
     val room: List<String>,
     val subjectChanged: Boolean = false,
     val teacherChanged: Boolean = false,

@@ -6,11 +6,13 @@ import androidx.room.TypeConverters
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.ClassDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonRoomCrossoverDao
+import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
@@ -40,9 +42,11 @@ import es.jvbabi.vplanplus.domain.model.Week
         Holiday::class,
         Week::class,
         LessonTime::class,
-        LessonRoomCrossover::class
+
+        LessonRoomCrossover::class,
+        LessonTeacherCrossover::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(DayConverter::class, ProfileTypeConverter::class)
@@ -58,4 +62,5 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val roomDao: RoomDao
     abstract val lessonTimeDao: LessonTimeDao
     abstract val lessonRoomCrossoverDao: LessonRoomCrossoverDao
+    abstract val lessonTeacherCrossoverDao: LessonTeacherCrossoverDao
 }
