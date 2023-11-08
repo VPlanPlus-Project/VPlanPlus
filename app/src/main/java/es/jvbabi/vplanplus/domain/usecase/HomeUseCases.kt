@@ -40,7 +40,7 @@ class HomeUseCases(
                     lessonNumber = it.lesson,
                     info = it.info,
                     roomChanged = it.roomIsChanged,
-                    room = it.rooms.map { room -> room.name },
+                    room = if (it.rooms.isNotEmpty()) it.rooms.map { room -> room.name } else listOf("-"),
                     subjectChanged = it.changedSubject != null,
                     subject = it.changedSubject ?: it.originalSubject,
                     teacherChanged = it.changedTeacherId != null,
