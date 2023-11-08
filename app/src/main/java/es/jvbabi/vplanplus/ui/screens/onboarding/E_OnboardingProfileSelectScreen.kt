@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -42,11 +43,12 @@ fun OnboardingProfileOptionListScreen(
 ) {
     val state = onboardingViewModel.state.value
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     ProfileOptionsScreen(
         state = state,
         onClassSelect = { onboardingViewModel.onProfileSelect(it) }, {
-            coroutineScope.launch { onboardingViewModel.onProfileSubmit() }
+            coroutineScope.launch { onboardingViewModel.onProfileSubmit(context) }
             navController.navigate(Screen.OnboardingSetupScreen.route) { popUpTo(0) }
         },
         setDialogVisibility = { onboardingViewModel.setTeacherDialogVisibility(it) }
