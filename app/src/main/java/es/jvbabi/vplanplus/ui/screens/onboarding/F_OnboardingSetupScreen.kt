@@ -18,7 +18,7 @@ fun OnboardingSetupScreen(
     val state = viewModel.state.value
 
     if (!state.isLoading) {
-        navHostController.navigate(Screen.HomeScreen.route) { popUpTo(0) }
+        navHostController.navigate(Screen.HomeScreen.route)
     }
 
     SetupScreen()

@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingCause
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingProfileOptionListScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
@@ -47,10 +48,12 @@ fun NavigationGraph(
                 onNewProfileClicked = {
                     onboardingViewModel.reset()
                     onboardingViewModel.setTask(Task.CREATE_PROFILE)
+                    onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
                     onboardingViewModel.onAutomaticSchoolIdInput(it.id!!)
                 },
                 onNewSchoolClicked = {
                     onboardingViewModel.reset()
+                    onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
                     onboardingViewModel.setTask(Task.CREATE_SCHOOL)
                 }
             )

@@ -36,7 +36,7 @@ fun OnboardingAddProfileScreen(
 
     if (state.profileOptions.isNotEmpty() && state.profileType != null) {
         viewModel.newScreen()
-        navController.navigate(Screen.OnboardingProfileSelectScreen.route) { popUpTo(0) }
+        navController.navigate(Screen.OnboardingProfileSelectScreen.route) { if (state.onboardingCause == OnboardingCause.FIRST_START) popUpTo(0) else popUpTo(Screen.SettingsProfileScreen.route) }
     }
 
     AddProfileScreen(

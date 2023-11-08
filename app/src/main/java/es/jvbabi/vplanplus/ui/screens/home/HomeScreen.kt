@@ -92,9 +92,9 @@ fun HomeScreen(
     val lessonPagerState =
         rememberPagerState(initialPage = LocalDate.now().dayOfWeek.value - 1, pageCount = { 7 })
 
-    LaunchedEffect("Init") {
+    LaunchedEffect(key1 = "Init", block = {
         viewModel.init()
-    }
+    })
 
     if (state.initDone && state.activeProfile == null) {
         navHostController.navigate(Screen.OnboardingWelcomeScreen.route) {
@@ -333,13 +333,13 @@ fun CurrentLessonCard(lesson: Lesson, width: Float) {
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                             Text(
-                                text = lesson.room,
+                                text = lesson.room.joinToString(", "),
                                 style = MaterialTheme.typography.titleLarge,
                                 color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
                         Text(
-                            text = lesson.teacher,
+                            text = lesson.teacher.joinToString(", "),
                             style = MaterialTheme.typography.titleMedium,
                             color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                         )
@@ -410,7 +410,7 @@ fun LessonCard(lesson: Lesson, width: Float) {
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        text = lesson.room,
+                                        text = lesson.room.joinToString(", "),
                                         style = MaterialTheme.typography.titleMedium,
                                         color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
@@ -420,7 +420,7 @@ fun LessonCard(lesson: Lesson, width: Float) {
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        text = lesson.teacher,
+                                        text = lesson.teacher.joinToString(", "),
                                         style = MaterialTheme.typography.titleMedium,
                                         color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
@@ -461,8 +461,8 @@ fun CurrentLessonCardPreview() {
         lesson = Lesson(
             id = 0,
             subject = "Informatik",
-            teacher = "Tec",
-            room = "208",
+            teacher = listOf("Tec", "Bat"),
+            room = listOf("208", "209"),
             roomChanged = true,
             start = "21:00",
             end = "21:45",
@@ -482,8 +482,8 @@ fun LessonCardPreview() {
         lesson = Lesson(
             id = 0,
             subject = "Informatik",
-            teacher = "Tec",
-            room = "208",
+            teacher = listOf("Tec", "Bat"),
+            room = listOf("208"),
             roomChanged = true,
             start = "8:00",
             end = "8:45",
@@ -507,8 +507,8 @@ fun HomeScreenPreview() {
                     Lesson(
                         id = 0,
                         subject = "Informatik",
-                        teacher = "Tec",
-                        room = "208",
+                        teacher = listOf("Tec"),
+                        room = listOf("208"),
                         roomChanged = true,
                         start = "21:00",
                         end = "22:00",
@@ -519,8 +519,8 @@ fun HomeScreenPreview() {
                         id = 1,
                         subject = "-",
                         subjectChanged = true,
-                        teacher = "Pfl",
-                        room = "307",
+                        teacher = listOf("Pfl"),
+                        room = listOf("307"),
                         roomChanged = false,
                         teacherChanged = true,
                         start = "22:00",
@@ -532,8 +532,8 @@ fun HomeScreenPreview() {
                     Lesson(
                         id = 2,
                         subject = "Biologie",
-                        teacher = "Pfl",
-                        room = "307",
+                        teacher = listOf("Pfl"),
+                        room = listOf("307"),
                         roomChanged = false,
                         teacherChanged = true,
                         start = "22:00",

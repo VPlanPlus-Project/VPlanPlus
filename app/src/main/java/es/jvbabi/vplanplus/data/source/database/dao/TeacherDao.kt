@@ -10,7 +10,7 @@ abstract class TeacherDao {
     @Insert
     abstract suspend fun insertTeacher(teacher: Teacher): Long
 
-    @Query("SELECT * FROM teacher WHERE schoolId = :schoolId")
+    @Query("SELECT * FROM teacher WHERE schoolId = :schoolId ORDER BY acronym")
     abstract suspend fun getTeachersBySchoolId(schoolId: Long): List<Teacher>
 
     @Query("SELECT * FROM teacher WHERE schoolId = :schoolId AND acronym = :acronym")
