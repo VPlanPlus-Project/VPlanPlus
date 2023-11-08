@@ -142,7 +142,6 @@ object VppModule {
             lessonDao = db.lessonDao,
             lessonRoomCrossoverDao = db.lessonRoomCrossoverDao,
             roomRepository = provideRoomRepository(db),
-            classDao = db.classDao
         )
     }
 
