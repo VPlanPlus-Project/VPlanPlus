@@ -13,8 +13,8 @@ abstract class LessonDao {
     @Query("SELECT * FROM lesson WHERE ((changedTeacherId IS NULL AND originalTeacherId = :teacherId) OR changedTeacherId = :teacherId) AND dayTimestamp = :timestamp")
     abstract suspend fun getLessonsByTeacher(teacherId: Long, timestamp: Long): List<Lesson>
 
-    @Query("SELECT * FROM lesson INNER JOIN classes ON classes.id = lesson.classId WHERE dayTimestamp = :timestamp AND schoolId = :schoolId")
-    abstract suspend fun getLessonsForSchool(schoolId: Long, timestamp: Long): List<Lesson>
+    @Query("SELECT * FROM lesson WHERE dayTimestamp = :timestamp")
+    abstract suspend fun getAllLessons(timestamp: Long): List<Lesson>
 
     @Query("DELETE FROM lesson WHERE classId = :classId AND dayTimestamp = :timestamp")
     abstract suspend fun deleteLessonByClassIdAndTimestamp(classId: Long, timestamp: Long)

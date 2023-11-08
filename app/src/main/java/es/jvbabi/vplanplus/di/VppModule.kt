@@ -141,7 +141,8 @@ object VppModule {
         return LessonRepositoryImpl(
             lessonDao = db.lessonDao,
             lessonRoomCrossoverDao = db.lessonRoomCrossoverDao,
-            roomRepository = provideRoomRepository(db)
+            roomRepository = provideRoomRepository(db),
+            classDao = db.classDao
         )
     }
 

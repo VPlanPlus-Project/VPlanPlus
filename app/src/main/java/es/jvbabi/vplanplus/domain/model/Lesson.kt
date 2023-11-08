@@ -47,4 +47,12 @@ data class Lesson(
         this.rooms = rooms
         return this
     }
+
+    override fun toString(): String {
+        return "Lesson(id=$id, lesson=$lesson, classId=$classId, originalSubject='$originalSubject', originalTeacherId=$originalTeacherId, changedSubject=$changedSubject, changedTeacherId=$changedTeacherId, roomIsChanged=$roomIsChanged, info='$info', dayTimestamp=$dayTimestamp, rooms=${
+            rooms.joinToString(
+                ", "
+            ) { it.name }
+        })"
+    }
 }
