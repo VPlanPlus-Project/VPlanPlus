@@ -7,6 +7,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,11 +20,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 import kotlinx.coroutines.launch
@@ -34,10 +43,15 @@ fun OnboardingProfileOptionListScreen(
     val state = onboardingViewModel.state.value
     val coroutineScope = rememberCoroutineScope()
 
-    ProfileOptionsScreen(state = state, onClassSelect = { onboardingViewModel.onProfileSelect(it) }) {
-        coroutineScope.launch { onboardingViewModel.onProfileSubmit() }
-        navController.navigate(Screen.OnboardingSetupScreen.route) { popUpTo(0) }
-    }
+    ProfileOptionsScreen(
+        state = state,
+        onClassSelect = { onboardingViewModel.onProfileSelect(it) }, {
+            coroutineScope.launch { onboardingViewModel.onProfileSubmit() }
+            navController.navigate(Screen.OnboardingSetupScreen.route) { popUpTo(0) }
+        },
+        setDialogVisibility = { onboardingViewModel.setTeacherDialogVisibility(it) }
+    )
+
 }
 
 @Composable
@@ -45,22 +59,45 @@ fun ProfileOptionsScreen(
     state: OnboardingState,
     onClassSelect: (String) -> Unit,
     onButtonClick: () -> Unit,
+    setDialogVisibility: (Boolean) -> Unit = {}
 ) {
+
+    val studentText = studentAnnotatedText()
+    val teacherText = teacherAnnotatedText(showHint = state.task == Task.CREATE_SCHOOL)
+    val roomText = roomAnnotatedText()
+
     OnboardingScreen(
         title = when (state.profileType!!) {
             ProfileType.STUDENT -> stringResource(id = R.string.onboarding_studentChooseClassTitle)
             ProfileType.TEACHER -> stringResource(id = R.string.onboarding_teacherChooseTeacherTitle)
             ProfileType.ROOM -> stringResource(id = R.string.onboarding_roomChooseRoomTitle)
         },
-        text = when (state.profileType) {
-            ProfileType.STUDENT -> stringResource(id = R.string.onboarding_studentChooseClassText)
-            ProfileType.TEACHER -> stringResource(id = R.string.onboarding_teacherChooseTeacherText)
-            ProfileType.ROOM -> stringResource(id = R.string.onboarding_roomChooseRoomText)
+        text = {
+            ClickableText(text = when (state.profileType) {
+                ProfileType.STUDENT -> studentText
+                ProfileType.TEACHER -> teacherText
+                ProfileType.ROOM -> roomText
+            },
+                onClick = { offset ->
+                    teacherText.getStringAnnotations("CANT_FIND_ACRONYM", offset, offset)
+                        .firstOrNull()?.let {
+                            setDialogVisibility(true)
+                        }
+                })
         },
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
         enabled = !state.isLoading && state.selectedProfileOption != null,
         onButtonClick = { onButtonClick() }) {
+
+        if (state.showTeacherDialog) InfoDialog(
+            icon = Icons.Default.Info,
+            title = stringResource(id = R.string.info),
+            message = stringResource(
+                id = R.string.onboarding_firstProfileTeacherDialogText
+            ),
+            onOk = { setDialogVisibility(false) }
+        )
 
         Column {
             state.profileOptions.forEach {
@@ -190,4 +227,32 @@ fun RoomListScreenPreview() {
         onClassSelect = {},
         onButtonClick = {}
     )
+}
+
+@Composable
+fun studentAnnotatedText(): AnnotatedString {
+    return buildAnnotatedString { append(stringResource(id = R.string.onboarding_studentChooseClassText)) }
+}
+
+@Composable
+fun teacherAnnotatedText(showHint: Boolean): AnnotatedString {
+    return buildAnnotatedString {
+        append(stringResource(id = R.string.onboarding_teacherChooseTeacherText))
+        if (!showHint) return@buildAnnotatedString
+        append(" ")
+        pushStringAnnotation("CANT_FIND_ACRONYM", "this") // Annotate the text
+        withStyle(
+            SpanStyle(
+                color = MaterialTheme.colorScheme.secondary,
+                textDecoration = TextDecoration.Underline
+            )
+        ) {
+            append(stringResource(id = R.string.onboarding_teacherChooseTeacherCantFindProfile))
+        }
+    }
+}
+
+@Composable
+fun roomAnnotatedText(): AnnotatedString {
+    return buildAnnotatedString { append(stringResource(id = R.string.onboarding_roomChooseRoomText)) }
 }

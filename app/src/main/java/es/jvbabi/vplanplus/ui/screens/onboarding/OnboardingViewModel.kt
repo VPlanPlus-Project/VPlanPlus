@@ -61,7 +61,7 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun newScreen() {
-        _state.value = _state.value.copy(isLoading = false, currentResponseType = Response.NONE)
+        _state.value = _state.value.copy(isLoading = false, currentResponseType = Response.NONE, showTeacherDialog = false)
     }
 
     /**
@@ -240,6 +240,10 @@ class OnboardingViewModel @Inject constructor(
     fun setOnboardingCause(cause: OnboardingCause) {
         _state.value = _state.value.copy(onboardingCause = cause)
     }
+
+    fun setTeacherDialogVisibility(v: Boolean) {
+        _state.value = _state.value.copy(showTeacherDialog = v)
+    }
 }
 
 data class OnboardingState(
@@ -260,6 +264,8 @@ data class OnboardingState(
 
     val profileOptions: List<String> = listOf(),
     val selectedProfileOption: String? = null,
+
+    val showTeacherDialog: Boolean = false,
 )
 
 enum class Task {

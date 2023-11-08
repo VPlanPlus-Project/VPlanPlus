@@ -58,7 +58,7 @@ fun AddProfileScreen(
 ) {
     OnboardingScreen(
         title = if (state.task == Task.CREATE_SCHOOL) stringResource(id = R.string.onboarding_firstProfileTitle) else stringResource(id = R.string.onboarding_newProfileTitle),
-        text = stringResource(id = R.string.onboarding_firstProfileText),
+        text = { Text(text = stringResource(id = R.string.onboarding_firstProfileText)) },
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
         enabled = state.profileType != null,

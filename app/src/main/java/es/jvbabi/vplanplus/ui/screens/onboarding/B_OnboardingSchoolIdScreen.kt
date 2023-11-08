@@ -56,7 +56,7 @@ fun SchoolId(
 ) {
     OnboardingScreen(
         title = stringResource(id = R.string.onboarding_schoolIdTitle),
-        text = stringResource(id = R.string.onboarding_schoolIdText),
+        text = { Text(text = stringResource(id = R.string.onboarding_schoolIdText)) },
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
         enabled = !state.isLoading && (state.schoolIdState == SchoolIdCheckResult.SYNTACTICALLY_CORRECT || state.schoolIdState == null),

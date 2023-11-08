@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -62,5 +63,40 @@ fun YesNoDialogPreview() {
         icon = Icons.Default.Delete,
         title = "Deleting stuff",
         message = "Are you sure you want to delete this stuff?",
+    )
+}
+
+@Composable
+fun InfoDialog(
+    icon: ImageVector,
+    title: String?,
+    message: String,
+    onOk: () -> Unit = {},
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        AlertDialog(
+            title = { if (title != null) Text(text = title) },
+            text = { Text(text = message) },
+            icon = { Icon(imageVector = icon, contentDescription = null) },
+            onDismissRequest = { onOk() },
+            confirmButton = {
+                TextButton(onClick = { onOk() }) {
+                    Text(text = stringResource(id = android.R.string.ok))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+@Preview
+fun InfoDialogPreview() {
+    InfoDialog(
+        icon = Icons.Default.SystemUpdate,
+        title = "Update available",
+        message = "There is an update available for the app.",
     )
 }

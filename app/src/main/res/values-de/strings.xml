@@ -49,4 +49,7 @@
     <string name="today">Heute</string>
     <string name="tomorrow">Morgen</string>
     <string name="yesterday">Gestern</string>
+    <string name="onboarding_teacherChooseTeacherCantFindProfile">Mein Kürzel wird nicht angezeigt</string>
+    <string name="info">Information</string>
+    <string name="onboarding_firstProfileTeacherDialogText">Manchmal sind die Basisdaten deiner Schule nicht auf dem neuesten Stand. Die App fügt Ihr Kürzel automatisch hinzu, sobald es Daten über dich gibt. Wähle vorerst ein anderes Profil und lade die Daten dieser Woche herunter. Wenn du diese Woche Unterricht gibst, kannst du dich in den Einstellungen hinzufügen.</string>
 </resources>

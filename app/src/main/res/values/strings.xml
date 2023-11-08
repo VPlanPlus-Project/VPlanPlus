@@ -48,4 +48,7 @@
     <string name="today">Today</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="yesterday">Yesterday</string>
+    <string name="onboarding_teacherChooseTeacherCantFindProfile">Can\'t find your acronym?</string>
+    <string name="info">Information</string>
+    <string name="onboarding_firstProfileTeacherDialogText">Sometimes, the base data of your school isn\'t up to date. The app will automatically add your acronym once there\'s some data about you. For now, select another profile and download this weeks data. If you\'re teaching some lessons this week, you can add yourself in the settings.</string>
 </resources>
