@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,7 +23,7 @@ fun Welcome(
 ) {
     OnboardingScreen(
         title = stringResource(id = R.string.app_name),
-        text = stringResource(id = R.string.onboarding_welcomeText),
+        text = { Text(text = stringResource(id = R.string.onboarding_welcomeText)) },
         buttonText = stringResource(id = R.string.lets_go),
         isLoading = false,
         enabled = true,

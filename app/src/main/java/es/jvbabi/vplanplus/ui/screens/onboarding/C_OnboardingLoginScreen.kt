@@ -67,7 +67,7 @@ fun LoginScreen(
 ) {
     OnboardingScreen(
         title = stringResource(id = R.string.onboarding_credentialsTitle),
-        text = stringResource(id = R.string.onboarding_credentialsText),
+        text = { Text(text = stringResource(id = R.string.onboarding_credentialsText)) },
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
         enabled = state.username.isNotEmpty() && state.password.isNotEmpty() && !state.isLoading,

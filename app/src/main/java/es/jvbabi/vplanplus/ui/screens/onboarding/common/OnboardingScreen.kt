@@ -24,7 +24,7 @@ import androidx.compose.ui.unit.dp
 fun OnboardingScreen(
     // content composables
     title: String,
-    text: String,
+    text: @Composable () -> Unit,
     buttonText: String,
     isLoading: Boolean,
     enabled: Boolean,
@@ -49,7 +49,7 @@ fun OnboardingScreen(
                     text = title,
                     style = MaterialTheme.typography.headlineLarge
                 )
-                Text(text = text)
+                text()
                 Column(modifier = Modifier.verticalScroll(scrollState)) {
                     content()
                 }
@@ -77,7 +77,7 @@ fun OnboardingScreen(
 fun OnboardingScreenPreview() {
     OnboardingScreen(
         title = "Title",
-        text = "Text",
+        text = { Text(text = "Text") },
         buttonText = "Button",
         isLoading = true,
         enabled = true,
