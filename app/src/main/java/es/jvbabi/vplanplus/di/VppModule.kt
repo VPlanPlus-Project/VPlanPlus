@@ -138,7 +138,11 @@ object VppModule {
     @Provides
     @Singleton
     fun provideLessonRepository(db: VppDatabase): LessonRepository {
-        return LessonRepositoryImpl(db.lessonDao)
+        return LessonRepositoryImpl(
+            lessonDao = db.lessonDao,
+            lessonRoomCrossoverDao = db.lessonRoomCrossoverDao,
+            roomRepository = provideRoomRepository(db)
+        )
     }
 
     @Provides
@@ -239,14 +243,12 @@ object VppModule {
         lessonRepository: LessonRepository,
         teacherRepository: TeacherRepository,
         classRepository: ClassRepository,
-        roomRepository: RoomRepository,
         lessonTimeRepository: LessonTimeRepository
     ): HomeUseCases {
         return HomeUseCases(
             lessonRepository = lessonRepository,
             teacherRepository = teacherRepository,
             classRepository = classRepository,
-            roomRepository = roomRepository,
             lessonTimeRepository = lessonTimeRepository
         )
     }

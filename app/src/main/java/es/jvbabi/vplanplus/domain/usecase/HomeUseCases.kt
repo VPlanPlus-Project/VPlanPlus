@@ -6,7 +6,6 @@ import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.ui.screens.home.Lesson
 import java.time.LocalDate
@@ -15,7 +14,6 @@ class HomeUseCases(
     private val lessonRepository: LessonRepository,
     private val teacherRepository: TeacherRepository,
     private val classRepository: ClassRepository,
-    private val roomRepository: RoomRepository,
     private val lessonTimeRepository: LessonTimeRepository
 ) {
     suspend fun getLessons(profile: Profile, date: LocalDate): List<Lesson> {
@@ -42,7 +40,7 @@ class HomeUseCases(
                     lessonNumber = it.lesson,
                     info = it.info,
                     roomChanged = it.roomIsChanged,
-                    room = if (it.roomId == null) "-" else roomRepository.getRoomById(it.roomId).name,
+                    room = it.rooms.map { room -> room.name },
                     subjectChanged = it.changedSubject != null,
                     subject = it.changedSubject ?: it.originalSubject,
                     teacherChanged = it.changedTeacherId != null,
@@ -57,7 +55,7 @@ class HomeUseCases(
                     className = "Error",
                     subject = e.message ?: "Error",
                     teacher = "Error",
-                    room = "Error",
+                    room = listOf("Error"),
                     subjectChanged = false,
                     teacherChanged = false,
                     roomChanged = false,

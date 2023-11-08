@@ -39,7 +39,13 @@ class HomeViewModel @Inject constructor(
     private var school: School? = null
 
     suspend fun init() {
-        activeProfile = profileUseCases.getActiveProfile() ?: return
+        if (profileUseCases.getActiveProfile() == null) {
+            _state.value = _state.value.copy(initDone = true)
+            Log.d("HomeViewModel", "init; no active profile")
+            return
+        }
+        activeProfile = profileUseCases.getActiveProfile()!!
+        Log.d("HomeViewModel", "init; activeProfile=$activeProfile")
         _state.value =
             _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
         val startOfWeek = state.value.date.atStartOfWeek()
