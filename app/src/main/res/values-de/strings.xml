@@ -55,4 +55,6 @@
     <string name="notification_newPlanTitle">Planänderung</string>
     <string name="notification_newPlanText">Es gibt eine Planänderung für %1$s bei %2$s</string>
     <string name="notification_accessNotGranted">Du wirst keine Benachrichtigungen erhalten, wenn es eine Planänderung für dich gibt.</string>
+    <string name="settings_generalSettingsTitle">Allgemein</string>
+    <string name="settings_generalSettingsSubtitle">Grundlegende App-Einstellungen</string>
 </resources>

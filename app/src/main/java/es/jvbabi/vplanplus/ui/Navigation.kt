@@ -21,6 +21,7 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.Task
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
+import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 
 @Composable
@@ -57,6 +58,10 @@ fun NavigationGraph(
                     onboardingViewModel.setTask(Task.CREATE_SCHOOL)
                 }
             )
+        }
+
+        composable(route = Screen.SettingsGeneralSettingsScreen.route) {
+            GeneralSettingsScreen(navController)
         }
 
         navigation(

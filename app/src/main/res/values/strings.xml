@@ -54,4 +54,6 @@
     <string name="notification_newPlanTitle">Plan change</string>
     <string name="notification_newPlanText">There is a new plan for %1$s at %2$s available</string>
     <string name="notification_accessNotGranted">You won\'t receive any notifications if there are any changes to the plan.</string>
+    <string name="settings_generalSettingsTitle">General</string>
+    <string name="settings_generalSettingsSubtitle">Modify basic app settings</string>
 </resources>

@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -70,6 +71,14 @@ fun SettingsScreen(navController: NavHostController) {
         ) {
             val settings = listOf(
                 SettingEntry(
+                    icon = Icons.Default.Build,
+                    title = stringResource(id = R.string.settings_generalSettingsTitle),
+                    subtitle = stringResource(id = R.string.settings_generalSettingsSubtitle),
+                    onClick = {
+                        navController.navigate(Screen.SettingsGeneralSettingsScreen.route)
+                    }
+                ),
+                SettingEntry(
                     icon = Icons.Default.Person,
                     title = stringResource(id = R.string.settings_profileTitle),
                     subtitle = stringResource(id = R.string.settings_profileSubtitle),
@@ -105,8 +114,8 @@ fun SettingsScreen(navController: NavHostController) {
                                 tint = MaterialTheme.colorScheme.secondary,
                                 modifier = Modifier
                                     .padding(horizontal = 8.dp)
-                                    .width(35.dp)
-                                    .height(35.dp)
+                                    .width(30.dp)
+                                    .height(30.dp)
                             )
                             Column {
                                 Text(
