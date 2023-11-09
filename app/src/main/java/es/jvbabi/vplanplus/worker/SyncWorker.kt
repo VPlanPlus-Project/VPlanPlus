@@ -25,7 +25,7 @@ import java.time.LocalDate
 
 class SyncWorker @AssistedInject constructor(
     private val context: Context,
-    private val params: WorkerParameters,
+    params: WorkerParameters,
     @Assisted private val profileUseCases: ProfileUseCases,
     @Assisted private val schoolUseCases: SchoolUseCases,
     @Assisted private val vPlanUseCases: VPlanUseCases
@@ -50,7 +50,7 @@ class SyncWorker @AssistedInject constructor(
                     hashesAfter[profile] = profileUseCases.getPlanSum(profile, date)
                 }
                 profiles.forEach { profile ->
-                    if (hashesBefore[profile] != hashesAfter[profile] && !isAppInForeground(context)) {
+                    if (hashesBefore[profile] != hashesAfter[profile] && !isAppInForeground()) {
                         planIsChanged[profile] = true
                     }
                 }
@@ -83,10 +83,9 @@ class SyncWorker @AssistedInject constructor(
         notificationManager.notify(profile.id.toInt(), builder.build())
     }
 
-    fun isAppInForeground(context: Context): Boolean {
+    private fun isAppInForeground(): Boolean {
         val appProcessInfo = ActivityManager.RunningAppProcessInfo()
         ActivityManager.getMyMemoryState(appProcessInfo)
         return (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE)
     }
-
 }
