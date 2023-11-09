@@ -40,6 +40,10 @@ class SchoolUseCases(
     fun getSchoolFromId(schoolId: Long): School {
         return schoolRepository.getSchoolFromId(schoolId)
     }
+
+    suspend fun getSchools(): List<School> {
+        return schoolRepository.getSchools()
+    }
 }
 
 enum class SchoolIdCheckResult {

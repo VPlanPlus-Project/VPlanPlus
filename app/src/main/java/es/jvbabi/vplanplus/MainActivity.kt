@@ -10,8 +10,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequest
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.ui.NavigationGraph
@@ -42,17 +43,14 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        val syncWorkRequest = PeriodicWorkRequest.Builder(
-            SyncWorker::class.java,
+        val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
             15,
             TimeUnit.MINUTES
-        )
-            .setConstraints(
-                Constraints.Builder()
-                    .setRequiredNetworkType(NetworkType.CONNECTED)
-                    .build()
-            )
-            .build()
-        WorkManager.getInstance(this).enqueue(syncWorkRequest)
+        ).setConstraints(
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+        ).build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, syncWork)
     }
 }

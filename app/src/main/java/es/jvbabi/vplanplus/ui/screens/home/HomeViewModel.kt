@@ -1,8 +1,13 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,7 +43,16 @@ class HomeViewModel @Inject constructor(
     private lateinit var activeProfile: Profile
     private var school: School? = null
 
-    suspend fun init() {
+    suspend fun init(context: Context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            _state.value = _state.value.copy(
+                notificationPermissionGranted = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+        } else {
+            _state.value = _state.value.copy(notificationPermissionGranted = true)
+        }
         if (profileUseCases.getActiveProfile() == null) {
             _state.value = _state.value.copy(initDone = true)
             Log.d("HomeViewModel", "init; no active profile")
@@ -114,22 +128,26 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = false)
     }
 
-    fun deletePlans() {
+    fun deletePlans(context: Context) {
         viewModelScope.launch {
             vPlanUseCases.deletePlans()
-            init()
+            init(context)
         }
     }
 
-    fun onProfileSelected(profileId: Long) {
+    fun onProfileSelected(context: Context, profileId: Long) {
         viewModelScope.launch {
             profileUseCases.setActiveProfile(profileId)
-            init()
+            init(context)
         }
     }
 
     fun setViewType(viewType: ViewType) {
         _state.value = _state.value.copy(viewMode = viewType)
+    }
+
+    fun setNotificationPermissionGranted(granted: Boolean) {
+        _state.value = _state.value.copy(notificationPermissionGranted = granted)
     }
 }
 
@@ -140,7 +158,8 @@ data class HomeState(
     val profiles: List<MenuProfile> = listOf(),
     val activeProfile: MenuProfile? = null,
     val date: LocalDate = LocalDate.now(),
-    val viewMode: ViewType = ViewType.DAY
+    val viewMode: ViewType = ViewType.DAY,
+    val notificationPermissionGranted: Boolean = false
 )
 
 enum class ViewType {
