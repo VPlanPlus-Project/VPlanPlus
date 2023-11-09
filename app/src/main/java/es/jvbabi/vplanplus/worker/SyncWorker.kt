@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus.worker
 
+import android.app.ActivityManager
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
+import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -30,7 +33,6 @@ class SyncWorker @AssistedInject constructor(
 
     override suspend fun doWork(): Result {
         Log.d("SyncWorker", "SYNCING")
-        sendNewPlanNotification(profileUseCases.getActiveProfile()!!)
         val planIsChanged = hashMapOf<Profile, Boolean>()
         schoolUseCases.getSchools().forEach {  school ->
             repeat(2) { i ->
@@ -48,7 +50,7 @@ class SyncWorker @AssistedInject constructor(
                     hashesAfter[profile] = profileUseCases.getPlanSum(profile, date)
                 }
                 profiles.forEach { profile ->
-                    if (hashesBefore[profile] != hashesAfter[profile]) {
+                    if (hashesBefore[profile] != hashesAfter[profile] && !isAppInForeground(context)) {
                         planIsChanged[profile] = true
                     }
                 }
@@ -80,4 +82,11 @@ class SyncWorker @AssistedInject constructor(
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(profile.id.toInt(), builder.build())
     }
+
+    fun isAppInForeground(context: Context): Boolean {
+        val appProcessInfo = ActivityManager.RunningAppProcessInfo()
+        ActivityManager.getMyMemoryState(appProcessInfo)
+        return (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE)
+    }
+
 }
