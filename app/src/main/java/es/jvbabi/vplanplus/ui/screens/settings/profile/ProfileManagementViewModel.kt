@@ -1,5 +1,7 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile
 
+import android.app.NotificationManager
+import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -116,7 +118,7 @@ class ProfileManagementViewModel @Inject constructor(
         _state.value = state.value.copy(deleteProfileDialogProfile = null)
     }
 
-    fun deleteProfile(profile: ProfileManagementProfile) {
+    fun deleteProfile(profile: ProfileManagementProfile, context: Context) {
         viewModelScope.launch {
             val school = profileUseCases.getSchoolFromProfileId(profile.id)
             if (profileUseCases.getProfilesBySchoolId(school.id!!).size == 1) {
@@ -130,6 +132,9 @@ class ProfileManagementViewModel @Inject constructor(
                 )
             }
             profileUseCases.deleteProfile(profile.id)
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.deleteNotificationChannel("PROFILE_${profile.name}")
             setDeleteProfileResult(ProfileManagementDeletionResult.SUCCESS)
             init()
         }

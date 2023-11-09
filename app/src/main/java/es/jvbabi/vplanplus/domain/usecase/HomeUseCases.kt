@@ -7,6 +7,8 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.ui.screens.home.Lesson
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 class HomeUseCases(
@@ -14,8 +16,8 @@ class HomeUseCases(
     private val classRepository: ClassRepository,
     private val lessonTimeRepository: LessonTimeRepository
 ) {
-    suspend fun getLessons(profile: Profile, date: LocalDate): List<Lesson> {
-        val lessons = when (profile.type) {
+    fun getLessons(profile: Profile, date: LocalDate): Flow<List<Lesson>> {
+        return when (profile.type) {
             ProfileType.STUDENT -> {
                 lessonRepository.getLessonsForClass(profile.referenceId, date)
             }
@@ -25,43 +27,42 @@ class HomeUseCases(
             ProfileType.ROOM -> {
                 lessonRepository.getLessonsForRoom(profile.referenceId, date)
             }
-        }
-        var id = -1L
-        return lessons.sortedBy { it.lesson }.map {
-            id++
-            try {
-                val `class` = classRepository.getClassById(it.classId)
-                val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`).getOrNull(it.lesson)
-                Lesson(
-                    id = id,
-                    className = `class`.className,
-                    lessonNumber = it.lesson,
-                    info = it.info,
-                    roomChanged = it.roomIsChanged,
-                    room = if (it.rooms.isNotEmpty()) it.rooms.map { room -> room.name } else listOf("-"),
-                    subjectChanged = it.changedSubject != null,
-                    subject = it.changedSubject ?: it.originalSubject,
-                    teacherChanged = it.teacherIsChanged,
-                    teacher = if (it.teachers.isNotEmpty()) it.teachers.map { teacher -> teacher.acronym } else listOf("-"),
-                    start = lessonTime?.start?:"",
-                    end = lessonTime?.end?:""
-                )
-            } catch (e: Exception) {
-                Log.e("HomeUseCases", "getTodayLessons: ${e.stackTraceToString()}")
-                Lesson(
-                    id = id,
-                    className = "Error",
-                    subject = e.message ?: "Error",
-                    teacher = listOf("Error"),
-                    room = listOf("Error"),
-                    subjectChanged = false,
-                    teacherChanged = false,
-                    roomChanged = false,
-                    start = "00:00",
-                    end = "23:59",
-                    lessonNumber = 0,
-                    info = e.stackTraceToString()
-                )
+        }.map { lessons ->
+            lessons.sortedBy { it.lesson }.map { lesson ->
+                try {
+                    val `class` = classRepository.getClassById(lesson.classId)
+                    val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`).firstOrNull { it.lessonNumber == lesson.lesson }
+                    Lesson(
+                        id = lesson.id!!,
+                        className = `class`.className,
+                        lessonNumber = lesson.lesson,
+                        info = lesson.info,
+                        roomChanged = lesson.roomIsChanged,
+                        room = if (lesson.rooms.isNotEmpty()) lesson.rooms.map { room -> room.name } else listOf("-"),
+                        subjectChanged = lesson.changedSubject != null,
+                        subject = lesson.changedSubject ?: lesson.originalSubject,
+                        teacherChanged = lesson.teacherIsChanged,
+                        teacher = if (lesson.teachers.isNotEmpty()) lesson.teachers.map { teacher -> teacher.acronym } else listOf("-"),
+                        start = lessonTime?.start ?: "",
+                        end = lessonTime?.end ?: ""
+                    )
+                } catch (e: Exception) {
+                    Log.e("HomeUseCases", "getTodayLessons: ${e.stackTraceToString()}")
+                    Lesson(
+                        id = lesson.id!!,
+                        className = "Error",
+                        subject = e.message ?: "Error",
+                        teacher = listOf("Error"),
+                        room = listOf("Error"),
+                        subjectChanged = false,
+                        teacherChanged = false,
+                        roomChanged = false,
+                        start = "00:00",
+                        end = "23:59",
+                        lessonNumber = 0,
+                        info = e.stackTraceToString()
+                    )
+                }
             }
         }
     }

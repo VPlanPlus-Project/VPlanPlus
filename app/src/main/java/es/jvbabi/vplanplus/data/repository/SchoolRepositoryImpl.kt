@@ -16,13 +16,12 @@ import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
-import kotlinx.coroutines.flow.Flow
 import java.net.UnknownHostException
 
 class SchoolRepositoryImpl(
     private val schoolDao: SchoolDao
 ) : SchoolRepository {
-    override fun getSchools(): Flow<List<School>> {
+    override suspend fun getSchools(): List<School> {
         return schoolDao.getAll()
     }
 

@@ -39,11 +39,10 @@ import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
-import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
-import es.jvbabi.vplanplus.domain.usecase.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
 @Module
@@ -135,6 +134,7 @@ object VppModule {
         return TeacherRepositoryImpl(db.teacherDao)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Provides
     @Singleton
     fun provideLessonRepository(db: VppDatabase): LessonRepository {
@@ -175,7 +175,8 @@ object VppModule {
         schoolRepository: SchoolRepository,
         classRepository: ClassRepository,
         teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository
+        roomRepository: RoomRepository,
+        lessonRepository: LessonRepository
     ): ProfileUseCases {
         return ProfileUseCases(
             profileRepository = repository,
@@ -183,14 +184,9 @@ object VppModule {
             schoolRepository = schoolRepository,
             classRepository = classRepository,
             teacherRepository = teacherRepository,
-            roomRepository = roomRepository
+            roomRepository = roomRepository,
+            lessonRepository = lessonRepository
         )
-    }
-
-    @Provides
-    @Singleton
-    fun provideOnboardingUseCases(repository: ProfileRepository): OnboardingUseCases {
-        return OnboardingUseCases(repository)
     }
 
     @Provides
@@ -231,12 +227,6 @@ object VppModule {
             roomRepository = roomRepository,
             schoolRepository = schoolRepository
         )
-    }
-
-    @Provides
-    @Singleton
-    fun provideLessonUseCases(lessonRepository: LessonRepository): LessonUseCases {
-        return LessonUseCases(lessonRepository)
     }
 
     @Provides

@@ -1,9 +1,14 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
@@ -89,11 +94,31 @@ fun HomeScreen(
     val state = viewModel.state.value
     val coroutineScope = rememberCoroutineScope()
     var menuOpened by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val lessonPagerState =
         rememberPagerState(initialPage = LocalDate.now().dayOfWeek.value - 1, pageCount = { 7 })
 
     LaunchedEffect(key1 = "Init", block = {
-        viewModel.init()
+        viewModel.init(context)
+    })
+
+    val permissionsLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = { isGranted ->
+            viewModel.setNotificationPermissionGranted(isGranted)
+            if (!isGranted) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.notification_accessNotGranted),
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    )
+    LaunchedEffect(key1 = state.notificationPermissionGranted, block = {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permissionsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
     })
 
     if (state.initDone && state.activeProfile == null) {
@@ -114,7 +139,6 @@ fun HomeScreen(
             }, lessonPagerState = lessonPagerState
         )
     }
-    val context = LocalContext.current
 
     BackHandler(enabled = menuOpened, onBack = {
         if (menuOpened) {
@@ -132,7 +156,7 @@ fun HomeScreen(
             selectedProfile = state.activeProfile!!,
             onProfileClicked = {
                 menuOpened = false
-                viewModel.onProfileSelected(it)
+                viewModel.onProfileSelected(context, it)
             },
             onCloseClicked = {
                 menuOpened = false
@@ -140,6 +164,12 @@ fun HomeScreen(
             onRefreshClicked = {
                 coroutineScope.launch {
                     viewModel.getVPlanData()
+                    menuOpened = false
+                }
+            },
+            onDeletePlansClicked = {
+                coroutineScope.launch {
+                    viewModel.deletePlans(context)
                     menuOpened = false
                 }
             },
@@ -227,7 +257,21 @@ fun HomeScreenContent(
                         ) {
                             val date = state.date.atStartOfWeek().plusDays(dayOfWeek.toLong())
                             if (state.lessons[date] == null) {
-                                Text(text = "No lessons")
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(text = "No lessons")
+                                }
+                                return@HorizontalPager
+                            }
+                            if (state.lessons[date]!!.isEmpty()) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                                 return@HorizontalPager
                             }
                             LazyColumn {

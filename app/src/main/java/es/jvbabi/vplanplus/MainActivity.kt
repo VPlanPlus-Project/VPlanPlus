@@ -9,10 +9,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
+import es.jvbabi.vplanplus.worker.SyncWorker
+import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -35,5 +42,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
+            15,
+            TimeUnit.MINUTES
+        ).setConstraints(
+            Constraints.Builder()
+                .setRequiredNetworkType(NetworkType.CONNECTED)
+                .build()
+        ).build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, syncWork)
     }
 }

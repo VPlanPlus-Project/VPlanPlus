@@ -1,8 +1,13 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +22,8 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -38,7 +45,19 @@ class HomeViewModel @Inject constructor(
     private lateinit var activeProfile: Profile
     private var school: School? = null
 
-    suspend fun init() {
+    suspend fun init(context: Context) {
+        // Check if notification permission is granted
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            _state.value = _state.value.copy(
+                notificationPermissionGranted = ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            )
+        } else {
+            _state.value = _state.value.copy(notificationPermissionGranted = true)
+        }
+
+        // Redirect to onboarding if no profiles are found
         if (profileUseCases.getActiveProfile() == null) {
             _state.value = _state.value.copy(initDone = true)
             Log.d("HomeViewModel", "init; no active profile")
@@ -83,16 +102,18 @@ class HomeViewModel @Inject constructor(
             _state.value.copy(initDone = true)
     }
 
-    private suspend fun updateView(profile: Profile, date: LocalDate) {
-        val lessons = homeUseCases.getLessons(profile, date)
-        if (lessons.isEmpty()) Log.d(
-            "HomeViewModel",
-            "No lessons found for ${activeProfile.name} at $date"
-        )
-        _state.value =
-            _state.value.copy(
-                lessons = state.value.lessons.plus(date to lessons),
-            )
+    @OptIn(FlowPreview::class)
+    private fun updateView(profile: Profile, date: LocalDate) {
+        if (!_state.value.lessons.containsKey(date)) _state.value =
+            _state.value.copy(lessons = state.value.lessons.plus(date to listOf()))
+        viewModelScope.launch {
+            homeUseCases.getLessons(profile, date).debounce(1000L).collect { lessons ->
+                _state.value =
+                    _state.value.copy(
+                        lessons = state.value.lessons.plus(date to lessons),
+                    )
+            }
+        }
     }
 
     suspend fun getVPlanData() {
@@ -109,20 +130,30 @@ class HomeViewModel @Inject constructor(
             }
             vPlanUseCases.processVplanData(vPlanData.data)
             Log.d("VPlanData", vPlanData.toString())
-            updateView(activeProfile, date)
         }
         _state.value = _state.value.copy(isLoading = false)
     }
 
-    fun onProfileSelected(profileId: Long) {
+    fun deletePlans(context: Context) {
+        viewModelScope.launch {
+            vPlanUseCases.deletePlans()
+            init(context)
+        }
+    }
+
+    fun onProfileSelected(context: Context, profileId: Long) {
         viewModelScope.launch {
             profileUseCases.setActiveProfile(profileId)
-            init()
+            init(context)
         }
     }
 
     fun setViewType(viewType: ViewType) {
         _state.value = _state.value.copy(viewMode = viewType)
+    }
+
+    fun setNotificationPermissionGranted(granted: Boolean) {
+        _state.value = _state.value.copy(notificationPermissionGranted = granted)
     }
 }
 
@@ -133,7 +164,8 @@ data class HomeState(
     val profiles: List<MenuProfile> = listOf(),
     val activeProfile: MenuProfile? = null,
     val date: LocalDate = LocalDate.now(),
-    val viewMode: ViewType = ViewType.DAY
+    val viewMode: ViewType = ViewType.DAY,
+    val notificationPermissionGranted: Boolean = false
 )
 
 enum class ViewType {

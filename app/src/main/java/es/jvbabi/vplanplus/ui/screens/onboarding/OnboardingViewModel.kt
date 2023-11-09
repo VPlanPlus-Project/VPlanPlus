@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -161,7 +164,7 @@ class OnboardingViewModel @Inject constructor(
     /**
      * Called when user clicks next button on [OnboardingProfileOptionListScreen]
      */
-    suspend fun onProfileSubmit() {
+    suspend fun onProfileSubmit(context: Context) {
         _state.value = _state.value.copy(isLoading = true)
         viewModelScope.launch {
 
@@ -216,6 +219,17 @@ class OnboardingViewModel @Inject constructor(
                     )
                 }
             }
+
+            val name = "Profil ${state.value.selectedProfileOption!!}"
+            val descriptionText = "Benachrichtigungen für neue Pläne"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("PROFILE_${state.value.selectedProfileOption}", name, importance).apply {
+                description = descriptionText
+            }
+            // Register the channel with the system.
+            val notificationManager: NotificationManager =
+                context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
 
             _state.value = _state.value.copy(isLoading = false)
         }

@@ -113,4 +113,8 @@ class VPlanUseCases(
             }
         }
     }
+
+    suspend fun deletePlans() {
+        lessonRepository.deleteAllLessons()
+    }
 }
