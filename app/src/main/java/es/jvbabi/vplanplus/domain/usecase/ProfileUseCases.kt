@@ -10,7 +10,12 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
-import es.jvbabi.vplanplus.util.sha256
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
+import java.security.MessageDigest
 import java.time.LocalDate
 
 class ProfileUseCases(
@@ -90,6 +95,7 @@ class ProfileUseCases(
      * Create checksum of plan for given date
      * @param date date of plan
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun getPlanSum(profile: Profile, date: LocalDate): String {
         val plan = when(profile.type) {
             ProfileType.STUDENT -> {
@@ -105,8 +111,14 @@ class ProfileUseCases(
                 lessonRepository.getLessonsForRoom(roomId = room.id!!, date = date)
             }
         }
-        return plan.joinToString { lesson ->
-            lesson.rooms.joinToString { room -> room.name } + lesson.originalSubject + lesson.changedSubject + lesson.teachers.joinToString { teacher -> teacher.acronym }
-        }.sha256()
+        return plan.flatMapConcat { lessons ->
+            flow {
+                emit(lessons.joinToString { lesson ->
+                    lesson.rooms.joinToString { room -> room.name } + lesson.originalSubject + (lesson.changedSubject ?: "") + lesson.teachers.joinToString { teacher -> teacher.acronym }
+                })
+            }
+        }.map { concatenatedString ->
+            MessageDigest.getInstance("SHA-256").digest(concatenatedString.toByteArray()).joinToString("") { "%02x".format(it) }
+        }.first()
     }
 }

@@ -39,10 +39,10 @@ import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
-import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
 @Module
@@ -134,6 +134,7 @@ object VppModule {
         return TeacherRepositoryImpl(db.teacherDao)
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Provides
     @Singleton
     fun provideLessonRepository(db: VppDatabase): LessonRepository {
@@ -226,12 +227,6 @@ object VppModule {
             roomRepository = roomRepository,
             schoolRepository = schoolRepository
         )
-    }
-
-    @Provides
-    @Singleton
-    fun provideLessonUseCases(lessonRepository: LessonRepository): LessonUseCases {
-        return LessonUseCases(lessonRepository)
     }
 
     @Provides

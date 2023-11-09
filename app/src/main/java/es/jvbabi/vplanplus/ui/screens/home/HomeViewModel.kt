@@ -22,6 +22,8 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -44,6 +46,7 @@ class HomeViewModel @Inject constructor(
     private var school: School? = null
 
     suspend fun init(context: Context) {
+        // Check if notification permission is granted
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             _state.value = _state.value.copy(
                 notificationPermissionGranted = ContextCompat.checkSelfPermission(
@@ -53,6 +56,8 @@ class HomeViewModel @Inject constructor(
         } else {
             _state.value = _state.value.copy(notificationPermissionGranted = true)
         }
+
+        // Redirect to onboarding if no profiles are found
         if (profileUseCases.getActiveProfile() == null) {
             _state.value = _state.value.copy(initDone = true)
             Log.d("HomeViewModel", "init; no active profile")
@@ -97,16 +102,18 @@ class HomeViewModel @Inject constructor(
             _state.value.copy(initDone = true)
     }
 
-    private suspend fun updateView(profile: Profile, date: LocalDate) {
-        val lessons = homeUseCases.getLessons(profile, date)
-        if (lessons.isEmpty()) Log.d(
-            "HomeViewModel",
-            "No lessons found for ${activeProfile.name} at $date"
-        )
-        _state.value =
-            _state.value.copy(
-                lessons = state.value.lessons.plus(date to lessons),
-            )
+    @OptIn(FlowPreview::class)
+    private fun updateView(profile: Profile, date: LocalDate) {
+        if (!_state.value.lessons.containsKey(date)) _state.value =
+            _state.value.copy(lessons = state.value.lessons.plus(date to listOf()))
+        viewModelScope.launch {
+            homeUseCases.getLessons(profile, date).debounce(1000L).collect { lessons ->
+                _state.value =
+                    _state.value.copy(
+                        lessons = state.value.lessons.plus(date to lessons),
+                    )
+            }
+        }
     }
 
     suspend fun getVPlanData() {
@@ -123,7 +130,6 @@ class HomeViewModel @Inject constructor(
             }
             vPlanUseCases.processVplanData(vPlanData.data)
             Log.d("VPlanData", vPlanData.toString())
-            updateView(activeProfile, date)
         }
         _state.value = _state.value.copy(isLoading = false)
     }

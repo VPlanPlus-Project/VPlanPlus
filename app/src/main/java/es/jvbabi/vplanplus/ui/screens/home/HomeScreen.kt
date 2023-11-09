@@ -257,7 +257,21 @@ fun HomeScreenContent(
                         ) {
                             val date = state.date.atStartOfWeek().plusDays(dayOfWeek.toLong())
                             if (state.lessons[date] == null) {
-                                Text(text = "No lessons")
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(text = "No lessons")
+                                }
+                                return@HorizontalPager
+                            }
+                            if (state.lessons[date]!!.isEmpty()) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                                 return@HorizontalPager
                             }
                             LazyColumn {
