@@ -13,10 +13,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,58 +42,82 @@ fun SettingsScreenPreview() {
     SettingsScreen(rememberNavController())
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavHostController) {
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Text(text = stringResource(id = R.string.home_menuSettings), style = MaterialTheme.typography.headlineLarge, modifier = Modifier.padding(16.dp))
-
-        val settings = listOf(
-            SettingEntry(
-                icon = Icons.Default.Person,
-                title = stringResource(id = R.string.settings_profileTitle),
-                subtitle = stringResource(id = R.string.settings_profileSubtitle),
-                onClick = {
-                    navController.navigate(Screen.SettingsProfileScreen.route)
-                }
-            ),
-        )
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-        ) {
-            items(settings) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(2.dp) // spacing between items
-                        .clip(RoundedCornerShape(16.dp))
-                        .clickable { it.onClick() }
-                        .padding(start = 12.dp, top = 12.dp, bottom = 12.dp) // adding height to item
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(stringResource(id = R.string.home_menuSettings)) },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
-                            imageVector = it.icon,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.secondary,
-                            modifier = Modifier
-                                .padding(horizontal = 8.dp)
-                                .width(35.dp)
-                                .height(35.dp)
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = stringResource(
+                                id = R.string.back
+                            )
                         )
-                        Column {
-                            Text(
-                                text = it.title,
-                                style = MaterialTheme.typography.bodyLarge,
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors()
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            val settings = listOf(
+                SettingEntry(
+                    icon = Icons.Default.Person,
+                    title = stringResource(id = R.string.settings_profileTitle),
+                    subtitle = stringResource(id = R.string.settings_profileSubtitle),
+                    onClick = {
+                        navController.navigate(Screen.SettingsProfileScreen.route)
+                    }
+                ),
+            )
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                items(settings) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(2.dp) // spacing between items
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable { it.onClick() }
+                            .padding(
+                                start = 12.dp,
+                                top = 12.dp,
+                                bottom = 12.dp
+                            ) // adding height to item
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                imageVector = it.icon,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.secondary,
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .width(35.dp)
+                                    .height(35.dp)
                             )
-                            if (it.subtitle.isNotEmpty()) Text(
-                                text = it.subtitle,
-                                style = MaterialTheme.typography.bodySmall
-                            )
+                            Column {
+                                Text(
+                                    text = it.title,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                                if (it.subtitle.isNotEmpty()) Text(
+                                    text = it.subtitle,
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     }
                 }
