@@ -185,6 +185,9 @@ fun HomeScreen(
             },
             onManageProfilesClicked = {
                 navHostController.navigate(Screen.SettingsProfileScreen.route)
+            },
+            onLogsClicked = {
+                navHostController.navigate(Screen.LogsScreen.route)
             }
         )
     }

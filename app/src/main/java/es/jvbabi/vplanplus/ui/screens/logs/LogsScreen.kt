@@ -1,0 +1,134 @@
+package es.jvbabi.vplanplus.ui.screens.logs
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.domain.model.LogRecord
+import es.jvbabi.vplanplus.util.DateUtils
+import java.time.format.DateTimeFormatter
+
+@Composable
+fun LogsScreen(
+    navHostController: NavHostController,
+    viewModel: LogsViewModel = hiltViewModel()
+) {
+
+    val state = viewModel.state.value
+    LogsScreenContent(
+        state = state,
+        onBackClicked = { navHostController.popBackStack() }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LogsScreenContent(
+    onBackClicked: () -> Unit,
+    state: LogsState
+) {
+    Scaffold(
+        topBar = {
+            LargeTopAppBar(
+                title = { Text(text = "Logs") },
+                navigationIcon = {
+                    IconButton(onClick = { onBackClicked() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                            contentDescription = null
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+        ) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(state.logs) { log ->
+                    Row {
+                        Text(
+                            text = DateUtils.getDateTimeFromTimestamp(log.timestamp).format(
+                                DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier
+                                .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 8.dp)
+                                .width(110.dp)
+                        )
+                        Text(
+                            text = log.tag,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier
+                                .padding(top = 8.dp, bottom = 8.dp, end = 8.dp)
+                                .width(40.dp),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = log.message,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier
+                                .padding(top = 8.dp, bottom = 8.dp, end = 8.dp)
+                                .fillMaxSize(),
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@Preview
+fun LogsScreenPreview() {
+    LogsScreenContent(
+        onBackClicked = {}, state = LogsState(
+            listOf(
+                LogRecord(
+                    timestamp = 0,
+                    tag = "tag",
+                    message = "message ".repeat(20)
+                ),
+                LogRecord(
+                    timestamp = 0,
+                    tag = "tag",
+                    message = "message ".repeat(10)
+                ),
+                LogRecord(
+                    timestamp = 0,
+                    tag = "tag",
+                    message = "message ".repeat(30)
+                ),
+                LogRecord(
+                    timestamp = 0,
+                    tag = "tag",
+                    message = "message ".repeat(5)
+                )
+            )
+        )
+    )
+}

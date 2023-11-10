@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.util
 
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.ZoneId
 
 object DateUtils {
@@ -27,5 +28,9 @@ object DateUtils {
 
     fun LocalDate.atStartOfWeek(): LocalDate {
         return this.minusDays(this.dayOfWeek.value.toLong() - 1)
+    }
+
+    fun getDateTimeFromTimestamp(timestamp: Long): LocalDateTime {
+        return Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
 }
