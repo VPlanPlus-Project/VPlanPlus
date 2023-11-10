@@ -22,12 +22,6 @@ class LogsViewModel @Inject constructor(
                 _state.value = LogsState(it)
             }
         }
-        viewModelScope.launch {
-            while (true) {
-                logRecordRepository.log("LogsViewModel", "LogsViewModel initialized")
-                kotlinx.coroutines.delay(1000)
-            }
-        }
     }
 
     fun onDeleteLogsClicked() {
