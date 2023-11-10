@@ -2,8 +2,8 @@ package es.jvbabi.vplanplus.ui.screens.logs
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
@@ -82,22 +82,24 @@ fun LogsScreenContent(
             modifier = Modifier.padding(paddingValues).fillMaxSize()
         ) {
             items(state.logs) { log ->
-                Row {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Text(
                         text = DateUtils.getDateTimeFromTimestamp(log.timestamp).format(
                             DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
                         ),
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier
+                            .fillMaxWidth(0.2f)
                             .padding(start = 16.dp, top = 8.dp, bottom = 8.dp, end = 8.dp)
-                            .width(110.dp)
                     )
                     Text(
                         text = log.tag,
                         style = MaterialTheme.typography.labelSmall,
                         modifier = Modifier
-                            .padding(top = 8.dp, bottom = 8.dp, end = 8.dp)
-                            .width(40.dp),
+                            .fillMaxWidth(0.2f)
+                            .padding(top = 8.dp, bottom = 8.dp, end = 8.dp),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
