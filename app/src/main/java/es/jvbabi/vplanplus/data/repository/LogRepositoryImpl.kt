@@ -21,4 +21,8 @@ class LogRepositoryImpl(
     override suspend fun getLogs(): Flow<List<LogRecord>> {
         return logRecordDao.getAll()
     }
+
+    override suspend fun deleteAll() {
+        logRecordDao.deleteAll()
+    }
 }

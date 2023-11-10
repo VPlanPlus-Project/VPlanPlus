@@ -13,4 +13,7 @@ abstract class LogRecordDao {
 
     @Query("SELECT * FROM logRecord ORDER BY timestamp DESC")
     abstract fun getAll(): Flow<List<LogRecord>>
+
+    @Query("DELETE FROM logRecord")
+    abstract suspend fun deleteAll()
 }
