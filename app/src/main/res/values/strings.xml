@@ -56,4 +56,7 @@
     <string name="notification_accessNotGranted">You won\'t receive any notifications if there are any changes to the plan.</string>
     <string name="settings_generalSettingsTitle">General</string>
     <string name="settings_generalSettingsSubtitle">Modify basic app settings</string>
+    <string name="settings_generalNotificationsTitle">Notifications</string>
+    <string name="settings_generalNotificationsOnAppOpenedTitle">Show notifications when app is in foreground</string>
+    <string name="settings_generalNotificationsOnAppOpenedSubtitle">When disabled, you\'ll only get notifications for plan changes, when the app isn\'t visible.</string>
 </resources>

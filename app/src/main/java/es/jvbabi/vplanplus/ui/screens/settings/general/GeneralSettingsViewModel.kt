@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GeneralSettingsViewModel @Inject constructor(
-    keyValueUseCases: KeyValueUseCases
+    private val keyValueUseCases: KeyValueUseCases
 ): ViewModel() {
 
     private val _state = mutableStateOf(GeneralSettingsState())
@@ -25,6 +25,12 @@ class GeneralSettingsViewModel @Inject constructor(
                     notificationShowNotificationIfAppIsVisible = it?.toBoolean() ?: false
                 )
             }
+        }
+    }
+
+    fun onShowNotificationsOnAppOpenedClicked(show: Boolean) {
+        viewModelScope.launch {
+            keyValueUseCases.set(Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE, show.toString())
         }
     }
 }

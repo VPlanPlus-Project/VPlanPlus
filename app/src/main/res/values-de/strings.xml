@@ -57,4 +57,7 @@
     <string name="notification_accessNotGranted">Du wirst keine Benachrichtigungen erhalten, wenn es eine Planänderung für dich gibt.</string>
     <string name="settings_generalSettingsTitle">Allgemein</string>
     <string name="settings_generalSettingsSubtitle">Grundlegende App-Einstellungen</string>
+    <string name="settings_generalNotificationsTitle">Benachrichtigungen</string>
+    <string name="settings_generalNotificationsOnAppOpenedTitle">Benachrichtigungen bei offener App zeigen</string>
+    <string name="settings_generalNotificationsOnAppOpenedSubtitle">Wenn deaktiviert, werden Benachrichtigungen für Planänderungen nur gezeigt, wenn die App im Hintergrund ist.</string>
 </resources>
