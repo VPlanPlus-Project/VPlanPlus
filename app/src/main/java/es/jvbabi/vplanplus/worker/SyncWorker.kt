@@ -17,6 +17,8 @@ import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
@@ -30,50 +32,59 @@ class SyncWorker @AssistedInject constructor(
     @Assisted private val profileUseCases: ProfileUseCases,
     @Assisted private val schoolUseCases: SchoolUseCases,
     @Assisted private val vPlanUseCases: VPlanUseCases,
+    @Assisted private val keyValueUseCases: KeyValueUseCases,
     @Assisted private val logRecordRepository: LogRecordRepository
 ): CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        Log.d("SyncWorker", "SYNCING")
-        logRecordRepository.log("SyncWorker", "Syncing")
-        val planIsChanged = hashMapOf<Profile, Boolean>()
-        schoolUseCases.getSchools().forEach {  school ->
-            repeat(2) { i ->
-                val profiles = profileUseCases.getProfilesBySchoolId(school.id!!)
-                val date = LocalDate.now().plusDays(i.toLong())
-                val hashesBefore = hashMapOf<Profile, String>()
-                val hashesAfter = hashMapOf<Profile, String>()
-                profiles.forEach { profile ->
-                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date)
-                }
-                val data = vPlanUseCases.getVPlanData(school, date)
-                if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
-                    logRecordRepository.log("SyncWorker", "Error while syncing ${school.id} (${school.name}): ${data.response}")
-                    return Result.failure()
-                }
-                if (data.response == Response.NO_DATA_AVAILABLE) {
-                    logRecordRepository.log("SyncWorker", "No data available for ${school.id} (${school.name} at $date)")
-                    return@repeat
-                }
-                vPlanUseCases.processVplanData(data.data!!)
-                profiles.forEach { profile ->
-                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date)
-                }
-                profiles.forEach { profile ->
-                    if (hashesBefore[profile] != hashesAfter[profile] && !isAppInForeground()) {
-                        planIsChanged[profile] = true
+        val result = try {
+            Log.d("SyncWorker", "SYNCING")
+            keyValueUseCases.set(Keys.SYNCING, "true")
+            logRecordRepository.log("SyncWorker", "Syncing")
+            val planIsChanged = hashMapOf<Profile, Boolean>()
+            schoolUseCases.getSchools().forEach {  school ->
+                repeat(2) { i ->
+                    val profiles = profileUseCases.getProfilesBySchoolId(school.id!!)
+                    val date = LocalDate.now().plusDays(i.toLong())
+                    val hashesBefore = hashMapOf<Profile, String>()
+                    val hashesAfter = hashMapOf<Profile, String>()
+                    profiles.forEach { profile ->
+                        hashesBefore[profile] = profileUseCases.getPlanSum(profile, date)
+                    }
+                    val data = vPlanUseCases.getVPlanData(school, date)
+                    if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
+                        logRecordRepository.log("SyncWorker", "Error while syncing ${school.id} (${school.name}): ${data.response}")
+                        Result.failure()
+                    }
+                    if (data.response == Response.NO_DATA_AVAILABLE) {
+                        logRecordRepository.log("SyncWorker", "No data available for ${school.id} (${school.name} at $date)")
+                        return@repeat
+                    }
+                    vPlanUseCases.processVplanData(data.data!!)
+                    profiles.forEach { profile ->
+                        hashesAfter[profile] = profileUseCases.getPlanSum(profile, date)
+                    }
+                    profiles.forEach { profile ->
+                        if (hashesBefore[profile] != hashesAfter[profile] && (!isAppInForeground() || keyValueUseCases.get(Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE) == "true")) {
+                            planIsChanged[profile] = true
+                        }
                     }
                 }
             }
-        }
-        Log.d("SyncWorker", "Changed profiles: ${planIsChanged.keys.map { it.name }}")
-        planIsChanged.keys.forEach { profile ->
-            if (planIsChanged[profile] == true) sendNewPlanNotification(profile)
-        }
+            Log.d("SyncWorker", "Changed profiles: ${planIsChanged.keys.map { it.name }}")
+            planIsChanged.keys.forEach { profile ->
+                if (planIsChanged[profile] == true) sendNewPlanNotification(profile)
+            }
 
-        Log.d("SyncWorker", "SYNCED")
-        logRecordRepository.log("SyncWorker", "Synced sucessfully")
-        return Result.success()
+            Log.d("SyncWorker", "SYNCED")
+            logRecordRepository.log("SyncWorker", "Synced sucessfully")
+            Result.success()
+        } catch (e: Exception) {
+            logRecordRepository.log("SyncWorker", "Error while syncing: ${e.stackTraceToString()}")
+            Result.failure()
+        }
+        keyValueUseCases.set(Keys.SYNCING, "false")
+        return result
     }
 
     private suspend fun sendNewPlanNotification(profile: Profile) {

@@ -18,6 +18,8 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
@@ -35,6 +37,7 @@ class HomeViewModel @Inject constructor(
     private val vPlanUseCases: VPlanUseCases,
     private val schoolUseCases: SchoolUseCases,
     private val homeUseCases: HomeUseCases,
+    private val keyValueUseCases: KeyValueUseCases,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository
 ) : ViewModel() {
@@ -44,6 +47,15 @@ class HomeViewModel @Inject constructor(
 
     private lateinit var activeProfile: Profile
     private var school: School? = null
+
+    init {
+        viewModelScope.launch {
+            keyValueUseCases.getFlow(Keys.SYNCING).collect {
+                if (_state.value.syncing != (it == "true")) Log.d("HomeViewModel", "syncing=$it")
+                _state.value = _state.value.copy(syncing = it == "true")
+            }
+        }
+    }
 
     suspend fun init(context: Context) {
         // Check if notification permission is granted
@@ -109,10 +121,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             var first = true
             homeUseCases.getLessons(profile, date).debounce{if (first) 0L else { first = false; 1000L }}.collect { lessons ->
-                _state.value =
-                    _state.value.copy(
-                        lessons = state.value.lessons.plus(date to lessons),
-                    )
+                if (!state.value.syncing) {
+                    _state.value =
+                        _state.value.copy(
+                            lessons = state.value.lessons.plus(date to lessons),
+                        )
+                }
             }
         }
     }
@@ -166,7 +180,9 @@ data class HomeState(
     val activeProfile: MenuProfile? = null,
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,
-    val notificationPermissionGranted: Boolean = false
+    val notificationPermissionGranted: Boolean = false,
+
+    val syncing: Boolean = false
 )
 
 enum class ViewType {

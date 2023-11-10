@@ -43,6 +43,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -300,6 +301,14 @@ fun HomeScreenContent(
                         }
                     }
                 }
+            }
+            if (state.syncing) {
+                LinearProgressIndicator(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    trackColor = MaterialTheme.colorScheme.secondary,
+                )
             }
             val scope = rememberCoroutineScope()
             Box(
@@ -590,8 +599,8 @@ fun HomeScreenPreview() {
                         info = "Hier eine sehr lange Information, die sich über mehrere Zeilen erstrecken würde. :)"
                     )
                 )
-            )
-
+            ),
+            syncing = true,
         ),
         onMenuOpened = {}
     )

@@ -7,6 +7,7 @@ import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import dagger.hilt.android.HiltAndroidApp
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
@@ -28,8 +29,19 @@ class VppApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var logRecordRepository: LogRecordRepository
 
+    @Inject
+    lateinit var keyValueUseCases: KeyValueUseCases
+
     override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
-        .setWorkerFactory(SyncWorkerFactory(profileUseCases, vPlanUseCases, schoolUseCases, logRecordRepository))
+        .setWorkerFactory(
+            SyncWorkerFactory(
+                profileUseCases,
+                vPlanUseCases,
+                schoolUseCases,
+                keyValueUseCases,
+                logRecordRepository
+            )
+        )
         .build()
 }
 
@@ -37,6 +49,7 @@ class SyncWorkerFactory @Inject constructor(
     private val profileUseCases: ProfileUseCases,
     private val vPlanUseCases: VPlanUseCases,
     private val schoolUseCases: SchoolUseCases,
+    private val keyValueUseCases: KeyValueUseCases,
     private val logRecordRepository: LogRecordRepository
 ) : WorkerFactory() {
     override fun createWorker(
@@ -50,7 +63,8 @@ class SyncWorkerFactory @Inject constructor(
             profileUseCases = profileUseCases,
             vPlanUseCases = vPlanUseCases,
             schoolUseCases = schoolUseCases,
-            logRecordRepository = logRecordRepository
+            logRecordRepository = logRecordRepository,
+            keyValueUseCases = keyValueUseCases
         )
     }
 }
