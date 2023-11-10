@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
+import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
@@ -34,7 +35,8 @@ class OnboardingViewModel @Inject constructor(
     private val keyValueUseCases: KeyValueUseCases,
     private val baseDataUseCases: BaseDataUseCases,
     private val teacherRepository: TeacherRepository,
-    private val roomRepository: RoomRepository
+    private val roomRepository: RoomRepository,
+    private val logRecordRepository: LogRecordRepository
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
@@ -74,6 +76,7 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = true)
         schoolUseCases.checkSchoolIdOnline(state.value.schoolId.toLong()).onEach { result ->
             Log.d("OnboardingViewModel", "onSchoolIdSubmit: $result")
+            logRecordRepository.log("Onboarding", "School ${state.value.schoolId} check result: $result")
             _state.value = _state.value.copy(
                 isLoading = false,
                 schoolIdState = result,
@@ -194,7 +197,7 @@ class OnboardingViewModel @Inject constructor(
                         name = state.value.selectedProfileOption!!
                     )
                     keyValueUseCases.set(
-                        Keys.ACTIVE_PROFILE.name,
+                        Keys.ACTIVE_PROFILE,
                         profileUseCases.getProfileByClassId(`class`.id).id.toString()
                     )
                 }
@@ -206,7 +209,7 @@ class OnboardingViewModel @Inject constructor(
                     )!!
                     profileUseCases.createTeacherProfile(teacherId = teacher.id!!, name = teacher.acronym)
                     keyValueUseCases.set(
-                        Keys.ACTIVE_PROFILE.name,
+                        Keys.ACTIVE_PROFILE,
                         profileUseCases.getProfileByTeacherId(teacher.id).id.toString()
                     )
                 }
@@ -214,7 +217,7 @@ class OnboardingViewModel @Inject constructor(
                     val room = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).find { it.name == state.value.selectedProfileOption!! }!!
                     profileUseCases.createRoomProfile(roomId = room.id!!, name = room.name)
                     keyValueUseCases.set(
-                        Keys.ACTIVE_PROFILE.name,
+                        Keys.ACTIVE_PROFILE,
                         profileUseCases.getProfileByRoomId(room.id).id.toString()
                     )
                 }

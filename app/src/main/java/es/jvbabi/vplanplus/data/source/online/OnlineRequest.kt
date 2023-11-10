@@ -43,6 +43,7 @@ object OnlineRequest {
             when (response.status.value) {
                 200 -> DataResponse(response.bodyAsText(), Response.SUCCESS)
                 401 -> DataResponse(null, Response.WRONG_CREDENTIALS)
+                404 -> DataResponse(null, Response.NOT_FOUND)
                 else -> {
                     Log.d("OnlineRequest", "other error on $url: ${response.status.value}")
                     DataResponse(response.bodyAsText(), Response.OTHER)

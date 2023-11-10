@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.DeveloperMode
+import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
@@ -66,6 +67,7 @@ fun Menu(
     onRepositoryClicked: () -> Unit = {},
     onManageProfilesClicked: () -> Unit = {},
     onDeletePlansClicked: () -> Unit = {},
+    onLogsClicked: () -> Unit = {},
 ) {
     Box(
         modifier = Modifier
@@ -162,6 +164,7 @@ fun Menu(
                         ButtonRow(Icons.Outlined.Refresh, text = "Refresh", onClick = { onRefreshClicked() })
                         ButtonRow(Icons.Outlined.Settings, stringResource(id = R.string.home_menuSettings), onClick = { onSettingsClicked() })
                         ButtonRow(icon = Icons.Outlined.DeleteForever, text = "Plandaten löschen", onClick = { onDeletePlansClicked() })
+                        ButtonRow(icon = Icons.Outlined.FormatListNumbered, text = "Logs", onClick = { onLogsClicked() })
                         ButtonRow(Icons.Outlined.DeveloperMode, stringResource(id = R.string.home_menuRepository), onClick = { onRepositoryClicked() })
                     }
                 }

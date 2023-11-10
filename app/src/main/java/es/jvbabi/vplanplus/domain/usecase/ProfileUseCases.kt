@@ -53,7 +53,7 @@ class ProfileUseCases(
     }
 
     suspend fun getActiveProfile(): Profile? {
-        val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE.name) ?: return null
+        val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE) ?: return null
         return profileRepository.getProfileById(id = activeProfileId.toLong())
     }
 
@@ -62,7 +62,7 @@ class ProfileUseCases(
     }
 
     suspend fun setActiveProfile(profileId: Long) {
-        keyValueRepository.set(key = Keys.ACTIVE_PROFILE.name, value = profileId.toString())
+        keyValueRepository.set(key = Keys.ACTIVE_PROFILE, value = profileId.toString())
     }
 
     suspend fun deleteProfile(profileId: Long) {

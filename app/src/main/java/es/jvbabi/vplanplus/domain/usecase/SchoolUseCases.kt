@@ -59,5 +59,6 @@ enum class Response {
     NO_INTERNET,
     NONE,
     OTHER,
-    NOT_FOUND
+    NOT_FOUND,
+    NO_DATA_AVAILABLE
 }

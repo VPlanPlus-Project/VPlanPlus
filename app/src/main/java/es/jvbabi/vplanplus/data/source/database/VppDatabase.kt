@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonRoomCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
+import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
@@ -28,6 +29,7 @@ import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.domain.model.LessonTime
+import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Week
 
 @Database(
@@ -44,7 +46,8 @@ import es.jvbabi.vplanplus.domain.model.Week
         LessonTime::class,
 
         LessonRoomCrossover::class,
-        LessonTeacherCrossover::class
+        LessonTeacherCrossover::class,
+        LogRecord::class
     ],
     version = 3,
     exportSchema = false
@@ -63,4 +66,5 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val lessonTimeDao: LessonTimeDao
     abstract val lessonRoomCrossoverDao: LessonRoomCrossoverDao
     abstract val lessonTeacherCrossoverDao: LessonTeacherCrossoverDao
+    abstract val logRecordDao: LogRecordDao
 }
