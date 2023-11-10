@@ -11,4 +11,6 @@ class KeyValueRepositoryImpl(private val keyValueDao: KeyValueDao) : KeyValueRep
     override suspend fun set(key: String, value: String) {
         keyValueDao.set(key = key, value = value)
     }
+
+    override fun getFlow(key: String) = keyValueDao.getFlow(key = key)
 }

@@ -197,7 +197,7 @@ class OnboardingViewModel @Inject constructor(
                         name = state.value.selectedProfileOption!!
                     )
                     keyValueUseCases.set(
-                        Keys.ACTIVE_PROFILE.name,
+                        Keys.ACTIVE_PROFILE,
                         profileUseCases.getProfileByClassId(`class`.id).id.toString()
                     )
                 }
@@ -209,7 +209,7 @@ class OnboardingViewModel @Inject constructor(
                     )!!
                     profileUseCases.createTeacherProfile(teacherId = teacher.id!!, name = teacher.acronym)
                     keyValueUseCases.set(
-                        Keys.ACTIVE_PROFILE.name,
+                        Keys.ACTIVE_PROFILE,
                         profileUseCases.getProfileByTeacherId(teacher.id).id.toString()
                     )
                 }
@@ -217,7 +217,7 @@ class OnboardingViewModel @Inject constructor(
                     val room = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).find { it.name == state.value.selectedProfileOption!! }!!
                     profileUseCases.createRoomProfile(roomId = room.id!!, name = room.name)
                     keyValueUseCases.set(
-                        Keys.ACTIVE_PROFILE.name,
+                        Keys.ACTIVE_PROFILE,
                         profileUseCases.getProfileByRoomId(room.id).id.toString()
                     )
                 }
