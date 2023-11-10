@@ -1,5 +1,8 @@
 # VPlanPlus
 
+![App Logo](https://raw.githubusercontent.com/Julius-Babies/VPlanPlus/v0.5.1-alpha/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp) [<img src="https://static.jvbabi.es/getitongithubreleases.png" alt="Get it on Github Releases" height="50px">](https://github.com/Julius-Babies/VPlanPlus/releases)
+
+
 Diese App ist ein Android Client für das stundenplan24.de System.
 Die App ist in Kotlin und dem Android Jetpack Compose Framework mit dem Ansatz von MVVM und Clean Architecture (wenn auch ausbaufähig) geschrieben und wird stetig weiterentwickelt.
 
