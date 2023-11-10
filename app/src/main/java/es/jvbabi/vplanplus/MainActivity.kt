@@ -51,6 +51,6 @@ class MainActivity : ComponentActivity() {
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
         ).build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.CANCEL_AND_REENQUEUE, syncWork)
     }
 }

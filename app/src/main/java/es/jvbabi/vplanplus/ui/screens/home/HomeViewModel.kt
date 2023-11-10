@@ -107,7 +107,8 @@ class HomeViewModel @Inject constructor(
         if (!_state.value.lessons.containsKey(date)) _state.value =
             _state.value.copy(lessons = state.value.lessons.plus(date to listOf()))
         viewModelScope.launch {
-            homeUseCases.getLessons(profile, date).debounce(1000L).collect { lessons ->
+            var first = true
+            homeUseCases.getLessons(profile, date).debounce{if (first) 0L else { first = false; 1000L }}.collect { lessons ->
                 _state.value =
                     _state.value.copy(
                         lessons = state.value.lessons.plus(date to lessons),

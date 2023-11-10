@@ -16,6 +16,7 @@ import dagger.assisted.AssistedInject
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
@@ -28,11 +29,13 @@ class SyncWorker @AssistedInject constructor(
     params: WorkerParameters,
     @Assisted private val profileUseCases: ProfileUseCases,
     @Assisted private val schoolUseCases: SchoolUseCases,
-    @Assisted private val vPlanUseCases: VPlanUseCases
+    @Assisted private val vPlanUseCases: VPlanUseCases,
+    @Assisted private val logRecordRepository: LogRecordRepository
 ): CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         Log.d("SyncWorker", "SYNCING")
+        logRecordRepository.log("SyncWorker", "Syncing")
         val planIsChanged = hashMapOf<Profile, Boolean>()
         schoolUseCases.getSchools().forEach {  school ->
             repeat(2) { i ->
@@ -44,7 +47,14 @@ class SyncWorker @AssistedInject constructor(
                     hashesBefore[profile] = profileUseCases.getPlanSum(profile, date)
                 }
                 val data = vPlanUseCases.getVPlanData(school, date)
-                if (data.response != Response.SUCCESS) return Result.failure()
+                if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
+                    logRecordRepository.log("SyncWorker", "Error while syncing ${school.id} (${school.name}): ${data.response}")
+                    return Result.failure()
+                }
+                if (data.response == Response.NO_DATA_AVAILABLE) {
+                    logRecordRepository.log("SyncWorker", "No data available for ${school.id} (${school.name} at $date)")
+                    return@repeat
+                }
                 vPlanUseCases.processVplanData(data.data!!)
                 profiles.forEach { profile ->
                     hashesAfter[profile] = profileUseCases.getPlanSum(profile, date)
@@ -62,10 +72,12 @@ class SyncWorker @AssistedInject constructor(
         }
 
         Log.d("SyncWorker", "SYNCED")
+        logRecordRepository.log("SyncWorker", "Synced sucessfully")
         return Result.success()
     }
 
     private suspend fun sendNewPlanNotification(profile: Profile) {
+        logRecordRepository.log("SyncWorker", "Sending notification for profile ${profile.name}")
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }.putExtra("profileId", profile.id)
