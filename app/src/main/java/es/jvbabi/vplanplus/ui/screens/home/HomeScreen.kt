@@ -329,7 +329,7 @@ fun HomeScreenContent(
                                                 }
                                             }
                                             if (todayIsSameWeekendAsPagerDay) Text(
-                                                text = stringResource(id = R.string.home_weekendText) + date,
+                                                text = stringResource(id = R.string.home_weekendText),
                                                 textAlign = TextAlign.Center
                                             )
                                             else if (LocalDate.now().isBefore(date)) Text(
