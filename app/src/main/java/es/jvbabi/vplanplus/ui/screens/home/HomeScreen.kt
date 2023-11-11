@@ -143,6 +143,9 @@ fun HomeScreen(
             }, lessonPagerState = lessonPagerState,
             onSetDayType = {
                 viewModel.setDayType(it)
+            },
+            onSearchOpened = {
+                navHostController.navigate(Screen.SearchScreen.route)
             }
         )
     }
@@ -202,12 +205,13 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     state: HomeState,
+    onSearchOpened: (Boolean) -> Unit = {},
     onMenuOpened: () -> Unit = {},
     onViewModeChanged: (type: ViewType) -> Unit = {},
     onSetDayType: (date: LocalDate) -> Unit = {},
     lessonPagerState: PagerState = rememberPagerState(
         initialPage = LocalDate.now().dayOfWeek.value,
-        pageCount = { 5 })
+        pageCount = { 5 }),
 ) {
     if (!state.initDone) {
         Box(
@@ -225,7 +229,8 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .fillMaxSize(),
             ) {
-                SearchBar(state.activeProfile?.name ?: "", onMenuOpened) {}
+                SearchBar(state.activeProfile?.name ?: "", onMenuOpened,
+                    { onSearchOpened(it) }, false, "", {})
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()

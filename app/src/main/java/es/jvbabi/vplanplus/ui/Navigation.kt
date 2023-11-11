@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
+import es.jvbabi.vplanplus.ui.screens.home.search.SearchScreen
 import es.jvbabi.vplanplus.ui.screens.logs.LogsScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingCause
@@ -38,6 +39,10 @@ fun NavigationGraph(
 
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(navController)
+        }
+
+        composable(route = Screen.SearchScreen.route) {
+            SearchScreen(navController)
         }
 
         composable(route = Screen.SettingsScreen.route) {

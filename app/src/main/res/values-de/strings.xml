@@ -64,4 +64,9 @@
     <string name="home_weekendText">Genieße dein Wochenende! Tank\' Energie und starte frisch am Montag in eine produktive Woche. 🌟</string>
     <string name="home_weekendCommingUpText">Bald ist Wochenende! 🎉 Lade deine Batterien auf und freue dich auf eine erholsame Auszeit.</string>
     <string name="home_weekendOverText">Das Wochenende ist vorbei. Starte frisch in die neue Woche! ☕️</string>
+    <string name="search_searchAvailableRoom">Leeren Raum suchen</string>
+    <string name="search_roomFilter">Räume</string>
+    <string name="search_teacherFilter">Lehrer</string>
+    <string name="search_classesFilter">Klassen</string>
+    <string name="search_profileFilter">Profile</string>
 </resources>
