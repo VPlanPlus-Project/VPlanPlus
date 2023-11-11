@@ -64,6 +64,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -237,7 +238,12 @@ fun HomeScreenContent(
                             onClick = { onViewModeChanged(ViewType.WEEK) },
                             shape = MaterialTheme.shapes.small,
                         ) {
-                            Icon(imageVector = Icons.Default.ViewWeek, contentDescription = null)
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(imageVector = Icons.Default.ViewWeek, contentDescription = null)
+                                Text(text = "Alpha", color = Color.Cyan, modifier = Modifier.padding(start = 8.dp))
+                            }
                         }
                         SegmentedButton(
                             selected = state.viewMode == ViewType.DAY,
