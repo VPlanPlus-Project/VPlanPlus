@@ -151,7 +151,10 @@ object VppModule {
             lessonRoomCrossoverDao = db.lessonRoomCrossoverDao,
             lessonTeacherCrossoverDao = db.lessonTeacherCrossoverDao,
             roomRepository = provideRoomRepository(db),
-            teacherRepository = provideTeacherRepository(db)
+            teacherRepository = provideTeacherRepository(db),
+            schoolRepository = provideSchoolRepository(db),
+            classRepository = provideClassRepository(db),
+            holidayRepository = provideHolidayRepository(db)
         )
     }
 

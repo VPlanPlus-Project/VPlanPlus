@@ -41,4 +41,8 @@ class HolidayRepositoryImpl(
     override suspend fun deleteHolidaysBySchoolId(schoolId: Long) {
         holidayDao.deleteHolidaysBySchoolId(schoolId)
     }
+
+    override fun isHoliday(schoolId: Long, date: LocalDate): Boolean {
+        return holidayDao.find(schoolId, date) != null
+    }
 }

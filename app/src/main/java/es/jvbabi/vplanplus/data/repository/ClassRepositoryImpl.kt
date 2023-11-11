@@ -19,7 +19,7 @@ class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
         return classDao.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)!!
     }
 
-    override suspend fun getClassById(id: Long): Classes {
+    override fun getClassById(id: Long): Classes {
         return classDao.getClassById(id = id)
     }
 

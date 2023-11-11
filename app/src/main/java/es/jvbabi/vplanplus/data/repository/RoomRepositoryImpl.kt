@@ -12,7 +12,7 @@ class RoomRepositoryImpl(
         return roomDao.getRooms(schoolId)
     }
 
-    override suspend fun getRoomById(roomId: Long): Room {
+    override fun getRoomById(roomId: Long): Room {
         return roomDao.getRoomById(roomId)
     }
 

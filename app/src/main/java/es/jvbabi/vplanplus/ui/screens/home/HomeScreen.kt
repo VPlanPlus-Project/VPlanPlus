@@ -163,10 +163,8 @@ fun HomeScreen(
                 menuOpened = false
             },
             onRefreshClicked = {
-                coroutineScope.launch {
-                    viewModel.getVPlanData()
-                    menuOpened = false
-                }
+                viewModel.getVPlanData(context)
+                menuOpened = false
             },
             onDeletePlansClicked = {
                 coroutineScope.launch {
@@ -260,41 +258,63 @@ fun HomeScreenContent(
                                 .padding(top = 8.dp)
                         ) {
                             val date = state.date.atStartOfWeek().plusDays(dayOfWeek.toLong())
-                            if (state.lessons[date] == null) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(text = "No lessons")
-                                }
-                                return@HorizontalPager
-                            }
-                            if (state.lessons[date]!!.isEmpty()) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                                return@HorizontalPager
-                            }
-                            LazyColumn {
-                                items(
-                                    state.lessons[date]!!.sortedBy { it.lessonNumber },
-                                    key = { it.id }
-                                ) {
-                                    if ((calculateProgress(
-                                            it.start,
-                                            LocalTime.now().toString(),
-                                            it.end
-                                        )
-                                            ?: -1.0) in 0.0..0.99
-                                        &&
-                                        date == LocalDate.now()
+                            when (state.lessons[date]?.dayType ?: DayType.NO_DATA) {
+                                DayType.LOADING -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
                                     ) {
-                                        CurrentLessonCard(lesson = it, width = width)
-                                    } else {
-                                        LessonCard(lesson = it, width = width)
+                                        CircularProgressIndicator()
+                                    }
+                                }
+
+                                DayType.NO_DATA -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(text = "No data")
+                                    }
+                                }
+
+                                DayType.WEEKEND -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(text = "Weekend")
+                                    }
+                                }
+
+                                DayType.HOLIDAY -> {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(text = "Holiday")
+                                    }
+                                }
+
+                                DayType.DATA -> {
+                                    LazyColumn {
+                                        items(
+                                            state.lessons[date]!!.lessons.sortedBy { it.lessonNumber },
+                                            key = { it.id }
+                                        ) {
+                                            if ((calculateProgress(
+                                                    it.start,
+                                                    LocalTime.now().toString(),
+                                                    it.end
+                                                )
+                                                    ?: -1.0) in 0.0..0.99
+                                                &&
+                                                date == LocalDate.now()
+                                            ) {
+                                                CurrentLessonCard(lesson = it, width = width)
+                                            } else {
+                                                LessonCard(lesson = it, width = width)
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -552,6 +572,24 @@ fun LessonCardPreview() {
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview(showBackground = true)
+fun WeekendPreview() {
+    HomeScreenContent(
+        state = HomeState(
+            initDone = true,
+            isLoading = false,
+            lessons = hashMapOf(
+                LocalDate.now() to Day(
+                    dayType = DayType.WEEKEND,
+                    lessons = listOf()
+                )
+            ),
+        )
+    )
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+@Preview(showBackground = true)
 fun HomeScreenPreview() {
     HomeScreenContent(
         HomeState(
@@ -559,44 +597,47 @@ fun HomeScreenPreview() {
             isLoading = true,
             lessons =
             hashMapOf(
-                LocalDate.now() to listOf(
-                    Lesson(
-                        id = 0,
-                        subject = "Informatik",
-                        teacher = listOf("Tec"),
-                        room = listOf("208"),
-                        roomChanged = true,
-                        start = "21:00",
-                        end = "22:00",
-                        className = "9e",
-                        lessonNumber = 1
-                    ),
-                    Lesson(
-                        id = 1,
-                        subject = "-",
-                        subjectChanged = true,
-                        teacher = listOf("Pfl"),
-                        room = listOf("307"),
-                        roomChanged = false,
-                        teacherChanged = true,
-                        start = "22:00",
-                        end = "23:00",
-                        className = "9e",
-                        lessonNumber = 2,
-                        info = "Hier eine Info :)"
-                    ),
-                    Lesson(
-                        id = 2,
-                        subject = "Biologie",
-                        teacher = listOf("Pfl"),
-                        room = listOf("307"),
-                        roomChanged = false,
-                        teacherChanged = true,
-                        start = "22:00",
-                        end = "23:00",
-                        className = "9e",
-                        lessonNumber = 2,
-                        info = "Hier eine sehr lange Information, die sich über mehrere Zeilen erstrecken würde. :)"
+                LocalDate.now() to Day(
+                    dayType = DayType.DATA,
+                    lessons = listOf(
+                        Lesson(
+                            id = 0,
+                            subject = "Informatik",
+                            teacher = listOf("Tec"),
+                            room = listOf("208"),
+                            roomChanged = true,
+                            start = "21:00",
+                            end = "22:00",
+                            className = "9e",
+                            lessonNumber = 1
+                        ),
+                        Lesson(
+                            id = 1,
+                            subject = "-",
+                            subjectChanged = true,
+                            teacher = listOf("Pfl"),
+                            room = listOf("307"),
+                            roomChanged = false,
+                            teacherChanged = true,
+                            start = "22:00",
+                            end = "23:00",
+                            className = "9e",
+                            lessonNumber = 2,
+                            info = "Hier eine Info :)"
+                        ),
+                        Lesson(
+                            id = 2,
+                            subject = "Biologie",
+                            teacher = listOf("Pfl"),
+                            room = listOf("307"),
+                            roomChanged = false,
+                            teacherChanged = true,
+                            start = "22:00",
+                            end = "23:00",
+                            className = "9e",
+                            lessonNumber = 2,
+                            info = "Hier eine sehr lange Information, die sich über mehrere Zeilen erstrecken würde. :)"
+                        )
                     )
                 )
             ),

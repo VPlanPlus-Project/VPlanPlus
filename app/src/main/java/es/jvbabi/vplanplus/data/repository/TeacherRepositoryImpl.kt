@@ -27,7 +27,7 @@ class TeacherRepositoryImpl(
         return teacher
     }
 
-    override suspend fun getTeacherById(id: Long): Teacher? {
+    override fun getTeacherById(id: Long): Teacher? {
         return teacherDao.getTeacherById(id)
     }
 
