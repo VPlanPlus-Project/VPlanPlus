@@ -18,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DoorBack
-import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
@@ -123,15 +122,15 @@ fun SearchContent(
                 },
                 modifier = paddingModifier
             )
-            FilterChip(
-                selected = state.filter[FilterType.PROFILE]!!,
-                onClick = { onFilterToggle(FilterType.PROFILE) },
-                label = { Text(text = stringResource(id = R.string.search_profileFilter)) },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.ManageAccounts, contentDescription = null)
-                },
-                modifier = paddingModifier
-            )
+//            FilterChip(
+//                selected = state.filter[FilterType.PROFILE]!!,
+//                onClick = { onFilterToggle(FilterType.PROFILE) },
+//                label = { Text(text = stringResource(id = R.string.search_profileFilter)) },
+//                leadingIcon = {
+//                    Icon(imageVector = Icons.Default.ManageAccounts, contentDescription = null)
+//                },
+//                modifier = paddingModifier
+//            )
         }
         state.result.forEach { resultGroup ->
             Box(
@@ -169,7 +168,7 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                             FilterType.TEACHER -> stringResource(id = R.string.search_teacherFilter)
                             FilterType.ROOM -> stringResource(id = R.string.search_roomFilter)
                             FilterType.CLASS -> stringResource(id = R.string.search_classesFilter)
-                            FilterType.PROFILE -> stringResource(id = R.string.search_profileFilter)
+//                            FilterType.PROFILE -> stringResource(id = R.string.search_profileFilter)
                         },
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(8.dp)
@@ -238,8 +237,6 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                                                         FilterType.CLASS -> lesson.teacher.joinToString(
                                                             ", "
                                                         ) + " • " + lesson.room.joinToString(", ")
-
-                                                        else -> ""
                                                     },
                                                     style = MaterialTheme.typography.labelSmall,
                                                     modifier = Modifier.basicMarquee(
@@ -314,7 +311,7 @@ fun SchoolResultPreview() {
             FilterType.TEACHER to true,
             FilterType.ROOM to true,
             FilterType.CLASS to true,
-            FilterType.PROFILE to true
+//            FilterType.PROFILE to true
         )
     )
 }

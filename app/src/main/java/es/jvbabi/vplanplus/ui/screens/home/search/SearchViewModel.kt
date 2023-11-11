@@ -10,7 +10,6 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
-import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.ui.screens.home.DayType
 import kotlinx.coroutines.flow.firstOrNull
@@ -20,7 +19,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-    private val profileUseCases: ProfileUseCases,
     private val classUseCases: ClassUseCases,
     private val schoolUseCases: SchoolUseCases,
     private val lessonUseCases: LessonUseCases,
@@ -49,7 +47,9 @@ class SearchViewModel @Inject constructor(
                     }
                     val firstTeacher = teachers.firstOrNull()
                     if (firstTeacher != null) {
-                        val lessons = lessonUseCases.getLessonsForTeacher(teacherRepository.getTeacherById(firstTeacher.id!!)!!, LocalDate.now()).firstOrNull()
+                        val lessons = lessonUseCases.getLessonsForTeacher(
+                            teacherRepository.getTeacherById(firstTeacher.id!!)!!, LocalDate.now()
+                        ).firstOrNull()
                         teachers.forEachIndexed { index, teacher ->
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
@@ -61,16 +61,27 @@ class SearchViewModel @Inject constructor(
                                     )
                                 )
                             } else {
-                                result.add(Result(teacher.id!!, teacher.acronym, FilterType.TEACHER))
+                                result.add(
+                                    Result(
+                                        teacher.id!!,
+                                        teacher.acronym,
+                                        FilterType.TEACHER
+                                    )
+                                )
                             }
                         }
                     }
                 }
                 if (state.value.filter[FilterType.ROOM]!!) {
-                    val rooms = roomRepository.getRoomsBySchool(school).filter { it.name.lowercase().contains(_state.value.searchValue.lowercase()) }
+                    val rooms = roomRepository.getRoomsBySchool(school).filter {
+                        it.name.lowercase().contains(_state.value.searchValue.lowercase())
+                    }
                     val firstRoom = rooms.firstOrNull()
                     if (firstRoom != null) {
-                        val lessons = lessonUseCases.getLessonsForRoom(roomRepository.getRoomById(firstRoom.id!!), LocalDate.now()).firstOrNull()
+                        val lessons = lessonUseCases.getLessonsForRoom(
+                            roomRepository.getRoomById(firstRoom.id!!),
+                            LocalDate.now()
+                        ).firstOrNull()
                         rooms.forEachIndexed { index, room ->
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
@@ -88,10 +99,13 @@ class SearchViewModel @Inject constructor(
                     }
                 }
                 if (state.value.filter[FilterType.CLASS]!!) {
-                    val classes = classUseCases.getClassesBySchool(school).filter { it.className.lowercase().contains(_state.value.searchValue.lowercase()) }
+                    val classes = classUseCases.getClassesBySchool(school).filter {
+                        it.className.lowercase().contains(_state.value.searchValue.lowercase())
+                    }
                     val firstClass = classes.firstOrNull()
                     if (firstClass != null) {
-                        val lessons = lessonUseCases.getLessonsForClass(firstClass, LocalDate.now()).firstOrNull()
+                        val lessons = lessonUseCases.getLessonsForClass(firstClass, LocalDate.now())
+                            .firstOrNull()
                         classes.forEachIndexed { index, `class` ->
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
@@ -103,7 +117,13 @@ class SearchViewModel @Inject constructor(
                                     )
                                 )
                             } else {
-                                result.add(Result(`class`.id!!, `class`.className, FilterType.CLASS))
+                                result.add(
+                                    Result(
+                                        `class`.id!!,
+                                        `class`.className,
+                                        FilterType.CLASS
+                                    )
+                                )
                             }
                         }
                     }
@@ -119,7 +139,7 @@ class SearchViewModel @Inject constructor(
     fun toggleFilter(filterType: FilterType) {
         _state.value = _state.value.copy(
             filter = _state.value.filter.plus(
-                filterType to !(_state.value.filter[filterType]?:true)
+                filterType to !(_state.value.filter[filterType] ?: true)
             )
         )
         type(_state.value.searchValue)
@@ -132,7 +152,7 @@ data class SearchState(
         FilterType.TEACHER to true,
         FilterType.ROOM to true,
         FilterType.CLASS to true,
-        FilterType.PROFILE to true
+        //FilterType.PROFILE to true
     ),
 
     val result: List<ResultGroup> = emptyList()
@@ -154,5 +174,5 @@ enum class FilterType {
     TEACHER,
     ROOM,
     CLASS,
-    PROFILE
+    //PROFILE
 }
