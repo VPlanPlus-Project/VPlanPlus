@@ -40,7 +40,7 @@ class ProfileManagementViewModel @Inject constructor(
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
                                         id = it.id!!,
-                                        name = it.name,
+                                        name = if (it.customName.length > 4) it.name else it.customName,
                                         type = it.type
                                     )
                                 )
@@ -48,7 +48,7 @@ class ProfileManagementViewModel @Inject constructor(
                                 schools[school.name] = listOf(
                                     ProfileManagementProfile(
                                         id = it.id!!,
-                                        name = it.name,
+                                        name = if (it.customName.length > 4) it.name else it.customName,
                                         type = it.type
                                     )
                                 )
@@ -62,7 +62,7 @@ class ProfileManagementViewModel @Inject constructor(
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
                                         id = it.id!!,
-                                        name = it.name,
+                                        name = if (it.customName.length > 4) it.name else it.customName,
                                         type = it.type
                                     )
                                 )
@@ -70,7 +70,7 @@ class ProfileManagementViewModel @Inject constructor(
                                 schools[school.name] = listOf(
                                     ProfileManagementProfile(
                                         id = it.id!!,
-                                        name = it.name,
+                                        name = if (it.customName.length > 4) it.name else it.customName,
                                         type = it.type
                                     )
                                 )
@@ -84,7 +84,7 @@ class ProfileManagementViewModel @Inject constructor(
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
                                         id = it.id!!,
-                                        name = it.name,
+                                        name = if (it.customName.length > 4) it.name else it.customName,
                                         type = it.type
                                     )
                                 )
@@ -92,7 +92,7 @@ class ProfileManagementViewModel @Inject constructor(
                                 schools[school.name] = listOf(
                                     ProfileManagementProfile(
                                         id = it.id!!,
-                                        name = it.name,
+                                        name = if (it.customName.length > 4) it.name else it.customName,
                                         type = it.type
                                     )
                                 )

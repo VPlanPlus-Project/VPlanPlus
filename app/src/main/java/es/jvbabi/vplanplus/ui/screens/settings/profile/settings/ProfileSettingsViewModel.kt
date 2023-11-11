@@ -23,7 +23,9 @@ class ProfileSettingsViewModel @Inject constructor(
 
     fun init(profileId: Long) {
         viewModelScope.launch {
-            _state.value = ProfileSettingsState(profile = profileUseCases.getProfileById(profileId), initDone = true)
+            profileUseCases.getProfileById(profileId).collect {
+                _state.value = _state.value.copy(profile = it, initDone = true)
+            }
         }
     }
 
@@ -51,6 +53,14 @@ class ProfileSettingsViewModel @Inject constructor(
                 val notificationManager: NotificationManager =
                     context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
                 notificationManager.deleteNotificationChannel("PROFILE_${profile.name}")
+            }
+        }
+    }
+
+    fun renameProfile(name: String) {
+        viewModelScope.launch {
+            _state.value.profile?.let { profile ->
+                profileUseCases.updateProfile(profile.copy(customName = name))
             }
         }
     }

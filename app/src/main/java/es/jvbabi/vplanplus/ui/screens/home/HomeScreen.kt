@@ -227,8 +227,14 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .fillMaxSize(),
             ) {
-                SearchBar(state.activeProfile?.name ?: "", onMenuOpened,
-                    { onSearchOpened(it) }, false, "", {})
+                SearchBar(if ((state.activeProfile?.customName
+                        ?: "").length > 4
+                ) state.activeProfile?.name ?: "" else state.activeProfile?.customName ?: "",
+                    onMenuOpened,
+                    { onSearchOpened(it) },
+                    false,
+                    "",
+                    {})
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -244,8 +250,15 @@ fun HomeScreenContent(
                             Row(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Icon(imageVector = Icons.Default.ViewWeek, contentDescription = null)
-                                Text(text = "Alpha", color = Color.Cyan, modifier = Modifier.padding(start = 8.dp))
+                                Icon(
+                                    imageVector = Icons.Default.ViewWeek,
+                                    contentDescription = null
+                                )
+                                Text(
+                                    text = "Alpha",
+                                    color = Color.Cyan,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
                             }
                         }
                         SegmentedButton(

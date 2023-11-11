@@ -48,11 +48,11 @@ import es.jvbabi.vplanplus.R
 fun MenuPreview() {
     Menu(
         profiles = listOf(
-            MenuProfile(0, "10a"),
-            MenuProfile(1, "208"),
-            MenuProfile(2, "Mül"),
+            MenuProfile(0, "10a", "10a"),
+            MenuProfile(1, "208", "208"),
+            MenuProfile(2, "Mül", "Mül"),
         ),
-        selectedProfile = MenuProfile(0, "10a")
+        selectedProfile = MenuProfile(0, "10a", "10a")
     )
 }
 
@@ -141,7 +141,7 @@ fun Menu(
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
-                                            text = profile.name,
+                                            text = if (profile.customName.length > 4) profile.name else profile.customName,
                                             color = MaterialTheme.colorScheme.onSecondary
                                         )
                                     }
@@ -211,6 +211,7 @@ fun ButtonRowPreview() {
 data class MenuProfile(
     val id: Long,
     val name: String,
+    val customName: String
 )
 
 // https://www.droidcon.com/2023/02/16/remove-ripple-effect-from-clickable-and-toggleable-widget-in-jetpack-compose/

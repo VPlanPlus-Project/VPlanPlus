@@ -20,7 +20,7 @@ abstract class ProfileDao {
     abstract suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): Profile
 
     @Query("SELECT * FROM profile WHERE id = :id")
-    abstract suspend fun getProfileById(id: Long): Profile
+    abstract fun getProfileById(id: Long): Flow<Profile>
 
     @Query("DELETE FROM profile WHERE id = :profileId")
     abstract suspend fun deleteProfile(profileId: Long)

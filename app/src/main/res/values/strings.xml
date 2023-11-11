@@ -81,4 +81,5 @@
     <string name="settings_profileManagementScreenTitle">Profile %1$s</string>
     <string name="settings_profileManagementScreenDeleteProfileButton">Delete</string>
     <string name="settings_profileManagementScreenRenameProfileButton">Rename</string>
+    <string name="settings_profileManagementScreenRenameProfileDialogText">Rename your profile to something you can recognize better. Keep yourself short to optimize readability when there\'s a profile icon. Clear text to reset its name to default.</string>
 </resources>

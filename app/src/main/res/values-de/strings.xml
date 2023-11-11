@@ -82,4 +82,5 @@
     <string name="settings_profileManagementScreenTitle">Profil %1$s</string>
     <string name="settings_profileManagementScreenDeleteProfileButton">Löschen</string>
     <string name="settings_profileManagementScreenRenameProfileButton">Umbenennen</string>
+    <string name="settings_profileManagementScreenRenameProfileDialogText">Benenne dein Profil in etwas um, das du besser erkennen kannst. Fasse dich kurz, damit du besser lesbar bist, wenn es ein Profilsymbol gibt. Leere das Textfeld um den Namen zurückzusetzen.</string>
 </resources>

@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +31,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
+import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.Profile
 
@@ -52,6 +54,9 @@ fun ProfileSettingsScreen(
         onProfileDeleteDialogYes = {
             viewModel.deleteProfile(context)
             navController.popBackStack()
+        },
+        onProfileRenamed = {
+            viewModel.renameProfile(it)
         }
     )
 }
@@ -62,16 +67,31 @@ private fun ProfileSettingsScreenContent(
     state: ProfileSettingsState,
     onBackClicked: () -> Unit,
     onProfileDeleteDialogYes: () -> Unit = {},
+    onProfileRenamed: (String) -> Unit = {}
 ) {
 
     var deleteDialogOpen by remember { mutableStateOf(false) }
+    var renameDialogOpen by remember { mutableStateOf(false) }
 
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = stringResource(id = R.string.settings_profileManagementScreenTitle, state.profile!!.name)) },
+                title = {
+                    if (state.profile!!.name == state.profile.customName) Text(
+                        text = stringResource(
+                            id = R.string.settings_profileManagementScreenTitle,
+                            state.profile.name
+                        )
+                    )
+                    else Text(
+                        text = stringResource(
+                            id = R.string.settings_profileManagementScreenTitle,
+                            "${state.profile.customName} (${state.profile.name})"
+                        )
+                    )
+                },
                 scrollBehavior = scrollBehavior,
                 navigationIcon = {
                     IconButton(onClick = { onBackClicked() }) {
@@ -98,11 +118,30 @@ private fun ProfileSettingsScreenContent(
                 }
             )
         }
+        if (renameDialogOpen) {
+            InputDialog(
+                icon = Icons.Default.Edit,
+                title = stringResource(id = R.string.settings_profileManagementScreenRenameProfileButton),
+                placeholder = state.profile!!.name,
+                message = stringResource(id = R.string.settings_profileManagementScreenRenameProfileDialogText),
+                onOk = {
+                    if (it?.isNotEmpty() == true) onProfileRenamed(it)
+                    else onProfileRenamed(state.profile.name)
+                    renameDialogOpen = false
+                },
+            )
+        }
         Box(modifier = Modifier.padding(paddingValues = paddingValues)) {
             BigButtonGroup(
                 buttons = listOf(
-                    BigButton(Icons.Outlined.Delete, stringResource(id = R.string.settings_profileManagementScreenDeleteProfileButton), onClick = { deleteDialogOpen = true }),
-                    BigButton(Icons.Outlined.Edit, stringResource(id = R.string.settings_profileManagementScreenRenameProfileButton), onClick = {}),
+                    BigButton(
+                        Icons.Outlined.Delete,
+                        stringResource(id = R.string.settings_profileManagementScreenDeleteProfileButton),
+                        onClick = { deleteDialogOpen = true }),
+                    BigButton(
+                        Icons.Outlined.Edit,
+                        stringResource(id = R.string.settings_profileManagementScreenRenameProfileButton),
+                        onClick = { renameDialogOpen = true })
                 ),
                 modifier = Modifier.padding(16.dp)
             )

@@ -21,8 +21,8 @@ class ProfileRepositoryImpl(
         return profileDao.getProfiles()
     }
 
-    override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String) {
-        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name))
+    override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String, customName: String) {
+        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name, customName = customName))
     }
 
     override suspend fun getClassesOnline(
@@ -57,7 +57,7 @@ class ProfileRepositoryImpl(
         return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type)
     }
 
-    override suspend fun getProfileById(id: Long): Profile {
+    override fun getProfileById(id: Long): Flow<Profile> {
         return profileDao.getProfileById(id = id)
     }
 
@@ -67,5 +67,9 @@ class ProfileRepositoryImpl(
 
     override suspend fun getProfilesBySchoolId(schoolId: Long): List<Profile> {
         return profileDao.getProfilesBySchoolId(schoolId = schoolId)
+    }
+
+    override suspend fun updateProfile(profile: Profile) {
+        profileDao.insert(profile = profile)
     }
 }

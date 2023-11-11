@@ -30,15 +30,19 @@ class ProfileUseCases(
 ) {
 
     suspend fun createStudentProfile(classId: Long, name: String) {
-        profileRepository.createProfile(referenceId = classId, type = ProfileType.STUDENT, name = name)
+        profileRepository.createProfile(referenceId = classId, type = ProfileType.STUDENT, name = name, customName = name)
     }
 
     suspend fun createTeacherProfile(teacherId: Long, name: String) {
-        profileRepository.createProfile(referenceId = teacherId, type = ProfileType.TEACHER, name = name)
+        profileRepository.createProfile(referenceId = teacherId, type = ProfileType.TEACHER, name = name, customName = name)
+    }
+
+    suspend fun updateProfile(profile: Profile) {
+        profileRepository.updateProfile(profile)
     }
 
     suspend fun createRoomProfile(roomId: Long, name: String) {
-        profileRepository.createProfile(referenceId = roomId, type = ProfileType.ROOM, name = name)
+        profileRepository.createProfile(referenceId = roomId, type = ProfileType.ROOM, name = name, customName = name)
     }
 
     suspend fun getProfileByClassId(classId: Long): Profile {
@@ -55,7 +59,7 @@ class ProfileUseCases(
 
     suspend fun getActiveProfile(): Profile? {
         val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE) ?: return null
-        return profileRepository.getProfileById(id = activeProfileId.toLong())
+        return profileRepository.getProfileById(id = activeProfileId.toLong()).first()
     }
 
     fun getProfiles(): Flow<List<Profile>> {
@@ -75,7 +79,7 @@ class ProfileUseCases(
     }
 
     suspend fun getSchoolFromProfileId(profileId: Long): School {
-        val profile = profileRepository.getProfileById(id = profileId)
+        val profile = profileRepository.getProfileById(id = profileId).first()
         return when (profile.type) {
             ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
@@ -123,7 +127,7 @@ class ProfileUseCases(
         }.first()
     }
 
-    suspend fun getProfileById(profileId: Long): Profile {
+    fun getProfileById(profileId: Long): Flow<Profile> {
         return profileRepository.getProfileById(id = profileId)
     }
 }
