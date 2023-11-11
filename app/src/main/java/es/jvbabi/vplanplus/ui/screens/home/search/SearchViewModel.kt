@@ -45,12 +45,12 @@ class SearchViewModel @Inject constructor(
             val schools = schoolUseCases.getSchools()
             val resultGroups = mutableListOf<ResultGroup>()
             schools.forEach { school ->
+                val result = mutableListOf<Result>()
                 if (_state.value.filter[FilterType.TEACHER]!!) {
                     val teachers = teacherRepository.getTeachersBySchoolId(school.id!!).filter {
                         it.acronym.lowercase().contains(_state.value.searchValue.lowercase())
                     }
                     val firstTeacher = teachers.firstOrNull()
-                    val result = mutableListOf<Result>()
                     if (firstTeacher != null) {
                         val lessons = lessonUseCases.getLessonsForTeacher(teacherRepository.getTeacherById(firstTeacher.id!!)!!, LocalDate.now()).firstOrNull()
                         teachers.forEachIndexed { index, teacher ->
@@ -68,8 +68,30 @@ class SearchViewModel @Inject constructor(
                             }
                         }
                     }
-                    resultGroups.add(ResultGroup(school, result))
                 }
+                if (state.value.filter[FilterType.ROOM]!!) {
+                    val rooms = roomRepository.getRoomsBySchool(school).filter { it.name.lowercase().contains(_state.value.searchValue.lowercase()) }
+                    val firstRoom = rooms.firstOrNull()
+                    if (firstRoom != null) {
+                        val lessons = lessonUseCases.getLessonsForRoom(roomRepository.getRoomById(firstRoom.id!!), LocalDate.now()).firstOrNull()
+                        rooms.forEachIndexed { index, room ->
+                            if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
+                                result.add(
+                                    Result(
+                                        room.id!!,
+                                        room.name,
+                                        FilterType.ROOM,
+                                        lessons.lessons
+                                    )
+                                )
+                            } else {
+                                result.add(Result(room.id!!, room.name, FilterType.ROOM))
+                            }
+                        }
+                    }
+                }
+
+                resultGroups.add(ResultGroup(school, result))
             }
 
             _state.value = _state.value.copy(result = resultGroups)

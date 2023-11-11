@@ -157,68 +157,92 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(16.dp)
             )
-            if (filterMap[FilterType.TEACHER]!!) {
-                Text(
-                    text = stringResource(id = R.string.search_teacherFilter),
-                    style = MaterialTheme.typography.labelMedium,
-                    modifier = Modifier.padding(8.dp)
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.secondaryContainer)
-                ) {
-                    if (results.groupBy { it.type }[FilterType.TEACHER]?.isEmpty() != false) {
-                        Text(
-                            text = stringResource(id = R.string.search_noResultsFound),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
-                        )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(8.dp)
-                                .clip(RoundedCornerShape(16.dp))
-                                .background(MaterialTheme.colorScheme.tertiaryContainer)
-                        ) {
-                            val firstResult = results.sortedBy { it.name }.first { it.type == FilterType.TEACHER }
-                            Column {
-                                Text(
-                                    text = firstResult.name,
-                                    modifier = Modifier.padding(12.dp),
-                                    style = MaterialTheme.typography.bodyMedium
+            FilterType.values().forEach { filterType ->
+                if (filterMap[filterType]!!) {
+                    Text(
+                        text = when (filterType) {
+                            FilterType.TEACHER -> stringResource(id = R.string.search_teacherFilter)
+                            FilterType.ROOM -> stringResource(id = R.string.search_roomFilter)
+                            FilterType.CLASS -> stringResource(id = R.string.search_classesFilter)
+                            FilterType.PROFILE -> stringResource(id = R.string.search_profileFilter)
+                        },
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                    ) {
+                        if (results.groupBy { it.type }[filterType]?.isEmpty() != false) {
+                            Text(
+                                text = stringResource(id = R.string.search_noResultsFound),
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(
+                                    start = 16.dp,
+                                    top = 8.dp,
+                                    bottom = 8.dp
                                 )
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .horizontalScroll(rememberScrollState())
-                                ){
-                                    firstResult.lessons.forEach { lesson ->
-                                        Column(
-                                            modifier = Modifier
-                                                .padding(start = 8.dp, bottom = 8.dp)
-                                                .width(55.dp)
-                                                .height(55.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(MaterialTheme.colorScheme.primaryContainer),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.Center
-                                        ) {
-                                            Text(
-                                                text = lesson.lessonNumber.toString() + ". " + lesson.subject,
-                                                style = MaterialTheme.typography.titleMedium
-                                            )
-                                            Text(
-                                                text = lesson.className + " • " + lesson.room.joinToString(
-                                                    ", "
-                                                ),
-                                                style = MaterialTheme.typography.labelSmall,
-                                                modifier = Modifier.basicMarquee(
-                                                    iterations = Int.MAX_VALUE,
-
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(8.dp)
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                            ) {
+                                val firstResult = results.sortedBy { it.name }
+                                    .first { it.type == filterType }
+                                Column {
+                                    Text(
+                                        text = firstResult.name,
+                                        modifier = Modifier.padding(12.dp),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .horizontalScroll(rememberScrollState())
+                                    ) {
+                                        firstResult.lessons.forEach { lesson ->
+                                            Column(
+                                                modifier = Modifier
+                                                    .padding(start = 8.dp, bottom = 8.dp)
+                                                    .width(55.dp)
+                                                    .height(55.dp)
+                                                    .clip(RoundedCornerShape(8.dp))
+                                                    .background(MaterialTheme.colorScheme.primaryContainer),
+                                                horizontalAlignment = Alignment.CenterHorizontally,
+                                                verticalArrangement = Arrangement.Center
+                                            ) {
+                                                Text(
+                                                    text = lesson.lessonNumber.toString() + ". " + lesson.subject,
+                                                    style = MaterialTheme.typography.titleMedium
                                                 )
-                                            )
+                                                Text(
+                                                    text = when (filterType) {
+                                                        FilterType.TEACHER -> lesson.className + " • " + lesson.room.joinToString(
+                                                            ", "
+                                                        )
+
+                                                        FilterType.ROOM -> lesson.className + " • " + lesson.teacher.joinToString(
+                                                            ", "
+                                                        )
+
+                                                        FilterType.CLASS -> lesson.teacher.joinToString(
+                                                            ", "
+                                                        ) + " • " + lesson.room.joinToString(", ")
+
+                                                        else -> ""
+                                                    },
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    modifier = Modifier.basicMarquee(
+                                                        iterations = Int.MAX_VALUE,
+
+                                                        )
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -226,15 +250,17 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                         }
                     }
                 }
-            }
-            results.sortedBy { it.name }.drop(1).forEach { result ->
-                Text(
-                    text = result.name,
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-                )
+                results.filter { it.type == filterType }.sortedBy { it.name }.drop(1)
+                    .forEach { result ->
+                        Text(
+                            text = result.name,
+                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                        )
+                    }
             }
         }
     }
+
 }
 
 @Composable
@@ -256,8 +282,14 @@ fun SchoolResultPreview() {
         results = listOf(
             Result(
                 0L,
-                Lessons.randomTeacher().first(),
-                FilterType.TEACHER,
+                Lessons.randomRoom().first(),
+                FilterType.ROOM,
+                Lessons.generateLessons(3)
+            ),
+            Result(
+                3L,
+                Lessons.randomRoom().first(),
+                FilterType.ROOM,
                 Lessons.generateLessons(3)
             ),
             Result(
@@ -274,7 +306,10 @@ fun SchoolResultPreview() {
             ),
         ),
         filterMap = mapOf(
-            FilterType.TEACHER to true
+            FilterType.TEACHER to true,
+            FilterType.ROOM to true,
+            FilterType.CLASS to true,
+            FilterType.PROFILE to true
         )
     )
 }
