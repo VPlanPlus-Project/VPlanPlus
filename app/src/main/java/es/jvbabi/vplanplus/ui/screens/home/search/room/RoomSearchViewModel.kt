@@ -27,7 +27,8 @@ class RoomSearchViewModel @Inject constructor(
             _state.value = _state.value.copy(
                 currentSchool = profileUseCases.getSchoolFromProfileId(profileUseCases.getActiveProfile()!!.id!!),
                 currentLesson = lessonTimeUseCases.getCurrentLessonNumber(profileUseCases.getActiveProfile()!!),
-                rooms = roomUseCases.getRoomAvailabilityMap(profileUseCases.getSchoolFromProfileId(profileUseCases.getActiveProfile()!!.id!!)).mapKeys { it.key.name }
+                rooms = roomUseCases.getRoomAvailabilityMap(profileUseCases.getSchoolFromProfileId(profileUseCases.getActiveProfile()!!.id!!)).mapKeys { it.key.name },
+                loading = false
             )
         }
     }
@@ -37,5 +38,6 @@ data class RoomSearchState(
     val currentSchool: School? = null,
     val rooms: Map<String, List<Boolean>> = emptyMap(),
     val currentLesson: Int = 0,
+    val loading: Boolean = true
 )
 

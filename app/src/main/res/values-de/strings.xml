@@ -73,4 +73,6 @@
     <string name="search_searchTitle">Suchen nach Lehrern, Räumen oder Klassen</string>
     <string name="search_searchText">Hier kannst du andere Planansichten sehen. Falls du beispielsweise mit einer bestimmten Lehrkraft sprechen musst, kannst du hier sehen, wo sie gerade ist,</string>
     <string name="searchAvailableRoom_title">Unbesetzte Räume</string>
+    <string name="loadingData">Lade Daten...</string>
+    <string name="searchAvailableRoom_text">Um die Raumbelegungsmatrix einer anderen Schule zu sehen, wechsle dein aktives Profil.</string>
 </resources>

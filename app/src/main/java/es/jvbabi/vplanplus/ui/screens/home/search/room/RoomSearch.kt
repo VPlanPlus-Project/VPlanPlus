@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -77,10 +78,10 @@ fun FindAvailableRoomScreenContent(
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                Text(text = "Schule: ${state.currentSchool?.name}")
-                Text(text = "Um Freie Räume anderer Schulen zu sehen, wechsle dein aktives Profil.")
+                Text(text = state.currentSchool?.name?: stringResource(id = R.string.loadingData))
+                Text(text = stringResource(id = R.string.searchAvailableRoom_text))
                 Box(modifier = Modifier.fillMaxSize()) {
-                    Column {
+                    if (!state.loading) Column {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -94,7 +95,7 @@ fun FindAvailableRoomScreenContent(
                                         .padding(horizontal = 4.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(MaterialTheme.colorScheme.primaryContainer)
-                                        .weight(1f, false),
+                                        .weight(1 / 12f, false),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.SpaceAround
                                 ) {
@@ -111,15 +112,17 @@ fun FindAvailableRoomScreenContent(
                             modifier = Modifier.verticalScroll(rememberScrollState())
                         ) {
                             state.rooms.forEach {
-                                Row {
+                                Row(
+                                    modifier = Modifier.padding(vertical = 4.dp)
+                                ) {
                                     Column(
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .height(50.dp)
+                                            .height(40.dp)
                                             .padding(horizontal = 4.dp)
                                             .clip(RoundedCornerShape(8.dp))
                                             .background(MaterialTheme.colorScheme.primaryContainer)
-                                            .weight(1f, false),
+                                            .weight(1 / 12f, false),
                                         verticalArrangement = Arrangement.SpaceAround
                                     ) {
                                         Text(
@@ -133,11 +136,11 @@ fun FindAvailableRoomScreenContent(
                                         Column(
                                             modifier = Modifier
                                                 .fillMaxWidth()
-                                                .height(50.dp)
+                                                .height(40.dp)
                                                 .padding(horizontal = 4.dp)
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .background(if (available) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.error)
-                                                .weight(1f, false),
+                                                .weight(1 / 12f, false),
                                             horizontalAlignment = Alignment.CenterHorizontally,
                                             verticalArrangement = Arrangement.SpaceAround
                                         ) {
@@ -145,6 +148,10 @@ fun FindAvailableRoomScreenContent(
                                     }
                                 }
                             }
+                        }
+                    } else {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator()
                         }
                     }
                 }
@@ -157,7 +164,7 @@ fun FindAvailableRoomScreenContent(
 @Preview(showBackground = true)
 fun FindAvailableRoomScreenPreview() {
     FindAvailableRoomScreenContent(
-        state = RoomSearchState(currentSchool = School.generateRandomSchools(1).first()),
+        state = RoomSearchState(currentSchool = School.generateRandomSchools(1).first(), loading = true),
         onBackClicked = {},
     )
 }
