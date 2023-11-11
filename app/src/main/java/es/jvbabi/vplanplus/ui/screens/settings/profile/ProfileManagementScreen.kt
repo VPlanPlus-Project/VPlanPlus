@@ -19,7 +19,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -28,14 +27,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -47,7 +44,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -60,7 +56,6 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.ui.common.Badge
-import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
 
@@ -73,11 +68,6 @@ fun ProfileManagementScreen(
 ) {
     val state = viewModel.state.value
     val scope = rememberCoroutineScope()
-    val context = LocalContext.current
-
-    LaunchedEffect("Init") {
-        if (state.schools.isEmpty() && !state.isLoading) viewModel.init()
-    }
 
     ProfileManagementScreenContent(
         onBackClicked = { navController.popBackStack() },
@@ -91,10 +81,7 @@ fun ProfileManagementScreen(
                 }
             }
         },
-        onProfileDeleteDialogOpen = { viewModel.onProfileDeleteDialogOpen(it) },
-        onProfileDeleteDialogClose = { viewModel.onProfileDeleteDialogClose() },
-        onProfileDeleteDialogYes = { viewModel.deleteProfile(it, context) },
-        onSnackbarDone = { viewModel.setDeleteProfileResult(null) },
+        onProfileClicked = { navController.navigate(Screen.SettingsProfileScreen.route + it.id) },
         onNewSchoolClicked = {
             onNewSchoolClicked()
             navController.navigate(Screen.OnboardingSchoolIdScreen.route)
@@ -110,10 +97,7 @@ fun ProfileManagementScreenContent(
     state: ProfileManagementState,
     onNewSchoolProfileClicked: (schoolName: String) -> Unit = {},
     onNewSchoolClicked: () -> Unit = {},
-    onProfileDeleteDialogOpen: (profile: ProfileManagementProfile) -> Unit = {},
-    onProfileDeleteDialogClose: () -> Unit = {},
-    onProfileDeleteDialogYes: (profile: ProfileManagementProfile) -> Unit = {},
-    onSnackbarDone: () -> Unit = {}
+    onProfileClicked: (profile: ProfileManagementProfile) -> Unit = {},
 ) {
     val snackbarState = remember { SnackbarHostState() }
     Scaffold(
@@ -147,43 +131,12 @@ fun ProfileManagementScreenContent(
             )
         }
     ) { pv ->
-        val lastProfileMessage = stringResource(id = R.string.profileManagement_lastProfileError)
-        val ok = stringResource(id = R.string.ok)
-
-        if (state.deleteProfileResult == ProfileManagementDeletionResult.LAST_PROFILE) {
-            rememberCoroutineScope().launch {
-                snackbarState.showSnackbar(
-                    message = lastProfileMessage,
-                    actionLabel = ok,
-                    duration = SnackbarDuration.Short
-                )
-                onSnackbarDone()
-            }
-
-        }
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(pv)
                 .padding(horizontal = 16.dp)
         ) {
-            if (state.deleteProfileDialogProfile != null) {
-                YesNoDialog(
-                    icon = Icons.Default.Delete,
-                    title = stringResource(id = R.string.profileManagement_deleteProfileDialogTitle),
-                    message = stringResource(
-                        id = R.string.profileManagement_deleteProfileDialogText,
-                        state.deleteProfileDialogProfile.name
-                    ),
-                    onYes = {
-                        onProfileDeleteDialogYes(state.deleteProfileDialogProfile)
-                        onProfileDeleteDialogClose()
-                    },
-                    onNo = {
-                        onProfileDeleteDialogClose()
-                    }
-                )
-            }
             LazyColumn {
                 items(state.schools.sortedBy { it.name }) { school ->
                     Card(
@@ -213,7 +166,7 @@ fun ProfileManagementScreenContent(
                                     ProfileCard(
                                         type = it.type,
                                         name = it.name,
-                                        modifier = Modifier.clickable { onProfileDeleteDialogOpen(it) }
+                                        modifier = Modifier.clickable { onProfileClicked(it) }
                                     )
                                 }
                                 ProfileCard(
@@ -314,9 +267,7 @@ fun ProfileManagementScreenPreview() {
                         ),
                     )
                 )
-            ),
-            deleteProfileDialogProfile = null,
-            deleteProfileResult = ProfileManagementDeletionResult.LAST_PROFILE
+            )
         )
     )
 }

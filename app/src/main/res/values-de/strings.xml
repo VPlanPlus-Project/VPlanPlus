@@ -73,10 +73,13 @@
     <string name="search_searchTitle">Suchen nach Lehrern, Räumen oder Klassen</string>
     <string name="search_searchText">Hier kannst du andere Planansichten sehen. Falls du beispielsweise mit einer bestimmten Lehrkraft sprechen musst, kannst du hier sehen, wo sie gerade ist,</string>
     <string name="searchAvailableRoom_title">Unbesetzte Räume</string>
-    <string name="loadingData">Lade Daten...</string>
+    <string name="loadingData">Lade Daten…</string>
     <string name="searchAvailableRoom_text">Um die Raumbelegungsmatrix einer anderen Schule zu sehen, wechsle dein aktives Profil.</string>
     <string name="settings_generalSync">Synchronisierung</string>
-    <string name="settings_generalSyncDayDifference">Vorraussynchronisation</string>
+    <string name="settings_generalSyncDayDifference">Voraussynchronisation</string>
     <string name="settings_generalSyncDayDifferenceSubtitle">Nächste %1$d Tage synchronisieren</string>
     <string name="settings_generalSyncDaysTitle">Tage</string>
+    <string name="settings_profileManagementScreenTitle">Profil %1$s</string>
+    <string name="settings_profileManagementScreenDeleteProfileButton">Löschen</string>
+    <string name="settings_profileManagementScreenRenameProfileButton">Umbenennen</string>
 </resources>

@@ -6,11 +6,12 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ProfileDao {
     @Query("SELECT * FROM profile")
-    abstract suspend fun getProfiles(): List<Profile>
+    abstract fun getProfiles(): Flow<List<Profile>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(profile: Profile)

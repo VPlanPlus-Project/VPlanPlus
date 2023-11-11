@@ -32,6 +32,7 @@ import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -115,7 +116,7 @@ class HomeViewModel @Inject constructor(
         }
 
         _state.value =
-            _state.value.copy(profiles = profileUseCases.getProfiles().map { it.toMenuProfile() })
+            _state.value.copy(profiles = profileUseCases.getProfiles().first().map { it.toMenuProfile() })
 
         _state.value =
             _state.value.copy(initDone = true)

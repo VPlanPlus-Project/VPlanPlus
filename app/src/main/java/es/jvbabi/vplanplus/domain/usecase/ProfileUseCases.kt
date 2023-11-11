@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
@@ -57,7 +58,7 @@ class ProfileUseCases(
         return profileRepository.getProfileById(id = activeProfileId.toLong())
     }
 
-    suspend fun getProfiles(): List<Profile> {
+    fun getProfiles(): Flow<List<Profile>> {
         return profileRepository.getProfiles()
     }
 
@@ -120,5 +121,9 @@ class ProfileUseCases(
         }.map { concatenatedString ->
             MessageDigest.getInstance("SHA-256").digest(concatenatedString.toByteArray()).joinToString("") { "%02x".format(it) }
         }.first()
+    }
+
+    suspend fun getProfileById(profileId: Long): Profile {
+        return profileRepository.getProfileById(id = profileId)
     }
 }

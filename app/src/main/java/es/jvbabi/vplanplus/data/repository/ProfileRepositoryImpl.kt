@@ -12,11 +12,12 @@ import io.ktor.client.request.basicAuth
 import io.ktor.client.request.request
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod.Companion.Get
+import kotlinx.coroutines.flow.Flow
 
 class ProfileRepositoryImpl(
     private val profileDao: ProfileDao
 ): ProfileRepository {
-    override suspend fun getProfiles(): List<Profile> {
+    override fun getProfiles(): Flow<List<Profile>> {
         return profileDao.getProfiles()
     }
 
