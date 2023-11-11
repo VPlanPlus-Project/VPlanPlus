@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.source.online
 
 import android.util.Log
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
 import io.ktor.client.HttpClient
 import io.ktor.client.network.sockets.ConnectTimeoutException
@@ -15,8 +16,11 @@ import io.ktor.http.HttpMethod
 import java.net.ConnectException
 import java.net.UnknownHostException
 
-object OnlineRequest {
+class OnlineRequest(
+    private val logRecordRepository: LogRecordRepository
+) {
     private suspend fun getRawResponse(url: String, username: String?, password: String?): HttpResponse {
+        logRecordRepository.log("OnlineRequest", "requesting $url")
         return HttpClient {
             install(HttpTimeout) {
                 requestTimeoutMillis = 5000

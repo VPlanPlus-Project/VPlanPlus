@@ -74,4 +74,8 @@
     <string name="searchAvailableRoom_title">Available rooms</string>
     <string name="loadingData">Loading data...</string>
     <string name="searchAvailableRoom_text">To see the room occupancy map of another school, change your active profile.</string>
+    <string name="settings_generalSync">Synchronization</string>
+    <string name="settings_generalSyncDayDifference">Days ahead sync</string>
+    <string name="settings_generalSyncDayDifferenceSubtitle">Sync next %1$d days</string>
+    <string name="settings_generalSyncDaysTitle">Days to sync</string>
 </resources>

@@ -105,10 +105,10 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        repeat(3) { i ->
+        repeat(5) { i ->
             Log.d(
                 "HomeViewModel",
-                "Updating view $i for ${activeProfile.name} at ${LocalDate.now().plusDays(i - 1L)}"
+                "Updating view $i for ${activeProfile.name} at ${LocalDate.now().plusDays(i - 2L)}"
             )
             updateView(activeProfile, LocalDate.now().plusDays(i - 1L))
         }
