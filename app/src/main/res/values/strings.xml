@@ -71,4 +71,5 @@
     <string name="search_noResultsFound">No results found.</string>
     <string name="search_searchTitle">Search for teachers, rooms and classes</string>
     <string name="search_searchText">Here you can have a quick peek at other plan views. If you need to talk to a specific teacher, you can search for him here.</string>
+    <string name="searchAvailableRoom_title">Available rooms</string>
 </resources>

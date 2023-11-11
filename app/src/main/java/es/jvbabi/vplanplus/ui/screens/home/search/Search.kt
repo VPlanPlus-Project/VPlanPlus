@@ -43,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.preview.Lessons
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
 
 @Composable
@@ -55,7 +56,8 @@ fun SearchScreen(
         state = state,
         onSearchTyping = { searchViewModel.type(it) },
         onSearchClosed = { navHostController.popBackStack() },
-        onFilterToggle = { searchViewModel.toggleFilter(it) }
+        onFilterToggle = { searchViewModel.toggleFilter(it) },
+        onFindAvailableRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) }
     )
 }
 
@@ -65,7 +67,8 @@ fun SearchContent(
     state: SearchState,
     onSearchTyping: (String) -> Unit,
     onSearchClosed: () -> Unit,
-    onFilterToggle: (FilterType) -> Unit = {}
+    onFilterToggle: (FilterType) -> Unit = {},
+    onFindAvailableRoomClicked: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -79,7 +82,7 @@ fun SearchContent(
             onSearchTyping = { onSearchTyping(it) }
         )
         AssistChip(
-            onClick = {},
+            onClick = { onFindAvailableRoomClicked() },
             label = { Text(text = stringResource(id = R.string.search_searchAvailableRoom)) },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.MeetingRoom, contentDescription = null)

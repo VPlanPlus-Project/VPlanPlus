@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.ui.screens
 sealed class Screen(val route: String) {
     data object HomeScreen: Screen("home_screen")
     data object SearchScreen: Screen("search_screen")
+    data object SearchAvailableRoomScreen: Screen("search_screen/available_room")
 
     data object Onboarding: Screen("onboarding")
     data object OnboardingWelcomeScreen: Screen("onboarding/welcome_screen")
