@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -32,6 +33,14 @@ class ProfileSettingsViewModel @Inject constructor(
     private fun setDeleteProfileResult(result: ProfileManagementDeletionResult) {
         viewModelScope.launch {
             _state.value = _state.value.copy(deleteProfileResult = result)
+        }
+    }
+
+    fun setCalendarMode(calendarMode: ProfileCalendarType) {
+        viewModelScope.launch {
+            _state.value.profile?.let { profile ->
+                profileUseCases.updateProfile(profile.copy(calendarMode = calendarMode))
+            }
         }
     }
 
@@ -69,7 +78,7 @@ class ProfileSettingsViewModel @Inject constructor(
 data class ProfileSettingsState(
     val initDone: Boolean = false,
     val profile: Profile? = null,
-    val deleteProfileResult: ProfileManagementDeletionResult? = null
+    val deleteProfileResult: ProfileManagementDeletionResult? = null,
 )
 
 enum class ProfileManagementDeletionResult {

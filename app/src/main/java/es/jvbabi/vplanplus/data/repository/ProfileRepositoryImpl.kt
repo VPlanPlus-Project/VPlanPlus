@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.repository
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -22,7 +23,7 @@ class ProfileRepositoryImpl(
     }
 
     override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String, customName: String) {
-        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name, customName = customName))
+        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name, customName = customName, calendarMode = ProfileCalendarType.NONE))
     }
 
     override suspend fun getClassesOnline(

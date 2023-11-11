@@ -12,6 +12,7 @@ data class Profile(
     val type: ProfileType,
     val name: String,
     val customName: String,
+    val calendarMode: ProfileCalendarType,
     val referenceId: Long, // can be class id, teacher id or room id
 ) {
     fun toMenuProfile(): MenuProfile {
@@ -21,4 +22,8 @@ data class Profile(
 
 enum class ProfileType {
     TEACHER, STUDENT, ROOM
+}
+
+enum class ProfileCalendarType {
+    DAY, LESSON, NONE
 }

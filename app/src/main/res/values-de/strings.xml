@@ -83,4 +83,10 @@
     <string name="settings_profileManagementScreenDeleteProfileButton">Löschen</string>
     <string name="settings_profileManagementScreenRenameProfileButton">Umbenennen</string>
     <string name="settings_profileManagementScreenRenameProfileDialogText">Benenne dein Profil in etwas um, das du besser erkennen kannst. Fasse dich kurz, damit du besser lesbar bist, wenn es ein Profilsymbol gibt. Leere das Textfeld um den Namen zurückzusetzen.</string>
+    <string name="settings_profileManagementCalendarDayTitle">Schulbesuch im Kalender anzeigen</string>
+    <string name="settings_profileManagementCalendarDayText">Die App erstellt jeden Schultag einen Kalenderintrag, welcher zu deiner ersten Stunde beginnt und zu deiner letzten Stunde endet.</string>
+    <string name="settings_profileManagementCalendarLessonsTitle">Schulstunden im Kalender anzeigen</string>
+    <string name="settings_profileManagementCalendarLessonsText">Dies erstellt einen Kalendereintrag für jede einzelne Stunde in diesem Profil.</string>
+    <string name="settings_profileManagementCalendarNoneTitle">Keine Kalendereinträge erstellen</string>
+    <string name="settings_profileManagementCalendarNoneText">Es werden keine Events erstellt.</string>
 </resources>

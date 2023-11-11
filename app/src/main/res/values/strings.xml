@@ -82,4 +82,10 @@
     <string name="settings_profileManagementScreenDeleteProfileButton">Delete</string>
     <string name="settings_profileManagementScreenRenameProfileButton">Rename</string>
     <string name="settings_profileManagementScreenRenameProfileDialogText">Rename your profile to something you can recognize better. Keep yourself short to optimize readability when there\'s a profile icon. Clear text to reset its name to default.</string>
+    <string name="settings_profileManagementCalendarDayTitle">Show school visit in calendar</string>
+    <string name="settings_profileManagementCalendarLessonsTitle">Show lessons in calendar</string>
+    <string name="settings_profileManagementCalendarDayText">The app will create an event that starts at your first lesson and ends at your last lesson every day.</string>
+    <string name="settings_profileManagementCalendarLessonsText">This will create a calendar event for every single lesson.</string>
+    <string name="settings_profileManagementCalendarNoneTitle">Don\'t create calendar events</string>
+    <string name="settings_profileManagementCalendarNoneText">This won\'t create any events.</string>
 </resources>

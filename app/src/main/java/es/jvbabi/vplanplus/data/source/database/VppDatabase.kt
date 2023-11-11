@@ -4,6 +4,7 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
+import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
@@ -52,7 +53,7 @@ import es.jvbabi.vplanplus.domain.model.Week
     version = 3,
     exportSchema = false
 )
-@TypeConverters(DayConverter::class, ProfileTypeConverter::class)
+@TypeConverters(DayConverter::class, ProfileTypeConverter::class, ProfileCalendarTypeConverter::class)
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
     abstract val profileDao: ProfileDao

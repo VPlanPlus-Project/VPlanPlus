@@ -1,12 +1,15 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.EventBusy
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -28,10 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
 import es.jvbabi.vplanplus.ui.common.InputDialog
+import es.jvbabi.vplanplus.ui.common.RadioCard
+import es.jvbabi.vplanplus.ui.common.RadioCardGroup
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.Profile
 
@@ -57,6 +63,9 @@ fun ProfileSettingsScreen(
         },
         onProfileRenamed = {
             viewModel.renameProfile(it)
+        },
+        onCalendarModeSet = {
+            viewModel.setCalendarMode(it)
         }
     )
 }
@@ -67,7 +76,8 @@ private fun ProfileSettingsScreenContent(
     state: ProfileSettingsState,
     onBackClicked: () -> Unit,
     onProfileDeleteDialogYes: () -> Unit = {},
-    onProfileRenamed: (String) -> Unit = {}
+    onProfileRenamed: (String) -> Unit = {},
+    onCalendarModeSet: (ProfileCalendarType) -> Unit = {}
 ) {
 
     var deleteDialogOpen by remember { mutableStateOf(false) }
@@ -131,7 +141,7 @@ private fun ProfileSettingsScreenContent(
                 },
             )
         }
-        Box(modifier = Modifier.padding(paddingValues = paddingValues)) {
+        Column(modifier = Modifier.padding(paddingValues = paddingValues)) {
             BigButtonGroup(
                 buttons = listOf(
                     BigButton(
@@ -144,6 +154,32 @@ private fun ProfileSettingsScreenContent(
                         onClick = { renameDialogOpen = true })
                 ),
                 modifier = Modifier.padding(16.dp)
+            )
+            RadioCardGroup(
+                modifier = Modifier.padding(top = 16.dp),
+                options = listOf(
+                    RadioCard(
+                        icon = Icons.Outlined.CalendarToday,
+                        title = stringResource(id = R.string.settings_profileManagementCalendarDayTitle),
+                        subtitle = stringResource(id = R.string.settings_profileManagementCalendarDayText),
+                        onClick = { onCalendarModeSet(ProfileCalendarType.DAY) },
+                        selected = state.profile!!.calendarMode == ProfileCalendarType.DAY
+                    ),
+                    RadioCard(
+                        icon = Icons.Outlined.CalendarMonth,
+                        title = stringResource(id = R.string.settings_profileManagementCalendarLessonsTitle),
+                        subtitle = stringResource(id = R.string.settings_profileManagementCalendarLessonsText),
+                        onClick = { onCalendarModeSet(ProfileCalendarType.LESSON) },
+                        selected = state.profile.calendarMode == ProfileCalendarType.LESSON
+                    ),
+                    RadioCard(
+                        icon = Icons.Outlined.EventBusy,
+                        title = stringResource(id = R.string.settings_profileManagementCalendarNoneTitle),
+                        subtitle = stringResource(id = R.string.settings_profileManagementCalendarNoneText),
+                        onClick = { onCalendarModeSet(ProfileCalendarType.NONE) },
+                        selected = state.profile.calendarMode == ProfileCalendarType.NONE
+                    )
+                )
             )
         }
     }
