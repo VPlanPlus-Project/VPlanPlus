@@ -41,7 +41,10 @@ import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.LessonTimeUseCases
+import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
+import es.jvbabi.vplanplus.domain.usecase.RoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -176,6 +179,47 @@ object VppModule {
     @Singleton
     fun provideKeyValueUseCases(repository: KeyValueRepository): KeyValueUseCases {
         return KeyValueUseCases(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLessonUseCases(
+        lessonRepository: LessonRepository,
+        classRepository: ClassRepository,
+        lessonTimeRepository: LessonTimeRepository
+    ): LessonUseCases {
+        return LessonUseCases(
+            lessonRepository = lessonRepository,
+            classRepository = classRepository,
+            lessonTimeRepository = lessonTimeRepository
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideLessonTimesUseCases(
+        lessonTimeRepository: LessonTimeRepository,
+        roomRepository: RoomRepository,
+        teacherRepository: TeacherRepository,
+        classUseCases: ClassUseCases,
+        lessonUseCases: LessonUseCases
+    ): LessonTimeUseCases {
+        return LessonTimeUseCases(
+            lessonUseCases = lessonUseCases,
+            lessonTimeRepository = lessonTimeRepository,
+            roomRepository = roomRepository,
+            teacherRepository = teacherRepository,
+            classUseCases = classUseCases
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideRoomUseCases(roomRepository: RoomRepository, lessonUseCases: LessonUseCases): RoomUseCases {
+        return RoomUseCases(
+            roomRepository = roomRepository,
+            lessonUseCases = lessonUseCases
+        )
     }
 
     @Provides

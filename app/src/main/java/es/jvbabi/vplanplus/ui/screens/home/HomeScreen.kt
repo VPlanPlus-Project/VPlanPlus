@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
@@ -79,10 +78,9 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import es.jvbabi.vplanplus.util.DateUtils.calculateProgress
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.format.DateTimeFormatter
@@ -143,6 +141,9 @@ fun HomeScreen(
             }, lessonPagerState = lessonPagerState,
             onSetDayType = {
                 viewModel.setDayType(it)
+            },
+            onSearchOpened = {
+                navHostController.navigate(Screen.SearchScreen.route)
             }
         )
     }
@@ -202,12 +203,13 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     state: HomeState,
+    onSearchOpened: (Boolean) -> Unit = {},
     onMenuOpened: () -> Unit = {},
     onViewModeChanged: (type: ViewType) -> Unit = {},
     onSetDayType: (date: LocalDate) -> Unit = {},
     lessonPagerState: PagerState = rememberPagerState(
         initialPage = LocalDate.now().dayOfWeek.value,
-        pageCount = { 5 })
+        pageCount = { 5 }),
 ) {
     if (!state.initDone) {
         Box(
@@ -225,7 +227,8 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .fillMaxSize(),
             ) {
-                SearchBar(state.activeProfile?.name ?: "", onMenuOpened) {}
+                SearchBar(state.activeProfile?.name ?: "", onMenuOpened,
+                    { onSearchOpened(it) }, false, "", {})
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -703,21 +706,4 @@ fun HomeScreenPreview() {
         ),
         onMenuOpened = {}
     )
-}
-
-@SuppressLint("SimpleDateFormat")
-fun calculateProgress(start: String, current: String, end: String): Double? {
-    return try {
-        val dateFormat = SimpleDateFormat("HH:mm")
-        val startTime = dateFormat.parse(start)!!
-        val currentTime = dateFormat.parse(current)!!
-        val endTime = dateFormat.parse(end)!!
-
-        val totalTime = (endTime.time - startTime.time).toDouble()
-        val elapsedTime = (currentTime.time - startTime.time).toDouble()
-
-        (elapsedTime / totalTime)
-    } catch (e: ParseException) {
-        null
-    }
 }

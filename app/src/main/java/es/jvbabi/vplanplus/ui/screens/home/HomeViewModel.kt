@@ -208,6 +208,7 @@ class HomeViewModel @Inject constructor(
     fun setNotificationPermissionGranted(granted: Boolean) {
         _state.value = _state.value.copy(notificationPermissionGranted = granted)
     }
+
 }
 
 data class HomeState(
@@ -220,7 +221,7 @@ data class HomeState(
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,
 
-    val syncing: Boolean = false
+    val syncing: Boolean = false,
 )
 
 enum class ViewType {

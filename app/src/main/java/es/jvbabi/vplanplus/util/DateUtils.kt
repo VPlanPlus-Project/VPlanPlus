@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus.util
 
+import android.annotation.SuppressLint
+import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -32,5 +35,22 @@ object DateUtils {
 
     fun getDateTimeFromTimestamp(timestamp: Long): LocalDateTime {
         return Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun calculateProgress(start: String, current: String, end: String): Double? {
+        return try {
+            val dateFormat = SimpleDateFormat("HH:mm")
+            val startTime = dateFormat.parse(start)!!
+            val currentTime = dateFormat.parse(current)!!
+            val endTime = dateFormat.parse(end)!!
+
+            val totalTime = (endTime.time - startTime.time).toDouble()
+            val elapsedTime = (currentTime.time - startTime.time).toDouble()
+
+            (elapsedTime / totalTime)
+        } catch (e: ParseException) {
+            null
+        }
     }
 }
