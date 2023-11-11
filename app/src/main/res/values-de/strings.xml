@@ -70,4 +70,6 @@
     <string name="search_classesFilter">Klassen</string>
     <string name="search_profileFilter">Profile</string>
     <string name="search_noResultsFound">Keine Ergebnisse gefunden</string>
+    <string name="search_searchTitle">Suchen nach Lehrern, Räumen oder Klassen</string>
+    <string name="search_searchText">Hier kannst du andere Planansichten sehen. Falls du beispielsweise mit einer bestimmten Lehrkraft sprechen musst, kannst du hier sehen, wo sie gerade ist,</string>
 </resources>
