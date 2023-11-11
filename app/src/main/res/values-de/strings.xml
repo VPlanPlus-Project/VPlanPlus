@@ -62,4 +62,6 @@
     <string name="settings_generalNotificationsOnAppOpenedSubtitle">Wenn deaktiviert, werden Benachrichtigungen für Planänderungen nur gezeigt, wenn die App im Hintergrund ist.</string>
     <string name="home_weekendTitle">Wochenende</string>
     <string name="home_weekendText">Genieße dein Wochenende! Tank\' Energie und starte frisch am Montag in eine produktive Woche. 🌟</string>
+    <string name="home_weekendCommingUpText">Bald ist Wochenende! 🎉 Lade deine Batterien auf und freue dich auf eine erholsame Auszeit.</string>
+    <string name="home_weekendOverText">Das Wochenende ist vorbei. Starte frisch in die neue Woche! ☕️</string>
 </resources>

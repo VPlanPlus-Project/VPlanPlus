@@ -293,7 +293,9 @@ fun HomeScreenContent(
                                         ) {
                                             Icon(imageVector = Icons.Default.Weekend, contentDescription = null, modifier = Modifier.size(80.dp), tint = MaterialTheme.colorScheme.primary)
                                             Text(text = stringResource(id = R.string.home_weekendTitle), style = MaterialTheme.typography.headlineMedium)
-                                            Text(text = stringResource(id = R.string.home_weekendText), textAlign = TextAlign.Center)
+                                            if (state.lessons[LocalDate.now()]?.dayType == DayType.WEEKEND) Text(text = stringResource(id = R.string.home_weekendText), textAlign = TextAlign.Center)
+                                            else if (LocalDate.now().isBefore(date)) Text(text = stringResource(id = R.string.home_weekendCommingUpText), textAlign = TextAlign.Center)
+                                            else Text(text = stringResource(id = R.string.home_weekendOverText), textAlign = TextAlign.Center)
                                         }
                                     }
                                 }

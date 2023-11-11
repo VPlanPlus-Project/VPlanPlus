@@ -61,4 +61,6 @@
     <string name="settings_generalNotificationsOnAppOpenedSubtitle">When disabled, you\'ll only get notifications for plan changes, when the app isn\'t visible.</string>
     <string name="home_weekendTitle">Weekend</string>
     <string name="home_weekendText">Enjoy your weekend! Recharge and return on Monday with renewed energy for a productive week ahead. 🌟</string>
+    <string name="home_weekendCommingUpText">The weekend is almost here! 🎉 Recharge and look forward to a relaxing break.</string>
+    <string name="home_weekendOverText">The weekend has come to a close. Wishing you a smooth start to the week ahead! ☕️</string>
 </resources>
