@@ -128,15 +128,18 @@ object VppModule {
         holidayRepository: HolidayRepository,
         weekRepository: WeekRepository,
         roomRepository: RoomRepository,
-        teacherRepository: TeacherRepository
+        teacherRepository: TeacherRepository,
+        logRecordRepository: LogRecordRepository
     ): BaseDataRepository {
-        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository, roomRepository, teacherRepository)
+        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository, roomRepository, teacherRepository, logRecordRepository)
     }
 
     @Provides
     @Singleton
-    fun provideVPlanRepository(): VPlanRepository {
-        return VPlanRepositoryImpl()
+    fun provideVPlanRepository(
+        logRecordRepository: LogRecordRepository
+    ): VPlanRepository {
+        return VPlanRepositoryImpl(logRecordRepository)
     }
 
     @Provides

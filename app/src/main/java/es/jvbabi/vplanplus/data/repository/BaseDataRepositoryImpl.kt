@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
+import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
@@ -25,7 +26,8 @@ class BaseDataRepositoryImpl(
     private val holidayRepository: HolidayRepository,
     private val weekRepository: WeekRepository,
     private val roomRepository: RoomRepository,
-    private val teacherRepository: TeacherRepository
+    private val teacherRepository: TeacherRepository,
+    private val logRecordRepository: LogRecordRepository
 ) : BaseDataRepository {
 
     override suspend fun processBaseData(schoolId: Long, baseData: XmlBaseData) {
@@ -59,22 +61,23 @@ class BaseDataRepositoryImpl(
         username: String,
         password: String
     ): DataResponse<XmlBaseData?> {
-        val classesResponse = OnlineRequest.getResponse(
+        val onlineRequest = OnlineRequest(logRecordRepository)
+        val classesResponse = onlineRequest.getResponse(
             "https://www.stundenplan24.de/$schoolId/wplan/wdatenk/SPlanKl_Basis.xml",
             username,
             password
         )
-        val teachersResponse = OnlineRequest.getResponse(
+        val teachersResponse = onlineRequest.getResponse(
             "https://www.stundenplan24.de/$schoolId/wplan/wdatenl/SPlanLe_Basis.xml",
             username,
             password
         )
-        val roomsResponse = OnlineRequest.getResponse(
+        val roomsResponse = onlineRequest.getResponse(
             "https://www.stundenplan24.de/$schoolId/wplan/wdatenr/SPlanRa_Basis.xml",
             username,
             password
         )
-        val weeksResponse = OnlineRequest.getResponse(
+        val weeksResponse = onlineRequest.getResponse(
             "https://www.stundenplan24.de/$schoolId/wplan/wdatenk/SPlanKl_Sw1.xml",
             username,
             password

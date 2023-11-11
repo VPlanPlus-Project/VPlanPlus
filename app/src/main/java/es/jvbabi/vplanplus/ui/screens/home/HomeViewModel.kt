@@ -105,10 +105,11 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        repeat(3) { i ->
+        val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
+        repeat(syncDays+2) { i ->
             Log.d(
                 "HomeViewModel",
-                "Updating view $i for ${activeProfile.name} at ${LocalDate.now().plusDays(i - 1L)}"
+                "Updating view $i for ${activeProfile.name} at ${LocalDate.now().plusDays(i - 2L)}"
             )
             updateView(activeProfile, LocalDate.now().plusDays(i - 1L))
         }
