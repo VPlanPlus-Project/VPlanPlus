@@ -59,4 +59,6 @@
     <string name="settings_generalNotificationsTitle">Notifications</string>
     <string name="settings_generalNotificationsOnAppOpenedTitle">Show notifications when app is in foreground</string>
     <string name="settings_generalNotificationsOnAppOpenedSubtitle">When disabled, you\'ll only get notifications for plan changes, when the app isn\'t visible.</string>
+    <string name="home_weekendTitle">Weekend</string>
+    <string name="home_weekendText">Enjoy your weekend! Recharge and return on Monday with renewed energy for a productive week ahead. 🌟</string>
 </resources>

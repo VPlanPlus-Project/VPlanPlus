@@ -60,4 +60,6 @@
     <string name="settings_generalNotificationsTitle">Benachrichtigungen</string>
     <string name="settings_generalNotificationsOnAppOpenedTitle">Benachrichtigungen bei offener App zeigen</string>
     <string name="settings_generalNotificationsOnAppOpenedSubtitle">Wenn deaktiviert, werden Benachrichtigungen für Planänderungen nur gezeigt, wenn die App im Hintergrund ist.</string>
+    <string name="home_weekendTitle">Wochenende</string>
+    <string name="home_weekendText">Genieße dein Wochenende! Tank\' Energie und starte frisch am Montag in eine produktive Woche. 🌟</string>
 </resources>
