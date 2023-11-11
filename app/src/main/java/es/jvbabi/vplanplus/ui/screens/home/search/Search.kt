@@ -36,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -158,9 +159,13 @@ fun SearchContent(
                     )
                     Text(
                         text = stringResource(id = R.string.search_searchTitle),
-                        style = MaterialTheme.typography.headlineMedium
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center
                     )
-                    Text(text = stringResource(id = R.string.search_searchText))
+                    Text(
+                        text = stringResource(id = R.string.search_searchText),
+                        textAlign = TextAlign.Center
+                    )
                 }
             }
         }
