@@ -78,7 +78,6 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
-import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.ParseException
@@ -100,7 +99,7 @@ fun HomeScreen(
     var menuOpened by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val lessonPagerState =
-        rememberPagerState(initialPage = LocalDate.now().dayOfWeek.value - 1, pageCount = { 7 })
+        rememberPagerState(initialPage = Int.MAX_VALUE / 2, pageCount = { Int.MAX_VALUE })
 
     LaunchedEffect(key1 = "Init", block = {
         viewModel.init(context)
@@ -140,7 +139,10 @@ fun HomeScreen(
                     if (it == ViewType.WEEK) lessonPagerState.animateScrollToPage(0)
                     if (it == ViewType.DAY) lessonPagerState.animateScrollToPage(state.date.dayOfWeek.value - 1)
                 }
-            }, lessonPagerState = lessonPagerState
+            }, lessonPagerState = lessonPagerState,
+            onSetDayType = {
+                viewModel.setDayType(it)
+            }
         )
     }
 
@@ -201,6 +203,7 @@ fun HomeScreenContent(
     state: HomeState,
     onMenuOpened: () -> Unit = {},
     onViewModeChanged: (type: ViewType) -> Unit = {},
+    onSetDayType: (date: LocalDate) -> Unit = {},
     lessonPagerState: PagerState = rememberPagerState(
         initialPage = LocalDate.now().dayOfWeek.value,
         pageCount = { 5 })
@@ -254,13 +257,16 @@ fun HomeScreenContent(
                         state = lessonPagerState,
                         pageSize = PageSize.Fixed(width.dp),
                         verticalAlignment = Alignment.Top,
-                    ) { dayOfWeek ->
+                    ) { index ->
                         Column(
                             modifier = Modifier
                                 .fillMaxHeight()
                                 .padding(top = 8.dp)
                         ) {
-                            val date = state.date.atStartOfWeek().plusDays(dayOfWeek.toLong())
+                            val date = state.date.plusDays(index - Int.MAX_VALUE / 2L)
+                            if (state.lessons[date] == null) {
+                                onSetDayType(date)
+                            }
                             when (state.lessons[date]?.dayType ?: DayType.NO_DATA) {
                                 DayType.LOADING -> {
                                     Box(
@@ -291,11 +297,43 @@ fun HomeScreenContent(
                                                 .fillMaxWidth(),
                                             horizontalAlignment = Alignment.CenterHorizontally
                                         ) {
-                                            Icon(imageVector = Icons.Default.Weekend, contentDescription = null, modifier = Modifier.size(80.dp), tint = MaterialTheme.colorScheme.primary)
-                                            Text(text = stringResource(id = R.string.home_weekendTitle), style = MaterialTheme.typography.headlineMedium)
-                                            if (state.lessons[LocalDate.now()]?.dayType == DayType.WEEKEND) Text(text = stringResource(id = R.string.home_weekendText), textAlign = TextAlign.Center)
-                                            else if (LocalDate.now().isBefore(date)) Text(text = stringResource(id = R.string.home_weekendCommingUpText), textAlign = TextAlign.Center)
-                                            else Text(text = stringResource(id = R.string.home_weekendOverText), textAlign = TextAlign.Center)
+                                            Icon(
+                                                imageVector = Icons.Default.Weekend,
+                                                contentDescription = null,
+                                                modifier = Modifier.size(80.dp),
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                            Text(
+                                                text = stringResource(id = R.string.home_weekendTitle),
+                                                style = MaterialTheme.typography.headlineMedium
+                                            )
+                                            var todayIsSameWeekendAsPagerDay = true
+                                            if (!LocalDate.now().isEqual(date)) {
+                                                var d = LocalDate.now()
+                                                while (!d.isEqual(date)) {
+                                                    d = if (LocalDate.now()
+                                                            .isBefore(date)
+                                                    ) d.plusDays(1)
+                                                    else d.minusDays(1)
+
+                                                    if (state.lessons[d]?.dayType != DayType.WEEKEND) {
+                                                        todayIsSameWeekendAsPagerDay = false
+                                                        break
+                                                    }
+                                                }
+                                            }
+                                            if (todayIsSameWeekendAsPagerDay) Text(
+                                                text = stringResource(id = R.string.home_weekendText) + date,
+                                                textAlign = TextAlign.Center
+                                            )
+                                            else if (LocalDate.now().isBefore(date)) Text(
+                                                text = stringResource(id = R.string.home_weekendCommingUpText),
+                                                textAlign = TextAlign.Center
+                                            )
+                                            else Text(
+                                                text = stringResource(id = R.string.home_weekendOverText),
+                                                textAlign = TextAlign.Center
+                                            )
                                         }
                                     }
                                 }
@@ -356,13 +394,13 @@ fun HomeScreenContent(
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
                     .clickable {
                         scope.launch {
-                            lessonPagerState.animateScrollToPage(LocalDate.now().dayOfWeek.value - 1)
+                            lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
                         }
                     },
                 contentAlignment = Alignment.Center
             ) {
                 val visibleDate =
-                    state.date.atStartOfWeek().plusDays(lessonPagerState.currentPage.toLong())
+                    state.date.plusDays(lessonPagerState.currentPage - Int.MAX_VALUE / 2L)
                 val text = if (visibleDate == LocalDate.now()) stringResource(id = R.string.today)
                 else if (visibleDate.minusDays(1L) == LocalDate.now()) stringResource(id = R.string.tomorrow)
                 else if (visibleDate.plusDays(1L) == LocalDate.now()) stringResource(id = R.string.yesterday)

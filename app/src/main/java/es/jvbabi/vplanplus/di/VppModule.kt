@@ -102,7 +102,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideHolidayRepository(db: VppDatabase): HolidayRepository {
-        return HolidayRepositoryImpl(db.holidayDao)
+        return HolidayRepositoryImpl(db.holidayDao, provideSchoolRepository(db))
     }
 
     @Provides

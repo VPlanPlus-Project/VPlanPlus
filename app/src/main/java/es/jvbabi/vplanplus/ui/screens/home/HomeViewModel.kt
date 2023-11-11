@@ -19,6 +19,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -44,7 +45,8 @@ class HomeViewModel @Inject constructor(
     private val homeUseCases: HomeUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val teacherRepository: TeacherRepository,
-    private val roomRepository: RoomRepository
+    private val roomRepository: RoomRepository,
+    private val holidayRepository: HolidayRepository
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -144,6 +146,31 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    /**
+     * Sets the day type for the given date.
+     * Call only if theres no data for the given date
+     * @param localDate Date to set the day type for
+     */
+    fun setDayType(localDate: LocalDate) {
+        val dayType = holidayRepository.getDayType(school!!.id!!, localDate)
+        if (dayType == DayType.DATA) _state.value = _state.value.copy(
+            lessons = state.value.lessons.plus(
+                localDate to Day(
+                    listOf(),
+                    dayType = DayType.NO_DATA
+                )
+            )
+        )
+        else _state.value = _state.value.copy(
+            lessons = state.value.lessons.plus(
+                localDate to Day(
+                    listOf(),
+                    dayType
+                )
+            )
+        )
     }
 
     fun getVPlanData(context: Context) {

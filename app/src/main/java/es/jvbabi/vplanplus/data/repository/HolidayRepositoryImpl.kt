@@ -3,10 +3,13 @@ package es.jvbabi.vplanplus.data.repository
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
+import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.ui.screens.home.DayType
 import java.time.LocalDate
 
 class HolidayRepositoryImpl(
-    private val holidayDao: HolidayDao
+    private val holidayDao: HolidayDao,
+    private val schoolRepository: SchoolRepository
 ) : HolidayRepository {
     override suspend fun getHolidaysBySchoolId(schoolId: Long): List<Holiday> {
         return holidayDao.getHolidaysBySchoolId(schoolId)
@@ -44,5 +47,12 @@ class HolidayRepositoryImpl(
 
     override fun isHoliday(schoolId: Long, date: LocalDate): Boolean {
         return holidayDao.find(schoolId, date) != null
+    }
+
+    override fun getDayType(schoolId: Long, date: LocalDate): DayType {
+        val school = schoolRepository.getSchoolFromId(schoolId)
+        return if (isHoliday(schoolId, date)) DayType.HOLIDAY
+        else if (date.dayOfWeek.value > school.daysPerWeek) DayType.WEEKEND
+        else DayType.DATA
     }
 }
