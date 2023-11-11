@@ -74,13 +74,14 @@ class SchoolRepositoryImpl(
         }
     }
 
-    override suspend fun createSchool(schoolId: Long, username: String, password: String, name: String) {
+    override suspend fun createSchool(schoolId: Long, username: String, password: String, name: String, daysPerWeek: Int) {
         schoolDao.insert(
             School(
                 id = schoolId,
                 username = username,
                 password = password,
-                name = name
+                name = name,
+                daysPerWeek = daysPerWeek
             )
         )
     }
