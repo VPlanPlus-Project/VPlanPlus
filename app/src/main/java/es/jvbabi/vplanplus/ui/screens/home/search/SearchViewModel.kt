@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.ui.screens.home.search
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -38,8 +37,6 @@ class SearchViewModel @Inject constructor(
             _state.value = _state.value.copy(result = emptyList())
             return
         }
-
-        Log.d("SearchViewModel", "type: $value")
 
         viewModelScope.launch {
             val schools = schoolUseCases.getSchools()
@@ -86,6 +83,27 @@ class SearchViewModel @Inject constructor(
                                 )
                             } else {
                                 result.add(Result(room.id!!, room.name, FilterType.ROOM))
+                            }
+                        }
+                    }
+                }
+                if (state.value.filter[FilterType.CLASS]!!) {
+                    val classes = classUseCases.getClassesBySchool(school).filter { it.className.lowercase().contains(_state.value.searchValue.lowercase()) }
+                    val firstClass = classes.firstOrNull()
+                    if (firstClass != null) {
+                        val lessons = lessonUseCases.getLessonsForClass(firstClass, LocalDate.now()).firstOrNull()
+                        classes.forEachIndexed { index, `class` ->
+                            if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
+                                result.add(
+                                    Result(
+                                        `class`.id!!,
+                                        `class`.className,
+                                        FilterType.CLASS,
+                                        lessons.lessons
+                                    )
+                                )
+                            } else {
+                                result.add(Result(`class`.id!!, `class`.className, FilterType.CLASS))
                             }
                         }
                     }
