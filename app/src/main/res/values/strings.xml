@@ -68,4 +68,5 @@
     <string name="search_teacherFilter">Teacher</string>
     <string name="search_classesFilter">Classes</string>
     <string name="search_profileFilter">Profiles</string>
+    <string name="search_noResultsFound">No results found.</string>
 </resources>

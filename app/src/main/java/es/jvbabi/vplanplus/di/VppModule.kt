@@ -41,6 +41,7 @@ import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
@@ -176,6 +177,20 @@ object VppModule {
     @Singleton
     fun provideKeyValueUseCases(repository: KeyValueRepository): KeyValueUseCases {
         return KeyValueUseCases(repository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLessonUseCases(
+        lessonRepository: LessonRepository,
+        classRepository: ClassRepository,
+        lessonTimeRepository: LessonTimeRepository
+    ): LessonUseCases {
+        return LessonUseCases(
+            lessonRepository = lessonRepository,
+            classRepository = classRepository,
+            lessonTimeRepository = lessonTimeRepository
+        )
     }
 
     @Provides

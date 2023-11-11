@@ -69,4 +69,5 @@
     <string name="search_teacherFilter">Lehrer</string>
     <string name="search_classesFilter">Klassen</string>
     <string name="search_profileFilter">Profile</string>
+    <string name="search_noResultsFound">Keine Ergebnisse gefunden</string>
 </resources>
