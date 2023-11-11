@@ -177,7 +177,8 @@ class OnboardingViewModel @Inject constructor(
                     schoolId = state.value.schoolId.toLong(),
                     username = state.value.username,
                     password = state.value.password,
-                    name = baseData.schoolName
+                    name = baseData.schoolName,
+                    daysPerWeek = baseData.daysPerWeek
                 )
 
                 baseDataUseCases.processBaseData(

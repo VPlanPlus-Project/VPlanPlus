@@ -93,6 +93,7 @@ class BaseDataRepositoryImpl(
                 teacherBaseData.teacherShorts,
                 roomBaseData.roomNames,
                 classBaseData.schoolName,
+                classBaseData.daysPerWeek,
                 classBaseData.holidays.map {
                     Holiday(
                         date = LocalDate.of(it.first.first, it.first.second, it.first.third),

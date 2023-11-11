@@ -6,7 +6,7 @@ import es.jvbabi.vplanplus.domain.model.School
 interface RoomRepository {
 
     suspend fun getRooms(schoolId: Long): List<Room>
-    suspend fun getRoomById(roomId: Long): Room
+    fun getRoomById(roomId: Long): Room
     suspend fun createRoom(room: Room)
     suspend fun getRoomByName(school: School, name: String, createIfNotExists: Boolean = false): Room?
     suspend fun deleteRoomsBySchoolId(schoolId: Long)

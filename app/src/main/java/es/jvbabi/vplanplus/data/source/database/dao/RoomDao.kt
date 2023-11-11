@@ -12,7 +12,7 @@ abstract class RoomDao {
     abstract suspend fun getRooms(schoolId: Long): List<Room>
 
     @Query("SELECT * FROM room WHERE id = :roomId")
-    abstract suspend fun getRoomById(roomId: Long): Room
+    abstract fun getRoomById(roomId: Long): Room
 
     @Insert
     abstract suspend fun insertRoom(room: Room): Long

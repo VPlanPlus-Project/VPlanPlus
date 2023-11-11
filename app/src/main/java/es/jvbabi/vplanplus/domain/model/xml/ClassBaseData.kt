@@ -13,6 +13,7 @@ import java.time.LocalDate
 class ClassBaseData(val xml: String) {
 
     var schoolName: String
+    var daysPerWeek: Int
     val classes = mutableListOf<String>()
     val schoolWeeks = mutableListOf<BaseDataSchoolWeek>()
 
@@ -23,7 +24,10 @@ class ClassBaseData(val xml: String) {
         val serializer: Serializer = Persister()
         val reader = xml.reader()
         val rootObject: Splan = serializer.read(Splan::class.java, reader, false)
+
         schoolName = rootObject.head!!.schoolName
+        daysPerWeek = rootObject.baseData!!.daysPerWeek
+
         holidays.addAll(rootObject.holidays!!.map {
             Pair(
                 Triple(
@@ -78,11 +82,18 @@ private class Splan {
 
     @field:ElementList(name = "Klassen")
     var classes: List<SchoolClass>? = null
+
+    @field:Element(name = "Basisdaten")
+    var baseData: BaseData? = null
 }
 
 private class SPlanHead {
     @field:Element(name = "schulname")
     var schoolName: String = ""
+}
+
+private class BaseData {
+    @field:Element(name = "BaTageProWoche") var daysPerWeek: Int = 0
 }
 
 private class SchoolClass {

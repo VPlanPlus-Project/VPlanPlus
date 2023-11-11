@@ -20,7 +20,7 @@ abstract class HolidayDao {
     abstract suspend fun deleteHolidaysBySchoolId(schoolId: Long)
 
     @Query("SELECT * FROM holiday WHERE (schoolId = :schoolId OR schoolId IS NULL) AND date = :timestamp")
-    abstract suspend fun find(schoolId: Long?, timestamp: LocalDate): Holiday?
+    abstract fun find(schoolId: Long?, timestamp: LocalDate): Holiday?
 
     @Delete
     abstract suspend fun deleteHoliday(holiday: Holiday)

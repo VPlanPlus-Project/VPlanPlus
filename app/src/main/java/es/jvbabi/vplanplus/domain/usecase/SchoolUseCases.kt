@@ -21,20 +21,8 @@ class SchoolUseCases(
         return schoolRepository.getSchoolByName(schoolName)
     }
 
-    suspend fun login(schoolId: Long, username: String, password: String): Response {
-        return schoolRepository.login(schoolId, username, password)
-    }
-
-    suspend fun createSchool(schoolId: Long, username: String, password: String, name: String) {
-        schoolRepository.createSchool(schoolId, username, password, name)
-    }
-
-    suspend fun getSchoolNameOnline(schoolId: Long, username: String, password: String): String {
-        return schoolRepository.getSchoolNameOnline(
-            schoolId = schoolId,
-            username = username,
-            password = password
-        )
+    suspend fun createSchool(schoolId: Long, username: String, password: String, name: String, daysPerWeek: Int) {
+        schoolRepository.createSchool(schoolId, username, password, name, daysPerWeek)
     }
 
     fun getSchoolFromId(schoolId: Long): School {

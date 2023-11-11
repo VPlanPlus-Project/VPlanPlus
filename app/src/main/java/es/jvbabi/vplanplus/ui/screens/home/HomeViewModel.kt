@@ -10,10 +10,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -23,7 +29,7 @@ import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
-import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
+import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
@@ -39,7 +45,8 @@ class HomeViewModel @Inject constructor(
     private val homeUseCases: HomeUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val teacherRepository: TeacherRepository,
-    private val roomRepository: RoomRepository
+    private val roomRepository: RoomRepository,
+    private val holidayRepository: HolidayRepository
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -79,7 +86,6 @@ class HomeViewModel @Inject constructor(
         Log.d("HomeViewModel", "init; activeProfile=$activeProfile")
         _state.value =
             _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
-        val startOfWeek = state.value.date.atStartOfWeek()
         val schoolId: Long?
         when (activeProfile.type) {
             ProfileType.STUDENT -> {
@@ -99,12 +105,12 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        repeat(5) { i ->
+        repeat(3) { i ->
             Log.d(
                 "HomeViewModel",
-                "Updating view $i for ${activeProfile.name} at ${startOfWeek.plusDays(i.toLong())}"
+                "Updating view $i for ${activeProfile.name} at ${LocalDate.now().plusDays(i - 1L)}"
             )
-            updateView(activeProfile, startOfWeek.plusDays(i.toLong()))
+            updateView(activeProfile, LocalDate.now().plusDays(i - 1L))
         }
 
         _state.value =
@@ -117,10 +123,21 @@ class HomeViewModel @Inject constructor(
     @OptIn(FlowPreview::class)
     private fun updateView(profile: Profile, date: LocalDate) {
         if (!_state.value.lessons.containsKey(date)) _state.value =
-            _state.value.copy(lessons = state.value.lessons.plus(date to listOf()))
+            _state.value.copy(
+                lessons = state.value.lessons.plus(
+                    date to Day(
+                        listOf(),
+                        DayType.LOADING
+                    )
+                )
+            )
         viewModelScope.launch {
             var first = true
-            homeUseCases.getLessons(profile, date).debounce{if (first) 0L else { first = false; 1000L }}.collect { lessons ->
+            homeUseCases.getLessons(profile, date).debounce {
+                if (first) 0L else {
+                    first = false; 1000L
+                }
+            }.collect { lessons ->
                 if (!state.value.syncing) {
                     _state.value =
                         _state.value.copy(
@@ -131,22 +148,43 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun getVPlanData() {
-        _state.value = _state.value.copy(isLoading = true)
+    /**
+     * Sets the day type for the given date.
+     * Call only if theres no data for the given date
+     * @param localDate Date to set the day type for
+     */
+    fun setDayType(localDate: LocalDate) {
+        val dayType = holidayRepository.getDayType(school!!.id!!, localDate)
+        if (dayType == DayType.DATA) _state.value = _state.value.copy(
+            lessons = state.value.lessons.plus(
+                localDate to Day(
+                    listOf(),
+                    dayType = DayType.NO_DATA
+                )
+            )
+        )
+        else _state.value = _state.value.copy(
+            lessons = state.value.lessons.plus(
+                localDate to Day(
+                    listOf(),
+                    dayType
+                )
+            )
+        )
+    }
 
-        val startOfWeek = state.value.date.atStartOfWeek()
-        repeat(5) { i ->
-            val date = startOfWeek.plusDays(i - 1L)
-            val vPlanData = vPlanUseCases.getVPlanData(school!!, date)
-            if (vPlanData.data == null) {
-                Log.d("VPlanData $i", "null")
-                _state.value = _state.value.copy(isLoading = false)
-                return@repeat
-            }
-            vPlanUseCases.processVplanData(vPlanData.data)
-            Log.d("VPlanData", vPlanData.toString())
+    fun getVPlanData(context: Context) {
+        viewModelScope.launch {
+            val syncWork = OneTimeWorkRequestBuilder<SyncWorker>()
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
+            WorkManager.getInstance(context).enqueue(syncWork)
         }
-        _state.value = _state.value.copy(isLoading = false)
     }
 
     fun deletePlans(context: Context) {
@@ -174,7 +212,7 @@ class HomeViewModel @Inject constructor(
 
 data class HomeState(
     val initDone: Boolean = false,
-    val lessons: Map<LocalDate, List<Lesson>> = mapOf(),
+    val lessons: Map<LocalDate, Day> = mapOf(),
     val isLoading: Boolean = false,
     val profiles: List<MenuProfile> = listOf(),
     val activeProfile: MenuProfile? = null,
@@ -187,4 +225,17 @@ data class HomeState(
 
 enum class ViewType {
     WEEK, DAY
+}
+
+data class Day(
+    val lessons: List<Lesson> = emptyList(),
+    val dayType: DayType
+)
+
+enum class DayType {
+    LOADING,
+    NO_DATA,
+    DATA,
+    WEEKEND,
+    HOLIDAY
 }

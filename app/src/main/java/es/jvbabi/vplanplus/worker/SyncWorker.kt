@@ -43,14 +43,15 @@ class SyncWorker @AssistedInject constructor(
             logRecordRepository.log("SyncWorker", "Syncing")
             val planIsChanged = hashMapOf<Profile, Boolean>()
             schoolUseCases.getSchools().forEach {  school ->
-                repeat(2) { i ->
+                repeat(3) { i ->
                     val profiles = profileUseCases.getProfilesBySchoolId(school.id!!)
-                    val date = LocalDate.now().plusDays(i.toLong())
+                    val date = LocalDate.now().plusDays(i-1L)
                     val hashesBefore = hashMapOf<Profile, String>()
                     val hashesAfter = hashMapOf<Profile, String>()
                     profiles.forEach { profile ->
                         hashesBefore[profile] = profileUseCases.getPlanSum(profile, date)
                     }
+                    logRecordRepository.log("SyncWorker", "Syncing ${school.id} (${school.name}) at $date")
                     val data = vPlanUseCases.getVPlanData(school, date)
                     if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
                         logRecordRepository.log("SyncWorker", "Error while syncing ${school.id} (${school.name}): ${data.response}")
