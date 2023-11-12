@@ -50,7 +50,11 @@ class MainActivity : ComponentActivity() {
             Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
                 .build()
-        ).build()
-        WorkManager.getInstance(this).enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
+        )
+            .addTag("SyncWork")
+            .addTag("AutomaticSyncWork")
+            .build()
+        WorkManager.getInstance(this)
+            .enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
     }
 }
