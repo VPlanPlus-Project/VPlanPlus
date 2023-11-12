@@ -89,4 +89,5 @@
     <string name="settings_profileManagementCalendarLessonsText">Dies erstellt einen Kalendereintrag für jede einzelne Stunde in diesem Profil.</string>
     <string name="settings_profileManagementCalendarNoneTitle">Keine Kalendereinträge erstellen</string>
     <string name="settings_profileManagementCalendarNoneText">Es werden keine Events erstellt.</string>
+    <string name="settings_profileManagementCalendarTitle">Kalendersynchronisierung</string>
 </resources>

@@ -88,4 +88,5 @@
     <string name="settings_profileManagementCalendarLessonsText">This will create a calendar event for every single lesson.</string>
     <string name="settings_profileManagementCalendarNoneTitle">Don\'t create calendar events</string>
     <string name="settings_profileManagementCalendarNoneText">This won\'t create any events.</string>
+    <string name="settings_profileManagementCalendarTitle">Calendar synchronization</string>
 </resources>

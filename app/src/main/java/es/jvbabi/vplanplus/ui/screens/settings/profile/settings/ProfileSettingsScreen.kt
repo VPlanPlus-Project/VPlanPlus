@@ -1,5 +1,9 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -28,6 +32,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -38,6 +43,7 @@ import es.jvbabi.vplanplus.ui.common.BigButtonGroup
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.RadioCard
 import es.jvbabi.vplanplus.ui.common.RadioCardGroup
+import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.Profile
 
@@ -54,6 +60,13 @@ fun ProfileSettingsScreen(
     val state = viewModel.state.value
     val context = LocalContext.current
 
+    val calendarPermissionRequester = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {
+            if (!it) viewModel.setCalendarMode(ProfileCalendarType.NONE)
+        }
+    )
+
     if (state.initDone) ProfileSettingsScreenContent(
         state = state,
         onBackClicked = { navController.popBackStack() },
@@ -65,7 +78,13 @@ fun ProfileSettingsScreen(
             viewModel.renameProfile(it)
         },
         onCalendarModeSet = {
-            viewModel.setCalendarMode(it)
+            if (it != ProfileCalendarType.NONE && ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.WRITE_CALENDAR
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                calendarPermissionRequester.launch(Manifest.permission.WRITE_CALENDAR)
+            } else viewModel.setCalendarMode(it)
         }
     )
 }
@@ -155,32 +174,37 @@ private fun ProfileSettingsScreenContent(
                 ),
                 modifier = Modifier.padding(16.dp)
             )
-            RadioCardGroup(
-                modifier = Modifier.padding(top = 16.dp),
-                options = listOf(
-                    RadioCard(
-                        icon = Icons.Outlined.CalendarToday,
-                        title = stringResource(id = R.string.settings_profileManagementCalendarDayTitle),
-                        subtitle = stringResource(id = R.string.settings_profileManagementCalendarDayText),
-                        onClick = { onCalendarModeSet(ProfileCalendarType.DAY) },
-                        selected = state.profile!!.calendarMode == ProfileCalendarType.DAY
-                    ),
-                    RadioCard(
-                        icon = Icons.Outlined.CalendarMonth,
-                        title = stringResource(id = R.string.settings_profileManagementCalendarLessonsTitle),
-                        subtitle = stringResource(id = R.string.settings_profileManagementCalendarLessonsText),
-                        onClick = { onCalendarModeSet(ProfileCalendarType.LESSON) },
-                        selected = state.profile.calendarMode == ProfileCalendarType.LESSON
-                    ),
-                    RadioCard(
-                        icon = Icons.Outlined.EventBusy,
-                        title = stringResource(id = R.string.settings_profileManagementCalendarNoneTitle),
-                        subtitle = stringResource(id = R.string.settings_profileManagementCalendarNoneText),
-                        onClick = { onCalendarModeSet(ProfileCalendarType.NONE) },
-                        selected = state.profile.calendarMode == ProfileCalendarType.NONE
+
+            SettingsCategory(
+                title = stringResource(id = R.string.settings_profileManagementCalendarTitle),
+            ) {
+                RadioCardGroup(
+                    modifier = Modifier.padding(top = 16.dp),
+                    options = listOf(
+                        RadioCard(
+                            icon = Icons.Outlined.CalendarToday,
+                            title = stringResource(id = R.string.settings_profileManagementCalendarDayTitle),
+                            subtitle = stringResource(id = R.string.settings_profileManagementCalendarDayText),
+                            onClick = { onCalendarModeSet(ProfileCalendarType.DAY) },
+                            selected = state.profile!!.calendarMode == ProfileCalendarType.DAY
+                        ),
+                        RadioCard(
+                            icon = Icons.Outlined.CalendarMonth,
+                            title = stringResource(id = R.string.settings_profileManagementCalendarLessonsTitle),
+                            subtitle = stringResource(id = R.string.settings_profileManagementCalendarLessonsText),
+                            onClick = { onCalendarModeSet(ProfileCalendarType.LESSON) },
+                            selected = state.profile.calendarMode == ProfileCalendarType.LESSON
+                        ),
+                        RadioCard(
+                            icon = Icons.Outlined.EventBusy,
+                            title = stringResource(id = R.string.settings_profileManagementCalendarNoneTitle),
+                            subtitle = stringResource(id = R.string.settings_profileManagementCalendarNoneText),
+                            onClick = { onCalendarModeSet(ProfileCalendarType.NONE) },
+                            selected = state.profile.calendarMode == ProfileCalendarType.NONE
+                        )
                     )
                 )
-            )
+            }
         }
     }
 }
