@@ -39,6 +39,7 @@ import es.jvbabi.vplanplus.ui.common.BigButtonGroup
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.RadioCard
 import es.jvbabi.vplanplus.ui.common.RadioCardGroup
+import es.jvbabi.vplanplus.ui.common.SelectDialog
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
@@ -91,6 +92,9 @@ private fun ProfileSettingsScreenContent(
 
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    var dialogCall = remember<@Composable () -> Unit> { {} }
+    var dialogVisible by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -117,6 +121,9 @@ private fun ProfileSettingsScreenContent(
             )
         },
     ) { paddingValues ->
+        if (dialogVisible) {
+            dialogCall()
+        }
         if (deleteDialogOpen) {
             YesNoDialog(
                 icon = Icons.Default.Delete,
@@ -195,11 +202,22 @@ private fun ProfileSettingsScreenContent(
                     icon = Icons.Default.EditCalendar,
                     title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
                     type = SettingsType.SELECT,
-                    enabled = state.profile.calendarMode != ProfileCalendarType.NONE,
+                    enabled = state.profile.calendarMode != ProfileCalendarType.NONE && state.calendars.isNotEmpty(),
                     subtitle =
-                    if (state.profile.calendarMode != ProfileCalendarType.NONE) ""
-                    else stringResource(id = R.string.settings_profileManagementCalendarNameDisabled),
-                    doAction = {}
+                    if (state.profile.calendarMode == ProfileCalendarType.NONE) stringResource(id = R.string.settings_profileManagementCalendarNameDisabled)
+                    else if (state.calendars.isEmpty()) stringResource(id = R.string.settings_profileManagementNoCalendars)
+                    else "",
+                    doAction = {
+                        dialogCall = {
+                            SelectDialog(
+                                icon = Icons.Default.EditCalendar,
+                                title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
+                                items = state.calendars,
+                                onDismiss = { dialogVisible = false }
+                            )
+                        }
+                        dialogVisible = true
+                    }
                 )
             }
         }
@@ -210,7 +228,7 @@ private fun ProfileSettingsScreenContent(
 @Preview(showBackground = true)
 private fun ProfileSettingsScreenPreview() {
     ProfileSettingsScreenContent(
-        state = ProfileSettingsState(profile = Profile.generateClassProfile()),
+        state = ProfileSettingsState(profile = Profile.generateClassProfile().copy(calendarMode = ProfileCalendarType.DAY )),
         onBackClicked = {}
     )
 }

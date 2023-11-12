@@ -98,4 +98,5 @@
     <string name="onboarding_permissionTitle">Permissions (%1$d/%2$d)</string>
     <string name="settings_profileManagementCalendarNameTitle">Calendar</string>
     <string name="settings_profileManagementCalendarNameDisabled">Calendar sync is deactivated</string>
+    <string name="settings_profileManagementNoCalendars">There aren\'t any calendars on your system</string>
 </resources>

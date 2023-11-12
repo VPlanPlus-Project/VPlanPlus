@@ -1,15 +1,22 @@
 package es.jvbabi.vplanplus.ui.common
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -18,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -109,7 +117,7 @@ fun InputDialog(
     value: String? = null,
     onOk: (String?) -> Unit = {},
 ) {
-    var input by remember { mutableStateOf(value?:"") }
+    var input by remember { mutableStateOf(value ?: "") }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -136,6 +144,72 @@ fun InputDialog(
             },
         )
     }
+}
+
+@Composable
+fun SelectDialog(
+    icon: ImageVector,
+    title: String?,
+    message: String? = null,
+    value: String? = null,
+    onOk: (String?) -> Unit = {},
+    items: List<String>,
+    onDismiss: () -> Unit = {}
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        var selected by remember { mutableStateOf(value ?: "") }
+        AlertDialog(
+            icon = { Icon(imageVector = icon, contentDescription = null) },
+            title = { if (title != null) Text(text = title) },
+            text = {
+                   Column {
+                    if (message != null) Text(text = message)
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(items) { item ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .clickable { selected = item },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                RadioButton(selected = selected == item, onClick = { /*TODO*/ })
+                                Text(text = item, style = MaterialTheme.typography.bodyLarge)
+                            }
+                        }
+                    }
+                }
+
+            },
+            onDismissRequest = { onDismiss() },
+            confirmButton = {
+                TextButton(onClick = { onOk(selected) }) {
+                    Text(text = stringResource(id = android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onDismiss() }) {
+                    Text(text = stringResource(id = android.R.string.cancel))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+@Preview
+fun SelectDialogPreview() {
+    SelectDialog(
+        icon = Icons.Default.SystemUpdate,
+        title = "Update available",
+        message = "There is an update available for the app.",
+        items = listOf("1", "2", "3")
+    )
 }
 
 @Composable

@@ -99,4 +99,5 @@
     <string name="onboarding_permissionTitle">Berechtigungen (%1$d/%2$d)</string>
     <string name="settings_profileManagementCalendarNameTitle">Kalender</string>
     <string name="settings_profileManagementCalendarNameDisabled">Kalendersynchronisierung ist deaktiviert</string>
+    <string name="settings_profileManagementNoCalendars">Auf diesem Gerät existieren keine Kalender</string>
 </resources>

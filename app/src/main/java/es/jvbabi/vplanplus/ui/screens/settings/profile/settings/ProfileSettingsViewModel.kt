@@ -115,6 +115,7 @@ data class ProfileSettingsState(
     val initDone: Boolean = false,
     val profile: Profile? = null,
     val deleteProfileResult: ProfileManagementDeletionResult? = null,
+    val calendars: List<String> = listOf()
 )
 
 enum class ProfileManagementDeletionResult {
