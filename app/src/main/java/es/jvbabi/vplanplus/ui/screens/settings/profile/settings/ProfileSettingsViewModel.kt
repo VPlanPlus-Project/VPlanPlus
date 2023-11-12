@@ -35,25 +35,21 @@ class ProfileSettingsViewModel @Inject constructor(
 
             val projection = arrayOf(
                 CalendarContract.Calendars._ID,
-                CalendarContract.Calendars.ACCOUNT_NAME,
                 CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
             )
             val cursor = contentResolver.query(calendarsUri, projection, null, null, null)
-            Log.d("Calendar", "Calendars:")
+            val calendars = mutableListOf<Calendar>()
             if (cursor != null && cursor.moveToFirst()) {
                 do {
-                    // Retrieve calendar information
                     val calendarId =
                         cursor.getLong(cursor.getColumnIndex(CalendarContract.Calendars._ID))
-                    val accountName =
-                        cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.ACCOUNT_NAME))
                     val calendarName =
                         cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME))
-
-                    Log.d("Calendar", "Calendar id: $calendarId, Calendar account name: $accountName, Calendar name: $calendarName")
+                    calendars.add(Calendar(calendarId, calendarName))
                 } while (cursor.moveToNext())
                 cursor.close()
             }
+            _state.value = _state.value.copy(calendars = calendars)
         } catch (e: SecurityException) {
             Log.d("Calendar", "No permission to read calendar: ${e.message}")
         }
@@ -115,10 +111,15 @@ data class ProfileSettingsState(
     val initDone: Boolean = false,
     val profile: Profile? = null,
     val deleteProfileResult: ProfileManagementDeletionResult? = null,
-    val calendars: List<String> = listOf()
+    val calendars: List<Calendar> = listOf()
 )
 
 enum class ProfileManagementDeletionResult {
     SUCCESS,
     LAST_PROFILE,
 }
+
+data class Calendar(
+    val id: Long,
+    val displayName: String
+)

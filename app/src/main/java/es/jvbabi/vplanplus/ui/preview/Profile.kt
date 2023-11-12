@@ -13,7 +13,8 @@ object Profile {
             customName = "7c",
             type = ProfileType.STUDENT,
             referenceId = 1,
-            calendarMode = ProfileCalendarType.NONE
+            calendarMode = ProfileCalendarType.NONE,
+            calendarId = null
         )
     }
 }

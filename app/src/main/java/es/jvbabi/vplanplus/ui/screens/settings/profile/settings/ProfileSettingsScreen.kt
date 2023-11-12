@@ -212,7 +212,7 @@ private fun ProfileSettingsScreenContent(
                             SelectDialog(
                                 icon = Icons.Default.EditCalendar,
                                 title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
-                                items = state.calendars,
+                                items = state.calendars.map { it.displayName },
                                 onDismiss = { dialogVisible = false }
                             )
                         }

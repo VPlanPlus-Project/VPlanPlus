@@ -23,7 +23,7 @@ class ProfileRepositoryImpl(
     }
 
     override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String, customName: String) {
-        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name, customName = customName, calendarMode = ProfileCalendarType.NONE))
+        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name, customName = customName, calendarMode = ProfileCalendarType.NONE, calendarId = null))
     }
 
     override suspend fun getClassesOnline(

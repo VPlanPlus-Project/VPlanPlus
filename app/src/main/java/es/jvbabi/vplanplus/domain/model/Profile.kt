@@ -13,6 +13,7 @@ data class Profile(
     val name: String,
     val customName: String,
     val calendarMode: ProfileCalendarType,
+    val calendarId: Long?,
     val referenceId: Long, // can be class id, teacher id or room id
 ) {
     fun toMenuProfile(): MenuProfile {
