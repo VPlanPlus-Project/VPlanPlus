@@ -1,14 +1,11 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Delete
@@ -32,7 +29,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -44,6 +40,8 @@ import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.RadioCard
 import es.jvbabi.vplanplus.ui.common.RadioCardGroup
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
+import es.jvbabi.vplanplus.ui.common.SettingsSetting
+import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.Profile
 
@@ -53,19 +51,13 @@ fun ProfileSettingsScreen(
     viewModel: ProfileSettingsViewModel = hiltViewModel(),
     profileId: Long
 ) {
-    LaunchedEffect(key1 = profileId, block = {
-        viewModel.init(profileId = profileId)
-    })
 
     val state = viewModel.state.value
     val context = LocalContext.current
 
-    val calendarPermissionRequester = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = {
-            if (!it) viewModel.setCalendarMode(ProfileCalendarType.NONE)
-        }
-    )
+    LaunchedEffect(key1 = profileId, block = {
+        viewModel.init(profileId = profileId, context = context)
+    })
 
     if (state.initDone) ProfileSettingsScreenContent(
         state = state,
@@ -78,13 +70,7 @@ fun ProfileSettingsScreen(
             viewModel.renameProfile(it)
         },
         onCalendarModeSet = {
-            if (it != ProfileCalendarType.NONE && ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.WRITE_CALENDAR
-                ) != PackageManager.PERMISSION_GRANTED
-            ) {
-                calendarPermissionRequester.launch(Manifest.permission.WRITE_CALENDAR)
-            } else viewModel.setCalendarMode(it)
+            viewModel.setCalendarMode(it)
         }
     )
 }
@@ -98,6 +84,7 @@ private fun ProfileSettingsScreenContent(
     onProfileRenamed: (String) -> Unit = {},
     onCalendarModeSet: (ProfileCalendarType) -> Unit = {}
 ) {
+    if (state.profile == null) return
 
     var deleteDialogOpen by remember { mutableStateOf(false) }
     var renameDialogOpen by remember { mutableStateOf(false) }
@@ -108,7 +95,7 @@ private fun ProfileSettingsScreenContent(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    if (state.profile!!.name == state.profile.customName) Text(
+                    if (state.profile.name == state.profile.customName) Text(
                         text = stringResource(
                             id = R.string.settings_profileManagementScreenTitle,
                             state.profile.name
@@ -136,7 +123,7 @@ private fun ProfileSettingsScreenContent(
                 title = stringResource(id = R.string.profileManagement_deleteProfileDialogTitle),
                 message = stringResource(
                     id = R.string.profileManagement_deleteProfileDialogText,
-                    state.profile!!.name
+                    state.profile.name
                 ),
                 onYes = {
                     onProfileDeleteDialogYes()
@@ -151,7 +138,7 @@ private fun ProfileSettingsScreenContent(
             InputDialog(
                 icon = Icons.Default.Edit,
                 title = stringResource(id = R.string.settings_profileManagementScreenRenameProfileButton),
-                placeholder = state.profile!!.name,
+                placeholder = state.profile.name,
                 message = stringResource(id = R.string.settings_profileManagementScreenRenameProfileDialogText),
                 onOk = {
                     if (it?.isNotEmpty() == true) onProfileRenamed(it)
@@ -186,7 +173,7 @@ private fun ProfileSettingsScreenContent(
                             title = stringResource(id = R.string.settings_profileManagementCalendarDayTitle),
                             subtitle = stringResource(id = R.string.settings_profileManagementCalendarDayText),
                             onClick = { onCalendarModeSet(ProfileCalendarType.DAY) },
-                            selected = state.profile!!.calendarMode == ProfileCalendarType.DAY
+                            selected = state.profile.calendarMode == ProfileCalendarType.DAY
                         ),
                         RadioCard(
                             icon = Icons.Outlined.CalendarMonth,
@@ -203,6 +190,16 @@ private fun ProfileSettingsScreenContent(
                             selected = state.profile.calendarMode == ProfileCalendarType.NONE
                         )
                     )
+                )
+                SettingsSetting(
+                    icon = Icons.Default.EditCalendar,
+                    title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
+                    type = SettingsType.SELECT,
+                    enabled = state.profile.calendarMode != ProfileCalendarType.NONE,
+                    subtitle =
+                    if (state.profile.calendarMode != ProfileCalendarType.NONE) ""
+                    else stringResource(id = R.string.settings_profileManagementCalendarNameDisabled),
+                    doAction = {}
                 )
             }
         }

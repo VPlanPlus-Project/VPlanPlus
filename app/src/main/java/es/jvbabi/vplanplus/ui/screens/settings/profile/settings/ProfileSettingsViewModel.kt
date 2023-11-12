@@ -1,7 +1,10 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
+import android.provider.CalendarContract
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -14,6 +17,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class ProfileSettingsViewModel @Inject constructor(
     private val profileUseCases: ProfileUseCases
@@ -22,7 +26,39 @@ class ProfileSettingsViewModel @Inject constructor(
     private val _state = mutableStateOf(ProfileSettingsState())
     val state: State<ProfileSettingsState> = _state
 
-    fun init(profileId: Long) {
+    @SuppressLint("Range")
+    fun init(profileId: Long, context: Context) {
+
+        try {
+            val contentResolver = context.contentResolver
+            val calendarsUri = CalendarContract.Calendars.CONTENT_URI
+
+            val projection = arrayOf(
+                CalendarContract.Calendars._ID,
+                CalendarContract.Calendars.ACCOUNT_NAME,
+                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
+            )
+            val cursor = contentResolver.query(calendarsUri, projection, null, null, null)
+            Log.d("Calendar", "Calendars:")
+            if (cursor != null && cursor.moveToFirst()) {
+                do {
+                    // Retrieve calendar information
+                    val calendarId =
+                        cursor.getLong(cursor.getColumnIndex(CalendarContract.Calendars._ID))
+                    val accountName =
+                        cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.ACCOUNT_NAME))
+                    val calendarName =
+                        cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME))
+
+                    Log.d("Calendar", "Calendar id: $calendarId, Calendar account name: $accountName, Calendar name: $calendarName")
+                } while (cursor.moveToNext())
+                cursor.close()
+            }
+        } catch (e: SecurityException) {
+            Log.d("Calendar", "No permission to read calendar: ${e.message}")
+        }
+
+
         viewModelScope.launch {
             profileUseCases.getProfileById(profileId).collect {
                 _state.value = _state.value.copy(profile = it, initDone = true)

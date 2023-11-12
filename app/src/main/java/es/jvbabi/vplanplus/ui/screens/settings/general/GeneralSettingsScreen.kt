@@ -93,8 +93,9 @@ fun GeneralSettingsContent(
                         id = R.string.settings_generalNotificationsOnAppOpenedSubtitle
                     ),
                     type = SettingsType.TOGGLE,
-                    checked = state.notificationShowNotificationIfAppIsVisible
-                ) { onShowNotificationsOnAppOpenedClicked() }
+                    checked = state.notificationShowNotificationIfAppIsVisible,
+                    doAction = { onShowNotificationsOnAppOpenedClicked() }
+                )
             }
             SettingsCategory(title = stringResource(id = R.string.settings_generalSync)) {
                 SettingsSetting(

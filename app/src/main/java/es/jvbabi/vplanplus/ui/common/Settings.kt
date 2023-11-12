@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -14,7 +16,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -39,17 +43,18 @@ fun SettingsSetting(
     subtitle: String? = null,
     type: SettingsType,
     checked: Boolean? = null,
-    doAction: () -> Unit
+    doAction: () -> Unit,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { doAction() }
+            .clickable { if (enabled) doAction() }
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Row(modifier = Modifier.weight(1f, false)) {
+        Row(modifier = Modifier.weight(1f, false), verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier.padding(start = 16.dp)
             ) {
@@ -57,15 +62,23 @@ fun SettingsSetting(
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray,
                         modifier = Modifier.padding(end = 16.dp)
                     )
                 }
             }
             Column {
-                Text(text = title, style = MaterialTheme.typography.bodyLarge)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray
+                )
                 if (subtitle != null) {
-                    Text(text = subtitle, style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        text = subtitle,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray
+                    )
                 }
             }
         }
@@ -78,8 +91,8 @@ fun SettingsSetting(
                     Switch(checked = checked ?: false, onCheckedChange = { doAction() })
                 }
 
-                SettingsType.NUMERIC_INPUT -> {
-                }
+                SettingsType.NUMERIC_INPUT -> {}
+                SettingsType.SELECT -> {}
 
                 SettingsType.CHECKBOX -> {
                     // TODO
@@ -97,5 +110,20 @@ enum class SettingsType {
     TOGGLE,
     CHECKBOX,
     FUNCTION,
-    NUMERIC_INPUT
+    NUMERIC_INPUT,
+    SELECT
+}
+
+@Composable
+@Preview(showBackground = true)
+fun SettingsOptionPreview() {
+    SettingsSetting(
+        icon = Icons.Default.ManageAccounts,
+        title = "Test",
+        subtitle = "Test",
+        type = SettingsType.NUMERIC_INPUT,
+        checked = true,
+        doAction = {},
+        enabled = false
+    )
 }

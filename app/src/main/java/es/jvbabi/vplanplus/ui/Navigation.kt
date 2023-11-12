@@ -23,6 +23,7 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.Task
+import es.jvbabi.vplanplus.ui.screens.onboarding.permissions.PermissionsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
@@ -145,6 +146,14 @@ fun NavigationGraph(
                 exitTransition = exitSlideTransition
             ) {
                 OnboardingProfileOptionListScreen(navController, onboardingViewModel)
+            }
+
+            composable(
+                route = Screen.OnboardingPermissionsScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                PermissionsScreen(navController = navController)
             }
 
             composable(
