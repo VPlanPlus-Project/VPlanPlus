@@ -1,8 +1,10 @@
 package es.jvbabi.vplanplus.domain.usecase
 
+import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -26,7 +28,8 @@ class ProfileUseCases(
     private val keyValueRepository: KeyValueRepository,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
-    private val lessonRepository: LessonRepository
+    private val lessonRepository: LessonRepository,
+    private val calendarRepository: CalendarRepository
 ) {
 
     suspend fun createStudentProfile(classId: Long, name: String) {
@@ -129,5 +132,10 @@ class ProfileUseCases(
 
     fun getProfileById(profileId: Long): Flow<Profile> {
         return profileRepository.getProfileById(id = profileId)
+    }
+
+    suspend fun getCalendarFromProfile(profile: Profile): Calendar? {
+        if (profile.calendarId == null) return null
+        return calendarRepository.getCalendarById(id = profile.calendarId)
     }
 }

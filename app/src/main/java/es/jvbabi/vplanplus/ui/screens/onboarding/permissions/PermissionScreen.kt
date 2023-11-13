@@ -51,7 +51,7 @@ fun PermissionsScreen(
         },
         onNext = {
             if (state.permission[state.index].second) {
-                if (viewModel.isLast()) viewModel.nextPermission()
+                if (viewModel.isLast()) navController.navigate(Screen.OnboardingSetupScreen.route)
                 else viewModel.nextPermission()
             }
         }

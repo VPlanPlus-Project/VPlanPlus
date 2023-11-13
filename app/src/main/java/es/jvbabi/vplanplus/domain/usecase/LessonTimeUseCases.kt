@@ -1,5 +1,7 @@
 package es.jvbabi.vplanplus.domain.usecase
 
+import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
@@ -35,5 +37,9 @@ class LessonTimeUseCases(
                 lessons.firstOrNull { DateUtils.calculateProgress(it.start, it.end, LocalTime.now().toString())!! in 0.0..1.0 }?.lessonNumber?:0
             }
         }
+    }
+
+    suspend fun getLessonTimesForLessonNumber(lessonNumber: Int, `class`: Classes): LessonTime {
+        return lessonTimeRepository.getLessonTimesByClass(`class`)[lessonNumber]
     }
 }

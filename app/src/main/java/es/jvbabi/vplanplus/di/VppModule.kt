@@ -247,6 +247,7 @@ object VppModule {
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
         lessonRepository: LessonRepository,
+        calendarRepository: CalendarRepository
     ): ProfileUseCases {
         return ProfileUseCases(
             profileRepository = repository,
@@ -256,6 +257,7 @@ object VppModule {
             teacherRepository = teacherRepository,
             roomRepository = roomRepository,
             lessonRepository = lessonRepository,
+            calendarRepository = calendarRepository
         )
     }
 
