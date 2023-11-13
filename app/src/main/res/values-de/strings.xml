@@ -100,4 +100,5 @@
     <string name="settings_profileManagementCalendarNameTitle">Kalender</string>
     <string name="settings_profileManagementCalendarNameDisabled">Kalendersynchronisierung ist deaktiviert</string>
     <string name="settings_profileManagementNoCalendars">Auf diesem Gerät existieren keine Kalender</string>
+    <string name="settings_profileManagementCalendarNameNone">Wähle einen Kalender aus</string>
 </resources>

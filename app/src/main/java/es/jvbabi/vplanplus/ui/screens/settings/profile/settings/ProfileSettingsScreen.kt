@@ -57,7 +57,7 @@ fun ProfileSettingsScreen(
     val context = LocalContext.current
 
     LaunchedEffect(key1 = profileId, block = {
-        viewModel.init(profileId = profileId, context = context)
+        viewModel.init(profileId = profileId)
     })
 
     if (state.initDone) ProfileSettingsScreenContent(
@@ -72,6 +72,9 @@ fun ProfileSettingsScreen(
         },
         onCalendarModeSet = {
             viewModel.setCalendarMode(it)
+        },
+        onCalendarSet = {
+            viewModel.setCalendar(state.calendars.first { c -> c.displayName == it }.id)
         }
     )
 }
@@ -83,7 +86,8 @@ private fun ProfileSettingsScreenContent(
     onBackClicked: () -> Unit,
     onProfileDeleteDialogYes: () -> Unit = {},
     onProfileRenamed: (String) -> Unit = {},
-    onCalendarModeSet: (ProfileCalendarType) -> Unit = {}
+    onCalendarModeSet: (ProfileCalendarType) -> Unit = {},
+    onCalendarSet: (String) -> Unit = {}
 ) {
     if (state.profile == null) return
 
@@ -206,14 +210,19 @@ private fun ProfileSettingsScreenContent(
                     subtitle =
                     if (state.profile.calendarMode == ProfileCalendarType.NONE) stringResource(id = R.string.settings_profileManagementCalendarNameDisabled)
                     else if (state.calendars.isEmpty()) stringResource(id = R.string.settings_profileManagementNoCalendars)
-                    else "",
+                    else state.profileCalendar?.displayName ?: stringResource(id = R.string.settings_profileManagementCalendarNameNone),
                     doAction = {
                         dialogCall = {
                             SelectDialog(
                                 icon = Icons.Default.EditCalendar,
                                 title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
                                 items = state.calendars.map { it.displayName },
-                                onDismiss = { dialogVisible = false }
+                                onDismiss = { dialogVisible = false },
+                                value = state.profileCalendar?.displayName,
+                                onOk = {
+                                    dialogVisible = false
+                                    if (!it.isNullOrBlank()) onCalendarSet(it)
+                                }
                             )
                         }
                         dialogVisible = true
