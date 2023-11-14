@@ -107,7 +107,7 @@ class SyncWorker @AssistedInject constructor(
                             if (lessons.dayType != DayType.DATA) return@profile
                             when (profile.calendarMode) {
                                 ProfileCalendarType.DAY -> {
-                                    val uri = calendarRepository.insertEvent(
+                                    calendarRepository.insertEvent(
                                         CalendarEvent(
                                             title = "Schultag " + profile.customName,
                                             calendarId = calendar.id,
@@ -116,7 +116,21 @@ class SyncWorker @AssistedInject constructor(
                                             endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-"}.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-" }.className)!!).end, date)
                                         )
                                     )
-                                    Log.d("SyncWorker", "Inserted event $uri")
+                                }
+                                ProfileCalendarType.LESSON -> {
+                                    lessons.lessons.forEach { lesson ->
+                                        if (lesson.subject != "-") {
+                                            calendarRepository.insertEvent(
+                                                CalendarEvent(
+                                                    title = lesson.subject,
+                                                    calendarId = calendar.id,
+                                                    location = school.name + " Raum " + lesson.room.joinToString(", "),
+                                                    startTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).start, date),
+                                                    endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).end, date)
+                                                )
+                                            )
+                                        }
+                                    }
                                 }
                                 else -> {}
                             }
