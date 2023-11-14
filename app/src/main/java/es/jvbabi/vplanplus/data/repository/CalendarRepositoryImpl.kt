@@ -49,8 +49,8 @@ class CalendarRepositoryImpl(
     override fun insertEvent(event: CalendarEvent): Uri? {
         val contentResolver = context.contentResolver
         val values = ContentValues()
-        values.put(CalendarContract.Events.DTSTART, event.startTimeStamp)
-        values.put(CalendarContract.Events.DTEND, event.endTimeStamp)
+        values.put(CalendarContract.Events.DTSTART, event.startTimeStamp*1000)
+        values.put(CalendarContract.Events.DTEND, event.endTimeStamp*1000)
         values.put(CalendarContract.Events.TITLE, event.title)
         values.put(CalendarContract.Events.DESCRIPTION, event.location)
         values.put(CalendarContract.Events.CALENDAR_ID, event.calendarId)

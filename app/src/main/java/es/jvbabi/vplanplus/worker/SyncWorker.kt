@@ -109,7 +109,7 @@ class SyncWorker @AssistedInject constructor(
                                 ProfileCalendarType.DAY -> {
                                     val uri = calendarRepository.insertEvent(
                                         CalendarEvent(
-                                            title = "Schultag",
+                                            title = "Schultag " + profile.customName,
                                             calendarId = calendar.id,
                                             location = school.name,
                                             startTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.first { it.subject != "-" }.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.first { it.subject != "-" }.className)!!).start, date),
