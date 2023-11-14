@@ -86,8 +86,11 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideCalendarRepository(@ApplicationContext context: Context): CalendarRepository {
-        return CalendarRepositoryImpl(context)
+    fun provideCalendarRepository(@ApplicationContext context: Context, db: VppDatabase): CalendarRepository {
+        return CalendarRepositoryImpl(
+            context = context,
+            calendarEventDao = db.calendarEventDao
+        )
     }
 
     @Provides

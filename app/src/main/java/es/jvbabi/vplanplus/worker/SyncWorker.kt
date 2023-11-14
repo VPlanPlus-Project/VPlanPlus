@@ -98,6 +98,7 @@ class SyncWorker @AssistedInject constructor(
 
                         // build calendar
                         val calendar = profileUseCases.getCalendarFromProfile(profile)
+                        calendarRepository.deleteCalendarEvents(school = school, date = date)
                         if (calendar != null) {
                             val lessons = when (profile.type) {
                                 ProfileType.STUDENT -> lessonUseCases.getLessonsForClass(classUseCases.getClassById(profile.referenceId), date)
@@ -113,8 +114,10 @@ class SyncWorker @AssistedInject constructor(
                                             calendarId = calendar.id,
                                             location = school.name,
                                             startTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.first { it.subject != "-" }.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.first { it.subject != "-" }.className)!!).start, date),
-                                            endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-"}.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-" }.className)!!).end, date)
-                                        )
+                                            endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-"}.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-" }.className)!!).end, date),
+                                            date = date
+                                        ),
+                                        school = school
                                     )
                                 }
                                 ProfileCalendarType.LESSON -> {
@@ -126,8 +129,10 @@ class SyncWorker @AssistedInject constructor(
                                                     calendarId = calendar.id,
                                                     location = school.name + " Raum " + lesson.room.joinToString(", "),
                                                     startTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).start, date),
-                                                    endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).end, date)
-                                                )
+                                                    endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).end, date),
+                                                    date = date
+                                                ),
+                                                school = school
                                             )
                                         }
                                     }
