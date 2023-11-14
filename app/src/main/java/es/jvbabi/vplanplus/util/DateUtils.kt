@@ -9,11 +9,6 @@ import java.time.LocalDateTime
 import java.time.ZoneId
 
 object DateUtils {
-    fun getCurrentDayTimestamp(): Long {
-        val currentLocalDate = LocalDate.now()
-        val startOfDay = currentLocalDate.atStartOfDay(ZoneId.systemDefault())
-        return startOfDay.toInstant().toEpochMilli()/1000
-    }
 
     fun getDayTimestamp(year: Int, month: Int, day: Int): Long {
         val localDate = LocalDate.of(year, month, day)
@@ -52,5 +47,13 @@ object DateUtils {
         } catch (e: ParseException) {
             null
         }
+    }
+
+    fun getTimestampFromTimeString(timeString: String, localDate: LocalDate): Long {
+        val time = timeString.split(":")
+        val hour = time[0].toInt()
+        val minute = time[1].toInt()
+        val localDateTime = LocalDateTime.of(localDate.year, localDate.month, localDate.dayOfMonth, hour, minute)
+        return localDateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()/1000
     }
 }

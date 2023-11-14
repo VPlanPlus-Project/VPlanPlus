@@ -1,8 +1,10 @@
 package es.jvbabi.vplanplus.domain.usecase
 
+import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -11,6 +13,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
@@ -25,19 +28,24 @@ class ProfileUseCases(
     private val keyValueRepository: KeyValueRepository,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
-    private val lessonRepository: LessonRepository
+    private val lessonRepository: LessonRepository,
+    private val calendarRepository: CalendarRepository
 ) {
 
     suspend fun createStudentProfile(classId: Long, name: String) {
-        profileRepository.createProfile(referenceId = classId, type = ProfileType.STUDENT, name = name)
+        profileRepository.createProfile(referenceId = classId, type = ProfileType.STUDENT, name = name, customName = name)
     }
 
     suspend fun createTeacherProfile(teacherId: Long, name: String) {
-        profileRepository.createProfile(referenceId = teacherId, type = ProfileType.TEACHER, name = name)
+        profileRepository.createProfile(referenceId = teacherId, type = ProfileType.TEACHER, name = name, customName = name)
+    }
+
+    suspend fun updateProfile(profile: Profile) {
+        profileRepository.updateProfile(profile)
     }
 
     suspend fun createRoomProfile(roomId: Long, name: String) {
-        profileRepository.createProfile(referenceId = roomId, type = ProfileType.ROOM, name = name)
+        profileRepository.createProfile(referenceId = roomId, type = ProfileType.ROOM, name = name, customName = name)
     }
 
     suspend fun getProfileByClassId(classId: Long): Profile {
@@ -54,10 +62,10 @@ class ProfileUseCases(
 
     suspend fun getActiveProfile(): Profile? {
         val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE) ?: return null
-        return profileRepository.getProfileById(id = activeProfileId.toLong())
+        return profileRepository.getProfileById(id = activeProfileId.toLong()).first()
     }
 
-    suspend fun getProfiles(): List<Profile> {
+    fun getProfiles(): Flow<List<Profile>> {
         return profileRepository.getProfiles()
     }
 
@@ -74,7 +82,7 @@ class ProfileUseCases(
     }
 
     suspend fun getSchoolFromProfileId(profileId: Long): School {
-        val profile = profileRepository.getProfileById(id = profileId)
+        val profile = profileRepository.getProfileById(id = profileId).first()
         return when (profile.type) {
             ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
@@ -120,5 +128,14 @@ class ProfileUseCases(
         }.map { concatenatedString ->
             MessageDigest.getInstance("SHA-256").digest(concatenatedString.toByteArray()).joinToString("") { "%02x".format(it) }
         }.first()
+    }
+
+    fun getProfileById(profileId: Long): Flow<Profile> {
+        return profileRepository.getProfileById(id = profileId)
+    }
+
+    suspend fun getCalendarFromProfile(profile: Profile): Calendar? {
+        if (profile.calendarId == null) return null
+        return calendarRepository.getCalendarById(id = profile.calendarId)
     }
 }

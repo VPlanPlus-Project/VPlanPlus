@@ -29,9 +29,11 @@ import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -54,15 +56,6 @@ class HomeViewModel @Inject constructor(
 
     private lateinit var activeProfile: Profile
     private var school: School? = null
-
-    init {
-        viewModelScope.launch {
-            keyValueUseCases.getFlow(Keys.SYNCING).collect {
-                if (_state.value.syncing != (it == "true")) Log.d("HomeViewModel", "syncing=$it")
-                _state.value = _state.value.copy(syncing = it == "true")
-            }
-        }
-    }
 
     suspend fun init(context: Context) {
         // Check if notification permission is granted
@@ -106,7 +99,7 @@ class HomeViewModel @Inject constructor(
         }
 
         val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
-        repeat(syncDays+2) { i ->
+        repeat(syncDays + 2) { i ->
             Log.d(
                 "HomeViewModel",
                 "Updating view $i for ${activeProfile.name} at ${LocalDate.now().plusDays(i - 2L)}"
@@ -114,8 +107,15 @@ class HomeViewModel @Inject constructor(
             updateView(activeProfile, LocalDate.now().plusDays(i - 1L))
         }
 
+        viewModelScope.launch {
+            Worker.isWorkerRunning("SyncWork", context).collect {
+                _state.value = _state.value.copy(syncing = it)
+            }
+        }
+
         _state.value =
-            _state.value.copy(profiles = profileUseCases.getProfiles().map { it.toMenuProfile() })
+            _state.value.copy(
+                profiles = profileUseCases.getProfiles().first().map { it.toMenuProfile() })
 
         _state.value =
             _state.value.copy(initDone = true)
@@ -176,6 +176,12 @@ class HomeViewModel @Inject constructor(
 
     fun getVPlanData(context: Context) {
         viewModelScope.launch {
+
+            if (_state.value.syncing) {
+                Log.d("HomeViewModel", "getVPlanData; already syncing")
+                return@launch
+            }
+
             val syncWork = OneTimeWorkRequestBuilder<SyncWorker>()
                 .setConstraints(
                     Constraints.Builder()
@@ -183,6 +189,8 @@ class HomeViewModel @Inject constructor(
                         .build()
                 )
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .addTag("SyncWork")
+                .addTag("ManualSyncWork")
                 .build()
             WorkManager.getInstance(context).enqueue(syncWork)
         }
@@ -221,8 +229,7 @@ data class HomeState(
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,
-
-    val syncing: Boolean = false,
+    val syncing: Boolean = false
 )
 
 enum class ViewType {

@@ -23,9 +23,11 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.Task
+import es.jvbabi.vplanplus.ui.screens.onboarding.permissions.PermissionsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
+import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
 
 @Composable
 fun NavigationGraph(
@@ -52,6 +54,17 @@ fun NavigationGraph(
 
         composable(route = Screen.SettingsScreen.route) {
             SettingsScreen(navController)
+        }
+
+        composable(
+            route = Screen.SettingsProfileScreen.route + "{profileId}",
+            arguments = listOf(
+                navArgument("profileId") {
+                    type = NavType.LongType
+                }
+            )
+        ) {
+            ProfileSettingsScreen(navController = navController, profileId = it.arguments?.getLong("profileId")!!)
         }
 
         composable(route = Screen.SettingsProfileScreen.route) {
@@ -133,6 +146,14 @@ fun NavigationGraph(
                 exitTransition = exitSlideTransition
             ) {
                 OnboardingProfileOptionListScreen(navController, onboardingViewModel)
+            }
+
+            composable(
+                route = Screen.OnboardingPermissionsScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                PermissionsScreen(navController = navController)
             }
 
             composable(

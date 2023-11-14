@@ -1,13 +1,16 @@
 package es.jvbabi.vplanplus.di
 
 import android.app.Application
+import android.content.Context
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.CalendarRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
@@ -22,8 +25,10 @@ import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
+import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
+import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -66,6 +71,7 @@ object VppModule {
             .fallbackToDestructiveMigration() // TODO: Remove for production
             .addTypeConverter(DayConverter())
             .addTypeConverter(ProfileTypeConverter())
+            .addTypeConverter(ProfileCalendarTypeConverter())
             .allowMainThreadQueries()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
@@ -76,6 +82,15 @@ object VppModule {
     @Singleton
     fun provideSchoolRepository(db: VppDatabase): SchoolRepository {
         return SchoolRepositoryImpl(db.schoolDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCalendarRepository(@ApplicationContext context: Context, db: VppDatabase): CalendarRepository {
+        return CalendarRepositoryImpl(
+            context = context,
+            calendarEventDao = db.calendarEventDao
+        )
     }
 
     @Provides
@@ -234,7 +249,8 @@ object VppModule {
         classRepository: ClassRepository,
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
-        lessonRepository: LessonRepository
+        lessonRepository: LessonRepository,
+        calendarRepository: CalendarRepository
     ): ProfileUseCases {
         return ProfileUseCases(
             profileRepository = repository,
@@ -243,7 +259,8 @@ object VppModule {
             classRepository = classRepository,
             teacherRepository = teacherRepository,
             roomRepository = roomRepository,
-            lessonRepository = lessonRepository
+            lessonRepository = lessonRepository,
+            calendarRepository = calendarRepository
         )
     }
 

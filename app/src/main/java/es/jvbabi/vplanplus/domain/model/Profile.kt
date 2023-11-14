@@ -11,13 +11,20 @@ data class Profile(
     @PrimaryKey(autoGenerate = true) val id: Long? = null,
     val type: ProfileType,
     val name: String,
+    val customName: String,
+    val calendarMode: ProfileCalendarType,
+    val calendarId: Long?,
     val referenceId: Long, // can be class id, teacher id or room id
 ) {
     fun toMenuProfile(): MenuProfile {
-        return MenuProfile(id!!, name)
+        return MenuProfile(id!!, name, customName)
     }
 }
 
 enum class ProfileType {
     TEACHER, STUDENT, ROOM
+}
+
+enum class ProfileCalendarType {
+    DAY, LESSON, NONE
 }

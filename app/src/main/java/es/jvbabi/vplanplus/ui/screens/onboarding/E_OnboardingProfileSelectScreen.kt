@@ -49,7 +49,7 @@ fun OnboardingProfileOptionListScreen(
         state = state,
         onClassSelect = { onboardingViewModel.onProfileSelect(it) }, {
             coroutineScope.launch { onboardingViewModel.onProfileSubmit(context) }
-            navController.navigate(Screen.OnboardingSetupScreen.route) { popUpTo(0) }
+            navController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
         },
         setDialogVisibility = { onboardingViewModel.setTeacherDialogVisibility(it) }
     )

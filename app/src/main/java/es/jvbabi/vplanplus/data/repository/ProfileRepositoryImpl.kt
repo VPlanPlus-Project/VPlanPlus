@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.repository
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -12,16 +13,17 @@ import io.ktor.client.request.basicAuth
 import io.ktor.client.request.request
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod.Companion.Get
+import kotlinx.coroutines.flow.Flow
 
 class ProfileRepositoryImpl(
     private val profileDao: ProfileDao
 ): ProfileRepository {
-    override suspend fun getProfiles(): List<Profile> {
+    override fun getProfiles(): Flow<List<Profile>> {
         return profileDao.getProfiles()
     }
 
-    override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String) {
-        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name))
+    override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String, customName: String) {
+        profileDao.insert(Profile(referenceId = referenceId, type = type, name = name, customName = customName, calendarMode = ProfileCalendarType.NONE, calendarId = null))
     }
 
     override suspend fun getClassesOnline(
@@ -56,7 +58,7 @@ class ProfileRepositoryImpl(
         return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type)
     }
 
-    override suspend fun getProfileById(id: Long): Profile {
+    override fun getProfileById(id: Long): Flow<Profile> {
         return profileDao.getProfileById(id = id)
     }
 
@@ -66,5 +68,9 @@ class ProfileRepositoryImpl(
 
     override suspend fun getProfilesBySchoolId(schoolId: Long): List<Profile> {
         return profileDao.getProfilesBySchoolId(schoolId = schoolId)
+    }
+
+    override suspend fun updateProfile(profile: Profile) {
+        profileDao.insert(profile = profile)
     }
 }

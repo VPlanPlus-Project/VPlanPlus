@@ -6,11 +6,12 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class ProfileDao {
     @Query("SELECT * FROM profile")
-    abstract suspend fun getProfiles(): List<Profile>
+    abstract fun getProfiles(): Flow<List<Profile>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(profile: Profile)
@@ -19,7 +20,7 @@ abstract class ProfileDao {
     abstract suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): Profile
 
     @Query("SELECT * FROM profile WHERE id = :id")
-    abstract suspend fun getProfileById(id: Long): Profile
+    abstract fun getProfileById(id: Long): Flow<Profile>
 
     @Query("DELETE FROM profile WHERE id = :profileId")
     abstract suspend fun deleteProfile(profileId: Long)
