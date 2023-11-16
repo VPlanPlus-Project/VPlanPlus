@@ -1,7 +1,5 @@
 package es.jvbabi.vplanplus.domain.usecase
 
-import es.jvbabi.vplanplus.domain.model.Classes
-import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
@@ -23,23 +21,44 @@ class LessonTimeUseCases(
     suspend fun getCurrentLessonNumber(profile: Profile): Int { // TODO test
         return when (profile.type) {
             ProfileType.STUDENT -> {
-                val times = lessonTimeRepository.getLessonTimesByClass(classUseCases.getClassById(profile.referenceId))
-                times.firstOrNull { DateUtils.calculateProgress(it.start, it.end, LocalTime.now().toString())!! in 0.0..1.0 }?.lessonNumber?:0
+                val times =
+                    lessonTimeRepository.getLessonTimesByClass(classUseCases.getClassById(profile.referenceId))
+                times.entries.firstOrNull {
+                    DateUtils.calculateProgress(
+                        it.value.start,
+                        it.value.end,
+                        LocalTime.now().toString()
+                    )!! in 0.0..1.0
+                }?.value!!.lessonNumber
             }
 
             ProfileType.ROOM -> {
-                val lessons = lessonUseCases.getLessonsForRoom(roomRepository.getRoomById(profile.referenceId), LocalDate.now()).first().lessons
-                lessons.firstOrNull { DateUtils.calculateProgress(it.start, it.end, LocalTime.now().toString())!! in 0.0..1.0 }?.lessonNumber?:0
+                val lessons = lessonUseCases.getLessonsForRoom(
+                    roomRepository.getRoomById(profile.referenceId),
+                    LocalDate.now()
+                ).first().lessons
+                lessons.firstOrNull {
+                    DateUtils.calculateProgress(
+                        DateUtils.localDateTimeToTimeString(
+                            it.start
+                        ), DateUtils.localDateTimeToTimeString(it.end), LocalTime.now().toString()
+                    )!! in 0.0..1.0
+                }?.lessonNumber ?: 0
             }
 
             ProfileType.TEACHER -> {
-                val lessons = lessonUseCases.getLessonsForTeacher(teacherRepository.getTeacherById(profile.referenceId)!!, LocalDate.now()).first().lessons
-                lessons.firstOrNull { DateUtils.calculateProgress(it.start, it.end, LocalTime.now().toString())!! in 0.0..1.0 }?.lessonNumber?:0
+                val lessons = lessonUseCases.getLessonsForTeacher(
+                    teacherRepository.getTeacherById(profile.referenceId)!!,
+                    LocalDate.now()
+                ).first().lessons
+                lessons.firstOrNull {
+                    DateUtils.calculateProgress(
+                        DateUtils.localDateTimeToTimeString(
+                            it.start
+                        ), DateUtils.localDateTimeToTimeString(it.end), LocalTime.now().toString()
+                    )!! in 0.0..1.0
+                }?.lessonNumber ?: 0
             }
         }
-    }
-
-    suspend fun getLessonTimesForLessonNumber(lessonNumber: Int, `class`: Classes): LessonTime {
-        return lessonTimeRepository.getLessonTimesByClass(`class`)[lessonNumber]
     }
 }

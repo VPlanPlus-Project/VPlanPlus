@@ -26,14 +26,13 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.LessonTimeUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.ui.screens.home.DayType
-import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
@@ -47,7 +46,6 @@ class SyncWorker @AssistedInject constructor(
     @Assisted private val keyValueUseCases: KeyValueUseCases,
     @Assisted private val lessonUseCases: LessonUseCases,
     @Assisted private val classUseCases: ClassUseCases,
-    @Assisted private val lessonTimeUseCases: LessonTimeUseCases,
     @Assisted private val teacherRepository: TeacherRepository,
     @Assisted private val roomRepository: RoomRepository,
     @Assisted private val logRecordRepository: LogRecordRepository,
@@ -113,8 +111,8 @@ class SyncWorker @AssistedInject constructor(
                                             title = "Schultag " + profile.customName,
                                             calendarId = calendar.id,
                                             location = school.name,
-                                            startTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.first { it.subject != "-" }.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.first { it.subject != "-" }.className)!!).start, date),
-                                            endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-"}.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-" }.className)!!).end, date),
+                                            startTimeStamp = lessons.lessons.sortedBy { it.lessonNumber }.first { it.displaySubject != "-"}.start.toLocalUnixTimestamp(),
+                                            endTimeStamp = lessons.lessons.sortedBy { it.lessonNumber }.last { it.displaySubject != "-"}.start.toLocalUnixTimestamp(),
                                             date = date
                                         ),
                                         school = school
@@ -122,14 +120,14 @@ class SyncWorker @AssistedInject constructor(
                                 }
                                 ProfileCalendarType.LESSON -> {
                                     lessons.lessons.forEach { lesson ->
-                                        if (lesson.subject != "-") {
+                                        if (lesson.displaySubject != "-") {
                                             calendarRepository.insertEvent(
                                                 CalendarEvent(
-                                                    title = lesson.subject,
+                                                    title = lesson.displaySubject,
                                                     calendarId = calendar.id,
-                                                    location = school.name + " Raum " + lesson.room.joinToString(", "),
-                                                    startTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).start, date),
-                                                    endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).end, date),
+                                                    location = school.name + " Raum " + lesson.rooms.joinToString(", "),
+                                                    startTimeStamp = lesson.start.toLocalUnixTimestamp(),
+                                                    endTimeStamp = lesson.end.toLocalUnixTimestamp(),
                                                     date = date
                                                 ),
                                                 school = school

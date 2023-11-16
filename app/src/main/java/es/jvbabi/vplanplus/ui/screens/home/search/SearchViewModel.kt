@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -167,7 +168,7 @@ data class Result(
     val id: Long,
     val name: String,
     val type: FilterType,
-    val lessons: List<es.jvbabi.vplanplus.ui.screens.home.Lesson> = emptyList()
+    val lessons: List<Lesson> = emptyList()
 )
 
 enum class FilterType {

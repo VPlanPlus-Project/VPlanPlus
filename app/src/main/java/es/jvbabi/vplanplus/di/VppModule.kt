@@ -12,6 +12,7 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.CalendarRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
@@ -30,6 +31,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -168,14 +170,16 @@ object VppModule {
     @Singleton
     fun provideLessonRepository(db: VppDatabase): LessonRepository {
         return LessonRepositoryImpl(
-            lessonDao = db.lessonDao,
             lessonRoomCrossoverDao = db.lessonRoomCrossoverDao,
             lessonTeacherCrossoverDao = db.lessonTeacherCrossoverDao,
+            defaultLessonDao = db.defaultLessonDao,
             roomRepository = provideRoomRepository(db),
             teacherRepository = provideTeacherRepository(db),
             schoolRepository = provideSchoolRepository(db),
             classRepository = provideClassRepository(db),
-            holidayRepository = provideHolidayRepository(db)
+            holidayRepository = provideHolidayRepository(db),
+            lessonDao = db.lessonDao,
+            lessonTimeRepository = provideLessonTimeRepository(db)
         )
     }
 
@@ -183,6 +187,12 @@ object VppModule {
     @Singleton
     fun provideRoomRepository(db: VppDatabase): RoomRepository {
         return RoomRepositoryImpl(db.roomDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDefaultLessonRepository(db: VppDatabase): DefaultLessonRepository {
+        return DefaultLessonRepositoryImpl(db.defaultLessonDao)
     }
 
     // Use cases
@@ -203,13 +213,9 @@ object VppModule {
     @Singleton
     fun provideLessonUseCases(
         lessonRepository: LessonRepository,
-        classRepository: ClassRepository,
-        lessonTimeRepository: LessonTimeRepository
     ): LessonUseCases {
         return LessonUseCases(
             lessonRepository = lessonRepository,
-            classRepository = classRepository,
-            lessonTimeRepository = lessonTimeRepository
         )
     }
 
@@ -292,15 +298,20 @@ object VppModule {
         classRepository: ClassRepository,
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
-        schoolRepository: SchoolRepository
+        schoolRepository: SchoolRepository,
+        defaultLessonRepository: DefaultLessonRepository,
+        db: VppDatabase
     ): VPlanUseCases {
         return VPlanUseCases(
             vPlanRepository = vPlanRepository,
             lessonRepository = lessonRepository,
             classRepository = classRepository,
-            teacherReository = teacherRepository,
+            teacherRepository = teacherRepository,
             roomRepository = roomRepository,
-            schoolRepository = schoolRepository
+            schoolRepository = schoolRepository,
+            defaultLessonRepository = defaultLessonRepository,
+            lessonRoomCrossover = db.lessonRoomCrossoverDao,
+            lessonTeacherCrossover = db.lessonTeacherCrossoverDao,
         )
     }
 
@@ -308,13 +319,9 @@ object VppModule {
     @Singleton
     fun provideHomeUseCases(
         lessonRepository: LessonRepository,
-        classRepository: ClassRepository,
-        lessonTimeRepository: LessonTimeRepository
     ): HomeUseCases {
         return HomeUseCases(
             lessonRepository = lessonRepository,
-            classRepository = classRepository,
-            lessonTimeRepository = lessonTimeRepository
         )
     }
 }

@@ -16,7 +16,9 @@ class LessonTimeRepositoryImpl(
         lessonTimeDao.deleteLessonTimes(`class`.id!!)
     }
 
-    override suspend fun getLessonTimesByClass(`class`: Classes): List<LessonTime> {
-        return lessonTimeDao.getLessonTimesByClassId(`class`.id!!)
+    override suspend fun getLessonTimesByClass(`class`: Classes): Map<Int, LessonTime> {
+        return lessonTimeDao.getLessonTimesByClassId(`class`.id!!).associateBy {
+            it.lessonNumber
+        }
     }
 }

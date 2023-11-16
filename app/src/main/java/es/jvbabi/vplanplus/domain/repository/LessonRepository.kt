@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.screens.home.DayType
@@ -13,7 +14,7 @@ interface LessonRepository {
 
     suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate)
 
-    suspend fun insertLesson(lesson: Lesson)
+    suspend fun insertLesson(dbLesson: DbLesson): Long
 
     suspend fun deleteAllLessons()
 }
