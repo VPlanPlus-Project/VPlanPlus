@@ -80,12 +80,10 @@ class HomeViewModel @Inject constructor(
         Log.d("HomeViewModel", "init; activeProfile=$activeProfile")
         _state.value =
             _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
-        val schoolId: Long?
         when (activeProfile.type) {
             ProfileType.STUDENT -> {
                 val profileClass = classUseCases.getClassById(activeProfile.referenceId)
-                schoolId = profileClass.schoolClassRefId
-                school = schoolUseCases.getSchoolFromId(schoolId)
+                school = profileClass.school
             }
 
             ProfileType.TEACHER -> {

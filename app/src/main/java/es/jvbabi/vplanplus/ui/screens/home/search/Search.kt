@@ -255,11 +255,11 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                                                 )
                                                 Text(
                                                     text = when (filterType) {
-                                                        FilterType.TEACHER -> lesson.`class`.className + " • " + lesson.rooms.joinToString(
+                                                        FilterType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
                                                             ", "
                                                         )
 
-                                                        FilterType.ROOM -> lesson.`class`.className + " • " + lesson.teachers.joinToString(
+                                                        FilterType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
                                                             ", "
                                                         )
 

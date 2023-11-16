@@ -34,67 +34,68 @@ object Lessons {
     }
 
     private fun randomClass(): Classes {
+        val school = School.generateRandomSchools(1).first()
         return listOf(
             Classes(
-                className = "5a",
-                schoolClassRefId = 1
+                name = "5a",
+                school = school
             ),
             Classes(
-                className = "5b",
-                schoolClassRefId = 1
+                name = "5b",
+                school = school
             ),
             Classes(
-                className = "5c",
-                schoolClassRefId = 1
+                name = "5c",
+                school = school
             ),
             Classes(
-                className = "6a",
-                schoolClassRefId = 1
+                name = "6a",
+                school = school
             ),
             Classes(
-                className = "6b",
-                schoolClassRefId = 1
+                name = "6b",
+                school = school
             ),
             Classes(
-                className = "6c",
-                schoolClassRefId = 1
+                name = "6c",
+                school = school
             ),
             Classes(
-                className = "7a",
-                schoolClassRefId = 1
+                name = "7a",
+                school = school
             ),
             Classes(
-                className = "7b",
-                schoolClassRefId = 1
+                name = "7b",
+                school = school
             ),
             Classes(
-                className = "7c",
-                schoolClassRefId = 1
+                name = "7c",
+                school = school
             ),
             Classes(
-                className = "8a",
-                schoolClassRefId = 1
+                name = "8a",
+                school = school
             ),
             Classes(
-                className = "8b",
-                schoolClassRefId = 1
+                name = "8b",
+                school = school
             ),
             Classes(
-                className = "8c",
-                schoolClassRefId = 1
+                name = "8c",
+                school = school
             ),
 
             Classes(
-                className = "9a",
-                schoolClassRefId = 1
+                name = "9a",
+                school = school
             ),
             Classes(
-                className = "9b",
-                schoolClassRefId = 1
+                name = "9b",
+                school = school
             ),
             Classes(
-                className = "9c",
-                schoolClassRefId = 1
+                name = "9c",
+                school = school
             ),
         ).random()
     }

@@ -101,7 +101,7 @@ class SearchViewModel @Inject constructor(
                 }
                 if (state.value.filter[FilterType.CLASS]!!) {
                     val classes = classUseCases.getClassesBySchool(school).filter {
-                        it.className.lowercase().contains(_state.value.searchValue.lowercase())
+                        it.name.lowercase().contains(_state.value.searchValue.lowercase())
                     }
                     val firstClass = classes.firstOrNull()
                     if (firstClass != null) {
@@ -112,7 +112,7 @@ class SearchViewModel @Inject constructor(
                                 result.add(
                                     Result(
                                         `class`.classId,
-                                        `class`.className,
+                                        `class`.name,
                                         FilterType.CLASS,
                                         lessons.lessons
                                     )
@@ -121,7 +121,7 @@ class SearchViewModel @Inject constructor(
                                 result.add(
                                     Result(
                                         `class`.classId,
-                                        `class`.className,
+                                        `class`.name,
                                         FilterType.CLASS
                                     )
                                 )

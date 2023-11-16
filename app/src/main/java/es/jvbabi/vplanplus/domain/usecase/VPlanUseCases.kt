@@ -64,7 +64,7 @@ class VPlanUseCases(
                 val dbDefaultLesson = if (defaultLesson != null) defaultLessonRepository.getDefaultLessonByVpId(defaultLesson.lessonId!!.toLong()) else null
                 var defaultLessonDbId = dbDefaultLesson?.id
 
-                if (`class`.className == "VERW") {
+                if (`class`.name == "VERW") {
                     return@lesson // TODO handle this
                 }
                 //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")

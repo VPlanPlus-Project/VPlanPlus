@@ -35,7 +35,7 @@ class ProfileManagementViewModel @Inject constructor(
                     when (it.type) {
                         ProfileType.STUDENT -> {
                             val `class` = classUseCases.getClassById(it.referenceId)
-                            val school = schoolUseCases.getSchoolFromId(`class`.schoolClassRefId)
+                            val school = `class`.school
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(

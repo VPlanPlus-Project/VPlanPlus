@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.source.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import es.jvbabi.vplanplus.data.model.DbClass
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
@@ -24,7 +25,6 @@ import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.TeacherDao
 import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
-import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.DbCalendarEvent
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Holiday
@@ -39,7 +39,7 @@ import es.jvbabi.vplanplus.domain.model.Week
 
 @Database(
     entities = [
-        Classes::class,
+        DbClass::class,
         DbLesson::class,
         Profile::class,
         Room::class,

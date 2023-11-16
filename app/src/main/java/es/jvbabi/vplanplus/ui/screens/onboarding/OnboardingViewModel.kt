@@ -134,7 +134,7 @@ class OnboardingViewModel @Inject constructor(
                 )
             } else {
                 _state.value = _state.value.copy(
-                    profileOptions = classUseCases.getClassesBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.className },
+                    profileOptions = classUseCases.getClassesBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.name },
                 )
             }
         } else if (state.value.profileType == ProfileType.TEACHER) {

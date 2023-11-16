@@ -3,14 +3,13 @@ package es.jvbabi.vplanplus.data.model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import es.jvbabi.vplanplus.domain.model.Classes
 import java.time.LocalDate
 
 @Entity(
     tableName = "lesson",
     foreignKeys = [
         ForeignKey(
-            entity = Classes::class,
+            entity = DbClass::class,
             parentColumns = ["classId"],
             childColumns = ["classLessonRefId"],
             onDelete = ForeignKey.CASCADE
