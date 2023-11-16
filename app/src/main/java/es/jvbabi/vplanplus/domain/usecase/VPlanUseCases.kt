@@ -62,7 +62,7 @@ class VPlanUseCases(
                     it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson
 
                 val dbDefaultLesson = if (defaultLesson != null) defaultLessonRepository.getDefaultLessonByVpId(defaultLesson.lessonId!!.toLong()) else null
-                var defaultLessonDbId = dbDefaultLesson?.id
+                var defaultLessonDbId = dbDefaultLesson?.defaultLessonId
 
                 if (`class`.name == "VERW") {
                     return@lesson // TODO handle this

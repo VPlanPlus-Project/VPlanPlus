@@ -14,7 +14,7 @@ import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.data.source.database.dao.ClassDao
-import es.jvbabi.vplanplus.data.source.database.dao.DbLessonDao
+import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao
@@ -72,7 +72,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val holidayDao: HolidayDao
     abstract val weekDao: WeekDao
     abstract val teacherDao: TeacherDao
-    abstract val lessonDao: DbLessonDao
+    abstract val lessonDao: LessonDao
     abstract val roomDao: RoomDao
     abstract val lessonTimeDao: LessonTimeDao
     abstract val lessonRoomCrossoverDao: LessonRoomCrossoverDao

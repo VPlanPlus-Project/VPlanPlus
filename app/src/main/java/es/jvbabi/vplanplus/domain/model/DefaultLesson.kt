@@ -5,13 +5,13 @@ import androidx.room.Index
 
 @Entity(
     tableName = "default_lesson",
-    primaryKeys = ["id"],
+    primaryKeys = ["defaultLessonId"],
     indices = [
-        Index(value = ["id"], unique = true)
+        Index(value = ["defaultLessonId"], unique = true)
     ]
 )
 data class DefaultLesson(
-    val id: Long,
+    val defaultLessonId: Long,
     val vpId: Long,
     val subject: String,
     val teacherId: Long?,

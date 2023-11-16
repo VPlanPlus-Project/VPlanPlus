@@ -101,10 +101,7 @@ class HomeViewModel @Inject constructor(
 
         _state.value =
             _state.value.copy(
-                profiles = profileUseCases.getProfiles().first().map { it.toMenuProfile() })
-
-        _state.value =
-            _state.value.copy(initDone = true)
+                profiles = profileUseCases.getProfiles().first().map { it.toMenuProfile() }, initDone = true)
     }
 
     @OptIn(FlowPreview::class)
@@ -126,6 +123,7 @@ class HomeViewModel @Inject constructor(
                 }
             }.collect { lessons ->
                 if (!state.value.syncing) {
+                    Log.d("Init", "Init Done ${_state.value.initDone}")
                     _state.value =
                         _state.value.copy(
                             lessons = state.value.lessons.plus(date to lessons),

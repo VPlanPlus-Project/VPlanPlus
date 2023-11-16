@@ -13,6 +13,6 @@ abstract class DefaultLessonDao {
     @Query("INSERT INTO default_lesson (vpId, subject, teacherId, classId) VALUES (:vpId, :subject, :teacherId, :classId)")
     abstract suspend fun insert(vpId: Long, subject: String, teacherId: Long?, classId: Long): Long
 
-    @Query("SELECT * FROM default_lesson WHERE id = :id")
+    @Query("SELECT * FROM default_lesson WHERE defaultLessonId = :id")
     abstract suspend fun getDefaultLessonById(id: Long): DefaultLesson?
 }
