@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import es.jvbabi.vplanplus.data.model.DbClass
 import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbTeacher
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
@@ -33,7 +34,6 @@ import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Week
 
@@ -42,7 +42,7 @@ import es.jvbabi.vplanplus.domain.model.Week
         DbClass::class,
         DbLesson::class,
         Profile::class,
-        Room::class,
+        DbRoom::class,
         School::class,
         DbTeacher::class,
         KeyValue::class,

@@ -10,7 +10,6 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
-import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +22,6 @@ import java.time.LocalDate
 
 class ProfileUseCases(
     private val profileRepository: ProfileRepository,
-    private val schoolRepository: SchoolRepository,
     private val classRepository: ClassRepository,
     private val keyValueRepository: KeyValueRepository,
     private val teacherRepository: TeacherRepository,
@@ -84,16 +82,9 @@ class ProfileUseCases(
     suspend fun getSchoolFromProfileId(profileId: Long): School {
         val profile = profileRepository.getProfileById(id = profileId).first()
         return when (profile.type) {
-            ProfileType.STUDENT -> {
-                classRepository.getClassById(id = profile.referenceId).school
-            }
-            ProfileType.TEACHER -> {
-                teacherRepository.getTeacherById(id = profile.referenceId)!!.school
-            }
-            ProfileType.ROOM -> {
-                val room = roomRepository.getRoomById(profile.referenceId)
-                schoolRepository.getSchoolFromId(schoolId = room.schoolRoomRefId)
-            }
+            ProfileType.STUDENT -> classRepository.getClassById(id = profile.referenceId).school
+            ProfileType.TEACHER -> teacherRepository.getTeacherById(id = profile.referenceId)!!.school
+            ProfileType.ROOM -> roomRepository.getRoomById(profile.referenceId).school
         }
     }
 

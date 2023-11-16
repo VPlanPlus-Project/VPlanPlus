@@ -176,65 +176,66 @@ object Lessons {
     }
 
     fun randomRoom(): MutableList<Room> {
+        val school = School.generateRandomSchools(1).first()
         return listOf(
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "A1.01"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "A1.02"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "A1.03"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "101"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "102"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "103"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "104"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "201"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "202"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "203"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "204"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "K25"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "K26"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "TH 1"
             ),
             Room(
-                schoolRoomRefId = 1,
+                school = school,
                 name = "TH 2"
             ),
         ).randomSubList(2, false)

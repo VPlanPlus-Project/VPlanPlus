@@ -175,7 +175,6 @@ object VppModule {
             defaultLessonDao = db.defaultLessonDao,
             roomRepository = provideRoomRepository(db),
             teacherRepository = provideTeacherRepository(db),
-            schoolRepository = provideSchoolRepository(db),
             classRepository = provideClassRepository(db),
             holidayRepository = provideHolidayRepository(db),
             lessonDao = db.lessonDao,
@@ -251,7 +250,6 @@ object VppModule {
     fun provideProfileUseCases(
         repository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
-        schoolRepository: SchoolRepository,
         classRepository: ClassRepository,
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
@@ -261,7 +259,6 @@ object VppModule {
         return ProfileUseCases(
             profileRepository = repository,
             keyValueRepository = keyValueRepository,
-            schoolRepository = schoolRepository,
             classRepository = classRepository,
             teacherRepository = teacherRepository,
             roomRepository = roomRepository,

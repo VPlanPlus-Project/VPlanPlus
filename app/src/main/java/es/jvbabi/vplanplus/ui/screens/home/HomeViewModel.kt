@@ -28,7 +28,6 @@ import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
-import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
@@ -44,7 +43,6 @@ class HomeViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val profileUseCases: ProfileUseCases,
     private val vPlanUseCases: VPlanUseCases,
-    private val schoolUseCases: SchoolUseCases,
     private val homeUseCases: HomeUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val teacherRepository: TeacherRepository,
@@ -83,10 +81,7 @@ class HomeViewModel @Inject constructor(
         school = when (activeProfile.type) {
             ProfileType.STUDENT -> classUseCases.getClassById(activeProfile.referenceId).school
             ProfileType.TEACHER -> teacherRepository.getTeacherById(activeProfile.referenceId)!!.school
-            ProfileType.ROOM -> {
-                val room = roomRepository.getRoomById(activeProfile.referenceId)
-                schoolUseCases.getSchoolFromId(room.schoolRoomRefId)
-            }
+            ProfileType.ROOM -> roomRepository.getRoomById(activeProfile.referenceId).school
         }
 
         val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()

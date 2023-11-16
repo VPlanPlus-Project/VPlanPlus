@@ -12,7 +12,6 @@ import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
-import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.ui.screens.home.DayType
 import es.jvbabi.vplanplus.util.DateUtils
@@ -29,7 +28,6 @@ class LessonRepositoryImpl(
     private val lessonTeacherCrossoverDao: LessonTeacherCrossoverDao,
     private val roomRepository: RoomRepository,
     private val teacherRepository: TeacherRepository,
-    private val schoolRepository: SchoolRepository,
     private val classRepository: ClassRepository,
     private val holidayRepository: HolidayRepository,
     private val defaultLessonDao: DefaultLessonDao,
@@ -103,9 +101,8 @@ class LessonRepositoryImpl(
     override fun getLessonsForRoom(roomId: Long, date: LocalDate): Flow<Pair<DayType, List<Lesson>>> {
         // if there won't be any lessons for this date
         val room = roomRepository.getRoomById(roomId)
-        val school = schoolRepository.getSchoolFromId(room.schoolRoomRefId)
-        if (date.dayOfWeek.value > school.daysPerWeek) return flowOf(DayType.WEEKEND to emptyList())
-        if (holidayRepository.isHoliday(school.schoolId, date)) return flowOf(DayType.HOLIDAY to emptyList())
+        if (date.dayOfWeek.value > room.school.daysPerWeek) return flowOf(DayType.WEEKEND to emptyList())
+        if (holidayRepository.isHoliday(room.school.schoolId, date)) return flowOf(DayType.HOLIDAY to emptyList())
 
         return lessonDao.getLessonsByRoom(roomId, date)
             .map { lessons ->
