@@ -84,18 +84,18 @@ class HomeViewModel @Inject constructor(
         when (activeProfile.type) {
             ProfileType.STUDENT -> {
                 val profileClass = classUseCases.getClassById(activeProfile.referenceId)
-                schoolId = profileClass.schoolId
+                schoolId = profileClass.schoolClassRefId
                 school = schoolUseCases.getSchoolFromId(schoolId)
             }
 
             ProfileType.TEACHER -> {
                 val profileTeacher = teacherRepository.getTeacherById(activeProfile.referenceId)!!
-                school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
+                school = schoolUseCases.getSchoolFromId(profileTeacher.schoolTeacherRefId)
             }
 
             ProfileType.ROOM -> {
                 val room = roomRepository.getRoomById(activeProfile.referenceId)
-                school = schoolUseCases.getSchoolFromId(room.schoolId)
+                school = schoolUseCases.getSchoolFromId(room.schoolRoomRefId)
             }
         }
 
@@ -156,7 +156,7 @@ class HomeViewModel @Inject constructor(
      * @param localDate Date to set the day type for
      */
     fun setDayType(localDate: LocalDate) {
-        val dayType = holidayRepository.getDayType(school!!.id!!, localDate)
+        val dayType = holidayRepository.getDayType(school!!.schoolId, localDate)
         if (dayType == DayType.DATA) _state.value = _state.value.copy(
             lessons = state.value.lessons.plus(
                 localDate to Day(

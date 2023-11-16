@@ -43,19 +43,19 @@ class SearchViewModel @Inject constructor(
             schools.forEach { school ->
                 val result = mutableListOf<Result>()
                 if (_state.value.filter[FilterType.TEACHER]!!) {
-                    val teachers = teacherRepository.getTeachersBySchoolId(school.id!!).filter {
+                    val teachers = teacherRepository.getTeachersBySchoolId(school.schoolId).filter {
                         it.acronym.lowercase().contains(_state.value.searchValue.lowercase())
                     }
                     val firstTeacher = teachers.firstOrNull()
                     if (firstTeacher != null) {
                         val lessons = lessonUseCases.getLessonsForTeacher(
-                            teacherRepository.getTeacherById(firstTeacher.id!!)!!, LocalDate.now()
+                            teacherRepository.getTeacherById(firstTeacher.teacherId)!!, LocalDate.now()
                         ).firstOrNull()
                         teachers.forEachIndexed { index, teacher ->
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
                                     Result(
-                                        teacher.id!!,
+                                        teacher.teacherId,
                                         teacher.acronym,
                                         FilterType.TEACHER,
                                         lessons.lessons
@@ -64,7 +64,7 @@ class SearchViewModel @Inject constructor(
                             } else {
                                 result.add(
                                     Result(
-                                        teacher.id!!,
+                                        teacher.teacherId,
                                         teacher.acronym,
                                         FilterType.TEACHER
                                     )
@@ -80,21 +80,21 @@ class SearchViewModel @Inject constructor(
                     val firstRoom = rooms.firstOrNull()
                     if (firstRoom != null) {
                         val lessons = lessonUseCases.getLessonsForRoom(
-                            roomRepository.getRoomById(firstRoom.id!!),
+                            roomRepository.getRoomById(firstRoom.roomId),
                             LocalDate.now()
                         ).firstOrNull()
                         rooms.forEachIndexed { index, room ->
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
                                     Result(
-                                        room.id!!,
+                                        room.roomId,
                                         room.name,
                                         FilterType.ROOM,
                                         lessons.lessons
                                     )
                                 )
                             } else {
-                                result.add(Result(room.id!!, room.name, FilterType.ROOM))
+                                result.add(Result(room.roomId, room.name, FilterType.ROOM))
                             }
                         }
                     }
@@ -111,7 +111,7 @@ class SearchViewModel @Inject constructor(
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
                                     Result(
-                                        `class`.id!!,
+                                        `class`.classId,
                                         `class`.className,
                                         FilterType.CLASS,
                                         lessons.lessons
@@ -120,7 +120,7 @@ class SearchViewModel @Inject constructor(
                             } else {
                                 result.add(
                                     Result(
-                                        `class`.id!!,
+                                        `class`.classId,
                                         `class`.className,
                                         FilterType.CLASS
                                     )

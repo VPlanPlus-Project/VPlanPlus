@@ -76,7 +76,7 @@ fun ProfileManagementScreen(
             scope.launch {
                 val school = viewModel.getSchoolByName(it)
                 onNewProfileClicked(school)
-                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.id!!}") {
+                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.schoolId}") {
                     popUpTo(Screen.SettingsProfileScreen.route)
                 }
             }

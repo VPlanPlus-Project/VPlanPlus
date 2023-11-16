@@ -11,17 +11,17 @@ import java.time.LocalDate
     foreignKeys = [
         ForeignKey(
             entity = Classes::class,
-            parentColumns = ["id"],
-            childColumns = ["classId"],
+            parentColumns = ["classId"],
+            childColumns = ["classLessonRefId"],
             onDelete = ForeignKey.CASCADE
         ),
     ]
 )
 data class DbLesson(
-    @PrimaryKey(autoGenerate = true) val id: Long = 0,
+    @PrimaryKey(autoGenerate = true) val lessonId: Long = 0,
     val lessonNumber: Int,
     val changedSubject: String?,
-    val classId: Long,
+    val classLessonRefId: Long,
     val defaultLessonId: Long?,
     val info: String?,
     val roomIsChanged: Boolean,

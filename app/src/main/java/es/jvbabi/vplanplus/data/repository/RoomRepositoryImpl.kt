@@ -22,9 +22,9 @@ class RoomRepositoryImpl(
 
     override suspend fun getRoomByName(school: School, name: String, createIfNotExists: Boolean): Room? {
         if (name == "&amp;nbsp;" || name == "&nbsp;") return null
-        val room = roomDao.getRoomByName(school.id!!, name)
+        val room = roomDao.getRoomByName(school.schoolId, name)
         if (room == null && createIfNotExists) {
-            val id = roomDao.insertRoom(Room(schoolId = school.id, name = name))
+            val id = roomDao.insertRoom(Room(schoolRoomRefId = school.schoolId, name = name))
             return roomDao.getRoomById(id)
         }
         return room
@@ -36,11 +36,11 @@ class RoomRepositoryImpl(
 
     override suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>) {
         rooms.forEach {
-            createRoom(Room(schoolId = schoolId, name = it))
+            createRoom(Room(schoolRoomRefId = schoolId, name = it))
         }
     }
 
     override suspend fun getRoomsBySchool(school: School): List<Room> {
-        return roomDao.getRoomsBySchool(school.id!!)
+        return roomDao.getRoomsBySchool(school.schoolId)
     }
 }

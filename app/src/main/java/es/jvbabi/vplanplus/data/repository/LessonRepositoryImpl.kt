@@ -40,17 +40,17 @@ class LessonRepositoryImpl(
     override fun getLessonsForClass(classId: Long, date: LocalDate): Flow<Pair<DayType, List<Lesson>>> {
         // if there won't be any lessons for this date
         val `class` = classRepository.getClassById(classId)
-        val school = schoolRepository.getSchoolFromId(`class`.schoolId)
+        val school = schoolRepository.getSchoolFromId(`class`.schoolClassRefId)
         if (date.dayOfWeek.value > school.daysPerWeek) return flowOf(DayType.WEEKEND to emptyList())
-        if (holidayRepository.isHoliday(school.id!!, date)) return flowOf(DayType.HOLIDAY to emptyList())
+        if (holidayRepository.isHoliday(school.schoolId, date)) return flowOf(DayType.HOLIDAY to emptyList())
 
         return lessonDao.getLessonsByClass(classId, date)
             .map { lessons ->
                 DayType.DATA to lessons.map { lesson ->
                     val defaultLesson = if (lesson.defaultLessonId == null) null else defaultLessonDao.getDefaultLessonById(lesson.defaultLessonId)
-                    val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[lesson.lessonNumber] ?: LessonTime.fallbackTime(`class`.id!!, lesson.lessonNumber)
-                    val teachers = lessonTeacherCrossoverDao.getTeacherIdsByLessonId(lesson.id).mapNotNull { teacherRepository.getTeacherById(it) }
-                    val rooms = lessonRoomCrossoverDao.getRoomIdsByLessonId(lesson.id).map { roomRepository.getRoomById(it) }
+                    val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[lesson.lessonNumber] ?: LessonTime.fallbackTime(`class`.classId, lesson.lessonNumber)
+                    val teachers = lessonTeacherCrossoverDao.getTeacherIdsByLessonId(lesson.lessonId).mapNotNull { teacherRepository.getTeacherById(it) }
+                    val rooms = lessonRoomCrossoverDao.getRoomIdsByLessonId(lesson.lessonId).map { roomRepository.getRoomById(it) }
                     Lesson(
                         `class` = `class`,
                         lessonNumber = lesson.lessonNumber,
@@ -62,7 +62,7 @@ class LessonRepositoryImpl(
                         info = lesson.info,
                         day = date,
                         teachers = teachers,
-                        teacherIsChanged = teachers.map { it.id!! }.sorted() != listOf(defaultLesson?.teacherId),
+                        teacherIsChanged = teachers.map { it.teacherId }.sorted() != listOf(defaultLesson?.teacherId),
                         rooms = rooms
                     )
                 }
@@ -72,18 +72,18 @@ class LessonRepositoryImpl(
     override fun getLessonsForTeacher(teacherId: Long, date: LocalDate): Flow<Pair<DayType, List<Lesson>>> {
         // if there won't be any lessons for this date
         val teacher = teacherRepository.getTeacherById(teacherId)!!
-        val school = schoolRepository.getSchoolFromId(teacher.schoolId)
+        val school = schoolRepository.getSchoolFromId(teacher.schoolTeacherRefId)
         if (date.dayOfWeek.value > school.daysPerWeek) return flowOf(DayType.WEEKEND to emptyList())
-        if (holidayRepository.isHoliday(school.id!!, date)) return flowOf(DayType.HOLIDAY to emptyList())
+        if (holidayRepository.isHoliday(school.schoolId, date)) return flowOf(DayType.HOLIDAY to emptyList())
 
         return lessonDao.getLessonsByTeacher(teacherId, date)
             .map { lessons ->
                 DayType.DATA to lessons.map { lesson ->
                     val defaultLesson = if (lesson.defaultLessonId == null) null else defaultLessonDao.getDefaultLessonById(lesson.defaultLessonId)
-                    val `class` = classRepository.getClassById(lesson.classId)
-                    val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[lesson.lessonNumber] ?: LessonTime.fallbackTime(`class`.id!!, lesson.lessonNumber)
-                    val teachers = lessonTeacherCrossoverDao.getTeacherIdsByLessonId(lesson.id).mapNotNull { teacherRepository.getTeacherById(it) }
-                    val rooms = lessonRoomCrossoverDao.getRoomIdsByLessonId(lesson.id).map { roomRepository.getRoomById(it) }
+                    val `class` = classRepository.getClassById(lesson.classLessonRefId)
+                    val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[lesson.lessonNumber] ?: LessonTime.fallbackTime(`class`.classId, lesson.lessonNumber)
+                    val teachers = lessonTeacherCrossoverDao.getTeacherIdsByLessonId(lesson.lessonId).mapNotNull { teacherRepository.getTeacherById(it) }
+                    val rooms = lessonRoomCrossoverDao.getRoomIdsByLessonId(lesson.lessonId).map { roomRepository.getRoomById(it) }
                     Lesson(
                         `class` = `class`,
                         lessonNumber = lesson.lessonNumber,
@@ -95,7 +95,7 @@ class LessonRepositoryImpl(
                         info = lesson.info,
                         day = date,
                         teachers = teachers,
-                        teacherIsChanged = teachers.map { it.id!! }.sorted() != listOf(defaultLesson?.teacherId),
+                        teacherIsChanged = teachers.map { it.teacherId }.sorted() != listOf(defaultLesson?.teacherId),
                         rooms = rooms
                     )
                 }
@@ -105,18 +105,18 @@ class LessonRepositoryImpl(
     override fun getLessonsForRoom(roomId: Long, date: LocalDate): Flow<Pair<DayType, List<Lesson>>> {
         // if there won't be any lessons for this date
         val room = roomRepository.getRoomById(roomId)
-        val school = schoolRepository.getSchoolFromId(room.schoolId)
+        val school = schoolRepository.getSchoolFromId(room.schoolRoomRefId)
         if (date.dayOfWeek.value > school.daysPerWeek) return flowOf(DayType.WEEKEND to emptyList())
-        if (holidayRepository.isHoliday(school.id!!, date)) return flowOf(DayType.HOLIDAY to emptyList())
+        if (holidayRepository.isHoliday(school.schoolId, date)) return flowOf(DayType.HOLIDAY to emptyList())
 
         return lessonDao.getLessonsByRoom(roomId, date)
             .map { lessons ->
                 DayType.DATA to lessons.map { lesson ->
                     val defaultLesson = if (lesson.defaultLessonId == null) null else defaultLessonDao.getDefaultLessonById(lesson.defaultLessonId)
-                    val `class` = classRepository.getClassById(lesson.classId)
-                    val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[lesson.lessonNumber] ?: LessonTime.fallbackTime(`class`.id!!, lesson.lessonNumber)
-                    val teachers = lessonTeacherCrossoverDao.getTeacherIdsByLessonId(lesson.id).mapNotNull { teacherRepository.getTeacherById(it) }
-                    val rooms = lessonRoomCrossoverDao.getRoomIdsByLessonId(lesson.id).map { roomRepository.getRoomById(it) }
+                    val `class` = classRepository.getClassById(lesson.classLessonRefId)
+                    val lessonTime = lessonTimeRepository.getLessonTimesByClass(`class`)[lesson.lessonNumber] ?: LessonTime.fallbackTime(`class`.classId, lesson.lessonNumber)
+                    val teachers = lessonTeacherCrossoverDao.getTeacherIdsByLessonId(lesson.lessonId).mapNotNull { teacherRepository.getTeacherById(it) }
+                    val rooms = lessonRoomCrossoverDao.getRoomIdsByLessonId(lesson.lessonId).map { roomRepository.getRoomById(it) }
                     Lesson(
                         `class` = `class`,
                         lessonNumber = lesson.lessonNumber,
@@ -128,7 +128,7 @@ class LessonRepositoryImpl(
                         info = lesson.info,
                         day = date,
                         teachers = teachers,
-                        teacherIsChanged = teachers.map { it.id!! }.sorted() != listOf(defaultLesson?.teacherId),
+                        teacherIsChanged = teachers.map { it.teacherId }.sorted() != listOf(defaultLesson?.teacherId),
                         rooms = rooms
                     )
                 }
@@ -136,7 +136,7 @@ class LessonRepositoryImpl(
     }
 
     override suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate) {
-        lessonDao.deleteLessonsByClassAndDate(`class`.id!!, date)
+        lessonDao.deleteLessonsByClassAndDate(`class`.classId, date)
     }
 
     override suspend fun insertLesson(dbLesson: DbLesson): Long {

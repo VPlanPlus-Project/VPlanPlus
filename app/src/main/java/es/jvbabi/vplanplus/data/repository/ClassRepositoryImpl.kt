@@ -7,13 +7,13 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 
 class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
     override suspend fun createClass(schoolId: Long, className: String) {
-        classDao.insertClass(Classes(schoolId = schoolId, className = className))
+        classDao.insertClass(Classes(schoolClassRefId = schoolId, className = className))
     }
 
     override suspend fun getClassBySchoolIdAndClassName(schoolId: Long, className: String, createIfNotExists: Boolean): Classes? {
         val `class` = classDao.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)
         if (`class` == null && createIfNotExists) {
-            val id = classDao.insertClass(Classes(schoolId = schoolId, className = className))
+            val id = classDao.insertClass(Classes(schoolClassRefId = schoolId, className = className))
             return classDao.getClassById(id = id)
         }
         return classDao.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)!!
@@ -25,7 +25,7 @@ class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
 
     override suspend fun insertClasses(schoolId: Long, classes: List<String>) {
         classes.forEach { className ->
-            classDao.insertClass(Classes(schoolId = schoolId, className = className))
+            classDao.insertClass(Classes(schoolClassRefId = schoolId, className = className))
         }
     }
 
@@ -34,6 +34,6 @@ class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
     }
 
     override suspend fun getClassesBySchool(school: School): List<Classes> {
-        return classDao.getClassesBySchoolId(schoolId = school.id!!)
+        return classDao.getClassesBySchoolId(schoolId = school.schoolId)
     }
 }

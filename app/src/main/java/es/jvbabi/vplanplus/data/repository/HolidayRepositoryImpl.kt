@@ -26,7 +26,7 @@ class HolidayRepositoryImpl(
      * @param holidays List of holidays to insert
      */
     override suspend fun replaceHolidays(holidays: List<Holiday>) {
-        holidays.map { it.schoolId }.toSet().forEach {
+        holidays.map { it.schoolHolidayRefId }.toSet().forEach {
             holidayDao.deleteHolidaysBySchoolId(it?:return@forEach)
         }
         holidays.forEach {
@@ -35,7 +35,7 @@ class HolidayRepositoryImpl(
     }
 
     override suspend fun insertHoliday(holiday: Holiday) {
-        holidayDao.find(holiday.schoolId, holiday.date)?.let {
+        holidayDao.find(holiday.schoolHolidayRefId, holiday.date)?.let {
             holidayDao.deleteHoliday(it)
         }
         holidayDao.insertHoliday(holiday)

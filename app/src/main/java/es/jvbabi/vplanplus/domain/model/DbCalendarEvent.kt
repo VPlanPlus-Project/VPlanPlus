@@ -2,27 +2,23 @@ package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.Index
 import androidx.room.PrimaryKey
 import java.time.LocalDate
 
 @Entity(
     tableName = "calendar_events",
-    indices = [
-        Index(value = ["date", "schoolId", "calendarId"], unique = true)
-    ],
     foreignKeys = [
         ForeignKey(
             entity = School::class,
-            parentColumns = ["id"],
-            childColumns = ["schoolId"],
+            parentColumns = ["schoolId"],
+            childColumns = ["schoolCalendarEventRefId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class DbCalendarEvent(
-    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    @PrimaryKey(autoGenerate = true) val calendarEventId: Long = 0,
     val date: LocalDate,
-    val schoolId: Long,
+    val schoolCalendarEventRefId: Long,
     val calendarId: Long
 )

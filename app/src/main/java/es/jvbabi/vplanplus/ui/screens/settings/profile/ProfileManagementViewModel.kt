@@ -35,7 +35,7 @@ class ProfileManagementViewModel @Inject constructor(
                     when (it.type) {
                         ProfileType.STUDENT -> {
                             val `class` = classUseCases.getClassById(it.referenceId)
-                            val school = schoolUseCases.getSchoolFromId(`class`.schoolId)
+                            val school = schoolUseCases.getSchoolFromId(`class`.schoolClassRefId)
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
@@ -57,7 +57,7 @@ class ProfileManagementViewModel @Inject constructor(
 
                         ProfileType.TEACHER -> {
                             val teacher = teacherRepostitory.getTeacherById(it.referenceId)
-                            val school = schoolUseCases.getSchoolFromId(teacher!!.schoolId)
+                            val school = schoolUseCases.getSchoolFromId(teacher!!.schoolTeacherRefId)
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
@@ -79,7 +79,7 @@ class ProfileManagementViewModel @Inject constructor(
 
                         ProfileType.ROOM -> {
                             val room = roomRepository.getRoomById(it.referenceId)
-                            val school = schoolUseCases.getSchoolFromId(room.schoolId)
+                            val school = schoolUseCases.getSchoolFromId(room.schoolRoomRefId)
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(

@@ -77,7 +77,7 @@ class SchoolRepositoryImpl(
     override suspend fun createSchool(schoolId: Long, username: String, password: String, name: String, daysPerWeek: Int) {
         schoolDao.insert(
             School(
-                id = schoolId,
+                schoolId = schoolId,
                 username = username,
                 password = password,
                 name = name,

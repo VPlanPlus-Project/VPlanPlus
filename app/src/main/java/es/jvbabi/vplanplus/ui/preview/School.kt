@@ -9,7 +9,7 @@ object School {
         for (i in 0..count) {
             schools.add(
                 School(
-                    id = i.toLong(),
+                    schoolId = i.toLong(),
                     name = randomSchoolName(),
                     "",
                     "",
@@ -20,7 +20,7 @@ object School {
         return schools
     }
 
-    fun randomSchoolName(): String {
+    private fun randomSchoolName(): String {
         return listOf(
             "Goethe Gymnasium",
             "Heinrich-Heine Realschule",

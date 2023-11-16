@@ -15,12 +15,12 @@ class VPlanRepositoryImpl(
     override suspend fun getVPlanData(school: School, date: LocalDate): DataResponse<VPlanData?> {
 
         val response = OnlineRequest(logRecordRepository).getResponse(
-            "https://www.stundenplan24.de/${school.id}/wplan/wdatenk/WPlanKl_${date.year}${date.monthValue}${
+            "https://www.stundenplan24.de/${school.schoolId}/wplan/wdatenk/WPlanKl_${date.year}${date.monthValue}${
                 date.dayOfMonth.toString().padStart(2, '0')
             }.xml", school.username, school.password
         )
         if (response.response == Response.NOT_FOUND) return DataResponse(null, Response.NO_DATA_AVAILABLE)
         if (response.data == null) return DataResponse(null, response.response)
-        return DataResponse(VPlanData(schoolId = school.id!!, xml = response.data), response.response)
+        return DataResponse(VPlanData(schoolId = school.schoolId, xml = response.data), response.response)
     }
 }

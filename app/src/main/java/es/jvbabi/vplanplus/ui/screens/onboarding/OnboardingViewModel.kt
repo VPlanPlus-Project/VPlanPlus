@@ -194,12 +194,12 @@ class OnboardingViewModel @Inject constructor(
                         className = state.value.selectedProfileOption!!,
                     )!!
                     profileUseCases.createStudentProfile(
-                        classId = `class`.id!!,
+                        classId = `class`.classId,
                         name = state.value.selectedProfileOption!!
                     )
                     keyValueUseCases.set(
                         Keys.ACTIVE_PROFILE,
-                        profileUseCases.getProfileByClassId(`class`.id).id.toString()
+                        profileUseCases.getProfileByClassId(`class`.classId).id.toString()
                     )
                 }
                 ProfileType.TEACHER -> {
@@ -208,18 +208,18 @@ class OnboardingViewModel @Inject constructor(
                         acronym = state.value.selectedProfileOption!!,
                         createIfNotExists = false
                     )!!
-                    profileUseCases.createTeacherProfile(teacherId = teacher.id!!, name = teacher.acronym)
+                    profileUseCases.createTeacherProfile(teacherId = teacher.teacherId, name = teacher.acronym)
                     keyValueUseCases.set(
                         Keys.ACTIVE_PROFILE,
-                        profileUseCases.getProfileByTeacherId(teacher.id).id.toString()
+                        profileUseCases.getProfileByTeacherId(teacher.teacherId).id.toString()
                     )
                 }
                 ProfileType.ROOM -> {
                     val room = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).find { it.name == state.value.selectedProfileOption!! }!!
-                    profileUseCases.createRoomProfile(roomId = room.id!!, name = room.name)
+                    profileUseCases.createRoomProfile(roomId = room.roomId, name = room.name)
                     keyValueUseCases.set(
                         Keys.ACTIVE_PROFILE,
-                        profileUseCases.getProfileByRoomId(room.id).id.toString()
+                        profileUseCases.getProfileByRoomId(room.roomId).id.toString()
                     )
                 }
             }

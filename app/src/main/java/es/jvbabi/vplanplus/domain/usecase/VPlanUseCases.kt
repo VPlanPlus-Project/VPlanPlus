@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.domain.usecase
 
-import android.util.Log
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.source.database.dao.LessonRoomCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
@@ -85,7 +84,7 @@ class VPlanUseCases(
 
                 val dbTeachers = if (DefaultValues.isEmpty(lesson.teacher.teacher)) emptyList() else {
                     if (lesson.teacher.teacher.contains(",")) {
-                        teacherRepository.getTeachersBySchoolId(school.id!!).filter { teacher ->
+                        teacherRepository.getTeachersBySchoolId(school.schoolId).filter { teacher ->
                             lesson.teacher.teacher.split(",").contains(teacher.acronym)
                         }
                     } else {
@@ -102,8 +101,8 @@ class VPlanUseCases(
                     defaultLessonDbId = defaultLessonRepository.insert(
                         vpId = defaultLesson.lessonId!!.toLong(),
                         subject = defaultLesson.subjectShort!!,
-                        teacherId = teacherRepository.find(school, defaultLesson.teacherShort!!, false)?.id,
-                        classId = `class`.id!!
+                        teacherId = teacherRepository.find(school, defaultLesson.teacherShort!!, false)?.teacherId,
+                        classId = `class`.classId
                     )
                 }
 
@@ -115,23 +114,19 @@ class VPlanUseCases(
                         info = if (DefaultValues.isEmpty(lesson.info)) null else lesson.info,
                         defaultLessonId = defaultLessonDbId,
                         changedSubject = changedSubject,
-                        classId = `class`.id!!
+                        classLessonRefId = `class`.classId
                     )
                 )
 
-                if (`class`.id == 16L && lesson.info.contains("Klassenarbeit")) {
-                    Log.d("VPlanUseCases", "Found Klassenarbeit for class ${`class`.className}, room ${lesson.room.room}")
-                }
-
                 dbRooms.forEach { room ->
                     lessonRoomCrossover.insertCrossover(
-                        lessonId, room.id!!
+                        lessonId, room.roomId
                     )
                 }
 
                 dbTeachers.forEach { teacher ->
                     lessonTeacherCrossover.insertCrossover(
-                        lessonId, teacher.id!!
+                        lessonId, teacher.teacherId
                     )
                 }
             }

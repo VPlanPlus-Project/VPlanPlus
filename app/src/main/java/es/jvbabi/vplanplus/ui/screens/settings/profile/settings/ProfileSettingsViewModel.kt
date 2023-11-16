@@ -68,7 +68,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun deleteProfile(context: Context) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                if (profileUseCases.getProfilesBySchoolId(profileUseCases.getSchoolFromProfileId(profile.id!!).id!!).size == 1) {
+                if (profileUseCases.getProfilesBySchoolId(profileUseCases.getSchoolFromProfileId(profile.id!!).schoolId).size == 1) {
                     setDeleteProfileResult(ProfileManagementDeletionResult.LAST_PROFILE)
                     return@launch
                 }

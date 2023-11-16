@@ -47,7 +47,7 @@ class ProfileRepositoryImpl(
             classes.add(
                 Classes(
                     className = it,
-                    schoolId = schoolId,
+                    schoolClassRefId = schoolId,
                 )
             )
         }

@@ -86,15 +86,15 @@ class ProfileUseCases(
         return when (profile.type) {
             ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
-                schoolRepository.getSchoolFromId(schoolId = `class`.schoolId)
+                schoolRepository.getSchoolFromId(schoolId = `class`.schoolClassRefId)
             }
             ProfileType.TEACHER -> {
                 val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
-                schoolRepository.getSchoolFromId(schoolId = teacher!!.schoolId)
+                schoolRepository.getSchoolFromId(schoolId = teacher!!.schoolTeacherRefId)
             }
             ProfileType.ROOM -> {
                 val room = roomRepository.getRoomById(profile.referenceId)
-                schoolRepository.getSchoolFromId(schoolId = room.schoolId)
+                schoolRepository.getSchoolFromId(schoolId = room.schoolRoomRefId)
             }
         }
     }
@@ -108,15 +108,15 @@ class ProfileUseCases(
         val plan = when(profile.type) {
             ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
-                lessonRepository.getLessonsForClass(classId = `class`.id!!, date = date)
+                lessonRepository.getLessonsForClass(classId = `class`.classId, date = date)
             }
             ProfileType.TEACHER -> {
                 val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
-                lessonRepository.getLessonsForTeacher(teacherId = teacher!!.id!!, date = date)
+                lessonRepository.getLessonsForTeacher(teacherId = teacher!!.teacherId, date = date)
             }
             ProfileType.ROOM -> {
                 val room = roomRepository.getRoomById(profile.referenceId)
-                lessonRepository.getLessonsForRoom(roomId = room.id!!, date = date)
+                lessonRepository.getLessonsForRoom(roomId = room.roomId, date = date)
             }
         }
         return plan.flatMapConcat { lessons ->

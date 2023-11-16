@@ -9,14 +9,14 @@ import androidx.room.PrimaryKey
     foreignKeys = [
         ForeignKey(
             entity = School::class,
-            parentColumns = ["id"],
-            childColumns = ["schoolId"],
+            parentColumns = ["schoolId"],
+            childColumns = ["schoolTeacherRefId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class Teacher(
-    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    @PrimaryKey(autoGenerate = true) val teacherId: Long = 0,
     val acronym: String,
-    val schoolId: Long,
+    val schoolTeacherRefId: Long,
 )

@@ -60,7 +60,7 @@ class SyncWorker @AssistedInject constructor(
         val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
         schoolUseCases.getSchools().forEach { school ->
             repeat(syncDays + 2) { i ->
-                val profiles = profileUseCases.getProfilesBySchoolId(school.id!!)
+                val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
                 val date = LocalDate.now().plusDays(i - 2L)
                 val hashesBefore = hashMapOf<Profile, String>()
                 val hashesAfter = hashMapOf<Profile, String>()
@@ -70,19 +70,19 @@ class SyncWorker @AssistedInject constructor(
                 val data = vPlanUseCases.getVPlanData(school, date)
                 Log.d(
                     "SyncWorker",
-                    "Syncing ${school.id} (${school.name}) at $date: ${data.response}"
+                    "Syncing ${school.schoolId} (${school.name}) at $date: ${data.response}"
                 )
                 if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
                     logRecordRepository.log(
                         "SyncWorker",
-                        "Error while syncing ${school.id} (${school.name}): ${data.response}"
+                        "Error while syncing ${school.schoolId} (${school.name}): ${data.response}"
                     )
                     return Result.failure()
                 }
                 if (data.response == Response.NO_DATA_AVAILABLE) {
                     logRecordRepository.log(
                         "SyncWorker",
-                        "No data available for ${school.id} (${school.name} at $date)"
+                        "No data available for ${school.schoolId} (${school.name} at $date)"
                     )
                     return@repeat
                 }

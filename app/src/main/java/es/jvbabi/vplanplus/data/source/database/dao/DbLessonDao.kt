@@ -11,15 +11,15 @@ import java.time.LocalDate
 @Dao
 abstract class DbLessonDao {
 
-    @Query("SELECT * FROM lesson WHERE classId = :classId AND day = :timestamp")
+    @Query("SELECT * FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp")
     abstract fun getLessonsByClass(classId: Long, timestamp: LocalDate): Flow<List<DbLesson>>
 
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * FROM lesson LEFT JOIN lesson_teacher_crossover ON lesson.id = lesson_teacher_crossover.lessonId WHERE lesson_teacher_crossover.teacherId = :teacherId AND lesson.day = :timestamp")
+    @Query("SELECT * FROM lesson LEFT JOIN lesson_teacher_crossover ON lesson.lessonId = lesson_teacher_crossover.ltcLessonId WHERE lesson_teacher_crossover.ltcTeacherId = :teacherId AND lesson.day = :timestamp")
     abstract fun getLessonsByTeacher(teacherId: Long, timestamp: LocalDate): Flow<List<DbLesson>>
 
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * FROM lesson LEFT JOIN lesson_room_crossover ON lesson.id = lesson_room_crossover.lessonId AND lesson_room_crossover.roomId = :roomId AND day = :timestamp")
+    @Query("SELECT * FROM lesson LEFT JOIN lesson_room_crossover ON lesson.lessonId = lesson_room_crossover.lrcLessonId AND lesson_room_crossover.lrcRoomId = :roomId AND day = :timestamp")
     abstract fun getLessonsByRoom(roomId: Long, timestamp: LocalDate): Flow<List<DbLesson>>
 
     @Insert
@@ -28,6 +28,6 @@ abstract class DbLessonDao {
     @Query("DELETE FROM lesson")
     abstract suspend fun deleteAll()
 
-    @Query("DELETE FROM lesson WHERE classId = :classId AND day = :timestamp")
+    @Query("DELETE FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp")
     abstract suspend fun deleteLessonsByClassAndDate(classId: Long, timestamp: LocalDate)
 }

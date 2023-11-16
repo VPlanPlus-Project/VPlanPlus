@@ -10,6 +10,6 @@ abstract class WeekDao {
     @Upsert
     abstract suspend fun insertWeek(week: Week)
 
-    @Query("DELETE FROM weeks WHERE schoolId = :schoolId")
+    @Query("DELETE FROM weeks WHERE schoolWeekRefId = :schoolId")
     abstract suspend fun deleteWeeksBySchoolId(schoolId: Long)
 }

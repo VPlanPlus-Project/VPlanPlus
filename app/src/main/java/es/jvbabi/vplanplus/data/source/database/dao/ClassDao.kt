@@ -12,15 +12,15 @@ abstract class ClassDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun insertClass(classObj: Classes): Long
 
-    @Query("SELECT * FROM classes WHERE schoolId = :schoolId AND className = :className")
+    @Query("SELECT * FROM classes WHERE schoolClassRefId = :schoolId AND className = :className")
     abstract suspend fun getClassBySchoolIdAndClassName(schoolId: Long, className: String): Classes?
 
-    @Query("SELECT * FROM classes WHERE id = :id")
+    @Query("SELECT * FROM classes WHERE classId = :id")
     abstract fun getClassById(id: Long): Classes
 
-    @Query("DELETE FROM classes WHERE schoolId = :schoolId")
+    @Query("DELETE FROM classes WHERE schoolClassRefId = :schoolId")
     abstract suspend fun deleteClassesBySchoolId(schoolId: Long)
 
-    @Query("SELECT * FROM classes WHERE schoolId = :schoolId")
+    @Query("SELECT * FROM classes WHERE schoolClassRefId = :schoolId")
     abstract suspend fun getClassesBySchoolId(schoolId: Long): List<Classes>
 }
