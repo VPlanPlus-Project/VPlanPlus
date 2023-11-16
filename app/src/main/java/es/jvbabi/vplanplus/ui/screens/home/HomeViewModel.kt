@@ -80,20 +80,12 @@ class HomeViewModel @Inject constructor(
         Log.d("HomeViewModel", "init; activeProfile=$activeProfile")
         _state.value =
             _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
-        when (activeProfile.type) {
-            ProfileType.STUDENT -> {
-                val profileClass = classUseCases.getClassById(activeProfile.referenceId)
-                school = profileClass.school
-            }
-
-            ProfileType.TEACHER -> {
-                val profileTeacher = teacherRepository.getTeacherById(activeProfile.referenceId)!!
-                school = schoolUseCases.getSchoolFromId(profileTeacher.schoolTeacherRefId)
-            }
-
+        school = when (activeProfile.type) {
+            ProfileType.STUDENT -> classUseCases.getClassById(activeProfile.referenceId).school
+            ProfileType.TEACHER -> teacherRepository.getTeacherById(activeProfile.referenceId)!!.school
             ProfileType.ROOM -> {
                 val room = roomRepository.getRoomById(activeProfile.referenceId)
-                school = schoolUseCases.getSchoolFromId(room.schoolRoomRefId)
+                schoolUseCases.getSchoolFromId(room.schoolRoomRefId)
             }
         }
 

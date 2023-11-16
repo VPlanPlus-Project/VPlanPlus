@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.data.source.database.crossover
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import es.jvbabi.vplanplus.data.model.DbLesson
-import es.jvbabi.vplanplus.domain.model.Teacher
+import es.jvbabi.vplanplus.data.model.DbTeacher
 
 @Entity(
     tableName = "lesson_teacher_crossover",
@@ -16,7 +16,7 @@ import es.jvbabi.vplanplus.domain.model.Teacher
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = Teacher::class,
+            entity = DbTeacher::class,
             parentColumns = ["teacherId"],
             childColumns = ["ltcTeacherId"],
             onDelete = ForeignKey.CASCADE

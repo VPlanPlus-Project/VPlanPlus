@@ -71,9 +71,8 @@ class LessonRepositoryImpl(
     override fun getLessonsForTeacher(teacherId: Long, date: LocalDate): Flow<Pair<DayType, List<Lesson>>> {
         // if there won't be any lessons for this date
         val teacher = teacherRepository.getTeacherById(teacherId)!!
-        val school = schoolRepository.getSchoolFromId(teacher.schoolTeacherRefId)
-        if (date.dayOfWeek.value > school.daysPerWeek) return flowOf(DayType.WEEKEND to emptyList())
-        if (holidayRepository.isHoliday(school.schoolId, date)) return flowOf(DayType.HOLIDAY to emptyList())
+        if (date.dayOfWeek.value > teacher.school.daysPerWeek) return flowOf(DayType.WEEKEND to emptyList())
+        if (holidayRepository.isHoliday(teacher.school.schoolId, date)) return flowOf(DayType.HOLIDAY to emptyList())
 
         return lessonDao.getLessonsByTeacher(teacherId, date)
             .map { lessons ->

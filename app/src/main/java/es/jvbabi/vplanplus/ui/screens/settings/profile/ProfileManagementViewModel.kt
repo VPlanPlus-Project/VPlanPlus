@@ -56,8 +56,7 @@ class ProfileManagementViewModel @Inject constructor(
                         }
 
                         ProfileType.TEACHER -> {
-                            val teacher = teacherRepostitory.getTeacherById(it.referenceId)
-                            val school = schoolUseCases.getSchoolFromId(teacher!!.schoolTeacherRefId)
+                            val school = teacherRepostitory.getTeacherById(it.referenceId)!!.school
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(

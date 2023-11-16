@@ -105,68 +105,69 @@ object Lessons {
     }
 
     fun randomTeacher(): MutableList<Teacher> {
+        val school = School.generateRandomSchools(1).first()
         return listOf(
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Mul"
             ),
 
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Sch"
             ),
 
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Sch"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Fis"
             ),
 
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Mey"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Web"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Wag"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Bec"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Sch"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Hof"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Sch"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Koc"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Bau"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Ric"
             ),
             Teacher(
-                schoolTeacherRefId = 1,
+                school = school,
                 acronym = "Kle"
             )
 

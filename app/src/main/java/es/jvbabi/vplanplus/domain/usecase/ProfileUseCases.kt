@@ -88,8 +88,7 @@ class ProfileUseCases(
                 classRepository.getClassById(id = profile.referenceId).school
             }
             ProfileType.TEACHER -> {
-                val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
-                schoolRepository.getSchoolFromId(schoolId = teacher!!.schoolTeacherRefId)
+                teacherRepository.getTeacherById(id = profile.referenceId)!!.school
             }
             ProfileType.ROOM -> {
                 val room = roomRepository.getRoomById(profile.referenceId)

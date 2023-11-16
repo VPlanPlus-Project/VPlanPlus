@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import es.jvbabi.vplanplus.data.model.DbClass
 import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.model.DbTeacher
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
@@ -34,7 +35,6 @@ import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.domain.model.Week
 
 @Database(
@@ -44,7 +44,7 @@ import es.jvbabi.vplanplus.domain.model.Week
         Profile::class,
         Room::class,
         School::class,
-        Teacher::class,
+        DbTeacher::class,
         KeyValue::class,
         Holiday::class,
         Week::class,
