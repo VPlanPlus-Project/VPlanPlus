@@ -15,9 +15,9 @@ object Lessons {
         repeat(count) { index ->
             result.add(
                 Lesson(
-                    rooms = randomRoom(),
+                    rooms = randomRoom().map { it.name },
                     teacherIsChanged = Random.nextBoolean(),
-                    teachers = randomTeacher(),
+                    teachers = randomTeacher().map { it.acronym },
                     start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:00", LocalDate.now()),
                     end = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:45", LocalDate.now()),
                     info = "Info",

@@ -12,7 +12,7 @@ import java.time.LocalDate
 class HomeUseCases(
     private val lessonRepository: LessonRepository,
 ) {
-    fun getLessons(profile: Profile, date: LocalDate): Flow<Day> {
+    suspend fun getLessons(profile: Profile, date: LocalDate): Flow<Day> {
         return when (profile.type) {
             ProfileType.STUDENT -> {
                 lessonRepository.getLessonsForClass(profile.referenceId, date)

@@ -34,7 +34,7 @@ data class CLesson(
         ),
         entity = DbTeacher::class
     )
-    val teachers: List<CTeacher>,
+    val teachers: List<DbTeacher>,
     @Relation(
         parentColumn = "lessonId",
         entityColumn = "roomId",
@@ -45,7 +45,7 @@ data class CLesson(
         ),
         entity = DbRoom::class
     )
-    val rooms: List<CRoom>,
+    val rooms: List<DbRoom>,
     @Relation(
         parentColumn = "classLessonRefId",
         entityColumn = "classLessonTimeRefId",
@@ -58,11 +58,11 @@ data class CLesson(
             lessonNumber = lesson.lessonNumber,
             originalSubject = defaultLesson?.subject,
             changedSubject = lesson.changedSubject,
-            teachers = teachers.map { it.toModel() },
-            teacherIsChanged = teachers.map { it.toModel().teacherId }.sorted() != listOf(
+            teachers = teachers.map { it.acronym },
+            teacherIsChanged = teachers.map { it.teacherId }.sorted() != listOf(
                 defaultLesson?.teacherId
             ),
-            rooms = rooms.map { it.toModel() },
+            rooms = rooms.map { it.name },
             roomIsChanged = lesson.roomIsChanged,
             info = lesson.info,
             day = lesson.day,

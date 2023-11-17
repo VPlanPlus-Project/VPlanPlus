@@ -175,7 +175,7 @@ fun HomeScreen(
             },
             onDeletePlansClicked = {
                 coroutineScope.launch {
-                    viewModel.deletePlans(context)
+                    viewModel.deletePlans()
                     menuOpened = false
                 }
             },
@@ -554,7 +554,7 @@ fun LessonCard(lesson: Lesson, width: Float) {
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        text = if (lesson.rooms.isNotEmpty()) lesson.rooms.joinToString(", ") { r -> r.name } else "-",
+                                        text = if (lesson.rooms.isNotEmpty()) lesson.rooms.joinToString(", ") { it } else "-",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = if (lesson.roomIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
@@ -564,7 +564,7 @@ fun LessonCard(lesson: Lesson, width: Float) {
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        text = if (lesson.teachers.isNotEmpty()) lesson.teachers.joinToString(", ") { t -> t.acronym } else "-",
+                                        text = if (lesson.teachers.isNotEmpty()) lesson.teachers.joinToString(", ") { it } else "-",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = if (lesson.teacherIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )

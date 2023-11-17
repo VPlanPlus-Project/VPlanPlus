@@ -150,6 +150,7 @@ class SyncWorker @AssistedInject constructor(
                 ) == "true")) sendNewPlanNotification(profile)
         }
 
+        keyValueUseCases.set(Keys.LESSON_VERSION_NUMBER, (keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2").toLong()+1L).toString())
         Log.d("SyncWorker", "SYNCED")
         logRecordRepository.log("SyncWorker", "Synced sucessfully")
         return Result.success()

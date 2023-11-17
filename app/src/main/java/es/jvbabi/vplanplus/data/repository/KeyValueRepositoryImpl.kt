@@ -13,4 +13,8 @@ class KeyValueRepositoryImpl(private val keyValueDao: KeyValueDao) : KeyValueRep
     }
 
     override fun getFlow(key: String) = keyValueDao.getFlow(key = key)
+
+    override suspend fun getOrDefault(key: String, defaultValue: String): String {
+        return keyValueDao.get(key = key) ?: defaultValue
+    }
 }

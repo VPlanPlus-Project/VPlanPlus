@@ -111,7 +111,7 @@ class ProfileUseCases(
         return plan.flatMapConcat { lessons ->
             flow {
                 emit(lessons.second.joinToString { lesson ->
-                    lesson.rooms.joinToString { room -> room.name } + lesson.originalSubject + (lesson.changedSubject ?: "") + lesson.teachers.joinToString { teacher -> teacher.acronym }
+                    lesson.rooms.joinToString { it } + lesson.originalSubject + (lesson.changedSubject ?: "") + lesson.teachers.joinToString { it }
                 })
             }
         }.map { concatenatedString ->

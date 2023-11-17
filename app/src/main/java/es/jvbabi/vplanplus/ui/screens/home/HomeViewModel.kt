@@ -31,8 +31,6 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -85,51 +83,33 @@ class HomeViewModel @Inject constructor(
         }
 
         val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
-        repeat(syncDays + 2) { i ->
-            Log.d(
-                "HomeViewModel",
-                "Updating view $i for ${activeProfile.name} at ${LocalDate.now().plusDays(i - 2L)}"
-            )
-            updateView(activeProfile, LocalDate.now().plusDays(i - 1L))
-        }
+
+        if (!Worker.isWorkerRunning("SyncWork", context)) updateView(syncDays) // initial data
 
         viewModelScope.launch {
-            Worker.isWorkerRunning("SyncWork", context).collect {
-                _state.value = _state.value.copy(syncing = it)
+            Worker.isWorkerRunningFlow("SyncWork", context).collect {
+                if (it != _state.value.syncing && !it) {
+                    _state.value = _state.value.copy(syncing = false)
+                    updateView(syncDays)
+                } else _state.value = _state.value.copy(syncing = it)
             }
         }
 
         _state.value =
             _state.value.copy(
-                profiles = profileUseCases.getProfiles().first().map { it.toMenuProfile() }, initDone = true)
+                profiles = profileUseCases.getProfiles().first().map { it.toMenuProfile() },
+                initDone = true
+            )
     }
 
-    @OptIn(FlowPreview::class)
-    private fun updateView(profile: Profile, date: LocalDate) {
-        if (!_state.value.lessons.containsKey(date)) _state.value =
-            _state.value.copy(
+    private suspend fun updateView(syncDays: Int) {
+        repeat(syncDays + 2) { i ->
+            val date = LocalDate.now().plusDays(i - 1L)
+            _state.value = _state.value.copy(
                 lessons = state.value.lessons.plus(
-                    date to Day(
-                        listOf(),
-                        DayType.LOADING
-                    )
+                    date to homeUseCases.getLessons(activeProfile, date).first()
                 )
             )
-        viewModelScope.launch {
-            var first = true
-            homeUseCases.getLessons(profile, date).debounce {
-                if (first) 0L else {
-                    first = false; 1000L
-                }
-            }.collect { lessons ->
-                if (!state.value.syncing) {
-                    Log.d("Init", "Init Done ${_state.value.initDone}")
-                    _state.value =
-                        _state.value.copy(
-                            lessons = state.value.lessons.plus(date to lessons),
-                        )
-                }
-            }
         }
     }
 
@@ -180,10 +160,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deletePlans(context: Context) {
+    fun deletePlans() {
         viewModelScope.launch {
             vPlanUseCases.deletePlans()
-            init(context)
         }
     }
 

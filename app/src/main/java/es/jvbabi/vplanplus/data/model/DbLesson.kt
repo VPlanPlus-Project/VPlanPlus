@@ -25,4 +25,5 @@ data class DbLesson(
     val info: String?,
     val roomIsChanged: Boolean,
     val day: LocalDate,
+    val version: Long
 )

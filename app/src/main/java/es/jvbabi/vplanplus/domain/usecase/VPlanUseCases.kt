@@ -27,7 +27,8 @@ class VPlanUseCases(
     private val schoolRepository: SchoolRepository,
     private val defaultLessonRepository: DefaultLessonRepository,
     private val lessonTeacherCrossover: LessonTeacherCrossoverDao,
-    private val lessonRoomCrossover: LessonRoomCrossoverDao
+    private val lessonRoomCrossover: LessonRoomCrossoverDao,
+    private val keyValueUseCases: KeyValueUseCases
 ) {
     suspend fun getVPlanData(school: School, date: LocalDate): DataResponse<VPlanData?> {
         return vPlanRepository.getVPlanData(school, date)
@@ -114,7 +115,8 @@ class VPlanUseCases(
                         info = if (DefaultValues.isEmpty(lesson.info)) null else lesson.info,
                         defaultLessonId = defaultLessonDbId,
                         changedSubject = changedSubject,
-                        classLessonRefId = `class`.classId
+                        classLessonRefId = `class`.classId,
+                        version = keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2").toLong()+1
                     )
                 )
 
