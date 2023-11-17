@@ -1,8 +1,10 @@
 package es.jvbabi.vplanplus.domain.usecase
 
+import es.jvbabi.vplanplus.data.model.DbProfile
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -31,31 +33,63 @@ class ProfileUseCases(
 ) {
 
     suspend fun createStudentProfile(classId: Long, name: String) {
-        profileRepository.createProfile(referenceId = classId, type = ProfileType.STUDENT, name = name, customName = name)
+        profileRepository.createProfile(
+            referenceId = classId,
+            type = ProfileType.STUDENT,
+            name = name,
+            customName = name
+        )
     }
 
     suspend fun createTeacherProfile(teacherId: Long, name: String) {
-        profileRepository.createProfile(referenceId = teacherId, type = ProfileType.TEACHER, name = name, customName = name)
+        profileRepository.createProfile(
+            referenceId = teacherId,
+            type = ProfileType.TEACHER,
+            name = name,
+            customName = name
+        )
     }
 
-    suspend fun updateProfile(profile: Profile) {
-        profileRepository.updateProfile(profile)
+    suspend fun setCalendarType(profileId: Long, calendarType: ProfileCalendarType) {
+        profileRepository.updateProfile(profileRepository.getDbProfileById(profileId = profileId).copy(calendarMode = calendarType))
+    }
+
+    suspend fun setCalendarId(profileId: Long, calendarId: Long) {
+        profileRepository.updateProfile(profileRepository.getDbProfileById(profileId = profileId).copy(calendarId = calendarId))
+    }
+
+    suspend fun setDisplayName(profileId: Long, displayName: String) {
+        profileRepository.updateProfile(profileRepository.getDbProfileById(profileId = profileId).copy(customName = displayName))
     }
 
     suspend fun createRoomProfile(roomId: Long, name: String) {
-        profileRepository.createProfile(referenceId = roomId, type = ProfileType.ROOM, name = name, customName = name)
+        profileRepository.createProfile(
+            referenceId = roomId,
+            type = ProfileType.ROOM,
+            name = name,
+            customName = name
+        )
     }
 
     suspend fun getProfileByClassId(classId: Long): Profile {
-        return profileRepository.getProfileByReferenceId(referenceId = classId, type = ProfileType.STUDENT)
+        return profileRepository.getProfileByReferenceId(
+            referenceId = classId,
+            type = ProfileType.STUDENT
+        )
     }
 
     suspend fun getProfileByTeacherId(teacherId: Long): Profile {
-        return profileRepository.getProfileByReferenceId(referenceId = teacherId, type = ProfileType.TEACHER)
+        return profileRepository.getProfileByReferenceId(
+            referenceId = teacherId,
+            type = ProfileType.TEACHER
+        )
     }
 
     suspend fun getProfileByRoomId(roomId: Long): Profile {
-        return profileRepository.getProfileByReferenceId(referenceId = roomId, type = ProfileType.ROOM)
+        return profileRepository.getProfileByReferenceId(
+            referenceId = roomId,
+            type = ProfileType.ROOM
+        )
     }
 
     suspend fun getActiveProfile(): Profile? {
@@ -94,15 +128,17 @@ class ProfileUseCases(
      */
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun getPlanSum(profile: Profile, date: LocalDate): String {
-        val plan = when(profile.type) {
+        val plan = when (profile.type) {
             ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
                 lessonRepository.getLessonsForClass(classId = `class`.classId, date = date)
             }
+
             ProfileType.TEACHER -> {
                 val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
                 lessonRepository.getLessonsForTeacher(teacherId = teacher!!.teacherId, date = date)
             }
+
             ProfileType.ROOM -> {
                 val room = roomRepository.getRoomById(profile.referenceId)
                 lessonRepository.getLessonsForRoom(roomId = room.roomId, date = date)
@@ -111,11 +147,13 @@ class ProfileUseCases(
         return plan.flatMapConcat { lessons ->
             flow {
                 emit(lessons.second.joinToString { lesson ->
-                    lesson.rooms.joinToString { it } + lesson.originalSubject + (lesson.changedSubject ?: "") + lesson.teachers.joinToString { it }
+                    lesson.rooms.joinToString { it } + lesson.originalSubject + (lesson.changedSubject
+                        ?: "") + lesson.teachers.joinToString { it }
                 })
             }
         }.map { concatenatedString ->
-            MessageDigest.getInstance("SHA-256").digest(concatenatedString.toByteArray()).joinToString("") { "%02x".format(it) }
+            MessageDigest.getInstance("SHA-256").digest(concatenatedString.toByteArray())
+                .joinToString("") { "%02x".format(it) }
         }.first()
     }
 

@@ -15,10 +15,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
-import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -104,11 +104,11 @@ class SyncWorker @AssistedInject constructor(
                                 ProfileType.ROOM -> lessonUseCases.getLessonsForRoom(roomRepository.getRoomById(profile.referenceId), date)
                             }.first()
                             if (lessons.dayType != DayType.DATA) return@profile
-                            when (profile.calendarMode) {
+                            when (profile.calendarType) {
                                 ProfileCalendarType.DAY -> {
                                     calendarRepository.insertEvent(
                                         CalendarEvent(
-                                            title = "Schultag " + profile.customName,
+                                            title = "Schultag " + profile.displayName,
                                             calendarId = calendar.id,
                                             location = school.name,
                                             startTimeStamp = lessons.lessons.sortedBy { it.lessonNumber }.first { it.displaySubject != "-"}.start.toLocalUnixTimestamp(),
@@ -142,7 +142,7 @@ class SyncWorker @AssistedInject constructor(
                 }
             }
         }
-        Log.d("SyncWorker", "Changed profiles: ${planIsChanged.keys.map { it.name }}")
+        Log.d("SyncWorker", "Changed profiles: ${planIsChanged.keys.map { it.displayName }}")
         planIsChanged.keys.forEach { profile ->
             // send notification
             if (planIsChanged[profile] == true && (!isAppInForeground() || keyValueUseCases.get(
@@ -157,19 +157,19 @@ class SyncWorker @AssistedInject constructor(
     }
 
     private suspend fun sendNewPlanNotification(profile: Profile) {
-        logRecordRepository.log("SyncWorker", "Sending notification for profile ${profile.name}")
+        logRecordRepository.log("SyncWorker", "Sending notification for profile ${profile.displayName}")
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }.putExtra("profileId", profile.id)
         val pendingIntent =
             PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        val school = profileUseCases.getSchoolFromProfileId(profile.id!!)
-        val builder = NotificationCompat.Builder(context, "PROFILE_${profile.name}")
+        val school = profileUseCases.getSchoolFromProfileId(profile.id)
+        val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
             .setContentTitle(context.getString(R.string.notification_newPlanTitle))
             .setContentText(
                 context.getString(
                     R.string.notification_newPlanText,
-                    profile.name,
+                    profile.displayName,
                     school.name
                 )
             )

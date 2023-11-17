@@ -8,9 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import kotlinx.coroutines.flow.combine
@@ -52,7 +52,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun setCalendarMode(calendarMode: ProfileCalendarType) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                profileUseCases.updateProfile(profile.copy(calendarMode = calendarMode))
+                profileUseCases.setCalendarType(profile.id, calendarType = calendarMode)
             }
         }
     }
@@ -60,7 +60,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun setCalendar(calendarId: Long) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                profileUseCases.updateProfile(profile.copy(calendarId = calendarId))
+                profileUseCases.setCalendarId(profile.id, calendarId)
             }
         }
     }
@@ -68,7 +68,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun deleteProfile(context: Context) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                if (profileUseCases.getProfilesBySchoolId(profileUseCases.getSchoolFromProfileId(profile.id!!).schoolId).size == 1) {
+                if (profileUseCases.getProfilesBySchoolId(profileUseCases.getSchoolFromProfileId(profile.id).schoolId).size == 1) {
                     setDeleteProfileResult(ProfileManagementDeletionResult.LAST_PROFILE)
                     return@launch
                 }
@@ -82,7 +82,7 @@ class ProfileSettingsViewModel @Inject constructor(
                 setDeleteProfileResult(ProfileManagementDeletionResult.SUCCESS)
                 val notificationManager: NotificationManager =
                     context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.deleteNotificationChannel("PROFILE_${profile.name}")
+                notificationManager.deleteNotificationChannel("PROFILE_${profile.originalName}")
             }
         }
     }
@@ -90,7 +90,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun renameProfile(name: String) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                profileUseCases.updateProfile(profile.copy(customName = name))
+                profileUseCases.setDisplayName(profile.id, name)
             }
         }
     }

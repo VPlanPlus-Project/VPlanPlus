@@ -1,7 +1,8 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import es.jvbabi.vplanplus.data.model.DbProfile
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.ProfileType
 import kotlinx.coroutines.flow.Flow
 
 interface ProfileRepository {
@@ -11,5 +12,6 @@ interface ProfileRepository {
     fun getProfileById(id: Long): Flow<Profile>
     suspend fun deleteProfile(profileId: Long)
     suspend fun getProfilesBySchoolId(schoolId: Long): List<Profile>
-    suspend fun updateProfile(profile: Profile)
+    suspend fun updateProfile(profile: DbProfile)
+    suspend fun getDbProfileById(profileId: Long): DbProfile
 }

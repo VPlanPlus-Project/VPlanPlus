@@ -2,7 +2,7 @@ package es.jvbabi.vplanplus.data.source.database.converter
 
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 
 @ProvidedTypeConverter
 class ProfileCalendarTypeConverter {
