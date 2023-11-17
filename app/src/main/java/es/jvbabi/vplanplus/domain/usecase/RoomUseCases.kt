@@ -15,13 +15,12 @@ class RoomUseCases(
         val map = mutableMapOf<Room, List<Boolean>>()
         rooms.forEach { room ->
             val lessons = lessonUseCases.getLessonsForRoom(room, LocalDate.now()).first()
-            val availability = List(12) { true }.toMutableList()
-            lessons.lessons.filter { it.changedSubject != "-" }.forEach { lesson ->
-                try {
-                    availability[lesson.lessonNumber] = false
-                } catch (_: IndexOutOfBoundsException) {}
+            val availability = mutableListOf<Boolean>()
+            repeat(11) {
+                val lesson = lessons.lessons.firstOrNull { lesson -> lesson.lessonNumber == it }
+                availability.add((lesson?.displaySubject ?: "-") == "-")
             }
-            map[room] = availability
+            map[room] = availability.toList()
         }
         return map
     }

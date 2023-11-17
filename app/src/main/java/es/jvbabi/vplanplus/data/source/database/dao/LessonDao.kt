@@ -14,17 +14,17 @@ import java.time.LocalDate
 abstract class LessonDao {
 
     @Transaction
-    @Query("SELECT * FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp AND version = :version")
+    @Query("SELECT * FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp AND version = :version ORDER by lessonNumber ASC")
     abstract fun getLessonsByClass(classId: Long, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction
-    @Query("SELECT * FROM lesson LEFT JOIN lesson_teacher_crossover ON lesson.lessonId = lesson_teacher_crossover.ltcLessonId WHERE lesson_teacher_crossover.ltcTeacherId = :teacherId AND lesson.day = :timestamp AND version = :version")
+    @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.defaultLessonId = lesson.defaultLessonId WHERE day = :timestamp AND version = :version AND (lessonId IN (SELECT ltcTeacherId FROM lesson_teacher_crossover WHERE ltcTeacherId = :teacherId) OR default_lesson.teacherId = :teacherId) ORDER by lessonNumber ASC")
     abstract fun getLessonsByTeacher(teacherId: Long, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction
-    @Query("SELECT * FROM lesson LEFT JOIN lesson_room_crossover ON lesson.lessonId = lesson_room_crossover.lrcLessonId AND lesson_room_crossover.lrcRoomId = :roomId AND day = :timestamp AND version = :version")
+    @Query("SELECT * FROM lesson WHERE day = :timestamp AND version = :version AND lessonId IN (SELECT lrcLessonId FROM lesson_room_crossover WHERE lrcRoomId = :roomId) ORDER by lessonNumber ASC")
     abstract fun getLessonsByRoom(roomId: Long, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
     @Insert
