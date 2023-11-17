@@ -62,4 +62,8 @@ object DateUtils {
     fun LocalDateTime.toLocalUnixTimestamp(): Long {
         return this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()/1000
     }
+
+    fun LocalDate.atStartOfWeek(): LocalDate {
+        return this.minusDays(this.dayOfWeek.value.toLong() - 1)
+    }
 }

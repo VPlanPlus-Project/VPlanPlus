@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.logs.LogsScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingCause
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingProfileOptionListScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
@@ -146,6 +147,14 @@ fun NavigationGraph(
                 exitTransition = exitSlideTransition
             ) {
                 OnboardingProfileOptionListScreen(navController, onboardingViewModel)
+            }
+
+            composable(
+                route = Screen.OnboardingDefaultLessonScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                OnboardingDefaultLessonScreen(navController, onboardingViewModel)
             }
 
             composable(

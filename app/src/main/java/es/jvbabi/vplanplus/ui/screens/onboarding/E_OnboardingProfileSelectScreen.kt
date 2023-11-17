@@ -49,7 +49,8 @@ fun OnboardingProfileOptionListScreen(
         state = state,
         onClassSelect = { onboardingViewModel.onProfileSelect(it) }, {
             coroutineScope.launch { onboardingViewModel.onProfileSubmit(context) }
-            navController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
+            if (state.profileType == ProfileType.STUDENT) navController.navigate(Screen.OnboardingDefaultLessonScreen.route) { popUpTo(0) }
+            else navController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
         },
         setDialogVisibility = { onboardingViewModel.setTeacherDialogVisibility(it) }
     )
