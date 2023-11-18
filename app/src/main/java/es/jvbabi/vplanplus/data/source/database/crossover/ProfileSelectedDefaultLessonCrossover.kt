@@ -7,7 +7,7 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 
 @Entity(
     tableName = "profile_selected_default_lesson_crossover",
-    primaryKeys = ["psdlcProfileId", "psdlcDefaultLessonId"],
+    primaryKeys = ["psdlcProfileId", "psdlcDefaultLessonVpId"],
     foreignKeys = [
         ForeignKey(
             entity = DbProfile::class,
@@ -17,13 +17,14 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
         ),
         ForeignKey(
             entity = DefaultLesson::class,
-            parentColumns = ["defaultLessonId"],
-            childColumns = ["psdlcDefaultLessonId"],
-            onDelete = ForeignKey.CASCADE
-        ),
+            parentColumns = ["vpId"],
+            childColumns = ["psdlcDefaultLessonVpId"],
+            onDelete = ForeignKey.NO_ACTION,
+            onUpdate = ForeignKey.CASCADE
+        )
     ]
 )
 data class ProfileSelectedDefaultLessonCrossover(
     val psdlcProfileId: Long,
-    val psdlcDefaultLessonId: Long
+    val psdlcDefaultLessonVpId: Long
 )

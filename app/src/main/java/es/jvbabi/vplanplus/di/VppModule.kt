@@ -28,6 +28,7 @@ import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
+import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -73,6 +74,7 @@ object VppModule {
             .fallbackToDestructiveMigration() // TODO: Remove for production
             .addTypeConverter(DayConverter())
             .addTypeConverter(ProfileTypeConverter())
+            .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
             .allowMainThreadQueries()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
@@ -110,7 +112,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideProfileRepository(db: VppDatabase): ProfileRepository {
-        return ProfileRepositoryImpl(db.profileDao)
+        return ProfileRepositoryImpl(db.profileDao, db.profileSelectedDefaultLessonCrossoverDao)
     }
 
     @Provides

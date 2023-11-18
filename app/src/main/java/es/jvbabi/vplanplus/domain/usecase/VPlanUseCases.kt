@@ -4,6 +4,7 @@ import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.source.database.dao.LessonRoomCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
@@ -17,6 +18,7 @@ import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+import java.util.UUID
 
 class VPlanUseCases(
     private val vPlanRepository: VPlanRepository,
@@ -100,10 +102,13 @@ class VPlanUseCases(
 
                 if (dbDefaultLesson == null && defaultLesson != null) {
                     defaultLessonDbId = defaultLessonRepository.insert(
-                        vpId = defaultLesson.lessonId!!.toLong(),
-                        subject = defaultLesson.subjectShort!!,
-                        teacherId = teacherRepository.find(school, defaultLesson.teacherShort!!, false)?.teacherId,
-                        classId = `class`.classId
+                        DefaultLesson(
+                            defaultLessonId = UUID.randomUUID(),
+                            vpId = defaultLesson.lessonId!!.toLong(),
+                            subject = defaultLesson.subjectShort!!,
+                            teacherId = dbTeachers.firstOrNull { t -> t.acronym == defaultLesson.teacherShort}?.teacherId,
+                            classId = `class`.classId
+                        )
                     )
                 }
 

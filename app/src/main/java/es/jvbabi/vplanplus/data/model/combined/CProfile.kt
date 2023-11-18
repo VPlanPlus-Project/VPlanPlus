@@ -15,7 +15,7 @@ data class CProfile(
         entityColumn = "defaultLessonId",
         associateBy = Junction(
             parentColumn = "psdlcProfileId",
-            entityColumn = "psdlcDefaultLessonId",
+            entityColumn = "psdlcDefaultLessonVpId",
             value = ProfileSelectedDefaultLessonCrossover::class,
         ),
         entity = DefaultLesson::class

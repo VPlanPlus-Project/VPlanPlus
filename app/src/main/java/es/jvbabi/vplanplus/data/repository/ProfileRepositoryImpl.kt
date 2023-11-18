@@ -4,6 +4,7 @@ import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
+import es.jvbabi.vplanplus.data.source.database.dao.ProfileSelectedDefaultLessonCrossoverDao
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +12,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class ProfileRepositoryImpl(
-    private val profileDao: ProfileDao
+    private val profileDao: ProfileDao,
+    private val profileSelectedDefaultLessonCrossoverDao: ProfileSelectedDefaultLessonCrossoverDao
 ): ProfileRepository {
     override fun getProfiles(): Flow<List<Profile>> {
         return profileDao.getProfiles().map { it.map { p -> p.toModel() } }
@@ -21,8 +23,8 @@ class ProfileRepositoryImpl(
         return profileDao.getProfileById(id = profileId).first().profile
     }
 
-    override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String, customName: String) {
-        profileDao.insert(DbProfile(referenceId = referenceId, type = type, name = name, customName = customName, calendarMode = ProfileCalendarType.NONE, calendarId = null))
+    override suspend fun createProfile(referenceId: Long, type: ProfileType, name: String, customName: String): Long {
+        return profileDao.insert(DbProfile(referenceId = referenceId, type = type, name = name, customName = customName, calendarMode = ProfileCalendarType.NONE, calendarId = null))
     }
 
     override suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): Profile {
@@ -43,5 +45,13 @@ class ProfileRepositoryImpl(
 
     override suspend fun updateProfile(profile: DbProfile) {
         profileDao.insert(profile = profile)
+    }
+
+    override suspend fun addDefaultLesson(profileId: Long, vpId: Long) {
+        profileSelectedDefaultLessonCrossoverDao.insertCrossover(profileId = profileId, vpId = vpId)
+    }
+
+    override suspend fun removeDefaultLesson(profileId: Long, vpId: Long) {
+        profileSelectedDefaultLessonCrossoverDao.deleteCrossover(vpId = vpId, profileId = profileId)
     }
 }

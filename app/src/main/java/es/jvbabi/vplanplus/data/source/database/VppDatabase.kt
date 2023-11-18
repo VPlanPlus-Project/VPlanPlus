@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.data.model.DbTeacher
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
+import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.ProfileSelectedDefaultLessonCrossover
@@ -25,6 +26,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
+import es.jvbabi.vplanplus.data.source.database.dao.ProfileSelectedDefaultLessonCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.TeacherDao
@@ -64,7 +66,8 @@ import es.jvbabi.vplanplus.domain.model.Week
 @TypeConverters(
     DayConverter::class,
     ProfileTypeConverter::class,
-    ProfileCalendarTypeConverter::class
+    ProfileCalendarTypeConverter::class,
+    UuidConverter::class
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
@@ -82,4 +85,5 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val logRecordDao: LogRecordDao
     abstract val calendarEventDao: CalendarEventDao
     abstract val defaultLessonDao: DefaultLessonDao
+    abstract val profileSelectedDefaultLessonCrossoverDao: ProfileSelectedDefaultLessonCrossoverDao
 }

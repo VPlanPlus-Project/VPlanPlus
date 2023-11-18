@@ -10,9 +10,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
 import es.jvbabi.vplanplus.domain.model.xml.WplanVpXmlDefaultLessonWrapper
+import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -30,6 +32,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -39,6 +42,7 @@ class OnboardingViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val baseDataUseCases: BaseDataUseCases,
+    private val defaultLessonRepository: DefaultLessonRepository,
     private val vPlanUseCases: VPlanUseCases,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
@@ -215,12 +219,8 @@ class OnboardingViewModel @Inject constructor(
                     }
                 }
             }
-
-            else ->
-                onInsertData(context)
-
+            else -> onInsertData(context)
         }
-
     }
 
     fun onInsertData(context: Context) {
@@ -247,14 +247,33 @@ class OnboardingViewModel @Inject constructor(
                         schoolId = state.value.schoolId.toLong(),
                         className = state.value.selectedProfileOption!!,
                     )!!
-                    profileUseCases.createStudentProfile(
+                    val profileId = profileUseCases.createStudentProfile(
                         classId = `class`.classId,
                         name = state.value.selectedProfileOption!!
                     )
                     keyValueUseCases.set(
                         Keys.ACTIVE_PROFILE,
-                        profileUseCases.getProfileByClassId(`class`.classId).id.toString()
+                        profileId.toString()
                     )
+
+                    _state.value.defaultLessons.forEach {
+                        defaultLessonRepository.insert(
+                            DefaultLesson(
+                                defaultLessonId = UUID.randomUUID(),
+                                vpId = it.key.defaultLesson!!.lessonId!!.toLong(),
+                                subject = it.key.defaultLesson!!.subjectShort!!,
+                                teacherId = teacherRepository.find(`class`.school, it.key.defaultLesson!!.teacherShort!!, false)?.teacherId ?: 0,
+                                classId = `class`.classId
+                            )
+                        )
+                    }
+
+                    _state.value.defaultLessons.filterValues { it }.keys.forEach { defaultLesson ->
+                        profileUseCases.addDefaultLesson(
+                            profileId = profileId,
+                            vpId = defaultLesson.defaultLesson!!.lessonId!!.toLong()
+                        )
+                    }
                 }
 
                 ProfileType.TEACHER -> {

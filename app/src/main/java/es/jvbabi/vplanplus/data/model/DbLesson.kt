@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.LocalDate
+import java.util.UUID
 
 @Entity(
     tableName = "lesson",
@@ -21,7 +22,7 @@ data class DbLesson(
     val lessonNumber: Int,
     val changedSubject: String?,
     val classLessonRefId: Long,
-    val defaultLessonId: Long?,
+    val defaultLessonId: UUID?,
     val info: String?,
     val roomIsChanged: Boolean,
     val day: LocalDate,

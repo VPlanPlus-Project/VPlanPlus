@@ -15,7 +15,7 @@ abstract class ProfileDao {
     abstract fun getProfiles(): Flow<List<CProfile>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract suspend fun insert(profile: DbProfile)
+    abstract suspend fun insert(profile: DbProfile): Long
 
     @Query("SELECT * FROM profile WHERE referenceId = :referenceId AND type = :type")
     abstract suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): CProfile

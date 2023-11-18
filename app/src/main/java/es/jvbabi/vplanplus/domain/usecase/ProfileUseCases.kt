@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.domain.usecase
 
-import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Calendar
@@ -32,8 +31,8 @@ class ProfileUseCases(
     private val calendarRepository: CalendarRepository
 ) {
 
-    suspend fun createStudentProfile(classId: Long, name: String) {
-        profileRepository.createProfile(
+    suspend fun createStudentProfile(classId: Long, name: String): Long {
+        return profileRepository.createProfile(
             referenceId = classId,
             type = ProfileType.STUDENT,
             name = name,
@@ -60,6 +59,14 @@ class ProfileUseCases(
 
     suspend fun setDisplayName(profileId: Long, displayName: String) {
         profileRepository.updateProfile(profileRepository.getDbProfileById(profileId = profileId).copy(customName = displayName))
+    }
+
+    suspend fun addDefaultLesson(profileId: Long, vpId: Long) {
+        profileRepository.addDefaultLesson(vpId = vpId, profileId = profileId)
+    }
+
+    suspend fun removeDefaultLesson(profileId: Long, defaultLessonId: Long) {
+        profileRepository.removeDefaultLesson(profileId = profileId, vpId = defaultLessonId)
     }
 
     suspend fun createRoomProfile(roomId: Long, name: String) {
