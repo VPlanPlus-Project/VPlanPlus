@@ -149,20 +149,21 @@ fun InputDialog(
 }
 
 @Composable
-fun SelectDialog(
+fun <T: Comparable<T>> SelectDialog(
     icon: ImageVector,
     title: String?,
     message: String? = null,
-    value: String? = null,
-    onOk: (String?) -> Unit = {},
-    items: List<String>,
+    value: T? = null,
+    itemToString: (T) -> String = { it.toString() },
+    onOk: (T?) -> Unit = {},
+    items: List<T>,
     onDismiss: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
-        var selected by remember { mutableStateOf(value ?: "") }
+        var selected by remember { mutableStateOf(value) }
         AlertDialog(
             icon = { Icon(imageVector = icon, contentDescription = null) },
             title = { if (title != null) Text(text = title) },
@@ -180,8 +181,8 @@ fun SelectDialog(
                                     .clickable { selected = item },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                RadioButton(selected = selected == item, onClick = { /*TODO*/ })
-                                Text(text = item, style = MaterialTheme.typography.bodyLarge)
+                                RadioButton(selected = selected == item, onClick = { selected = item })
+                                Text(text = itemToString(item), style = MaterialTheme.typography.bodyLarge)
                             }
                         }
                     }

@@ -35,6 +35,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
@@ -77,7 +78,7 @@ fun ProfileSettingsScreen(
             viewModel.setCalendarMode(it)
         },
         onCalendarSet = {
-            viewModel.setCalendar(state.calendars.first { c -> c.displayName == it }.id)
+            viewModel.setCalendar(it.id)
         },
         onDefaultLessonsClicked = {
             navController.navigate(
@@ -99,7 +100,7 @@ private fun ProfileSettingsScreenContent(
     onProfileDeleteDialogYes: () -> Unit = {},
     onProfileRenamed: (String) -> Unit = {},
     onCalendarModeSet: (ProfileCalendarType) -> Unit = {},
-    onCalendarSet: (String) -> Unit = {},
+    onCalendarSet: (Calendar) -> Unit = {},
     onSetDialogVisible: (Boolean) -> Unit = {},
     onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
     onDefaultLessonsClicked: () -> Unit = {}
@@ -230,12 +231,14 @@ private fun ProfileSettingsScreenContent(
                             SelectDialog(
                                 icon = Icons.Default.EditCalendar,
                                 title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
-                                items = state.calendars.map { it.displayName },
+                                items = state.calendars.sortedBy { it.owner + it.displayName },
+                                itemToString = { "${it.displayName} (${it.owner})" },
                                 onDismiss = { onSetDialogVisible(false) },
-                                value = state.profileCalendar?.displayName,
+                                value = state.profileCalendar,
                                 onOk = {
+                                    if (it == null) return@SelectDialog
+                                    onCalendarSet(it)
                                     onSetDialogVisible(false)
-                                    if (!it.isNullOrBlank()) onCalendarSet(it)
                                 }
                             )
                         }

@@ -5,6 +5,7 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.provider.CalendarContract
+import android.util.Log
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
@@ -30,7 +31,8 @@ class CalendarRepositoryImpl(
 
             val projection = arrayOf(
                 CalendarContract.Calendars._ID,
-                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME
+                CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
+                CalendarContract.Calendars.OWNER_ACCOUNT
             )
             val cursor = contentResolver.query(calendarsUri, projection, null, null, null)
             if (cursor != null && cursor.moveToFirst()) {
@@ -39,7 +41,9 @@ class CalendarRepositoryImpl(
                         cursor.getLong(cursor.getColumnIndex(CalendarContract.Calendars._ID))
                     val calendarName =
                         cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME))
-                    calendars.add(Calendar(calendarId, calendarName))
+                    val owner =
+                        cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.OWNER_ACCOUNT))
+                    calendars.add(Calendar(calendarId, calendarName, owner))
                 } while (cursor.moveToNext())
                 cursor.close()
             }
