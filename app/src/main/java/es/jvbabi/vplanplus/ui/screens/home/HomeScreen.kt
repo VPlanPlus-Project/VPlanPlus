@@ -74,6 +74,7 @@ import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.NoData
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
@@ -309,16 +310,12 @@ fun HomeScreenContent(
                                             )
                                         ) WeekendType.OVER else WeekendType.COMING_UP
                                     )
-                                DayType.HOLIDAY -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(text = "Holiday")
-                                    }
-                                }
+                                DayType.HOLIDAY -> Holiday()
 
                                 DayType.DATA -> {
+                                    if (state.lessons[date]!!.lessons.isEmpty()) {
+                                        onSetDayType(date)
+                                    }
                                     val hiddenLessons = state.lessons[date]!!.lessons.count {
                                         !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
                                     }
