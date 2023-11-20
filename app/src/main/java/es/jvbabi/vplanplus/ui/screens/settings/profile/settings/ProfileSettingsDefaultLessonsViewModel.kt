@@ -25,11 +25,12 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
     fun init(profileId: Long) {
         viewModelScope.launch {
             profileUseCases.getProfileById(profileId).collect {
+
                 _state.value = ProfileSettingsDefaultLessonsState(profile = it)
                 if (_state.value.profile!!.type == ProfileType.STUDENT) {
                     _state.value = _state.value.copy(
                         differentDefaultLessons = defaultLessonRepository.getDefaultLessonByClassId(
-                            it.referenceId
+                            it!!.referenceId
                         ).size != it.defaultLessons.size
                     )
                 }

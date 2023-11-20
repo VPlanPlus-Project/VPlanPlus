@@ -24,8 +24,8 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override suspend fun getDbProfileById(profileId: Long): DbProfile {
-        return profileDao.getProfileById(id = profileId).first().profile
+    override suspend fun getDbProfileById(profileId: Long): DbProfile? {
+        return profileDao.getProfileById(id = profileId).first()?.profile
     }
 
     override suspend fun createProfile(
@@ -50,9 +50,9 @@ class ProfileRepositoryImpl(
         return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type).toModel()
     }
 
-    override fun getProfileById(id: Long): Flow<Profile> {
+    override fun getProfileById(id: Long): Flow<Profile?> {
         return profileDao.getProfileById(id = id).map {
-            it.toModel()
+            it?.toModel()
         }
     }
 

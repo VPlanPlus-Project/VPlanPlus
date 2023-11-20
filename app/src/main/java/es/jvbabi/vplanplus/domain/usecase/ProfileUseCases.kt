@@ -51,20 +51,20 @@ class ProfileUseCases(
 
     suspend fun setCalendarType(profileId: Long, calendarType: ProfileCalendarType) {
         profileRepository.updateProfile(
-            profileRepository.getDbProfileById(profileId = profileId)
+            profileRepository.getDbProfileById(profileId = profileId)!!
                 .copy(calendarMode = calendarType)
         )
     }
 
     suspend fun setCalendarId(profileId: Long, calendarId: Long) {
         profileRepository.updateProfile(
-            profileRepository.getDbProfileById(profileId = profileId).copy(calendarId = calendarId)
+            profileRepository.getDbProfileById(profileId = profileId)!!.copy(calendarId = calendarId)
         )
     }
 
     suspend fun setDisplayName(profileId: Long, displayName: String) {
         profileRepository.updateProfile(
-            profileRepository.getDbProfileById(profileId = profileId).copy(customName = displayName)
+            profileRepository.getDbProfileById(profileId = profileId)!!.copy(customName = displayName)
         )
     }
 
@@ -82,13 +82,6 @@ class ProfileUseCases(
             type = ProfileType.ROOM,
             name = name,
             customName = name
-        )
-    }
-
-    suspend fun getProfileByClassId(classId: Long): Profile {
-        return profileRepository.getProfileByReferenceId(
-            referenceId = classId,
-            type = ProfileType.STUDENT
         )
     }
 
@@ -129,7 +122,7 @@ class ProfileUseCases(
 
     suspend fun getSchoolFromProfileId(profileId: Long): School {
         val profile = profileRepository.getProfileById(id = profileId).first()
-        return when (profile.type) {
+        return when (profile!!.type) {
             ProfileType.STUDENT -> classRepository.getClassById(id = profile.referenceId).school
             ProfileType.TEACHER -> teacherRepository.getTeacherById(id = profile.referenceId)!!.school
             ProfileType.ROOM -> roomRepository.getRoomById(profile.referenceId).school
@@ -186,7 +179,7 @@ class ProfileUseCases(
             .joinToString("") { "%02x".format(it) }
     }
 
-    fun getProfileById(profileId: Long): Flow<Profile> {
+    fun getProfileById(profileId: Long): Flow<Profile?> {
         return profileRepository.getProfileById(id = profileId)
     }
 
