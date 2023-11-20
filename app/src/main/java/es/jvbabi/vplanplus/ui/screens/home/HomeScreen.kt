@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -39,7 +38,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ViewDay
 import androidx.compose.material.icons.filled.ViewWeek
-import androidx.compose.material.icons.filled.Weekend
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -65,7 +63,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
@@ -77,6 +74,10 @@ import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
+import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.NoData
+import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
+import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.calculateProgress
 import kotlinx.coroutines.delay
@@ -232,7 +233,8 @@ fun HomeScreenContent(
             ) {
                 SearchBar(if ((state.activeProfile?.displayName
                         ?: "").length > 4
-                ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName ?: "",
+                ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName
+                    ?: "",
                     onMenuOpened,
                     { onSearchOpened(it) },
                     false,
@@ -301,85 +303,39 @@ fun HomeScreenContent(
                                         CircularProgressIndicator()
                                     }
                                 }
-
-                                DayType.NO_DATA -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(text = "No data")
-                                    }
-                                }
-
-                                DayType.WEEKEND -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Column(
-                                            modifier = Modifier
-                                                .padding(horizontal = 24.dp)
-                                                .fillMaxWidth(),
-                                            horizontalAlignment = Alignment.CenterHorizontally
-                                        ) {
-                                            Icon(
-                                                imageVector = Icons.Default.Weekend,
-                                                contentDescription = null,
-                                                modifier = Modifier.size(80.dp),
-                                                tint = MaterialTheme.colorScheme.primary
+                                DayType.NO_DATA -> NoData()
+                                DayType.WEEKEND -> WeekendPlaceholder(
+                                        type = if (date == LocalDate.now()) WeekendType.TODAY else if (date.isBefore(
+                                                LocalDate.now()
                                             )
-                                            Text(
-                                                text = stringResource(id = R.string.home_weekendTitle),
-                                                style = MaterialTheme.typography.headlineMedium
-                                            )
-                                            var todayIsSameWeekendAsPagerDay = true
-                                            if (!LocalDate.now().isEqual(date)) {
-                                                var d = LocalDate.now()
-                                                while (!d.isEqual(date)) {
-                                                    d = if (LocalDate.now()
-                                                            .isBefore(date)
-                                                    ) d.plusDays(1)
-                                                    else d.minusDays(1)
-
-                                                    if (state.lessons[d]?.dayType != DayType.WEEKEND) {
-                                                        todayIsSameWeekendAsPagerDay = false
-                                                        break
-                                                    }
-                                                }
-                                            }
-                                            if (todayIsSameWeekendAsPagerDay) Text(
-                                                text = stringResource(id = R.string.home_weekendText),
-                                                textAlign = TextAlign.Center
-                                            )
-                                            else if (LocalDate.now().isBefore(date)) Text(
-                                                text = stringResource(id = R.string.home_weekendCommingUpText),
-                                                textAlign = TextAlign.Center
-                                            )
-                                            else Text(
-                                                text = stringResource(id = R.string.home_weekendOverText),
-                                                textAlign = TextAlign.Center
-                                            )
-                                        }
-                                    }
-                                }
-
-                                DayType.HOLIDAY -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(text = "Holiday")
-                                    }
-                                }
+                                        ) WeekendType.OVER else WeekendType.COMING_UP
+                                    )
+                                DayType.HOLIDAY -> Holiday()
 
                                 DayType.DATA -> {
-                                    val hiddenLessons = state.lessons[date]!!.lessons.count { !state.activeProfile!!.isDefaultLessonEnabled(it.vpId) }
+                                    if (state.lessons[date]!!.lessons.isEmpty()) {
+                                        onSetDayType(date)
+                                    }
+                                    val hiddenLessons = state.lessons[date]!!.lessons.count {
+                                        !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
+                                    }
                                     if (hiddenLessons > 0) {
-                                        Text(text = stringResource(id = R.string.home_lessonsHidden, hiddenLessons), style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
+                                        Text(
+                                            text = stringResource(
+                                                id = R.string.home_lessonsHidden,
+                                                hiddenLessons
+                                            ),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.Gray,
+                                            modifier = Modifier.padding(start = 8.dp)
+                                        )
                                     }
                                     LazyColumn {
                                         items(
-                                            state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }.filter { state.activeProfile!!.isDefaultLessonEnabled(it.vpId) },
+                                            state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }
+                                                .filter {
+                                                    state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
+                                                },
                                         ) {
                                             if ((calculateProgress(
                                                     DateUtils.localDateTimeToTimeString(it.start),
@@ -561,7 +517,9 @@ fun LessonCard(lesson: Lesson, width: Float) {
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        text = if (lesson.rooms.isNotEmpty()) lesson.rooms.joinToString(", ") { it } else "-",
+                                        text = if (lesson.rooms.isNotEmpty()) lesson.rooms.joinToString(
+                                            ", "
+                                        ) { it } else "-",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = if (lesson.roomIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
@@ -571,7 +529,9 @@ fun LessonCard(lesson: Lesson, width: Float) {
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        text = if (lesson.teachers.isNotEmpty()) lesson.teachers.joinToString(", ") { it } else "-",
+                                        text = if (lesson.teachers.isNotEmpty()) lesson.teachers.joinToString(
+                                            ", "
+                                        ) { it } else "-",
                                         style = MaterialTheme.typography.titleMedium,
                                         color = if (lesson.teacherIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
