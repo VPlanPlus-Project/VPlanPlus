@@ -1,10 +1,10 @@
 package es.jvbabi.vplanplus.domain.usecase
 
+import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.source.database.dao.LessonRoomCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
 import es.jvbabi.vplanplus.domain.DataResponse
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
@@ -102,7 +102,7 @@ class VPlanUseCases(
 
                 if (dbDefaultLesson == null && defaultLesson != null) {
                     defaultLessonDbId = defaultLessonRepository.insert(
-                        DefaultLesson(
+                        DbDefaultLesson(
                             defaultLessonId = UUID.randomUUID(),
                             vpId = defaultLesson.lessonId!!.toLong(),
                             subject = defaultLesson.subjectShort!!,

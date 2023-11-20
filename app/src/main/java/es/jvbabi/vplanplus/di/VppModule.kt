@@ -112,7 +112,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideProfileRepository(db: VppDatabase): ProfileRepository {
-        return ProfileRepositoryImpl(db.profileDao, db.profileSelectedDefaultLessonCrossoverDao)
+        return ProfileRepositoryImpl(db.profileDao, db.profileDefaultLessonsCrossoverDao)
     }
 
     @Provides

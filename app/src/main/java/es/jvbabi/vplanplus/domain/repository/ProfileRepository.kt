@@ -15,6 +15,6 @@ interface ProfileRepository {
     suspend fun updateProfile(profile: DbProfile)
     suspend fun getDbProfileById(profileId: Long): DbProfile
 
-    suspend fun addDefaultLesson(profileId: Long, vpId: Long)
-    suspend fun removeDefaultLesson(profileId: Long, vpId: Long)
+    suspend fun enableDefaultLesson(profileId: Long, vpId: Long)
+    suspend fun disableDefaultLesson(profileId: Long, vpId: Long)
 }

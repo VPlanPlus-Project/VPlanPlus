@@ -10,7 +10,7 @@ data class Profile(
     val displayName: String,
     val type: ProfileType,
     val referenceId: Long,
-    val allowedLessons: List<DefaultLesson>,
+    val defaultLessons: Map<DefaultLesson, Boolean>,
     val calendarType: ProfileCalendarType,
     val calendarId: Long?
 ) {

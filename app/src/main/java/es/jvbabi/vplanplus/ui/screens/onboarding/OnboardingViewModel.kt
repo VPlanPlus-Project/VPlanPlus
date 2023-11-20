@@ -9,8 +9,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
 import es.jvbabi.vplanplus.domain.model.xml.WplanVpXmlDefaultLessonWrapper
@@ -27,7 +27,6 @@ import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
-import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -196,30 +195,50 @@ class OnboardingViewModel @Inject constructor(
     /**
      * Called when user clicks next button on [OnboardingProfileOptionListScreen]
      */
-    suspend fun onProfileSubmit(context: Context) {
+    fun onProfileSubmit(context: Context) {
         _state.value = _state.value.copy(isLoading = true)
-
 
         when (_state.value.profileType) {
             ProfileType.STUDENT -> {
-                viewModelScope.launch {
-                    val data = vPlanUseCases.getVPlanData(
-                        school = School(
-                            schoolId = state.value.schoolId.toLong(),
-                            username = state.value.username,
-                            password = state.value.password,
-                            daysPerWeek = baseData.daysPerWeek,
-                            name = ""
-                        ),
-                        date = LocalDate.now().atStartOfWeek()
-                    )
-                    if (data.response == Response.SUCCESS) {
-                        _state.value =
-                            _state.value.copy(defaultLessons = data.data!!.wPlanDataObject.classes!!.first { it.schoolClass == _state.value.selectedProfileOption!! }.defaultLessons!!.associateWith { true })
-                    }
-                }
+                loadDefaultLessons()
             }
+
             else -> onInsertData(context)
+        }
+    }
+
+    fun loadDefaultLessons() {
+        if (state.value.defaultLessonsLoading) return
+        viewModelScope.launch {
+            loadDefaultLessons(LocalDate.now(), 0)
+        }
+    }
+
+    private suspend fun loadDefaultLessons(date: LocalDate, index: Int) {
+        _state.value = _state.value.copy(defaultLessonsLoading = true)
+        val data = vPlanUseCases.getVPlanData(
+            school = School(
+                schoolId = state.value.schoolId.toLong(),
+                username = state.value.username,
+                password = state.value.password,
+                daysPerWeek = baseData.daysPerWeek,
+                name = ""
+            ),
+            date = date
+        )
+        if (data.response == Response.SUCCESS) {
+            _state.value =
+                _state.value.copy(
+                    defaultLessons = data.data!!.wPlanDataObject.classes!!.first { it.schoolClass == _state.value.selectedProfileOption!! }.defaultLessons!!.associateWith { true },
+                    defaultLessonsLoading = false
+                )
+            Log.d("OnboardingViewModel", "loadDefaultLessons: Success for $date")
+        } else {
+            if (index < 7) {
+                Log.d("OnboardingViewModel", "retrying for ${date.minusDays(1)}")
+                loadDefaultLessons(date.minusDays(1), index + 1)
+            }
+            else _state.value = _state.value.copy(defaultLessonsLoading = false)
         }
     }
 
@@ -258,18 +277,22 @@ class OnboardingViewModel @Inject constructor(
 
                     _state.value.defaultLessons.forEach {
                         defaultLessonRepository.insert(
-                            DefaultLesson(
+                            DbDefaultLesson(
                                 defaultLessonId = UUID.randomUUID(),
                                 vpId = it.key.defaultLesson!!.lessonId!!.toLong(),
                                 subject = it.key.defaultLesson!!.subjectShort!!,
-                                teacherId = teacherRepository.find(`class`.school, it.key.defaultLesson!!.teacherShort!!, false)?.teacherId ?: 0,
+                                teacherId = teacherRepository.find(
+                                    `class`.school,
+                                    it.key.defaultLesson!!.teacherShort!!,
+                                    false
+                                )?.teacherId ?: 0,
                                 classId = `class`.classId
                             )
                         )
                     }
 
                     _state.value.defaultLessons.filterValues { it }.keys.forEach { defaultLesson ->
-                        profileUseCases.addDefaultLesson(
+                        profileUseCases.enableDefaultLesson(
                             profileId = profileId,
                             vpId = defaultLesson.defaultLesson!!.lessonId!!.toLong()
                         )
@@ -374,7 +397,8 @@ data class OnboardingState(
 
     val showTeacherDialog: Boolean = false,
 
-    val defaultLessons: Map<WplanVpXmlDefaultLessonWrapper, Boolean> = mapOf()
+    val defaultLessons: Map<WplanVpXmlDefaultLessonWrapper, Boolean> = mapOf(),
+    val defaultLessonsLoading: Boolean = false
 )
 
 enum class Task {

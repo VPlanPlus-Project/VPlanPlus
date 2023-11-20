@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Delete
@@ -33,6 +34,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
@@ -75,7 +77,18 @@ fun ProfileSettingsScreen(
         },
         onCalendarSet = {
             viewModel.setCalendar(state.calendars.first { c -> c.displayName == it }.id)
-        }
+        },
+        onDefaultLessonDialog = {
+            viewModel.setDialogCall {
+                viewModel.DefaultLessonsDialog(
+                    onSetDefaultLesson = { lesson, value ->
+                        viewModel.setDefaultLesson(lesson, value)
+                    },
+                )
+            }
+        },
+        onSetDialogVisible = { viewModel.setDialogOpen(it) },
+        onSetDialogCall = { viewModel.setDialogCall(it) }
     )
 }
 
@@ -87,7 +100,10 @@ private fun ProfileSettingsScreenContent(
     onProfileDeleteDialogYes: () -> Unit = {},
     onProfileRenamed: (String) -> Unit = {},
     onCalendarModeSet: (ProfileCalendarType) -> Unit = {},
-    onCalendarSet: (String) -> Unit = {}
+    onCalendarSet: (String) -> Unit = {},
+    onSetDialogVisible: (Boolean) -> Unit = {},
+    onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
+    onDefaultLessonDialog: () -> Unit = {}
 ) {
     if (state.profile == null) return
 
@@ -97,8 +113,6 @@ private fun ProfileSettingsScreenContent(
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
-    var dialogCall = remember<@Composable () -> Unit> { {} }
-    var dialogVisible by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -125,8 +139,8 @@ private fun ProfileSettingsScreenContent(
             )
         },
     ) { paddingValues ->
-        if (dialogVisible) {
-            dialogCall()
+        if (state.dialogOpen) {
+            state.dialogCall()
         }
         if (deleteDialogOpen) {
             YesNoDialog(
@@ -210,24 +224,44 @@ private fun ProfileSettingsScreenContent(
                     subtitle =
                     if (state.profile.calendarType == ProfileCalendarType.NONE) stringResource(id = R.string.settings_profileManagementCalendarNameDisabled)
                     else if (state.calendars.isEmpty()) stringResource(id = R.string.settings_profileManagementNoCalendars)
-                    else state.profileCalendar?.displayName ?: stringResource(id = R.string.settings_profileManagementCalendarNameNone),
+                    else state.profileCalendar?.displayName
+                        ?: stringResource(id = R.string.settings_profileManagementCalendarNameNone),
                     doAction = {
-                        dialogCall = {
+                        onSetDialogCall {
                             SelectDialog(
                                 icon = Icons.Default.EditCalendar,
                                 title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
                                 items = state.calendars.map { it.displayName },
-                                onDismiss = { dialogVisible = false },
+                                onDismiss = { onSetDialogVisible(false) },
                                 value = state.profileCalendar?.displayName,
                                 onOk = {
-                                    dialogVisible = false
+                                    onSetDialogVisible(false)
                                     if (!it.isNullOrBlank()) onCalendarSet(it)
                                 }
                             )
                         }
-                        dialogVisible = true
+                        onSetDialogVisible(true)
                     }
                 )
+            }
+
+            SettingsCategory(
+                title = ""
+            ) {
+                if (state.profile.type == ProfileType.STUDENT) SettingsSetting(
+                    icon = Icons.Default.FilterAlt,
+                    title = stringResource(id = R.string.settings_profileManagementDefaultLessonSettingsTitle),
+                    subtitle = stringResource(
+                        id = R.string.settings_profileManagementDefaultLessonSettingsText,
+                        state.profile.defaultLessons.values.count { !it }
+                    ),
+                    type = SettingsType.FUNCTION,
+                    doAction = {
+                        onSetDialogCall {
+                            onDefaultLessonDialog()
+                        }
+                        onSetDialogVisible(true)
+                    })
             }
         }
     }
@@ -237,7 +271,9 @@ private fun ProfileSettingsScreenContent(
 @Preview(showBackground = true)
 private fun ProfileSettingsScreenPreview() {
     ProfileSettingsScreenContent(
-        state = ProfileSettingsState(profile = Profile.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY )),
+        state = ProfileSettingsState(
+            profile = Profile.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY)
+        ),
         onBackClicked = {}
     )
 }

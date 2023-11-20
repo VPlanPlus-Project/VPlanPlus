@@ -73,7 +73,6 @@ class HomeViewModel @Inject constructor(
             return
         }
         activeProfile = profileUseCases.getActiveProfile()!!
-        Log.d("HomeViewModel", "init; activeProfile=$activeProfile")
         _state.value =
             _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
         school = when (activeProfile.type) {

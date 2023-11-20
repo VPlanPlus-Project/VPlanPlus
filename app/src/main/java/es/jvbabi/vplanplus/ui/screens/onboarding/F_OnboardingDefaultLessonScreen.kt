@@ -5,11 +5,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,7 +46,8 @@ fun OnboardingDefaultLessonScreen(
         },
         onDefaultLessonClicked = {
             onboardingViewModel.setDefaultLesson(it, !state.defaultLessons[it]!!)
-        }
+        },
+        onReloadDefaultLessons = { onboardingViewModel.loadDefaultLessons() }
     )
 }
 
@@ -51,7 +55,8 @@ fun OnboardingDefaultLessonScreen(
 fun OnboardingDefaultLessonContent(
     state: OnboardingState,
     onNextClicked: () -> Unit = {},
-    onDefaultLessonClicked: (WplanVpXmlDefaultLessonWrapper) -> Unit = {}
+    onDefaultLessonClicked: (WplanVpXmlDefaultLessonWrapper) -> Unit = {},
+    onReloadDefaultLessons: () -> Unit = {}
 ) {
     OnboardingScreen(
         title = stringResource(id = R.string.onboarding_defaultLessonsTitle),
@@ -61,16 +66,24 @@ fun OnboardingDefaultLessonContent(
         enabled = state.defaultLessons.values.any { it },
         onButtonClick = { onNextClicked() }) {
         Column {
-            state.defaultLessons.toList().sortedBy { (key, _) -> key.defaultLesson!!.subjectShort}.toMap().forEach {
-                Box(
-                    modifier = Modifier.padding(top = 8.dp),
-                ) {
-                    DefaultLessonCard(
-                        subject = it.key.defaultLesson!!.subjectShort!!,
-                        teacherAcronym = it.key.defaultLesson!!.teacherShort!!,
-                        activated = it.value,
-                        onClick = { onDefaultLessonClicked(it.key) }
-                    )
+            if (state.defaultLessonsLoading) Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            } else {
+                if (state.defaultLessons.isEmpty()) {
+                    Button(onClick = { onReloadDefaultLessons() }) {
+                        Text(text = "Reload")
+                    }
+                } else state.defaultLessons.toList().sortedBy { (key, _) -> key.defaultLesson!!.subjectShort}.toMap().forEach {
+                    Box(
+                        modifier = Modifier.padding(top = 8.dp),
+                    ) {
+                        DefaultLessonCard(
+                            subject = it.key.defaultLesson!!.subjectShort!!,
+                            teacherAcronym = it.key.defaultLesson!!.teacherShort!!,
+                            activated = it.value,
+                            onClick = { onDefaultLessonClicked(it.key) }
+                        )
+                    }
                 }
             }
         }

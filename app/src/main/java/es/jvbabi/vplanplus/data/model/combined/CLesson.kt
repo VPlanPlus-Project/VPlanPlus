@@ -4,12 +4,12 @@ import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbClass
+import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbTeacher
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.util.DateUtils
@@ -22,8 +22,8 @@ data class CLesson(
     @Relation(
         parentColumn = "defaultLessonId",
         entityColumn = "defaultLessonId",
-        entity = DefaultLesson::class
-    ) val defaultLesson: DefaultLesson?,
+        entity = DbDefaultLesson::class
+    ) val defaultLesson: CDefaultLesson?,
     @Relation(
         parentColumn = "lessonId",
         entityColumn = "teacherId",
@@ -56,11 +56,11 @@ data class CLesson(
         return Lesson(
             `class` = `class`.toModel(),
             lessonNumber = lesson.lessonNumber,
-            originalSubject = defaultLesson?.subject,
+            originalSubject = defaultLesson?.defaultLesson?.subject,
             changedSubject = lesson.changedSubject,
             teachers = teachers.map { it.acronym },
             teacherIsChanged = teachers.map { it.teacherId }.sorted() != listOf(
-                defaultLesson?.teacherId
+                defaultLesson?.defaultLesson?.teacherId
             ),
             rooms = rooms.map { it.name },
             roomIsChanged = lesson.roomIsChanged,

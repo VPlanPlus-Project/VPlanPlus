@@ -61,12 +61,12 @@ class ProfileUseCases(
         profileRepository.updateProfile(profileRepository.getDbProfileById(profileId = profileId).copy(customName = displayName))
     }
 
-    suspend fun addDefaultLesson(profileId: Long, vpId: Long) {
-        profileRepository.addDefaultLesson(vpId = vpId, profileId = profileId)
+    suspend fun enableDefaultLesson(profileId: Long, vpId: Long) {
+        profileRepository.enableDefaultLesson(vpId = vpId, profileId = profileId)
     }
 
-    suspend fun removeDefaultLesson(profileId: Long, defaultLessonId: Long) {
-        profileRepository.removeDefaultLesson(profileId = profileId, vpId = defaultLessonId)
+    suspend fun disableDefaultLesson(profileId: Long, vpId: Long) {
+        profileRepository.disableDefaultLesson(profileId = profileId, vpId = vpId)
     }
 
     suspend fun createRoomProfile(roomId: Long, name: String) {

@@ -15,7 +15,7 @@ object Profile {
             referenceId = 1,
             calendarType = ProfileCalendarType.NONE,
             calendarId = null,
-            allowedLessons = listOf()
+            defaultLessons = mapOf()
         )
     }
 }
