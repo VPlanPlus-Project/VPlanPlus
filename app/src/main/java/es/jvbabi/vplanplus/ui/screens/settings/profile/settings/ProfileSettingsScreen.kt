@@ -64,32 +64,39 @@ fun ProfileSettingsScreen(
         viewModel.init(profileId = profileId)
     })
 
-    if (state.initDone) ProfileSettingsScreenContent(
-        state = state,
-        onBackClicked = { navController.popBackStack() },
-        onProfileDeleteDialogYes = {
-            viewModel.deleteProfile(context)
+
+    if (state.initDone) {
+        if (state.profile == null) {
             navController.popBackStack()
-        },
-        onProfileRenamed = {
-            viewModel.renameProfile(it)
-        },
-        onCalendarModeSet = {
-            viewModel.setCalendarMode(it)
-        },
-        onCalendarSet = {
-            viewModel.setCalendar(it.id)
-        },
-        onDefaultLessonsClicked = {
-            navController.navigate(
-                Screen.SettingsProfileDefaultLessonsScreen.route.replace(
-                    "{profileId}", profileId.toString()
+            return
+        }
+        ProfileSettingsScreenContent(
+            state = state,
+            onBackClicked = { navController.popBackStack() },
+            onProfileDeleteDialogYes = {
+                viewModel.deleteProfile(context)
+                navController.popBackStack()
+            },
+            onProfileRenamed = {
+                viewModel.renameProfile(it)
+            },
+            onCalendarModeSet = {
+                viewModel.setCalendarMode(it)
+            },
+            onCalendarSet = {
+                viewModel.setCalendar(it.id)
+            },
+            onDefaultLessonsClicked = {
+                navController.navigate(
+                    Screen.SettingsProfileDefaultLessonsScreen.route.replace(
+                        "{profileId}", profileId.toString()
+                    )
                 )
-            )
-        },
-        onSetDialogVisible = { viewModel.setDialogOpen(it) },
-        onSetDialogCall = { viewModel.setDialogCall(it) }
-    )
+            },
+            onSetDialogVisible = { viewModel.setDialogOpen(it) },
+            onSetDialogCall = { viewModel.setDialogCall(it) }
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

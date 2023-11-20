@@ -37,7 +37,8 @@ class ProfileSettingsViewModel @Inject constructor(
                 profileUseCases.getProfileById(profileId),
                 calendarRepository.getCalendars(),
             ) { profile, calendars ->
-                _state.value.copy(
+                if (profile == null) _state.value.copy(initDone = true)
+                else _state.value.copy(
                     profile = profile,
                     calendars = calendars,
                     initDone = true,
