@@ -88,9 +88,11 @@ class SyncWorker @AssistedInject constructor(
                 }
                 vPlanUseCases.processVplanData(data.data!!)
                 profiles.forEach { profile ->
-                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date, false)
+                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date, false, keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2").toLong()+1L)
                 }
+                Log.d("SyncWorker.Profile", "Profiles: ${profiles.joinToString { it.displayName }}")
                 profiles.forEach profile@{ profile ->
+                    Log.d("SyncWorker.Data", "${profile.displayName} B:${hashesBefore[profile]} A:${hashesAfter[profile]}")
                     if (hashesBefore[profile] != hashesAfter[profile]) {
                         planIsChanged[profile] = true
 

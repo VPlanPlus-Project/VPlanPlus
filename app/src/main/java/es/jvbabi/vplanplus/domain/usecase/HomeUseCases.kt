@@ -15,13 +15,13 @@ class HomeUseCases(
     suspend fun getLessons(profile: Profile, date: LocalDate): Flow<Day> {
         return when (profile.type) {
             ProfileType.STUDENT -> {
-                lessonRepository.getLessonsForClass(profile.referenceId, date)
+                lessonRepository.getLessonsForClass(profile.referenceId, date, null)
             }
             ProfileType.TEACHER -> {
-                lessonRepository.getLessonsForTeacher(profile.referenceId, date)
+                lessonRepository.getLessonsForTeacher(profile.referenceId, date, null)
             }
             ProfileType.ROOM -> {
-                lessonRepository.getLessonsForRoom(profile.referenceId, date)
+                lessonRepository.getLessonsForRoom(profile.referenceId, date, null)
             }
         }.map { dayPair ->
             if (dayPair.first != DayType.DATA) Day(dayType = dayPair.first)

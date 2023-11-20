@@ -85,11 +85,9 @@ class HomeViewModel @Inject constructor(
                 ProfileType.ROOM -> roomRepository.getRoomById(activeProfile.referenceId).school
             }
 
-            Log.d("HomeViewModel", "Starting collecting lesson data")
             syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
             updateView()
 
-            Log.d("HomeViewModel", "Starting collecting syncing state")
             viewModelScope.launch {
                 Worker.isWorkerRunningFlow("SyncWork", context).collect {
                     if (it != _state.value.syncing && !it) {
@@ -99,7 +97,6 @@ class HomeViewModel @Inject constructor(
                 }
             }
 
-            Log.d("HomeViewModel", "Set initDone to true")
             _state.value =
                 _state.value.copy(
                     profiles = profileUseCases.getProfiles().first(),

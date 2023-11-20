@@ -8,9 +8,13 @@ import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 interface LessonRepository {
-    suspend fun getLessonsForClass(classId: Long, date: LocalDate): Flow<Pair<DayType, List<Lesson>>>
-    suspend fun getLessonsForTeacher(teacherId: Long, date: LocalDate): Flow<Pair<DayType, List<Lesson>>>
-    suspend fun getLessonsForRoom(roomId: Long, date: LocalDate): Flow<Pair<DayType, List<Lesson>>>
+    suspend fun getLessonsForClass(classId: Long, date: LocalDate, version: Long?): Flow<Pair<DayType, List<Lesson>>>
+    suspend fun getLessonsForTeacher(teacherId: Long, date: LocalDate, version: Long?): Flow<Pair<DayType, List<Lesson>>>
+    suspend fun getLessonsForRoom(roomId: Long, date: LocalDate, version: Long?): Flow<Pair<DayType, List<Lesson>>>
+
+    suspend fun getLessonsForClassDirect(classId: Long, date: LocalDate, version: Long?): Pair<DayType, List<Lesson>>
+    suspend fun getLessonsForTeacherDirect(teacherId: Long, date: LocalDate, version: Long?): Pair<DayType, List<Lesson>>
+    suspend fun getLessonsForRoomDirect(roomId: Long, date: LocalDate, version: Long?): Pair<DayType, List<Lesson>>
 
     suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate)
 

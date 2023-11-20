@@ -14,7 +14,7 @@ class LessonUseCases(
     private val lessonRepository: LessonRepository,
 ) {
     suspend fun getLessonsForClass(classes: Classes, date: LocalDate): Flow<Day> {
-        return lessonRepository.getLessonsForClass(classes.classId, date)
+        return lessonRepository.getLessonsForClass(classes.classId, date, null)
             .map { dayPair ->
                 if (dayPair.first != DayType.DATA) Day(dayType = dayPair.first)
                 else {
@@ -27,7 +27,7 @@ class LessonUseCases(
     }
 
     suspend fun getLessonsForTeacher(teacher: Teacher, date: LocalDate): Flow<Day> {
-        return lessonRepository.getLessonsForTeacher(teacher.teacherId, date)
+        return lessonRepository.getLessonsForTeacher(teacher.teacherId, date, null)
             .map { dayPair ->
                 if (dayPair.first != DayType.DATA) Day(dayType = dayPair.first)
                 else {
@@ -40,7 +40,7 @@ class LessonUseCases(
     }
 
     suspend fun getLessonsForRoom(room: Room, date: LocalDate): Flow<Day> {
-        return lessonRepository.getLessonsForRoom(room.roomId, date)
+        return lessonRepository.getLessonsForRoom(room.roomId, date, null)
             .map { dayPair ->
                 if (dayPair.first != DayType.DATA) Day(dayType = dayPair.first)
                 else {

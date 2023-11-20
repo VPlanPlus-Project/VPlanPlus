@@ -12,12 +12,8 @@ import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapConcat
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import java.security.MessageDigest
 import java.time.LocalDate
 
@@ -140,40 +136,50 @@ class ProfileUseCases(
      * Create checksum of plan for given date
      * @param date date of plan
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun getPlanSum(
         profile: Profile,
         date: LocalDate,
-        considerHiddenLessons: Boolean = true
+        includeHiddenLessons: Boolean = true,
+        planVersion: Long? = null
     ): String {
         val plan = when (profile.type) {
             ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
-                lessonRepository.getLessonsForClass(classId = `class`.classId, date = date)
+                lessonRepository.getLessonsForClassDirect(
+                    classId = `class`.classId,
+                    date = date,
+                    version = planVersion
+                        ?: keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
+                )
             }
 
             ProfileType.TEACHER -> {
                 val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
-                lessonRepository.getLessonsForTeacher(teacherId = teacher!!.teacherId, date = date)
+                lessonRepository.getLessonsForTeacherDirect(
+                    teacherId = teacher!!.teacherId,
+                    date = date,
+                    version = planVersion
+                        ?: keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
+                )
             }
 
             ProfileType.ROOM -> {
                 val room = roomRepository.getRoomById(profile.referenceId)
-                lessonRepository.getLessonsForRoom(roomId = room.roomId, date = date)
+                lessonRepository.getLessonsForRoomDirect(
+                    roomId = room.roomId, date = date,
+                    version = planVersion
+                        ?: keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
+                )
             }
         }
-        return plan.flatMapConcat { lessons ->
-            flow {
-                emit(lessons.second.joinToString { lesson ->
-                    if (considerHiddenLessons && !profile.isDefaultLessonEnabled(lesson.vpId)) return@joinToString ""
+
+        return MessageDigest.getInstance("SHA-256")
+            .digest(plan.second.filter { includeHiddenLessons || profile.isDefaultLessonEnabled(it.vpId) }
+                .joinToString { lesson ->
                     lesson.rooms.joinToString { it } + lesson.originalSubject + (lesson.changedSubject
                         ?: "") + lesson.teachers.joinToString { it }
-                })
-            }
-        }.map { concatenatedString ->
-            MessageDigest.getInstance("SHA-256").digest(concatenatedString.toByteArray())
-                .joinToString("") { "%02x".format(it) }
-        }.first()
+                }.toByteArray())
+            .joinToString("") { "%02x".format(it) }
     }
 
     fun getProfileById(profileId: Long): Flow<Profile> {
