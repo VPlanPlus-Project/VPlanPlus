@@ -107,4 +107,6 @@
     <string name="settings_profileDefaultLessonNoTeacher">No teacher</string>
     <string name="profileManagement_defaultLessonsTitle">Default lessons</string>
     <string name="home_lessonsHidden">%1$d lessons hidden</string>
+    <string name="settings_profileDefaultLessonDifferentDefaultLessons">This profile does not match with the default lessons of its class. Fixing the problem will reset these settings.</string>
+    <string name="fix">Fix</string>
 </resources>

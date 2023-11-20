@@ -17,4 +17,5 @@ interface ProfileRepository {
 
     suspend fun enableDefaultLesson(profileId: Long, vpId: Long)
     suspend fun disableDefaultLesson(profileId: Long, vpId: Long)
+    suspend fun deleteDefaultLessonsFromProfile(profileId: Long)
 }

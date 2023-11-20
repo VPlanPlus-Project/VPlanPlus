@@ -27,6 +27,10 @@ class ProfileUseCases(
     private val calendarRepository: CalendarRepository
 ) {
 
+    suspend fun deleteDefaultLessonsFromProfile(profileId: Long) {
+        profileRepository.deleteDefaultLessonsFromProfile(profileId = profileId)
+    }
+
     suspend fun createStudentProfile(classId: Long, name: String): Long {
         return profileRepository.createProfile(
             referenceId = classId,

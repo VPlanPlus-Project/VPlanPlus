@@ -56,6 +56,10 @@ class ProfileRepositoryImpl(
         }
     }
 
+    override suspend fun deleteDefaultLessonsFromProfile(profileId: Long) {
+        profileDefaultLessonsCrossoverDao.deleteCrossoversByProfileId(profileId = profileId)
+    }
+
     override suspend fun deleteProfile(profileId: Long) {
         profileDao.deleteProfile(profileId = profileId)
     }

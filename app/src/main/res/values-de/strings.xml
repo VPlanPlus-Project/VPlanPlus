@@ -108,4 +108,6 @@
     <string name="settings_profileDefaultLessonNoTeacher">Kein Lehrer</string>
     <string name="profileManagement_defaultLessonsTitle">Standard-Unterrichtseinheiten</string>
     <string name="home_lessonsHidden">%1$d Stunden ausgeblendet</string>
+    <string name="settings_profileDefaultLessonDifferentDefaultLessons">Es gibt Abweichungen bei den Standartstunden des Profils und seiner Klasse. Das Beheben des Problemes erfordert einen Reset deiner Einstellungen unterhalb.</string>
+    <string name="fix">Beheben</string>
 </resources>
