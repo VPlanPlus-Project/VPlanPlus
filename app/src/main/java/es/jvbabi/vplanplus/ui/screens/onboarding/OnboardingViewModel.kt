@@ -291,11 +291,18 @@ class OnboardingViewModel @Inject constructor(
                         )
                     }
 
-                    _state.value.defaultLessons.filterValues { it }.keys.forEach { defaultLesson ->
-                        profileUseCases.enableDefaultLesson(
-                            profileId = profileId,
-                            vpId = defaultLesson.defaultLesson!!.lessonId!!.toLong()
-                        )
+                    _state.value.defaultLessons.entries.forEach {
+                        if (it.value) {
+                            profileUseCases.enableDefaultLesson(
+                                profileId = profileId,
+                                vpId = it.key.defaultLesson!!.lessonId!!.toLong()
+                            )
+                        } else {
+                            profileUseCases.disableDefaultLesson(
+                                profileId = profileId,
+                                vpId = it.key.defaultLesson!!.lessonId!!.toLong()
+                            )
+                        }
                     }
                 }
 

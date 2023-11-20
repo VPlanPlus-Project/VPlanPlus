@@ -28,6 +28,7 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.permissions.PermissionsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
+import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
 
 @Composable
@@ -66,6 +67,20 @@ fun NavigationGraph(
             )
         ) {
             ProfileSettingsScreen(navController = navController, profileId = it.arguments?.getLong("profileId")!!)
+        }
+
+        composable(
+            route = Screen.SettingsProfileDefaultLessonsScreen.route,
+            arguments = listOf(
+                navArgument("profileId") {
+                    type = NavType.LongType
+                }
+            )
+        ) {
+            ProfileSettingsDefaultLessonScreen(
+                profileId = it.arguments?.getLong("profileId")!!,
+                navController = navController
+            )
         }
 
         composable(route = Screen.SettingsProfileScreen.route) {

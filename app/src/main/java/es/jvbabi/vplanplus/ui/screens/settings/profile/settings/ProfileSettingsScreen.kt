@@ -47,6 +47,7 @@ import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.Profile
+import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
 fun ProfileSettingsScreen(
@@ -78,14 +79,12 @@ fun ProfileSettingsScreen(
         onCalendarSet = {
             viewModel.setCalendar(state.calendars.first { c -> c.displayName == it }.id)
         },
-        onDefaultLessonDialog = {
-            viewModel.setDialogCall {
-                viewModel.DefaultLessonsDialog(
-                    onSetDefaultLesson = { lesson, value ->
-                        viewModel.setDefaultLesson(lesson, value)
-                    },
+        onDefaultLessonsClicked = {
+            navController.navigate(
+                Screen.SettingsProfileDefaultLessonsScreen.route.replace(
+                    "{profileId}", profileId.toString()
                 )
-            }
+            )
         },
         onSetDialogVisible = { viewModel.setDialogOpen(it) },
         onSetDialogCall = { viewModel.setDialogCall(it) }
@@ -103,7 +102,7 @@ private fun ProfileSettingsScreenContent(
     onCalendarSet: (String) -> Unit = {},
     onSetDialogVisible: (Boolean) -> Unit = {},
     onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
-    onDefaultLessonDialog: () -> Unit = {}
+    onDefaultLessonsClicked: () -> Unit = {}
 ) {
     if (state.profile == null) return
 
@@ -257,10 +256,7 @@ private fun ProfileSettingsScreenContent(
                     ),
                     type = SettingsType.FUNCTION,
                     doAction = {
-                        onSetDialogCall {
-                            onDefaultLessonDialog()
-                        }
-                        onSetDialogVisible(true)
+                        onDefaultLessonsClicked()
                     })
             }
         }

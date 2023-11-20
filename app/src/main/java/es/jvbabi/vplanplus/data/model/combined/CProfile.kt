@@ -19,7 +19,7 @@ data class CProfile(
         return Profile(
             id = profile.id!!,
             displayName = profile.customName,
-            defaultLessons = mapOf(),
+            defaultLessons = defaultLessons.associate { it.defaultLesson.toModel() to it.profileDefaultLesson.enabled },
             type = profile.type,
             referenceId = profile.referenceId,
             calendarType = profile.calendarMode,
