@@ -54,7 +54,9 @@ class HomeViewModel @Inject constructor(
     private lateinit var activeProfile: Profile
     private var school: School? = null
 
-    suspend fun init(context: Context) {
+    private var syncDays: Int = 3
+
+    fun init(context: Context) {
         // Check if notification permission is granted
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             _state.value = _state.value.copy(
@@ -66,42 +68,47 @@ class HomeViewModel @Inject constructor(
             _state.value = _state.value.copy(notificationPermissionGranted = true)
         }
 
-        // Redirect to onboarding if no profiles are found
-        if (profileUseCases.getActiveProfile() == null) {
-            _state.value = _state.value.copy(initDone = true)
-            Log.d("HomeViewModel", "init; no active profile")
-            return
-        }
-        activeProfile = profileUseCases.getActiveProfile()!!
-        _state.value =
-            _state.value.copy(activeProfile = activeProfile, lessons = mapOf())
-        school = when (activeProfile.type) {
-            ProfileType.STUDENT -> classUseCases.getClassById(activeProfile.referenceId).school
-            ProfileType.TEACHER -> teacherRepository.getTeacherById(activeProfile.referenceId)!!.school
-            ProfileType.ROOM -> roomRepository.getRoomById(activeProfile.referenceId).school
-        }
-
-        val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
-
-        if (!Worker.isWorkerRunning("SyncWork", context)) updateView(syncDays) // initial data
-
         viewModelScope.launch {
-            Worker.isWorkerRunningFlow("SyncWork", context).collect {
-                if (it != _state.value.syncing && !it) {
-                    _state.value = _state.value.copy(syncing = false)
-                    updateView(syncDays)
-                } else _state.value = _state.value.copy(syncing = it)
+            // Redirect to onboarding if no profiles are found
+            if (profileUseCases.getActiveProfile() == null) {
+                _state.value = _state.value.copy(initDone = true)
+                Log.d("HomeViewModel", "init; no active profile")
+                return@launch
             }
-        }
 
-        _state.value =
-            _state.value.copy(
-                profiles = profileUseCases.getProfiles().first(),
-                initDone = true
-            )
+            activeProfile = profileUseCases.getActiveProfile()!!
+            _state.value =
+                _state.value.copy(activeProfile = activeProfile, lessons = mapOf())
+            school = when (activeProfile.type) {
+                ProfileType.STUDENT -> classUseCases.getClassById(activeProfile.referenceId).school
+                ProfileType.TEACHER -> teacherRepository.getTeacherById(activeProfile.referenceId)!!.school
+                ProfileType.ROOM -> roomRepository.getRoomById(activeProfile.referenceId).school
+            }
+
+            Log.d("HomeViewModel", "Starting collecting lesson data")
+            syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
+            updateView()
+
+            Log.d("HomeViewModel", "Starting collecting syncing state")
+            viewModelScope.launch {
+                Worker.isWorkerRunningFlow("SyncWork", context).collect {
+                    if (it != _state.value.syncing && !it) {
+                        _state.value = _state.value.copy(syncing = false)
+                        updateView()
+                    } else _state.value = _state.value.copy(syncing = it)
+                }
+            }
+
+            Log.d("HomeViewModel", "Set initDone to true")
+            _state.value =
+                _state.value.copy(
+                    profiles = profileUseCases.getProfiles().first(),
+                    initDone = true
+                )
+        }
     }
 
-    private suspend fun updateView(syncDays: Int) {
+    private suspend fun updateView() {
         repeat(syncDays + 2) { i ->
             val date = LocalDate.now().plusDays(i - 1L)
             _state.value = _state.value.copy(
@@ -162,6 +169,7 @@ class HomeViewModel @Inject constructor(
     fun deletePlans() {
         viewModelScope.launch {
             vPlanUseCases.deletePlans()
+            updateView()
         }
     }
 
