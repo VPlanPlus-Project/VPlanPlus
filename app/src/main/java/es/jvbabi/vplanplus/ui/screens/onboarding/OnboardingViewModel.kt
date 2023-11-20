@@ -9,8 +9,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.data.model.DbDefaultLesson
+import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
+import es.jvbabi.vplanplus.domain.model.xml.WplanVpXmlDefaultLessonWrapper
+import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -22,9 +26,12 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
+import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,6 +41,8 @@ class OnboardingViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val baseDataUseCases: BaseDataUseCases,
+    private val defaultLessonRepository: DefaultLessonRepository,
+    private val vPlanUseCases: VPlanUseCases,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
     private val logRecordRepository: LogRecordRepository
@@ -50,12 +59,15 @@ class OnboardingViewModel @Inject constructor(
             schoolIdState = schoolUseCases.checkSchoolId(schoolId)
         )
     }
+
     fun onUsernameInput(username: String) {
         _state.value = _state.value.copy(username = username)
     }
+
     fun onPasswordInput(password: String) {
         _state.value = _state.value.copy(password = password)
     }
+
     fun onPasswordVisibilityToggle() {
         _state.value = _state.value.copy(passwordVisible = !state.value.passwordVisible)
     }
@@ -66,7 +78,11 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun newScreen() {
-        _state.value = _state.value.copy(isLoading = false, currentResponseType = Response.NONE, showTeacherDialog = false)
+        _state.value = _state.value.copy(
+            isLoading = false,
+            currentResponseType = Response.NONE,
+            showTeacherDialog = false
+        )
     }
 
     /**
@@ -76,7 +92,10 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = true)
         schoolUseCases.checkSchoolIdOnline(state.value.schoolId.toLong()).onEach { result ->
             Log.d("OnboardingViewModel", "onSchoolIdSubmit: $result")
-            logRecordRepository.log("Onboarding", "School ${state.value.schoolId} check result: $result")
+            logRecordRepository.log(
+                "Onboarding",
+                "School ${state.value.schoolId} check result: $result"
+            )
             _state.value = _state.value.copy(
                 isLoading = false,
                 schoolIdState = result,
@@ -134,7 +153,11 @@ class OnboardingViewModel @Inject constructor(
                 )
             } else {
                 _state.value = _state.value.copy(
-                    profileOptions = classUseCases.getClassesBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.className },
+                    profileOptions = classUseCases.getClassesBySchool(
+                        schoolUseCases.getSchoolFromId(
+                            state.value.schoolId.toLong()
+                        )
+                    ).map { it.name },
                 )
             }
         } else if (state.value.profileType == ProfileType.TEACHER) {
@@ -144,7 +167,8 @@ class OnboardingViewModel @Inject constructor(
                 )
             } else {
                 _state.value = _state.value.copy(
-                    profileOptions = teacherRepository.getTeachersBySchoolId(state.value.schoolId.toLong()).map { it.acronym },
+                    profileOptions = teacherRepository.getTeachersBySchoolId(state.value.schoolId.toLong())
+                        .map { it.acronym },
                 )
             }
         } else if (state.value.profileType == ProfileType.ROOM) {
@@ -154,7 +178,11 @@ class OnboardingViewModel @Inject constructor(
                 )
             } else {
                 _state.value = _state.value.copy(
-                    profileOptions = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).map { it.name },
+                    profileOptions = roomRepository.getRoomsBySchool(
+                        schoolUseCases.getSchoolFromId(
+                            state.value.schoolId.toLong()
+                        )
+                    ).map { it.name },
                 )
             }
         }
@@ -167,10 +195,55 @@ class OnboardingViewModel @Inject constructor(
     /**
      * Called when user clicks next button on [OnboardingProfileOptionListScreen]
      */
-    suspend fun onProfileSubmit(context: Context) {
+    fun onProfileSubmit(context: Context) {
         _state.value = _state.value.copy(isLoading = true)
-        viewModelScope.launch {
 
+        when (_state.value.profileType) {
+            ProfileType.STUDENT -> {
+                loadDefaultLessons()
+            }
+
+            else -> onInsertData(context)
+        }
+    }
+
+    fun loadDefaultLessons() {
+        if (state.value.defaultLessonsLoading) return
+        viewModelScope.launch {
+            loadDefaultLessons(LocalDate.now(), 0)
+        }
+    }
+
+    private suspend fun loadDefaultLessons(date: LocalDate, index: Int) {
+        _state.value = _state.value.copy(defaultLessonsLoading = true)
+        val data = vPlanUseCases.getVPlanData(
+            school = School(
+                schoolId = state.value.schoolId.toLong(),
+                username = state.value.username,
+                password = state.value.password,
+                daysPerWeek = baseData.daysPerWeek,
+                name = ""
+            ),
+            date = date
+        )
+        if (data.response == Response.SUCCESS) {
+            _state.value =
+                _state.value.copy(
+                    defaultLessons = data.data!!.wPlanDataObject.classes!!.first { it.schoolClass == _state.value.selectedProfileOption!! }.defaultLessons!!.associateWith { true },
+                    defaultLessonsLoading = false
+                )
+            Log.d("OnboardingViewModel", "loadDefaultLessons: Success for $date")
+        } else {
+            if (index < 7) {
+                Log.d("OnboardingViewModel", "retrying for ${date.minusDays(1)}")
+                loadDefaultLessons(date.minusDays(1), index + 1)
+            }
+            else _state.value = _state.value.copy(defaultLessonsLoading = false)
+        }
+    }
+
+    fun onInsertData(context: Context) {
+        viewModelScope.launch {
             if (state.value.task == Task.CREATE_SCHOOL) {
 
                 schoolUseCases.createSchool(
@@ -193,33 +266,70 @@ class OnboardingViewModel @Inject constructor(
                         schoolId = state.value.schoolId.toLong(),
                         className = state.value.selectedProfileOption!!,
                     )!!
-                    profileUseCases.createStudentProfile(
-                        classId = `class`.id!!,
+                    val profileId = profileUseCases.createStudentProfile(
+                        classId = `class`.classId,
                         name = state.value.selectedProfileOption!!
                     )
                     keyValueUseCases.set(
                         Keys.ACTIVE_PROFILE,
-                        profileUseCases.getProfileByClassId(`class`.id).id.toString()
+                        profileId.toString()
                     )
+
+                    _state.value.defaultLessons.forEach {
+                        defaultLessonRepository.insert(
+                            DbDefaultLesson(
+                                defaultLessonId = UUID.randomUUID(),
+                                vpId = it.key.defaultLesson!!.lessonId!!.toLong(),
+                                subject = it.key.defaultLesson!!.subjectShort!!,
+                                teacherId = teacherRepository.find(
+                                    `class`.school,
+                                    it.key.defaultLesson!!.teacherShort!!,
+                                    false
+                                )?.teacherId ?: 0,
+                                classId = `class`.classId
+                            )
+                        )
+                    }
+
+                    _state.value.defaultLessons.entries.forEach {
+                        if (it.value) {
+                            profileUseCases.enableDefaultLesson(
+                                profileId = profileId,
+                                vpId = it.key.defaultLesson!!.lessonId!!.toLong()
+                            )
+                        } else {
+                            profileUseCases.disableDefaultLesson(
+                                profileId = profileId,
+                                vpId = it.key.defaultLesson!!.lessonId!!.toLong()
+                            )
+                        }
+                    }
                 }
+
                 ProfileType.TEACHER -> {
                     val teacher = teacherRepository.find(
                         school = schoolUseCases.getSchoolFromId(state.value.schoolId.toLong()),
                         acronym = state.value.selectedProfileOption!!,
                         createIfNotExists = false
                     )!!
-                    profileUseCases.createTeacherProfile(teacherId = teacher.id!!, name = teacher.acronym)
+                    profileUseCases.createTeacherProfile(
+                        teacherId = teacher.teacherId,
+                        name = teacher.acronym
+                    )
                     keyValueUseCases.set(
                         Keys.ACTIVE_PROFILE,
-                        profileUseCases.getProfileByTeacherId(teacher.id).id.toString()
+                        profileUseCases.getProfileByTeacherId(teacher.teacherId).id.toString()
                     )
                 }
+
                 ProfileType.ROOM -> {
-                    val room = roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong())).find { it.name == state.value.selectedProfileOption!! }!!
-                    profileUseCases.createRoomProfile(roomId = room.id!!, name = room.name)
+                    val room =
+                        roomRepository.getRoomsBySchool(schoolUseCases.getSchoolFromId(state.value.schoolId.toLong()))
+                            .find { it.name == state.value.selectedProfileOption!! }!!
+                    profileUseCases.createRoomProfile(roomId = room.roomId, name = room.name)
                     keyValueUseCases.set(
                         Keys.ACTIVE_PROFILE,
-                        profileUseCases.getProfileByRoomId(room.id).id.toString()
+                        profileUseCases.getProfileByRoomId(room.roomId).id.toString()
                     )
                 }
             }
@@ -227,7 +337,11 @@ class OnboardingViewModel @Inject constructor(
             val name = "Profil ${state.value.selectedProfileOption!!}"
             val descriptionText = "Benachrichtigungen für neue Pläne"
             val importance = NotificationManager.IMPORTANCE_DEFAULT
-            val channel = NotificationChannel("PROFILE_${state.value.selectedProfileOption}", name, importance).apply {
+            val channel = NotificationChannel(
+                "PROFILE_${state.value.selectedProfileOption}",
+                name,
+                importance
+            ).apply {
                 description = descriptionText
             }
             // Register the channel with the system.
@@ -237,7 +351,6 @@ class OnboardingViewModel @Inject constructor(
 
             _state.value = _state.value.copy(isLoading = false)
         }
-
     }
 
     fun onAutomaticSchoolIdInput(schoolId: Long) {
@@ -262,6 +375,12 @@ class OnboardingViewModel @Inject constructor(
     fun setTeacherDialogVisibility(v: Boolean) {
         _state.value = _state.value.copy(showTeacherDialog = v)
     }
+
+    fun setDefaultLesson(lesson: WplanVpXmlDefaultLessonWrapper, activated: Boolean) {
+        _state.value = _state.value.copy(
+            defaultLessons = state.value.defaultLessons.toMutableMap()
+                .apply { this[lesson] = activated })
+    }
 }
 
 data class OnboardingState(
@@ -284,6 +403,9 @@ data class OnboardingState(
     val selectedProfileOption: String? = null,
 
     val showTeacherDialog: Boolean = false,
+
+    val defaultLessons: Map<WplanVpXmlDefaultLessonWrapper, Boolean> = mapOf(),
+    val defaultLessonsLoading: Boolean = false
 )
 
 enum class Task {

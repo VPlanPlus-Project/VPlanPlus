@@ -60,24 +60,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
+import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.calculateProgress
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -160,8 +160,8 @@ fun HomeScreen(
         exit = fadeOut(animationSpec = TweenSpec(200))
     ) {
         Menu(
-            profiles = state.profiles,
-            selectedProfile = state.activeProfile!!,
+            profiles = state.profiles.map { it.toMenuProfile() },
+            selectedProfile = state.activeProfile!!.toMenuProfile(),
             onProfileClicked = {
                 menuOpened = false
                 viewModel.onProfileSelected(context, it)
@@ -175,7 +175,7 @@ fun HomeScreen(
             },
             onDeletePlansClicked = {
                 coroutineScope.launch {
-                    viewModel.deletePlans(context)
+                    viewModel.deletePlans()
                     menuOpened = false
                 }
             },
@@ -227,9 +227,9 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .fillMaxSize(),
             ) {
-                SearchBar(if ((state.activeProfile?.customName
+                SearchBar(if ((state.activeProfile?.displayName
                         ?: "").length > 4
-                ) state.activeProfile?.name ?: "" else state.activeProfile?.customName ?: "",
+                ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName ?: "",
                     onMenuOpened,
                     { onSearchOpened(it) },
                     false,
@@ -370,15 +370,18 @@ fun HomeScreenContent(
                                 }
 
                                 DayType.DATA -> {
+                                    val hiddenLessons = state.lessons[date]!!.lessons.count { !state.activeProfile!!.isDefaultLessonEnabled(it.vpId) }
+                                    if (hiddenLessons > 0) {
+                                        Text(text = stringResource(id = R.string.home_lessonsHidden, hiddenLessons), style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
+                                    }
                                     LazyColumn {
                                         items(
-                                            state.lessons[date]!!.lessons.sortedBy { it.lessonNumber },
-                                            key = { it.id }
+                                            state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }.filter { state.activeProfile!!.isDefaultLessonEnabled(it.vpId) },
                                         ) {
                                             if ((calculateProgress(
-                                                    it.start,
+                                                    DateUtils.localDateTimeToTimeString(it.start),
                                                     LocalTime.now().toString(),
-                                                    it.end
+                                                    DateUtils.localDateTimeToTimeString(it.end)
                                                 )
                                                     ?: -1.0) in 0.0..0.99
                                                 &&
@@ -452,7 +455,11 @@ fun CurrentLessonCard(lesson: Lesson, width: Float) {
             val formatter = DateTimeFormatter.ofPattern("HH:mm")
             val time = LocalTime.now()
             val currentTime = time.format(formatter)
-            val percentage = calculateProgress(lesson.start, currentTime, lesson.end)
+            val percentage = calculateProgress(
+                DateUtils.localDateTimeToTimeString(lesson.start),
+                currentTime,
+                DateUtils.localDateTimeToTimeString(lesson.end)
+            )
 
             Box(
                 modifier = Modifier
@@ -473,9 +480,9 @@ fun CurrentLessonCard(lesson: Lesson, width: Float) {
                         Text(text = "Jetzt: ", style = MaterialTheme.typography.titleSmall)
                         Row {
                             Text(
-                                text = lesson.subject,
+                                text = lesson.displaySubject,
                                 style = MaterialTheme.typography.titleLarge,
-                                color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                                color = if (lesson.changedSubject != null) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                             )
                             Text(
                                 text = " • ",
@@ -483,20 +490,23 @@ fun CurrentLessonCard(lesson: Lesson, width: Float) {
                                 color = MaterialTheme.colorScheme.onSecondaryContainer
                             )
                             Text(
-                                text = lesson.room.joinToString(", "),
+                                text = lesson.rooms.joinToString(", "),
                                 style = MaterialTheme.typography.titleLarge,
-                                color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                                color = if (lesson.roomIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                             )
                         }
                         Text(
-                            text = lesson.teacher.joinToString(", "),
+                            text = lesson.teachers.joinToString(", "),
                             style = MaterialTheme.typography.titleMedium,
-                            color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                            color = if (lesson.teacherIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                         )
-                        Text(text = lesson.info, style = MaterialTheme.typography.bodyMedium)
+                        if (lesson.info != null) Text(
+                            text = lesson.info,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
                     SubjectIcon(
-                        subject = lesson.subject, modifier = Modifier
+                        subject = lesson.displaySubject, modifier = Modifier
                             .height(70.dp)
                             .width(70.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -532,27 +542,15 @@ fun LessonCard(lesson: Lesson, width: Float) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = lesson.lessonNumber.toString(),
-                                style = MaterialTheme.typography.titleLarge.copy(textDecoration = if (lesson.subjectChanged && lesson.subject == "-") TextDecoration.LineThrough else null),
                                 color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 modifier = Modifier.padding(end = 8.dp),
                             )
                             Column {
-                                val onSecondaryContainerColor =
-                                    MaterialTheme.colorScheme.onSecondaryContainer
-                                Row(
-                                    modifier = if (lesson.subjectChanged && lesson.subject == "-") Modifier.drawBehind {
-                                        drawLine(
-                                            color = onSecondaryContainerColor,
-                                            start = Offset(0f, size.height / 2 - 1f),
-                                            end = Offset(size.width, size.height / 2 - 1f),
-                                            strokeWidth = 4f
-                                        )
-                                    } else Modifier
-                                ) {
+                                Row {
                                     Text(
-                                        text = lesson.subject,
+                                        text = lesson.displaySubject,
                                         style = MaterialTheme.typography.titleMedium,
-                                        color = if (lesson.subjectChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                                        color = if (lesson.subjectIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
                                         text = " • ",
@@ -560,9 +558,9 @@ fun LessonCard(lesson: Lesson, width: Float) {
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        text = lesson.room.joinToString(", "),
+                                        text = if (lesson.rooms.isNotEmpty()) lesson.rooms.joinToString(", ") { it } else "-",
                                         style = MaterialTheme.typography.titleMedium,
-                                        color = if (lesson.roomChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                                        color = if (lesson.roomIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
                                         text = " • ",
@@ -570,12 +568,12 @@ fun LessonCard(lesson: Lesson, width: Float) {
                                         color = MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                     Text(
-                                        text = lesson.teacher.joinToString(", "),
+                                        text = if (lesson.teachers.isNotEmpty()) lesson.teachers.joinToString(", ") { it } else "-",
                                         style = MaterialTheme.typography.titleMedium,
-                                        color = if (lesson.teacherChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
+                                        color = if (lesson.teacherIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
                                     )
                                 }
-                                if (lesson.info != "") {
+                                if (lesson.info != null) {
                                     Text(
                                         text = lesson.info,
                                         maxLines = 1,
@@ -593,7 +591,7 @@ fun LessonCard(lesson: Lesson, width: Float) {
                         }
                     }
                     SubjectIcon(
-                        subject = lesson.subject, modifier = Modifier
+                        subject = lesson.displaySubject, modifier = Modifier
                             .height(50.dp)
                             .width(50.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer
                     )
@@ -608,18 +606,7 @@ fun LessonCard(lesson: Lesson, width: Float) {
 fun CurrentLessonCardPreview() {
     CurrentLessonCard(
         width = 200f,
-        lesson = Lesson(
-            id = 0,
-            subject = "Informatik",
-            teacher = listOf("Tec", "Bat"),
-            room = listOf("208", "209"),
-            roomChanged = true,
-            start = "21:00",
-            end = "21:45",
-            className = "9e",
-            lessonNumber = 1,
-            info = "Info!"
-        )
+        lesson = Lessons.generateLessons(1).first()
     )
 }
 
@@ -629,17 +616,7 @@ fun CurrentLessonCardPreview() {
 fun LessonCardPreview() {
     LessonCard(
         width = 200f,
-        lesson = Lesson(
-            id = 0,
-            subject = "Informatik",
-            teacher = listOf("Tec", "Bat"),
-            room = listOf("208"),
-            roomChanged = true,
-            start = "8:00",
-            end = "8:45",
-            className = "9e",
-            lessonNumber = 1,
-        )
+        lesson = Lessons.generateLessons(1).first()
     )
 }
 
@@ -669,50 +646,10 @@ fun HomeScreenPreview() {
         HomeState(
             initDone = true,
             isLoading = true,
-            lessons =
-            hashMapOf(
+            lessons = hashMapOf(
                 LocalDate.now() to Day(
                     dayType = DayType.DATA,
-                    lessons = listOf(
-                        Lesson(
-                            id = 0,
-                            subject = "Informatik",
-                            teacher = listOf("Tec"),
-                            room = listOf("208"),
-                            roomChanged = true,
-                            start = "21:00",
-                            end = "22:00",
-                            className = "9e",
-                            lessonNumber = 1
-                        ),
-                        Lesson(
-                            id = 1,
-                            subject = "-",
-                            subjectChanged = true,
-                            teacher = listOf("Pfl"),
-                            room = listOf("307"),
-                            roomChanged = false,
-                            teacherChanged = true,
-                            start = "22:00",
-                            end = "23:00",
-                            className = "9e",
-                            lessonNumber = 2,
-                            info = "Hier eine Info :)"
-                        ),
-                        Lesson(
-                            id = 2,
-                            subject = "Biologie",
-                            teacher = listOf("Pfl"),
-                            room = listOf("307"),
-                            roomChanged = false,
-                            teacherChanged = true,
-                            start = "22:00",
-                            end = "23:00",
-                            className = "9e",
-                            lessonNumber = 2,
-                            info = "Hier eine sehr lange Information, die sich über mehrere Zeilen erstrecken würde. :)"
-                        )
-                    )
+                    lessons = Lessons.generateLessons(4)
                 )
             ),
             syncing = true,

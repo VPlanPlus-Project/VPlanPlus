@@ -2,29 +2,28 @@ package es.jvbabi.vplanplus.data.source.database.crossover
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
-import es.jvbabi.vplanplus.domain.model.Lesson
-import es.jvbabi.vplanplus.domain.model.Teacher
+import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.model.DbTeacher
 
 @Entity(
     tableName = "lesson_teacher_crossover",
+    primaryKeys = ["ltcLessonId", "ltcTeacherId"],
     foreignKeys = [
         ForeignKey(
-            entity = Lesson::class,
-            parentColumns = ["id"],
-            childColumns = ["lessonId"],
+            entity = DbLesson::class,
+            parentColumns = ["lessonId"],
+            childColumns = ["ltcLessonId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = Teacher::class,
-            parentColumns = ["id"],
-            childColumns = ["teacherId"],
+            entity = DbTeacher::class,
+            parentColumns = ["teacherId"],
+            childColumns = ["ltcTeacherId"],
             onDelete = ForeignKey.CASCADE
         ),
     ]
 )
 data class LessonTeacherCrossover(
-    @PrimaryKey(autoGenerate = true) val id: Long? = null,
-    val lessonId: Long,
-    val teacherId: Long
+    val ltcLessonId: Long,
+    val ltcTeacherId: Long
 )

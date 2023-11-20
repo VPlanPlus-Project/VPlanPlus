@@ -30,7 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
@@ -49,7 +49,8 @@ fun OnboardingProfileOptionListScreen(
         state = state,
         onClassSelect = { onboardingViewModel.onProfileSelect(it) }, {
             coroutineScope.launch { onboardingViewModel.onProfileSubmit(context) }
-            navController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
+            if (state.profileType == ProfileType.STUDENT) navController.navigate(Screen.OnboardingDefaultLessonScreen.route) { popUpTo(0) }
+            else navController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
         },
         setDialogVisibility = { onboardingViewModel.setTeacherDialogVisibility(it) }
     )

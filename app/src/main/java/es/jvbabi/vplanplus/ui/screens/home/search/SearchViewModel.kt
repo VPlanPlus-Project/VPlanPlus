@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -12,6 +13,7 @@ import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.ui.screens.home.DayType
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -29,32 +31,35 @@ class SearchViewModel @Inject constructor(
     private val _state = mutableStateOf(SearchState())
     val state: State<SearchState> = _state
 
+    private var searchJob: Job? = null
+
     fun type(value: String) {
+        searchJob?.cancel()
         _state.value = _state.value.copy(searchValue = value)
         if (value.isEmpty()) {
             _state.value = _state.value.copy(result = emptyList())
             return
         }
 
-        viewModelScope.launch {
+        searchJob = viewModelScope.launch {
             val schools = schoolUseCases.getSchools()
             val resultGroups = mutableListOf<ResultGroup>()
             schools.forEach { school ->
                 val result = mutableListOf<Result>()
                 if (_state.value.filter[FilterType.TEACHER]!!) {
-                    val teachers = teacherRepository.getTeachersBySchoolId(school.id!!).filter {
+                    val teachers = teacherRepository.getTeachersBySchoolId(school.schoolId).filter {
                         it.acronym.lowercase().contains(_state.value.searchValue.lowercase())
                     }
                     val firstTeacher = teachers.firstOrNull()
                     if (firstTeacher != null) {
                         val lessons = lessonUseCases.getLessonsForTeacher(
-                            teacherRepository.getTeacherById(firstTeacher.id!!)!!, LocalDate.now()
+                            firstTeacher, LocalDate.now()
                         ).firstOrNull()
                         teachers.forEachIndexed { index, teacher ->
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
                                     Result(
-                                        teacher.id!!,
+                                        teacher.teacherId,
                                         teacher.acronym,
                                         FilterType.TEACHER,
                                         lessons.lessons
@@ -63,7 +68,7 @@ class SearchViewModel @Inject constructor(
                             } else {
                                 result.add(
                                     Result(
-                                        teacher.id!!,
+                                        teacher.teacherId,
                                         teacher.acronym,
                                         FilterType.TEACHER
                                     )
@@ -79,28 +84,28 @@ class SearchViewModel @Inject constructor(
                     val firstRoom = rooms.firstOrNull()
                     if (firstRoom != null) {
                         val lessons = lessonUseCases.getLessonsForRoom(
-                            roomRepository.getRoomById(firstRoom.id!!),
+                            firstRoom,
                             LocalDate.now()
                         ).firstOrNull()
                         rooms.forEachIndexed { index, room ->
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
                                     Result(
-                                        room.id!!,
+                                        room.roomId,
                                         room.name,
                                         FilterType.ROOM,
                                         lessons.lessons
                                     )
                                 )
                             } else {
-                                result.add(Result(room.id!!, room.name, FilterType.ROOM))
+                                result.add(Result(room.roomId, room.name, FilterType.ROOM))
                             }
                         }
                     }
                 }
                 if (state.value.filter[FilterType.CLASS]!!) {
                     val classes = classUseCases.getClassesBySchool(school).filter {
-                        it.className.lowercase().contains(_state.value.searchValue.lowercase())
+                        it.name.lowercase().contains(_state.value.searchValue.lowercase())
                     }
                     val firstClass = classes.firstOrNull()
                     if (firstClass != null) {
@@ -110,8 +115,8 @@ class SearchViewModel @Inject constructor(
                             if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
                                 result.add(
                                     Result(
-                                        `class`.id!!,
-                                        `class`.className,
+                                        `class`.classId,
+                                        `class`.name,
                                         FilterType.CLASS,
                                         lessons.lessons
                                     )
@@ -119,8 +124,8 @@ class SearchViewModel @Inject constructor(
                             } else {
                                 result.add(
                                     Result(
-                                        `class`.id!!,
-                                        `class`.className,
+                                        `class`.classId,
+                                        `class`.name,
                                         FilterType.CLASS
                                     )
                                 )
@@ -167,7 +172,7 @@ data class Result(
     val id: Long,
     val name: String,
     val type: FilterType,
-    val lessons: List<es.jvbabi.vplanplus.ui.screens.home.Lesson> = emptyList()
+    val lessons: List<Lesson> = emptyList()
 )
 
 enum class FilterType {

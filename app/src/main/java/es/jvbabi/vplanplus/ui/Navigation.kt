@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.logs.LogsScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingCause
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingProfileOptionListScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
@@ -27,6 +28,7 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.permissions.PermissionsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
+import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
 
 @Composable
@@ -67,6 +69,20 @@ fun NavigationGraph(
             ProfileSettingsScreen(navController = navController, profileId = it.arguments?.getLong("profileId")!!)
         }
 
+        composable(
+            route = Screen.SettingsProfileDefaultLessonsScreen.route,
+            arguments = listOf(
+                navArgument("profileId") {
+                    type = NavType.LongType
+                }
+            )
+        ) {
+            ProfileSettingsDefaultLessonScreen(
+                profileId = it.arguments?.getLong("profileId")!!,
+                navController = navController
+            )
+        }
+
         composable(route = Screen.SettingsProfileScreen.route) {
             ProfileManagementScreen(
                 navController = navController,
@@ -74,7 +90,7 @@ fun NavigationGraph(
                     onboardingViewModel.reset()
                     onboardingViewModel.setTask(Task.CREATE_PROFILE)
                     onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
-                    onboardingViewModel.onAutomaticSchoolIdInput(it.id!!)
+                    onboardingViewModel.onAutomaticSchoolIdInput(it.schoolId)
                 },
                 onNewSchoolClicked = {
                     onboardingViewModel.reset()
@@ -146,6 +162,14 @@ fun NavigationGraph(
                 exitTransition = exitSlideTransition
             ) {
                 OnboardingProfileOptionListScreen(navController, onboardingViewModel)
+            }
+
+            composable(
+                route = Screen.OnboardingDefaultLessonScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition
+            ) {
+                OnboardingDefaultLessonScreen(navController, onboardingViewModel)
             }
 
             composable(

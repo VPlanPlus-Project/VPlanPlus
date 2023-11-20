@@ -3,14 +3,15 @@ package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 import android.annotation.SuppressLint
 import android.app.NotificationManager
 import android.content.Context
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import kotlinx.coroutines.flow.combine
@@ -22,8 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileSettingsViewModel @Inject constructor(
     private val profileUseCases: ProfileUseCases,
-    private val calendarRepository: CalendarRepository
-): ViewModel() {
+    private val calendarRepository: CalendarRepository,
+) : ViewModel() {
 
     private val _state = mutableStateOf(ProfileSettingsState())
     val state: State<ProfileSettingsState> = _state
@@ -34,9 +35,13 @@ class ProfileSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 profileUseCases.getProfileById(profileId),
-                calendarRepository.getCalendars()
+                calendarRepository.getCalendars(),
             ) { profile, calendars ->
-                _state.value.copy(profile = profile, calendars = calendars, initDone = true, profileCalendar = calendars.firstOrNull { it.id == profile.calendarId })
+                _state.value.copy(
+                    profile = profile,
+                    calendars = calendars,
+                    initDone = true,
+                    profileCalendar = calendars.firstOrNull { it.id == profile.calendarId })
             }.collect {
                 _state.value = it
             }
@@ -52,7 +57,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun setCalendarMode(calendarMode: ProfileCalendarType) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                profileUseCases.updateProfile(profile.copy(calendarMode = calendarMode))
+                profileUseCases.setCalendarType(profile.id, calendarType = calendarMode)
             }
         }
     }
@@ -60,15 +65,28 @@ class ProfileSettingsViewModel @Inject constructor(
     fun setCalendar(calendarId: Long) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                profileUseCases.updateProfile(profile.copy(calendarId = calendarId))
+                profileUseCases.setCalendarId(profile.id, calendarId)
             }
         }
+    }
+
+    fun setDialogOpen(open: Boolean) {
+        _state.value = _state.value.copy(dialogOpen = open)
+    }
+
+    fun setDialogCall(call: @Composable () -> Unit) {
+        _state.value = _state.value.copy(dialogCall = call)
     }
 
     fun deleteProfile(context: Context) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                if (profileUseCases.getProfilesBySchoolId(profileUseCases.getSchoolFromProfileId(profile.id!!).id!!).size == 1) {
+                if (profileUseCases.getProfilesBySchoolId(
+                        profileUseCases.getSchoolFromProfileId(
+                            profile.id
+                        ).schoolId
+                    ).size == 1
+                ) {
                     setDeleteProfileResult(ProfileManagementDeletionResult.LAST_PROFILE)
                     return@launch
                 }
@@ -82,7 +100,7 @@ class ProfileSettingsViewModel @Inject constructor(
                 setDeleteProfileResult(ProfileManagementDeletionResult.SUCCESS)
                 val notificationManager: NotificationManager =
                     context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.deleteNotificationChannel("PROFILE_${profile.name}")
+                notificationManager.deleteNotificationChannel("PROFILE_${profile.originalName}")
             }
         }
     }
@@ -90,7 +108,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun renameProfile(name: String) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                profileUseCases.updateProfile(profile.copy(customName = name))
+                profileUseCases.setDisplayName(profile.id, name)
             }
         }
     }
@@ -101,8 +119,12 @@ data class ProfileSettingsState(
     val profile: Profile? = null,
     val profileCalendar: Calendar? = null,
     val deleteProfileResult: ProfileManagementDeletionResult? = null,
-    val calendars: List<Calendar> = listOf()
+    val calendars: List<Calendar> = listOf(),
+
+    val dialogOpen: Boolean = false,
+    val dialogCall: @Composable () -> Unit = {}
 )
+
 
 enum class ProfileManagementDeletionResult {
     SUCCESS,

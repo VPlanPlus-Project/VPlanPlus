@@ -3,26 +3,36 @@ package es.jvbabi.vplanplus.data.source.database.dao
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import es.jvbabi.vplanplus.domain.model.Lesson
+import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.Transaction
+import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.model.combined.CLesson
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 abstract class LessonDao {
-    @Query("SELECT * FROM lesson WHERE classId = :classId AND dayTimestamp = :timestamp")
-    abstract fun getLessonsByClass(classId: Long, timestamp: Long): Flow<List<Lesson>>
 
-    @Query("SELECT lesson.* FROM lesson LEFT JOIN lesson_teacher_crossover ON lesson.id = lesson_teacher_crossover.lessonId WHERE lesson_teacher_crossover.teacherId = :teacherId AND lesson.dayTimestamp = :timestamp")
-    abstract fun getLessonsByTeacher(teacherId: Long, timestamp: Long): Flow<List<Lesson>>
+    @Transaction
+    @Query("SELECT * FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp AND version = :version ORDER by lessonNumber ASC")
+    abstract fun getLessonsByClass(classId: Long, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
-    @Query("SELECT lesson.* FROM lesson LEFT JOIN lesson_room_crossover ON lesson.id = lesson_room_crossover.lessonId WHERE lesson_room_crossover.roomId = :roomId AND lesson.dayTimestamp = :timestamp")
-    abstract fun getLessonsByRoom(roomId: Long, timestamp: Long): Flow<List<Lesson>>
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
+    @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.defaultLessonId = lesson.defaultLessonId WHERE day = :timestamp AND version = :version AND (lessonId IN (SELECT ltcTeacherId FROM lesson_teacher_crossover WHERE ltcTeacherId = :teacherId) OR default_lesson.teacherId = :teacherId) ORDER by lessonNumber ASC")
+    abstract fun getLessonsByTeacher(teacherId: Long, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
-    @Query("DELETE FROM lesson WHERE classId = :classId AND dayTimestamp = :timestamp")
-    abstract suspend fun deleteLessonByClassIdAndTimestamp(classId: Long, timestamp: Long)
+    @RewriteQueriesToDropUnusedColumns
+    @Transaction
+    @Query("SELECT * FROM lesson WHERE day = :timestamp AND version = :version AND lessonId IN (SELECT lrcLessonId FROM lesson_room_crossover WHERE lrcRoomId = :roomId) ORDER by lessonNumber ASC")
+    abstract fun getLessonsByRoom(roomId: Long, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
     @Insert
-    abstract suspend fun insert(lesson: Lesson): Long
+    abstract suspend fun insertLesson(lesson: DbLesson): Long
 
     @Query("DELETE FROM lesson")
     abstract suspend fun deleteAll()
+
+    @Query("DELETE FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp")
+    abstract suspend fun deleteLessonsByClassAndDate(classId: Long, timestamp: LocalDate)
 }

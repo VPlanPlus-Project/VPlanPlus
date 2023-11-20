@@ -13,10 +13,12 @@ class LessonTimeRepositoryImpl(
     }
 
     override suspend fun deleteLessonTimes(`class`: Classes) {
-        lessonTimeDao.deleteLessonTimes(`class`.id!!)
+        lessonTimeDao.deleteLessonTimes(`class`.classId)
     }
 
-    override suspend fun getLessonTimesByClass(`class`: Classes): List<LessonTime> {
-        return lessonTimeDao.getLessonTimesByClassId(`class`.id!!)
+    override suspend fun getLessonTimesByClass(`class`: Classes): Map<Int, LessonTime> {
+        return lessonTimeDao.getLessonTimesByClassId(`class`.classId).associateBy {
+            it.lessonNumber
+        }
     }
 }

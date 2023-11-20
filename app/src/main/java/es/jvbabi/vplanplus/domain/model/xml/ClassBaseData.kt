@@ -129,7 +129,7 @@ data class BaseDataSchoolWeek(
             start = start,
             end = end,
             type = type,
-            schoolId = schoolId
+            schoolWeekRefId = schoolId
         )
     }
 }

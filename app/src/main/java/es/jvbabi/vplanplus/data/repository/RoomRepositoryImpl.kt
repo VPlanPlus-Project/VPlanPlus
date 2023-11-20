@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
+import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
@@ -9,25 +10,25 @@ class RoomRepositoryImpl(
     private val roomDao: RoomDao
 ) : RoomRepository {
     override suspend fun getRooms(schoolId: Long): List<Room> {
-        return roomDao.getRooms(schoolId)
+        return roomDao.getRooms(schoolId).map { it.toModel() }
     }
 
     override fun getRoomById(roomId: Long): Room {
-        return roomDao.getRoomById(roomId)
+        return roomDao.getRoomById(roomId).toModel()
     }
 
-    override suspend fun createRoom(room: Room) {
+    override suspend fun createRoom(room: DbRoom) {
         roomDao.insertRoom(room)
     }
 
     override suspend fun getRoomByName(school: School, name: String, createIfNotExists: Boolean): Room? {
         if (name == "&amp;nbsp;" || name == "&nbsp;") return null
-        val room = roomDao.getRoomByName(school.id!!, name)
+        val room = roomDao.getRoomByName(school.schoolId, name)
         if (room == null && createIfNotExists) {
-            val id = roomDao.insertRoom(Room(schoolId = school.id, name = name))
-            return roomDao.getRoomById(id)
+            val id = roomDao.insertRoom(DbRoom(schoolRoomRefId = school.schoolId, name = name))
+            return roomDao.getRoomById(id).toModel()
         }
-        return room
+        return room?.toModel()
     }
 
     override suspend fun deleteRoomsBySchoolId(schoolId: Long) {
@@ -36,11 +37,11 @@ class RoomRepositoryImpl(
 
     override suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>) {
         rooms.forEach {
-            createRoom(Room(schoolId = schoolId, name = it))
+            createRoom(DbRoom(schoolRoomRefId = schoolId, name = it))
         }
     }
 
     override suspend fun getRoomsBySchool(school: School): List<Room> {
-        return roomDao.getRoomsBySchool(school.id!!)
+        return roomDao.getRoomsBySchool(school.schoolId).map { it.toModel() }
     }
 }

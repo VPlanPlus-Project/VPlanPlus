@@ -1,30 +1,28 @@
 package es.jvbabi.vplanplus.domain.model
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.ui.screens.home.MenuProfile
 
-@Entity(
-    tableName = "profile"
-)
 data class Profile(
-    @PrimaryKey(autoGenerate = true) val id: Long? = null,
+    val id: Long,
+    val originalName: String,
+    val displayName: String,
     val type: ProfileType,
-    val name: String,
-    val customName: String,
-    val calendarMode: ProfileCalendarType,
-    val calendarId: Long?,
-    val referenceId: Long, // can be class id, teacher id or room id
+    val referenceId: Long,
+    val defaultLessons: Map<DefaultLesson, Boolean>,
+    val calendarType: ProfileCalendarType,
+    val calendarId: Long?
 ) {
     fun toMenuProfile(): MenuProfile {
-        return MenuProfile(id!!, name, customName)
+        return MenuProfile(id, originalName, displayName)
     }
-}
 
-enum class ProfileType {
-    TEACHER, STUDENT, ROOM
-}
-
-enum class ProfileCalendarType {
-    DAY, LESSON, NONE
+    /**
+     * Returns true if the default lesson is enabled for this profile
+     * Returns also true if default lesson isn't found in profile
+     */
+    fun isDefaultLessonEnabled(vpId: Long?): Boolean {
+        return defaultLessons.filterKeys { it.vpId == vpId }.values.firstOrNull()?:true
+    }
 }

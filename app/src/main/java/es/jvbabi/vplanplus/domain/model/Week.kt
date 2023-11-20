@@ -10,15 +10,15 @@ import java.time.LocalDate
     foreignKeys = [
         ForeignKey(
             entity = School::class,
-            parentColumns = ["id"],
-            childColumns = ["schoolId"],
+            parentColumns = ["schoolId"],
+            childColumns = ["schoolWeekRefId"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class Week(
-    @PrimaryKey(autoGenerate = true) val id: Long? = null,
-    val schoolId: Long,
+    @PrimaryKey(autoGenerate = true) val weekId: Long = 0,
+    val schoolWeekRefId: Long,
     val week: Int,
     val start: LocalDate,
     val end: LocalDate,

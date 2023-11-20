@@ -41,7 +41,7 @@ class BaseDataRepositoryImpl(
             entry.value.forEach { lessonTime ->
                 lessonTimeRepository.insertLessonTime(
                     LessonTime(
-                        classId = `class`.id!!,
+                        classLessonTimeRefId = `class`.classId,
                         lessonNumber = lessonTime.key,
                         start = lessonTime.value.first,
                         end = lessonTime.value.second
@@ -100,7 +100,7 @@ class BaseDataRepositoryImpl(
                 classBaseData.holidays.map {
                     Holiday(
                         date = LocalDate.of(it.first.first, it.first.second, it.first.third),
-                        schoolId = if (it.second) null else schoolId
+                        schoolHolidayRefId = if (it.second) null else schoolId
                     )
                 },
                 classBaseData.schoolWeeks,

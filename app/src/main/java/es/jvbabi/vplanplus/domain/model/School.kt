@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
     tableName = "school",
 )
 data class School(
-    @PrimaryKey val id: Long? = null,
+    @PrimaryKey val schoolId: Long = 0,
     val name: String,
     val username: String,
     val password: String,

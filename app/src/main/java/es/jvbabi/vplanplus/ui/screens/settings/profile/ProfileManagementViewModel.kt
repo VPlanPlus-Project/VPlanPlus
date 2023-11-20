@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -35,20 +35,20 @@ class ProfileManagementViewModel @Inject constructor(
                     when (it.type) {
                         ProfileType.STUDENT -> {
                             val `class` = classUseCases.getClassById(it.referenceId)
-                            val school = schoolUseCases.getSchoolFromId(`class`.schoolId)
+                            val school = `class`.school
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
-                                        id = it.id!!,
-                                        name = if (it.customName.length > 4) it.name else it.customName,
+                                        id = it.id,
+                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
                                         type = it.type
                                     )
                                 )
                             } else {
                                 schools[school.name] = listOf(
                                     ProfileManagementProfile(
-                                        id = it.id!!,
-                                        name = if (it.customName.length > 4) it.name else it.customName,
+                                        id = it.id,
+                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
                                         type = it.type
                                     )
                                 )
@@ -56,21 +56,20 @@ class ProfileManagementViewModel @Inject constructor(
                         }
 
                         ProfileType.TEACHER -> {
-                            val teacher = teacherRepostitory.getTeacherById(it.referenceId)
-                            val school = schoolUseCases.getSchoolFromId(teacher!!.schoolId)
+                            val school = teacherRepostitory.getTeacherById(it.referenceId)!!.school
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
-                                        id = it.id!!,
-                                        name = if (it.customName.length > 4) it.name else it.customName,
+                                        id = it.id,
+                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
                                         type = it.type
                                     )
                                 )
                             } else {
                                 schools[school.name] = listOf(
                                     ProfileManagementProfile(
-                                        id = it.id!!,
-                                        name = if (it.customName.length > 4) it.name else it.customName,
+                                        id = it.id,
+                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
                                         type = it.type
                                     )
                                 )
@@ -78,21 +77,20 @@ class ProfileManagementViewModel @Inject constructor(
                         }
 
                         ProfileType.ROOM -> {
-                            val room = roomRepository.getRoomById(it.referenceId)
-                            val school = schoolUseCases.getSchoolFromId(room.schoolId)
+                            val school = roomRepository.getRoomById(it.referenceId).school
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
-                                        id = it.id!!,
-                                        name = if (it.customName.length > 4) it.name else it.customName,
+                                        id = it.id,
+                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
                                         type = it.type
                                     )
                                 )
                             } else {
                                 schools[school.name] = listOf(
                                     ProfileManagementProfile(
-                                        id = it.id!!,
-                                        name = if (it.customName.length > 4) it.name else it.customName,
+                                        id = it.id,
+                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
                                         type = it.type
                                     )
                                 )

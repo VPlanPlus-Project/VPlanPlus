@@ -68,7 +68,7 @@ class CalendarRepositoryImpl(
         calendarEventDao.insertCalendarEvent(
             DbCalendarEvent(
                 date = event.date,
-                schoolId = school.id!!,
+                schoolCalendarEventRefId = school.schoolId,
                 calendarId = id
             )
         )
@@ -76,13 +76,13 @@ class CalendarRepositoryImpl(
     }
 
     override suspend fun deleteCalendarEvents(school: School, date: LocalDate) {
-        val calendarEvents = calendarEventDao.getCalendarEvents(date = date, schoolId = school.id!!)
+        val calendarEvents = calendarEventDao.getCalendarEvents(date = date, schoolId = school.schoolId)
         val contentResolver = context.contentResolver
         calendarEvents.forEach {
             val deleteUri =
                 ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, it.calendarId)
             contentResolver.delete(deleteUri, null, null)
         }
-        calendarEventDao.deleteCalendarEvents(school.id, date)
+        calendarEventDao.deleteCalendarEvents(school.schoolId, date)
     }
 }

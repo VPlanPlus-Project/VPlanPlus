@@ -250,22 +250,22 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                                                 verticalArrangement = Arrangement.Center
                                             ) {
                                                 Text(
-                                                    text = lesson.lessonNumber.toString() + ". " + lesson.subject,
+                                                    text = lesson.lessonNumber.toString() + ". " + lesson.displaySubject,
                                                     style = MaterialTheme.typography.titleMedium
                                                 )
                                                 Text(
                                                     text = when (filterType) {
-                                                        FilterType.TEACHER -> lesson.className + " • " + lesson.room.joinToString(
+                                                        FilterType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
                                                             ", "
                                                         )
 
-                                                        FilterType.ROOM -> lesson.className + " • " + lesson.teacher.joinToString(
+                                                        FilterType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
                                                             ", "
                                                         )
 
-                                                        FilterType.CLASS -> lesson.teacher.joinToString(
+                                                        FilterType.CLASS -> lesson.teachers.joinToString(
                                                             ", "
-                                                        ) + " • " + lesson.room.joinToString(", ")
+                                                        ) + " • " + lesson.rooms.joinToString(", ")
                                                     },
                                                     style = MaterialTheme.typography.labelSmall,
                                                     modifier = Modifier.basicMarquee(
@@ -313,25 +313,25 @@ fun SchoolResultPreview() {
         results = listOf(
             Result(
                 0L,
-                Lessons.randomRoom().first(),
+                Lessons.randomRoom().first().name,
                 FilterType.ROOM,
                 Lessons.generateLessons(3)
             ),
             Result(
                 3L,
-                Lessons.randomRoom().first(),
+                Lessons.randomRoom().first().name,
                 FilterType.ROOM,
                 Lessons.generateLessons(3)
             ),
             Result(
                 1L,
-                Lessons.randomTeacher().first(),
+                Lessons.randomTeacher().first().acronym,
                 FilterType.TEACHER,
                 Lessons.generateLessons(3)
             ),
             Result(
                 2L,
-                Lessons.randomTeacher().first(),
+                Lessons.randomTeacher().first().acronym,
                 FilterType.TEACHER,
                 Lessons.generateLessons(3)
             ),

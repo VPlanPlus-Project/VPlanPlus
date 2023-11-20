@@ -16,8 +16,9 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -27,12 +28,9 @@ import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
-import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -43,7 +41,6 @@ class HomeViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val profileUseCases: ProfileUseCases,
     private val vPlanUseCases: VPlanUseCases,
-    private val schoolUseCases: SchoolUseCases,
     private val homeUseCases: HomeUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val teacherRepository: TeacherRepository,
@@ -57,7 +54,9 @@ class HomeViewModel @Inject constructor(
     private lateinit var activeProfile: Profile
     private var school: School? = null
 
-    suspend fun init(context: Context) {
+    private var syncDays: Int = 3
+
+    fun init(context: Context) {
         // Check if notification permission is granted
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             _state.value = _state.value.copy(
@@ -69,83 +68,51 @@ class HomeViewModel @Inject constructor(
             _state.value = _state.value.copy(notificationPermissionGranted = true)
         }
 
-        // Redirect to onboarding if no profiles are found
-        if (profileUseCases.getActiveProfile() == null) {
-            _state.value = _state.value.copy(initDone = true)
-            Log.d("HomeViewModel", "init; no active profile")
-            return
-        }
-        activeProfile = profileUseCases.getActiveProfile()!!
-        Log.d("HomeViewModel", "init; activeProfile=$activeProfile")
-        _state.value =
-            _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
-        val schoolId: Long?
-        when (activeProfile.type) {
-            ProfileType.STUDENT -> {
-                val profileClass = classUseCases.getClassById(activeProfile.referenceId)
-                schoolId = profileClass.schoolId
-                school = schoolUseCases.getSchoolFromId(schoolId)
-            }
-
-            ProfileType.TEACHER -> {
-                val profileTeacher = teacherRepository.getTeacherById(activeProfile.referenceId)!!
-                school = schoolUseCases.getSchoolFromId(profileTeacher.schoolId)
-            }
-
-            ProfileType.ROOM -> {
-                val room = roomRepository.getRoomById(activeProfile.referenceId)
-                school = schoolUseCases.getSchoolFromId(room.schoolId)
-            }
-        }
-
-        val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
-        repeat(syncDays + 2) { i ->
-            Log.d(
-                "HomeViewModel",
-                "Updating view $i for ${activeProfile.name} at ${LocalDate.now().plusDays(i - 2L)}"
-            )
-            updateView(activeProfile, LocalDate.now().plusDays(i - 1L))
-        }
-
         viewModelScope.launch {
-            Worker.isWorkerRunning("SyncWork", context).collect {
-                _state.value = _state.value.copy(syncing = it)
+            // Redirect to onboarding if no profiles are found
+            if (profileUseCases.getActiveProfile() == null) {
+                _state.value = _state.value.copy(initDone = true)
+                Log.d("HomeViewModel", "init; no active profile")
+                return@launch
             }
+
+            activeProfile = profileUseCases.getActiveProfile()!!
+            _state.value =
+                _state.value.copy(activeProfile = activeProfile, lessons = mapOf())
+            school = when (activeProfile.type) {
+                ProfileType.STUDENT -> classUseCases.getClassById(activeProfile.referenceId).school
+                ProfileType.TEACHER -> teacherRepository.getTeacherById(activeProfile.referenceId)!!.school
+                ProfileType.ROOM -> roomRepository.getRoomById(activeProfile.referenceId).school
+            }
+
+            syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
+            updateView()
+
+            viewModelScope.launch {
+                Worker.isWorkerRunningFlow("SyncWork", context).collect {
+                    if (it != _state.value.syncing && !it) {
+                        _state.value = _state.value.copy(syncing = false)
+                        updateView()
+                    } else _state.value = _state.value.copy(syncing = it)
+                }
+            }
+
+            _state.value =
+                _state.value.copy(
+                    profiles = profileUseCases.getProfiles().first(),
+                    initDone = true
+                )
         }
-
-        _state.value =
-            _state.value.copy(
-                profiles = profileUseCases.getProfiles().first().map { it.toMenuProfile() })
-
-        _state.value =
-            _state.value.copy(initDone = true)
     }
 
-    @OptIn(FlowPreview::class)
-    private fun updateView(profile: Profile, date: LocalDate) {
-        if (!_state.value.lessons.containsKey(date)) _state.value =
-            _state.value.copy(
+    private suspend fun updateView() {
+        repeat(syncDays + 2) { i ->
+            val date = LocalDate.now().plusDays(i - 1L)
+            _state.value = _state.value.copy(
                 lessons = state.value.lessons.plus(
-                    date to Day(
-                        listOf(),
-                        DayType.LOADING
-                    )
+                    date to homeUseCases.getLessons(activeProfile, date).first()
                 )
             )
-        viewModelScope.launch {
-            var first = true
-            homeUseCases.getLessons(profile, date).debounce {
-                if (first) 0L else {
-                    first = false; 1000L
-                }
-            }.collect { lessons ->
-                if (!state.value.syncing) {
-                    _state.value =
-                        _state.value.copy(
-                            lessons = state.value.lessons.plus(date to lessons),
-                        )
-                }
-            }
         }
     }
 
@@ -155,7 +122,7 @@ class HomeViewModel @Inject constructor(
      * @param localDate Date to set the day type for
      */
     fun setDayType(localDate: LocalDate) {
-        val dayType = holidayRepository.getDayType(school!!.id!!, localDate)
+        val dayType = holidayRepository.getDayType(school!!.schoolId, localDate)
         if (dayType == DayType.DATA) _state.value = _state.value.copy(
             lessons = state.value.lessons.plus(
                 localDate to Day(
@@ -196,10 +163,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deletePlans(context: Context) {
+    fun deletePlans() {
         viewModelScope.launch {
             vPlanUseCases.deletePlans()
-            init(context)
+            updateView()
         }
     }
 
@@ -224,8 +191,8 @@ data class HomeState(
     val initDone: Boolean = false,
     val lessons: Map<LocalDate, Day> = mapOf(),
     val isLoading: Boolean = false,
-    val profiles: List<MenuProfile> = listOf(),
-    val activeProfile: MenuProfile? = null,
+    val profiles: List<Profile> = listOf(),
+    val activeProfile: Profile? = null,
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,

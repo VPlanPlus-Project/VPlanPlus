@@ -12,7 +12,6 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
-import es.jvbabi.vplanplus.domain.usecase.LessonTimeUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
@@ -42,9 +41,6 @@ class VppApplication : Application(), Configuration.Provider {
     lateinit var lessonUseCases: LessonUseCases
 
     @Inject
-    lateinit var lessonTimeUseCases: LessonTimeUseCases
-
-    @Inject
     lateinit var classUseCases: ClassUseCases
 
     @Inject
@@ -65,7 +61,6 @@ class VppApplication : Application(), Configuration.Provider {
                 keyValueUseCases = keyValueUseCases,
                 logRecordRepository = logRecordRepository,
                 lessonUseCases = lessonUseCases,
-                lessonTimeUseCases = lessonTimeUseCases,
                 classUseCases = classUseCases,
                 roomRepository = roomRepository,
                 teacherRepository = teacherRepository,
@@ -81,7 +76,6 @@ class SyncWorkerFactory @Inject constructor(
     private val schoolUseCases: SchoolUseCases,
     private val keyValueUseCases: KeyValueUseCases,
     private val lessonUseCases: LessonUseCases,
-    private val lessonTimeUseCases: LessonTimeUseCases,
     private val classUseCases: ClassUseCases,
     private val logRecordRepository: LogRecordRepository,
     private val roomRepository: RoomRepository,
@@ -103,7 +97,6 @@ class SyncWorkerFactory @Inject constructor(
             keyValueUseCases = keyValueUseCases,
             lessonUseCases = lessonUseCases,
             calendarRepository = calendarRepository,
-            lessonTimeUseCases = lessonTimeUseCases,
             roomRepository = roomRepository,
             classUseCases = classUseCases,
             teacherRepository = teacherRepository

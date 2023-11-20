@@ -15,10 +15,10 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
-import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -26,14 +26,13 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.LessonTimeUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.ui.screens.home.DayType
-import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
@@ -47,7 +46,6 @@ class SyncWorker @AssistedInject constructor(
     @Assisted private val keyValueUseCases: KeyValueUseCases,
     @Assisted private val lessonUseCases: LessonUseCases,
     @Assisted private val classUseCases: ClassUseCases,
-    @Assisted private val lessonTimeUseCases: LessonTimeUseCases,
     @Assisted private val teacherRepository: TeacherRepository,
     @Assisted private val roomRepository: RoomRepository,
     @Assisted private val logRecordRepository: LogRecordRepository,
@@ -62,37 +60,39 @@ class SyncWorker @AssistedInject constructor(
         val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
         schoolUseCases.getSchools().forEach { school ->
             repeat(syncDays + 2) { i ->
-                val profiles = profileUseCases.getProfilesBySchoolId(school.id!!)
+                val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
                 val date = LocalDate.now().plusDays(i - 2L)
                 val hashesBefore = hashMapOf<Profile, String>()
                 val hashesAfter = hashMapOf<Profile, String>()
                 profiles.forEach { profile ->
-                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date)
+                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date, false)
                 }
                 val data = vPlanUseCases.getVPlanData(school, date)
                 Log.d(
                     "SyncWorker",
-                    "Syncing ${school.id} (${school.name}) at $date: ${data.response}"
+                    "Syncing ${school.schoolId} (${school.name}) at $date: ${data.response}"
                 )
                 if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
                     logRecordRepository.log(
                         "SyncWorker",
-                        "Error while syncing ${school.id} (${school.name}): ${data.response}"
+                        "Error while syncing ${school.schoolId} (${school.name}): ${data.response}"
                     )
                     return Result.failure()
                 }
                 if (data.response == Response.NO_DATA_AVAILABLE) {
                     logRecordRepository.log(
                         "SyncWorker",
-                        "No data available for ${school.id} (${school.name} at $date)"
+                        "No data available for ${school.schoolId} (${school.name} at $date)"
                     )
                     return@repeat
                 }
                 vPlanUseCases.processVplanData(data.data!!)
                 profiles.forEach { profile ->
-                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date)
+                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date, false, keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2").toLong()+1L)
                 }
+                Log.d("SyncWorker.Profile", "Profiles: ${profiles.joinToString { it.displayName }}")
                 profiles.forEach profile@{ profile ->
+                    Log.d("SyncWorker.Data", "${profile.displayName} B:${hashesBefore[profile]} A:${hashesAfter[profile]}")
                     if (hashesBefore[profile] != hashesAfter[profile]) {
                         planIsChanged[profile] = true
 
@@ -106,15 +106,15 @@ class SyncWorker @AssistedInject constructor(
                                 ProfileType.ROOM -> lessonUseCases.getLessonsForRoom(roomRepository.getRoomById(profile.referenceId), date)
                             }.first()
                             if (lessons.dayType != DayType.DATA) return@profile
-                            when (profile.calendarMode) {
+                            when (profile.calendarType) {
                                 ProfileCalendarType.DAY -> {
                                     calendarRepository.insertEvent(
                                         CalendarEvent(
-                                            title = "Schultag " + profile.customName,
+                                            title = "Schultag " + profile.displayName,
                                             calendarId = calendar.id,
                                             location = school.name,
-                                            startTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.first { it.subject != "-" }.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.first { it.subject != "-" }.className)!!).start, date),
-                                            endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-"}.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lessons.lessons.sortedBy { it.lessonNumber }.last { it.subject != "-" }.className)!!).end, date),
+                                            startTimeStamp = lessons.lessons.sortedBy { it.lessonNumber }.first { it.displaySubject != "-"}.start.toLocalUnixTimestamp(),
+                                            endTimeStamp = lessons.lessons.sortedBy { it.lessonNumber }.last { it.displaySubject != "-"}.start.toLocalUnixTimestamp(),
                                             date = date
                                         ),
                                         school = school
@@ -122,14 +122,14 @@ class SyncWorker @AssistedInject constructor(
                                 }
                                 ProfileCalendarType.LESSON -> {
                                     lessons.lessons.forEach { lesson ->
-                                        if (lesson.subject != "-") {
+                                        if (lesson.displaySubject != "-") {
                                             calendarRepository.insertEvent(
                                                 CalendarEvent(
-                                                    title = lesson.subject,
+                                                    title = lesson.displaySubject,
                                                     calendarId = calendar.id,
-                                                    location = school.name + " Raum " + lesson.room.joinToString(", "),
-                                                    startTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).start, date),
-                                                    endTimeStamp = DateUtils.getTimestampFromTimeString(lessonTimeUseCases.getLessonTimesForLessonNumber(lesson.lessonNumber, classUseCases.getClassBySchoolIdAndClassName(school.id, lesson.className)!!).end, date),
+                                                    location = school.name + " Raum " + lesson.rooms.joinToString(", "),
+                                                    startTimeStamp = lesson.start.toLocalUnixTimestamp(),
+                                                    endTimeStamp = lesson.end.toLocalUnixTimestamp(),
                                                     date = date
                                                 ),
                                                 school = school
@@ -144,7 +144,7 @@ class SyncWorker @AssistedInject constructor(
                 }
             }
         }
-        Log.d("SyncWorker", "Changed profiles: ${planIsChanged.keys.map { it.name }}")
+        Log.d("SyncWorker", "Changed profiles: ${planIsChanged.keys.map { it.displayName }}")
         planIsChanged.keys.forEach { profile ->
             // send notification
             if (planIsChanged[profile] == true && (!isAppInForeground() || keyValueUseCases.get(
@@ -152,25 +152,26 @@ class SyncWorker @AssistedInject constructor(
                 ) == "true")) sendNewPlanNotification(profile)
         }
 
+        keyValueUseCases.set(Keys.LESSON_VERSION_NUMBER, (keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2").toLong()+1L).toString())
         Log.d("SyncWorker", "SYNCED")
         logRecordRepository.log("SyncWorker", "Synced sucessfully")
         return Result.success()
     }
 
     private suspend fun sendNewPlanNotification(profile: Profile) {
-        logRecordRepository.log("SyncWorker", "Sending notification for profile ${profile.name}")
+        logRecordRepository.log("SyncWorker", "Sending notification for profile ${profile.displayName}")
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }.putExtra("profileId", profile.id)
         val pendingIntent =
             PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
-        val school = profileUseCases.getSchoolFromProfileId(profile.id!!)
-        val builder = NotificationCompat.Builder(context, "PROFILE_${profile.name}")
+        val school = profileUseCases.getSchoolFromProfileId(profile.id)
+        val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
             .setContentTitle(context.getString(R.string.notification_newPlanTitle))
             .setContentText(
                 context.getString(
                     R.string.notification_newPlanText,
-                    profile.name,
+                    profile.displayName,
                     school.name
                 )
             )

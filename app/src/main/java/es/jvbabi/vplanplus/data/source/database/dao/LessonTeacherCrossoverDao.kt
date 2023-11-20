@@ -6,12 +6,12 @@ import androidx.room.Query
 @Dao
 abstract class LessonTeacherCrossoverDao {
 
-    @Query("SELECT teacherId FROM lesson_teacher_crossover WHERE lessonId = :lessonId")
+    @Query("SELECT ltcTeacherId FROM lesson_teacher_crossover WHERE ltcLessonId = :lessonId")
     abstract suspend fun getTeacherIdsByLessonId(lessonId: Long): List<Long>
 
-    @Query("DELETE FROM lesson_teacher_crossover WHERE lessonId = :lessonId")
+    @Query("DELETE FROM lesson_teacher_crossover WHERE ltcLessonId = :lessonId")
     abstract suspend fun deleteCrossoversByLessonId(lessonId: Long)
 
-    @Query("INSERT INTO lesson_teacher_crossover (lessonId, teacherId) VALUES (:lessonId, :teacherId)")
+    @Query("INSERT INTO lesson_teacher_crossover (ltcLessonId, ltcTeacherId) VALUES (:lessonId, :teacherId)")
     abstract suspend fun insertCrossover(lessonId: Long, teacherId: Long)
 }

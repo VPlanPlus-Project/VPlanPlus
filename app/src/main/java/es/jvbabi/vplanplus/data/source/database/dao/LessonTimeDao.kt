@@ -10,9 +10,9 @@ abstract class LessonTimeDao {
     @Insert
     abstract suspend fun insertLessonTime(lessonTime: LessonTime)
 
-    @Query("DELETE FROM lesson_time WHERE classId = :classId")
+    @Query("DELETE FROM lesson_time WHERE classLessonTimeRefId = :classId")
     abstract suspend fun deleteLessonTimes(classId: Long)
 
-    @Query("SELECT * FROM lesson_time WHERE classId = :classId")
+    @Query("SELECT * FROM lesson_time WHERE classLessonTimeRefId = :classId")
     abstract suspend fun getLessonTimesByClassId(classId: Long): List<LessonTime>
 }

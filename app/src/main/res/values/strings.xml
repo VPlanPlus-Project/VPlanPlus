@@ -100,4 +100,11 @@
     <string name="settings_profileManagementCalendarNameDisabled">Calendar sync is deactivated</string>
     <string name="settings_profileManagementNoCalendars">There aren\'t any calendars on your system</string>
     <string name="settings_profileManagementCalendarNameNone">Select a calendar</string>
+    <string name="onboarding_defaultLessonsTitle">Select your subjects</string>
+    <string name="onboarding_defaultLessonsText">If there are lessons that don\'t affect you, you can unselect them here so you won\'t get notified about changes regarding these lessons.</string>
+    <string name="settings_profileManagementDefaultLessonSettingsTitle">Select lessons</string>
+    <string name="settings_profileManagementDefaultLessonSettingsText">%1$d lessons hidden</string>
+    <string name="settings_profileDefaultLessonNoTeacher">No teacher</string>
+    <string name="profileManagement_defaultLessonsTitle">Default lessons</string>
+    <string name="home_lessonsHidden">%1$d lessons hidden</string>
 </resources>

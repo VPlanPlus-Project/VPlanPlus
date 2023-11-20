@@ -53,7 +53,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -76,7 +76,7 @@ fun ProfileManagementScreen(
             scope.launch {
                 val school = viewModel.getSchoolByName(it)
                 onNewProfileClicked(school)
-                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.id!!}") {
+                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.schoolId}") {
                     popUpTo(Screen.SettingsProfileScreen.route)
                 }
             }

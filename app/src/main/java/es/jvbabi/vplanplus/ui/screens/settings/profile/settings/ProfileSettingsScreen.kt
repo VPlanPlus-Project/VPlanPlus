@@ -6,6 +6,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Delete
@@ -32,7 +33,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
@@ -45,6 +47,7 @@ import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.Profile
+import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
 fun ProfileSettingsScreen(
@@ -75,7 +78,16 @@ fun ProfileSettingsScreen(
         },
         onCalendarSet = {
             viewModel.setCalendar(state.calendars.first { c -> c.displayName == it }.id)
-        }
+        },
+        onDefaultLessonsClicked = {
+            navController.navigate(
+                Screen.SettingsProfileDefaultLessonsScreen.route.replace(
+                    "{profileId}", profileId.toString()
+                )
+            )
+        },
+        onSetDialogVisible = { viewModel.setDialogOpen(it) },
+        onSetDialogCall = { viewModel.setDialogCall(it) }
     )
 }
 
@@ -87,7 +99,10 @@ private fun ProfileSettingsScreenContent(
     onProfileDeleteDialogYes: () -> Unit = {},
     onProfileRenamed: (String) -> Unit = {},
     onCalendarModeSet: (ProfileCalendarType) -> Unit = {},
-    onCalendarSet: (String) -> Unit = {}
+    onCalendarSet: (String) -> Unit = {},
+    onSetDialogVisible: (Boolean) -> Unit = {},
+    onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
+    onDefaultLessonsClicked: () -> Unit = {}
 ) {
     if (state.profile == null) return
 
@@ -97,22 +112,20 @@ private fun ProfileSettingsScreenContent(
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
-    var dialogCall = remember<@Composable () -> Unit> { {} }
-    var dialogVisible by remember { mutableStateOf(false) }
     Scaffold(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    if (state.profile.name == state.profile.customName) Text(
+                    if (state.profile.originalName == state.profile.displayName) Text(
                         text = stringResource(
                             id = R.string.settings_profileManagementScreenTitle,
-                            state.profile.name
+                            state.profile.originalName
                         )
                     )
                     else Text(
                         text = stringResource(
                             id = R.string.settings_profileManagementScreenTitle,
-                            "${state.profile.customName} (${state.profile.name})"
+                            "${state.profile.displayName} (${state.profile.originalName})"
                         )
                     )
                 },
@@ -125,8 +138,8 @@ private fun ProfileSettingsScreenContent(
             )
         },
     ) { paddingValues ->
-        if (dialogVisible) {
-            dialogCall()
+        if (state.dialogOpen) {
+            state.dialogCall()
         }
         if (deleteDialogOpen) {
             YesNoDialog(
@@ -134,7 +147,7 @@ private fun ProfileSettingsScreenContent(
                 title = stringResource(id = R.string.profileManagement_deleteProfileDialogTitle),
                 message = stringResource(
                     id = R.string.profileManagement_deleteProfileDialogText,
-                    state.profile.name
+                    state.profile.originalName
                 ),
                 onYes = {
                     onProfileDeleteDialogYes()
@@ -149,11 +162,11 @@ private fun ProfileSettingsScreenContent(
             InputDialog(
                 icon = Icons.Default.Edit,
                 title = stringResource(id = R.string.settings_profileManagementScreenRenameProfileButton),
-                placeholder = state.profile.name,
+                placeholder = state.profile.originalName,
                 message = stringResource(id = R.string.settings_profileManagementScreenRenameProfileDialogText),
                 onOk = {
                     if (it?.isNotEmpty() == true) onProfileRenamed(it)
-                    else onProfileRenamed(state.profile.name)
+                    else onProfileRenamed(state.profile.originalName)
                     renameDialogOpen = false
                 },
             )
@@ -184,21 +197,21 @@ private fun ProfileSettingsScreenContent(
                             title = stringResource(id = R.string.settings_profileManagementCalendarDayTitle),
                             subtitle = stringResource(id = R.string.settings_profileManagementCalendarDayText),
                             onClick = { onCalendarModeSet(ProfileCalendarType.DAY) },
-                            selected = state.profile.calendarMode == ProfileCalendarType.DAY
+                            selected = state.profile.calendarType == ProfileCalendarType.DAY
                         ),
                         RadioCard(
                             icon = Icons.Outlined.CalendarMonth,
                             title = stringResource(id = R.string.settings_profileManagementCalendarLessonsTitle),
                             subtitle = stringResource(id = R.string.settings_profileManagementCalendarLessonsText),
                             onClick = { onCalendarModeSet(ProfileCalendarType.LESSON) },
-                            selected = state.profile.calendarMode == ProfileCalendarType.LESSON
+                            selected = state.profile.calendarType == ProfileCalendarType.LESSON
                         ),
                         RadioCard(
                             icon = Icons.Outlined.EventBusy,
                             title = stringResource(id = R.string.settings_profileManagementCalendarNoneTitle),
                             subtitle = stringResource(id = R.string.settings_profileManagementCalendarNoneText),
                             onClick = { onCalendarModeSet(ProfileCalendarType.NONE) },
-                            selected = state.profile.calendarMode == ProfileCalendarType.NONE
+                            selected = state.profile.calendarType == ProfileCalendarType.NONE
                         )
                     )
                 )
@@ -206,28 +219,45 @@ private fun ProfileSettingsScreenContent(
                     icon = Icons.Default.EditCalendar,
                     title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
                     type = SettingsType.SELECT,
-                    enabled = state.profile.calendarMode != ProfileCalendarType.NONE && state.calendars.isNotEmpty(),
+                    enabled = state.profile.calendarType != ProfileCalendarType.NONE && state.calendars.isNotEmpty(),
                     subtitle =
-                    if (state.profile.calendarMode == ProfileCalendarType.NONE) stringResource(id = R.string.settings_profileManagementCalendarNameDisabled)
+                    if (state.profile.calendarType == ProfileCalendarType.NONE) stringResource(id = R.string.settings_profileManagementCalendarNameDisabled)
                     else if (state.calendars.isEmpty()) stringResource(id = R.string.settings_profileManagementNoCalendars)
-                    else state.profileCalendar?.displayName ?: stringResource(id = R.string.settings_profileManagementCalendarNameNone),
+                    else state.profileCalendar?.displayName
+                        ?: stringResource(id = R.string.settings_profileManagementCalendarNameNone),
                     doAction = {
-                        dialogCall = {
+                        onSetDialogCall {
                             SelectDialog(
                                 icon = Icons.Default.EditCalendar,
                                 title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
                                 items = state.calendars.map { it.displayName },
-                                onDismiss = { dialogVisible = false },
+                                onDismiss = { onSetDialogVisible(false) },
                                 value = state.profileCalendar?.displayName,
                                 onOk = {
-                                    dialogVisible = false
+                                    onSetDialogVisible(false)
                                     if (!it.isNullOrBlank()) onCalendarSet(it)
                                 }
                             )
                         }
-                        dialogVisible = true
+                        onSetDialogVisible(true)
                     }
                 )
+            }
+
+            SettingsCategory(
+                title = stringResource(id = R.string.profileManagement_defaultLessonsTitle)
+            ) {
+                if (state.profile.type == ProfileType.STUDENT) SettingsSetting(
+                    icon = Icons.Default.FilterAlt,
+                    title = stringResource(id = R.string.settings_profileManagementDefaultLessonSettingsTitle),
+                    subtitle = stringResource(
+                        id = R.string.settings_profileManagementDefaultLessonSettingsText,
+                        state.profile.defaultLessons.values.count { !it }
+                    ),
+                    type = SettingsType.FUNCTION,
+                    doAction = {
+                        onDefaultLessonsClicked()
+                    })
             }
         }
     }
@@ -237,7 +267,9 @@ private fun ProfileSettingsScreenContent(
 @Preview(showBackground = true)
 private fun ProfileSettingsScreenPreview() {
     ProfileSettingsScreenContent(
-        state = ProfileSettingsState(profile = Profile.generateClassProfile().copy(calendarMode = ProfileCalendarType.DAY )),
+        state = ProfileSettingsState(
+            profile = Profile.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY)
+        ),
         onBackClicked = {}
     )
 }

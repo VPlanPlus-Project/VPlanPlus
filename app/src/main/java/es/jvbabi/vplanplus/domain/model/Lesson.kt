@@ -1,57 +1,26 @@
 package es.jvbabi.vplanplus.domain.model
 
-import androidx.room.Entity
-import androidx.room.ForeignKey
-import androidx.room.Ignore
-import androidx.room.Index
-import androidx.room.PrimaryKey
+import java.time.LocalDate
+import java.time.LocalDateTime
 
-@Entity(
-    tableName = "lesson",
-    foreignKeys = [
-        ForeignKey(
-            entity = Classes::class,
-            parentColumns = ["id"],
-            childColumns = ["classId"],
-            onDelete = ForeignKey.CASCADE
-        ),
-    ],
-    indices = [
-        Index(value = ["classId"]),
-    ]
-)
 data class Lesson(
-    @PrimaryKey(autoGenerate = true) val id: Long? = null,
-    val lesson: Int,
-    val classId: Long,
-    val originalSubject: String,
+    val `class`: Classes,
+    val lessonNumber: Int,
+    val originalSubject: String?,
     val changedSubject: String?,
-    val roomIsChanged: Boolean,
+    val teachers: List<String>,
     val teacherIsChanged: Boolean,
-    val info: String,
-    val dayTimestamp: Long
+    val rooms: List<String>,
+    val roomIsChanged: Boolean,
+    val info: String?,
+    val day: LocalDate,
+    val start: LocalDateTime,
+    val end: LocalDateTime,
+    val vpId: Long?
 ) {
-    @Ignore
-    var rooms: List<Room> = listOf()
+    val displaySubject: String
+        get() = changedSubject ?: originalSubject ?: "-"
 
-    @Ignore
-    var teachers: List<Teacher> = listOf()
-
-    fun withRooms(rooms: List<Room>): Lesson {
-        this.rooms = rooms
-        return this
-    }
-
-    fun withTeachers(teachers: List<Teacher>): Lesson {
-        this.teachers = teachers
-        return this
-    }
-
-    override fun toString(): String {
-        return "Lesson(id=$id, lesson=$lesson, classId=$classId, originalSubject='$originalSubject', changedSubject=$changedSubject, roomIsChanged=$roomIsChanged, info='$info', dayTimestamp=$dayTimestamp, rooms=${
-            rooms.joinToString(", ") { it.name }
-        }, teachers=${
-            teachers.joinToString(", ") { it.acronym }
-        })"
-    }
+    val subjectIsChanged: Boolean
+        get() = changedSubject != null
 }

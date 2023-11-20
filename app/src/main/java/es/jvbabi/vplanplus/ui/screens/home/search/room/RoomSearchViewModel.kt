@@ -25,9 +25,9 @@ class RoomSearchViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             _state.value = _state.value.copy(
-                currentSchool = profileUseCases.getSchoolFromProfileId(profileUseCases.getActiveProfile()!!.id!!),
+                currentSchool = profileUseCases.getSchoolFromProfileId(profileUseCases.getActiveProfile()!!.id),
                 currentLesson = lessonTimeUseCases.getCurrentLessonNumber(profileUseCases.getActiveProfile()!!),
-                rooms = roomUseCases.getRoomAvailabilityMap(profileUseCases.getSchoolFromProfileId(profileUseCases.getActiveProfile()!!.id!!)).mapKeys { it.key.name },
+                rooms = roomUseCases.getRoomAvailabilityMap(profileUseCases.getSchoolFromProfileId(profileUseCases.getActiveProfile()!!.id)).mapKeys { it.key.name },
                 loading = false
             )
         }

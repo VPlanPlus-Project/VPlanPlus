@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
@@ -32,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import java.util.SortedMap
 
 /**
  * A dialog with a title, message, and two buttons: Yes and No.
@@ -165,7 +167,7 @@ fun SelectDialog(
             icon = { Icon(imageVector = icon, contentDescription = null) },
             title = { if (title != null) Text(text = title) },
             text = {
-                   Column {
+                Column {
                     if (message != null) Text(text = message)
                     LazyColumn(
                         modifier = Modifier.fillMaxWidth()
@@ -231,4 +233,65 @@ fun InputDialogPreview() {
         message = "Enter a number between 1 and 10",
         placeholder = "Number"
     )
+}
+
+@Composable
+fun <T: Comparable<T>> MultipleSelectDialog(
+    icon: ImageVector,
+    title: String?,
+    message: String? = null,
+    items: SortedMap<T, Boolean>,
+    toText: (T) -> String = { it.toString() },
+    onOk: () -> Unit = {},
+    onItemChange: (T, Boolean) -> Unit = { _, _ -> },
+    onDismiss: () -> Unit = {}
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        AlertDialog(
+            icon = { Icon(imageVector = icon, contentDescription = null) },
+            title = { if (title != null) Text(text = title) },
+            text = {
+                Column {
+                    if (message != null) Text(text = message)
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        items(items.entries.toList()) { item ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .clickable {
+                                         onItemChange(item.key, !item.value)
+                                    },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(
+                                    checked = item.value,
+                                    onCheckedChange = { isSelected ->
+                                        onItemChange(item.key, isSelected)
+                                    })
+                                Text(text = toText(item.key), style = MaterialTheme.typography.bodyLarge)
+                            }
+                        }
+                    }
+                }
+
+            },
+            onDismissRequest = { onDismiss() },
+            confirmButton = {
+                TextButton(onClick = { onOk() }) {
+                    Text(text = stringResource(id = android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onDismiss() }) {
+                    Text(text = stringResource(id = android.R.string.cancel))
+                }
+            },
+        )
+    }
 }
