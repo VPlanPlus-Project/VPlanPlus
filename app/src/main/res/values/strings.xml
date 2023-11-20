@@ -109,4 +109,6 @@
     <string name="home_lessonsHidden">%1$d lessons hidden</string>
     <string name="settings_profileDefaultLessonDifferentDefaultLessons">This profile does not match with the default lessons of its class. Fixing the problem will reset these settings.</string>
     <string name="fix">Fix</string>
+    <string name="home_noData">No data</string>
+    <string name="home_noDataText">For this day, there is no data available. Either your school hasn\'t released a substitution plan for this day, or it\'s too far in the future. You can change the number of days to sync after today in the settings.</string>
 </resources>
