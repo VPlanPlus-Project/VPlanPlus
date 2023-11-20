@@ -135,8 +135,8 @@ fun HomeScreen(
                 viewModel.setViewType(it)
                 coroutineScope.launch {
                     delay(450)
-                    if (it == ViewType.WEEK) lessonPagerState.animateScrollToPage(0)
-                    if (it == ViewType.DAY) lessonPagerState.animateScrollToPage(state.date.dayOfWeek.value - 1)
+                    if (it == ViewType.WEEK) lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
+                    if (it == ViewType.DAY) lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
                 }
             }, lessonPagerState = lessonPagerState,
             onSetDayType = {
