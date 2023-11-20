@@ -17,4 +17,12 @@ data class Profile(
     fun toMenuProfile(): MenuProfile {
         return MenuProfile(id, originalName, displayName)
     }
+
+    /**
+     * Returns true if the default lesson is enabled for this profile
+     * Returns also true if default lesson isn't found in profile
+     */
+    fun isDefaultLessonEnabled(vpId: Long?): Boolean {
+        return defaultLessons.filterKeys { it.vpId == vpId }.values.firstOrNull()?:true
+    }
 }

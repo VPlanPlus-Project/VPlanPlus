@@ -107,4 +107,5 @@
     <string name="settings_profileManagementDefaultLessonSettingsText">%1$d Stunden ausgeblendet</string>
     <string name="settings_profileDefaultLessonNoTeacher">Kein Lehrer</string>
     <string name="profileManagement_defaultLessonsTitle">Standard-Unterrichtseinheiten</string>
+    <string name="home_lessonsHidden">%1$d Stunden ausgeblendet</string>
 </resources>

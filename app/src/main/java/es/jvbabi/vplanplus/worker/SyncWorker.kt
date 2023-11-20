@@ -65,7 +65,7 @@ class SyncWorker @AssistedInject constructor(
                 val hashesBefore = hashMapOf<Profile, String>()
                 val hashesAfter = hashMapOf<Profile, String>()
                 profiles.forEach { profile ->
-                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date)
+                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date, false)
                 }
                 val data = vPlanUseCases.getVPlanData(school, date)
                 Log.d(
@@ -88,7 +88,7 @@ class SyncWorker @AssistedInject constructor(
                 }
                 vPlanUseCases.processVplanData(data.data!!)
                 profiles.forEach { profile ->
-                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date)
+                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date, false)
                 }
                 profiles.forEach profile@{ profile ->
                     if (hashesBefore[profile] != hashesAfter[profile]) {

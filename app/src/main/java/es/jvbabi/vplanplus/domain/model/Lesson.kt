@@ -15,7 +15,8 @@ data class Lesson(
     val info: String?,
     val day: LocalDate,
     val start: LocalDateTime,
-    val end: LocalDateTime
+    val end: LocalDateTime,
+    val vpId: Long?
 ) {
     val displaySubject: String
         get() = changedSubject ?: originalSubject ?: "-"

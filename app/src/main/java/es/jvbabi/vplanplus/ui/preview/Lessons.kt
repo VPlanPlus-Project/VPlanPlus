@@ -26,7 +26,8 @@ object Lessons {
                     roomIsChanged = Random.nextBoolean(),
                     `class` = randomClass(),
                     originalSubject = randomSubject(),
-                    changedSubject = if (Random.nextBoolean()) randomSubject() else null
+                    changedSubject = if (Random.nextBoolean()) randomSubject() else null,
+                    vpId = null
                 )
             )
         }

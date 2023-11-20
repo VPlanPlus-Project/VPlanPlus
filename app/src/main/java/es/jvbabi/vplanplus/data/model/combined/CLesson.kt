@@ -86,6 +86,7 @@ data class CLesson(
                     )
                 }.end, lesson.day
             ),
+            vpId = defaultLesson?.defaultLesson?.vpId
         )
     }
 }

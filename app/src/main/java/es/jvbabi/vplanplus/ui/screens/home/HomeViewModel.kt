@@ -74,7 +74,7 @@ class HomeViewModel @Inject constructor(
         }
         activeProfile = profileUseCases.getActiveProfile()!!
         _state.value =
-            _state.value.copy(activeProfile = activeProfile.toMenuProfile(), lessons = mapOf())
+            _state.value.copy(activeProfile = activeProfile, lessons = mapOf())
         school = when (activeProfile.type) {
             ProfileType.STUDENT -> classUseCases.getClassById(activeProfile.referenceId).school
             ProfileType.TEACHER -> teacherRepository.getTeacherById(activeProfile.referenceId)!!.school
@@ -96,7 +96,7 @@ class HomeViewModel @Inject constructor(
 
         _state.value =
             _state.value.copy(
-                profiles = profileUseCases.getProfiles().first().map { it.toMenuProfile() },
+                profiles = profileUseCases.getProfiles().first(),
                 initDone = true
             )
     }
@@ -186,8 +186,8 @@ data class HomeState(
     val initDone: Boolean = false,
     val lessons: Map<LocalDate, Day> = mapOf(),
     val isLoading: Boolean = false,
-    val profiles: List<MenuProfile> = listOf(),
-    val activeProfile: MenuProfile? = null,
+    val profiles: List<Profile> = listOf(),
+    val activeProfile: Profile? = null,
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,

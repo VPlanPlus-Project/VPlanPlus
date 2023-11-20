@@ -160,8 +160,8 @@ fun HomeScreen(
         exit = fadeOut(animationSpec = TweenSpec(200))
     ) {
         Menu(
-            profiles = state.profiles,
-            selectedProfile = state.activeProfile!!,
+            profiles = state.profiles.map { it.toMenuProfile() },
+            selectedProfile = state.activeProfile!!.toMenuProfile(),
             onProfileClicked = {
                 menuOpened = false
                 viewModel.onProfileSelected(context, it)
@@ -227,9 +227,9 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .fillMaxSize(),
             ) {
-                SearchBar(if ((state.activeProfile?.customName
+                SearchBar(if ((state.activeProfile?.displayName
                         ?: "").length > 4
-                ) state.activeProfile?.name ?: "" else state.activeProfile?.customName ?: "",
+                ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName ?: "",
                     onMenuOpened,
                     { onSearchOpened(it) },
                     false,
@@ -370,9 +370,13 @@ fun HomeScreenContent(
                                 }
 
                                 DayType.DATA -> {
+                                    val hiddenLessons = state.lessons[date]!!.lessons.count { !state.activeProfile!!.isDefaultLessonEnabled(it.vpId) }
+                                    if (hiddenLessons > 0) {
+                                        Text(text = stringResource(id = R.string.home_lessonsHidden, hiddenLessons), style = MaterialTheme.typography.labelSmall, color = Color.Gray, modifier = Modifier.padding(start = 8.dp))
+                                    }
                                     LazyColumn {
                                         items(
-                                            state.lessons[date]!!.lessons.sortedBy { it.lessonNumber },
+                                            state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }.filter { state.activeProfile!!.isDefaultLessonEnabled(it.vpId) },
                                         ) {
                                             if ((calculateProgress(
                                                     DateUtils.localDateTimeToTimeString(it.start),

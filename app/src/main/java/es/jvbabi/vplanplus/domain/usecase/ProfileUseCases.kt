@@ -50,15 +50,22 @@ class ProfileUseCases(
     }
 
     suspend fun setCalendarType(profileId: Long, calendarType: ProfileCalendarType) {
-        profileRepository.updateProfile(profileRepository.getDbProfileById(profileId = profileId).copy(calendarMode = calendarType))
+        profileRepository.updateProfile(
+            profileRepository.getDbProfileById(profileId = profileId)
+                .copy(calendarMode = calendarType)
+        )
     }
 
     suspend fun setCalendarId(profileId: Long, calendarId: Long) {
-        profileRepository.updateProfile(profileRepository.getDbProfileById(profileId = profileId).copy(calendarId = calendarId))
+        profileRepository.updateProfile(
+            profileRepository.getDbProfileById(profileId = profileId).copy(calendarId = calendarId)
+        )
     }
 
     suspend fun setDisplayName(profileId: Long, displayName: String) {
-        profileRepository.updateProfile(profileRepository.getDbProfileById(profileId = profileId).copy(customName = displayName))
+        profileRepository.updateProfile(
+            profileRepository.getDbProfileById(profileId = profileId).copy(customName = displayName)
+        )
     }
 
     suspend fun enableDefaultLesson(profileId: Long, vpId: Long) {
@@ -134,7 +141,11 @@ class ProfileUseCases(
      * @param date date of plan
      */
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun getPlanSum(profile: Profile, date: LocalDate): String {
+    suspend fun getPlanSum(
+        profile: Profile,
+        date: LocalDate,
+        considerHiddenLessons: Boolean = true
+    ): String {
         val plan = when (profile.type) {
             ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassById(id = profile.referenceId)
@@ -154,6 +165,7 @@ class ProfileUseCases(
         return plan.flatMapConcat { lessons ->
             flow {
                 emit(lessons.second.joinToString { lesson ->
+                    if (considerHiddenLessons && !profile.isDefaultLessonEnabled(lesson.vpId)) return@joinToString ""
                     lesson.rooms.joinToString { it } + lesson.originalSubject + (lesson.changedSubject
                         ?: "") + lesson.teachers.joinToString { it }
                 })
