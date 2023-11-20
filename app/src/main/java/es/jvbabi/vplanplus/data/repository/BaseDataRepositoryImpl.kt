@@ -82,6 +82,7 @@ class BaseDataRepositoryImpl(
             username,
             password
         )
+        if (classesResponse.response == Response.WRONG_CREDENTIALS) return DataResponse(null, Response.WRONG_CREDENTIALS)
         if (classesResponse.response != Response.SUCCESS || teachersResponse.response != Response.SUCCESS || roomsResponse.response != Response.SUCCESS || weeksResponse.response != Response.SUCCESS) {
             return DataResponse(null, Response.OTHER)
         }
