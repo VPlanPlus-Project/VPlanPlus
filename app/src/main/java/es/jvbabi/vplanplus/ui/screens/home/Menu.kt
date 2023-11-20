@@ -1,8 +1,10 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,10 +58,12 @@ fun MenuPreview() {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Menu(
     onCloseClicked: () -> Unit = {},
     onProfileClicked: (profileId: Long) -> Unit = {},
+    onProfileLongClicked: (profileId: Long) -> Unit = {},
     profiles: List<MenuProfile>,
     selectedProfile: MenuProfile,
     onRefreshClicked: () -> Unit = {},
@@ -132,12 +136,15 @@ fun Menu(
                                             .width(40.dp)
                                             .border(
                                                 width = 1.dp,
-                                                color = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primaryContainer,
+                                                color = if (profile.profileId != selectedProfile.profileId) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primaryContainer,
                                                 shape = RoundedCornerShape(20.dp)
                                             )
                                             .clip(RoundedCornerShape(20.dp))
-                                            .background(color = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiaryContainer)
-                                            .clickable { onProfileClicked(profile.id) },
+                                            .background(color = if (profile.profileId != selectedProfile.profileId) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiaryContainer)
+                                            .combinedClickable(
+                                                onClick = { onProfileClicked(profile.profileId) },
+                                                onLongClick = { onProfileLongClicked(profile.profileId) }
+                                            ),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Text(
@@ -209,7 +216,7 @@ fun ButtonRowPreview() {
 }
 
 data class MenuProfile(
-    val id: Long,
+    val profileId: Long,
     val name: String,
     val customName: String
 )

@@ -194,6 +194,9 @@ fun HomeScreen(
             },
             onLogsClicked = {
                 navHostController.navigate(Screen.LogsScreen.route)
+            },
+            onProfileLongClicked = {
+                navHostController.navigate(Screen.SettingsProfileScreen.route + it)
             }
         )
     }
