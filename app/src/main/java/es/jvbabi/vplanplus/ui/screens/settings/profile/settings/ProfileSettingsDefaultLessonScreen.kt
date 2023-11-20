@@ -86,7 +86,7 @@ fun ProfileSettingsDefaultLessonContent(
                     SettingsSetting(
                         icon = null,
                         title = it.key.subject,
-                        subtitle = it.key.teacher?.acronym ?: "No teacher",
+                        subtitle = it.key.teacher?.acronym ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher),
                         type = SettingsType.TOGGLE,
                         enabled = true,
                         checked = it.value,

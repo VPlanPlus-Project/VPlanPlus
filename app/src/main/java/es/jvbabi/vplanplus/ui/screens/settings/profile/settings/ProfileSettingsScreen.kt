@@ -245,7 +245,7 @@ private fun ProfileSettingsScreenContent(
             }
 
             SettingsCategory(
-                title = ""
+                title = stringResource(id = R.string.profileManagement_defaultLessonsTitle)
             ) {
                 if (state.profile.type == ProfileType.STUDENT) SettingsSetting(
                     icon = Icons.Default.FilterAlt,

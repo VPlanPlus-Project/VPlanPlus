@@ -105,4 +105,6 @@
     <string name="onboarding_defaultLessonsText">Falls es Fächer gibt, die dich nicht betreffen, kannst du sie hier abwählen, sodass du keine Benachrichtigungen über Änderungen bei diesen Stunden bekommst.</string>
     <string name="settings_profileManagementDefaultLessonSettingsTitle">Fächer auswählen</string>
     <string name="settings_profileManagementDefaultLessonSettingsText">%1$d Stunden ausgeblendet</string>
+    <string name="settings_profileDefaultLessonNoTeacher">Kein Lehrer</string>
+    <string name="profileManagement_defaultLessonsTitle">Standard-Unterrichtseinheiten</string>
 </resources>

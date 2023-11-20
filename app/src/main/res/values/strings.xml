@@ -104,4 +104,6 @@
     <string name="onboarding_defaultLessonsText">If there are lessons that don\'t affect you, you can unselect them here so you won\'t get notified about changes regarding these lessons.</string>
     <string name="settings_profileManagementDefaultLessonSettingsTitle">Select lessons</string>
     <string name="settings_profileManagementDefaultLessonSettingsText">%1$d lessons hidden</string>
+    <string name="settings_profileDefaultLessonNoTeacher">No teacher</string>
+    <string name="profileManagement_defaultLessonsTitle">Default lessons</string>
 </resources>
