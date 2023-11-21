@@ -141,7 +141,7 @@ fun SearchBar(
                         decorationBox = { innerTextField ->
                             Box(
                                 Modifier
-                                    .offset(x = (-4).dp)
+                                    .offset(x = (-4).dp, y = (3).dp)
                                     .fillMaxHeight()
                                     .padding(vertical = 16.dp)
                             ) {
