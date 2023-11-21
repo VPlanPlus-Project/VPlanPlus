@@ -40,7 +40,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
@@ -212,15 +211,18 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .fillMaxSize(),
             ) {
-                SearchBar(if ((state.activeProfile?.displayName
-                        ?: "").length > 4
-                ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName
-                    ?: "",
-                    onMenuOpened,
-                    { onSearchOpened(it) },
-                    false,
-                    "",
-                    {})
+                SearchBar(
+                    currentProfileName = if ((state.activeProfile?.displayName
+                            ?: "").length > 4
+                    ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName
+                        ?: "",
+                    onMenuOpened = onMenuOpened,
+                    onSearchClicked = { onSearchOpened(it) },
+                    searchOpen = false,
+                    searchValue = "",
+                    onSearchTyping = {},
+                    isSyncing = state.syncing
+                )
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -348,14 +350,6 @@ fun HomeScreenContent(
                     }
                 }
             }
-            if (state.syncing) {
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    trackColor = MaterialTheme.colorScheme.secondary,
-                )
-            }
             val scope = rememberCoroutineScope()
             Box(
                 modifier = Modifier
@@ -463,7 +457,7 @@ fun CurrentLessonCardPreview() {
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 fun HomeScreenPreview() {
     HomeScreenContent(
         HomeState(

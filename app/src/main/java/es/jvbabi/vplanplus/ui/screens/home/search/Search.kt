@@ -79,7 +79,8 @@ fun SearchContent(
             onSearchClicked = { if (!it) onSearchClosed() },
             searchOpen = true,
             searchValue = state.searchValue,
-            onSearchTyping = { onSearchTyping(it) }
+            onSearchTyping = { onSearchTyping(it) },
+            isSyncing = false
         )
         AssistChip(
             onClick = { onFindAvailableRoomClicked() },
