@@ -240,11 +240,6 @@ fun HomeScreenContent(
                                     imageVector = Icons.Default.ViewWeek,
                                     contentDescription = null
                                 )
-                                Text(
-                                    text = "Alpha",
-                                    color = Color.Cyan,
-                                    modifier = Modifier.padding(start = 8.dp)
-                                )
                             }
                         }
                         SegmentedButton(
@@ -463,24 +458,6 @@ fun CurrentLessonCardPreview() {
     CurrentLessonCard(
         width = 200f,
         lesson = Lessons.generateLessons(1).first()
-    )
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-@Preview(showBackground = true)
-fun WeekendPreview() {
-    HomeScreenContent(
-        state = HomeState(
-            initDone = true,
-            isLoading = false,
-            lessons = hashMapOf(
-                LocalDate.now() to Day(
-                    dayType = DayType.WEEKEND,
-                    lessons = listOf()
-                )
-            ),
-        )
     )
 }
 
