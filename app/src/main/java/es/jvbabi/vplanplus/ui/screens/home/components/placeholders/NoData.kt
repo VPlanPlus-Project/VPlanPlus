@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.ui.screens.home.components.placeholders
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 
 @Composable
-fun NoData() {
+fun NoData(
+    compactMode: Boolean
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -29,8 +31,9 @@ fun NoData() {
         Column(
             modifier = Modifier
                 .padding(horizontal = 24.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = if (compactMode) Arrangement.SpaceBetween else Arrangement.Center
         ) {
             Icon(
                 imageVector = Icons.Default.GridOff,
@@ -39,10 +42,11 @@ fun NoData() {
                 tint = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = stringResource(id = R.string.home_noData),
-                style = MaterialTheme.typography.headlineMedium
+                text = if (compactMode) stringResource(id = R.string.home_noData).split("").joinToString("\n") else stringResource(id = R.string.home_noData),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
             )
-            Text(
+            if (!compactMode) Text(
                 text = stringResource(id = R.string.home_noDataText),
                 textAlign = TextAlign.Center
             )
@@ -53,5 +57,11 @@ fun NoData() {
 @Preview(showBackground = true)
 @Composable
 fun NoDataPreview() {
-    NoData()
+    NoData(false)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun NoDataCompactPreview() {
+    NoData(compactMode = true)
 }

@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.ui.screens.home.components.placeholders
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -21,7 +21,10 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 
 @Composable
-fun WeekendPlaceholder(type: WeekendType) {
+fun WeekendPlaceholder(
+    compactMode: Boolean,
+    type: WeekendType
+) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -29,8 +32,9 @@ fun WeekendPlaceholder(type: WeekendType) {
         Column(
             modifier = Modifier
                 .padding(horizontal = 24.dp)
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = if (compactMode) Arrangement.SpaceBetween else Arrangement.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Weekend,
@@ -39,10 +43,11 @@ fun WeekendPlaceholder(type: WeekendType) {
                 tint = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = stringResource(id = R.string.home_weekendTitle),
-                style = MaterialTheme.typography.headlineMedium
+                text = if (compactMode) stringResource(id = R.string.home_weekendTitle).replace("/", " ").split("").joinToString("\n") else stringResource(id = R.string.home_weekendTitle),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
             )
-            when (type) {
+            if (!compactMode) when (type) {
                 WeekendType.TODAY -> Text(
                     text = stringResource(id = R.string.home_weekendText),
                     textAlign = TextAlign.Center
@@ -67,17 +72,23 @@ enum class WeekendType {
 @Composable
 @Preview(showBackground = true)
 fun WeekendPlaceholderPreview() {
-    WeekendPlaceholder(type = WeekendType.TODAY)
+    WeekendPlaceholder(type = WeekendType.TODAY, compactMode = false)
 }
 
 @Composable
 @Preview(showBackground = true)
 fun WeekendPlaceholderPreview2() {
-    WeekendPlaceholder(type = WeekendType.COMING_UP)
+    WeekendPlaceholder(type = WeekendType.COMING_UP, compactMode = false)
 }
 
 @Composable
 @Preview(showBackground = true)
 fun WeekendPlaceholderPreview3() {
-    WeekendPlaceholder(type = WeekendType.OVER)
+    WeekendPlaceholder(type = WeekendType.OVER, compactMode = false)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun WeekendPlaceholderCompactPreview() {
+    WeekendPlaceholder(compactMode = true, type = WeekendType.TODAY)
 }

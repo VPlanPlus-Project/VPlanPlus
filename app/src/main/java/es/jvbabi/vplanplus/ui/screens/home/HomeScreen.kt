@@ -14,10 +14,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +24,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -34,10 +32,10 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ViewDay
 import androidx.compose.material.icons.filled.ViewWeek
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -56,9 +54,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -70,9 +65,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.ui.common.FullLoadingCircle
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.home.components.DateIndicator
+import es.jvbabi.vplanplus.ui.screens.home.components.LessonCard
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.NoData
@@ -87,7 +85,6 @@ import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
@@ -98,24 +95,15 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     var menuOpened by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val lessonPagerState =
-        rememberPagerState(initialPage = Int.MAX_VALUE / 2, pageCount = { Int.MAX_VALUE })
+    val lessonPagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2, pageCount = { Int.MAX_VALUE })
 
-    LaunchedEffect(key1 = "Init", block = {
-        viewModel.init(context)
-    })
+    LaunchedEffect(key1 = "Init", block = { viewModel.init(context) })
 
     val permissionsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             viewModel.setNotificationPermissionGranted(isGranted)
-            if (!isGranted) {
-                Toast.makeText(
-                    context,
-                    context.getString(R.string.notification_accessNotGranted),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+            if (!isGranted) Toast.makeText(context, context.getString(R.string.notification_accessNotGranted), Toast.LENGTH_LONG).show()
         }
     )
     LaunchedEffect(key1 = state.notificationPermissionGranted, block = {
@@ -125,11 +113,10 @@ fun HomeScreen(
     })
 
     if (state.initDone && state.activeProfile == null) {
-        navHostController.navigate(Screen.OnboardingWelcomeScreen.route) {
-            popUpTo(0)
-        }
+        navHostController.navigate(Screen.OnboardingWelcomeScreen.route) { popUpTo(0) }
     } else {
-        HomeScreenContent(state = state,
+        HomeScreenContent(
+            state = state,
             onMenuOpened = {
                 menuOpened = true
             }, onViewModeChanged = {
@@ -139,7 +126,8 @@ fun HomeScreen(
                     if (it == ViewType.WEEK) lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
                     if (it == ViewType.DAY) lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
                 }
-            }, lessonPagerState = lessonPagerState,
+            },
+            lessonPagerState = lessonPagerState,
             onSetDayType = {
                 viewModel.setDayType(it)
             },
@@ -215,15 +203,8 @@ fun HomeScreenContent(
         initialPage = LocalDate.now().dayOfWeek.value,
         pageCount = { 5 }),
 ) {
-    if (!state.initDone) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
+    if (!state.initDone) FullLoadingCircle()
+    else {
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
@@ -303,14 +284,17 @@ fun HomeScreenContent(
                                         CircularProgressIndicator()
                                     }
                                 }
-                                DayType.NO_DATA -> NoData()
+
+                                DayType.NO_DATA -> NoData(state.viewMode == ViewType.WEEK)
                                 DayType.WEEKEND -> WeekendPlaceholder(
-                                        type = if (date == LocalDate.now()) WeekendType.TODAY else if (date.isBefore(
-                                                LocalDate.now()
-                                            )
-                                        ) WeekendType.OVER else WeekendType.COMING_UP
-                                    )
-                                DayType.HOLIDAY -> Holiday()
+                                    type = if (date == LocalDate.now()) WeekendType.TODAY else if (date.isBefore(
+                                            LocalDate.now()
+                                        )
+                                    ) WeekendType.OVER else WeekendType.COMING_UP,
+                                    compactMode = state.viewMode == ViewType.WEEK
+                                )
+
+                                DayType.HOLIDAY -> Holiday(state.viewMode == ViewType.WEEK)
 
                                 DayType.DATA -> {
                                     if (state.lessons[date]!!.lessons.isEmpty()) {
@@ -320,7 +304,7 @@ fun HomeScreenContent(
                                         !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
                                     }
                                     if (hiddenLessons > 0) {
-                                        Text(
+                                        if (state.viewMode == ViewType.DAY) Text(
                                             text = stringResource(
                                                 id = R.string.home_lessonsHidden,
                                                 hiddenLessons
@@ -328,7 +312,18 @@ fun HomeScreenContent(
                                             style = MaterialTheme.typography.labelSmall,
                                             color = Color.Gray,
                                             modifier = Modifier.padding(start = 8.dp)
-                                        )
+                                        ) else {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                                                Text(
+                                                    text = "$hiddenLessons", style = MaterialTheme.typography.labelSmall,
+                                                    color = Color.Gray,
+                                                    modifier = Modifier.padding(start = 8.dp)
+                                                )
+                                            }
+                                        }
                                     }
                                     LazyColumn {
                                         items(
@@ -348,7 +343,7 @@ fun HomeScreenContent(
                                             ) {
                                                 CurrentLessonCard(lesson = it, width = width)
                                             } else {
-                                                LessonCard(lesson = it, width = width)
+                                                LessonCard(lesson = it, width = width.dp, displayMode = state.activeProfile!!.type, isCompactMode = state.viewMode == ViewType.WEEK)
                                             }
                                         }
                                     }
@@ -371,28 +366,15 @@ fun HomeScreenContent(
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
                     .padding(bottom = 16.dp)
-                    .shadow(10.dp, shape = RoundedCornerShape(20.dp))
-                    .height(40.dp)
-                    .width(100.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .clickable {
+            ) {
+                DateIndicator(
+                    displayDate = state.date.plusDays(lessonPagerState.currentPage - Int.MAX_VALUE / 2L),
+                    alpha = 1 - abs(lessonPagerState.currentPageOffsetFraction) * 2,
+                    onClick = {
                         scope.launch {
                             lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
                         }
-                    },
-                contentAlignment = Alignment.Center
-            ) {
-                val visibleDate =
-                    state.date.plusDays(lessonPagerState.currentPage - Int.MAX_VALUE / 2L)
-                val text = if (visibleDate == LocalDate.now()) stringResource(id = R.string.today)
-                else if (visibleDate.minusDays(1L) == LocalDate.now()) stringResource(id = R.string.tomorrow)
-                else if (visibleDate.plusDays(1L) == LocalDate.now()) stringResource(id = R.string.yesterday)
-                else visibleDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-                Text(
-                    text = text,
-                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    modifier = Modifier.alpha(1 - abs(lessonPagerState.currentPageOffsetFraction) * 2)
+                    }
                 )
             }
         }
@@ -475,109 +457,10 @@ fun CurrentLessonCard(lesson: Lesson, width: Float) {
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun LessonCard(lesson: Lesson, width: Float) {
-    Card(
-        modifier = Modifier
-            .width(width.dp)
-            .padding(8.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(if (lesson.info == "") 70.dp else 100.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxSize(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column(modifier = Modifier.weight(1f, false)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = lesson.lessonNumber.toString(),
-                                color = MaterialTheme.colorScheme.onSecondaryContainer,
-                                modifier = Modifier.padding(end = 8.dp),
-                            )
-                            Column {
-                                Row {
-                                    Text(
-                                        text = lesson.displaySubject,
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = if (lesson.subjectIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                    Text(
-                                        text = " • ",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                    Text(
-                                        text = if (lesson.rooms.isNotEmpty()) lesson.rooms.joinToString(
-                                            ", "
-                                        ) { it } else "-",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = if (lesson.roomIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                    Text(
-                                        text = " • ",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                    Text(
-                                        text = if (lesson.teachers.isNotEmpty()) lesson.teachers.joinToString(
-                                            ", "
-                                        ) { it } else "-",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        color = if (lesson.teacherIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
-                                    )
-                                }
-                                if (lesson.info != null) {
-                                    Text(
-                                        text = lesson.info,
-                                        maxLines = 1,
-                                        modifier = Modifier
-                                            .padding(end = 8.dp)
-                                            .basicMarquee(
-                                                // Animate forever.
-                                                iterations = Int.MAX_VALUE,
-                                                velocity = 80.dp,
-                                                spacing = MarqueeSpacing(12.dp)
-                                            )
-                                    )
-                                }
-                            }
-                        }
-                    }
-                    SubjectIcon(
-                        subject = lesson.displaySubject, modifier = Modifier
-                            .height(50.dp)
-                            .width(50.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-        }
-    }
-}
-
 @Composable
 @Preview
 fun CurrentLessonCardPreview() {
     CurrentLessonCard(
-        width = 200f,
-        lesson = Lessons.generateLessons(1).first()
-    )
-}
-
-
-@Composable
-@Preview
-fun LessonCardPreview() {
-    LessonCard(
         width = 200f,
         lesson = Lessons.generateLessons(1).first()
     )

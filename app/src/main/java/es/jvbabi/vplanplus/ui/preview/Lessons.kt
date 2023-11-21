@@ -22,7 +22,7 @@ object Lessons {
                     end = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:45", LocalDate.now()),
                     info = "Info",
                     day = LocalDate.now(),
-                    lessonNumber = index,
+                    lessonNumber = index+1,
                     roomIsChanged = Random.nextBoolean(),
                     `class` = randomClass(),
                     originalSubject = randomSubject(),
