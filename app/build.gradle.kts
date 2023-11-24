@@ -62,7 +62,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.navigation:navigation-compose:2.7.5")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0-beta01")
+    implementation("androidx.compose.material:material-icons-extended:1.6.0-alpha08") // don't update to 1.6.0-beta01
     implementation("androidx.compose.material3:material3-android:1.2.0-alpha11")
     implementation("com.google.android.material:material:1.10.0")
     testImplementation("junit:junit:4.13.2")
