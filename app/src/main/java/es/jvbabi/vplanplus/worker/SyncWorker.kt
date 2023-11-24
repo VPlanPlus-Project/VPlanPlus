@@ -199,11 +199,17 @@ class SyncWorker @AssistedInject constructor(
             "SyncWorker",
             "Sending notification for profile ${profile.displayName}"
         )
-        val intent = Intent(context, MainActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }.putExtra("profileId", profile.id)
-        val pendingIntent =
-            PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+
+        val intent = Intent(context, MainActivity::class.java)
+        intent.putExtra("profileId", profile.id)
+
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            profile.id.toInt(),
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
         val school = profileUseCases.getSchoolFromProfileId(profile.id)
         val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
             .setContentTitle(context.getString(R.string.notification_newPlanTitle))
@@ -217,6 +223,7 @@ class SyncWorker @AssistedInject constructor(
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
