@@ -1,12 +1,16 @@
 package es.jvbabi.vplanplus.util
 
 import android.annotation.SuppressLint
+import android.content.Context
+import es.jvbabi.vplanplus.R
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
 object DateUtils {
 
@@ -65,5 +69,22 @@ object DateUtils {
 
     fun LocalDate.atStartOfWeek(): LocalDate {
         return this.minusDays(this.dayOfWeek.value.toLong() - 1)
+    }
+
+    fun localizedRelativeDate(context: Context, localDate: LocalDate): String {
+        return when (localDate) {
+            LocalDate.now() -> {
+                context.getString(R.string.today)
+            }
+            LocalDate.now().plusDays(1) -> {
+                context.getString(R.string.tomorrow)
+            }
+            LocalDate.now().minusDays(1) -> {
+                context.getString(R.string.yesterday)
+            }
+            else -> {
+                localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+            }
+        }
     }
 }

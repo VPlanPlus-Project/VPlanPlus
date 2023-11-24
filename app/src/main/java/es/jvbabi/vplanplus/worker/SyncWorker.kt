@@ -32,6 +32,7 @@ import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.ui.screens.home.Day
 import es.jvbabi.vplanplus.ui.screens.home.DayType
 import es.jvbabi.vplanplus.util.App.isAppInForeground
+import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import es.jvbabi.vplanplus.util.MathTools
 import kotlinx.coroutines.flow.first
@@ -104,7 +105,8 @@ class SyncWorker @AssistedInject constructor(
                     if (hashesBefore[profile] != hashesAfter[profile]) {
                         var changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
                         changedLessons = changedLessons.filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
-                        if (canSendNotification()) sendNewPlanNotification(profile, changedLessons, date)
+                        val type = if (profileDataBefore[profile]!!.isEmpty()) NotificationType.NEW_PLAN else NotificationType.CHANGED_LESSONS
+                        if (canSendNotification()) sendNewPlanNotification(profile, changedLessons, date, type)
                     }
 
                     // build calendar
@@ -189,7 +191,7 @@ class SyncWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>, date: LocalDate) {
+    private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>, date: LocalDate, notificationType: NotificationType) {
         logRecordRepository.log(
             "SyncWorker",
             "Sending notification for profile ${profile.displayName}"
@@ -197,6 +199,7 @@ class SyncWorker @AssistedInject constructor(
 
         val intent = Intent(context, MainActivity::class.java)
         intent.putExtra("profileId", profile.id)
+        intent.putExtra("date", date.toString())
 
         Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(profile.id.toInt(), "${date.dayOfMonth}${date.monthValue}".toInt()))
 
@@ -209,14 +212,26 @@ class SyncWorker @AssistedInject constructor(
 
         val school = profileUseCases.getSchoolFromProfileId(profile.id)
 
-        val message = context.getString(
-            R.string.notification_newPlanText,
-            profile.displayName,
-            school.name
-        ) + buildChangedNotificationString(changedLessons)
+        val message = when (notificationType) {
+            NotificationType.CHANGED_LESSONS -> context.getString(
+                R.string.notification_planChangedText,
+                profile.displayName,
+                school.name,
+                DateUtils.localizedRelativeDate(context, date)
+            ) + buildChangedNotificationString(changedLessons)
+            NotificationType.NEW_PLAN -> context.getString(
+                R.string.notification_newPlanText,
+                profile.displayName,
+                school.name,
+                DateUtils.localizedRelativeDate(context, date)
+            )
+        }
 
         val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
-            .setContentTitle(context.getString(R.string.notification_newPlanTitle))
+            .setContentTitle(context.getString(when (notificationType) {
+                NotificationType.NEW_PLAN -> R.string.notification_newPlanTitle
+                NotificationType.CHANGED_LESSONS -> R.string.notification_planChangedTitle
+            }))
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setStyle(
@@ -278,4 +293,8 @@ class SyncWorker @AssistedInject constructor(
     private suspend fun canSendNotification() = (!isAppInForeground() || keyValueUseCases.get(
         Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE
     ) == "true")
+}
+
+private enum class NotificationType {
+    NEW_PLAN, CHANGED_LESSONS
 }
