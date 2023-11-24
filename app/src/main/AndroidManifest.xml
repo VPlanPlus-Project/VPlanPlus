@@ -23,7 +23,7 @@
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true"
-            android:launchMode="singleInstance"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.VPlanPlus">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
