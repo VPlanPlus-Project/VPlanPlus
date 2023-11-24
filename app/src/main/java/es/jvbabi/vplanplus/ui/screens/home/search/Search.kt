@@ -124,15 +124,6 @@ fun SearchContent(
                 },
                 modifier = paddingModifier
             )
-//            FilterChip(
-//                selected = state.filter[FilterType.PROFILE]!!,
-//                onClick = { onFilterToggle(FilterType.PROFILE) },
-//                label = { Text(text = stringResource(id = R.string.search_profileFilter)) },
-//                leadingIcon = {
-//                    Icon(imageVector = Icons.Default.ManageAccounts, contentDescription = null)
-//                },
-//                modifier = paddingModifier
-//            )
         }
         if (state.result.isNotEmpty()) Box(
             modifier = Modifier
@@ -206,7 +197,7 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(MaterialTheme.colorScheme.secondaryContainer)
+                            .background(CardDefaults.cardColors().containerColor)
                     ) {
                         if (results.groupBy { it.type }[filterType]?.isEmpty() != false) {
                             Text(
@@ -246,7 +237,7 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                                                     .width(55.dp)
                                                     .height(55.dp)
                                                     .clip(RoundedCornerShape(8.dp))
-                                                    .background(MaterialTheme.colorScheme.primaryContainer),
+                                                    .background(CardDefaults.cardColors().containerColor),
                                                 horizontalAlignment = Alignment.CenterHorizontally,
                                                 verticalArrangement = Arrangement.Center
                                             ) {
