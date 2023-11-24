@@ -185,6 +185,10 @@ class HomeViewModel @Inject constructor(
         _state.value = _state.value.copy(notificationPermissionGranted = granted)
     }
 
+    fun changePage(page: Int) {
+        _state.value = _state.value.copy(page = page)
+    }
+
 }
 
 data class HomeState(
@@ -196,7 +200,8 @@ data class HomeState(
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,
-    val syncing: Boolean = false
+    val syncing: Boolean = false,
+    val page: Int = Int.MAX_VALUE / 2
 )
 
 enum class ViewType {

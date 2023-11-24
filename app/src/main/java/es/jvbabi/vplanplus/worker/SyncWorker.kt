@@ -37,6 +37,7 @@ import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import es.jvbabi.vplanplus.util.MathTools
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 
 class SyncWorker @AssistedInject constructor(
@@ -198,16 +199,17 @@ class SyncWorker @AssistedInject constructor(
         )
 
         val intent = Intent(context, MainActivity::class.java)
-        intent.putExtra("profileId", profile.id)
-        intent.putExtra("date", date.toString())
+            .putExtra("profileId", profile.id)
+            .putExtra("dateStr", date.toString())
 
+        Log.d("SyncWorker.Notification", "Sending $notificationType for ${profile.displayName} at ${date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}")
         Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(profile.id.toInt(), "${date.dayOfMonth}${date.monthValue}".toInt()))
 
         val pendingIntent = PendingIntent.getActivity(
             context,
             MathTools.cantor(profile.id.toInt(), date.toString().replace("-", "").toInt()),
             intent,
-            PendingIntent.FLAG_IMMUTABLE
+            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val school = profileUseCases.getSchoolFromProfileId(profile.id)
