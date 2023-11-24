@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -16,6 +18,7 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.ui.NavigationGraph
+import es.jvbabi.vplanplus.ui.screens.home.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
 import es.jvbabi.vplanplus.worker.SyncWorker
@@ -25,8 +28,13 @@ import java.util.concurrent.TimeUnit
 class MainActivity : ComponentActivity() {
 
     private val onboardingViewModel: OnboardingViewModel by viewModels()
+    private val homeViewModel: HomeViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        processIntent(intent)
+
         setContent {
             VPlanPlusTheme {
                 Surface(
@@ -36,7 +44,8 @@ class MainActivity : ComponentActivity() {
                     val navController = rememberNavController()
                     NavigationGraph(
                         navController = navController,
-                        onboardingViewModel = onboardingViewModel
+                        onboardingViewModel = onboardingViewModel,
+                        homeViewModel = homeViewModel
                     )
                 }
             }
@@ -55,5 +64,19 @@ class MainActivity : ComponentActivity() {
             .build()
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
+    }
+
+    private fun processIntent(intent: Intent) {
+        Log.d("MainActivity", "onNewIntent: $intent ")
+        if (intent.hasExtra("profileId")) {
+            val profileId = intent.getLongExtra("profileId", -1)
+            if (profileId == -1L) return
+            homeViewModel.onProfileSelected(applicationContext, profileId)
+        }
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        processIntent(intent ?: return)
     }
 }
