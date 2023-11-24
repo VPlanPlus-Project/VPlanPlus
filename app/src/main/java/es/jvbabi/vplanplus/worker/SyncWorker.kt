@@ -33,6 +33,7 @@ import es.jvbabi.vplanplus.ui.screens.home.Day
 import es.jvbabi.vplanplus.ui.screens.home.DayType
 import es.jvbabi.vplanplus.util.App.isAppInForeground
 import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
+import es.jvbabi.vplanplus.util.MathTools
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
@@ -103,7 +104,7 @@ class SyncWorker @AssistedInject constructor(
                     if (hashesBefore[profile] != hashesAfter[profile]) {
                         var changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
                         changedLessons = changedLessons.filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
-                        if (canSendNotification()) sendNewPlanNotification(profile, changedLessons)
+                        if (canSendNotification()) sendNewPlanNotification(profile, changedLessons, date)
                     }
 
                     // build calendar
@@ -188,7 +189,7 @@ class SyncWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>) {
+    private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>, date: LocalDate) {
         logRecordRepository.log(
             "SyncWorker",
             "Sending notification for profile ${profile.displayName}"
@@ -197,11 +198,13 @@ class SyncWorker @AssistedInject constructor(
         val intent = Intent(context, MainActivity::class.java)
         intent.putExtra("profileId", profile.id)
 
+        Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(profile.id.toInt(), "${date.dayOfMonth}${date.monthValue}".toInt()))
+
         val pendingIntent = PendingIntent.getActivity(
             context,
-            profile.id.toInt(),
+            MathTools.cantor(profile.id.toInt(), date.toString().replace("-", "").toInt()),
             intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            PendingIntent.FLAG_IMMUTABLE
         )
 
         val school = profileUseCases.getSchoolFromProfileId(profile.id)
@@ -226,7 +229,7 @@ class SyncWorker @AssistedInject constructor(
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(profile.id.toInt(), builder.build())
+        notificationManager.notify(MathTools.cantor(profile.id.toInt(), date.toString().replace("-", "").toInt()), builder.build())
     }
 
     private fun buildChangedNotificationString(changedLessons: List<Lesson>): String {
