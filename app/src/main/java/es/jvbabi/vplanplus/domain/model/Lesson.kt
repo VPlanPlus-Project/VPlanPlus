@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.model
 
+import es.jvbabi.vplanplus.util.sha256
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -18,6 +19,10 @@ data class Lesson(
     val end: LocalDateTime,
     val vpId: Long?
 ) {
+    fun toHash(): String {
+        return "$lessonNumber${originalSubject ?: ""}${changedSubject ?: ""}${teachers.joinToString("")}${rooms.joinToString("")}${info ?: ""}".sha256()
+    }
+
     val displaySubject: String
         get() = changedSubject ?: originalSubject ?: "-"
 

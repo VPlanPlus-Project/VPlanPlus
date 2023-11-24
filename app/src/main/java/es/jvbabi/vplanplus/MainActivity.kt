@@ -22,6 +22,9 @@ import es.jvbabi.vplanplus.ui.screens.home.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
 import es.jvbabi.vplanplus.worker.SyncWorker
+import java.time.LocalDate
+import java.time.Period
+import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -67,11 +70,19 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun processIntent(intent: Intent) {
-        Log.d("MainActivity", "onNewIntent: $intent ")
+        Log.d("MainActivity.Intent", "onNewIntent: $intent")
         if (intent.hasExtra("profileId")) {
             val profileId = intent.getLongExtra("profileId", -1)
-            if (profileId == -1L) return
+            Log.d("MainActivity.Intent", "profileId: $profileId")
+            Log.d("MainActivity.Intent", "dateStr: ${intent.getStringExtra("dateStr")}")
+
             homeViewModel.onProfileSelected(applicationContext, profileId)
+            if (intent.getStringExtra("dateStr") != null) {
+                val dateStr = intent.getStringExtra("dateStr") ?: return
+                val date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                Log.d("MainActivity.Intent", "Switching to date: $date (Difference: ${Period.between(LocalDate.now(), date).days})")
+                homeViewModel.changePage(Int.MAX_VALUE/2 + Period.between(LocalDate.now(), date).days)
+            }
         }
     }
 

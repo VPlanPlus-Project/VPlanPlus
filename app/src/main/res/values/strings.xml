@@ -51,8 +51,8 @@
     <string name="onboarding_teacherChooseTeacherCantFindProfile">Can\'t find your acronym?</string>
     <string name="info">Information</string>
     <string name="onboarding_firstProfileTeacherDialogText">Sometimes, the base data of your school isn\'t up to date. The app will automatically add your acronym once there\'s some data about you. For now, select another profile and download this weeks data. If you\'re teaching some lessons this week, you can add yourself in the settings.</string>
-    <string name="notification_newPlanTitle">Plan change</string>
-    <string name="notification_newPlanText">There is a new plan for %1$s at %2$s available</string>
+    <string name="notification_newPlanTitle">New plan available!</string>
+    <string name="notification_newPlanText">There is a new plan for %1$s at %2$s available (%3$s)</string>
     <string name="notification_accessNotGranted">You won\'t receive any notifications if there are any changes to the plan.</string>
     <string name="settings_generalSettingsTitle">General</string>
     <string name="settings_generalSettingsSubtitle">Modify basic app settings</string>
@@ -113,4 +113,8 @@
     <string name="home_noDataText">For this day, there is no data available. Either your school hasn\'t released a substitution plan for this day, or it\'s too far in the future. You can change the number of days to sync after today in the settings.</string>
     <string name="home_holiday">Holiday</string>
     <string name="home_holidayText">You don\'t have to go to school today. Feel free to meet friends or tidy up your room.</string>
+    <string name="notification_lesson">%1$s with %2$s in %3$s</string>
+    <string name="notification_changedLessons">These lessons were changed:</string>
+    <string name="notification_planChangedText">There is a change in plan for %1$s at %2$s for %3$s</string>
+    <string name="notification_planChangedTitle">Change of plan</string>
 </resources>

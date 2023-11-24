@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -94,9 +95,13 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     var menuOpened by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val lessonPagerState = rememberPagerState(initialPage = Int.MAX_VALUE / 2, pageCount = { Int.MAX_VALUE })
+    val lessonPagerState = rememberPagerState(initialPage = state.page, pageCount = { Int.MAX_VALUE })
 
     LaunchedEffect(key1 = "Init", block = { viewModel.init(context) })
+    LaunchedEffect(key1 = state.page, block = {
+        Log.d("HomeScreen", "Page changed to ${state.page}")
+        lessonPagerState.animateScrollToPage(state.page)
+    })
 
     val permissionsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
@@ -122,8 +127,7 @@ fun HomeScreen(
                 viewModel.setViewType(it)
                 coroutineScope.launch {
                     delay(450)
-                    if (it == ViewType.WEEK) lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
-                    if (it == ViewType.DAY) lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
+                    lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
                 }
             },
             lessonPagerState = lessonPagerState,
