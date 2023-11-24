@@ -114,4 +114,6 @@
     <string name="home_noDataText">Für dieses Datum sind noch keine Daten verfügbar. Entweder, es gibt noch keinen Vertretungsplan für dich, oder das Datum liegt zu weit in  der Zukunft. Du kannst die Anzahl der Tage, die nach dem heutigen Tag synchronisiert werden in den Einstellungen ändern.</string>
     <string name="home_holiday">Feiertag/Ferien</string>
     <string name="home_holidayText">Heute musst du nicht in die Schule. Fühle dich frei, triff Freunde oder räume dein Zimmer auf.</string>
+    <string name="notification_lesson">%1$s mit %2$s in %3$s</string>
+    <string name="notification_changedLessons">Diese Stunden haben sich verändert:</string>
 </resources>

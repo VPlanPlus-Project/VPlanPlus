@@ -1,8 +1,5 @@
 package es.jvbabi.vplanplus.worker
 
-import android.app.ActivityManager
-import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND
-import android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
@@ -18,6 +15,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
@@ -33,6 +31,7 @@ import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.ui.screens.home.Day
 import es.jvbabi.vplanplus.ui.screens.home.DayType
+import es.jvbabi.vplanplus.util.App.isAppInForeground
 import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
@@ -57,8 +56,8 @@ class SyncWorker @AssistedInject constructor(
 
         Log.d("SyncWorker", "SYNCING")
         logRecordRepository.log("SyncWorker", "Syncing")
-        val planIsChanged = hashMapOf<Profile, Boolean>()
         val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
+        val profileDataBefore = hashMapOf<Profile, List<Lesson>>()
         schoolUseCases.getSchools().forEach school@{ school ->
             repeat(syncDays + 2) { i ->
                 val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
@@ -71,11 +70,12 @@ class SyncWorker @AssistedInject constructor(
                 // set hash before sync to evaluate later if any changes were made
                 profiles.forEach { profile ->
                     hashesBefore[profile] = profileUseCases.getPlanSum(profile, date, false, planVersion = currentVersion)
+                    profileDataBefore[profile] = getLessonsByProfile(profile, date, currentVersion).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
                 }
 
                 // get today's data
                 val data = vPlanUseCases.getVPlanData(school, date)
-                Log.d("SyncWorker","Syncing ${school.schoolId} (${school.name}) at $date: ${data.response}")
+                Log.d("SyncWorker", "Syncing ${school.schoolId} (${school.name}) at $date: ${data.response}")
 
                 // if any errors occur, return failure
                 if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
@@ -97,11 +97,13 @@ class SyncWorker @AssistedInject constructor(
 
                 profiles.forEach profile@{ profile ->
                     // set hash after sync to evaluate later if any changes were made
-                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date, false, currentVersion+1)
+                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date, false, currentVersion + 1)
 
                     // check if plan has changed
                     if (hashesBefore[profile] != hashesAfter[profile]) {
-                        planIsChanged[profile] = true
+                        var changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
+                        changedLessons = changedLessons.filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
+                        if (canSendNotification()) sendNewPlanNotification(profile, changedLessons)
                     }
 
                     // build calendar
@@ -109,7 +111,7 @@ class SyncWorker @AssistedInject constructor(
                     if (calendar != null) {
 
                         calendarRepository.deleteCalendarEvents(school = school, date = date)
-                        val lessons = getLessonsByProfile(profile, date, currentVersion+1)
+                        val lessons = getLessonsByProfile(profile, date, currentVersion + 1)
                         Log.d("SyncWorker.Calendar", "Calendar: $calendar $date ${lessons.dayType} ${lessons.lessons.isEmpty()}")
                         if (lessons.dayType != DayType.DATA || lessons.lessons.isEmpty()) return@profile
                         Log.d("SyncWorker.Calendar", "${profile.displayName}: Calendar Type: ${profile.calendarType}")
@@ -175,14 +177,6 @@ class SyncWorker @AssistedInject constructor(
                 }
             }
         }
-        Log.d("SyncWorker", "Changed profiles: ${planIsChanged.keys.map { it.displayName }}")
-        planIsChanged.keys.forEach { profile ->
-            // send notification
-            if (planIsChanged[profile] == true && (!isAppInForeground() || keyValueUseCases.get(
-                    Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE
-                ) == "true")
-            ) sendNewPlanNotification(profile)
-        }
 
         keyValueUseCases.set(
             Keys.LESSON_VERSION_NUMBER,
@@ -194,7 +188,7 @@ class SyncWorker @AssistedInject constructor(
         return Result.success()
     }
 
-    private suspend fun sendNewPlanNotification(profile: Profile) {
+    private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>) {
         logRecordRepository.log(
             "SyncWorker",
             "Sending notification for profile ${profile.displayName}"
@@ -211,16 +205,21 @@ class SyncWorker @AssistedInject constructor(
         )
 
         val school = profileUseCases.getSchoolFromProfileId(profile.id)
+
+        val message = context.getString(
+            R.string.notification_newPlanText,
+            profile.displayName,
+            school.name
+        ) + buildChangedNotificationString(changedLessons)
+
         val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
             .setContentTitle(context.getString(R.string.notification_newPlanTitle))
-            .setContentText(
-                context.getString(
-                    R.string.notification_newPlanText,
-                    profile.displayName,
-                    school.name
-                )
-            )
+            .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(message)
+            )
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
@@ -230,11 +229,23 @@ class SyncWorker @AssistedInject constructor(
         notificationManager.notify(profile.id.toInt(), builder.build())
     }
 
-    private fun isAppInForeground(): Boolean {
-        val appProcessInfo = ActivityManager.RunningAppProcessInfo()
-        ActivityManager.getMyMemoryState(appProcessInfo)
-        return (appProcessInfo.importance == IMPORTANCE_FOREGROUND || appProcessInfo.importance == IMPORTANCE_VISIBLE)
+    private fun buildChangedNotificationString(changedLessons: List<Lesson>): String {
+        if (changedLessons.isEmpty()) return ""
+        var changedString = "\n" + context.getString(R.string.notification_changedLessons) + "\n"
+        changedLessons.forEach { lesson ->
+            changedString += "${lesson.lessonNumber}: ${
+                if (lesson.displaySubject == "-") "-" else
+                context.getString(
+                    R.string.notification_lesson,
+                    lesson.displaySubject,
+                    lesson.teachers.joinToString(", "),
+                    lesson.rooms.joinToString(", ")
+                )
+            } \n"
+        }
+        return changedString
     }
+
 
     private suspend fun getLessonsByProfile(profile: Profile, date: LocalDate, version: Long): Day {
         return when (profile.type) {
@@ -256,4 +267,12 @@ class SyncWorker @AssistedInject constructor(
             )
         }.first()
     }
+
+    /**
+     * Checks if a notification should be sent.
+     * @return true if app is in background or if the setting "Show notification if app is visible" is enabled
+     */
+    private suspend fun canSendNotification() = (!isAppInForeground() || keyValueUseCases.get(
+        Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE
+    ) == "true")
 }

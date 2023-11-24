@@ -113,4 +113,6 @@
     <string name="home_noDataText">For this day, there is no data available. Either your school hasn\'t released a substitution plan for this day, or it\'s too far in the future. You can change the number of days to sync after today in the settings.</string>
     <string name="home_holiday">Holiday</string>
     <string name="home_holidayText">You don\'t have to go to school today. Feel free to meet friends or tidy up your room.</string>
+    <string name="notification_lesson">%1$s with %2$s in %3$s</string>
+    <string name="notification_changedLessons">These lessons were changed:</string>
 </resources>
