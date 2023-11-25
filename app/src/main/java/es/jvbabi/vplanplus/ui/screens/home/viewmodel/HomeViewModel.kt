@@ -19,12 +19,14 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,12 +48,14 @@ class HomeViewModel @Inject constructor(
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
                 profileUseCases.getProfiles(),
-                keyValueRepository.getFlow(Keys.ACTIVE_PROFILE)
-            ) { profiles, activeProfileId ->
+                keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
+                keyValueRepository.getFlow(Keys.LAST_SYNC_TS)
+            ) { profiles, activeProfileId, lastSyncTs ->
                 Log.d("HomeViewModel.MainFlow", "activeProfile ID: $activeProfileId")
                 _state.value.copy(
                     profiles = profiles,
-                    activeProfile = profiles.find { it.id == activeProfileId?.toLong() }
+                    activeProfile = profiles.find { it.id == activeProfileId?.toLong() },
+                    lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null
                 )
             }.collect {
                 _state.value = it
@@ -194,6 +198,8 @@ data class HomeState(
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,
     val syncing: Boolean = false,
+
+    val lastSync: LocalDateTime? = null
 )
 
 enum class ViewType {

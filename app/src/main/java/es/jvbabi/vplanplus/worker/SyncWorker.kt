@@ -187,6 +187,7 @@ class SyncWorker @AssistedInject constructor(
             (keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2")
                 .toLong() + 1L).toString()
         )
+        keyValueUseCases.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
         Log.d("SyncWorker", "SYNCED")
         logRecordRepository.log("SyncWorker", "Synced sucessfully")
         return Result.success()

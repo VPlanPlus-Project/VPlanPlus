@@ -60,6 +60,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.ui.common.SmallText
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -80,6 +81,7 @@ import es.jvbabi.vplanplus.util.DateUtils.calculateProgress
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
@@ -103,19 +105,6 @@ fun HomeScreen(
             viewModel.onPageChanged(date)
         }
     })
-
-    /*val permissionsLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = { isGranted ->
-            viewModel.setNotificationPermissionGranted(isGranted)
-            if (!isGranted) Toast.makeText(context, context.getString(R.string.notification_accessNotGranted), Toast.LENGTH_LONG).show()
-        }
-    )
-    LaunchedEffect(key1 = state.notificationPermissionGranted, block = {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permissionsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    })*/
 
     HomeScreenContent(
         state = state,
@@ -254,6 +243,12 @@ fun HomeScreenContent(
                     targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
                     label = "Plan View Changed Animation"
                 )
+                Row(
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    if (state.lastSync == null) SmallText(text = stringResource(id = R.string.home_lastSyncNever))
+                    else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))))
+                }
                 HorizontalPager(
                     state = lessonPagerState,
                     pageSize = PageSize.Fixed(width.dp),
@@ -458,6 +453,7 @@ fun CurrentLessonCardPreview() {
 fun HomeScreenPreview() {
     HomeScreenContent(
         HomeState(
+            lastSync = LocalDateTime.now(),
             isLoading = true,
             lessons = hashMapOf(
                 LocalDate.now() to Day(
