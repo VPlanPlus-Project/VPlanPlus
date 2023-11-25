@@ -10,6 +10,25 @@ import java.time.LocalDate
 import kotlin.random.Random
 
 object Lessons {
+
+    fun generateCanceledLesson(): Lesson {
+        return Lesson(
+            rooms = randomRoom().map { it.name },
+            teacherIsChanged = Random.nextBoolean(),
+            teachers = randomTeacher().map { it.acronym },
+            start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:00", LocalDate.now()),
+            end = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:45", LocalDate.now()),
+            info = "Stunde fällt aus",
+            day = LocalDate.now(),
+            lessonNumber = 1,
+            roomIsChanged = Random.nextBoolean(),
+            `class` = randomClass(),
+            originalSubject = randomSubject(),
+            changedSubject = "-",
+            vpId = null
+        )
+    }
+
     fun generateLessons(count: Int = 4): List<Lesson> {
         val result = mutableListOf<Lesson>()
         repeat(count) { index ->
