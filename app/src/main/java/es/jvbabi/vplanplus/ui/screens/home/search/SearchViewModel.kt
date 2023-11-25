@@ -12,7 +12,7 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
-import es.jvbabi.vplanplus.ui.screens.home.DayType
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch

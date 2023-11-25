@@ -117,4 +117,8 @@
     <string name="notification_changedLessons">These lessons were changed:</string>
     <string name="notification_planChangedText">There is a change in plan for %1$s at %2$s for %3$s</string>
     <string name="notification_planChangedTitle">Change of plan</string>
+    <string name="home_lastSyncNever">Never synced</string>
+    <string name="home_lastSync">Last sync: %1$s</string>
+    <string name="day_after_tomorrow">;DATE</string>
+    <string name="day_before_yesterday">;DATE</string>
 </resources>

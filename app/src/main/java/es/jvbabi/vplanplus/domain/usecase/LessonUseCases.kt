@@ -4,8 +4,8 @@ import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
-import es.jvbabi.vplanplus.ui.screens.home.Day
-import es.jvbabi.vplanplus.ui.screens.home.DayType
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.Day
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate

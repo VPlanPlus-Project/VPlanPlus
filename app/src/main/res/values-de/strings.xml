@@ -118,4 +118,8 @@
     <string name="notification_changedLessons">Diese Stunden haben sich verändert:</string>
     <string name="notification_planChangedText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
     <string name="notification_planChangedTitle">Planänderung</string>
+    <string name="home_lastSyncNever">Nie synchronisiert</string>
+    <string name="home_lastSync">Zuletzt synchronisiert: %1$s</string>
+    <string name="day_after_tomorrow">Übermorgen</string>
+    <string name="day_before_yesterday">Vorgestern</string>
 </resources>

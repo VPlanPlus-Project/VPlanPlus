@@ -67,10 +67,6 @@ object DateUtils {
         return this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()/1000
     }
 
-    fun LocalDate.atStartOfWeek(): LocalDate {
-        return this.minusDays(this.dayOfWeek.value.toLong() - 1)
-    }
-
     fun localizedRelativeDate(context: Context, localDate: LocalDate): String {
         return when (localDate) {
             LocalDate.now() -> {
@@ -79,12 +75,18 @@ object DateUtils {
             LocalDate.now().plusDays(1) -> {
                 context.getString(R.string.tomorrow)
             }
+            LocalDate.now().plusDays(2) -> {
+                context.getString(R.string.day_after_tomorrow)
+            }
             LocalDate.now().minusDays(1) -> {
                 context.getString(R.string.yesterday)
+            }
+            LocalDate.now().minusDays(2) -> {
+                context.getString(R.string.day_before_yesterday)
             }
             else -> {
                 localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
             }
-        }
+        }.replace(";DATE", localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)))
     }
 }

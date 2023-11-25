@@ -14,9 +14,7 @@ class KeyValueUseCases(
         keyValueRepository.set(key = key, value = value)
     }
 
-    fun getFlow(key: String): Flow<String?> {
-        return keyValueRepository.getFlow(key = key)
-    }
+    fun getFlow(key: String): Flow<String?> = keyValueRepository.getFlow(key = key)
 
     suspend fun getOrDefault(key: String, defaultValue: String): String {
         return keyValueRepository.getOrDefault(key = key, defaultValue = defaultValue)
@@ -32,4 +30,6 @@ object Keys {
     const val SETTINGS_SYNC_DAY_DIFFERENCE = "SETTINGS_SYNC_DAY_DIFFERENCE"
 
     const val LESSON_VERSION_NUMBER = "LESSON_VERSION_NUMBER"
+
+    const val LAST_SYNC_TS = "LAST_SYNC_TS"
 }

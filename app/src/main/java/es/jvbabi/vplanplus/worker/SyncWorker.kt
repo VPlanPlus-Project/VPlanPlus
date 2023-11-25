@@ -29,8 +29,8 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
-import es.jvbabi.vplanplus.ui.screens.home.Day
-import es.jvbabi.vplanplus.ui.screens.home.DayType
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.Day
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import es.jvbabi.vplanplus.util.App.isAppInForeground
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
@@ -187,6 +187,7 @@ class SyncWorker @AssistedInject constructor(
             (keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2")
                 .toLong() + 1L).toString()
         )
+        keyValueUseCases.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
         Log.d("SyncWorker", "SYNCED")
         logRecordRepository.log("SyncWorker", "Synced sucessfully")
         return Result.success()

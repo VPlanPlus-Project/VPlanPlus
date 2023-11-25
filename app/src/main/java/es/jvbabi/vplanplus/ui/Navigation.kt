@@ -11,15 +11,15 @@ import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
-import es.jvbabi.vplanplus.ui.screens.home.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.home.search.SearchScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.logs.LogsScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingCause
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingDefaultLessonScreen
-import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingProfileOptionListScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingProfileOptionListScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
@@ -36,12 +36,12 @@ import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsS
 fun NavigationGraph(
     navController: NavHostController,
     onboardingViewModel: OnboardingViewModel,
-    homeViewModel: HomeViewModel
+    homeViewModel: HomeViewModel,
+    goToOnboarding: Boolean
 ) {
-
     NavHost(
         navController = navController,
-        startDestination = Screen.HomeScreen.route
+        startDestination = if (goToOnboarding) Screen.Onboarding.route else Screen.HomeScreen.route
     ) {
 
         composable(route = Screen.HomeScreen.route) {
