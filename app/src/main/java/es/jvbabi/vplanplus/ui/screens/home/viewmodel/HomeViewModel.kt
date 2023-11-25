@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.home.viewmodel
 
+import android.app.Application
 import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
@@ -20,6 +21,7 @@ import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
@@ -31,6 +33,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val app: Application,
     private val profileUseCases: ProfileUseCases,
     private val vPlanUseCases: VPlanUseCases,
     private val keyValueRepository: KeyValueRepository,
@@ -49,13 +52,15 @@ class HomeViewModel @Inject constructor(
             combine(
                 profileUseCases.getProfiles(),
                 keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
-                keyValueRepository.getFlow(Keys.LAST_SYNC_TS)
-            ) { profiles, activeProfileId, lastSyncTs ->
+                keyValueRepository.getFlow(Keys.LAST_SYNC_TS),
+                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
+            ) { profiles, activeProfileId, lastSyncTs, isSyncing ->
                 Log.d("HomeViewModel.MainFlow", "activeProfile ID: $activeProfileId")
                 _state.value.copy(
                     profiles = profiles,
                     activeProfile = profiles.find { it.id == activeProfileId?.toLong() },
-                    lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null
+                    lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
+                    syncing = isSyncing
                 )
             }.collect {
                 _state.value = it
