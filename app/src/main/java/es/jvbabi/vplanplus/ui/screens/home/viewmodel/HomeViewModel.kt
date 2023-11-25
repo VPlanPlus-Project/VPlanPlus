@@ -40,10 +40,10 @@ class HomeViewModel @Inject constructor(
 
     private val dataSyncJobs: HashMap<LocalDate, Job> = HashMap()
 
-    private var startJob: Job? = null
+    private var homeUiSyncJob: Job? = null
 
     init {
-        if (startJob == null) startJob = viewModelScope.launch {
+        if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
                 profileUseCases.getProfiles(),
                 keyValueRepository.getFlow(Keys.ACTIVE_PROFILE)
@@ -55,23 +55,35 @@ class HomeViewModel @Inject constructor(
                 )
             }.collect {
                 _state.value = it
-                updateView(state.value.date, 5)
-                Log.d("VISIBLE DATE", state.value.date.toString())
+                startLessonUiSync(state.value.date, 5)
             }
         }
     }
 
+    /**
+     * Called when the user changes the page
+     * @param date The date of the new page
+     */
     fun onPageChanged(date: LocalDate) {
-        updateView(date, 5)
+        startLessonUiSync(date, 5)
         _state.value = _state.value.copy(date = date)
     }
 
+    /**
+     * Called when user clicks notification and gets redirected to specific page
+     * @param date The date of the page to show
+     */
     fun onInitPageChanged(date: LocalDate) {
         _state.value = _state.value.copy(initDate = date)
         onPageChanged(date)
     }
 
-    private fun updateView(date: LocalDate, neighbors: Int) {
+    /**
+     * Starts the UI sync for the given date
+     * @param date The date to sync
+     * @param neighbors The number of neighbors to sync as well
+     */
+    private fun startLessonUiSync(date: LocalDate, neighbors: Int) {
         if (dataSyncJobs.containsKey(date) || getActiveProfile() == null) return
         dataSyncJobs[date] = viewModelScope.launch {
             profileUseCases.getLessonsForProfile(getActiveProfile()!!, date).distinctUntilChanged().collect { day ->
@@ -86,8 +98,8 @@ class HomeViewModel @Inject constructor(
             }
         }
         repeat(neighbors/2) {
-            updateView(date.plusDays(it.toLong()), 0)
-            updateView(date.minusDays(it.toLong()), 0)
+            startLessonUiSync(date.plusDays(it.toLong()), 0)
+            startLessonUiSync(date.minusDays(it.toLong()), 0)
         }
     }
 
