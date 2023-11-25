@@ -1,14 +1,8 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
-import android.Manifest
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
-import android.util.Log
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
@@ -52,6 +46,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -65,7 +60,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
-import es.jvbabi.vplanplus.ui.common.FullLoadingCircle
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -76,12 +70,18 @@ import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.NoData
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.Day
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.ViewType
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.calculateProgress
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalTime
+import java.time.Period
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
@@ -95,15 +95,16 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     var menuOpened by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val lessonPagerState = rememberPagerState(initialPage = state.page, pageCount = { Int.MAX_VALUE })
+    val lessonPagerState = rememberPagerState(initialPage = Int.MAX_VALUE/2+Period.between(LocalDate.now(), state.initDate).days, pageCount = { Int.MAX_VALUE })
 
-    LaunchedEffect(key1 = "Init", block = { viewModel.init(context) })
-    LaunchedEffect(key1 = state.page, block = {
-        Log.d("HomeScreen", "Page changed to ${state.page}")
-        lessonPagerState.animateScrollToPage(state.page)
+    LaunchedEffect(key1 = lessonPagerState, block = {
+        snapshotFlow { lessonPagerState.currentPage }.collect {
+            val date = state.date.plusDays(it - Int.MAX_VALUE / 2L)
+            viewModel.onPageChanged(date)
+        }
     })
 
-    val permissionsLauncher = rememberLauncherForActivityResult(
+    /*val permissionsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = { isGranted ->
             viewModel.setNotificationPermissionGranted(isGranted)
@@ -114,31 +115,28 @@ fun HomeScreen(
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             permissionsLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
-    })
+    })*/
 
-    if (state.initDone && state.activeProfile == null) {
-        navHostController.navigate(Screen.OnboardingWelcomeScreen.route) { popUpTo(0) }
-    } else {
-        HomeScreenContent(
-            state = state,
-            onMenuOpened = {
-                menuOpened = true
-            }, onViewModeChanged = {
-                viewModel.setViewType(it)
-                coroutineScope.launch {
-                    delay(450)
-                    lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
-                }
-            },
-            lessonPagerState = lessonPagerState,
-            onSetDayType = {
-                viewModel.setDayType(it)
-            },
-            onSearchOpened = {
-                navHostController.navigate(Screen.SearchScreen.route)
+    HomeScreenContent(
+        state = state,
+        onMenuOpened = {
+            menuOpened = true
+        }, onViewModeChanged = {
+            viewModel.setViewType(it)
+            coroutineScope.launch {
+                delay(450)
+                lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
             }
-        )
-    }
+        },
+        lessonPagerState = lessonPagerState,
+        onSetDayType = {
+            viewModel.setDayType(it)
+        },
+        onSearchOpened = {
+            navHostController.navigate(Screen.SearchScreen.route)
+        }
+    )
+
 
     BackHandler(enabled = menuOpened, onBack = {
         if (menuOpened) {
@@ -156,7 +154,7 @@ fun HomeScreen(
             selectedProfile = state.activeProfile!!.toMenuProfile(),
             onProfileClicked = {
                 menuOpened = false
-                viewModel.onProfileSelected(context, it)
+                viewModel.onProfileSelected(it)
             },
             onCloseClicked = {
                 menuOpened = false
@@ -206,173 +204,168 @@ fun HomeScreenContent(
         initialPage = LocalDate.now().dayOfWeek.value,
         pageCount = { 5 }),
 ) {
-    if (!state.initDone) FullLoadingCircle()
-    else {
-        Box(
-            modifier = Modifier.fillMaxSize()
+    Box(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize(),
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize(),
-            ) {
-                SearchBar(
-                    currentProfileName = if ((state.activeProfile?.displayName
-                            ?: "").length > 4
-                    ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName
-                        ?: "",
-                    onMenuOpened = onMenuOpened,
-                    onSearchClicked = { onSearchOpened(it) },
-                    searchOpen = false,
-                    searchValue = "",
-                    onSearchTyping = {},
-                    isSyncing = state.syncing
-                )
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(end = 8.dp),
-                    contentAlignment = Alignment.CenterEnd
-                ) {
-                    SingleChoiceSegmentedButtonRow {
-                        SegmentedButton(
-                            selected = state.viewMode == ViewType.WEEK,
-                            onClick = { onViewModeChanged(ViewType.WEEK) },
-                            shape = MaterialTheme.shapes.small,
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ViewWeek,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                        SegmentedButton(
-                            selected = state.viewMode == ViewType.DAY,
-                            onClick = { onViewModeChanged(ViewType.DAY) },
-                            shape = MaterialTheme.shapes.small,
-                        ) {
-                            Icon(imageVector = Icons.Default.ViewDay, contentDescription = null)
-                        }
-                    }
-                }
-                Column {
-                    val width by animateFloatAsState(
-                        targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
-                        label = "Plan View Changed Animation"
-                    )
-                    HorizontalPager(
-                        state = lessonPagerState,
-                        pageSize = PageSize.Fixed(width.dp),
-                        verticalAlignment = Alignment.Top,
-                    ) { index ->
-                        Column(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .padding(top = 8.dp)
-                        ) {
-                            val date = state.date.plusDays(index - Int.MAX_VALUE / 2L)
-                            if (state.lessons[date] == null) {
-                                onSetDayType(date)
-                            }
-                            when (state.lessons[date]?.dayType ?: DayType.NO_DATA) {
-                                DayType.LOADING -> {
-                                    Box(
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        CircularProgressIndicator()
-                                    }
-                                }
-
-                                DayType.NO_DATA -> NoData(state.viewMode == ViewType.WEEK)
-                                DayType.WEEKEND -> WeekendPlaceholder(
-                                    type = if (date == LocalDate.now()) WeekendType.TODAY else if (date.isBefore(
-                                            LocalDate.now()
-                                        )
-                                    ) WeekendType.OVER else WeekendType.COMING_UP,
-                                    compactMode = state.viewMode == ViewType.WEEK
-                                )
-
-                                DayType.HOLIDAY -> Holiday(state.viewMode == ViewType.WEEK)
-
-                                DayType.DATA -> {
-                                    if (state.lessons[date]!!.lessons.isEmpty()) {
-                                        onSetDayType(date)
-                                    }
-                                    val hiddenLessons = state.lessons[date]!!.lessons.count {
-                                        !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
-                                    }
-                                    if (hiddenLessons > 0) {
-                                        if (state.viewMode == ViewType.DAY) Text(
-                                            text = stringResource(
-                                                id = R.string.home_lessonsHidden,
-                                                hiddenLessons
-                                            ),
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = Color.Gray,
-                                            modifier = Modifier.padding(start = 8.dp)
-                                        ) else {
-                                            Row(
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
-                                                Text(
-                                                    text = "$hiddenLessons", style = MaterialTheme.typography.labelSmall,
-                                                    color = Color.Gray,
-                                                    modifier = Modifier.padding(start = 8.dp)
-                                                )
-                                            }
-                                        }
-                                    }
-                                    LazyColumn {
-                                        items(
-                                            state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }
-                                                .filter {
-                                                    state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
-                                                },
-                                        ) {
-                                            if ((calculateProgress(
-                                                    DateUtils.localDateTimeToTimeString(it.start),
-                                                    LocalTime.now().toString(),
-                                                    DateUtils.localDateTimeToTimeString(it.end)
-                                                )
-                                                    ?: -1.0) in 0.0..0.99
-                                                &&
-                                                date == LocalDate.now()
-                                            ) {
-                                                CurrentLessonCard(lesson = it, width = width)
-                                            } else {
-                                                LessonCard(lesson = it, width = width.dp, displayMode = state.activeProfile!!.type, isCompactMode = state.viewMode == ViewType.WEEK)
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            val scope = rememberCoroutineScope()
+            SearchBar(
+                currentProfileName = if ((state.activeProfile?.displayName
+                        ?: "").length > 4
+                ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName
+                    ?: "",
+                onMenuOpened = onMenuOpened,
+                onSearchClicked = { onSearchOpened(it) },
+                searchOpen = false,
+                searchValue = "",
+                onSearchTyping = {},
+                isSyncing = state.syncing
+            )
             Box(
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 16.dp)
+                    .fillMaxWidth()
+                    .padding(end = 8.dp),
+                contentAlignment = Alignment.CenterEnd
             ) {
-                DateIndicator(
-                    displayDate = state.date.plusDays(lessonPagerState.currentPage - Int.MAX_VALUE / 2L),
-                    alpha = 1 - abs(lessonPagerState.currentPageOffsetFraction) * 2,
-                    onClick = {
-                        scope.launch {
-                            lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
+                SingleChoiceSegmentedButtonRow {
+                    SegmentedButton(
+                        selected = state.viewMode == ViewType.WEEK,
+                        onClick = { onViewModeChanged(ViewType.WEEK) },
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ViewWeek,
+                            contentDescription = null
+                        )
+                    }
+                    SegmentedButton(
+                        selected = state.viewMode == ViewType.DAY,
+                        onClick = { onViewModeChanged(ViewType.DAY) },
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Icon(imageVector = Icons.Default.ViewDay, contentDescription = null)
+                    }
+                }
+            }
+            Column {
+                val width by animateFloatAsState(
+                    targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
+                    label = "Plan View Changed Animation"
+                )
+                HorizontalPager(
+                    state = lessonPagerState,
+                    pageSize = PageSize.Fixed(width.dp),
+                    verticalAlignment = Alignment.Top,
+                ) { index ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .padding(top = 8.dp)
+                    ) {
+                        val date = LocalDate.now().plusDays(index - Int.MAX_VALUE / 2L)
+                        if (state.lessons[date] == null) {
+                            onSetDayType(date)
+                        }
+                        when (state.lessons[date]?.dayType ?: DayType.NO_DATA) {
+                            DayType.LOADING -> {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
+
+                            DayType.NO_DATA -> NoData(state.viewMode == ViewType.WEEK)
+                            DayType.WEEKEND -> WeekendPlaceholder(
+                                type = if (date == LocalDate.now()) WeekendType.TODAY else if (date.isBefore(
+                                        LocalDate.now()
+                                    )
+                                ) WeekendType.OVER else WeekendType.COMING_UP,
+                                compactMode = state.viewMode == ViewType.WEEK
+                            )
+
+                            DayType.HOLIDAY -> Holiday(state.viewMode == ViewType.WEEK)
+
+                            DayType.DATA -> {
+                                if (state.lessons[date]!!.lessons.isEmpty()) {
+                                    onSetDayType(date)
+                                }
+                                val hiddenLessons = state.lessons[date]!!.lessons.count {
+                                    !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
+                                }
+                                if (hiddenLessons > 0) {
+                                    if (state.viewMode == ViewType.DAY) Text(
+                                        text = stringResource(
+                                            id = R.string.home_lessonsHidden,
+                                            hiddenLessons
+                                        ),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = Color.Gray,
+                                        modifier = Modifier.padding(start = 8.dp)
+                                    ) else {
+                                        Row(
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                                            Text(
+                                                text = "$hiddenLessons", style = MaterialTheme.typography.labelSmall,
+                                                color = Color.Gray,
+                                                modifier = Modifier.padding(start = 8.dp)
+                                            )
+                                        }
+                                    }
+                                }
+                                LazyColumn {
+                                    items(
+                                        state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }
+                                            .filter {
+                                                state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
+                                            },
+                                    ) {
+                                        if ((calculateProgress(
+                                                DateUtils.localDateTimeToTimeString(it.start),
+                                                LocalTime.now().toString(),
+                                                DateUtils.localDateTimeToTimeString(it.end)
+                                            )
+                                                ?: -1.0) in 0.0..0.99
+                                            &&
+                                            date == LocalDate.now()
+                                        ) {
+                                            CurrentLessonCard(lesson = it, width = width)
+                                        } else {
+                                            LessonCard(lesson = it, width = width.dp, displayMode = state.activeProfile!!.type, isCompactMode = state.viewMode == ViewType.WEEK)
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
-                )
+                }
             }
+        }
+        val scope = rememberCoroutineScope()
+        Box(
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = 16.dp)
+        ) {
+            DateIndicator(
+                displayDate = state.date,
+                alpha = 1 - abs(lessonPagerState.currentPageOffsetFraction) * 2,
+                onClick = {
+                    scope.launch {
+                        lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
+                    }
+                }
+            )
+
         }
     }
 }
+
 
 @Composable
 fun CurrentLessonCard(lesson: Lesson, width: Float) {
@@ -465,7 +458,6 @@ fun CurrentLessonCardPreview() {
 fun HomeScreenPreview() {
     HomeScreenContent(
         HomeState(
-            initDone = true,
             isLoading = true,
             lessons = hashMapOf(
                 LocalDate.now() to Day(

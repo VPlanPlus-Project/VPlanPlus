@@ -6,11 +6,13 @@ import androidx.room.TypeConverters
 import es.jvbabi.vplanplus.data.model.DbClass
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbTeacher
 import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
+import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
@@ -53,6 +55,7 @@ import es.jvbabi.vplanplus.domain.model.Week
         Week::class,
         LessonTime::class,
         DbDefaultLesson::class,
+        DbPlanData::class,
 
         LessonRoomCrossover::class,
         LessonTeacherCrossover::class,
@@ -67,7 +70,8 @@ import es.jvbabi.vplanplus.domain.model.Week
     DayConverter::class,
     ProfileTypeConverter::class,
     ProfileCalendarTypeConverter::class,
-    UuidConverter::class
+    UuidConverter::class,
+    DayDataTypeConverter::class
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao

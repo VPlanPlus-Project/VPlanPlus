@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.domain.repository
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
-import es.jvbabi.vplanplus.ui.screens.home.DayType
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 

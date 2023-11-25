@@ -13,6 +13,8 @@ import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -23,6 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileSettingsViewModel @Inject constructor(
     private val profileUseCases: ProfileUseCases,
+    private val keyValueUseCases: KeyValueUseCases,
     private val calendarRepository: CalendarRepository,
 ) : ViewModel() {
 
@@ -93,9 +96,7 @@ class ProfileSettingsViewModel @Inject constructor(
                 }
                 val activeProfile = profileUseCases.getActiveProfile()!!
                 if (activeProfile.id == profile.id) {
-                    profileUseCases.setActiveProfile(
-                        profileUseCases.getProfiles().first().find { it.id != profile.id }?.id ?: -1
-                    )
+                    keyValueUseCases.set(Keys.ACTIVE_PROFILE, (profileUseCases.getProfiles().first().find { it.id != profile.id }?.id ?: -1).toString())
                 }
                 profileUseCases.deleteProfile(profile.id)
                 setDeleteProfileResult(ProfileManagementDeletionResult.SUCCESS)

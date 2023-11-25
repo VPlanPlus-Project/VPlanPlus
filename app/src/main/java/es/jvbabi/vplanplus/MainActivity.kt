@@ -9,6 +9,11 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
@@ -17,8 +22,9 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.ui.NavigationGraph
-import es.jvbabi.vplanplus.ui.screens.home.HomeViewModel
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
 import es.jvbabi.vplanplus.worker.SyncWorker
@@ -26,6 +32,7 @@ import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -33,23 +40,33 @@ class MainActivity : ComponentActivity() {
     private val onboardingViewModel: OnboardingViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
 
+    @Inject
+    lateinit var profileUseCases: ProfileUseCases
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         processIntent(intent)
 
         setContent {
+            var goToOnboarding: Boolean? by remember { mutableStateOf(null) }
+            LaunchedEffect(key1 = "init", block = {
+                goToOnboarding = profileUseCases.getActiveProfile() == null
+            })
             VPlanPlusTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.surface
                 ) {
                     val navController = rememberNavController()
-                    NavigationGraph(
-                        navController = navController,
-                        onboardingViewModel = onboardingViewModel,
-                        homeViewModel = homeViewModel
-                    )
+                    if (goToOnboarding != null) {
+                        NavigationGraph(
+                            navController = navController,
+                            onboardingViewModel = onboardingViewModel,
+                            homeViewModel = homeViewModel,
+                            goToOnboarding = goToOnboarding!!
+                        )
+                    }
                 }
             }
         }
@@ -76,12 +93,12 @@ class MainActivity : ComponentActivity() {
             Log.d("MainActivity.Intent", "profileId: $profileId")
             Log.d("MainActivity.Intent", "dateStr: ${intent.getStringExtra("dateStr")}")
 
-            homeViewModel.onProfileSelected(applicationContext, profileId)
+            homeViewModel.onProfileSelected(profileId)
             if (intent.getStringExtra("dateStr") != null) {
                 val dateStr = intent.getStringExtra("dateStr") ?: return
                 val date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 Log.d("MainActivity.Intent", "Switching to date: $date (Difference: ${Period.between(LocalDate.now(), date).days})")
-                homeViewModel.changePage(Int.MAX_VALUE/2 + Period.between(LocalDate.now(), date).days)
+                homeViewModel.onInitPageChanged(date)
             }
         }
     }

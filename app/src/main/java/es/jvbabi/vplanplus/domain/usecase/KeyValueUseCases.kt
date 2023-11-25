@@ -14,9 +14,7 @@ class KeyValueUseCases(
         keyValueRepository.set(key = key, value = value)
     }
 
-    fun getFlow(key: String): Flow<String?> {
-        return keyValueRepository.getFlow(key = key)
-    }
+    fun getFlow(key: String): Flow<String?> = keyValueRepository.getFlow(key = key)
 
     suspend fun getOrDefault(key: String, defaultValue: String): String {
         return keyValueRepository.getOrDefault(key = key, defaultValue = defaultValue)

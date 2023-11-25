@@ -29,8 +29,8 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
-import es.jvbabi.vplanplus.ui.screens.home.Day
-import es.jvbabi.vplanplus.ui.screens.home.DayType
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.Day
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import es.jvbabi.vplanplus.util.App.isAppInForeground
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp

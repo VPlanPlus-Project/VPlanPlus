@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import java.security.MessageDigest
 import java.time.LocalDate
 
@@ -99,6 +100,37 @@ class ProfileUseCases(
         )
     }
 
+    suspend fun getActiveProfileFlow(): Flow<Profile?> = flow {
+        keyValueRepository.getFlow(key = Keys.ACTIVE_PROFILE).collect {
+            if (it == null) {
+                emit(null)
+                return@collect
+            }
+            profileRepository.getProfileById(it.toLong()).collect { p ->
+                emit(p)
+            }
+        }
+    }
+
+    fun getLessonsForProfile(profile: Profile, date: LocalDate, version: Long? = null) = flow {
+        when (profile.type) {
+            ProfileType.STUDENT -> {
+                val `class` = classRepository.getClassById(id = profile.referenceId)
+                lessonRepository.getLessonsForClass(`class`.classId, date, version)
+            }
+            ProfileType.TEACHER -> {
+                val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
+                lessonRepository.getLessonsForTeacher(teacher!!.teacherId, date, version)
+            }
+            ProfileType.ROOM -> {
+                val room = roomRepository.getRoomById(profile.referenceId)
+                lessonRepository.getLessonsForRoom(room.roomId, date, version)
+            }
+        }.collect {
+            emit(it)
+        }
+    }
+
     suspend fun getActiveProfile(): Profile? {
         val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE) ?: return null
         return profileRepository.getProfileById(id = activeProfileId.toLong()).first()
@@ -106,10 +138,6 @@ class ProfileUseCases(
 
     fun getProfiles(): Flow<List<Profile>> {
         return profileRepository.getProfiles()
-    }
-
-    suspend fun setActiveProfile(profileId: Long) {
-        keyValueRepository.set(key = Keys.ACTIVE_PROFILE, value = profileId.toString())
     }
 
     suspend fun deleteProfile(profileId: Long) {
