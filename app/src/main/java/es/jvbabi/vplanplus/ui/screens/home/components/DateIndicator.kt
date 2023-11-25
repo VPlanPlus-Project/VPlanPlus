@@ -14,11 +14,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun DateIndicator(
@@ -38,12 +37,8 @@ fun DateIndicator(
             },
         contentAlignment = Alignment.Center
     ) {
-        val text = if (displayDate == LocalDate.now()) stringResource(id = R.string.today)
-        else if (displayDate.minusDays(1L) == LocalDate.now()) stringResource(id = R.string.tomorrow)
-        else if (displayDate.plusDays(1L) == LocalDate.now()) stringResource(id = R.string.yesterday)
-        else displayDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
         Text(
-            text = text,
+            text = DateUtils.localizedRelativeDate(LocalContext.current, displayDate),
             color = MaterialTheme.colorScheme.onTertiaryContainer,
             modifier = Modifier.alpha(alpha)
         )
