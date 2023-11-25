@@ -122,4 +122,5 @@
     <string name="home_lastSync">Zuletzt synchronisiert: %1$s</string>
     <string name="day_after_tomorrow">Übermorgen</string>
     <string name="day_before_yesterday">Vorgestern</string>
+    <string name="lesson_cancelFindRoom">Leeren Raum suchen</string>
 </resources>

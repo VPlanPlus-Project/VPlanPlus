@@ -123,6 +123,9 @@ fun HomeScreen(
         },
         onSearchOpened = {
             navHostController.navigate(Screen.SearchScreen.route)
+        },
+        onFindAvailableRoomClicked = {
+            navHostController.navigate(Screen.SearchAvailableRoomScreen.route)
         }
     )
 
@@ -192,6 +195,7 @@ fun HomeScreenContent(
     lessonPagerState: PagerState = rememberPagerState(
         initialPage = LocalDate.now().dayOfWeek.value,
         pageCount = { 5 }),
+    onFindAvailableRoomClicked: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -331,7 +335,18 @@ fun HomeScreenContent(
                                         ) {
                                             CurrentLessonCard(lesson = it, width = width)
                                         } else {
-                                            LessonCard(lesson = it, width = width.dp, displayMode = state.activeProfile!!.type, isCompactMode = state.viewMode == ViewType.WEEK)
+                                            val isFirstOrLastLesson = listOf(
+                                                state.lessons[date]!!.lessons.minOfOrNull { l -> l.lessonNumber },
+                                                state.lessons[date]!!.lessons.maxOfOrNull { l -> l.lessonNumber }
+                                            ).contains(it.lessonNumber)
+                                            LessonCard(
+                                                lesson = it,
+                                                width = width.dp,
+                                                displayMode = state.activeProfile!!.type,
+                                                isCompactMode = state.viewMode == ViewType.WEEK,
+                                                showFindAvailableRoom = date.isEqual(LocalDate.now()) && !isFirstOrLastLesson,
+                                                onFindAvailableRoomClicked = onFindAvailableRoomClicked
+                                            )
                                         }
                                     }
                                 }

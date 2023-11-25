@@ -13,15 +13,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MeetingRoom
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
@@ -33,9 +39,13 @@ fun LessonCard(
     displayMode: ProfileType,
     lesson: Lesson,
     width: Dp,
-    isCompactMode: Boolean
+    isCompactMode: Boolean,
+    showFindAvailableRoom: Boolean = false,
+    onFindAvailableRoomClicked: () -> Unit
 ) {
-    Card(modifier = Modifier.padding(4.dp).width(width)) {
+    Card(modifier = Modifier
+        .padding(4.dp)
+        .width(width)) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -101,6 +111,15 @@ fun LessonCard(
                                         spacing = MarqueeSpacing(12.dp)
                                     )
                             )
+                            if (displayMode == ProfileType.STUDENT && lesson.displaySubject == "-" && showFindAvailableRoom) {
+                                AssistChip(
+                                    label = {
+                                        Text(text = stringResource(id = R.string.lesson_cancelFindRoom))
+                                    },
+                                    onClick = { onFindAvailableRoomClicked() },
+                                    leadingIcon = { Icon(imageVector = Icons.Default.MeetingRoom, contentDescription = null) }
+                                )
+                            }
                         }
                     }
                     SubjectIcon(subject = lesson.displaySubject, modifier = Modifier
@@ -140,11 +159,17 @@ fun LessonCard(
 @Preview
 @Composable
 private fun LessonCardPreview() {
-    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateLessons(1).first(), isCompactMode = false, width = 300.dp)
+    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateLessons(1).first(), isCompactMode = false, width = 300.dp, onFindAvailableRoomClicked = { })
 }
 
 @Preview
 @Composable
 private fun CompactLessonCardPreview() {
-    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateLessons(1).first(), isCompactMode = true, width = 50.dp)
+    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateLessons(1).first(), isCompactMode = true, width = 50.dp, onFindAvailableRoomClicked = { })
+}
+
+@Preview
+@Composable
+private fun CancelledLessonCard() {
+    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateCanceledLesson(), width = 500.dp, isCompactMode = false, onFindAvailableRoomClicked = { })
 }
