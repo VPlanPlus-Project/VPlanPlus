@@ -1,10 +1,10 @@
 package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import java.time.LocalDate
 
 class HolidayRepositoryImpl(
@@ -53,6 +53,6 @@ class HolidayRepositoryImpl(
         val school = schoolRepository.getSchoolFromId(schoolId)
         return if (isHoliday(schoolId, date)) DayType.HOLIDAY
         else if (date.dayOfWeek.value > school.daysPerWeek) DayType.WEEKEND
-        else DayType.DATA
+        else DayType.NORMAL
     }
 }

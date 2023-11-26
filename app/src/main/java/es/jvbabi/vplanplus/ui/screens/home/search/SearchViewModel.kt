@@ -5,14 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
@@ -24,6 +26,7 @@ class SearchViewModel @Inject constructor(
     private val classUseCases: ClassUseCases,
     private val schoolUseCases: SchoolUseCases,
     private val lessonUseCases: LessonUseCases,
+    private val keyValueUseCases: KeyValueUseCases,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
 ) : ViewModel() {
@@ -52,17 +55,17 @@ class SearchViewModel @Inject constructor(
                     }
                     val firstTeacher = teachers.firstOrNull()
                     if (firstTeacher != null) {
-                        val lessons = lessonUseCases.getLessonsForTeacher(
-                            firstTeacher, LocalDate.now()
+                        val day = lessonUseCases.getLessonsForTeacher(
+                            firstTeacher, LocalDate.now(), keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
                         ).firstOrNull()
                         teachers.forEachIndexed { index, teacher ->
-                            if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
+                            if (index == 0  && day != null && day.lessons.isNotEmpty() && day.state == DayDataState.DATA) {
                                 result.add(
                                     Result(
                                         teacher.teacherId,
                                         teacher.acronym,
                                         FilterType.TEACHER,
-                                        lessons.lessons
+                                        day.lessons
                                     )
                                 )
                             } else {
@@ -83,18 +86,19 @@ class SearchViewModel @Inject constructor(
                     }
                     val firstRoom = rooms.firstOrNull()
                     if (firstRoom != null) {
-                        val lessons = lessonUseCases.getLessonsForRoom(
+                        val day = lessonUseCases.getLessonsForRoom(
                             firstRoom,
-                            LocalDate.now()
+                            LocalDate.now(),
+                            keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
                         ).firstOrNull()
                         rooms.forEachIndexed { index, room ->
-                            if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
+                            if (index == 0  && day != null && day.lessons.isNotEmpty() && day.state == DayDataState.DATA) {
                                 result.add(
                                     Result(
                                         room.roomId,
                                         room.name,
                                         FilterType.ROOM,
-                                        lessons.lessons
+                                        day.lessons
                                     )
                                 )
                             } else {
@@ -109,16 +113,20 @@ class SearchViewModel @Inject constructor(
                     }
                     val firstClass = classes.firstOrNull()
                     if (firstClass != null) {
-                        val lessons = lessonUseCases.getLessonsForClass(firstClass, LocalDate.now())
+                        val day = lessonUseCases.getLessonsForClass(
+                            firstClass,
+                            LocalDate.now(),
+                            keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
+                        )
                             .firstOrNull()
                         classes.forEachIndexed { index, `class` ->
-                            if (index == 0 && lessons != null && lessons.dayType == DayType.DATA) {
+                            if (index == 0  && day != null && day.lessons.isNotEmpty() && day.state == DayDataState.DATA) {
                                 result.add(
                                     Result(
                                         `class`.classId,
                                         `class`.name,
                                         FilterType.CLASS,
-                                        lessons.lessons
+                                        day.lessons
                                     )
                                 )
                             } else {

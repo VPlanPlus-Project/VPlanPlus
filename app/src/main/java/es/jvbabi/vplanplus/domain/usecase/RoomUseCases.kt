@@ -8,13 +8,15 @@ import java.time.LocalDate
 
 class RoomUseCases(
     private val roomRepository: RoomRepository,
+    private val keyValueUseCases: KeyValueUseCases,
     private val lessonUseCases: LessonUseCases
 ) {
     suspend fun getRoomAvailabilityMap(school: School): Map<Room, List<Boolean>> {
+        val version = (keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?:"0").toLong()
         val rooms = roomRepository.getRoomsBySchool(school)
         val map = mutableMapOf<Room, List<Boolean>>()
         rooms.forEach { room ->
-            val lessons = lessonUseCases.getLessonsForRoom(room, LocalDate.now()).first()
+            val lessons = lessonUseCases.getLessonsForRoom(room, LocalDate.now(), version).first()
             val availability = mutableListOf<Boolean>()
             repeat(11) {
                 val lesson = lessons.lessons.firstOrNull { lesson -> lesson.lessonNumber == it }

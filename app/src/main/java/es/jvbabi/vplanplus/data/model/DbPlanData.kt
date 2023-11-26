@@ -2,7 +2,7 @@ package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import es.jvbabi.vplanplus.domain.model.DayDataType
+import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.School
 import java.time.LocalDate
 import java.util.UUID
@@ -31,5 +31,5 @@ data class DbPlanData(
     val date: LocalDate,
     val schoolId: Long,
     val planDate: LocalDate,
-    val dayDataType: DayDataType,
+    val dayDataState: DayDataState,
 )

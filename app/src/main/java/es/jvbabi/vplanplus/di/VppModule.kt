@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LogRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.PlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
@@ -38,6 +39,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
@@ -47,9 +49,7 @@ import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
-import es.jvbabi.vplanplus.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
-import es.jvbabi.vplanplus.domain.usecase.LessonTimeUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.RoomUseCases
@@ -172,12 +172,18 @@ object VppModule {
     @Singleton
     fun provideLessonRepository(db: VppDatabase): LessonRepository {
         return LessonRepositoryImpl(
-            roomRepository = provideRoomRepository(db),
+            lessonDao = db.lessonDao,
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun providePlanRepository(db: VppDatabase): PlanRepository {
+        return PlanRepositoryImpl(
+            holidayRepository = provideHolidayRepository(db),
             teacherRepository = provideTeacherRepository(db),
             classRepository = provideClassRepository(db),
-            holidayRepository = provideHolidayRepository(db),
-            lessonDao = db.lessonDao,
-            keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db))
+            lessonRepository = provideLessonRepository(db)
         )
     }
 
@@ -210,37 +216,24 @@ object VppModule {
     @Provides
     @Singleton
     fun provideLessonUseCases(
-        lessonRepository: LessonRepository,
+        planRepository: PlanRepository,
     ): LessonUseCases {
         return LessonUseCases(
-            lessonRepository = lessonRepository,
+            planRepository = planRepository
         )
     }
 
     @Provides
     @Singleton
-    fun provideLessonTimesUseCases(
-        lessonTimeRepository: LessonTimeRepository,
+    fun provideRoomUseCases(
         roomRepository: RoomRepository,
-        teacherRepository: TeacherRepository,
-        classUseCases: ClassUseCases,
-        lessonUseCases: LessonUseCases
-    ): LessonTimeUseCases {
-        return LessonTimeUseCases(
-            lessonUseCases = lessonUseCases,
-            lessonTimeRepository = lessonTimeRepository,
-            roomRepository = roomRepository,
-            teacherRepository = teacherRepository,
-            classUseCases = classUseCases
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideRoomUseCases(roomRepository: RoomRepository, lessonUseCases: LessonUseCases): RoomUseCases {
+        lessonUseCases: LessonUseCases,
+        keyValueUseCases: KeyValueUseCases
+    ): RoomUseCases {
         return RoomUseCases(
             roomRepository = roomRepository,
-            lessonUseCases = lessonUseCases
+            lessonUseCases = lessonUseCases,
+            keyValueUseCases = keyValueUseCases
         )
     }
 
@@ -252,7 +245,7 @@ object VppModule {
         classRepository: ClassRepository,
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
-        lessonRepository: LessonRepository,
+        planRepository: PlanRepository,
         calendarRepository: CalendarRepository
     ): ProfileUseCases {
         return ProfileUseCases(
@@ -261,7 +254,7 @@ object VppModule {
             classRepository = classRepository,
             teacherRepository = teacherRepository,
             roomRepository = roomRepository,
-            lessonRepository = lessonRepository,
+            planRepository = planRepository,
             calendarRepository = calendarRepository
         )
     }
@@ -309,16 +302,6 @@ object VppModule {
             lessonRoomCrossover = db.lessonRoomCrossoverDao,
             lessonTeacherCrossover = db.lessonTeacherCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db))
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideHomeUseCases(
-        lessonRepository: LessonRepository,
-    ): HomeUseCases {
-        return HomeUseCases(
-            lessonRepository = lessonRepository,
         )
     }
 }

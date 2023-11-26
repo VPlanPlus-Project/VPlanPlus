@@ -2,24 +2,24 @@ package es.jvbabi.vplanplus.data.source.database.converter
 
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import es.jvbabi.vplanplus.domain.model.DayDataType
+import es.jvbabi.vplanplus.domain.model.DayDataState
 
 @ProvidedTypeConverter
 class DayDataTypeConverter {
 
     @TypeConverter
-    fun dayDataTypeToInt(dayDataType: DayDataType): Int {
-        return when (dayDataType) {
-            DayDataType.SYNCED -> 0
-            DayDataType.NOT_SYNCED -> 1
+    fun dayDataTypeToInt(dayDataState: DayDataState): Int {
+        return when (dayDataState) {
+            DayDataState.DATA -> 0
+            DayDataState.NO_DATA -> 1
         }
     }
 
     @TypeConverter
-    fun intToDayDataType(int: Int): DayDataType {
+    fun intToDayDataType(int: Int): DayDataState {
         return when (int) {
-            0 -> DayDataType.SYNCED
-            1 -> DayDataType.NOT_SYNCED
+            0 -> DayDataState.DATA
+            1 -> DayDataState.NO_DATA
             else -> throw IllegalArgumentException("Unknown dayDataType")
         }
     }

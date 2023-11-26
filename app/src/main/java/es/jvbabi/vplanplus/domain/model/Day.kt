@@ -1,6 +1,21 @@
 package es.jvbabi.vplanplus.domain.model
 
-enum class DayDataType {
-    SYNCED,
-    NOT_SYNCED,
+import java.time.LocalDate
+
+enum class DayDataState {
+    DATA,
+    NO_DATA,
 }
+
+enum class DayType {
+    WEEKEND,
+    HOLIDAY,
+    NORMAL,
+}
+
+data class Day(
+    val date: LocalDate,
+    val state: DayDataState,
+    val type: DayType,
+    val lessons: List<Lesson>,
+)
