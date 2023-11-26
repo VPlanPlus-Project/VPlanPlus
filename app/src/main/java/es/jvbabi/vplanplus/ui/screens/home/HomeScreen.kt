@@ -32,7 +32,6 @@ import androidx.compose.material.icons.filled.ViewDay
 import androidx.compose.material.icons.filled.ViewWeek
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -59,6 +58,9 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Day
+import es.jvbabi.vplanplus.domain.model.DayDataState
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.SmallText
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
@@ -71,8 +73,6 @@ import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.NoData
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.Day
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.ViewType
@@ -118,9 +118,6 @@ fun HomeScreen(
             }
         },
         lessonPagerState = lessonPagerState,
-        onSetDayType = {
-            viewModel.setDayType(it)
-        },
         onSearchOpened = {
             navHostController.navigate(Screen.SearchScreen.route)
         },
@@ -191,7 +188,6 @@ fun HomeScreenContent(
     onSearchOpened: (Boolean) -> Unit = {},
     onMenuOpened: () -> Unit = {},
     onViewModeChanged: (type: ViewType) -> Unit = {},
-    onSetDayType: (date: LocalDate) -> Unit = {},
     lessonPagerState: PagerState = rememberPagerState(
         initialPage = LocalDate.now().dayOfWeek.value,
         pageCount = { 5 }),
@@ -264,20 +260,8 @@ fun HomeScreenContent(
                             .padding(top = 8.dp)
                     ) {
                         val date = LocalDate.now().plusDays(index - Int.MAX_VALUE / 2L)
-                        if (state.lessons[date] == null) {
-                            onSetDayType(date)
-                        }
-                        when (state.lessons[date]?.dayType ?: DayType.NO_DATA) {
-                            DayType.LOADING -> {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-
-                            DayType.NO_DATA -> NoData(state.viewMode == ViewType.WEEK)
+                        if (state.lessons[date]?.state == DayDataState.NO_DATA || state.lessons[date]?.state == null) NoData(state.viewMode == ViewType.WEEK)
+                        else when (state.lessons[date]!!.type) {
                             DayType.WEEKEND -> WeekendPlaceholder(
                                 type = if (date == LocalDate.now()) WeekendType.TODAY else if (date.isBefore(
                                         LocalDate.now()
@@ -285,13 +269,8 @@ fun HomeScreenContent(
                                 ) WeekendType.OVER else WeekendType.COMING_UP,
                                 compactMode = state.viewMode == ViewType.WEEK
                             )
-
                             DayType.HOLIDAY -> Holiday(state.viewMode == ViewType.WEEK)
-
-                            DayType.DATA -> {
-                                if (state.lessons[date]!!.lessons.isEmpty()) {
-                                    onSetDayType(date)
-                                }
+                            DayType.NORMAL -> {
                                 val hiddenLessons = state.lessons[date]!!.lessons.count {
                                     !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
                                 }
@@ -472,7 +451,9 @@ fun HomeScreenPreview() {
             isLoading = true,
             lessons = hashMapOf(
                 LocalDate.now() to Day(
-                    dayType = DayType.DATA,
+                    type = DayType.NORMAL,
+                    state = DayDataState.DATA,
+                    date = LocalDate.now(),
                     lessons = Lessons.generateLessons(4)
                 )
             ),

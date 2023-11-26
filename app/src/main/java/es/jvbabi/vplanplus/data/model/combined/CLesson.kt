@@ -65,7 +65,6 @@ data class CLesson(
             rooms = rooms.map { it.name },
             roomIsChanged = lesson.roomIsChanged,
             info = lesson.info,
-            day = lesson.day,
             start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(
                 lessonTimes.getOrElse(
                     lesson.lessonNumber

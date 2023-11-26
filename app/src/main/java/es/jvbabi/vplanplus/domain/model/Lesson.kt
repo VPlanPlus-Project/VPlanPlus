@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.domain.model
 
 import es.jvbabi.vplanplus.util.sha256
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class Lesson(
@@ -14,7 +13,6 @@ data class Lesson(
     val rooms: List<String>,
     val roomIsChanged: Boolean,
     val info: String?,
-    val day: LocalDate,
     val start: LocalDateTime,
     val end: LocalDateTime,
     val vpId: Long?

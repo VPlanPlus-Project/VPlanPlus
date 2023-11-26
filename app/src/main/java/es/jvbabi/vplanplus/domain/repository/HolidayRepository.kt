@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Holiday
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import java.time.LocalDate
 
 interface HolidayRepository {

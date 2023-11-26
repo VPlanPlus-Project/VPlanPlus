@@ -15,6 +15,8 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
+import es.jvbabi.vplanplus.domain.model.Day
+import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
@@ -29,8 +31,6 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.Day
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.DayType
 import es.jvbabi.vplanplus.util.App.isAppInForeground
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
@@ -72,7 +72,7 @@ class SyncWorker @AssistedInject constructor(
 
                 // set hash before sync to evaluate later if any changes were made
                 profiles.forEach { profile ->
-                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date, false, planVersion = currentVersion)
+                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date, false, v = currentVersion)
                     profileDataBefore[profile] = getLessonsByProfile(profile, date, currentVersion).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
                 }
 
@@ -116,8 +116,8 @@ class SyncWorker @AssistedInject constructor(
 
                         calendarRepository.deleteCalendarEvents(school = school, date = date)
                         val lessons = getLessonsByProfile(profile, date, currentVersion + 1)
-                        Log.d("SyncWorker.Calendar", "Calendar: $calendar $date ${lessons.dayType} ${lessons.lessons.isEmpty()}")
-                        if (lessons.dayType != DayType.DATA || lessons.lessons.isEmpty()) return@profile
+                        Log.d("SyncWorker.Calendar", "Calendar: $calendar $date ${lessons.type} ${lessons.lessons.isEmpty()}")
+                        if (lessons.state == DayDataState.NO_DATA || lessons.lessons.isEmpty()) return@profile
                         Log.d("SyncWorker.Calendar", "${profile.displayName}: Calendar Type: ${profile.calendarType}")
                         when (profile.calendarType) {
                             ProfileCalendarType.DAY -> {

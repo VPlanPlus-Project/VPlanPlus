@@ -8,13 +8,12 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.repository.LessonRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import java.security.MessageDigest
 import java.time.LocalDate
 
@@ -24,8 +23,8 @@ class ProfileUseCases(
     private val keyValueRepository: KeyValueRepository,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
-    private val lessonRepository: LessonRepository,
-    private val calendarRepository: CalendarRepository
+    private val calendarRepository: CalendarRepository,
+    private val planRepository: PlanRepository
 ) {
 
     suspend fun deleteDefaultLessonsFromProfile(profileId: Long) {
@@ -100,37 +99,6 @@ class ProfileUseCases(
         )
     }
 
-    suspend fun getActiveProfileFlow(): Flow<Profile?> = flow {
-        keyValueRepository.getFlow(key = Keys.ACTIVE_PROFILE).collect {
-            if (it == null) {
-                emit(null)
-                return@collect
-            }
-            profileRepository.getProfileById(it.toLong()).collect { p ->
-                emit(p)
-            }
-        }
-    }
-
-    fun getLessonsForProfile(profile: Profile, date: LocalDate, version: Long? = null) = flow {
-        when (profile.type) {
-            ProfileType.STUDENT -> {
-                val `class` = classRepository.getClassById(id = profile.referenceId)
-                lessonRepository.getLessonsForClass(`class`.classId, date, version)
-            }
-            ProfileType.TEACHER -> {
-                val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
-                lessonRepository.getLessonsForTeacher(teacher!!.teacherId, date, version)
-            }
-            ProfileType.ROOM -> {
-                val room = roomRepository.getRoomById(profile.referenceId)
-                lessonRepository.getLessonsForRoom(room.roomId, date, version)
-            }
-        }.collect {
-            emit(it)
-        }
-    }
-
     suspend fun getActiveProfile(): Profile? {
         val activeProfileId = keyValueRepository.get(key = Keys.ACTIVE_PROFILE) ?: return null
         return profileRepository.getProfileById(id = activeProfileId.toLong()).first()
@@ -165,41 +133,12 @@ class ProfileUseCases(
         profile: Profile,
         date: LocalDate,
         includeHiddenLessons: Boolean = true,
-        planVersion: Long? = null
+        v: Long? = null
     ): String {
-        val plan = when (profile.type) {
-            ProfileType.STUDENT -> {
-                val `class` = classRepository.getClassById(id = profile.referenceId)
-                lessonRepository.getLessonsForClassDirect(
-                    classId = `class`.classId,
-                    date = date,
-                    version = planVersion
-                        ?: keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
-                )
-            }
-
-            ProfileType.TEACHER -> {
-                val teacher = teacherRepository.getTeacherById(id = profile.referenceId)
-                lessonRepository.getLessonsForTeacherDirect(
-                    teacherId = teacher!!.teacherId,
-                    date = date,
-                    version = planVersion
-                        ?: keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
-                )
-            }
-
-            ProfileType.ROOM -> {
-                val room = roomRepository.getRoomById(profile.referenceId)
-                lessonRepository.getLessonsForRoomDirect(
-                    roomId = room.roomId, date = date,
-                    version = planVersion
-                        ?: keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
-                )
-            }
-        }
-
+        val planVersion = v ?: keyValueRepository.get(key = Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
+        val plan = planRepository.getDayForProfile(profile = profile, date = date, version = planVersion).first()
         return MessageDigest.getInstance("SHA-256")
-            .digest(plan.second.filter { includeHiddenLessons || profile.isDefaultLessonEnabled(it.vpId) }
+            .digest(plan.lessons.filter { includeHiddenLessons || profile.isDefaultLessonEnabled(it.vpId) }
                 .joinToString { lesson ->
                     lesson.rooms.joinToString { it } + lesson.originalSubject + (lesson.changedSubject
                         ?: "") + lesson.teachers.joinToString { it }
