@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,10 +16,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
@@ -28,15 +25,9 @@ import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ViewDay
-import androidx.compose.material.icons.filled.ViewWeek
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SegmentedButton
-import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -61,14 +52,14 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
-import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.ui.common.PaddingRow
 import es.jvbabi.vplanplus.ui.common.SmallText
-import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.DateIndicator
 import es.jvbabi.vplanplus.ui.screens.home.components.LessonCard
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import es.jvbabi.vplanplus.ui.screens.home.components.ViewSwitcher
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.NoData
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
@@ -76,13 +67,10 @@ import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.ViewType
-import es.jvbabi.vplanplus.util.DateUtils
-import es.jvbabi.vplanplus.util.DateUtils.calculateProgress
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.LocalTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
 import kotlin.math.abs
@@ -181,7 +169,7 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
     state: HomeState,
@@ -212,43 +200,24 @@ fun HomeScreenContent(
                 onSearchTyping = {},
                 isSyncing = state.syncing
             )
-            Box(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(end = 8.dp),
-                contentAlignment = Alignment.CenterEnd
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                SingleChoiceSegmentedButtonRow {
-                    SegmentedButton(
-                        selected = state.viewMode == ViewType.WEEK,
-                        onClick = { onViewModeChanged(ViewType.WEEK) },
-                        shape = MaterialTheme.shapes.small,
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ViewWeek,
-                            contentDescription = null
-                        )
-                    }
-                    SegmentedButton(
-                        selected = state.viewMode == ViewType.DAY,
-                        onClick = { onViewModeChanged(ViewType.DAY) },
-                        shape = MaterialTheme.shapes.small,
-                    ) {
-                        Icon(imageVector = Icons.Default.ViewDay, contentDescription = null)
-                    }
+                PaddingRow {
+                    if (state.lastSync == null) SmallText(text = stringResource(id = R.string.home_lastSyncNever))
+                    else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))))
                 }
+                ViewSwitcher(viewType = state.viewMode, onViewModeChanged = onViewModeChanged)
             }
             Column {
                 val width by animateFloatAsState(
                     targetValue = if (state.viewMode == ViewType.DAY) LocalConfiguration.current.screenWidthDp.toFloat() else LocalConfiguration.current.screenWidthDp / 5f,
                     label = "Plan View Changed Animation"
                 )
-                Row(
-                    modifier = Modifier.padding(8.dp)
-                ) {
-                    if (state.lastSync == null) SmallText(text = stringResource(id = R.string.home_lastSyncNever))
-                    else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))))
-                }
                 HorizontalPager(
                     state = lessonPagerState,
                     pageSize = PageSize.Fixed(width.dp),
@@ -303,30 +272,19 @@ fun HomeScreenContent(
                                                 state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
                                             },
                                     ) {
-                                        if ((calculateProgress(
-                                                DateUtils.localDateTimeToTimeString(it.start),
-                                                LocalTime.now().toString(),
-                                                DateUtils.localDateTimeToTimeString(it.end)
-                                            )
-                                                ?: -1.0) in 0.0..0.99
-                                            &&
-                                            date == LocalDate.now()
-                                        ) {
-                                            CurrentLessonCard(lesson = it, width = width)
-                                        } else {
-                                            val isFirstOrLastLesson = listOf(
-                                                state.lessons[date]!!.lessons.minOfOrNull { l -> l.lessonNumber },
-                                                state.lessons[date]!!.lessons.maxOfOrNull { l -> l.lessonNumber }
-                                            ).contains(it.lessonNumber)
-                                            LessonCard(
-                                                lesson = it,
-                                                width = width.dp,
-                                                displayMode = state.activeProfile!!.type,
-                                                isCompactMode = state.viewMode == ViewType.WEEK,
-                                                showFindAvailableRoom = date.isEqual(LocalDate.now()) && !isFirstOrLastLesson,
-                                                onFindAvailableRoomClicked = onFindAvailableRoomClicked
-                                            )
-                                        }
+                                        val isFirstOrLastLesson = listOf(
+                                            state.lessons[date]!!.lessons.minOfOrNull { l -> l.lessonNumber },
+                                            state.lessons[date]!!.lessons.maxOfOrNull { l -> l.lessonNumber }
+                                        ).contains(it.lessonNumber)
+                                        LessonCard(
+                                            date = date,
+                                            lesson = it,
+                                            width = width.dp,
+                                            displayMode = state.activeProfile!!.type,
+                                            isCompactMode = state.viewMode == ViewType.WEEK,
+                                            showFindAvailableRoom = date.isEqual(LocalDate.now()) && !isFirstOrLastLesson,
+                                            onFindAvailableRoomClicked = onFindAvailableRoomClicked
+                                        )
                                     }
                                 }
                             }
@@ -354,97 +312,10 @@ fun HomeScreenContent(
         }
     }
 }
-
-
-@Composable
-fun CurrentLessonCard(lesson: Lesson, width: Float) {
-    Card(
-        modifier = Modifier
-            .width(width.dp)
-            .padding(8.dp)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(if (lesson.info == "") 100.dp else 130.dp)
-        ) {
-            val formatter = DateTimeFormatter.ofPattern("HH:mm")
-            val time = LocalTime.now()
-            val currentTime = time.format(formatter)
-            val percentage = calculateProgress(
-                DateUtils.localDateTimeToTimeString(lesson.start),
-                currentTime,
-                DateUtils.localDateTimeToTimeString(lesson.end)
-            )
-
-            Box(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.tertiaryContainer)
-                    .fillMaxWidth((percentage ?: 0).toFloat())
-                    .fillMaxHeight()
-            ) {}
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Text(text = "Jetzt: ", style = MaterialTheme.typography.titleSmall)
-                        Row {
-                            Text(
-                                text = lesson.displaySubject,
-                                style = MaterialTheme.typography.titleLarge,
-                                color = if (lesson.changedSubject != null) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                            Text(
-                                text = " • ",
-                                style = MaterialTheme.typography.titleLarge,
-                                color = MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                            Text(
-                                text = lesson.rooms.joinToString(", "),
-                                style = MaterialTheme.typography.titleLarge,
-                                color = if (lesson.roomIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
-                            )
-                        }
-                        Text(
-                            text = lesson.teachers.joinToString(", "),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = if (lesson.teacherIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer
-                        )
-                        if (lesson.info != null) Text(
-                            text = lesson.info,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    SubjectIcon(
-                        subject = lesson.displaySubject, modifier = Modifier
-                            .height(70.dp)
-                            .width(70.dp), tint = MaterialTheme.colorScheme.onSecondaryContainer
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-@Preview
-fun CurrentLessonCardPreview() {
-    CurrentLessonCard(
-        width = 200f,
-        lesson = Lessons.generateLessons(1).first()
-    )
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview(showBackground = true, showSystemUi = true)
-fun HomeScreenPreview() {
+private fun HomeScreenPreview() {
     HomeScreenContent(
         HomeState(
             lastSync = LocalDateTime.now(),
