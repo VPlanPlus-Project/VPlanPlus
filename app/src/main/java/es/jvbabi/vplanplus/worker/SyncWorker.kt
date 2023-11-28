@@ -65,14 +65,11 @@ class SyncWorker @AssistedInject constructor(
             repeat(syncDays + 2) { i ->
                 val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
                 val date = LocalDate.now().plusDays(i - 2L)
-                val hashesBefore = hashMapOf<Profile, String>()
-                val hashesAfter = hashMapOf<Profile, String>()
                 val currentVersion = keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0")
                     .toLong()
 
                 // set hash before sync to evaluate later if any changes were made
                 profiles.forEach { profile ->
-                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date, false, v = currentVersion)
                     profileDataBefore[profile] = getLessonsByProfile(profile, date, currentVersion).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
                 }
 
@@ -99,16 +96,15 @@ class SyncWorker @AssistedInject constructor(
                 vPlanUseCases.processVplanData(data.data!!)
 
                 profiles.forEach profile@{ profile ->
-                    // set hash after sync to evaluate later if any changes were made
-                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date, false, currentVersion + 1)
 
                     // check if plan has changed
-                    if (hashesBefore[profile] != hashesAfter[profile]) {
-                        var changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
-                        changedLessons = changedLessons.filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
-                        val type = if (profileDataBefore[profile]!!.isEmpty()) NotificationType.NEW_PLAN else NotificationType.CHANGED_LESSONS
-                        if (canSendNotification() && !date.isBefore(LocalDate.now()) && changedLessons.isNotEmpty()) sendNewPlanNotification(profile, changedLessons, date, type)
-                    }
+                    val changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons
+                        .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                        .filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
+                    val type = if (profileDataBefore[profile]!!.isEmpty()) NotificationType.NEW_PLAN else NotificationType.CHANGED_LESSONS
+
+                    if (changedLessons.isEmpty()) return@profile
+                    if (canSendNotification() && !date.isBefore(LocalDate.now())) sendNewPlanNotification(profile, changedLessons, date, type)
 
                     // build calendar
                     val calendar = profileUseCases.getCalendarFromProfile(profile)
