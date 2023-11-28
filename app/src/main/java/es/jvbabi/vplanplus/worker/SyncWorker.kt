@@ -142,7 +142,7 @@ class SyncWorker @AssistedInject constructor(
                                                     it.vpId
                                                 )
                                             }.sortedBy { it.lessonNumber }
-                                                .last { it.displaySubject != "-" }.start.toLocalUnixTimestamp(),
+                                                .last { it.displaySubject != "-" }.end.toLocalUnixTimestamp(),
                                             date = date
                                         ),
                                         school = school
