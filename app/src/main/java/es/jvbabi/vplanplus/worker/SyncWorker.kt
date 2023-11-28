@@ -107,7 +107,7 @@ class SyncWorker @AssistedInject constructor(
                         var changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
                         changedLessons = changedLessons.filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
                         val type = if (profileDataBefore[profile]!!.isEmpty()) NotificationType.NEW_PLAN else NotificationType.CHANGED_LESSONS
-                        if (canSendNotification() && !date.isBefore(LocalDate.now())) sendNewPlanNotification(profile, changedLessons, date, type)
+                        if (canSendNotification() && !date.isBefore(LocalDate.now()) && changedLessons.isNotEmpty()) sendNewPlanNotification(profile, changedLessons, date, type)
                     }
 
                     // build calendar
@@ -227,7 +227,7 @@ class SyncWorker @AssistedInject constructor(
                 profile.displayName,
                 school.name,
                 DateUtils.localizedRelativeDate(context, date)
-            )
+            ) + buildChangedNotificationString(changedLessons)
         }
 
         val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
