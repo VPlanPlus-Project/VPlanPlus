@@ -58,7 +58,6 @@ class HomeViewModel @Inject constructor(
                 keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER),
                 Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
             ) { profiles, activeProfileId, lastSyncTs, v, isSyncing ->
-                Log.d("HomeViewModel.MainFlow", "activeProfile ID: $activeProfileId")
                 version = v?.toLong()?:0
                 _state.value.copy(
                     profiles = profiles,
