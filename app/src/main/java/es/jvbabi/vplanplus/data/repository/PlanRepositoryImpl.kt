@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -21,6 +22,7 @@ class PlanRepositoryImpl(
     private val holidayRepository: HolidayRepository,
     private val teacherRepository: TeacherRepository,
     private val classRepository: ClassRepository,
+    private val roomRepository: RoomRepository,
     private val lessonRepository: LessonRepository
 ) : PlanRepository {
     override fun getDayForProfile(profile: Profile, date: LocalDate, version: Long): Flow<Day> {
@@ -50,10 +52,10 @@ class PlanRepositoryImpl(
     }
 
     override fun getDayForRoom(roomId: Long, date: LocalDate, version: Long) = flow {
-        val room = classRepository.getClassById(roomId)
+        val room = roomRepository.getRoomById(roomId)
         val school = room.school
 
-        lessonRepository.getLessonsForRoom(room.classId, date, version).distinctUntilChanged().collect { lessons ->
+        lessonRepository.getLessonsForRoom(room.roomId, date, version).distinctUntilChanged().collect { lessons ->
             emit(build(school, lessons, date))
         }
     }

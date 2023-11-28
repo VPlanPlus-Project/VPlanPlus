@@ -183,6 +183,7 @@ object VppModule {
             holidayRepository = provideHolidayRepository(db),
             teacherRepository = provideTeacherRepository(db),
             classRepository = provideClassRepository(db),
+            roomRepository = provideRoomRepository(db),
             lessonRepository = provideLessonRepository(db)
         )
     }
