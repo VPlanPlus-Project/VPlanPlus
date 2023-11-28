@@ -33,6 +33,16 @@ abstract class LessonDao {
     @Query("DELETE FROM lesson")
     abstract suspend fun deleteAll()
 
-    @Query("DELETE FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp")
-    abstract suspend fun deleteLessonsByClassAndDate(classId: Long, timestamp: LocalDate)
+    @Query("DELETE FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp AND version = :version")
+    abstract suspend fun deleteLessonsByClassAndDate(classId: Long, timestamp: LocalDate, version: Long)
+
+    @Query("DELETE FROM lesson WHERE version = :version")
+    abstract suspend fun deleteLessonsByVersion(version: Long)
+
+    @Transaction
+    open suspend fun insertLessons(lessons: List<DbLesson>) {
+        lessons.forEach { lesson ->
+            insertLesson(lesson)
+        }
+    }
 }

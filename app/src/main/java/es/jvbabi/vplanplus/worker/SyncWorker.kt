@@ -69,13 +69,18 @@ class SyncWorker @AssistedInject constructor(
                     .toLong()
 
                 // set hash before sync to evaluate later if any changes were made
+                val start = System.currentTimeMillis()
                 profiles.forEach { profile ->
                     profileDataBefore[profile] = getLessonsByProfile(profile, date, currentVersion).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
                 }
+                val network = System.currentTimeMillis()
+                Log.d("SyncWorker.Timer", "1. Before Data: ${network - start}ms")
 
                 // get today's data
                 val data = vPlanUseCases.getVPlanData(school, date)
                 Log.d("SyncWorker", "Syncing ${school.schoolId} (${school.name}) at $date: ${data.response}")
+                val end = System.currentTimeMillis()
+                Log.d("SyncWorker.Timer", "2. Network Req: ${end - network}ms")
 
                 // if any errors occur, return failure
                 if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
@@ -94,6 +99,8 @@ class SyncWorker @AssistedInject constructor(
 
                 // update database
                 vPlanUseCases.processVplanData(data.data!!)
+                val afterProcessing = System.currentTimeMillis()
+                Log.d("SyncWorker.Timer", "3. Processing: ${afterProcessing - end}ms")
 
                 profiles.forEach profile@{ profile ->
 
@@ -158,9 +165,7 @@ class SyncWorker @AssistedInject constructor(
                                                 CalendarEvent(
                                                     title = lesson.displaySubject,
                                                     calendarId = calendar.id,
-                                                    location = school.name + " Raum " + lesson.rooms.joinToString(
-                                                        ", "
-                                                    ),
+                                                    location = school.name + " Raum " + lesson.rooms.joinToString(", "),
                                                     startTimeStamp = lesson.start.toLocalUnixTimestamp(),
                                                     endTimeStamp = lesson.end.toLocalUnixTimestamp(),
                                                     date = date
@@ -170,7 +175,6 @@ class SyncWorker @AssistedInject constructor(
                                         }
                                     }
                             }
-
                             else -> {}
                         }
                     }
@@ -183,6 +187,7 @@ class SyncWorker @AssistedInject constructor(
             (keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2")
                 .toLong() + 1L).toString()
         )
+        lessonUseCases.deleteLessonsByVersion(keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)!!.toLong()-1L)
         keyValueUseCases.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
         Log.d("SyncWorker", "SYNCED")
         logRecordRepository.log("SyncWorker", "Synced sucessfully")

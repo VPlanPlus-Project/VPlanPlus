@@ -2,7 +2,6 @@ package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
 import java.time.LocalDate
 import java.util.UUID
 
@@ -15,10 +14,11 @@ import java.util.UUID
             childColumns = ["classLessonRefId"],
             onDelete = ForeignKey.CASCADE
         ),
-    ]
+    ],
+    primaryKeys = ["lessonId"]
 )
 data class DbLesson(
-    @PrimaryKey(autoGenerate = true) val lessonId: Long = 0,
+    val lessonId: UUID = UUID.randomUUID(),
     val lessonNumber: Int,
     val changedSubject: String?,
     val classLessonRefId: Long,

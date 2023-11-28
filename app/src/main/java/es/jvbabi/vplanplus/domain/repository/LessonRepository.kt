@@ -11,9 +11,13 @@ interface LessonRepository {
     fun getLessonsForClass(classId: Long, date: LocalDate, version: Long): Flow<List<Lesson>?>
     fun getLessonsForRoom(roomId: Long, date: LocalDate, version: Long): Flow<List<Lesson>?>
 
-    suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate)
+    suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate, version: Long)
 
     suspend fun insertLesson(dbLesson: DbLesson): Long
 
     suspend fun deleteAllLessons()
+
+    suspend fun deleteLessonsByVersion(version: Long)
+
+    suspend fun insertLessons(lessons: List<DbLesson>)
 }

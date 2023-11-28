@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbRoom
+import java.util.UUID
 
 @Entity(
     tableName = "lesson_room_crossover",
@@ -24,6 +25,6 @@ import es.jvbabi.vplanplus.data.model.DbRoom
     ]
 )
 data class LessonRoomCrossover(
-    val lrcLessonId: Long,
+    val lrcLessonId: UUID,
     val lrcRoomId: Long
 )

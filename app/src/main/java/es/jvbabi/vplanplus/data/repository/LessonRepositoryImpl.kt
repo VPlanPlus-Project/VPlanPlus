@@ -45,8 +45,8 @@ class LessonRepositoryImpl(
             }
     }
 
-    override suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate) {
-        lessonDao.deleteLessonsByClassAndDate(`class`.classId, date)
+    override suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate, version: Long) {
+        lessonDao.deleteLessonsByClassAndDate(`class`.classId, date, version)
     }
 
     override suspend fun insertLesson(dbLesson: DbLesson): Long {
@@ -55,5 +55,13 @@ class LessonRepositoryImpl(
 
     override suspend fun deleteAllLessons() {
         lessonDao.deleteAll()
+    }
+
+    override suspend fun deleteLessonsByVersion(version: Long) {
+        lessonDao.deleteLessonsByVersion(version)
+    }
+
+    override suspend fun insertLessons(lessons: List<DbLesson>) {
+        lessonDao.insertLessons(lessons)
     }
 }
