@@ -89,9 +89,7 @@ class VPlanUseCases(
                         teachers.filter { teacher ->
                             lesson.teacher.teacher.split(",").contains(teacher.acronym)
                         }
-                    } else {
-                        listOf(teachers.first { t -> t.acronym == lesson.teacher.teacher } )
-                    }
+                    } else listOfNotNull(teachers.firstOrNull { t -> t.acronym == lesson.teacher.teacher } )
                 }
 
                 var changedSubject =

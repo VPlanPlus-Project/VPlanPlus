@@ -52,11 +52,11 @@ class HomeViewModel @Inject constructor(
     init {
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
-                profileUseCases.getProfiles(),
-                keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
-                keyValueRepository.getFlow(Keys.LAST_SYNC_TS),
-                keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER),
-                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
+                profileUseCases.getProfiles().distinctUntilChanged(),
+                keyValueRepository.getFlow(Keys.ACTIVE_PROFILE).distinctUntilChanged(),
+                keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
+                keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
+                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext).distinctUntilChanged()
             ) { profiles, activeProfileId, lastSyncTs, v, isSyncing ->
                 version = v?.toLong()?:0
                 _state.value.copy(
