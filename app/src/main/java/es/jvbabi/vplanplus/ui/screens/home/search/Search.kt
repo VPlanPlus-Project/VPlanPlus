@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +44,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import java.util.UUID
 
 @Composable
 fun SearchScreen(
@@ -61,7 +61,6 @@ fun SearchScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchContent(
     state: SearchState,
@@ -182,7 +181,7 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(16.dp)
             )
-            FilterType.values().forEach { filterType ->
+            FilterType.entries.forEach { filterType ->
                 if (filterMap[filterType]!!) {
                     Text(
                         text = when (filterType) {
@@ -304,25 +303,25 @@ fun SchoolResultPreview() {
         name = "Grundschule Oberau",
         results = listOf(
             Result(
-                0L,
+                UUID.randomUUID(),
                 Lessons.randomRoom().first().name,
                 FilterType.ROOM,
                 Lessons.generateLessons(3)
             ),
             Result(
-                3L,
+                UUID.randomUUID(),
                 Lessons.randomRoom().first().name,
                 FilterType.ROOM,
                 Lessons.generateLessons(3)
             ),
             Result(
-                1L,
+                UUID.randomUUID(),
                 Lessons.randomTeacher().first().acronym,
                 FilterType.TEACHER,
                 Lessons.generateLessons(3)
             ),
             Result(
-                2L,
+                UUID.randomUUID(),
                 Lessons.randomTeacher().first().acronym,
                 FilterType.TEACHER,
                 Lessons.generateLessons(3)

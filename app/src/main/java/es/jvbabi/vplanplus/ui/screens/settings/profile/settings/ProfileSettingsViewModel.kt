@@ -19,6 +19,7 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 
@@ -33,7 +34,7 @@ class ProfileSettingsViewModel @Inject constructor(
     val state: State<ProfileSettingsState> = _state
 
     @SuppressLint("Range")
-    fun init(profileId: Long) {
+    fun init(profileId: UUID) {
 
         viewModelScope.launch {
             combine(

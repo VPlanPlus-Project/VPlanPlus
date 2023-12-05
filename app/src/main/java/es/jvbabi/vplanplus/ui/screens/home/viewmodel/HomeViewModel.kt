@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,17 +53,16 @@ class HomeViewModel @Inject constructor(
     init {
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
-                profileUseCases.getProfiles(),
-                keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
-                keyValueRepository.getFlow(Keys.LAST_SYNC_TS),
-                keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER),
-                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
+                profileUseCases.getProfiles().distinctUntilChanged(),
+                keyValueRepository.getFlow(Keys.ACTIVE_PROFILE).distinctUntilChanged(),
+                keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
+                keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
+                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext).distinctUntilChanged()
             ) { profiles, activeProfileId, lastSyncTs, v, isSyncing ->
-                Log.d("HomeViewModel.MainFlow", "activeProfile ID: $activeProfileId")
                 version = v?.toLong()?:0
                 _state.value.copy(
                     profiles = profiles,
-                    activeProfile = profiles.find { it.id == activeProfileId?.toLong() },
+                    activeProfile = profiles.find { it.id.toString() == activeProfileId },
                     lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
                     syncing = isSyncing
                 )
@@ -140,7 +140,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onProfileSelected(profileId: Long) {
+    fun onProfileSelected(profileId: UUID) {
         Log.d("HomeViewMode.ChangedProfile", "onProfileSelected: $profileId")
         viewModelScope.launch {
             killUiSyncJobs()

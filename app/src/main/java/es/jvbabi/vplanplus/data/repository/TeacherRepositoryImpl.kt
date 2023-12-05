@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
+import java.util.UUID
 
 class TeacherRepositoryImpl(
     private val teacherDao: TeacherDao
@@ -22,13 +23,18 @@ class TeacherRepositoryImpl(
         if (DefaultValues.isEmpty(acronym)) return null
         val teacher = teacherDao.find(school.schoolId, acronym)
         if (teacher == null && createIfNotExists && acronym.isNotBlank()) {
-            val id = teacherDao.insertTeacher(DbTeacher(schoolTeacherRefId = school.schoolId, acronym = acronym))
-            return teacherDao.getTeacherById(id)?.toModel()
+            val dbTeacher = DbTeacher(
+                teacherId = UUID.randomUUID(),
+                schoolTeacherRefId = school.schoolId,
+                acronym = acronym
+            )
+            teacherDao.insertTeacher(dbTeacher)
+            return teacherDao.getTeacherById(dbTeacher.teacherId)?.toModel()
         }
         return teacher?.toModel()
     }
 
-    override fun getTeacherById(id: Long): Teacher? {
+    override fun getTeacherById(id: UUID): Teacher? {
         return teacherDao.getTeacherById(id)?.toModel()
     }
 

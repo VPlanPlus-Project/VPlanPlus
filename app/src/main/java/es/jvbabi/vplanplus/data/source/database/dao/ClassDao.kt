@@ -7,12 +7,13 @@ import androidx.room.Query
 import androidx.room.Transaction
 import es.jvbabi.vplanplus.data.model.DbClass
 import es.jvbabi.vplanplus.data.model.combined.CClass
+import java.util.UUID
 
 @Dao
 abstract class ClassDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract suspend fun insertClass(classObj: DbClass): Long
+    abstract suspend fun insertClass(classObj: DbClass)
 
     @Transaction
     @Query("SELECT * FROM classes WHERE schoolClassRefId = :schoolId AND className = :className")
@@ -20,7 +21,7 @@ abstract class ClassDao {
 
     @Transaction
     @Query("SELECT * FROM classes WHERE classId = :id")
-    abstract fun getClassById(id: Long): CClass
+    abstract fun getClassById(id: UUID): CClass
 
     @Query("DELETE FROM classes WHERE schoolClassRefId = :schoolId")
     abstract suspend fun deleteClassesBySchoolId(schoolId: Long)

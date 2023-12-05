@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
+import java.util.UUID
 
 class PlanRepositoryImpl(
     private val holidayRepository: HolidayRepository,
@@ -33,7 +34,7 @@ class PlanRepositoryImpl(
         }
     }
 
-    override fun getDayForTeacher(teacherId: Long, date: LocalDate, version: Long) = flow {
+    override fun getDayForTeacher(teacherId: UUID, date: LocalDate, version: Long) = flow {
         val teacher = teacherRepository.getTeacherById(teacherId)!!
         val school = teacher.school
 
@@ -42,7 +43,7 @@ class PlanRepositoryImpl(
         }
     }
 
-    override fun getDayForClass(classId: Long, date: LocalDate, version: Long) = flow {
+    override fun getDayForClass(classId: UUID, date: LocalDate, version: Long) = flow {
         val `class` = classRepository.getClassById(classId)
         val school = `class`.school
 
@@ -51,7 +52,7 @@ class PlanRepositoryImpl(
         }
     }
 
-    override fun getDayForRoom(roomId: Long, date: LocalDate, version: Long) = flow {
+    override fun getDayForRoom(roomId: UUID, date: LocalDate, version: Long) = flow {
         val room = roomRepository.getRoomById(roomId)
         val school = room.school
 

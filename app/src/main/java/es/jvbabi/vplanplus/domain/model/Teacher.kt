@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.domain.model
 
+import java.util.UUID
+
 data class Teacher(
-    val teacherId: Long = 0,
+    val teacherId: UUID = UUID.randomUUID(),
     val acronym: String,
     val school: School
 )

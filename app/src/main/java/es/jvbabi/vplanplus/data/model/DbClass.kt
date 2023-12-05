@@ -2,8 +2,9 @@ package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.Index
 import es.jvbabi.vplanplus.domain.model.School
+import java.util.UUID
 
 @Entity(
     tableName = "classes",
@@ -14,10 +15,16 @@ import es.jvbabi.vplanplus.domain.model.School
             childColumns = ["schoolClassRefId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    primaryKeys = ["classId"],
+    indices = [
+        Index(value = ["classId"], unique = true),
+        Index(value = ["schoolClassRefId"]),
+        Index(value = ["className"])
     ]
 )
 data class DbClass(
-    @PrimaryKey(autoGenerate = true) val classId: Long = 0,
+    val classId: UUID = UUID.randomUUID(),
     val schoolClassRefId: Long,
     val className: String,
 ) {

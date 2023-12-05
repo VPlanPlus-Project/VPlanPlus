@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -124,7 +125,7 @@ data class ProfileManagementSchool(
 )
 
 data class ProfileManagementProfile(
-    val id: Long,
+    val id: UUID,
     val name: String,
     val type: ProfileType
 )

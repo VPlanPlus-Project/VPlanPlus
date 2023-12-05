@@ -58,6 +58,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
+import java.util.UUID
 
 @Composable
 fun ProfileManagementScreen(
@@ -241,17 +242,17 @@ fun ProfileManagementScreenPreview() {
                     "Waldschule",
                     listOf(
                         ProfileManagementProfile(
-                            id = 0,
+                            id = UUID.randomUUID(),
                             name = "7a",
                             type = ProfileType.STUDENT
                         ),
                         ProfileManagementProfile(
-                            id = 1,
+                            id = UUID.randomUUID(),
                             name = "207",
                             type = ProfileType.ROOM
                         ),
                         ProfileManagementProfile(
-                            id = 3,
+                            id = UUID.randomUUID(),
                             name = "Mul",
                             type = ProfileType.TEACHER
                         )
@@ -261,7 +262,7 @@ fun ProfileManagementScreenPreview() {
                     "200.009. Oberschule Dresden",
                     listOf(
                         ProfileManagementProfile(
-                            id = 4,
+                            id = UUID.randomUUID(),
                             name = "Mul",
                             type = ProfileType.TEACHER
                         ),

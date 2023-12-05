@@ -217,9 +217,11 @@ object VppModule {
     @Provides
     @Singleton
     fun provideLessonUseCases(
+        lessonRepository: LessonRepository,
         planRepository: PlanRepository,
     ): LessonUseCases {
         return LessonUseCases(
+            lessonRepository = lessonRepository,
             planRepository = planRepository
         )
     }
@@ -246,7 +248,6 @@ object VppModule {
         classRepository: ClassRepository,
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
-        planRepository: PlanRepository,
         calendarRepository: CalendarRepository
     ): ProfileUseCases {
         return ProfileUseCases(
@@ -255,7 +256,6 @@ object VppModule {
             classRepository = classRepository,
             teacherRepository = teacherRepository,
             roomRepository = roomRepository,
-            planRepository = planRepository,
             calendarRepository = calendarRepository
         )
     }

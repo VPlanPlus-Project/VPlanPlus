@@ -66,20 +66,22 @@ class SyncWorker @AssistedInject constructor(
             repeat(syncDays + 2) { i ->
                 val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
                 val date = LocalDate.now().plusDays(i - 2L)
-                val hashesBefore = hashMapOf<Profile, String>()
-                val hashesAfter = hashMapOf<Profile, String>()
                 val currentVersion = keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0")
                     .toLong()
 
                 // set hash before sync to evaluate later if any changes were made
+                val start = System.currentTimeMillis()
                 profiles.forEach { profile ->
-                    hashesBefore[profile] = profileUseCases.getPlanSum(profile, date, false, v = currentVersion)
                     profileDataBefore[profile] = getLessonsByProfile(profile, date, currentVersion).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
                 }
+                val network = System.currentTimeMillis()
+                Log.d("SyncWorker.Timer", "1. Before Data: ${network - start}ms")
 
                 // get today's data
                 val data = vPlanUseCases.getVPlanData(school, date)
                 Log.d("SyncWorker", "Syncing ${school.schoolId} (${school.name}) at $date: ${data.response}")
+                val end = System.currentTimeMillis()
+                Log.d("SyncWorker.Timer", "2. Network Req: ${end - network}ms")
 
                 // if any errors occur, return failure
                 if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
@@ -98,18 +100,19 @@ class SyncWorker @AssistedInject constructor(
 
                 // update database
                 vPlanUseCases.processVplanData(data.data!!)
+                val afterProcessing = System.currentTimeMillis()
+                Log.d("SyncWorker.Timer", "3. Processing: ${afterProcessing - end}ms")
 
                 profiles.forEach profile@{ profile ->
-                    // set hash after sync to evaluate later if any changes were made
-                    hashesAfter[profile] = profileUseCases.getPlanSum(profile, date, false, currentVersion + 1)
 
                     // check if plan has changed
-                    if (hashesBefore[profile] != hashesAfter[profile]) {
-                        var changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
-                        changedLessons = changedLessons.filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
-                        val type = if (profileDataBefore[profile]!!.isEmpty()) NotificationType.NEW_PLAN else NotificationType.CHANGED_LESSONS
-                        if (canSendNotification() && !date.isBefore(LocalDate.now()) && changedLessons.isNotEmpty()) sendNewPlanNotification(profile, changedLessons, date, type)
-                    }
+                    val changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons
+                        .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                        .filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
+                    val type = if (profileDataBefore[profile]!!.isEmpty()) NotificationType.NEW_PLAN else NotificationType.CHANGED_LESSONS
+
+                    if (changedLessons.isEmpty()) return@profile
+                    if (canSendNotification() && !date.isBefore(LocalDate.now())) sendNewPlanNotification(profile, changedLessons, date, type)
 
                     // build calendar
                     val calendar = profileUseCases.getCalendarFromProfile(profile)
@@ -163,9 +166,7 @@ class SyncWorker @AssistedInject constructor(
                                                 CalendarEvent(
                                                     title = lesson.displaySubject,
                                                     calendarId = calendar.id,
-                                                    location = school.name + " Raum " + lesson.rooms.joinToString(
-                                                        ", "
-                                                    ),
+                                                    location = school.name + " Raum " + lesson.rooms.joinToString(", "),
                                                     startTimeStamp = lesson.start.toLocalUnixTimestamp(),
                                                     endTimeStamp = lesson.end.toLocalUnixTimestamp(),
                                                     date = date
@@ -175,7 +176,6 @@ class SyncWorker @AssistedInject constructor(
                                         }
                                     }
                             }
-
                             else -> {}
                         }
                     }
@@ -188,6 +188,7 @@ class SyncWorker @AssistedInject constructor(
             (keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2")
                 .toLong() + 1L).toString()
         )
+        lessonUseCases.deleteLessonsByVersion(keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)!!.toLong()-1L)
         keyValueUseCases.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
         Log.d("SyncWorker", "SYNCED")
         logRecordRepository.log("SyncWorker", "Synced sucessfully")
@@ -201,15 +202,15 @@ class SyncWorker @AssistedInject constructor(
         )
 
         val intent = Intent(context, MainActivity::class.java)
-            .putExtra("profileId", profile.id)
+            .putExtra("profileId", profile.id.toString())
             .putExtra("dateStr", date.toString())
 
         Log.d("SyncWorker.Notification", "Sending $notificationType for ${profile.displayName} at ${date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}")
-        Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(profile.id.toInt(), "${date.dayOfMonth}${date.monthValue}".toInt()))
+        Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(profile.id.hashCode(), "${date.dayOfMonth}${date.monthValue}".toInt()))
 
         val pendingIntent = PendingIntent.getActivity(
             context,
-            MathTools.cantor(profile.id.toInt(), date.toString().replace("-", "").toInt()),
+            MathTools.cantor(profile.id.hashCode(), date.toString().replace("-", "").toInt()),
             intent,
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -248,7 +249,7 @@ class SyncWorker @AssistedInject constructor(
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(MathTools.cantor(profile.id.toInt(), date.toString().replace("-", "").toInt()), builder.build())
+        notificationManager.notify(MathTools.cantor(profile.id.hashCode(), date.toString().replace("-", "").toInt()), builder.build())
     }
 
     private fun buildChangedNotificationString(changedLessons: List<Lesson>): String {

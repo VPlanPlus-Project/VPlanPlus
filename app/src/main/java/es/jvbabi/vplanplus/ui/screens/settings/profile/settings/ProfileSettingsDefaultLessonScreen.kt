@@ -37,10 +37,11 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.preview.Profile
+import java.util.UUID
 
 @Composable
 fun ProfileSettingsDefaultLessonScreen(
-    profileId: Long,
+    profileId: UUID,
     navController: NavHostController,
     viewModel: ProfileSettingsDefaultLessonsViewModel = hiltViewModel()
 ) {

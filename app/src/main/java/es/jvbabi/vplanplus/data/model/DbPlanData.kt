@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.School
 import java.time.LocalDate
@@ -24,6 +25,10 @@ import java.util.UUID
             childColumns = ["schoolId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index("id", unique = true),
+        Index("schoolId")
     ]
 )
 data class DbPlanData(

@@ -9,7 +9,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 data class CProfile(
     @Embedded val profile: DbProfile,
     @Relation(
-        parentColumn = "id",
+        parentColumn = "profileId",
         entityColumn = "profileId",
         entity = DbProfileDefaultLesson::class
     )
@@ -17,7 +17,7 @@ data class CProfile(
 ) {
     fun toModel(): Profile {
         return Profile(
-            id = profile.id!!,
+            id = profile.profileId,
             displayName = profile.customName,
             defaultLessons = defaultLessons.associate { it.defaultLesson.toModel() to it.profileDefaultLesson.enabled },
             type = profile.type,

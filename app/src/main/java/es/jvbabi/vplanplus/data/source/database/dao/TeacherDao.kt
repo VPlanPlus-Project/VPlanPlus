@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import es.jvbabi.vplanplus.data.model.DbTeacher
 import es.jvbabi.vplanplus.data.model.combined.CTeacher
+import java.util.UUID
 
 @Dao
 abstract class TeacherDao {
@@ -22,7 +23,7 @@ abstract class TeacherDao {
 
     @Transaction
     @Query("SELECT * FROM teacher WHERE teacherId = :id")
-    abstract fun getTeacherById(id: Long): CTeacher?
+    abstract fun getTeacherById(id: UUID): CTeacher?
 
     @Query("DELETE FROM teacher WHERE schoolTeacherRefId = :schoolId")
     abstract suspend fun deleteTeachersBySchoolId(schoolId: Long)

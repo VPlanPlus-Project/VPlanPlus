@@ -49,12 +49,13 @@ import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.Profile
 import es.jvbabi.vplanplus.ui.screens.Screen
+import java.util.UUID
 
 @Composable
 fun ProfileSettingsScreen(
     navController: NavHostController,
     viewModel: ProfileSettingsViewModel = hiltViewModel(),
-    profileId: Long
+    profileId: UUID
 ) {
 
     val state = viewModel.state.value

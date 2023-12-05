@@ -44,17 +44,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import java.util.UUID
 
 @Composable
 @Preview
 fun MenuPreview() {
     Menu(
         profiles = listOf(
-            MenuProfile(0, "10a", "10a"),
-            MenuProfile(1, "208", "208"),
-            MenuProfile(2, "Mül", "Mül"),
+            MenuProfile(UUID.randomUUID(), "10a", "10a"),
+            MenuProfile(UUID.randomUUID(), "208", "208"),
+            MenuProfile(UUID.randomUUID(), "Mül", "Mül"),
         ),
-        selectedProfile = MenuProfile(0, "10a", "10a")
+        selectedProfile = MenuProfile(UUID.randomUUID(), "10a", "10a")
     )
 }
 
@@ -62,8 +63,8 @@ fun MenuPreview() {
 @Composable
 fun Menu(
     onCloseClicked: () -> Unit = {},
-    onProfileClicked: (profileId: Long) -> Unit = {},
-    onProfileLongClicked: (profileId: Long) -> Unit = {},
+    onProfileClicked: (profileId: UUID) -> Unit = {},
+    onProfileLongClicked: (profileId: UUID) -> Unit = {},
     profiles: List<MenuProfile>,
     selectedProfile: MenuProfile,
     onRefreshClicked: () -> Unit = {},
@@ -216,7 +217,7 @@ fun ButtonRowPreview() {
 }
 
 data class MenuProfile(
-    val profileId: Long,
+    val profileId: UUID,
     val name: String,
     val customName: String
 )
