@@ -2,8 +2,9 @@ package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.Index
 import java.time.LocalDate
+import java.util.UUID
 
 /**
  * Class that represents a holiday.
@@ -20,10 +21,15 @@ import java.time.LocalDate
              childColumns = ["schoolHolidayRefId"],
              onDelete = ForeignKey.CASCADE
          )
+    ],
+    primaryKeys = ["holidayId"],
+    indices = [
+        Index("holidayId", unique = true),
+        Index("schoolHolidayRefId")
     ]
 )
 data class Holiday(
-    @PrimaryKey(autoGenerate = true) val holidayId: Long = 0,
+    val holidayId: UUID = UUID.randomUUID(),
     val schoolHolidayRefId: Long?,
     val date: LocalDate,
 ) {

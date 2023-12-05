@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.RoomWarnings
 import androidx.room.Transaction
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.combined.CLesson
@@ -21,6 +22,7 @@ abstract class LessonDao {
     @RewriteQueriesToDropUnusedColumns
     @Transaction
     @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.defaultLessonId = lesson.defaultLessonId WHERE day = :timestamp AND version = :version AND (lessonId IN (SELECT ltcTeacherId FROM lesson_teacher_crossover WHERE ltcTeacherId = :teacherId) OR default_lesson.teacherId = :teacherId) ORDER by lessonNumber ASC")
+    @Suppress(RoomWarnings.CURSOR_MISMATCH)
     abstract fun getLessonsByTeacher(teacherId: UUID, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
     @RewriteQueriesToDropUnusedColumns

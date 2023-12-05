@@ -11,6 +11,8 @@ import java.util.UUID
     indices = [
         Index(value = ["defaultLessonId"], unique = true),
         Index(value = ["vpId"]),
+        Index(value = ["classId"]),
+        Index(value = ["teacherId"]),
     ],
     foreignKeys = [
         ForeignKey(

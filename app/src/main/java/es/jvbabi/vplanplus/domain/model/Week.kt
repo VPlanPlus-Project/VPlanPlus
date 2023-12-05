@@ -2,8 +2,9 @@ package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.Index
 import java.time.LocalDate
+import java.util.UUID
 
 @Entity(
     tableName = "weeks",
@@ -14,10 +15,15 @@ import java.time.LocalDate
             childColumns = ["schoolWeekRefId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    primaryKeys = ["weekId"],
+    indices = [
+        Index("weekId", unique = true),
+        Index("schoolWeekRefId")
     ]
 )
 data class Week(
-    @PrimaryKey(autoGenerate = true) val weekId: Long = 0,
+    val weekId: UUID = UUID.randomUUID(),
     val schoolWeekRefId: Long,
     val week: Int,
     val start: LocalDate,

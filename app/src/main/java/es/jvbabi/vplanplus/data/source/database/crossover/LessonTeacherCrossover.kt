@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.source.database.crossover
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbTeacher
 import java.util.UUID
@@ -22,9 +23,13 @@ import java.util.UUID
             childColumns = ["ltcTeacherId"],
             onDelete = ForeignKey.CASCADE
         ),
+    ],
+    indices = [
+        Index(value = ["ltcLessonId"]),
+        Index(value = ["ltcTeacherId"]),
     ]
 )
 data class LessonTeacherCrossover(
     val ltcLessonId: UUID,
-    val ltcTeacherId: Long
+    val ltcTeacherId: UUID
 )
