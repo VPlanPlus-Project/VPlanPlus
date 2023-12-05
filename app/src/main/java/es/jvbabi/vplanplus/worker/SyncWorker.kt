@@ -56,6 +56,7 @@ class SyncWorker @AssistedInject constructor(
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
+        if (profileUseCases.getProfiles().first().isEmpty()) return Result.success()
 
         Log.d("SyncWorker", "SYNCING")
         logRecordRepository.log("SyncWorker", "Syncing")
