@@ -5,8 +5,10 @@ import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Biotech
 import androidx.compose.material.icons.filled.Bolt
 import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Calculate
 import androidx.compose.material.icons.filled.DesktopWindows
+import androidx.compose.material.icons.filled.Draw
 import androidx.compose.material.icons.filled.EventBusy
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Liquor
@@ -39,6 +41,7 @@ fun SubjectIcon(subject: String, modifier: Modifier, tint: Color = Color.Unspeci
         "geschichte", "ge", "ges" -> Icon(imageVector = Icons.Default.AccountBalance, contentDescription = null, modifier = modifier)
         "französisch", "fr", "fra" -> Icon(imageVector = Icons.Default.Liquor, contentDescription = null, modifier = modifier)
         "sport", "spo", "sp", "spw", "spm" -> Icon(imageVector = Icons.Default.SportsSoccer, contentDescription = null, modifier = modifier)
+        "kunst", "ku" -> Icon(imageVector = Icons.Default.Brush, contentDescription = null, modifier = modifier)
         "-" -> Icon(imageVector = Icons.Default.EventBusy, contentDescription = null, modifier = modifier)
         else -> Icon(imageVector = Icons.Default.School, contentDescription = null, modifier = modifier)
     }
