@@ -52,22 +52,23 @@ class VppApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var calendarRepository: CalendarRepository
 
-    override fun getWorkManagerConfiguration(): Configuration = Configuration.Builder()
-        .setWorkerFactory(
-            SyncWorkerFactory(
-                profileUseCases = profileUseCases,
-                vPlanUseCases = vPlanUseCases,
-                schoolUseCases = schoolUseCases,
-                keyValueUseCases = keyValueUseCases,
-                logRecordRepository = logRecordRepository,
-                lessonUseCases = lessonUseCases,
-                classUseCases = classUseCases,
-                roomRepository = roomRepository,
-                teacherRepository = teacherRepository,
-                calendarRepository = calendarRepository
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(
+                SyncWorkerFactory(
+                    profileUseCases = profileUseCases,
+                    vPlanUseCases = vPlanUseCases,
+                    schoolUseCases = schoolUseCases,
+                    keyValueUseCases = keyValueUseCases,
+                    logRecordRepository = logRecordRepository,
+                    lessonUseCases = lessonUseCases,
+                    classUseCases = classUseCases,
+                    roomRepository = roomRepository,
+                    teacherRepository = teacherRepository,
+                    calendarRepository = calendarRepository
+                )
             )
-        )
-        .build()
+            .build()
 }
 
 class SyncWorkerFactory @Inject constructor(
