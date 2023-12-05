@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.MusicNote
 import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Psychology
+import androidx.compose.material.icons.filled.SatelliteAlt
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Science
 import androidx.compose.material.icons.filled.SportsSoccer
@@ -42,6 +43,7 @@ fun SubjectIcon(subject: String, modifier: Modifier, tint: Color = Color.Unspeci
         "sport", "spo", "sp", "spw", "spm" -> Icon(imageVector = Icons.Default.SportsSoccer, contentDescription = null, modifier = modifier, tint = tint)
         "latein", "la", "lat" -> Icon(painterResource(id = R.drawable.subject_latin), contentDescription = null, modifier = modifier, tint = tint)
         "kunst", "ku" -> Icon(imageVector = Icons.Default.Brush, contentDescription = null, modifier = modifier, tint = tint)
+        "astronomie", "ast" -> Icon(imageVector = Icons.Default.SatelliteAlt, contentDescription = null, modifier = modifier, tint = tint)
         "-" -> Icon(imageVector = Icons.Default.EventBusy, contentDescription = null, modifier = modifier, tint = tint)
         else -> Icon(imageVector = Icons.Default.School, contentDescription = null, modifier = modifier, tint = tint)
     }
