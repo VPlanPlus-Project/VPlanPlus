@@ -140,7 +140,9 @@ fun LessonCard(
                     }
                     SubjectIcon(subject = lesson.displaySubject, modifier = Modifier
                         .padding(end = 16.dp)
-                        .size(50.dp))
+                        .size(50.dp),
+                        tint = if (lesson.subjectIsChanged) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
+                    )
                 }
             } else {
                 Column(
