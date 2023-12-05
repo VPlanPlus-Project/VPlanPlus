@@ -2,11 +2,13 @@ package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import androidx.room.PrimaryKey
+import androidx.room.Index
 import es.jvbabi.vplanplus.domain.model.School
+import java.util.UUID
 
 @Entity(
     tableName = "room",
+    primaryKeys = ["roomId"],
     foreignKeys = [
         ForeignKey(
             entity = School::class,
@@ -14,10 +16,14 @@ import es.jvbabi.vplanplus.domain.model.School
             childColumns = ["schoolRoomRefId"],
             onDelete = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["roomId"], unique = true),
+        Index(value = ["schoolRoomRefId"]),
     ]
 )
 data class DbRoom(
-    @PrimaryKey(autoGenerate = true) val roomId: Long = 0,
+    val roomId: UUID = UUID.randomUUID(),
     val schoolRoomRefId: Long,
     val name: String,
 )

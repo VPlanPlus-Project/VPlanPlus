@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.combined.CDefaultLesson
+import java.util.UUID
 
 @Dao
 abstract class DefaultLessonDao {
@@ -15,10 +16,6 @@ abstract class DefaultLessonDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(defaultLesson: DbDefaultLesson)
-
-    @Query("SELECT * FROM default_lesson WHERE defaultLessonId = :id")
-    abstract suspend fun getDefaultLessonById(id: Long): CDefaultLesson?
-
     @Query("SELECT * FROM default_lesson WHERE classId = :classId")
-    abstract suspend fun getDefaultLessonByClassId(classId: Long): List<CDefaultLesson>
+    abstract suspend fun getDefaultLessonByClassId(classId: UUID): List<CDefaultLesson>
 }

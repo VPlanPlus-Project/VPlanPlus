@@ -31,6 +31,7 @@ import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
+import java.util.UUID
 
 @Composable
 fun NavigationGraph(
@@ -67,23 +68,26 @@ fun NavigationGraph(
             route = Screen.SettingsProfileScreen.route + "{profileId}",
             arguments = listOf(
                 navArgument("profileId") {
-                    type = NavType.LongType
+                    type = NavType.StringType
                 }
             )
         ) {
-            ProfileSettingsScreen(navController = navController, profileId = it.arguments?.getLong("profileId")!!)
+            ProfileSettingsScreen(
+                navController = navController,
+                profileId = UUID.fromString(it.arguments?.getString("profileId")!!)
+            )
         }
 
         composable(
             route = Screen.SettingsProfileDefaultLessonsScreen.route,
             arguments = listOf(
                 navArgument("profileId") {
-                    type = NavType.LongType
+                    type = NavType.StringType
                 }
             )
         ) {
             ProfileSettingsDefaultLessonScreen(
-                profileId = it.arguments?.getLong("profileId")!!,
+                profileId = UUID.fromString(it.arguments?.getString("profileId")!!),
                 navController = navController
             )
         }

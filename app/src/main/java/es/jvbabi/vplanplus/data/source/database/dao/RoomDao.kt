@@ -6,6 +6,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.combined.CRoom
+import java.util.UUID
 
 @Dao
 abstract class RoomDao {
@@ -16,7 +17,7 @@ abstract class RoomDao {
 
     @Transaction
     @Query("SELECT * FROM room WHERE roomId = :roomId")
-    abstract fun getRoomById(roomId: Long): CRoom
+    abstract fun getRoomById(roomId: UUID): CRoom
 
     @Insert
     abstract suspend fun insertRoom(room: DbRoom): Long

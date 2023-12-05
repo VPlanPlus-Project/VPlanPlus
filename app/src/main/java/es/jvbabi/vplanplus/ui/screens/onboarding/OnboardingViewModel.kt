@@ -285,7 +285,7 @@ class OnboardingViewModel @Inject constructor(
                                     `class`.school,
                                     it.key.defaultLesson!!.teacherShort!!,
                                     false
-                                )?.teacherId ?: 0,
+                                )?.teacherId,
                                 classId = `class`.classId
                             )
                         )

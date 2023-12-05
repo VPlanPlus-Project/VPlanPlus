@@ -2,6 +2,8 @@ package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
+import java.util.UUID
 
 @Entity(
     tableName = "profile_default_lesson",
@@ -9,15 +11,18 @@ import androidx.room.ForeignKey
     foreignKeys = [
         ForeignKey(
             entity = DbProfile::class,
-            parentColumns = ["id"],
+            parentColumns = ["profileId"],
             childColumns = ["profileId"],
             onDelete = ForeignKey.CASCADE,
             onUpdate = ForeignKey.CASCADE
         )
+    ],
+    indices = [
+        Index(value = ["profileId"])
     ]
 )
 data class DbProfileDefaultLesson(
-    val profileId: Long,
+    val profileId: UUID,
     val defaultLessonVpId: Long,
     val enabled: Boolean
 )

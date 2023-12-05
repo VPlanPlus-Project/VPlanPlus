@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
+import java.util.UUID
 
 class RoomRepositoryImpl(
     private val roomDao: RoomDao
@@ -13,7 +14,7 @@ class RoomRepositoryImpl(
         return roomDao.getRooms(schoolId).map { it.toModel() }
     }
 
-    override fun getRoomById(roomId: Long): Room {
+    override fun getRoomById(roomId: UUID): Room {
         return roomDao.getRoomById(roomId).toModel()
     }
 
@@ -25,8 +26,13 @@ class RoomRepositoryImpl(
         if (name == "&amp;nbsp;" || name == "&nbsp;") return null
         val room = roomDao.getRoomByName(school.schoolId, name)
         if (room == null && createIfNotExists) {
-            val id = roomDao.insertRoom(DbRoom(schoolRoomRefId = school.schoolId, name = name))
-            return roomDao.getRoomById(id).toModel()
+            val dbRoom = DbRoom(
+                roomId = UUID.randomUUID(),
+                schoolRoomRefId = school.schoolId,
+                name = name
+            )
+            roomDao.insertRoom(dbRoom)
+            return roomDao.getRoomById(dbRoom.roomId).toModel()
         }
         return room?.toModel()
     }

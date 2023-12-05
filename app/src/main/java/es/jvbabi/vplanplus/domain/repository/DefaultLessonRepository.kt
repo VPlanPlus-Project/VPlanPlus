@@ -7,5 +7,5 @@ import java.util.UUID
 interface DefaultLessonRepository {
     suspend fun insert(defaultLesson: DbDefaultLesson): UUID
     suspend fun getDefaultLessonByVpId(vpId: Long): DefaultLesson?
-    suspend fun getDefaultLessonByClassId(classId: Long): List<DefaultLesson>
+    suspend fun getDefaultLessonByClassId(classId: UUID): List<DefaultLesson>
 }

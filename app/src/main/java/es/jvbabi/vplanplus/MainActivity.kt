@@ -31,6 +31,7 @@ import es.jvbabi.vplanplus.worker.SyncWorker
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -89,11 +90,11 @@ class MainActivity : ComponentActivity() {
     private fun processIntent(intent: Intent) {
         Log.d("MainActivity.Intent", "onNewIntent: $intent")
         if (intent.hasExtra("profileId")) {
-            val profileId = intent.getLongExtra("profileId", -1)
+            val profileId = intent.getStringExtra("profileId")
             Log.d("MainActivity.Intent", "profileId: $profileId")
             Log.d("MainActivity.Intent", "dateStr: ${intent.getStringExtra("dateStr")}")
 
-            homeViewModel.onProfileSelected(profileId)
+            homeViewModel.onProfileSelected(UUID.fromString(profileId))
             if (intent.getStringExtra("dateStr") != null) {
                 val dateStr = intent.getStringExtra("dateStr") ?: return
                 val date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))

@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -22,7 +23,7 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
     private val _state = mutableStateOf(ProfileSettingsDefaultLessonsState())
     val state: State<ProfileSettingsDefaultLessonsState> = _state
 
-    fun init(profileId: Long) {
+    fun init(profileId: UUID) {
         viewModelScope.launch {
             profileUseCases.getProfileById(profileId).collect {
 

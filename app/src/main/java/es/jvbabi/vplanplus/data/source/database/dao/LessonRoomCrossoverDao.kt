@@ -11,10 +11,10 @@ abstract class LessonRoomCrossoverDao {
     abstract suspend fun deleteCrossoversByLessonId(lessonId: UUID)
 
     @Query("INSERT INTO lesson_room_crossover (lrcLessonId, lrcRoomId) VALUES (:lessonId, :roomId)")
-    abstract suspend fun insertCrossover(lessonId: UUID, roomId: Long)
+    abstract suspend fun insertCrossover(lessonId: UUID, roomId: UUID)
 
     @Transaction
-    open suspend fun insertCrossovers(crossovers: List<Pair<UUID, Long>>) {
+    open suspend fun insertCrossovers(crossovers: List<Pair<UUID, UUID>>) {
         crossovers.forEach {
             insertCrossover(it.first, it.second)
         }

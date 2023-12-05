@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -61,7 +62,7 @@ class HomeViewModel @Inject constructor(
                 version = v?.toLong()?:0
                 _state.value.copy(
                     profiles = profiles,
-                    activeProfile = profiles.find { it.id == activeProfileId?.toLong() },
+                    activeProfile = profiles.find { it.id.toString() == activeProfileId },
                     lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
                     syncing = isSyncing
                 )
@@ -139,7 +140,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onProfileSelected(profileId: Long) {
+    fun onProfileSelected(profileId: UUID) {
         Log.d("HomeViewMode.ChangedProfile", "onProfileSelected: $profileId")
         viewModelScope.launch {
             killUiSyncJobs()

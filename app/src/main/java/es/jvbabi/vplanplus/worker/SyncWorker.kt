@@ -202,15 +202,15 @@ class SyncWorker @AssistedInject constructor(
         )
 
         val intent = Intent(context, MainActivity::class.java)
-            .putExtra("profileId", profile.id)
+            .putExtra("profileId", profile.id.toString())
             .putExtra("dateStr", date.toString())
 
         Log.d("SyncWorker.Notification", "Sending $notificationType for ${profile.displayName} at ${date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}")
-        Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(profile.id.toInt(), "${date.dayOfMonth}${date.monthValue}".toInt()))
+        Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(profile.id.hashCode(), "${date.dayOfMonth}${date.monthValue}".toInt()))
 
         val pendingIntent = PendingIntent.getActivity(
             context,
-            MathTools.cantor(profile.id.toInt(), date.toString().replace("-", "").toInt()),
+            MathTools.cantor(profile.id.hashCode(), date.toString().replace("-", "").toInt()),
             intent,
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -249,7 +249,7 @@ class SyncWorker @AssistedInject constructor(
 
         val notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(MathTools.cantor(profile.id.toInt(), date.toString().replace("-", "").toInt()), builder.build())
+        notificationManager.notify(MathTools.cantor(profile.id.hashCode(), date.toString().replace("-", "").toInt()), builder.build())
     }
 
     private fun buildChangedNotificationString(changedLessons: List<Lesson>): String {

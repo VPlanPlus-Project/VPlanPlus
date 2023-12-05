@@ -18,7 +18,7 @@ class DefaultLessonRepositoryImpl(
         return defaultLessonDao.getDefaultLessonByVpId(vpId)?.toModel()
     }
 
-    override suspend fun getDefaultLessonByClassId(classId: Long): List<DefaultLesson> {
+    override suspend fun getDefaultLessonByClassId(classId: UUID): List<DefaultLesson> {
         return defaultLessonDao.getDefaultLessonByClassId(classId).map { dl -> dl.toModel() }
     }
 }

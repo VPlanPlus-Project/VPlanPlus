@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 
 class ProfileRepositoryImpl(
     private val profileDao: ProfileDao,
@@ -24,43 +25,43 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override suspend fun getDbProfileById(profileId: Long): DbProfile? {
+    override suspend fun getDbProfileById(profileId: UUID): DbProfile? {
         return profileDao.getProfileById(id = profileId).first()?.profile
     }
 
     override suspend fun createProfile(
-        referenceId: Long,
+        referenceId: UUID,
         type: ProfileType,
         name: String,
         customName: String
-    ): Long {
-        return profileDao.insert(
-            DbProfile(
-                referenceId = referenceId,
-                type = type,
-                name = name,
-                customName = customName,
-                calendarMode = ProfileCalendarType.NONE,
-                calendarId = null
-            )
+    ): UUID {
+        val dbProfile = DbProfile(
+            referenceId = referenceId,
+            type = type,
+            name = name,
+            customName = customName,
+            calendarMode = ProfileCalendarType.NONE,
+            calendarId = null
         )
+        profileDao.insert(dbProfile)
+        return dbProfile.profileId
     }
 
-    override suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): Profile {
+    override suspend fun getProfileByReferenceId(referenceId: UUID, type: ProfileType): Profile {
         return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type).toModel()
     }
 
-    override fun getProfileById(id: Long): Flow<Profile?> {
+    override fun getProfileById(id: UUID): Flow<Profile?> {
         return profileDao.getProfileById(id = id).map {
             it?.toModel()
         }
     }
 
-    override suspend fun deleteDefaultLessonsFromProfile(profileId: Long) {
+    override suspend fun deleteDefaultLessonsFromProfile(profileId: UUID) {
         profileDefaultLessonsCrossoverDao.deleteCrossoversByProfileId(profileId = profileId)
     }
 
-    override suspend fun deleteProfile(profileId: Long) {
+    override suspend fun deleteProfile(profileId: UUID) {
         profileDao.deleteProfile(profileId = profileId)
     }
 
@@ -74,7 +75,7 @@ class ProfileRepositoryImpl(
         profileDao.insert(profile = profile)
     }
 
-    override suspend fun disableDefaultLesson(profileId: Long, vpId: Long) {
+    override suspend fun disableDefaultLesson(profileId: UUID, vpId: Long) {
         profileDefaultLessonsCrossoverDao.insertCrossover(
             DbProfileDefaultLesson(
                 profileId = profileId,
@@ -84,7 +85,7 @@ class ProfileRepositoryImpl(
         )
     }
 
-    override suspend fun enableDefaultLesson(profileId: Long, vpId: Long) {
+    override suspend fun enableDefaultLesson(profileId: UUID, vpId: Long) {
         profileDefaultLessonsCrossoverDao.insertCrossover(
             DbProfileDefaultLesson(
                 profileId = profileId,

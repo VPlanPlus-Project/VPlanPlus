@@ -53,8 +53,8 @@ class VPlanUseCases(
 
         // lists to collect data for bulk insert
         val insertLessons = mutableListOf<DbLesson>()
-        val roomCrossovers = mutableListOf<Pair<UUID, Long>>()
-        val teacherCrossovers = mutableListOf<Pair<UUID, Long>>()
+        val roomCrossovers = mutableListOf<Pair<UUID, UUID>>()
+        val teacherCrossovers = mutableListOf<Pair<UUID, UUID>>()
 
         // get rooms and teachers
         val rooms = roomRepository.getRoomsBySchool(school)

@@ -1,13 +1,17 @@
 package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.Index
 
 @Entity(
     tableName = "school",
+    primaryKeys = ["schoolId"],
+    indices = [
+        Index(value = ["schoolId"], unique = true),
+    ]
 )
 data class School(
-    @PrimaryKey val schoolId: Long = 0,
+    val schoolId: Long,
     val name: String,
     val username: String,
     val password: String,

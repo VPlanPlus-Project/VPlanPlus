@@ -19,6 +19,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -177,7 +178,7 @@ data class ResultGroup(
 )
 
 data class Result(
-    val id: Long,
+    val id: UUID,
     val name: String,
     val type: FilterType,
     val lessons: List<Lesson> = emptyList()

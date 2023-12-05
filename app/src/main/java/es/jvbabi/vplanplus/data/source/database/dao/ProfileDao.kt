@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.model.combined.CProfile
 import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 @Dao
 abstract class ProfileDao {
@@ -17,13 +18,13 @@ abstract class ProfileDao {
     abstract suspend fun insert(profile: DbProfile): Long
 
     @Query("SELECT * FROM profile WHERE referenceId = :referenceId AND type = :type")
-    abstract suspend fun getProfileByReferenceId(referenceId: Long, type: ProfileType): CProfile
+    abstract suspend fun getProfileByReferenceId(referenceId: UUID, type: ProfileType): CProfile
 
-    @Query("SELECT * FROM profile WHERE id = :id")
-    abstract fun getProfileById(id: Long): Flow<CProfile?>
+    @Query("SELECT * FROM profile WHERE profileId = :id")
+    abstract fun getProfileById(id: UUID): Flow<CProfile?>
 
-    @Query("DELETE FROM profile WHERE id = :profileId")
-    abstract suspend fun deleteProfile(profileId: Long)
+    @Query("DELETE FROM profile WHERE profileId = :profileId")
+    abstract suspend fun deleteProfile(profileId: UUID)
 
     @Query("SELECT * FROM profile WHERE (type = 1 AND referenceId IN (SELECT classId FROM classes WHERE schoolClassRefId = :schoolId)) OR (type = 0 AND referenceId IN (SELECT teacherId FROM teacher WHERE schoolTeacherRefId = :schoolId)) OR (type = 2 AND referenceId IN (SELECT roomId FROM room WHERE schoolRoomRefId = :schoolId))\n")
     abstract suspend fun getProfilesBySchoolId(schoolId: Long): List<CProfile>

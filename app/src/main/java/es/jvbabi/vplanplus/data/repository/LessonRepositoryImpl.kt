@@ -9,13 +9,14 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
+import java.util.UUID
 
 @ExperimentalCoroutinesApi
 class LessonRepositoryImpl(
     private val lessonDao: LessonDao,
 ) : LessonRepository {
 
-    override fun getLessonsForClass(classId: Long, date: LocalDate, version: Long): Flow<List<Lesson>?> {
+    override fun getLessonsForClass(classId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         return lessonDao.getLessonsByClass(classId, date, version)
             .map { lessons ->
                 if (lessons.isEmpty()) null
@@ -25,7 +26,7 @@ class LessonRepositoryImpl(
             }
     }
 
-    override fun getLessonsForTeacher(teacherId: Long, date: LocalDate, version: Long): Flow<List<Lesson>?> {
+    override fun getLessonsForTeacher(teacherId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         return lessonDao.getLessonsByTeacher(teacherId, date, version)
             .map { lessons ->
                 if (lessons.isEmpty()) null
@@ -35,7 +36,7 @@ class LessonRepositoryImpl(
             }
     }
 
-    override fun getLessonsForRoom(roomId: Long, date: LocalDate, version: Long): Flow<List<Lesson>?> {
+    override fun getLessonsForRoom(roomId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         return lessonDao.getLessonsByRoom(roomId, date, version)
             .map { lessons ->
                 if (lessons.isEmpty()) null

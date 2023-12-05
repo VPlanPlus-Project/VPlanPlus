@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.ClassDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import java.util.UUID
 
 class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
     override suspend fun createClass(schoolId: Long, className: String) {
@@ -14,13 +15,18 @@ class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
     override suspend fun getClassBySchoolIdAndClassName(schoolId: Long, className: String, createIfNotExists: Boolean): Classes {
         val `class` = classDao.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)
         if (`class` == null && createIfNotExists) {
-            val id = classDao.insertClass(DbClass(schoolClassRefId = schoolId, className = className))
-            return classDao.getClassById(id = id).toModel()
+            val dbClass = DbClass(
+                classId = UUID.randomUUID(),
+                schoolClassRefId = schoolId,
+                className = className
+            )
+            classDao.insertClass(dbClass)
+            return classDao.getClassById(id = dbClass.classId).toModel()
         }
         return classDao.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)!!.toModel()
     }
 
-    override fun getClassById(id: Long): Classes {
+    override suspend fun getClassById(id: UUID): Classes {
         return classDao.getClassById(id = id).toModel()
     }
 
