@@ -1,8 +1,12 @@
 package es.jvbabi.vplanplus.ui.screens.home.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -63,11 +67,15 @@ fun SearchBar(
             }
         },
         trailingIcon = {
-           if (!searchOpen) {
-               ProfileIcon(name = currentProfileName, isSyncing = isSyncing) {
-                   onMenuOpened()
-               }
-           }
+            AnimatedVisibility(
+                visible = !searchOpen,
+                enter = fadeIn(animationSpec = TweenSpec(200)),
+                exit = fadeOut(animationSpec = TweenSpec(200))
+            ) {
+                ProfileIcon(name = currentProfileName, isSyncing = isSyncing) {
+                    onMenuOpened()
+                }
+            }
         },
         placeholder = { Text(stringResource(id = R.string.home_search)) },
     ) {
