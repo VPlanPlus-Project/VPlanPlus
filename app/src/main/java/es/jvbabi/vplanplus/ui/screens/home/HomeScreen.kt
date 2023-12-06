@@ -196,27 +196,28 @@ fun HomeScreenContent(
     Box(
         modifier = Modifier.fillMaxSize()
     ) {
+        SearchBar(
+            currentProfileName = state.getActiveProfileDisplayName(),
+            onMenuOpened = onMenuOpened,
+            onSearchActiveChange = { onSearchOpened(it) },
+            searchOpen = state.searchOpen,
+            searchValue = state.searchQuery,
+            onSearchTyping = { onSearchQueryChanged(it) },
+            isSyncing = state.syncing,
+        ) {
+            if (state.searchOpen) {
+                SearchContent(
+                    state = state,
+                    onFindAvailableRoomClicked = { onFindAvailableRoomClicked() },
+                    onFilterToggle = { onFilterToggle(it) }
+                )
+            }
+        }
         Column(
             modifier = Modifier
-                .fillMaxSize(),
+                .fillMaxSize()
+                .padding(top = 56.dp)
         ) {
-            SearchBar(
-                currentProfileName = state.getActiveProfileDisplayName(),
-                onMenuOpened = onMenuOpened,
-                onSearchActiveChange = { onSearchOpened(it) },
-                searchOpen = state.searchOpen,
-                searchValue = state.searchQuery,
-                onSearchTyping = { onSearchQueryChanged(it) },
-                isSyncing = state.syncing,
-            ) {
-                if (state.searchOpen) {
-                    SearchContent(
-                        state = state,
-                        onFindAvailableRoomClicked = { onFindAvailableRoomClicked() },
-                        onFilterToggle = { onFilterToggle(it) }
-                    )
-                }
-            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
