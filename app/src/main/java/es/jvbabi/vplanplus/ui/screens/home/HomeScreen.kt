@@ -49,6 +49,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
@@ -272,17 +273,21 @@ fun HomeScreenContent(
                                                 state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
                                             },
                                     ) {
-                                        val isFirstOrLastLesson = listOf(
-                                            state.lessons[date]!!.lessons.minOfOrNull { l -> l.lessonNumber },
-                                            state.lessons[date]!!.lessons.maxOfOrNull { l -> l.lessonNumber }
-                                        ).contains(it.lessonNumber)
+                                        val importantLessons = state.lessons[date]!!.lessons.filter { l ->
+                                            state.activeProfile!!.isDefaultLessonEnabled(l.vpId) && l.displaySubject != "-"
+                                        }.sortedBy { l -> l.lessonNumber }
+                                        val isNotFirstOrLastLesson = it.lessonNumber in (importantLessons.firstOrNull()?.lessonNumber?:0)..(importantLessons.lastOrNull()?.lessonNumber?:Integer.MAX_VALUE)
                                         LessonCard(
                                             date = date,
                                             lesson = it,
                                             width = width.dp,
                                             displayMode = state.activeProfile!!.type,
                                             isCompactMode = state.viewMode == ViewType.WEEK,
-                                            showFindAvailableRoom = date.isEqual(LocalDate.now()) && !isFirstOrLastLesson,
+                                            showFindAvailableRoom =
+                                                    date.isEqual(LocalDate.now()) &&
+                                                    isNotFirstOrLastLesson &&
+                                                    state.activeProfile.type == ProfileType.STUDENT &&
+                                                    it.displaySubject == "-",
                                             onFindAvailableRoomClicked = onFindAvailableRoomClicked
                                         )
                                     }
