@@ -65,6 +65,8 @@ import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.NoData
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
+import es.jvbabi.vplanplus.ui.screens.home.search.SearchContent
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.FilterType
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.ViewType
@@ -108,7 +110,14 @@ fun HomeScreen(
         },
         lessonPagerState = lessonPagerState,
         onSearchOpened = {
-            navHostController.navigate(Screen.SearchScreen.route)
+            if (it) viewModel.onSearchOpened()
+            else viewModel.onSearchClosed()
+        },
+        onSearchQueryChanged = {
+            viewModel.onSearchQueryUpdate(it)
+        },
+        onFilterToggle = {
+            viewModel.searchToggleFilter(it)
         },
         onFindAvailableRoomClicked = {
             navHostController.navigate(Screen.SearchAvailableRoomScreen.route)
@@ -175,6 +184,8 @@ fun HomeScreen(
 fun HomeScreenContent(
     state: HomeState,
     onSearchOpened: (Boolean) -> Unit = {},
+    onSearchQueryChanged: (String) -> Unit = {},
+    onFilterToggle: (FilterType) -> Unit = {},
     onMenuOpened: () -> Unit = {},
     onViewModeChanged: (type: ViewType) -> Unit = {},
     lessonPagerState: PagerState = rememberPagerState(
@@ -190,18 +201,22 @@ fun HomeScreenContent(
                 .fillMaxSize(),
         ) {
             SearchBar(
-                currentProfileName = if ((state.activeProfile?.displayName
-                        ?: "").length > 4
-                ) state.activeProfile?.originalName ?: "" else state.activeProfile?.displayName
-                    ?: "",
+                currentProfileName = state.getActiveProfileDisplayName(),
                 onMenuOpened = onMenuOpened,
-                onSearchClicked = { onSearchOpened(it) },
-                searchOpen = false,
-                searchValue = "",
-                onSearchTyping = {},
+                onSearchActiveChange = { onSearchOpened(it) },
+                searchOpen = state.searchOpen,
+                searchValue = state.searchQuery,
+                onSearchTyping = { onSearchQueryChanged(it) },
                 isSyncing = state.syncing,
-                {}
-            )
+            ) {
+                if (state.searchOpen) {
+                    SearchContent(
+                        state = state,
+                        onFindAvailableRoomClicked = { onFindAvailableRoomClicked() },
+                        onFilterToggle = { onFilterToggle(it) }
+                    )
+                }
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

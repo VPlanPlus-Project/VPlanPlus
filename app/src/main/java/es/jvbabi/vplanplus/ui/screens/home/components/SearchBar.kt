@@ -36,7 +36,7 @@ import es.jvbabi.vplanplus.R
 fun SearchBar(
     currentProfileName: String,
     onMenuOpened: () -> Unit,
-    onSearchClicked: (Boolean) -> Unit,
+    onSearchActiveChange: (Boolean) -> Unit,
     searchOpen: Boolean,
     searchValue: String,
     onSearchTyping: (String) -> Unit,
@@ -50,10 +50,10 @@ fun SearchBar(
         onSearch = { onSearchTyping(it) },
         active = searchOpen,
         modifier = Modifier.fillMaxWidth(),
-        onActiveChange = { onSearchClicked(it) },
+        onActiveChange = { onSearchActiveChange(it) },
         leadingIcon = {
             IconButton(
-                onClick = { onSearchClicked(!searchOpen) },
+                onClick = { onSearchActiveChange(!searchOpen) },
             ) {
                 Icon(
                     imageVector = if (searchOpen) Icons.AutoMirrored.Default.ArrowBack else Icons.Default.Search,

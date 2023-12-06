@@ -11,7 +11,6 @@ import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
-import es.jvbabi.vplanplus.ui.screens.home.search.SearchScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.logs.LogsScreen
@@ -50,10 +49,6 @@ fun NavigationGraph(
                 navHostController = navController,
                 viewModel = homeViewModel,
             )
-        }
-
-        composable(route = Screen.SearchScreen.route) {
-            SearchScreen(navController)
         }
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {

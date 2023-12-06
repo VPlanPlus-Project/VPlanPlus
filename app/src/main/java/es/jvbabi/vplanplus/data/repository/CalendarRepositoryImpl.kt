@@ -5,7 +5,6 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.provider.CalendarContract
-import android.util.Log
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
