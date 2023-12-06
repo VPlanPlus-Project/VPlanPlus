@@ -38,129 +38,98 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.preview.Lessons
-import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.FilterType
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.SearchResult
 import java.util.UUID
 
 @Composable
-fun SearchScreen(
-    navHostController: NavHostController,
-    searchViewModel: SearchViewModel = hiltViewModel()
-) {
-    val state = searchViewModel.state.value
-    SearchContent(
-        state = state,
-        onSearchTyping = { searchViewModel.type(it) },
-        onSearchClosed = { navHostController.popBackStack() },
-        onFilterToggle = { searchViewModel.toggleFilter(it) },
-        onFindAvailableRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) }
-    )
-}
-
-@Composable
 fun SearchContent(
-    state: SearchState,
-    onSearchTyping: (String) -> Unit,
-    onSearchClosed: () -> Unit,
-    onFilterToggle: (FilterType) -> Unit = {},
-    onFindAvailableRoomClicked: () -> Unit = {}
+    state: HomeState,
+    onFindAvailableRoomClicked: () -> Unit = {},
+    onFilterToggle: (FilterType) -> Unit = {}
 ) {
-    Column(
-        modifier = Modifier.fillMaxSize()
+    AssistChip(
+        onClick = { onFindAvailableRoomClicked() },
+        label = { Text(text = stringResource(id = R.string.search_searchAvailableRoom)) },
+        leadingIcon = {
+            Icon(imageVector = Icons.Default.MeetingRoom, contentDescription = null)
+        },
+        modifier = Modifier.padding(start = 8.dp)
+    )
+    val chipScrollState = rememberScrollState()
+    Row(
+        modifier = Modifier
+            .horizontalScroll(state = chipScrollState)
+            .padding(start = 8.dp)
     ) {
-        SearchBar(
-            currentProfileName = "",
-            onMenuOpened = { },
-            onSearchClicked = { if (!it) onSearchClosed() },
-            searchOpen = true,
-            searchValue = state.searchValue,
-            onSearchTyping = { onSearchTyping(it) },
-            isSyncing = false
-        )
-        AssistChip(
-            onClick = { onFindAvailableRoomClicked() },
-            label = { Text(text = stringResource(id = R.string.search_searchAvailableRoom)) },
+        val paddingModifier = Modifier.padding(end = 8.dp)
+        FilterChip(
+            selected = state.filter[FilterType.TEACHER]!!,
+            onClick = { onFilterToggle(FilterType.TEACHER) },
+            label = { Text(text = stringResource(id = R.string.search_teacherFilter)) },
             leadingIcon = {
-                Icon(imageVector = Icons.Default.MeetingRoom, contentDescription = null)
+                Icon(imageVector = Icons.Default.Person, contentDescription = null)
             },
-            modifier = Modifier.padding(start = 8.dp)
+            modifier = paddingModifier
         )
-        val chipScrollState = rememberScrollState()
-        Row(
-            modifier = Modifier
-                .horizontalScroll(state = chipScrollState)
-                .padding(start = 8.dp)
-        ) {
-            val paddingModifier = Modifier.padding(end = 8.dp)
-            FilterChip(
-                selected = state.filter[FilterType.TEACHER]!!,
-                onClick = { onFilterToggle(FilterType.TEACHER) },
-                label = { Text(text = stringResource(id = R.string.search_teacherFilter)) },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Person, contentDescription = null)
-                },
-                modifier = paddingModifier
-            )
-            FilterChip(
-                selected = state.filter[FilterType.ROOM]!!,
-                onClick = { onFilterToggle(FilterType.ROOM) },
-                label = { Text(text = stringResource(id = R.string.search_roomFilter)) },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.DoorBack, contentDescription = null)
-                },
-                modifier = paddingModifier
-            )
-            FilterChip(
-                selected = state.filter[FilterType.CLASS]!!,
-                onClick = { onFilterToggle(FilterType.CLASS) },
-                label = { Text(text = stringResource(id = R.string.search_classesFilter)) },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.People, contentDescription = null)
-                },
-                modifier = paddingModifier
+        FilterChip(
+            selected = state.filter[FilterType.ROOM]!!,
+            onClick = { onFilterToggle(FilterType.ROOM) },
+            label = { Text(text = stringResource(id = R.string.search_roomFilter)) },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.DoorBack, contentDescription = null)
+            },
+            modifier = paddingModifier
+        )
+        FilterChip(
+            selected = state.filter[FilterType.CLASS]!!,
+            onClick = { onFilterToggle(FilterType.CLASS) },
+            label = { Text(text = stringResource(id = R.string.search_classesFilter)) },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.People, contentDescription = null)
+            },
+            modifier = paddingModifier
+        )
+    }
+    if (state.results.isNotEmpty()) Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        state.results.forEach { resultGroup ->
+            SchoolResult(
+                name = resultGroup.school.name,
+                searchResults = resultGroup.searchResults,
+                filterMap = state.filter
             )
         }
-        if (state.result.isNotEmpty()) Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+    } else {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
         ) {
-            state.result.forEach { resultGroup ->
-                SchoolResult(
-                    name = resultGroup.school.name,
-                    results = resultGroup.results,
-                    filterMap = state.filter
-                )
-            }
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier.padding(horizontal = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column(
-                    modifier = Modifier.padding(horizontal = 24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = null,
-                        modifier = Modifier.size(80.dp),
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = stringResource(id = R.string.search_searchTitle),
-                        style = MaterialTheme.typography.headlineMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Text(
-                        text = stringResource(id = R.string.search_searchText),
-                        textAlign = TextAlign.Center
-                    )
-                }
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = null,
+                    modifier = Modifier.size(80.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = stringResource(id = R.string.search_searchTitle),
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = stringResource(id = R.string.search_searchText),
+                    textAlign = TextAlign.Center
+                )
             }
         }
     }
@@ -168,7 +137,7 @@ fun SearchContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType, Boolean>) {
+fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map<FilterType, Boolean>) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -198,7 +167,7 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                             .fillMaxWidth()
                             .background(CardDefaults.cardColors().containerColor)
                     ) {
-                        if (results.groupBy { it.type }[filterType]?.isEmpty() != false) {
+                        if (searchResults.groupBy { it.type }[filterType]?.isEmpty() != false) {
                             Text(
                                 text = stringResource(id = R.string.search_noResultsFound),
                                 style = MaterialTheme.typography.bodySmall,
@@ -216,7 +185,7 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                                     .clip(RoundedCornerShape(16.dp))
                                     .background(MaterialTheme.colorScheme.tertiaryContainer)
                             ) {
-                                val firstResult = results.sortedBy { it.name }
+                                val firstResult = searchResults.sortedBy { it.name }
                                     .first { it.type == filterType }
                                 Column {
                                     Text(
@@ -272,7 +241,7 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
                         }
                     }
                 }
-                results.filter { it.type == filterType }.sortedBy { it.name }.drop(1)
+                searchResults.filter { it.type == filterType }.sortedBy { it.name }.drop(1)
                     .forEach { result ->
                         Text(
                             text = result.name,
@@ -287,40 +256,29 @@ fun SchoolResult(name: String, results: List<Result>, filterMap: Map<FilterType,
 
 @Composable
 @Preview(showBackground = true)
-fun SearchPreview() {
-    SearchContent(
-        state = SearchState(),
-        onSearchTyping = {},
-        onSearchClosed = {},
-        onFilterToggle = {}
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
 fun SchoolResultPreview() {
     SchoolResult(
         name = "Grundschule Oberau",
-        results = listOf(
-            Result(
+        searchResults = listOf(
+            SearchResult(
                 UUID.randomUUID(),
                 Lessons.randomRoom().first().name,
                 FilterType.ROOM,
                 Lessons.generateLessons(3)
             ),
-            Result(
+            SearchResult(
                 UUID.randomUUID(),
                 Lessons.randomRoom().first().name,
                 FilterType.ROOM,
                 Lessons.generateLessons(3)
             ),
-            Result(
+            SearchResult(
                 UUID.randomUUID(),
                 Lessons.randomTeacher().first().acronym,
                 FilterType.TEACHER,
                 Lessons.generateLessons(3)
             ),
-            Result(
+            SearchResult(
                 UUID.randomUUID(),
                 Lessons.randomTeacher().first().acronym,
                 FilterType.TEACHER,
