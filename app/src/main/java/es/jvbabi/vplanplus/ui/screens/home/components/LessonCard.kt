@@ -127,7 +127,11 @@ fun LessonCard(
                                         spacing = MarqueeSpacing(12.dp)
                                     )
                             )
-                            if (displayMode == ProfileType.STUDENT && lesson.displaySubject == "-" && showFindAvailableRoom) {
+                            if (
+                                displayMode == ProfileType.STUDENT &&
+                                lesson.displaySubject == "-" &&
+                                showFindAvailableRoom
+                                ) {
                                 AssistChip(
                                     label = {
                                         Text(text = stringResource(id = R.string.lesson_cancelFindRoom))

@@ -272,17 +272,17 @@ fun HomeScreenContent(
                                                 state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
                                             },
                                     ) {
-                                        val isFirstOrLastLesson = listOf(
-                                            state.lessons[date]!!.lessons.minOfOrNull { l -> l.lessonNumber },
-                                            state.lessons[date]!!.lessons.maxOfOrNull { l -> l.lessonNumber }
-                                        ).contains(it.lessonNumber)
+                                        val importantLessons = state.lessons[date]!!.lessons.filter { l ->
+                                            state.activeProfile!!.isDefaultLessonEnabled(l.vpId) && l.displaySubject != "-"
+                                        }.sortedBy { l -> l.lessonNumber }
+                                        val isNotFirstOrLastLesson = it.lessonNumber in (importantLessons.firstOrNull()?.lessonNumber?:0)..(importantLessons.lastOrNull()?.lessonNumber?:Integer.MAX_VALUE)
                                         LessonCard(
                                             date = date,
                                             lesson = it,
                                             width = width.dp,
                                             displayMode = state.activeProfile!!.type,
                                             isCompactMode = state.viewMode == ViewType.WEEK,
-                                            showFindAvailableRoom = date.isEqual(LocalDate.now()) && !isFirstOrLastLesson,
+                                            showFindAvailableRoom = date.isEqual(LocalDate.now()) && isNotFirstOrLastLesson,
                                             onFindAvailableRoomClicked = onFindAvailableRoomClicked
                                         )
                                     }
