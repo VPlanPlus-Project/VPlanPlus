@@ -187,7 +187,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSearchClosed() {
-        _state.value = _state.value.copy(searchOpen = false, searchQuery = "")
+        _state.value = _state.value.copy(searchOpen = false, searchQuery = "", results = emptyList())
     }
 
     fun onSearchQueryUpdate(query: String) {
