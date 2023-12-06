@@ -199,7 +199,8 @@ fun HomeScreenContent(
                 searchOpen = false,
                 searchValue = "",
                 onSearchTyping = {},
-                isSyncing = state.syncing
+                isSyncing = state.syncing,
+                {}
             )
             Row(
                 modifier = Modifier
