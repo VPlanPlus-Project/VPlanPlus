@@ -49,6 +49,11 @@ fun LessonCard(
     showFindAvailableRoom: Boolean = false,
     onFindAvailableRoomClicked: () -> Unit
 ) {
+
+    var height = if (!lesson.info.isNullOrBlank() || isCompactMode) 100.dp else 70.dp
+
+    if (showFindAvailableRoom) height += 20.dp
+
     val progress = DateUtils.calculateProgress(
         DateUtils.localDateTimeToTimeString(lesson.start),
         "${LocalDateTime.now().hour}:${LocalDateTime.now().minute}",
@@ -61,7 +66,7 @@ fun LessonCard(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(if (!lesson.info.isNullOrBlank() || isCompactMode) 100.dp else 70.dp)
+                .height(height)
         ) {
             if (progress in 0f..1f && date == LocalDate.now()) Box(modifier = Modifier
                 .background(MaterialTheme.colorScheme.tertiaryContainer)
@@ -71,7 +76,7 @@ fun LessonCard(
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(start = 16.dp),
+                        .padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Row (
@@ -127,11 +132,7 @@ fun LessonCard(
                                         spacing = MarqueeSpacing(12.dp)
                                     )
                             )
-                            if (
-                                displayMode == ProfileType.STUDENT &&
-                                lesson.displaySubject == "-" &&
-                                showFindAvailableRoom
-                                ) {
+                            if (showFindAvailableRoom) {
                                 AssistChip(
                                     label = {
                                         Text(text = stringResource(id = R.string.lesson_cancelFindRoom))
@@ -139,6 +140,7 @@ fun LessonCard(
                                     onClick = { onFindAvailableRoomClicked() },
                                     leadingIcon = { Icon(imageVector = Icons.Default.MeetingRoom, contentDescription = null) }
                                 )
+
                             }
                         }
                     }
@@ -193,5 +195,5 @@ private fun CompactLessonCardPreview() {
 @Preview
 @Composable
 private fun CancelledLessonCard() {
-    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateCanceledLesson(), width = 500.dp, isCompactMode = false, onFindAvailableRoomClicked = { })
+    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateCanceledLesson(), width = 500.dp, isCompactMode = false, onFindAvailableRoomClicked = { }, showFindAvailableRoom = true)
 }

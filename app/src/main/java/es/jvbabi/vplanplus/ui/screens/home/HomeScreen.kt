@@ -49,6 +49,7 @@ import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
@@ -282,7 +283,11 @@ fun HomeScreenContent(
                                             width = width.dp,
                                             displayMode = state.activeProfile!!.type,
                                             isCompactMode = state.viewMode == ViewType.WEEK,
-                                            showFindAvailableRoom = date.isEqual(LocalDate.now()) && isNotFirstOrLastLesson,
+                                            showFindAvailableRoom =
+                                                    date.isEqual(LocalDate.now()) &&
+                                                    isNotFirstOrLastLesson &&
+                                                    state.activeProfile.type == ProfileType.STUDENT &&
+                                                    it.displaySubject == "-",
                                             onFindAvailableRoomClicked = onFindAvailableRoomClicked
                                         )
                                     }
