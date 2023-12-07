@@ -295,7 +295,7 @@ fun HomeScreenContent(
                                         }.sortedBy { l -> l.lessonNumber }
                                         val isNotFirstOrLastLesson = it.lessonNumber in (importantLessons.firstOrNull()?.lessonNumber?:0)..(importantLessons.lastOrNull()?.lessonNumber?:Integer.MAX_VALUE)
                                         LessonCard(
-                                            date = date,
+                                            time = state.time,
                                             lesson = it,
                                             width = width.dp,
                                             displayMode = state.activeProfile!!.type,

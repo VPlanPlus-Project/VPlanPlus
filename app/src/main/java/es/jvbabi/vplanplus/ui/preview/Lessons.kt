@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.randomSubList
 import java.time.LocalDate
+import java.time.LocalDateTime
 import kotlin.random.Random
 
 object Lessons {
@@ -28,16 +29,19 @@ object Lessons {
         )
     }
 
-    fun generateLessons(count: Int = 4): List<Lesson> {
+    fun generateLessons(count: Int = 4, isCurrentLesson: Boolean = false): List<Lesson> {
         val result = mutableListOf<Lesson>()
+        val start = if (isCurrentLesson) "${LocalDateTime.now().hour}:15" else "08:00"
+        val end = if (isCurrentLesson) "${LocalDateTime.now().hour+1}:30" else "08:45"
+
         repeat(count) { index ->
             result.add(
                 Lesson(
                     rooms = randomRoom().map { it.name },
                     teacherIsChanged = Random.nextBoolean(),
                     teachers = randomTeacher().map { it.acronym },
-                    start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:00", LocalDate.now()),
-                    end = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:45", LocalDate.now()),
+                    start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(start, LocalDate.now()),
+                    end = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(end, LocalDate.now()),
                     info = "Info",
                     lessonNumber = index+1,
                     roomIsChanged = Random.nextBoolean(),
