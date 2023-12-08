@@ -79,15 +79,10 @@ fun LessonCard(
                         .padding(start = 16.dp, top = 12.dp, bottom = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row (
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f, false),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(text = "${lesson.lessonNumber}", style = MaterialTheme.typography.headlineMedium)
                         Column(
-                            modifier = Modifier.padding(start = 16.dp)
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .weight(1f, false)
                         ) {
                             Row {
                                 Text(
@@ -143,7 +138,6 @@ fun LessonCard(
 
                             }
                         }
-                    }
                     SubjectIcon(subject = lesson.displaySubject, modifier = Modifier
                         .padding(end = 16.dp)
                         .size(50.dp),
