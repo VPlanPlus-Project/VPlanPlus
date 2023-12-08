@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.ui.screens.home.search
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.border
@@ -12,10 +13,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -209,8 +208,7 @@ fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map
                                             Box(
                                                 modifier = Modifier
                                                     .padding(start = 8.dp, bottom = 8.dp)
-                                                    .width(55.dp)
-                                                    .height(55.dp)
+                                                    .size(65.dp)
                                                     .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
                                                     .clip(RoundedCornerShape(8.dp))
                                                     .background(CardDefaults.cardColors().containerColor),
@@ -220,37 +218,45 @@ fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map
                                                 if (progress > 0) Box(modifier = Modifier
                                                     .background(MaterialTheme.colorScheme.tertiaryContainer)
                                                     .fillMaxWidth(minOf(progress.toFloat(), 1f))
-                                                    .fillMaxHeight()) // Progress bar
-                                                Column(
+                                                    .fillMaxHeight()
+                                                ) // Progress bar
+                                                Box(
                                                     modifier = Modifier
+                                                        .padding(4.dp)
                                                         .fillMaxSize(),
-                                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                                    verticalArrangement = Arrangement.Center
-                                                )  {
-                                                    Text(
-                                                        text = lesson.lessonNumber.toString() + ". " + lesson.displaySubject,
-                                                        style = MaterialTheme.typography.titleMedium
-                                                    )
-                                                    Text(
-                                                        text = when (filterType) {
-                                                            FilterType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
-                                                                ", "
-                                                            )
+                                                    contentAlignment = Alignment.Center
+                                                ) {
+                                                    Column(
+                                                        modifier = Modifier
+                                                            .basicMarquee(
+                                                                iterations = Int.MAX_VALUE,
+                                                                velocity = 80.dp,
+                                                                spacing = MarqueeSpacing(12.dp)
+                                                            ),
+                                                        horizontalAlignment = Alignment.CenterHorizontally,
+                                                        verticalArrangement = Arrangement.Center
+                                                    )  {
+                                                        Text(
+                                                            text = lesson.lessonNumber.toString() + ". " + lesson.displaySubject,
+                                                            style = MaterialTheme.typography.titleMedium
+                                                        )
+                                                        Text(
+                                                            text = when (filterType) {
+                                                                FilterType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
+                                                                    ", "
+                                                                )
 
-                                                            FilterType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
-                                                                ", "
-                                                            )
+                                                                FilterType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
+                                                                    ", "
+                                                                )
 
-                                                            FilterType.CLASS -> lesson.teachers.joinToString(
-                                                                ", "
-                                                            ) + " • " + lesson.rooms.joinToString(", ")
-                                                        },
-                                                        style = MaterialTheme.typography.labelSmall,
-                                                        modifier = Modifier.basicMarquee(
-                                                            iterations = Int.MAX_VALUE,
-
-                                                            )
-                                                    )
+                                                                FilterType.CLASS -> lesson.teachers.joinToString(
+                                                                    ", "
+                                                                ) + " • " + lesson.rooms.joinToString(", ")
+                                                            },
+                                                            style = MaterialTheme.typography.labelSmall
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
@@ -301,7 +307,7 @@ fun SchoolResultPreview() {
                 UUID.randomUUID(),
                 Lessons.randomTeacher().first().acronym,
                 FilterType.TEACHER,
-                Lessons.generateLessons(3)
+                Lessons.generateLessons(3, true)
             ),
         ),
         filterMap = mapOf(
