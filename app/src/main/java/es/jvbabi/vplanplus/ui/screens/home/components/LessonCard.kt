@@ -2,13 +2,11 @@ package es.jvbabi.vplanplus.ui.screens.home.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeSpacing
-import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -34,14 +32,10 @@ import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
-import es.jvbabi.vplanplus.util.DateUtils
-import java.time.LocalDate
-import java.time.LocalDateTime
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LessonCard(
-    time: LocalDateTime = LocalDateTime.now(),
     displayMode: ProfileType,
     lesson: Lesson,
     width: Dp,
@@ -54,12 +48,6 @@ fun LessonCard(
 
     if (showFindAvailableRoom) height += 20.dp
 
-    val progress = DateUtils.calculateProgress(
-        DateUtils.localDateTimeToTimeString(lesson.start),
-        "${time.hour}:${time.minute}",
-        DateUtils.localDateTimeToTimeString(lesson.end)
-    )?:0.0
-
     Card(modifier = Modifier
         .padding(4.dp)
         .width(width)) {
@@ -68,10 +56,6 @@ fun LessonCard(
                 .fillMaxWidth()
                 .height(height)
         ) {
-            if (progress in 0f..1f && time.toLocalDate() == LocalDate.now()) Box(modifier = Modifier
-                .background(MaterialTheme.colorScheme.tertiaryContainer)
-                .fillMaxWidth(progress.toFloat())
-                .fillMaxHeight()) // Progress bar
             if (!isCompactMode) {
                 Row(
                     modifier = Modifier
