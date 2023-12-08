@@ -9,9 +9,11 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,18 +21,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -305,6 +309,7 @@ fun HomeScreenContent(
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .padding(4.dp)
+                                                .height(IntrinsicSize.Max)
                                         ) {
                                             Box(
                                                 modifier = Modifier
@@ -318,14 +323,7 @@ fun HomeScreenContent(
                                                     "${state.time.hour}:${state.time.minute}",
                                                     DateUtils.localDateTimeToTimeString(lessons[lessonNumber]!!.first().end)
                                                 )?:0.0
-                                                LinearProgressIndicator(
-                                                    modifier = Modifier
-                                                        .fillMaxWidth()
-                                                        .height(if (progress >= 1f) 4.dp else 8.dp),
-                                                    progress = { minOf(progress.toFloat(), 1f) },
-                                                    trackColor = Color.Transparent,
-                                                    color = MaterialTheme.colorScheme.secondary
-                                                )
+                                                LessonCardGroupProgressBox(progress = progress.toFloat())
                                                 Row(
                                                     modifier = Modifier.padding(8.dp)
                                                 ) {
@@ -422,4 +420,21 @@ private fun HomeScreenPreview() {
         ),
         onMenuOpened = {}
     )
+}
+
+@Composable
+private fun LessonCardGroupProgressBox(progress: Float) {
+    val clipModifier = if (progress >= 1f) Modifier else Modifier.clip(
+        RoundedCornerShape(
+            bottomEndPercent = 50,
+            bottomStartPercent = 50,
+        )
+    )
+    Box(
+        modifier = Modifier
+            .width(8.dp)
+            .then(clipModifier)
+            .background(MaterialTheme.colorScheme.secondary)
+            .fillMaxHeight(minOf(progress, 1f))
+    ) {}
 }
