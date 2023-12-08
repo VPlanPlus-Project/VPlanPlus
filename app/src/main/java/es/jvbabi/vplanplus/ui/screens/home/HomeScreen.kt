@@ -209,7 +209,8 @@ fun HomeScreenContent(
                 SearchContent(
                     state = state,
                     onFindAvailableRoomClicked = { onFindAvailableRoomClicked() },
-                    onFilterToggle = { onFilterToggle(it) }
+                    onFilterToggle = { onFilterToggle(it) },
+                    time = state.time
                 )
             }
         }

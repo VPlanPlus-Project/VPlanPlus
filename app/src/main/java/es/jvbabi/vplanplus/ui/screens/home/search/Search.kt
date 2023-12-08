@@ -3,11 +3,13 @@ package es.jvbabi.vplanplus.ui.screens.home.search
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.border
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -43,13 +45,17 @@ import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.FilterType
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.SearchResult
+import es.jvbabi.vplanplus.util.DateUtils
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @Composable
 fun SearchContent(
     state: HomeState,
     onFindAvailableRoomClicked: () -> Unit = {},
-    onFilterToggle: (FilterType) -> Unit = {}
+    onFilterToggle: (FilterType) -> Unit = {},
+    time: LocalDateTime = LocalDateTime.now()
 ) {
     AssistChip(
         onClick = { onFindAvailableRoomClicked() },
@@ -103,7 +109,8 @@ fun SearchContent(
             SchoolResult(
                 name = resultGroup.school.name,
                 searchResults = resultGroup.searchResults,
-                filterMap = state.filter
+                filterMap = state.filter,
+                time = time
             )
         }
     } else {
@@ -137,7 +144,7 @@ fun SearchContent(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map<FilterType, Boolean>) {
+fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map<FilterType, Boolean>, time: LocalDateTime) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -199,40 +206,52 @@ fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map
                                             .horizontalScroll(rememberScrollState())
                                     ) {
                                         firstResult.lessons.forEach { lesson ->
-                                            Column(
+                                            Box(
                                                 modifier = Modifier
                                                     .padding(start = 8.dp, bottom = 8.dp)
                                                     .width(55.dp)
                                                     .height(55.dp)
+                                                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
                                                     .clip(RoundedCornerShape(8.dp))
                                                     .background(CardDefaults.cardColors().containerColor),
-                                                horizontalAlignment = Alignment.CenterHorizontally,
-                                                verticalArrangement = Arrangement.Center
                                             ) {
-                                                Text(
-                                                    text = lesson.lessonNumber.toString() + ". " + lesson.displaySubject,
-                                                    style = MaterialTheme.typography.titleMedium
-                                                )
-                                                Text(
-                                                    text = when (filterType) {
-                                                        FilterType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
-                                                            ", "
-                                                        )
+                                                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+                                                val progress = DateUtils.calculateProgress(lesson.start.format(timeFormatter), time.format(timeFormatter), lesson.end.format(timeFormatter))?:0.0
+                                                if (progress > 0) Box(modifier = Modifier
+                                                    .background(MaterialTheme.colorScheme.tertiaryContainer)
+                                                    .fillMaxWidth(minOf(progress.toFloat(), 1f))
+                                                    .fillMaxHeight()) // Progress bar
+                                                Column(
+                                                    modifier = Modifier
+                                                        .fillMaxSize(),
+                                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                                    verticalArrangement = Arrangement.Center
+                                                )  {
+                                                    Text(
+                                                        text = lesson.lessonNumber.toString() + ". " + lesson.displaySubject,
+                                                        style = MaterialTheme.typography.titleMedium
+                                                    )
+                                                    Text(
+                                                        text = when (filterType) {
+                                                            FilterType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
+                                                                ", "
+                                                            )
 
-                                                        FilterType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
-                                                            ", "
-                                                        )
+                                                            FilterType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
+                                                                ", "
+                                                            )
 
-                                                        FilterType.CLASS -> lesson.teachers.joinToString(
-                                                            ", "
-                                                        ) + " • " + lesson.rooms.joinToString(", ")
-                                                    },
-                                                    style = MaterialTheme.typography.labelSmall,
-                                                    modifier = Modifier.basicMarquee(
-                                                        iterations = Int.MAX_VALUE,
+                                                            FilterType.CLASS -> lesson.teachers.joinToString(
+                                                                ", "
+                                                            ) + " • " + lesson.rooms.joinToString(", ")
+                                                        },
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        modifier = Modifier.basicMarquee(
+                                                            iterations = Int.MAX_VALUE,
 
-                                                        )
-                                                )
+                                                            )
+                                                    )
+                                                }
                                             }
                                         }
                                     }
@@ -290,6 +309,7 @@ fun SchoolResultPreview() {
             FilterType.ROOM to true,
             FilterType.CLASS to true,
 //            FilterType.PROFILE to true
-        )
+        ),
+        time = LocalDateTime.now()
     )
 }
