@@ -47,8 +47,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -308,7 +310,10 @@ fun HomeScreenContent(
                                                 modifier = Modifier
                                                     .fillMaxWidth()
                                             ) {
-                                                val progress = DateUtils.calculateProgress(
+                                                var progress = 0.0
+                                                if (date.isBefore(LocalDate.now())) progress = 1.0
+                                                if (date.isAfter(LocalDate.now())) progress = 0.0
+                                                if (date == LocalDate.now()) progress = DateUtils.calculateProgress(
                                                     DateUtils.localDateTimeToTimeString(lessons[lessonNumber]!!.first().start),
                                                     "${state.time.hour}:${state.time.minute}",
                                                     DateUtils.localDateTimeToTimeString(lessons[lessonNumber]!!.first().end)
@@ -324,7 +329,7 @@ fun HomeScreenContent(
                                                 Row(
                                                     modifier = Modifier.padding(8.dp)
                                                 ) {
-                                                    Box(
+                                                    if (state.viewMode == ViewType.DAY) Box(
                                                         modifier = Modifier
                                                             .padding(top = 16.dp, start = 16.dp)
                                                     ) {
@@ -341,7 +346,6 @@ fun HomeScreenContent(
                                                             ) {
                                                                 LessonCard(
                                                                     lesson = it,
-                                                                    width = width.dp,
                                                                     displayMode = state.activeProfile!!.type,
                                                                     isCompactMode = state.viewMode == ViewType.WEEK,
                                                                     showFindAvailableRoom =
@@ -353,12 +357,22 @@ fun HomeScreenContent(
                                                                 )
                                                             }
                                                             if (index != lessons[lessonNumber]!!.size - 1) HorizontalDivider(
-                                                                color = MaterialTheme.colorScheme.surface,
+                                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
                                                                 modifier = Modifier.padding(start = 16.dp, end = 24.dp)
                                                             )
                                                         }
                                                     }
                                                 }
+                                                if (state.viewMode == ViewType.WEEK) Text(
+                                                    text = lessonNumber.toString(),
+                                                    style = TextStyle(
+                                                        fontSize = 40.sp,
+                                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = .2f)
+                                                    ),
+                                                    modifier = Modifier
+                                                        .padding(end = 8.dp)
+                                                        .align(Alignment.BottomEnd)
+                                                )
                                             }
                                         }
                                     }
