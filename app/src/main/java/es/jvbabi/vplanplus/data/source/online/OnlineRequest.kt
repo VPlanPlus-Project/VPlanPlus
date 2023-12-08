@@ -8,6 +8,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.UserAgent
 import io.ktor.client.request.basicAuth
 import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
@@ -26,6 +27,9 @@ class OnlineRequest(
                 requestTimeoutMillis = 5000
                 connectTimeoutMillis = 5000
                 socketTimeoutMillis = 5000
+            }
+            install(UserAgent) {
+                agent = "VPlanPlus"
             }
         }.request(url) {
             method = HttpMethod.Get
