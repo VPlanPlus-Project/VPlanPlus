@@ -310,6 +310,7 @@ fun HomeScreenContent(
                                                 ) {
                                                     Text(text = "$lessonNumber.", style = MaterialTheme.typography.headlineMedium)
                                                 }
+
                                                 val isNotFirstOrLastLesson = lessonNumber in (importantLessons.firstOrNull()?.lessonNumber?:0)..(importantLessons.lastOrNull()?.lessonNumber?:Integer.MAX_VALUE)
                                                 Column(
                                                     modifier = Modifier.fillMaxWidth()
@@ -341,32 +342,6 @@ fun HomeScreenContent(
                                                 }
                                             }
                                         }
-                                    }
-                                }
-
-                                HorizontalDivider()
-
-                                LazyColumn {
-                                    items(
-                                        state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }
-                                            .filter {
-                                                state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
-                                            },
-                                    ) {
-                                        val isNotFirstOrLastLesson = it.lessonNumber in (importantLessons.firstOrNull()?.lessonNumber?:0)..(importantLessons.lastOrNull()?.lessonNumber?:Integer.MAX_VALUE)
-                                        LessonCard(
-                                            time = state.time,
-                                            lesson = it,
-                                            width = width.dp,
-                                            displayMode = state.activeProfile!!.type,
-                                            isCompactMode = state.viewMode == ViewType.WEEK,
-                                            showFindAvailableRoom =
-                                                    date.isEqual(LocalDate.now()) &&
-                                                    isNotFirstOrLastLesson &&
-                                                    state.activeProfile.type == ProfileType.STUDENT &&
-                                                    it.displaySubject == "-",
-                                            onFindAvailableRoomClicked = onFindAvailableRoomClicked
-                                        )
                                     }
                                 }
                             }
