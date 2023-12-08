@@ -41,7 +41,7 @@ import java.time.LocalDateTime
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LessonCard(
-    date: LocalDate = LocalDate.now(),
+    time: LocalDateTime = LocalDateTime.now(),
     displayMode: ProfileType,
     lesson: Lesson,
     width: Dp,
@@ -56,7 +56,7 @@ fun LessonCard(
 
     val progress = DateUtils.calculateProgress(
         DateUtils.localDateTimeToTimeString(lesson.start),
-        "${LocalDateTime.now().hour}:${LocalDateTime.now().minute}",
+        "${time.hour}:${time.minute}",
         DateUtils.localDateTimeToTimeString(lesson.end)
     )?:0.0
 
@@ -68,7 +68,7 @@ fun LessonCard(
                 .fillMaxWidth()
                 .height(height)
         ) {
-            if (progress in 0f..1f && date == LocalDate.now()) Box(modifier = Modifier
+            if (progress in 0f..1f && time.toLocalDate() == LocalDate.now()) Box(modifier = Modifier
                 .background(MaterialTheme.colorScheme.tertiaryContainer)
                 .fillMaxWidth(progress.toFloat())
                 .fillMaxHeight()) // Progress bar
@@ -183,7 +183,7 @@ fun LessonCard(
 @Preview
 @Composable
 private fun LessonCardPreview() {
-    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateLessons(1).first(), isCompactMode = false, width = 300.dp, onFindAvailableRoomClicked = { })
+    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateLessons(1, true).first(), isCompactMode = false, width = 300.dp, onFindAvailableRoomClicked = { })
 }
 
 @Preview
