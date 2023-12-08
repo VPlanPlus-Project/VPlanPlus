@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,7 +27,10 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.Card
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -43,8 +47,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -70,6 +76,7 @@ import es.jvbabi.vplanplus.ui.screens.home.viewmodel.FilterType
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.ViewType
+import es.jvbabi.vplanplus.util.DateUtils
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -284,30 +291,90 @@ fun HomeScreenContent(
                                         }
                                     }
                                 }
+
+                                val lessons = state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }
+                                    .filter {
+                                        state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
+                                    }.groupBy { it.lessonNumber }
+                                val importantLessons = state.lessons[date]!!.lessons.filter { l ->
+                                    state.activeProfile!!.isDefaultLessonEnabled(l.vpId) && l.displaySubject != "-"
+                                }.sortedBy { l -> l.lessonNumber }
                                 LazyColumn {
-                                    items(
-                                        state.lessons[date]!!.lessons.sortedBy { it.lessonNumber }
-                                            .filter {
-                                                state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
-                                            },
-                                    ) {
-                                        val importantLessons = state.lessons[date]!!.lessons.filter { l ->
-                                            state.activeProfile!!.isDefaultLessonEnabled(l.vpId) && l.displaySubject != "-"
-                                        }.sortedBy { l -> l.lessonNumber }
-                                        val isNotFirstOrLastLesson = it.lessonNumber in (importantLessons.firstOrNull()?.lessonNumber?:0)..(importantLessons.lastOrNull()?.lessonNumber?:Integer.MAX_VALUE)
-                                        LessonCard(
-                                            time = state.time,
-                                            lesson = it,
-                                            width = width.dp,
-                                            displayMode = state.activeProfile!!.type,
-                                            isCompactMode = state.viewMode == ViewType.WEEK,
-                                            showFindAvailableRoom =
-                                                    date.isEqual(LocalDate.now()) &&
-                                                    isNotFirstOrLastLesson &&
-                                                    state.activeProfile.type == ProfileType.STUDENT &&
-                                                    it.displaySubject == "-",
-                                            onFindAvailableRoomClicked = onFindAvailableRoomClicked
-                                        )
+                                    items(lessons.keys.toList()) { lessonNumber ->
+                                        Card(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(4.dp)
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                            ) {
+                                                var progress = 0.0
+                                                if (date.isBefore(LocalDate.now())) progress = 1.0
+                                                if (date.isAfter(LocalDate.now())) progress = 0.0
+                                                if (date == LocalDate.now()) progress = DateUtils.calculateProgress(
+                                                    DateUtils.localDateTimeToTimeString(lessons[lessonNumber]!!.first().start),
+                                                    "${state.time.hour}:${state.time.minute}",
+                                                    DateUtils.localDateTimeToTimeString(lessons[lessonNumber]!!.first().end)
+                                                )?:0.0
+                                                LinearProgressIndicator(
+                                                    modifier = Modifier
+                                                        .fillMaxWidth()
+                                                        .height(if (progress >= 1f) 4.dp else 8.dp),
+                                                    progress = { minOf(progress.toFloat(), 1f) },
+                                                    trackColor = Color.Transparent,
+                                                    color = MaterialTheme.colorScheme.secondary
+                                                )
+                                                Row(
+                                                    modifier = Modifier.padding(8.dp)
+                                                ) {
+                                                    if (state.viewMode == ViewType.DAY) Box(
+                                                        modifier = Modifier
+                                                            .padding(top = 16.dp, start = 16.dp)
+                                                    ) {
+                                                        Text(text = "$lessonNumber.", style = MaterialTheme.typography.headlineMedium)
+                                                    }
+                                                    val isNotFirstOrLastLesson = lessonNumber in (importantLessons.firstOrNull()?.lessonNumber?:0)..(importantLessons.lastOrNull()?.lessonNumber?:Integer.MAX_VALUE)
+                                                    Column(
+                                                        modifier = Modifier.fillMaxWidth()
+                                                    ) {
+                                                        lessons[lessonNumber]!!.forEachIndexed { index, it ->
+                                                            Box(
+                                                                modifier = Modifier
+                                                                    .padding(end = 4.dp)
+                                                            ) {
+                                                                LessonCard(
+                                                                    lesson = it,
+                                                                    displayMode = state.activeProfile!!.type,
+                                                                    isCompactMode = state.viewMode == ViewType.WEEK,
+                                                                    showFindAvailableRoom =
+                                                                    date.isEqual(LocalDate.now()) &&
+                                                                            isNotFirstOrLastLesson &&
+                                                                            state.activeProfile.type == ProfileType.STUDENT &&
+                                                                            it.displaySubject == "-",
+                                                                    onFindAvailableRoomClicked = onFindAvailableRoomClicked
+                                                                )
+                                                            }
+                                                            if (index != lessons[lessonNumber]!!.size - 1) HorizontalDivider(
+                                                                color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                                                modifier = Modifier.padding(start = 16.dp, end = 24.dp)
+                                                            )
+                                                        }
+                                                    }
+                                                }
+                                                if (state.viewMode == ViewType.WEEK) Text(
+                                                    text = lessonNumber.toString(),
+                                                    style = TextStyle(
+                                                        fontSize = 40.sp,
+                                                        color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = .2f)
+                                                    ),
+                                                    modifier = Modifier
+                                                        .padding(end = 8.dp)
+                                                        .align(Alignment.BottomEnd)
+                                                )
+                                            }
+                                        }
                                     }
                                 }
                             }
