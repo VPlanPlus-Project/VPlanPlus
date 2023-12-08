@@ -22,6 +22,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
+import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
@@ -55,6 +56,7 @@ class HomeViewModel @Inject constructor(
     private val keyValueUseCases: KeyValueUseCases,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
+    private val timeRepository: TimeRepository
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -87,6 +89,13 @@ class HomeViewModel @Inject constructor(
                 _state.value = it
                 killUiSyncJobs()
                 startLessonUiSync(state.value.date, 5)
+            }
+        }
+
+        // start time
+        viewModelScope.launch {
+            timeRepository.getTime().distinctUntilChanged().collect {
+                _state.value = _state.value.copy(time = it)
             }
         }
     }
@@ -319,6 +328,7 @@ class HomeViewModel @Inject constructor(
 }
 
 data class HomeState(
+    val time: LocalDateTime = LocalDateTime.now(),
     val lessons: Map<LocalDate, Day> = mapOf(),
     val isLoading: Boolean = false,
     val profiles: List<Profile> = listOf(),
