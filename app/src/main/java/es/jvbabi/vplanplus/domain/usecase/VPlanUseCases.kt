@@ -5,17 +5,20 @@ import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.source.database.dao.LessonRoomCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
@@ -30,22 +33,23 @@ class VPlanUseCases(
     private val defaultLessonRepository: DefaultLessonRepository,
     private val lessonTeacherCrossover: LessonTeacherCrossoverDao,
     private val lessonRoomCrossover: LessonRoomCrossoverDao,
-    private val keyValueUseCases: KeyValueUseCases
+    private val keyValueUseCases: KeyValueUseCases,
+    private val planRepository: PlanRepository
 ) {
     suspend fun getVPlanData(school: School, date: LocalDate): DataResponse<VPlanData?> {
         return vPlanRepository.getVPlanData(school, date)
     }
 
-    suspend fun processVplanData(vPlanData: VPlanData) {
+    suspend fun processVPlanData(vPlanData: VPlanData) {
 
         val planDateFormatter = DateTimeFormatter.ofPattern("EEEE, d. MMMM yyyy", Locale.GERMAN)
         val planDate = LocalDate.parse(vPlanData.wPlanDataObject.head!!.date!!, planDateFormatter)
 
-        /*val createDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
+        val createDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
         val lastPlanUpdate = LocalDateTime.parse(
             vPlanData.wPlanDataObject.head!!.timestampString!!,
             createDateFormatter
-        )*/
+        )
 
         val school = schoolRepository.getSchoolFromId(vPlanData.schoolId)
 
@@ -141,10 +145,21 @@ class VPlanUseCases(
         lessonRepository.insertLessons(insertLessons)
         lessonRoomCrossover.insertCrossovers(roomCrossovers)
         lessonTeacherCrossover.insertCrossovers(teacherCrossovers)
+
+        planRepository.createPlan(
+            Plan(
+                school = school,
+                createAt = lastPlanUpdate,
+                date = planDate,
+                info = vPlanData.wPlanDataObject.info?.info,
+                version = version
+            )
+        )
     }
 
     suspend fun deletePlans() {
         lessonRepository.deleteAllLessons()
+        planRepository.deleteAllPlans()
     }
 }
 

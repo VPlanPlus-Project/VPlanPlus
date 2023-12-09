@@ -25,6 +25,7 @@ class VpMobilVpXml {
 
     @field:ElementList(name = "FreieTage", entry = "ft") var holidays: List<WplanVpXmlHoliday>? = null
     @field:ElementList(name = "Klassen") var classes: List<WplanVpXmlSchoolClass>? = null
+    @field:Element(name = "ZusatzInfo", required = false) var info: VPlanVpAdditionalInfoXml? = null
 }
 
 @Root(name = "ft")
@@ -85,4 +86,9 @@ class VpMobilVpXmlTeacher {
 class VpMobilVpXmlRoom {
     @field:Text(required = false) var room: String = ""
     @field:Attribute(name = "RaAe", required = false) var roomChanged: String = ""
+}
+
+@Root(name = "ZusatzInfo")
+class VPlanVpAdditionalInfoXml {
+    @field:Element(required = false, name = "ZiZeile") var info: String? = null
 }

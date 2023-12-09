@@ -21,6 +21,7 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -52,7 +53,8 @@ class SyncWorker @AssistedInject constructor(
     @Assisted private val teacherRepository: TeacherRepository,
     @Assisted private val roomRepository: RoomRepository,
     @Assisted private val logRecordRepository: LogRecordRepository,
-    @Assisted private val calendarRepository: CalendarRepository
+    @Assisted private val calendarRepository: CalendarRepository,
+    @Assisted private val planRepository: PlanRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -99,7 +101,7 @@ class SyncWorker @AssistedInject constructor(
                 }
 
                 // update database
-                vPlanUseCases.processVplanData(data.data!!)
+                vPlanUseCases.processVPlanData(data.data!!)
                 val afterProcessing = System.currentTimeMillis()
                 Log.d("SyncWorker.Timer", "3. Processing: ${afterProcessing - end}ms")
 
@@ -189,6 +191,7 @@ class SyncWorker @AssistedInject constructor(
                 .toLong() + 1L).toString()
         )
         lessonUseCases.deleteLessonsByVersion(keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)!!.toLong()-1L)
+        planRepository.deletePlansByVersion(keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)!!.toLong()-1L)
         keyValueUseCases.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
         Log.d("SyncWorker", "SYNCED")
         logRecordRepository.log("SyncWorker", "Synced sucessfully")

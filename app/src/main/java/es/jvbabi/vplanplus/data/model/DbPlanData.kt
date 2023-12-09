@@ -3,21 +3,14 @@ package es.jvbabi.vplanplus.data.model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.School
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
-/**
- * Represents plan metadata
- * @param id Unique identifier
- * @param date Date of the plan
- * @param schoolId School identifier
- * @param planDate Date where plan was created
- */
 @Entity(
     tableName = "plan_data",
-    primaryKeys = ["id"],
+    primaryKeys = ["id", "schoolId", "planDate"],
     foreignKeys = [
         ForeignKey(
             entity = School::class,
@@ -33,8 +26,9 @@ import java.util.UUID
 )
 data class DbPlanData(
     val id: UUID = UUID.randomUUID(),
-    val date: LocalDate,
+    val createDate: LocalDateTime,
     val schoolId: Long,
     val planDate: LocalDate,
-    val dayDataState: DayDataState,
+    val info: String?,
+    val version: Long,
 )

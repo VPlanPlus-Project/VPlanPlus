@@ -18,4 +18,5 @@ data class Day(
     val state: DayDataState,
     val type: DayType,
     val lessons: List<Lesson>,
+    val info: String?,
 )

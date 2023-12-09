@@ -9,7 +9,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
+import androidx.compose.foundation.basicMarquee
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -30,6 +32,7 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Card
 import androidx.compose.material3.HorizontalDivider
@@ -63,7 +66,6 @@ import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
-import es.jvbabi.vplanplus.ui.common.PaddingRow
 import es.jvbabi.vplanplus.ui.common.SmallText
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -237,10 +239,8 @@ fun HomeScreenContent(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                PaddingRow {
-                    if (state.lastSync == null) SmallText(text = stringResource(id = R.string.home_lastSyncNever))
-                    else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))))
-                }
+                if (state.lastSync == null) SmallText(text = stringResource(id = R.string.home_lastSyncNever))
+                else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))))
                 ViewSwitcher(viewType = state.viewMode, onViewModeChanged = onViewModeChanged)
             }
             Column {
@@ -273,26 +273,42 @@ fun HomeScreenContent(
                                 val hiddenLessons = state.lessons[date]!!.lessons.count {
                                     !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
                                 }
-                                if (hiddenLessons > 0) {
-                                    if (state.viewMode == ViewType.DAY) Text(
-                                        text = stringResource(
-                                            id = R.string.home_lessonsHidden,
-                                            hiddenLessons
-                                        ),
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = Color.Gray,
-                                        modifier = Modifier.padding(start = 8.dp)
-                                    ) else {
-                                        Row(
-                                            verticalAlignment = Alignment.CenterVertically
-                                        ) {
-                                            Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
-                                            Text(
-                                                text = "$hiddenLessons", style = MaterialTheme.typography.labelSmall,
-                                                color = Color.Gray,
-                                                modifier = Modifier.padding(start = 8.dp)
-                                            )
+                                Column {
+                                    if (hiddenLessons > 0) {
+                                        if (state.viewMode == ViewType.DAY) Text(
+                                            text = stringResource(
+                                                id = R.string.home_lessonsHidden,
+                                                hiddenLessons
+                                            ),
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.Gray,
+                                            modifier = Modifier.padding(start = 4.dp)
+                                        ) else {
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                                                Text(
+                                                    text = "$hiddenLessons", style = MaterialTheme.typography.labelSmall,
+                                                    color = Color.Gray,
+                                                    modifier = Modifier.padding(start = 8.dp)
+                                                )
+                                            }
                                         }
+                                    }
+                                    if (state.viewMode == ViewType.DAY && state.lessons[date]!!.info != null) Row {
+                                        Icon(imageVector = Icons.Default.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.padding(horizontal = 4.dp).size(16.dp))
+                                        Text(
+                                            text = state.lessons[date]!!.info!!,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = Color.Gray,
+                                            modifier = Modifier
+                                                .basicMarquee(
+                                                    iterations = Int.MAX_VALUE,
+                                                    velocity = 80.dp,
+                                                    spacing = MarqueeSpacing(12.dp)
+                                                )
+                                        )
                                     }
                                 }
 
@@ -413,7 +429,8 @@ private fun HomeScreenPreview() {
                     type = DayType.NORMAL,
                     state = DayDataState.DATA,
                     date = LocalDate.now(),
-                    lessons = Lessons.generateLessons(4)
+                    lessons = Lessons.generateLessons(4),
+                    info = "Test day info"
                 )
             ),
             syncing = true,

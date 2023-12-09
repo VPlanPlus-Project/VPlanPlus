@@ -1,10 +1,13 @@
 package es.jvbabi.vplanplus.data.repository
 
+import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -24,7 +27,8 @@ class PlanRepositoryImpl(
     private val teacherRepository: TeacherRepository,
     private val classRepository: ClassRepository,
     private val roomRepository: RoomRepository,
-    private val lessonRepository: LessonRepository
+    private val lessonRepository: LessonRepository,
+    private val planDao: PlanDao
 ) : PlanRepository {
     override fun getDayForProfile(profile: Profile, date: LocalDate, version: Long): Flow<Day> {
         return when (profile.type) {
@@ -39,7 +43,7 @@ class PlanRepositoryImpl(
         val school = teacher.school
 
         lessonRepository.getLessonsForTeacher(teacherId, date, version).distinctUntilChanged().collect { lessons ->
-            emit(build(school, lessons, date))
+            emit(build(school, lessons, date, planDao.getPlanByDate(school.schoolId, date)?.planData?.info))
         }
     }
 
@@ -48,7 +52,7 @@ class PlanRepositoryImpl(
         val school = `class`.school
 
         lessonRepository.getLessonsForClass(`class`.classId, date, version).distinctUntilChanged().collect { lessons ->
-            emit(build(school, lessons, date))
+            emit(build(school, lessons, date, planDao.getPlanByDate(school.schoolId, date)?.planData?.info))
         }
     }
 
@@ -57,11 +61,11 @@ class PlanRepositoryImpl(
         val school = room.school
 
         lessonRepository.getLessonsForRoom(room.roomId, date, version).distinctUntilChanged().collect { lessons ->
-            emit(build(school, lessons, date))
+            emit(build(school, lessons, date, planDao.getPlanByDate(school.schoolId, date)?.planData?.info))
         }
     }
 
-    private fun build(school: School, lessons: List<Lesson>?, date: LocalDate): Day {
+    private fun build(school: School, lessons: List<Lesson>?, date: LocalDate, info: String?): Day {
         val dayType = holidayRepository.getDayType(school.schoolId, date)
         if (dayType == DayType.NORMAL) {
             return if (lessons == null) {
@@ -69,14 +73,16 @@ class PlanRepositoryImpl(
                     date = date,
                     type = dayType,
                     state = DayDataState.NO_DATA,
-                    lessons = emptyList()
+                    lessons = emptyList(),
+                    info = info
                 )
             } else {
                 Day(
                     date = date,
                     type = dayType,
                     state = DayDataState.DATA,
-                    lessons = lessons
+                    lessons = lessons,
+                    info = info
                 )
             }
         } else {
@@ -84,8 +90,30 @@ class PlanRepositoryImpl(
                 date = date,
                 type = dayType,
                 state = DayDataState.DATA,
-                lessons = emptyList()
+                lessons = emptyList(),
+                info = info
             )
         }
+    }
+
+    override suspend fun createPlan(plan: Plan) {
+        planDao.insertPlan(
+            DbPlanData(
+                id = UUID.randomUUID(),
+                createDate = plan.createAt,
+                schoolId = plan.school.schoolId,
+                planDate = plan.date,
+                info = plan.info,
+                version = plan.version
+            )
+        )
+    }
+
+    override suspend fun deleteAllPlans() {
+        planDao.deleteAllPlans()
+    }
+
+    override suspend fun deletePlansByVersion(version: Long) {
+        planDao.deleteAllPlansByVersion(version)
     }
 }
