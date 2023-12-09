@@ -63,6 +63,9 @@ class CalendarRepositoryImpl(
         values.put(CalendarContract.Events.DESCRIPTION, event.location)
         values.put(CalendarContract.Events.CALENDAR_ID, event.calendarId)
         values.put(CalendarContract.Events.EVENT_TIMEZONE, event.timeZone.id)
+        if (event.info != null) {
+            values.put(CalendarContract.Events.DESCRIPTION, event.info)
+        }
 
         val id = contentResolver.insert(
             CalendarContract.Events.CONTENT_URI,

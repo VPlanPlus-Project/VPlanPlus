@@ -150,7 +150,8 @@ class SyncWorker @AssistedInject constructor(
                                                 )
                                             }.sortedBy { it.lessonNumber }
                                                 .last { it.displaySubject != "-" }.end.toLocalUnixTimestamp(),
-                                            date = date
+                                            date = date,
+                                            info = day.info
                                         ),
                                         school = school
                                     )

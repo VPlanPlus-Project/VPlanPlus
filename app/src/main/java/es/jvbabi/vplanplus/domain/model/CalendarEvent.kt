@@ -10,5 +10,6 @@ data class CalendarEvent(
     val timeZone: TimeZone = TimeZone.getDefault(),
     val calendarId: Long,
     val location: String,
-    val date: LocalDate
+    val date: LocalDate,
+    val info: String? = null,
 )
