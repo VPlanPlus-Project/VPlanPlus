@@ -11,7 +11,7 @@ class LogRepositoryImpl(
     override suspend fun log(tag: String, message: String) {
         logRecordDao.insert(
             LogRecord(
-                timestamp = System.currentTimeMillis()/1000,
+                timestamp = System.currentTimeMillis(),
                 tag = tag,
                 message = message
             )

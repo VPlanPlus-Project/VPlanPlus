@@ -26,8 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.LogRecord
-import es.jvbabi.vplanplus.util.DateUtils
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -86,7 +86,7 @@ fun LogsScreenContent(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Text(
-                        text = DateUtils.getDateTimeFromTimestamp(log.timestamp).format(
+                        text = LocalDateTimeConverter().timestampToLocalDateTime(log.timestamp/1000).format(
                             DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm:ss")
                         ),
                         style = MaterialTheme.typography.labelSmall,
