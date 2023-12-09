@@ -8,6 +8,7 @@ import androidx.work.WorkerParameters
 import dagger.hilt.android.HiltAndroidApp
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -52,6 +53,9 @@ class VppApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var calendarRepository: CalendarRepository
 
+    @Inject
+    lateinit var planRepository: PlanRepository
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(
@@ -65,7 +69,8 @@ class VppApplication : Application(), Configuration.Provider {
                     classUseCases = classUseCases,
                     roomRepository = roomRepository,
                     teacherRepository = teacherRepository,
-                    calendarRepository = calendarRepository
+                    calendarRepository = calendarRepository,
+                    planRepository = planRepository
                 )
             )
             .build()
@@ -82,6 +87,7 @@ class SyncWorkerFactory @Inject constructor(
     private val roomRepository: RoomRepository,
     private val teacherRepository: TeacherRepository,
     private val calendarRepository: CalendarRepository,
+    private val planRepository: PlanRepository
     ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
@@ -100,7 +106,8 @@ class SyncWorkerFactory @Inject constructor(
             calendarRepository = calendarRepository,
             roomRepository = roomRepository,
             classUseCases = classUseCases,
-            teacherRepository = teacherRepository
+            teacherRepository = teacherRepository,
+            planRepository = planRepository
         )
     }
 }

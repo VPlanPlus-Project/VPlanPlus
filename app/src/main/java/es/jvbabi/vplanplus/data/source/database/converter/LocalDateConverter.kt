@@ -6,7 +6,7 @@ import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
 
 @ProvidedTypeConverter
-class DayConverter {
+class LocalDateConverter {
 
     @TypeConverter
     fun timestampToLocalDate(ts: Long): LocalDate {

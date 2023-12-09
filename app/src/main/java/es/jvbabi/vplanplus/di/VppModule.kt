@@ -27,7 +27,8 @@ import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
-import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
+import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
+import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
@@ -74,7 +75,8 @@ object VppModule {
             "vpp.db"
         )
             .fallbackToDestructiveMigration() // TODO: Remove for production
-            .addTypeConverter(DayConverter())
+            .addTypeConverter(LocalDateConverter())
+            .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
@@ -192,7 +194,8 @@ object VppModule {
             teacherRepository = provideTeacherRepository(db),
             classRepository = provideClassRepository(db),
             roomRepository = provideRoomRepository(db),
-            lessonRepository = provideLessonRepository(db)
+            lessonRepository = provideLessonRepository(db),
+            planDao = db.planDao
         )
     }
 
@@ -310,7 +313,8 @@ object VppModule {
             defaultLessonRepository = defaultLessonRepository,
             lessonRoomCrossover = db.lessonRoomCrossoverDao,
             lessonTeacherCrossover = db.lessonTeacherCrossoverDao,
-            keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db))
+            keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
+            planRepository = providePlanRepository(db)
         )
     }
 }

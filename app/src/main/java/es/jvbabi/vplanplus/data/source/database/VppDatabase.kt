@@ -11,8 +11,9 @@ import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbTeacher
-import es.jvbabi.vplanplus.data.source.database.converter.DayConverter
+import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
+import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
@@ -28,6 +29,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonRoomCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
+import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
@@ -63,15 +65,16 @@ import es.jvbabi.vplanplus.domain.model.Week
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(
-    DayConverter::class,
+    LocalDateConverter::class,
     ProfileTypeConverter::class,
     ProfileCalendarTypeConverter::class,
     UuidConverter::class,
-    DayDataTypeConverter::class
+    DayDataTypeConverter::class,
+    LocalDateTimeConverter::class
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
@@ -90,4 +93,5 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val calendarEventDao: CalendarEventDao
     abstract val defaultLessonDao: DefaultLessonDao
     abstract val profileDefaultLessonsCrossoverDao: ProfileDefaultLessonsCrossoverDao
+    abstract val planDao: PlanDao
 }

@@ -21,6 +21,7 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
@@ -52,7 +53,8 @@ class SyncWorker @AssistedInject constructor(
     @Assisted private val teacherRepository: TeacherRepository,
     @Assisted private val roomRepository: RoomRepository,
     @Assisted private val logRecordRepository: LogRecordRepository,
-    @Assisted private val calendarRepository: CalendarRepository
+    @Assisted private val calendarRepository: CalendarRepository,
+    @Assisted private val planRepository: PlanRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
@@ -99,20 +101,21 @@ class SyncWorker @AssistedInject constructor(
                 }
 
                 // update database
-                vPlanUseCases.processVplanData(data.data!!)
+                vPlanUseCases.processVPlanData(data.data!!)
                 val afterProcessing = System.currentTimeMillis()
                 Log.d("SyncWorker.Timer", "3. Processing: ${afterProcessing - end}ms")
 
                 profiles.forEach profile@{ profile ->
 
                     // check if plan has changed
-                    val changedLessons = getLessonsByProfile(profile, date, currentVersion + 1).lessons
+                    val day = getLessonsByProfile(profile, date, currentVersion + 1)
+                    val changedLessons = day.lessons
                         .filter { profile.isDefaultLessonEnabled(it.vpId) }
                         .filter { l -> !profileDataBefore[profile]!!.map { it.toHash() }.contains(l.toHash()) }
                     val type = if (profileDataBefore[profile]!!.isEmpty()) NotificationType.NEW_PLAN else NotificationType.CHANGED_LESSONS
 
                     if (changedLessons.isEmpty()) return@profile
-                    if (canSendNotification() && !date.isBefore(LocalDate.now())) sendNewPlanNotification(profile, changedLessons, date, type)
+                    if (canSendNotification() && !date.isBefore(LocalDate.now())) sendNewPlanNotification(profile, changedLessons, day.info, date, type)
 
                     // build calendar
                     val calendar = profileUseCases.getCalendarFromProfile(profile)
@@ -147,7 +150,8 @@ class SyncWorker @AssistedInject constructor(
                                                 )
                                             }.sortedBy { it.lessonNumber }
                                                 .last { it.displaySubject != "-" }.end.toLocalUnixTimestamp(),
-                                            date = date
+                                            date = date,
+                                            info = day.info
                                         ),
                                         school = school
                                     )
@@ -189,13 +193,14 @@ class SyncWorker @AssistedInject constructor(
                 .toLong() + 1L).toString()
         )
         lessonUseCases.deleteLessonsByVersion(keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)!!.toLong()-1L)
+        planRepository.deletePlansByVersion(keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)!!.toLong()-1L)
         keyValueUseCases.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
         Log.d("SyncWorker", "SYNCED")
         logRecordRepository.log("SyncWorker", "Synced sucessfully")
         return Result.success()
     }
 
-    private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>, date: LocalDate, notificationType: NotificationType) {
+    private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>, info: String?, date: LocalDate, notificationType: NotificationType) {
         logRecordRepository.log(
             "SyncWorker",
             "Sending notification for profile ${profile.displayName}"
@@ -223,13 +228,17 @@ class SyncWorker @AssistedInject constructor(
                 profile.displayName,
                 school.name,
                 DateUtils.localizedRelativeDate(context, date)
-            ) + buildChangedNotificationString(changedLessons)
+            ) +
+                    buildInfoNotificationString(info) +
+                    buildChangedNotificationString(changedLessons)
             NotificationType.NEW_PLAN -> context.getString(
                 R.string.notification_newPlanText,
                 profile.displayName,
                 school.name,
                 DateUtils.localizedRelativeDate(context, date)
-            ) + buildChangedNotificationString(changedLessons)
+            ) +
+                    buildInfoNotificationString(info) +
+                    buildChangedNotificationString(changedLessons)
         }
 
         val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
@@ -267,6 +276,10 @@ class SyncWorker @AssistedInject constructor(
             } \n"
         }
         return changedString
+    }
+
+    private fun buildInfoNotificationString(info: String?): String {
+        return if (info != null) "\n$info" else ""
     }
 
 

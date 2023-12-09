@@ -9,22 +9,23 @@ import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
 
 class VPlanData(val xml: String, val schoolId: Long) {
-    val wPlanDataObject: WplanVpXml
+    val wPlanDataObject: VpMobilVpXml
     init {
         val serializer: Serializer = Persister()
         val modified = xml.replace("<Kurse/>", "")
         val reader = modified.reader()
-        wPlanDataObject = serializer.read(WplanVpXml::class.java, reader, false)
+        wPlanDataObject = serializer.read(VpMobilVpXml::class.java, reader, false)
     }
 }
 
-@Root(name = "WplanVp", strict = false)
-class WplanVpXml {
+@Root(name = "VpMobil", strict = false)
+class VpMobilVpXml {
     @field:Element(name = "Kopf")
     var head: WplanVpXmlHead? = null
 
     @field:ElementList(name = "FreieTage", entry = "ft") var holidays: List<WplanVpXmlHoliday>? = null
     @field:ElementList(name = "Klassen") var classes: List<WplanVpXmlSchoolClass>? = null
+    @field:Element(name = "ZusatzInfo", required = false) var info: VPlanVpAdditionalInfoXml? = null
 }
 
 @Root(name = "ft")
@@ -63,8 +64,8 @@ class WplanVpXmlLesson {
     @field:Element(name = "St") var lesson: Int = 0
     @field:Element(name = "Nr", required = false) var defaultLessonVpId: Int? = null
     @field:Element(name = "Fa") var subject: WplanVpXmlSubject = WplanVpXmlSubject()
-    @field:Element(name = "Le") var teacher: WplanVpXmlTeacher = WplanVpXmlTeacher()
-    @field:Element(name = "Ra") var room: WplanVpXmlRoom = WplanVpXmlRoom()
+    @field:Element(name = "Le") var teacher: VpMobilVpXmlTeacher = VpMobilVpXmlTeacher()
+    @field:Element(name = "Ra") var room: VpMobilVpXmlRoom = VpMobilVpXmlRoom()
     @field:Element(name = "If", required = false) var info: String = ""
 }
 
@@ -76,13 +77,18 @@ class WplanVpXmlSubject {
 }
 
 @Root(name = "Le")
-class WplanVpXmlTeacher {
-    @field:Text var teacher: String = ""
+class VpMobilVpXmlTeacher {
+    @field:Text(required = false) var teacher: String = ""
     @field:Attribute(name = "LeAe", required = false) var teacherChanged: String = ""
 }
 
 @Root(name = "Ra")
-class WplanVpXmlRoom {
-    @field:Text var room: String = ""
+class VpMobilVpXmlRoom {
+    @field:Text(required = false) var room: String = ""
     @field:Attribute(name = "RaAe", required = false) var roomChanged: String = ""
+}
+
+@Root(name = "ZusatzInfo")
+class VPlanVpAdditionalInfoXml {
+    @field:Element(required = false, name = "ZiZeile") var info: String? = null
 }

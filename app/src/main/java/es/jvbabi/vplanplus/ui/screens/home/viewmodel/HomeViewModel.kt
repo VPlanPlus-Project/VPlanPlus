@@ -15,6 +15,7 @@ import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
@@ -56,7 +57,7 @@ class HomeViewModel @Inject constructor(
     private val keyValueUseCases: KeyValueUseCases,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
-    private val timeRepository: TimeRepository
+    private val timeRepository: TimeRepository,
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
