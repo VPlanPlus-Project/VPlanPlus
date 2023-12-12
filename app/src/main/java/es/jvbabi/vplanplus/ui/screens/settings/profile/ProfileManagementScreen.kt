@@ -55,7 +55,6 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
 import java.util.UUID
