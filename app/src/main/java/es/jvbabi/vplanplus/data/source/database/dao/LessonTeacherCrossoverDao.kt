@@ -11,7 +11,7 @@ abstract class LessonTeacherCrossoverDao {
     @Query("DELETE FROM lesson_teacher_crossover WHERE ltcLessonId = :lessonId")
     abstract suspend fun deleteCrossoversByLessonId(lessonId: UUID)
 
-    @Query("INSERT INTO lesson_teacher_crossover (ltcLessonId, ltcTeacherId) VALUES (:lessonId, :teacherId)")
+    @Query("INSERT INTO lesson_teacher_crossover (ltcLessonId, ltcSchoolEntityId) VALUES (:lessonId, :teacherId)")
     abstract suspend fun insertCrossover(lessonId: UUID, teacherId: UUID)
 
     @Transaction

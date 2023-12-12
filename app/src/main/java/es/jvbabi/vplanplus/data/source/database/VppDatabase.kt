@@ -3,22 +3,19 @@ package es.jvbabi.vplanplus.data.source.database
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import es.jvbabi.vplanplus.data.model.DbClass
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
-import es.jvbabi.vplanplus.data.model.DbRoom
-import es.jvbabi.vplanplus.data.model.DbTeacher
-import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
+import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
+import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
-import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
-import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.data.source.database.dao.ClassDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
@@ -46,21 +43,18 @@ import es.jvbabi.vplanplus.domain.model.Week
 
 @Database(
     entities = [
-        DbClass::class,
         DbLesson::class,
         DbProfile::class,
-        DbRoom::class,
         School::class,
-        DbTeacher::class,
         KeyValue::class,
         Holiday::class,
         Week::class,
         LessonTime::class,
         DbDefaultLesson::class,
         DbPlanData::class,
+        DbSchoolEntity::class,
 
-        LessonRoomCrossover::class,
-        LessonTeacherCrossover::class,
+        LessonSchoolEntityCrossover::class,
         DbProfileDefaultLesson::class,
         LogRecord::class,
         DbCalendarEvent::class

@@ -4,32 +4,32 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import es.jvbabi.vplanplus.data.model.DbLesson
-import es.jvbabi.vplanplus.data.model.DbRoom
+import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import java.util.UUID
 
 @Entity(
-    tableName = "lesson_room_crossover",
-    primaryKeys = ["lrcLessonId", "lrcRoomId"],
+    tableName = "lesson_teacher_crossover",
+    primaryKeys = ["ltcLessonId", "ltcTeacherId"],
     foreignKeys = [
         ForeignKey(
             entity = DbLesson::class,
             parentColumns = ["lessonId"],
-            childColumns = ["lrcLessonId"],
+            childColumns = ["ltcLessonId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = DbRoom::class,
-            parentColumns = ["roomId"],
-            childColumns = ["lrcRoomId"],
+            entity = DbSchoolEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["ltcTeacherId"],
             onDelete = ForeignKey.CASCADE
         ),
     ],
     indices = [
-        Index(value = ["lrcLessonId"]),
-        Index(value = ["lrcRoomId"]),
+        Index(value = ["ltcLessonId"]),
+        Index(value = ["ltcSchoolEntityId"]),
     ]
 )
-data class LessonRoomCrossover(
-    val lrcLessonId: UUID,
-    val lrcRoomId: UUID
+data class LessonSchoolEntityCrossover(
+    val ltcLessonId: UUID,
+    val ltcSchoolEntityId: UUID
 )

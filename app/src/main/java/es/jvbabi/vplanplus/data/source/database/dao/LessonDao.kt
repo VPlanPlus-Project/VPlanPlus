@@ -21,7 +21,7 @@ abstract class LessonDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction
-    @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.defaultLessonId = lesson.defaultLessonId WHERE day = :timestamp AND version = :version AND (lessonId IN (SELECT ltcTeacherId FROM lesson_teacher_crossover WHERE ltcTeacherId = :teacherId) OR default_lesson.teacherId = :teacherId) ORDER by lessonNumber ASC")
+    @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.defaultLessonId = lesson.defaultLessonId WHERE day = :timestamp AND version = :version AND (lessonId IN (SELECT ltcSchoolEntityId FROM lesson_teacher_crossover WHERE ltcSchoolEntityId = :teacherId) OR default_lesson.teacherId = :teacherId) ORDER by lessonNumber ASC")
     @Suppress(RoomWarnings.CURSOR_MISMATCH)
     abstract fun getLessonsByTeacher(teacherId: UUID, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 

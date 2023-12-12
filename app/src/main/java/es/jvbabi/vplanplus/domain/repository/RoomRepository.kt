@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.domain.repository
 
-import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import java.util.UUID

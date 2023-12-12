@@ -10,8 +10,8 @@ import java.util.UUID
     tableName = "lesson",
     foreignKeys = [
         ForeignKey(
-            entity = DbClass::class,
-            parentColumns = ["classId"],
+            entity = DbSchoolEntity::class,
+            parentColumns = ["id"],
             childColumns = ["classLessonRefId"],
             onDelete = ForeignKey.CASCADE
         ),

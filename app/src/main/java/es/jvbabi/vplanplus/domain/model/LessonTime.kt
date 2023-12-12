@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.domain.model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import es.jvbabi.vplanplus.data.model.DbClass
 import java.util.UUID
 
 
