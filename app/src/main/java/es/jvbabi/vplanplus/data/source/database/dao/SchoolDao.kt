@@ -23,4 +23,7 @@ abstract class SchoolDao {
 
     @Query("SELECT * FROM school WHERE name = :schoolName")
     abstract suspend fun getSchoolByName(schoolName: String): School
+
+    @Query("DELETE FROM school WHERE schoolId = :schoolId")
+    abstract suspend fun delete(schoolId: Long)
 }

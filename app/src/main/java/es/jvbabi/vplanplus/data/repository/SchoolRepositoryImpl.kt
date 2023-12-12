@@ -25,6 +25,10 @@ class SchoolRepositoryImpl(
         return schoolDao.getAll()
     }
 
+    override suspend fun deleteSchool(schoolId: Long) {
+        schoolDao.delete(schoolId)
+    }
+
     override suspend fun checkSchoolId(schoolId: Long): SchoolIdCheckResult? {
         return try {
             val response: HttpResponse =

@@ -123,4 +123,6 @@
     <string name="day_after_tomorrow">Übermorgen</string>
     <string name="day_before_yesterday">Vorgestern</string>
     <string name="lesson_cancelFindRoom">Leeren Raum suchen</string>
+    <string name="profileManagement_deleteSchoolTitle">Schule löschen?</string>
+    <string name="profileManagement_deleteSchoolText">Möchtest du %1$s wirklich löschen?</string>
 </resources>
