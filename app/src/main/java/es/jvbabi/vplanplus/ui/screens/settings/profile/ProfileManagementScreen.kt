@@ -123,10 +123,7 @@ fun ProfileManagementScreenContent(
             ExtendedFloatingActionButton(
                 onClick = { onNewSchoolClicked() },
                 text = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = stringResource(id = R.string.profileManagement_addNewSchool))
-                        Badge(color = Color.Magenta, text = "Untested")
-                    }
+                    Text(text = stringResource(id = R.string.profileManagement_addNewSchool))
                 },
                 icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) }
             )
