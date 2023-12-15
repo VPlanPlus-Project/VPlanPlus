@@ -181,9 +181,9 @@ fun ProfileManagementScreenContent(
                                     overflow = TextOverflow.Ellipsis,
                                     style = MaterialTheme.typography.titleLarge
                                 )
-                                IconButton(
+                                if (state.schools.size > 1) IconButton(
                                     onClick = { onDeleteSchoolOpenDialog(school) },
-                                    modifier = Modifier.padding(16.dp)
+                                    modifier = Modifier.padding(start = 16.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,

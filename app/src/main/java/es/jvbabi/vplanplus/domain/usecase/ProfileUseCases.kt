@@ -98,8 +98,12 @@ class ProfileUseCases(
 
     suspend fun getActiveProfile(): Profile? {
         val id = keyValueRepository.get(key = Keys.ACTIVE_PROFILE) ?: return null
-        val activeProfileId = UUID.fromString(id)
-        return profileRepository.getProfileById(id = activeProfileId).first()
+        return try {
+            val activeProfileId = UUID.fromString(id)
+            profileRepository.getProfileById(id = activeProfileId).first()
+        } catch (e: IllegalArgumentException) {
+            null
+        }
     }
 
     fun getProfiles(): Flow<List<Profile>> {
