@@ -101,11 +101,11 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     var menuOpened by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val lessonPagerState = rememberPagerState(initialPage = Int.MAX_VALUE/2+Period.between(LocalDate.now(), state.initDate).days, pageCount = { Int.MAX_VALUE })
+    val lessonPagerState = rememberPagerState(initialPage = 100/2+Period.between(LocalDate.now(), state.initDate).days, pageCount = { 100 })
 
     LaunchedEffect(key1 = lessonPagerState, block = {
         snapshotFlow { lessonPagerState.currentPage }.collect {
-            val date = state.date.plusDays(it - Int.MAX_VALUE / 2L)
+            val date = state.date.plusDays(it - 100 / 2L)
             viewModel.onPageChanged(date)
         }
     })
@@ -118,7 +118,7 @@ fun HomeScreen(
             viewModel.setViewType(it)
             coroutineScope.launch {
                 delay(450)
-                lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
+                lessonPagerState.animateScrollToPage(100 / 2)
             }
         },
         lessonPagerState = lessonPagerState,
@@ -258,7 +258,7 @@ fun HomeScreenContent(
                             .fillMaxHeight()
                             .padding(top = 8.dp)
                     ) {
-                        val date = LocalDate.now().plusDays(index - Int.MAX_VALUE / 2L)
+                        val date = LocalDate.now().plusDays(index - 100 / 2L)
                         if (state.lessons[date]?.state == DayDataState.NO_DATA || state.lessons[date]?.state == null) NoData(state.viewMode == ViewType.WEEK)
                         else when (state.lessons[date]!!.type) {
                             DayType.WEEKEND -> WeekendPlaceholder(
@@ -306,7 +306,7 @@ fun HomeScreenContent(
                                             color = Color.Gray,
                                             modifier = Modifier
                                                 .basicMarquee(
-                                                    iterations = Int.MAX_VALUE,
+                                                    iterations = 100,
                                                     velocity = 80.dp,
                                                     spacing = MarqueeSpacing(12.dp)
                                                 )
@@ -410,7 +410,7 @@ fun HomeScreenContent(
                 alpha = 1 - abs(lessonPagerState.currentPageOffsetFraction) * 2,
                 onClick = {
                     scope.launch {
-                        lessonPagerState.animateScrollToPage(Int.MAX_VALUE / 2)
+                        lessonPagerState.animateScrollToPage(100 / 2)
                     }
                 }
             )
