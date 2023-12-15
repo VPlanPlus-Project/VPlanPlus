@@ -8,28 +8,28 @@ import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import java.util.UUID
 
 @Entity(
-    tableName = "lesson_teacher_crossover",
-    primaryKeys = ["ltcLessonId", "ltcTeacherId"],
+    tableName = "lesson_se_crossover",
+    primaryKeys = ["lsecLessonId", "lsecSchoolEntityId"],
     foreignKeys = [
         ForeignKey(
             entity = DbLesson::class,
             parentColumns = ["lessonId"],
-            childColumns = ["ltcLessonId"],
+            childColumns = ["lsecLessonId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DbSchoolEntity::class,
             parentColumns = ["id"],
-            childColumns = ["ltcTeacherId"],
+            childColumns = ["lsecSchoolEntityId"],
             onDelete = ForeignKey.CASCADE
         ),
     ],
     indices = [
-        Index(value = ["ltcLessonId"]),
-        Index(value = ["ltcSchoolEntityId"]),
+        Index(value = ["lsecLessonId"]),
+        Index(value = ["lsecSchoolEntityId"]),
     ]
 )
 data class LessonSchoolEntityCrossover(
-    val ltcLessonId: UUID,
-    val ltcSchoolEntityId: UUID
+    val lsecLessonId: UUID,
+    val lsecSchoolEntityId: UUID
 )

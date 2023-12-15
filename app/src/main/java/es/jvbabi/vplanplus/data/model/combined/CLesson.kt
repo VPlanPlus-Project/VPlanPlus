@@ -6,6 +6,7 @@ import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
@@ -23,25 +24,15 @@ data class CLesson(
     ) val defaultLesson: CDefaultLesson?,
     @Relation(
         parentColumn = "lessonId",
-        entityColumn = "teacherId",
-        associateBy = Junction(
-            value = LessonSchoolEntityCrossover::class,
-            parentColumn = "ltcLessonId",
-            entityColumn = "ltcSchoolEntityId"
-        ),
-        entity = DbSchoolEntity::class
-    ) val teachers: List<CSchoolEntity>,
-    @Relation(
-        parentColumn = "lessonId",
         entityColumn = "id",
         associateBy = Junction(
             value = LessonSchoolEntityCrossover::class,
-            parentColumn = "lrcLessonId",
-            entityColumn = "ltcSchoolEntityId"
+            parentColumn = "lsecLessonId",
+            entityColumn = "lsecSchoolEntityId"
         ),
         entity = DbSchoolEntity::class
     )
-    val rooms: List<CSchoolEntity>,
+    val schoolEntities: List<CSchoolEntity>,
     @Relation(
         parentColumn = "classLessonRefId",
         entityColumn = "classLessonTimeRefId",
@@ -54,11 +45,11 @@ data class CLesson(
             lessonNumber = lesson.lessonNumber,
             originalSubject = defaultLesson?.defaultLesson?.subject,
             changedSubject = lesson.changedSubject,
-            teachers = teachers.map { it.toTeacherModel().acronym },
-            teacherIsChanged = teachers.map { it.toTeacherModel().teacherId }.sorted() != listOf(
+            teachers = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.TEACHER }.map { it.toTeacherModel().acronym },
+            teacherIsChanged = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.TEACHER }.map { it.toTeacherModel().teacherId }.sorted() != listOf(
                 defaultLesson?.defaultLesson?.teacherId
             ),
-            rooms = rooms.map { it.toRoomModel().name },
+            rooms = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.ROOM }.map { it.toRoomModel().name },
             roomIsChanged = lesson.roomIsChanged,
             info = lesson.info,
             start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(

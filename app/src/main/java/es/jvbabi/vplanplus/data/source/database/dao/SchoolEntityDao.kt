@@ -25,7 +25,7 @@ abstract class SchoolEntityDao {
     abstract suspend fun insertSchoolEntity(schoolEntity: DbSchoolEntity)
 
     @Query("SELECT * FROM school_entity WHERE id = :schoolEntityId")
-    abstract suspend fun getSchoolEntityById(schoolEntityId: UUID): CSchoolEntity
+    abstract suspend fun getSchoolEntityById(schoolEntityId: UUID): CSchoolEntity?
 
     @Query("DELETE FROM school_entity WHERE schoolId = :schoolId AND type = :type")
     abstract suspend fun deleteSchoolEntitiesBySchoolId(schoolId: Long, type: SchoolEntityType)

@@ -17,13 +17,13 @@ import java.util.UUID
     foreignKeys = [
         ForeignKey(
             entity = DbSchoolEntity::class,
-            parentColumns = ["classId"],
+            parentColumns = ["id"],
             childColumns = ["classId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DbSchoolEntity::class,
-            parentColumns = ["teacherId"],
+            parentColumns = ["id"],
             childColumns = ["teacherId"],
             onDelete = ForeignKey.SET_NULL
         ),

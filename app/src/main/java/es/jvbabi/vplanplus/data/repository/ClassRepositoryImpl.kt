@@ -1,45 +1,50 @@
 package es.jvbabi.vplanplus.data.repository
 
-import es.jvbabi.vplanplus.data.source.database.dao.ClassDao
+import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import java.util.UUID
 
-class ClassRepositoryImpl(private val classDao: ClassDao) : ClassRepository {
+class ClassRepositoryImpl(
+    private val schoolEntityDao: SchoolEntityDao
+) : ClassRepository {
     override suspend fun createClass(schoolId: Long, className: String) {
-        classDao.insertClass(DbClass(schoolClassRefId = schoolId, className = className))
+        schoolEntityDao.insertSchoolEntity(DbSchoolEntity(schoolId = schoolId, name = className, type = SchoolEntityType.CLASS))
     }
 
     override suspend fun getClassBySchoolIdAndClassName(schoolId: Long, className: String, createIfNotExists: Boolean): Classes {
-        val `class` = classDao.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)
+        val `class` = schoolEntityDao.getSchoolEntityByName(schoolId = schoolId, name = className, type = SchoolEntityType.CLASS)
         if (`class` == null && createIfNotExists) {
-            val dbClass = DbClass(
-                classId = UUID.randomUUID(),
-                schoolClassRefId = schoolId,
-                className = className
+            val dbClass = DbSchoolEntity(
+                id = UUID.randomUUID(),
+                schoolId = schoolId,
+                name = className,
+                type = SchoolEntityType.CLASS
             )
-            classDao.insertClass(dbClass)
-            return classDao.getClassById(id = dbClass.classId).toModel()
+            schoolEntityDao.insertSchoolEntity(dbClass)
+            return schoolEntityDao.getSchoolEntityById(dbClass.id)!!.toClassModel()
         }
-        return classDao.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)!!.toModel()
+        return schoolEntityDao.getSchoolEntityByName(schoolId = schoolId, name = className, type = SchoolEntityType.CLASS)!!.toClassModel()
     }
 
-    override suspend fun getClassById(id: UUID): Classes {
-        return classDao.getClassById(id = id).toModel()
+    override suspend fun getClassById(id: UUID): Classes? {
+        return schoolEntityDao.getSchoolEntityById(id)?.toClassModel()
     }
 
     override suspend fun insertClasses(schoolId: Long, classes: List<String>) {
         classes.forEach { className ->
-            classDao.insertClass(DbClass(schoolClassRefId = schoolId, className = className))
+            schoolEntityDao.insertSchoolEntity(DbSchoolEntity(schoolId = schoolId, name = className, type = SchoolEntityType.CLASS))
         }
     }
 
     override suspend fun deleteClassesBySchoolId(schoolId: Long) {
-        classDao.deleteClassesBySchoolId(schoolId = schoolId)
+        schoolEntityDao.deleteSchoolEntitiesBySchoolId(schoolId = schoolId, type = SchoolEntityType.CLASS)
     }
 
     override suspend fun getClassesBySchool(school: School): List<Classes> {
-        return classDao.getClassesBySchoolId(schoolId = school.schoolId).map { it.toModel() }
+        return schoolEntityDao.getSchoolEntities(schoolId = school.schoolId, type = SchoolEntityType.CLASS).map { it.toClassModel() }
     }
 }

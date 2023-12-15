@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
 import java.util.UUID
 
@@ -9,6 +10,15 @@ import java.util.UUID
     primaryKeys = ["profileId"],
     indices = [
         Index(value = ["profileId"], unique = true),
+        Index(value = ["referenceId"])
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = DbSchoolEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["referenceId"],
+            onDelete = ForeignKey.CASCADE,
+        )
     ]
 )
 data class DbProfile(
@@ -18,7 +28,7 @@ data class DbProfile(
     val customName: String,
     val calendarMode: ProfileCalendarType,
     val calendarId: Long?,
-    val referenceId: UUID, // can be class id, teacher id or room id
+    val referenceId: UUID,
 )
 
 enum class ProfileType {

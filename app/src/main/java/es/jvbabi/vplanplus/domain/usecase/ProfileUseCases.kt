@@ -117,9 +117,9 @@ class ProfileUseCases(
     suspend fun getSchoolFromProfileId(profileId: UUID): School {
         val profile = profileRepository.getProfileById(id = profileId).first()
         return when (profile!!.type) {
-            ProfileType.STUDENT -> classRepository.getClassById(id = profile.referenceId).school
+            ProfileType.STUDENT -> classRepository.getClassById(id = profile.referenceId)!!.school
             ProfileType.TEACHER -> teacherRepository.getTeacherById(id = profile.referenceId)!!.school
-            ProfileType.ROOM -> roomRepository.getRoomById(profile.referenceId).school
+            ProfileType.ROOM -> roomRepository.getRoomById(profile.referenceId)!!.school
         }
     }
 

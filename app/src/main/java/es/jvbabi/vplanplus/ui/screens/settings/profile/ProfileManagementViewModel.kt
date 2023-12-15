@@ -78,7 +78,7 @@ class ProfileManagementViewModel @Inject constructor(
                         }
 
                         ProfileType.ROOM -> {
-                            val school = roomRepository.getRoomById(it.referenceId).school
+                            val school = roomRepository.getRoomById(it.referenceId)!!.school
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(

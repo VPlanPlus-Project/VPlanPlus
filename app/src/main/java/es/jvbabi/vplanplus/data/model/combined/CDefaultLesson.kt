@@ -10,12 +10,12 @@ data class CDefaultLesson(
     @Embedded val defaultLesson: DbDefaultLesson,
     @Relation(
         parentColumn = "teacherId",
-        entityColumn = "teacherId",
+        entityColumn = "id",
         entity = DbSchoolEntity::class
     ) val teacher: CSchoolEntity?,
     @Relation(
         parentColumn = "classId",
-        entityColumn = "classId",
+        entityColumn = "id",
         entity = DbSchoolEntity::class
     ) val `class`: CSchoolEntity,
 ) {

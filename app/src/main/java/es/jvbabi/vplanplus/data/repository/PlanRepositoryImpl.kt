@@ -48,7 +48,7 @@ class PlanRepositoryImpl(
     }
 
     override fun getDayForClass(classId: UUID, date: LocalDate, version: Long) = flow {
-        val `class` = classRepository.getClassById(classId)
+        val `class` = classRepository.getClassById(classId)!!
         val school = `class`.school
 
         lessonRepository.getLessonsForClass(`class`.classId, date, version).distinctUntilChanged().collect { lessons ->
@@ -57,7 +57,7 @@ class PlanRepositoryImpl(
     }
 
     override fun getDayForRoom(roomId: UUID, date: LocalDate, version: Long) = flow {
-        val room = roomRepository.getRoomById(roomId)
+        val room = roomRepository.getRoomById(roomId)!!
         val school = room.school
 
         lessonRepository.getLessonsForRoom(room.roomId, date, version).distinctUntilChanged().collect { lessons ->
