@@ -175,7 +175,7 @@ fun ProfileManagementScreenContent(
                                     text = school.name,
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .padding(start = 16.dp)
+                                        .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                                         .weight(1f, false),
                                     maxLines = 1,
                                     overflow = TextOverflow.Ellipsis,
@@ -246,9 +246,9 @@ fun ProfileCard(type: ProfileType?, name: String, modifier: Modifier = Modifier)
                     Text(text = name, style = MaterialTheme.typography.headlineSmall)
                     Text(
                         text = when (type) {
-                            ProfileType.STUDENT -> "Klasse" // TODO stringResource
-                            ProfileType.TEACHER -> "Lehrer"
-                            ProfileType.ROOM -> "Raum"
+                            ProfileType.STUDENT -> stringResource(id = R.string.classStr)
+                            ProfileType.TEACHER -> stringResource(id = R.string.teacher)
+                            ProfileType.ROOM -> stringResource(id = R.string.room)
                         }, style = MaterialTheme.typography.bodyMedium
                     )
                 } else {

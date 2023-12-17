@@ -125,4 +125,7 @@
     <string name="lesson_cancelFindRoom">Leeren Raum suchen</string>
     <string name="profileManagement_deleteSchoolTitle">Schule löschen?</string>
     <string name="profileManagement_deleteSchoolText">Möchtest du %1$s wirklich löschen?</string>
+    <string name="room">Raum</string>
+    <string name="teacher">Lehrer</string>
+    <string name="classStr">Klasse</string>
 </resources>
