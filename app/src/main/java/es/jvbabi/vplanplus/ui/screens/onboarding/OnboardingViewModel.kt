@@ -164,6 +164,7 @@ class OnboardingViewModel @Inject constructor(
                     it.key.vpId to it.value
                 }.toMap()
             )
+            _state.value = _state.value.copy(isLoading = false)
         }
     }
 

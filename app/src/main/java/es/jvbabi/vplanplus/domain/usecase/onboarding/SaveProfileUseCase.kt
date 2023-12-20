@@ -5,9 +5,9 @@ import android.app.NotificationManager
 import android.content.Context
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
-import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Holiday
+import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -50,6 +50,9 @@ class SaveProfileUseCase(
         defaultLessonsEnabled: Map<Long, Boolean> = emptyMap()
     ) {
         var school = schoolRepository.getSchoolFromId(schoolId)
+
+        val defaultLessons = Gson().fromJson(kv.get("onboarding.school.$schoolId.defaultLessons")?:"[]", Array<DefaultLesson>::class.java).toList()
+
         if (school == null) { // school not in database
             schoolRepository.createSchool(
                 schoolId = schoolId,
@@ -63,8 +66,7 @@ class SaveProfileUseCase(
             val teachers = kv.get("onboarding.school.$schoolId.teachers")?.split(",") ?: emptyList()
             val rooms = kv.get("onboarding.school.$schoolId.rooms")?.split(",") ?: emptyList()
             val holidays = kv.get("onboarding.school.$schoolId.holidays")?.split(",")?.map { LocalDate.parse(it) } ?: emptyList()
-            val defaultLessons = Gson().fromJson(kv.get("onboarding.school.$schoolId.defaultLessons"), Array<DefaultLesson>::class.java).toList()
-            val lessonTimes = Gson().fromJson(kv.get("onboarding.school.$schoolId.lessonTimes"), Array<LessonTime>::class.java).toList()
+            val lessonTimes = Gson().fromJson(kv.get("onboarding.school.$schoolId.lessonTimes")?:"[]", Array<LessonTime>::class.java).toList()
 
             // insert classes, teachers and rooms
             classes.forEach {
@@ -79,34 +81,22 @@ class SaveProfileUseCase(
                     acronym = it
                 )
             }
+
+            school = schoolRepository.getSchoolFromId(schoolId)!!
             rooms.forEach {
                 roomRepository.createRoom(
-                    DbRoom(
-                        schoolRoomRefId = schoolId,
+                    Room(
+                        school = school,
                         name = it
                     )
                 )
             }
-
-            school = schoolRepository.getSchoolFromId(schoolId)!!
 
             holidays.forEach {
                 holidayRepository.insertHoliday(
                     holiday = Holiday(
                         schoolHolidayRefId = schoolId,
                         date = it
-                    )
-                )
-            }
-
-            defaultLessons.forEach {
-                defaultLessonRepository.insert(
-                    DbDefaultLesson(
-                        defaultLessonId = UUID.randomUUID(),
-                        vpId = it.vpId,
-                        subject = it.subject,
-                        teacherId = teacherRepository.find(school, it.teacher, false)?.teacherId,
-                        classId = classRepository.getClassBySchoolIdAndClassName(schoolId, it.className, false)!!.classId
                     )
                 )
             }
@@ -121,6 +111,18 @@ class SaveProfileUseCase(
                     )
                 )
             }
+        }
+
+        defaultLessons.forEach {
+            defaultLessonRepository.insert(
+                DbDefaultLesson(
+                    defaultLessonId = UUID.randomUUID(),
+                    vpId = it.vpId,
+                    subject = it.subject,
+                    teacherId = teacherRepository.find(school, it.teacher, false)?.teacherId,
+                    classId = classRepository.getClassBySchoolIdAndClassName(schoolId, it.className, false)!!.classId
+                )
+            )
         }
 
         val referenceId: UUID
