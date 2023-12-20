@@ -130,7 +130,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideClassRepository(db: VppDatabase): ClassRepository {
-        return ClassRepositoryImpl(db.classDao)
+        return ClassRepositoryImpl(db.schoolEntityDao)
     }
 
     @Provides
@@ -182,7 +182,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideTeacherRepository(db: VppDatabase): TeacherRepository {
-        return TeacherRepositoryImpl(db.teacherDao)
+        return TeacherRepositoryImpl(db.schoolEntityDao)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -210,7 +210,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideRoomRepository(db: VppDatabase): RoomRepository {
-        return RoomRepositoryImpl(db.roomDao)
+        return RoomRepositoryImpl(db.schoolEntityDao)
     }
 
     @Provides
@@ -319,8 +319,7 @@ object VppModule {
             roomRepository = roomRepository,
             schoolRepository = schoolRepository,
             defaultLessonRepository = defaultLessonRepository,
-            lessonRoomCrossover = db.lessonRoomCrossoverDao,
-            lessonTeacherCrossover = db.lessonTeacherCrossoverDao,
+            lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
             planRepository = providePlanRepository(db)
         )

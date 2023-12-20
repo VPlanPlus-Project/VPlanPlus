@@ -2,8 +2,7 @@ package es.jvbabi.vplanplus.domain.usecase
 
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
-import es.jvbabi.vplanplus.data.source.database.dao.LessonRoomCrossoverDao
-import es.jvbabi.vplanplus.data.source.database.dao.LessonTeacherCrossoverDao
+import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.School
@@ -31,8 +30,7 @@ class VPlanUseCases(
     private val roomRepository: RoomRepository,
     private val schoolRepository: SchoolRepository,
     private val defaultLessonRepository: DefaultLessonRepository,
-    private val lessonTeacherCrossover: LessonTeacherCrossoverDao,
-    private val lessonRoomCrossover: LessonRoomCrossoverDao,
+    private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val keyValueUseCases: KeyValueUseCases,
     private val planRepository: PlanRepository
 ) {
@@ -143,8 +141,15 @@ class VPlanUseCases(
         }
 
         lessonRepository.insertLessons(insertLessons)
-        lessonRoomCrossover.insertCrossovers(roomCrossovers)
-        lessonTeacherCrossover.insertCrossovers(teacherCrossovers)
+        lessonSchoolEntityCrossoverDao.insertCrossovers(
+            roomCrossovers.map { crossover ->
+                Pair(crossover.first, crossover.second)
+            }.plus(
+                teacherCrossovers.map { crossover ->
+                    Pair(crossover.first, crossover.second)
+                }
+            )
+        )
 
         planRepository.createPlan(
             Plan(

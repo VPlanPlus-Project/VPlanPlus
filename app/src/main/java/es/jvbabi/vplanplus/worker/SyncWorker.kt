@@ -299,7 +299,7 @@ class SyncWorker @AssistedInject constructor(
             ProfileType.ROOM -> lessonUseCases.getLessonsForRoom(
                 roomRepository.getRoomById(
                     profile.referenceId
-                ), date, version
+                )!!, date, version
             )
         }.first()
     }

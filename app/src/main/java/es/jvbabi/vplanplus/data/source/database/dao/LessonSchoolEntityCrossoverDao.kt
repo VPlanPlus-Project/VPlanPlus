@@ -6,14 +6,18 @@ import androidx.room.Transaction
 import java.util.UUID
 
 @Dao
-abstract class LessonTeacherCrossoverDao {
+abstract class LessonSchoolEntityCrossoverDao {
 
-    @Query("DELETE FROM lesson_teacher_crossover WHERE ltcLessonId = :lessonId")
+    @Query("DELETE FROM lesson_se_crossover WHERE lsecLessonId = :lessonId")
     abstract suspend fun deleteCrossoversByLessonId(lessonId: UUID)
 
-    @Query("INSERT INTO lesson_teacher_crossover (ltcLessonId, ltcTeacherId) VALUES (:lessonId, :teacherId)")
+    @Query("INSERT INTO lesson_se_crossover (lsecLessonId, lsecSchoolEntityId) VALUES (:lessonId, :teacherId)")
     abstract suspend fun insertCrossover(lessonId: UUID, teacherId: UUID)
 
+    /**
+     * Inserts a list of crossovers into the database.
+     * @param crossovers A list of pairs of UUIDs, where the first UUID is the lessonId and the second UUID is the schoolEntityId.
+     */
     @Transaction
     open suspend fun insertCrossovers(crossovers: List<Pair<UUID, UUID>>) {
         crossovers.forEach {

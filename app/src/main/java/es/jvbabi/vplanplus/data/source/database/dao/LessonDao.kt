@@ -21,13 +21,13 @@ abstract class LessonDao {
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction
-    @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.defaultLessonId = lesson.defaultLessonId WHERE day = :timestamp AND version = :version AND (lessonId IN (SELECT ltcTeacherId FROM lesson_teacher_crossover WHERE ltcTeacherId = :teacherId) OR default_lesson.teacherId = :teacherId) ORDER by lessonNumber ASC")
+    @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.defaultLessonId = lesson.defaultLessonId WHERE day = :timestamp AND version = :version AND (lessonId IN (SELECT lsecSchoolEntityId FROM lesson_se_crossover WHERE lsecSchoolEntityId = :teacherId) OR default_lesson.teacherId = :teacherId) ORDER by lessonNumber ASC")
     @Suppress(RoomWarnings.CURSOR_MISMATCH)
     abstract fun getLessonsByTeacher(teacherId: UUID, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction
-    @Query("SELECT * FROM lesson WHERE day = :timestamp AND version = :version AND lessonId IN (SELECT lrcLessonId FROM lesson_room_crossover WHERE lrcRoomId = :roomId) ORDER by lessonNumber ASC")
+    @Query("SELECT * FROM lesson WHERE day = :timestamp AND version = :version AND lessonId IN (SELECT lsecLessonId FROM lesson_se_crossover WHERE lsecSchoolEntityId = :roomId) ORDER by lessonNumber ASC")
     abstract fun getLessonsByRoom(roomId: UUID, timestamp: LocalDate, version: Long): Flow<List<CLesson>>
 
     @Insert

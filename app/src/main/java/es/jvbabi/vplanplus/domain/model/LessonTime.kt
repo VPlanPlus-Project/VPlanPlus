@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.domain.model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import es.jvbabi.vplanplus.data.model.DbClass
+import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import java.util.UUID
 
 
@@ -20,8 +20,8 @@ import java.util.UUID
     tableName = "lesson_time",
     foreignKeys = [
         ForeignKey(
-            entity = DbClass::class,
-            parentColumns = ["classId"],
+            entity = DbSchoolEntity::class,
+            parentColumns = ["id"],
             childColumns = ["classLessonTimeRefId"],
             onDelete = ForeignKey.CASCADE
         )

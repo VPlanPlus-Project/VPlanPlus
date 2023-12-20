@@ -12,7 +12,7 @@ class ClassUseCases(private val classRepository: ClassRepository) {
     }
 
     suspend fun getClassById(id: UUID): Classes {
-        return classRepository.getClassById(id)
+        return classRepository.getClassById(id)!!
     }
 
     suspend fun getClassesBySchool(school: School): List<Classes> {

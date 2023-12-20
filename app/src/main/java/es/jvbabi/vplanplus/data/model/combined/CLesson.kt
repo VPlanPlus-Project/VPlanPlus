@@ -3,13 +3,11 @@ package es.jvbabi.vplanplus.data.model.combined
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
-import es.jvbabi.vplanplus.data.model.DbClass
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
-import es.jvbabi.vplanplus.data.model.DbRoom
-import es.jvbabi.vplanplus.data.model.DbTeacher
-import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
-import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
+import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.util.DateUtils
@@ -17,8 +15,8 @@ import es.jvbabi.vplanplus.util.DateUtils
 data class CLesson(
     @Embedded val lesson: DbLesson,
     @Relation(
-        parentColumn = "classLessonRefId", entityColumn = "classId", entity = DbClass::class
-    ) val `class`: CClass,
+        parentColumn = "classLessonRefId", entityColumn = "id", entity = DbSchoolEntity::class
+    ) val `class`: CSchoolEntity,
     @Relation(
         parentColumn = "defaultLessonId",
         entityColumn = "defaultLessonId",
@@ -26,26 +24,15 @@ data class CLesson(
     ) val defaultLesson: CDefaultLesson?,
     @Relation(
         parentColumn = "lessonId",
-        entityColumn = "teacherId",
+        entityColumn = "id",
         associateBy = Junction(
-            value = LessonTeacherCrossover::class,
-            parentColumn = "ltcLessonId",
-            entityColumn = "ltcTeacherId"
+            value = LessonSchoolEntityCrossover::class,
+            parentColumn = "lsecLessonId",
+            entityColumn = "lsecSchoolEntityId"
         ),
-        entity = DbTeacher::class
+        entity = DbSchoolEntity::class
     )
-    val teachers: List<DbTeacher>,
-    @Relation(
-        parentColumn = "lessonId",
-        entityColumn = "roomId",
-        associateBy = Junction(
-            value = LessonRoomCrossover::class,
-            parentColumn = "lrcLessonId",
-            entityColumn = "lrcRoomId"
-        ),
-        entity = DbRoom::class
-    )
-    val rooms: List<DbRoom>,
+    val schoolEntities: List<CSchoolEntity>,
     @Relation(
         parentColumn = "classLessonRefId",
         entityColumn = "classLessonTimeRefId",
@@ -54,15 +41,15 @@ data class CLesson(
 ) {
     fun toModel(): Lesson {
         return Lesson(
-            `class` = `class`.toModel(),
+            `class` = `class`.toClassModel(),
             lessonNumber = lesson.lessonNumber,
             originalSubject = defaultLesson?.defaultLesson?.subject,
             changedSubject = lesson.changedSubject,
-            teachers = teachers.map { it.acronym },
-            teacherIsChanged = teachers.map { it.teacherId }.sorted() != listOf(
+            teachers = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.TEACHER }.map { it.toTeacherModel().acronym },
+            teacherIsChanged = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.TEACHER }.map { it.toTeacherModel().teacherId }.sorted() != listOf(
                 defaultLesson?.defaultLesson?.teacherId
             ),
-            rooms = rooms.map { it.name },
+            rooms = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.ROOM }.map { it.toRoomModel().name },
             roomIsChanged = lesson.roomIsChanged,
             info = lesson.info,
             start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(
@@ -70,7 +57,7 @@ data class CLesson(
                     lesson.lessonNumber
                 ) {
                     es.jvbabi.vplanplus.util.LessonTime.fallbackTime(
-                        `class`.`class`.classId,
+                        `class`.schoolEntity.id,
                         lesson.lessonNumber
                     )
                 }.start, lesson.day
@@ -80,7 +67,7 @@ data class CLesson(
                     lesson.lessonNumber
                 ) {
                     es.jvbabi.vplanplus.util.LessonTime.fallbackTime(
-                        `class`.`class`.classId,
+                        `class`.schoolEntity.id,
                         lesson.lessonNumber
                     )
                 }.end, lesson.day

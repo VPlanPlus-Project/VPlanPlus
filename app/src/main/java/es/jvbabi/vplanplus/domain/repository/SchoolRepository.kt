@@ -12,6 +12,7 @@ interface SchoolRepository {
     suspend fun updateSchoolName(schoolId: Long, name: String)
     suspend fun getSchoolNameOnline(schoolId: Long, username: String, password: String): String
     suspend fun getSchoolFromId(schoolId: Long): School?
+    suspend fun deleteSchool(schoolId: Long)
     suspend fun getSchoolByName(schoolName: String): School
 
     fun checkSchoolIdSyntax(schoolId: String): Boolean {

@@ -122,4 +122,9 @@
     <string name="day_after_tomorrow">;DATE</string>
     <string name="day_before_yesterday">;DATE</string>
     <string name="lesson_cancelFindRoom">Find an available room</string>
+    <string name="profileManagement_deleteSchoolTitle">Delete school?</string>
+    <string name="profileManagement_deleteSchoolText">Do you want to delete %1$s?</string>
+    <string name="room">Room</string>
+    <string name="teacher">Teacher</string>
+    <string name="classStr">Class</string>
 </resources>

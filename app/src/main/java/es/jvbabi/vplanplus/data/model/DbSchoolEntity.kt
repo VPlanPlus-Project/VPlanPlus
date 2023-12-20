@@ -7,23 +7,30 @@ import es.jvbabi.vplanplus.domain.model.School
 import java.util.UUID
 
 @Entity(
-    tableName = "room",
-    primaryKeys = ["roomId"],
+    tableName = "school_entity",
+    primaryKeys = ["id"],
+    indices = [
+        Index(value = ["id"], unique = true),
+        Index(value = ["schoolId"]),
+    ],
     foreignKeys = [
         ForeignKey(
             entity = School::class,
             parentColumns = ["schoolId"],
-            childColumns = ["schoolRoomRefId"],
+            childColumns = ["schoolId"],
             onDelete = ForeignKey.CASCADE
         )
-    ],
-    indices = [
-        Index(value = ["roomId"], unique = true),
-        Index(value = ["schoolRoomRefId"]),
     ]
 )
-data class DbRoom(
-    val roomId: UUID = UUID.randomUUID(),
-    val schoolRoomRefId: Long,
+data class DbSchoolEntity(
+    val id: UUID = UUID.randomUUID(),
     val name: String,
+    val schoolId: Long,
+    val type: SchoolEntityType
 )
+
+enum class SchoolEntityType {
+    CLASS,
+    TEACHER,
+    ROOM
+}

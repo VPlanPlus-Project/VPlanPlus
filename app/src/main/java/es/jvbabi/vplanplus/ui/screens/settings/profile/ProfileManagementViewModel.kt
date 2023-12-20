@@ -10,8 +10,11 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -21,8 +24,9 @@ class ProfileManagementViewModel @Inject constructor(
     private val profileUseCases: ProfileUseCases,
     private val classUseCases: ClassUseCases,
     private val schoolUseCases: SchoolUseCases,
-    private val teacherRepostitory: TeacherRepository,
-    private val roomRepository: RoomRepository
+    private val teacherRepository: TeacherRepository,
+    private val roomRepository: RoomRepository,
+    private val keyValueUseCases: KeyValueUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(ProfileManagementState())
@@ -57,7 +61,7 @@ class ProfileManagementViewModel @Inject constructor(
                         }
 
                         ProfileType.TEACHER -> {
-                            val school = teacherRepostitory.getTeacherById(it.referenceId)!!.school
+                            val school = teacherRepository.getTeacherById(it.referenceId)!!.school
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
@@ -78,7 +82,7 @@ class ProfileManagementViewModel @Inject constructor(
                         }
 
                         ProfileType.ROOM -> {
-                            val school = roomRepository.getRoomById(it.referenceId).school
+                            val school = roomRepository.getRoomById(it.referenceId)!!.school
                             if (schools.containsKey(school.name)) {
                                 schools[school.name] = schools[school.name]!!.plus(
                                     ProfileManagementProfile(
@@ -112,11 +116,32 @@ class ProfileManagementViewModel @Inject constructor(
     suspend fun getSchoolByName(name: String): School {
         return schoolUseCases.getSchoolByName(name)
     }
+
+    fun openDeleteSchoolDialog(school: ProfileManagementSchool) {
+        _state.value = _state.value.copy(deletingSchool = school)
+    }
+
+    fun closeDeleteSchoolDialog() {
+        _state.value = _state.value.copy(deletingSchool = null)
+    }
+
+    fun deleteSchool() {
+        if (_state.value.deletingSchool == null) return
+        viewModelScope.launch {
+            schoolUseCases.deleteSchool(schoolUseCases.getSchoolByName(_state.value.deletingSchool!!.name).schoolId)
+            val firstProfile = profileUseCases.getProfiles().first().firstOrNull()
+            if (firstProfile != null) keyValueUseCases.set(Keys.ACTIVE_PROFILE, firstProfile.id.toString())
+            else keyValueUseCases.set(Keys.ACTIVE_PROFILE, "")
+            closeDeleteSchoolDialog()
+        }
+    }
 }
 
 data class ProfileManagementState(
     val schools: List<ProfileManagementSchool> = emptyList(),
     val isLoading: Boolean = false,
+
+    val deletingSchool: ProfileManagementSchool? = null,
 )
 
 data class ProfileManagementSchool(

@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,7 +47,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -55,7 +56,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.ui.common.Badge
+import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -86,7 +87,10 @@ fun ProfileManagementScreen(
         onNewSchoolClicked = {
             onNewSchoolClicked()
             navController.navigate(Screen.OnboardingSchoolIdScreen.route)
-        }
+        },
+        onDeleteSchoolOpenDialog = { viewModel.openDeleteSchoolDialog(it) },
+        onDeleteSchoolConfirm = { viewModel.deleteSchool() },
+        onDeleteSchoolDismiss = { viewModel.closeDeleteSchoolDialog() }
     )
 }
 
@@ -99,6 +103,9 @@ fun ProfileManagementScreenContent(
     onNewSchoolProfileClicked: (schoolName: String) -> Unit = {},
     onNewSchoolClicked: () -> Unit = {},
     onProfileClicked: (profile: ProfileManagementProfile) -> Unit = {},
+    onDeleteSchoolOpenDialog: (school: ProfileManagementSchool) -> Unit = {},
+    onDeleteSchoolConfirm: (school: ProfileManagementSchool) -> Unit = {},
+    onDeleteSchoolDismiss: () -> Unit = {}
 ) {
     val snackbarState = remember { SnackbarHostState() }
     Scaffold(
@@ -123,15 +130,23 @@ fun ProfileManagementScreenContent(
             ExtendedFloatingActionButton(
                 onClick = { onNewSchoolClicked() },
                 text = {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(text = stringResource(id = R.string.profileManagement_addNewSchool))
-                        Badge(color = Color.Magenta, text = "Untested")
-                    }
+                    Text(text = stringResource(id = R.string.profileManagement_addNewSchool))
                 },
                 icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) }
             )
         }
     ) { pv ->
+
+        if (state.deletingSchool != null) {
+            YesNoDialog(
+                icon = Icons.Default.Delete,
+                title = stringResource(id = R.string.profileManagement_deleteSchoolTitle),
+                message = stringResource(id = R.string.profileManagement_deleteSchoolText, state.deletingSchool.name),
+                onYes = { onDeleteSchoolConfirm(state.deletingSchool) },
+                onNo = { onDeleteSchoolDismiss() }
+            )
+        }
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -150,13 +165,32 @@ fun ProfileManagementScreenContent(
                             modifier = Modifier
                                 .fillMaxWidth()
                         ) {
-                            Text(
-                                text = school.name,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween,
                                 modifier = Modifier
-                                    .padding(16.dp),
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.titleLarge
-                            )
+                                    .fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = school.name,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
+                                        .weight(1f, false),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                                if (state.schools.size > 1) IconButton(
+                                    onClick = { onDeleteSchoolOpenDialog(school) },
+                                    modifier = Modifier.padding(start = 16.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = null
+                                    )
+                                }
+                            }
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -212,9 +246,9 @@ fun ProfileCard(type: ProfileType?, name: String, modifier: Modifier = Modifier)
                     Text(text = name, style = MaterialTheme.typography.headlineSmall)
                     Text(
                         text = when (type) {
-                            ProfileType.STUDENT -> "Klasse" // TODO stringResource
-                            ProfileType.TEACHER -> "Lehrer"
-                            ProfileType.ROOM -> "Raum"
+                            ProfileType.STUDENT -> stringResource(id = R.string.classStr)
+                            ProfileType.TEACHER -> stringResource(id = R.string.teacher)
+                            ProfileType.ROOM -> stringResource(id = R.string.room)
                         }, style = MaterialTheme.typography.bodyMedium
                     )
                 } else {
