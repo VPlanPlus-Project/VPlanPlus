@@ -51,7 +51,7 @@ class VPlanUseCases(
             createDateFormatter
         )
 
-        val school = schoolRepository.getSchoolFromId(vPlanData.schoolId)
+        val school = schoolRepository.getSchoolFromId(vPlanData.schoolId)!!
 
         val version = keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2").toLong() + 1
 

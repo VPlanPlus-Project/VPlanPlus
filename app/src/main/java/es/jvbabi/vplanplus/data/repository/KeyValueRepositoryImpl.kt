@@ -24,4 +24,8 @@ class KeyValueRepositoryImpl(private val keyValueDao: KeyValueDao) : KeyValueRep
     override suspend fun getOrDefault(key: String, defaultValue: String): String {
         return keyValueDao.get(key = key) ?: defaultValue
     }
+
+    override suspend fun delete(key: String) {
+        keyValueDao.delete(key = key)
+    }
 }

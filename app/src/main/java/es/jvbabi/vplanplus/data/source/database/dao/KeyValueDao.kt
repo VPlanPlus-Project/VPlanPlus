@@ -16,4 +16,7 @@ abstract class KeyValueDao {
 
     @Query("SELECT value FROM keyValue WHERE id = :key")
     abstract fun getFlow(key: String): Flow<String?>
+
+    @Query("DELETE FROM keyValue WHERE id = :key")
+    abstract suspend fun delete(key: String)
 }

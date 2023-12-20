@@ -12,14 +12,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -43,12 +41,11 @@ fun OnboardingProfileOptionListScreen(
 ) {
     val state = onboardingViewModel.state.value
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
 
     ProfileOptionsScreen(
         state = state,
         onClassSelect = { onboardingViewModel.onProfileSelect(it) }, {
-            coroutineScope.launch { onboardingViewModel.onProfileSubmit(context) }
+            coroutineScope.launch { onboardingViewModel.onProfileSubmit() }
             if (state.profileType == ProfileType.STUDENT) navController.navigate(Screen.OnboardingDefaultLessonScreen.route) { popUpTo(0) }
             else navController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
         },
@@ -113,7 +110,6 @@ fun ProfileOptionsScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileOptionsItem(
     className: String,

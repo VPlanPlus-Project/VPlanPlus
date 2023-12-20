@@ -45,12 +45,12 @@ class HolidayRepositoryImpl(
         holidayDao.deleteHolidaysBySchoolId(schoolId)
     }
 
-    override fun isHoliday(schoolId: Long, date: LocalDate): Boolean {
+    override suspend fun isHoliday(schoolId: Long, date: LocalDate): Boolean {
         return holidayDao.find(schoolId, date) != null
     }
 
-    override fun getDayType(schoolId: Long, date: LocalDate): DayType {
-        val school = schoolRepository.getSchoolFromId(schoolId)
+    override suspend fun getDayType(schoolId: Long, date: LocalDate): DayType {
+        val school = schoolRepository.getSchoolFromId(schoolId)!!
         return if (isHoliday(schoolId, date)) DayType.HOLIDAY
         else if (date.dayOfWeek.value > school.daysPerWeek) DayType.WEEKEND
         else DayType.NORMAL

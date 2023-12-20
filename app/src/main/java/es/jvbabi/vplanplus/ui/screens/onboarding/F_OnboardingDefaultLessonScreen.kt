@@ -19,14 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.xml.WplanVpXmlDefaultLesson
-import es.jvbabi.vplanplus.domain.model.xml.WplanVpXmlDefaultLessonWrapper
+import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLesson
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 
@@ -36,12 +34,11 @@ fun OnboardingDefaultLessonScreen(
     onboardingViewModel: OnboardingViewModel
 ) {
     val state = onboardingViewModel.state.value
-    val context = LocalContext.current
 
     OnboardingDefaultLessonContent(
         state = state,
         onNextClicked = {
-            onboardingViewModel.onInsertData(context)
+            onboardingViewModel.onInsertData()
             navHostController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
         },
         onDefaultLessonClicked = {
@@ -55,7 +52,7 @@ fun OnboardingDefaultLessonScreen(
 fun OnboardingDefaultLessonContent(
     state: OnboardingState,
     onNextClicked: () -> Unit = {},
-    onDefaultLessonClicked: (WplanVpXmlDefaultLessonWrapper) -> Unit = {},
+    onDefaultLessonClicked: (DefaultLesson) -> Unit = {},
     onReloadDefaultLessons: () -> Unit = {}
 ) {
     OnboardingScreen(
@@ -73,13 +70,13 @@ fun OnboardingDefaultLessonContent(
                     Button(onClick = { onReloadDefaultLessons() }) {
                         Text(text = "Reload")
                     }
-                } else state.defaultLessons.toList().sortedBy { (key, _) -> key.defaultLesson!!.subjectShort}.toMap().forEach {
+                } else state.defaultLessons.toList().sortedBy { (key, _) -> key.subject}.toMap().forEach {
                     Box(
                         modifier = Modifier.padding(top = 8.dp),
                     ) {
                         DefaultLessonCard(
-                            subject = it.key.defaultLesson!!.subjectShort!!,
-                            teacherAcronym = it.key.defaultLesson!!.teacherShort!!,
+                            subject = it.key.subject,
+                            teacherAcronym = it.key.teacher,
                             activated = it.value,
                             onClick = { onDefaultLessonClicked(it.key) }
                         )
@@ -95,15 +92,20 @@ fun OnboardingDefaultLessonContent(
 fun OnboardingDefaultLessonScreenPreview() {
     OnboardingDefaultLessonContent(
         state = OnboardingState(
-            defaultLessons = mapOf(
-                WplanVpXmlDefaultLessonWrapper().apply {
-                    this.defaultLesson = WplanVpXmlDefaultLesson().apply {
-                        this.lessonId = 10
-                        this.subjectShort = "DEU"
-                        this.teacherShort = "Mul"
-                    }
-                } to true
-            )
+            defaultLessons = listOf(
+                DefaultLesson(
+                    subject = "DEU",
+                    teacher = "Mul",
+                    vpId = 1L,
+                    className = "1A"
+                ) to true,
+                DefaultLesson(
+                    subject = "MAT",
+                    teacher = "Wer",
+                    vpId = 2L,
+                    className = "1A"
+                ) to false,
+            ).toMap()
         )
     )
 }

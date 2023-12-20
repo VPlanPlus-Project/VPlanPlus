@@ -65,7 +65,7 @@ class PlanRepositoryImpl(
         }
     }
 
-    private fun build(school: School, lessons: List<Lesson>?, date: LocalDate, info: String?): Day {
+    private suspend fun build(school: School, lessons: List<Lesson>?, date: LocalDate, info: String?): Day {
         val dayType = holidayRepository.getDayType(school.schoolId, date)
         if (dayType == DayType.NORMAL) {
             return if (lessons == null) {

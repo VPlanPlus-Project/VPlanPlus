@@ -58,6 +58,14 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.RoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import es.jvbabi.vplanplus.domain.usecase.onboarding.CheckSchoolIdSyntax
+import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLessonUseCase
+import es.jvbabi.vplanplus.domain.usecase.onboarding.GetSchoolByIdUseCase
+import es.jvbabi.vplanplus.domain.usecase.onboarding.LoginUseCase
+import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
+import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileOptionsUseCase
+import es.jvbabi.vplanplus.domain.usecase.onboarding.SaveProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -315,6 +323,44 @@ object VppModule {
             lessonTeacherCrossover = db.lessonTeacherCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
             planRepository = providePlanRepository(db)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideOnboardingUseCases(
+        schoolRepository: SchoolRepository,
+        baseDataRepository: BaseDataRepository,
+        keyValueRepository: KeyValueRepository,
+        classRepository: ClassRepository,
+        teacherRepository: TeacherRepository,
+        roomRepository: RoomRepository,
+        vPlanRepository: VPlanRepository,
+        profileRepository: ProfileRepository,
+        defaultLessonRepository: DefaultLessonRepository,
+        holidayRepository: HolidayRepository,
+        lessonTimeRepository: LessonTimeRepository,
+        @ApplicationContext context: Context
+    ): OnboardingUseCases {
+        return OnboardingUseCases(
+            checkSchoolIdSyntax = CheckSchoolIdSyntax(schoolRepository),
+            testSchoolExistence = TestSchoolExistence(schoolRepository),
+            loginUseCase = LoginUseCase(schoolRepository, keyValueRepository, baseDataRepository),
+            profileOptionsUseCase = ProfileOptionsUseCase(schoolRepository, classRepository, teacherRepository, roomRepository, keyValueRepository),
+            defaultLessonUseCase = DefaultLessonUseCase(vPlanRepository, keyValueRepository),
+            saveProfileUseCase = SaveProfileUseCase(
+                schoolRepository = schoolRepository,
+                kv = keyValueRepository,
+                classRepository = classRepository,
+                teacherRepository = teacherRepository,
+                roomRepository = roomRepository,
+                defaultLessonRepository = defaultLessonRepository,
+                profileRepository = profileRepository,
+                holidayRepository = holidayRepository,
+                lessonTimeRepository = lessonTimeRepository,
+                context = context
+            ),
+            getSchoolByIdUseCase = GetSchoolByIdUseCase(schoolRepository)
         )
     }
 }

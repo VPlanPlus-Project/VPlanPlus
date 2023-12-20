@@ -11,6 +11,6 @@ interface HolidayRepository {
     suspend fun insertHoliday(holiday: Holiday)
     suspend fun replaceHolidays(holidays: List<Holiday>)
     suspend fun deleteHolidaysBySchoolId(schoolId: Long)
-    fun isHoliday(schoolId: Long, date: LocalDate): Boolean
-    fun getDayType(schoolId: Long, date: LocalDate): DayType
+    suspend fun isHoliday(schoolId: Long, date: LocalDate): Boolean
+    suspend fun getDayType(schoolId: Long, date: LocalDate): DayType
 }
