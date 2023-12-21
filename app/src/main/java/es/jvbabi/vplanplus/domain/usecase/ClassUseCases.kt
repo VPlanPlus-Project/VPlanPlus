@@ -7,10 +7,6 @@ import java.util.UUID
 
 class ClassUseCases(private val classRepository: ClassRepository) {
 
-    suspend fun getClassBySchoolIdAndClassName(schoolId: Long, className: String): Classes? {
-        return classRepository.getClassBySchoolIdAndClassName(schoolId = schoolId, className = className)
-    }
-
     suspend fun getClassById(id: UUID): Classes {
         return classRepository.getClassById(id)!!
     }

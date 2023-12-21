@@ -6,19 +6,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.LogRecord
-import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LogsViewModel @Inject constructor(
-    private val logRecordRepository: LogRecordRepository
+    private val logsUseCases: LogsUseCases
 ): ViewModel() {
     private val _state = mutableStateOf(LogsState())
     val state: State<LogsState> = _state
     init {
         viewModelScope.launch {
-            logRecordRepository.getLogs().collect {
+            logsUseCases.getLogsUseCase().collect {
                 _state.value = LogsState(it)
             }
         }
@@ -26,7 +26,7 @@ class LogsViewModel @Inject constructor(
 
     fun onDeleteLogsClicked() {
         viewModelScope.launch {
-            logRecordRepository.deleteAll()
+            logsUseCases.deleteAllLogsUseCase()
         }
 
     }

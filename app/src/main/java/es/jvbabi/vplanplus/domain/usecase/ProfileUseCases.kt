@@ -28,24 +28,6 @@ class ProfileUseCases(
         profileRepository.deleteDefaultLessonsFromProfile(profileId = profileId)
     }
 
-    suspend fun createStudentProfile(classId: UUID, name: String): UUID {
-        return profileRepository.createProfile(
-            referenceId = classId,
-            type = ProfileType.STUDENT,
-            name = name,
-            customName = name
-        )
-    }
-
-    suspend fun createTeacherProfile(teacherId: UUID, name: String) {
-        profileRepository.createProfile(
-            referenceId = teacherId,
-            type = ProfileType.TEACHER,
-            name = name,
-            customName = name
-        )
-    }
-
     suspend fun setCalendarType(profileId: UUID, calendarType: ProfileCalendarType) {
         profileRepository.updateProfile(
             profileRepository.getDbProfileById(profileId = profileId)!!
@@ -71,29 +53,6 @@ class ProfileUseCases(
 
     suspend fun disableDefaultLesson(profileId: UUID, vpId: Long) {
         profileRepository.disableDefaultLesson(profileId = profileId, vpId = vpId)
-    }
-
-    suspend fun createRoomProfile(roomId: UUID, name: String) {
-        profileRepository.createProfile(
-            referenceId = roomId,
-            type = ProfileType.ROOM,
-            name = name,
-            customName = name
-        )
-    }
-
-    suspend fun getProfileByTeacherId(teacherId: UUID): Profile {
-        return profileRepository.getProfileByReferenceId(
-            referenceId = teacherId,
-            type = ProfileType.TEACHER
-        )
-    }
-
-    suspend fun getProfileByRoomId(roomId: UUID): Profile {
-        return profileRepository.getProfileByReferenceId(
-            referenceId = roomId,
-            type = ProfileType.ROOM
-        )
     }
 
     suspend fun getActiveProfile(): Profile? {

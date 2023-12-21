@@ -49,15 +49,16 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
-import es.jvbabi.vplanplus.domain.usecase.BaseDataUseCases
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
-import es.jvbabi.vplanplus.domain.usecase.HolidayUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.RoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
+import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
+import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
 import es.jvbabi.vplanplus.domain.usecase.onboarding.CheckSchoolIdSyntax
 import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLessonUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.GetSchoolByIdUseCase
@@ -287,20 +288,6 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideHolidayUseCases(repository: HolidayRepository): HolidayUseCases {
-        return HolidayUseCases(repository)
-    }
-
-    @Provides
-    @Singleton
-    fun provideBaseDataUseCases(
-        baseDataRepository: BaseDataRepository,
-    ): BaseDataUseCases {
-        return BaseDataUseCases(baseDataRepository)
-    }
-
-    @Provides
-    @Singleton
     fun provideVPlanUseCases(
         vPlanRepository: VPlanRepository,
         lessonRepository: LessonRepository,
@@ -360,6 +347,17 @@ object VppModule {
                 context = context
             ),
             getSchoolByIdUseCase = GetSchoolByIdUseCase(schoolRepository)
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideLogsUseCases(
+        logRecordRepository: LogRecordRepository
+    ): LogsUseCases {
+        return LogsUseCases(
+            getLogsUseCase = GetLogsUseCase(logRecordRepository),
+            deleteAllLogsUseCase = DeleteAllLogsUseCase(logRecordRepository)
         )
     }
 }
