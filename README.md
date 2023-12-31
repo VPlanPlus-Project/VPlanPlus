@@ -10,19 +10,21 @@ Website: [VPlanPlus.JVBabi.es](https://vplanplus.jvbabi.es)
 <hr />
 
 ### Ist meine Schule kompatibel?
-#### Garantiert kompatibel
-##### M
-- Martin-Andersen-Nexö Gymnasium (10063764)
+| Symbol | Bedeutung                         |
+|--------|-----------------------------------|
+| ✅      | Alle Features sind verfügbar.     |
+| ⚠️️    | Funktioniert nur mit Lehrerzugang |
+| ❌      | Nicht kompatibel                  |
 
-##### T
-- Testschule (10000000)
+| Schule                                       | Schul-ID | Kompatibel |
+|----------------------------------------------|----------|------------|
+| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ⚠️         |
+| Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          |
+| Testschule                                   | 10000000 | ✅️         |
 
-Deine Schule steht nicht auf der Liste?
-Finde in 3 Schritten heraus, ob deine Schule die App unterstützt:
-1. Kannst du auf Stundenplandaten via stundenplan24.de oder der offiziellen App VpMobil/VpMobil24 zugreifen?
-2. Kannst du auf stundenplan24.de den Wochenplan (Version 6) verwenden?
-    1. Kannst du in diesem im Dropdown die Pläne für Lehrer und Räume sehen?
-
-Wenn alle Punkte erfüllt sind, kannst du die App herunterladen. Die aktuellste Version findest du auf der Homepage.
+Deine Schule steht nicht auf der Liste? Wenn deine Schule **alle** Punkte erfüllt, dann ist sie kompatibel.
+- Die Pläne deiner Schule sind auf [stundenplan24.de](https://stundenplan24.de) verfügbar.
+- Du kannst die Pläne über die Schaltfläche "Wochenplan (Version 6) ansehen"
+- Du kannst im Wochenplan auf der Startseite das Dropdown verwenden um auch Lehrer- und Raumpläne anzuzeigen.
 
 Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es anderen Schülern/Lehrern an der Schule einfacher zu machen.
