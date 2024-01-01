@@ -23,7 +23,8 @@ class DefaultLessonUseCase(
                 username = username,
                 password = password,
                 name = "",
-                daysPerWeek = 5
+                daysPerWeek = 5,
+                fullyCompatible = true
             ),
             LocalDate.now().plusDays(index.toLong())
         )

@@ -128,4 +128,6 @@
     <string name="room">Raum</string>
     <string name="teacher">Lehrer</string>
     <string name="classStr">Klasse</string>
+    <string name="onboarding_newProfileNotFullySupportedSchoolWarningTitle">Schule nicht vollständig unterstützt</string>
+    <string name="onboarding_newProfileNotFullySupportedSchoolWarningText">Deine Schule hat den Zugriff auf Lehrer- und Raumlisten mit dem Schüleraccount unterbunden. Du erhälst unter Umständen unvollständige Suchergebnisse. Versuche, ein Lehrerprofil zu verwenden. Falls du auf ein solches keinen Zugang hast, kannst du leider nicht den vollen Funktionsumfang der App benutzen. Die Grundfeatures stehen dir jedoch trotzdem zur Verfügung.</string>
 </resources>

@@ -83,7 +83,7 @@ object VppModule {
             VppDatabase::class.java,
             "vpp.db"
         )
-            .fallbackToDestructiveMigration() // TODO: Remove for production
+            .fallbackToDestructiveMigration()
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())

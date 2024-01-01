@@ -54,19 +54,20 @@ class SaveProfileUseCase(
         val defaultLessons = Gson().fromJson(kv.get("onboarding.school.$schoolId.defaultLessons")?:"[]", Array<DefaultLesson>::class.java).toList()
 
         if (school == null) { // school not in database
-            schoolRepository.createSchool(
-                schoolId = schoolId,
-                username = username,
-                password = password,
-                name = kv.get("onboarding.school.$schoolId.name") ?: "No name",
-                daysPerWeek = kv.get("onboarding.school.$schoolId.daysPerWeek")?.toIntOrNull() ?: 5
-            )
-
             val classes = kv.get("onboarding.school.$schoolId.classes")?.split(",") ?: emptyList()
             val teachers = kv.get("onboarding.school.$schoolId.teachers")?.split(",") ?: emptyList()
             val rooms = kv.get("onboarding.school.$schoolId.rooms")?.split(",") ?: emptyList()
             val holidays = kv.get("onboarding.school.$schoolId.holidays")?.split(",")?.map { LocalDate.parse(it) } ?: emptyList()
             val lessonTimes = Gson().fromJson(kv.get("onboarding.school.$schoolId.lessonTimes")?:"[]", Array<LessonTime>::class.java).toList()
+
+            schoolRepository.createSchool(
+                schoolId = schoolId,
+                username = username,
+                password = password,
+                name = kv.get("onboarding.school.$schoolId.name") ?: "No name",
+                daysPerWeek = kv.get("onboarding.school.$schoolId.daysPerWeek")?.toIntOrNull() ?: 5,
+                fullyCompatible = rooms.isNotEmpty() && teachers.isNotEmpty()
+            )
 
             // insert classes, teachers and rooms
             classes.forEach {
