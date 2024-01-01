@@ -7,6 +7,7 @@ import android.content.Intent
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -56,6 +57,17 @@ class SyncWorker @AssistedInject constructor(
     @Assisted private val calendarRepository: CalendarRepository,
     @Assisted private val planRepository: PlanRepository
 ) : CoroutineWorker(context, params) {
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return ForegroundInfo(
+            1,
+            NotificationCompat.Builder(context, "SYNC")
+                .setContentTitle("VPlanPlus")
+                .setContentText("Synchronisiere...")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .build()
+        )
+    }
 
     override suspend fun doWork(): Result {
         if (profileUseCases.getProfiles().first().isEmpty()) return Result.success()
