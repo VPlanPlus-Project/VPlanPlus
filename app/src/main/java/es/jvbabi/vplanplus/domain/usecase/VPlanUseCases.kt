@@ -81,8 +81,8 @@ class VPlanUseCases(
                 var defaultLessonDbId = dbDefaultLesson?.defaultLessonId
 
                 val rawTeacherAcronyms = if (DefaultValues.isEmpty(lesson.teacher.teacher)) emptyList() else {
-                    if (lesson.teacher.teacher.contains(",")) {
-                        lesson.teacher.teacher.split(",")
+                    if (lesson.teacher.teacher.replace(" ", ",").contains(",")) {
+                        lesson.teacher.teacher.replace(" ", ",").split(",")
                     } else listOfNotNull(lesson.teacher.teacher)
                 }
 
