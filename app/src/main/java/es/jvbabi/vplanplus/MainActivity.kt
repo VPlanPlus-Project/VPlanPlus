@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -71,6 +74,21 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        val channelName = "Sync"
+        val descriptionText = "Benachrichtigungen für laufende Synchronisierungen"
+        val importance = NotificationManager.IMPORTANCE_LOW
+        val channel = NotificationChannel(
+            "SYNC",
+            channelName,
+            importance
+        ).apply {
+            description = descriptionText
+        }
+        // Register the channel with the system.
+        val notificationManager: NotificationManager =
+            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
 
         val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
             15,
