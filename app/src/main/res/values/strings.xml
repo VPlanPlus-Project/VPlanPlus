@@ -127,4 +127,8 @@
     <string name="room">Room</string>
     <string name="teacher">Teacher</string>
     <string name="classStr">Class</string>
+    <string name="onboarding_newProfileNotFullySupportedSchoolWarningTitle">School not fully supported</string>
+    <string name="onboarding_newProfileNotFullySupportedSchoolWarningText">Your school has disabled accessing the list of teachers and rooms with the current account. You might get incomplete search results. Consider using a teacher account. If you don\'t have access to such one, you\'re out of luck. You\'ll still be able to use the basic features of this app.</string>
+    <string name="search_notFullySupportedTitle">Results might be incomplete</string>
+    <string name="search_notFullySupportedText">Because your school isn\'t fully supported, there might be some rooms and teachers missing. They get added when they are involved in a time table.</string>
 </resources>

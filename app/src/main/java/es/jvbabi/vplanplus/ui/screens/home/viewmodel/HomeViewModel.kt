@@ -15,7 +15,6 @@ import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
-import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
@@ -80,11 +79,15 @@ class HomeViewModel @Inject constructor(
                 Worker.isWorkerRunningFlow("SyncWork", app.applicationContext).distinctUntilChanged()
             ) { profiles, activeProfileId, lastSyncTs, v, isSyncing ->
                 version = v?.toLong()?:0
+                var school: School? = null
+                if (activeProfileId != null) school = profileUseCases.getSchoolFromProfileId(UUID.fromString(activeProfileId))
                 _state.value.copy(
                     profiles = profiles,
                     activeProfile = profiles.find { it.id.toString() == activeProfileId },
                     lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
-                    syncing = isSyncing
+                    syncing = isSyncing,
+                    activeSchool = school,
+                    fullyCompatible = school?.fullyCompatible ?: true
                 )
             }.collect {
                 _state.value = it
@@ -334,11 +337,13 @@ data class HomeState(
     val isLoading: Boolean = false,
     val profiles: List<Profile> = listOf(),
     val activeProfile: Profile? = null,
+    val activeSchool: School? = null,
     val initDate: LocalDate = LocalDate.now(),
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,
     val syncing: Boolean = false,
+    val fullyCompatible: Boolean = true,
 
     // search
     val searchOpen: Boolean = false,

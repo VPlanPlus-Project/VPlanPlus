@@ -15,5 +15,6 @@ data class School(
     val name: String,
     val username: String,
     val password: String,
-    val daysPerWeek: Int
+    val daysPerWeek: Int,
+    val fullyCompatible: Boolean
 )

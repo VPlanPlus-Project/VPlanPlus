@@ -13,7 +13,8 @@ object School {
                     name = randomSchoolName(),
                     "",
                     "",
-                    5
+                    5,
+                    true
                 )
             )
         }

@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -24,6 +26,7 @@ import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -40,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.FilterType
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
@@ -100,27 +104,37 @@ fun SearchContent(
         )
     }
     if (state.results.isNotEmpty()) Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize()
     ) {
-        state.results.forEach { resultGroup ->
-            SchoolResult(
-                name = resultGroup.school.name,
-                searchResults = resultGroup.searchResults,
-                filterMap = state.filter,
-                time = time
-            )
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(state.results.sortedBy { (if (it.school.schoolId == state.activeSchool?.schoolId) "0" else "1") + it.school.name }) { resultGroup ->
+                SchoolResult(
+                    name = resultGroup.school.name,
+                    searchResults = resultGroup.searchResults,
+                    filterMap = state.filter,
+                    time = time
+                )
+            }
         }
     } else {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             contentAlignment = Alignment.Center
         ) {
             Column(
                 modifier = Modifier.padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+                if (!state.fullyCompatible) {
+                    InfoCard(
+                        imageVector = Icons.Default.SearchOff,
+                        title = stringResource(id = R.string.search_notFullySupportedTitle),
+                        text = stringResource(id = R.string.search_notFullySupportedText),
+                        modifier = Modifier.padding(vertical = 16.dp)
+                    )
+                }
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
@@ -209,7 +223,11 @@ fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map
                                                 modifier = Modifier
                                                     .padding(start = 8.dp, bottom = 8.dp)
                                                     .size(65.dp)
-                                                    .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                                                    .border(
+                                                        1.dp,
+                                                        MaterialTheme.colorScheme.primary,
+                                                        RoundedCornerShape(8.dp)
+                                                    )
                                                     .clip(RoundedCornerShape(8.dp))
                                                     .background(CardDefaults.cardColors().containerColor),
                                             ) {
@@ -317,5 +335,20 @@ fun SchoolResultPreview() {
 //            FilterType.PROFILE to true
         ),
         time = LocalDateTime.now()
+    )
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun SearchContentPreview() {
+    SearchContent(
+        state = HomeState(
+            filter = mapOf(
+                FilterType.TEACHER to true,
+                FilterType.ROOM to true,
+                FilterType.CLASS to true
+            ),
+            fullyCompatible = false
+        )
     )
 }

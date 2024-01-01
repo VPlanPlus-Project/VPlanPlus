@@ -71,7 +71,7 @@ class WplanVpXmlLesson {
 
 @Root(name = "Fa")
 class WplanVpXmlSubject {
-    @field:Text
+    @field:Text(required = false)
     var subject: String = ""
     @field:Attribute(name = "FaAe", required = false) var subjectChanged: String = ""
 }

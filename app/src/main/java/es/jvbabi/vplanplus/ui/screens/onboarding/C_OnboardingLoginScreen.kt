@@ -13,7 +13,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -26,7 +25,6 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
-import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingLoginScreen(
@@ -34,9 +32,8 @@ fun OnboardingLoginScreen(
     viewModel: OnboardingViewModel
 ) {
     val state = viewModel.state.value
-    val coroutineScope = rememberCoroutineScope()
 
-    if (state.loginSuccessful) {
+    if (state.loginState != LoginState.NONE) {
         viewModel.newScreen()
         Log.d("OnboardingLoginScreen", "Login successful")
         navController.navigate(Screen.OnboardingFirstProfileScreen.route) {
@@ -50,9 +47,7 @@ fun OnboardingLoginScreen(
         onPasswordInput = { viewModel.onPasswordInput(it) },
         onPasswordVisibilityToggle = { viewModel.onPasswordVisibilityToggle() },
         onLogin = {
-            coroutineScope.launch {
-                viewModel.onLogin()
-            }
+            viewModel.onLogin()
         }
     )
 }

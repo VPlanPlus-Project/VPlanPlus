@@ -10,6 +10,8 @@ import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
+import es.jvbabi.vplanplus.domain.usecase.onboarding.toLoginState
+import es.jvbabi.vplanplus.domain.usecase.onboarding.toResponse
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -76,20 +78,22 @@ class OnboardingViewModel @Inject constructor(
     /**
      * Called when user clicks next button on [OnboardingLoginScreen]
      */
-    suspend fun onLogin() {
-        isLoading(true)
+    fun onLogin() {
+        viewModelScope.launch {
+            isLoading(true)
 
-        val baseDataResponse = onboardingUseCases.loginUseCase(
-            schoolId = state.value.schoolId,
-            username = state.value.username,
-            password = state.value.password
-        )
+            val baseDataResponse = onboardingUseCases.loginUseCase(
+                schoolId = state.value.schoolId,
+                username = state.value.username,
+                password = state.value.password
+            )
 
-        _state.value = _state.value.copy(
-            isLoading = false,
-            currentResponseType = baseDataResponse,
-            loginSuccessful = baseDataResponse == Response.SUCCESS
-        )
+            _state.value = _state.value.copy(
+                isLoading = false,
+                currentResponseType = baseDataResponse.toResponse(),
+                loginState = baseDataResponse.toLoginState()
+            )
+        }
     }
 
     /**
@@ -176,7 +180,7 @@ class OnboardingViewModel @Inject constructor(
                 schoolIdState = SchoolIdCheckResult.VALID,
                 username = school.username,
                 password = school.password,
-                loginSuccessful = true
+                loginState = if (school.fullyCompatible) LoginState.FULL else LoginState.PARTIAL,
             )
         }
     }
@@ -212,7 +216,7 @@ data class OnboardingState(
     val username: String = "",
     val password: String = "",
     val passwordVisible: Boolean = false,
-    val loginSuccessful: Boolean = false,
+    val loginState: LoginState = LoginState.NONE,
 
     val currentResponseType: Response = Response.NONE,
     val isLoading: Boolean = false,
@@ -235,4 +239,8 @@ enum class Task {
 
 enum class OnboardingCause {
     FIRST_START, NEW_PROFILE
+}
+
+enum class LoginState {
+    NONE, FULL, PARTIAL
 }

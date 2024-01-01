@@ -49,11 +49,15 @@ class BaseDataRepositoryImpl(
                 )
             }
         }
-        roomRepository.deleteRoomsBySchoolId(schoolId)
-        roomRepository.insertRoomsByName(schoolId, baseData.roomNames)
+        if (baseData.roomNames != null) {
+            roomRepository.deleteRoomsBySchoolId(schoolId)
+            roomRepository.insertRoomsByName(schoolId, baseData.roomNames)
+        }
 
-        teacherRepository.deleteTeachersBySchoolId(schoolId)
-        teacherRepository.insertTeachersByAcronym(schoolId, baseData.teacherShorts)
+        if (baseData.teacherShorts != null) {
+            teacherRepository.deleteTeachersBySchoolId(schoolId)
+            teacherRepository.insertTeachersByAcronym(schoolId, baseData.teacherShorts)
+        }
     }
 
     override suspend fun getFullBaseData(
@@ -82,20 +86,20 @@ class BaseDataRepositoryImpl(
             username,
             password
         )
-        if (classesResponse.response == Response.WRONG_CREDENTIALS) return DataResponse(null, Response.WRONG_CREDENTIALS)
-        if (classesResponse.response != Response.SUCCESS || teachersResponse.response != Response.SUCCESS || roomsResponse.response != Response.SUCCESS || weeksResponse.response != Response.SUCCESS) {
-            return DataResponse(null, Response.OTHER)
-        }
+        if (classesResponse.response != Response.SUCCESS) return DataResponse(null, classesResponse.response)
+
+        val fullySupported = teachersResponse.response == Response.SUCCESS && roomsResponse.response == Response.SUCCESS && weeksResponse.response == Response.SUCCESS
+
         val classBaseData = ClassBaseData(classesResponse.data!!)
-        val teacherBaseData = TeacherBaseData(teachersResponse.data!!)
-        val roomBaseData = RoomBaseData(roomsResponse.data!!)
+        val teacherBaseData = if (fullySupported) TeacherBaseData(teachersResponse.data!!) else null
+        val roomBaseData = if (fullySupported) RoomBaseData(roomsResponse.data!!) else null
         val weekBaseData = WeekBaseData(weeksResponse.data!!)
 
         return DataResponse(
             XmlBaseData(
                 classBaseData.classes,
-                teacherBaseData.teacherShorts,
-                roomBaseData.roomNames,
+                teacherBaseData?.teacherShorts,
+                roomBaseData?.roomNames,
                 classBaseData.schoolName,
                 classBaseData.daysPerWeek,
                 classBaseData.holidays.map {

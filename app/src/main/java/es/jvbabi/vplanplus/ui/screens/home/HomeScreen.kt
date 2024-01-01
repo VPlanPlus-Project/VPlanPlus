@@ -299,7 +299,9 @@ fun HomeScreenContent(
                                     if (state.viewMode == ViewType.DAY && state.lessons[date]!!.info != null) Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                     ) {
-                                        Icon(imageVector = Icons.Default.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier.padding(horizontal = 4.dp).size(16.dp))
+                                        Icon(imageVector = Icons.Default.Info, contentDescription = null, tint = Color.Gray, modifier = Modifier
+                                            .padding(horizontal = 4.dp)
+                                            .size(16.dp))
                                         Text(
                                             text = state.lessons[date]!!.info!!,
                                             style = MaterialTheme.typography.labelSmall,

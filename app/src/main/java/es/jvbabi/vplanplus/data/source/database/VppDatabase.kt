@@ -56,7 +56,7 @@ import es.jvbabi.vplanplus.domain.model.Week
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(
