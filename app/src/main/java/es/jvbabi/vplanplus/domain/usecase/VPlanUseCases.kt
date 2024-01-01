@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Plan
+import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
@@ -59,8 +60,8 @@ class VPlanUseCases(
         val teacherCrossovers = mutableListOf<Pair<UUID, UUID>>()
 
         // get rooms and teachers
-        val rooms = roomRepository.getRoomsBySchool(school)
-        val teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
+        var rooms = roomRepository.getRoomsBySchool(school)
+        var teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
 
         vPlanData.wPlanDataObject.classes!!.forEach {
 
@@ -79,6 +80,41 @@ class VPlanUseCases(
                 val dbDefaultLesson = defaultLessons.firstOrNull { dl -> dl.vpId == defaultLesson?.lessonId?.toLong() }
                 var defaultLessonDbId = dbDefaultLesson?.defaultLessonId
 
+                val rawTeacherAcronyms = if (DefaultValues.isEmpty(lesson.teacher.teacher)) emptyList() else {
+                    if (lesson.teacher.teacher.contains(",")) {
+                        lesson.teacher.teacher.split(",")
+                    } else listOfNotNull(lesson.teacher.teacher)
+                }
+
+                val rawRoomNames = if (DefaultValues.isEmpty(lesson.room.room)) emptyList() else {
+                    if (lesson.room.room.contains(",")) {
+                        lesson.room.room.split(",")
+                    } else listOfNotNull(lesson.room.room)
+                }
+
+                // add teachers and rooms to db if they don't exist
+                val addTeachers = rawTeacherAcronyms.filter { t -> !teachers.map { dbT -> dbT.acronym }.contains(t) }
+                val addRooms = rawRoomNames.filter { r -> !rooms.map { dbR -> dbR.name }.contains(r) }
+
+                addTeachers.forEach { teacher ->
+                    teacherRepository.createTeacher(
+                        schoolId = school.schoolId,
+                        acronym = teacher
+                    )
+                }
+
+                addRooms.forEach { room ->
+                    roomRepository.createRoom(
+                        room = Room(
+                            school = school,
+                            name = room
+                        )
+                    )
+                }
+
+                if (addTeachers.isNotEmpty()) teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
+                if (addRooms.isNotEmpty()) rooms = roomRepository.getRoomsBySchool(school)
+
                 //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
                 val dbRooms = if (DefaultValues.isEmpty(lesson.room.room)) emptyList() else {
                     // exceptions for rooms because the api is shit
@@ -86,17 +122,11 @@ class VPlanUseCases(
                 }
                 val roomChanged = lesson.room.roomChanged == "RaGeaendert"
 
-                val dbTeachers = if (DefaultValues.isEmpty(lesson.teacher.teacher)) emptyList() else {
-                    if (lesson.teacher.teacher.contains(",")) {
-                        teachers.filter { teacher ->
-                            lesson.teacher.teacher.split(",").contains(teacher.acronym)
-                        }
-                    } else listOfNotNull(teachers.firstOrNull { t -> t.acronym == lesson.teacher.teacher } )
-                }
+                val dbTeachers = teachers.filter { t -> rawTeacherAcronyms.contains(t.acronym) }
 
                 var changedSubject =
                     if (lesson.subject.subjectChanged == "FaGeaendert") lesson.subject.subject else null
-                if (listOf("&nbsp;", "&amp;nbsp;", "---").contains(changedSubject)) changedSubject =
+                if (listOf("&nbsp;", "&amp;nbsp;", "---", "").contains(changedSubject)) changedSubject =
                     "-"
 
                 if (dbDefaultLesson == null && defaultLesson != null) {
