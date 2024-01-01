@@ -18,7 +18,11 @@ abstract class DefaultLessonDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(defaultLesson: DbDefaultLesson)
+
     @Query("SELECT * FROM default_lesson WHERE classId = :classId")
     @Transaction
     abstract suspend fun getDefaultLessonByClassId(classId: UUID): List<CDefaultLesson>
+
+    @Query("UPDATE default_lesson SET teacherId = :teacherId WHERE classId = :classId AND vpId = :vpId")
+    abstract suspend fun updateTeacherId(classId: UUID, vpId: Long, teacherId: UUID)
 }

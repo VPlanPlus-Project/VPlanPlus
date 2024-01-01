@@ -139,6 +139,8 @@ class VPlanUseCases(
                             classId = `class`.classId
                         )
                     )
+                } else if (addTeachers.isNotEmpty() && dbDefaultLesson != null && defaultLesson?.teacherShort != null && dbDefaultLesson.teacher == null && addTeachers.contains(defaultLesson.teacherShort)) {
+                    defaultLessonRepository.updateTeacherId(`class`.classId, dbDefaultLesson.vpId, teachers.first { t -> t.acronym == defaultLesson.teacherShort }.teacherId)
                 }
 
                 val lessonId = UUID.randomUUID()
