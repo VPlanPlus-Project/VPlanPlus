@@ -22,6 +22,7 @@ class OnlineRequest(
 ) {
     private suspend fun getRawResponse(url: String, username: String?, password: String?): HttpResponse {
         logRecordRepository.log("OnlineRequest", "requesting $url")
+        Log.d("OnlineRequest", "requesting $url")
         return HttpClient {
             install(HttpTimeout) {
                 requestTimeoutMillis = 5000
