@@ -12,8 +12,8 @@ class DefaultLessonUseCase(
     private val kv: KeyValueRepository
 ) {
 
-    suspend operator fun invoke(schoolId: Long, username: String, password: String, index: Int = 0, className: String): List<DefaultLesson>? {
-        if (index > 5) return null
+    suspend operator fun invoke(schoolId: Long, username: String, password: String, index: Int = -7, className: String): List<DefaultLesson>? {
+        if (index > 7) return null
 
         val gson = Gson()
 
@@ -25,7 +25,7 @@ class DefaultLessonUseCase(
                 name = "",
                 daysPerWeek = 5
             ),
-            LocalDate.now().minusDays(index.toLong())
+            LocalDate.now().plusDays(index.toLong())
         )
         if (vPlanData.response != Response.SUCCESS) return invoke(schoolId, username, password, index + 1, className)
 
