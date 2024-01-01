@@ -69,8 +69,6 @@ class HomeViewModel @Inject constructor(
 
     private var homeUiSyncJob: Job? = null
 
-    private var school: School? = null
-
     init {
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
@@ -81,12 +79,14 @@ class HomeViewModel @Inject constructor(
                 Worker.isWorkerRunningFlow("SyncWork", app.applicationContext).distinctUntilChanged()
             ) { profiles, activeProfileId, lastSyncTs, v, isSyncing ->
                 version = v?.toLong()?:0
+                var school: School? = null
                 if (activeProfileId != null) school = profileUseCases.getSchoolFromProfileId(UUID.fromString(activeProfileId))
                 _state.value.copy(
                     profiles = profiles,
                     activeProfile = profiles.find { it.id.toString() == activeProfileId },
                     lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
                     syncing = isSyncing,
+                    activeSchool = school,
                     fullyCompatible = school?.fullyCompatible ?: true
                 )
             }.collect {
@@ -337,6 +337,7 @@ data class HomeState(
     val isLoading: Boolean = false,
     val profiles: List<Profile> = listOf(),
     val activeProfile: Profile? = null,
+    val activeSchool: School? = null,
     val initDate: LocalDate = LocalDate.now(),
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,

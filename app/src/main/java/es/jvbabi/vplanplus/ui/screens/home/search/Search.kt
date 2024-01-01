@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -102,21 +104,23 @@ fun SearchContent(
         )
     }
     if (state.results.isNotEmpty()) Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize()
     ) {
-        state.results.forEach { resultGroup ->
-            SchoolResult(
-                name = resultGroup.school.name,
-                searchResults = resultGroup.searchResults,
-                filterMap = state.filter,
-                time = time
-            )
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(state.results.sortedBy { (if (it.school.schoolId == state.activeSchool?.schoolId) "0" else "1") + it.school.name }) { resultGroup ->
+                SchoolResult(
+                    name = resultGroup.school.name,
+                    searchResults = resultGroup.searchResults,
+                    filterMap = state.filter,
+                    time = time
+                )
+            }
         }
     } else {
         Box(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
             contentAlignment = Alignment.Center
         ) {
             Column(
