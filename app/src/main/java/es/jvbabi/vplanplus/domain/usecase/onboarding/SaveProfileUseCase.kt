@@ -54,10 +54,10 @@ class SaveProfileUseCase(
         val defaultLessons = Gson().fromJson(kv.get("onboarding.school.$schoolId.defaultLessons")?:"[]", Array<DefaultLesson>::class.java).toList()
 
         if (school == null) { // school not in database
-            val classes = kv.get("onboarding.school.$schoolId.classes")?.split(",") ?: emptyList()
-            val teachers = kv.get("onboarding.school.$schoolId.teachers")?.split(",") ?: emptyList()
-            val rooms = kv.get("onboarding.school.$schoolId.rooms")?.split(",") ?: emptyList()
-            val holidays = kv.get("onboarding.school.$schoolId.holidays")?.split(",")?.map { LocalDate.parse(it) } ?: emptyList()
+            val classes = kv.get("onboarding.school.$schoolId.classes")?.split(",")?.filter { it != "" } ?: emptyList()
+            val teachers = kv.get("onboarding.school.$schoolId.teachers")?.split(",")?.filter { it != "" } ?: emptyList()
+            val rooms = kv.get("onboarding.school.$schoolId.rooms")?.split(",")?.filter { it != "" } ?: emptyList()
+            val holidays = kv.get("onboarding.school.$schoolId.holidays")?.split(",")?.filter { it != "" }?.map { LocalDate.parse(it) } ?: emptyList()
             val lessonTimes = Gson().fromJson(kv.get("onboarding.school.$schoolId.lessonTimes")?:"[]", Array<LessonTime>::class.java).toList()
 
             schoolRepository.createSchool(
