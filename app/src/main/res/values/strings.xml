@@ -136,4 +136,6 @@
     <string name="home_menuLogs">Logs</string>
     <string name="home_menuWebsite">Website</string>
     <string name="home_menuNews">News</string>
+    <string name="news_homeTitle">News</string>
+    <string name="news_noNews">No news available</string>
 </resources>

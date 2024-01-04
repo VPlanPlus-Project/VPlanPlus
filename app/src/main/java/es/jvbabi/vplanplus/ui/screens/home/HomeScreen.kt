@@ -184,7 +184,7 @@ fun HomeScreen(
                 startActivity(context, browserIntent, null)
             },
             onNewsClicked = {
-                TODO()
+                navHostController.navigate(Screen.NewsScreen.route)
             },
             onSettingsClicked = {
                 navHostController.navigate(Screen.SettingsScreen.route)
