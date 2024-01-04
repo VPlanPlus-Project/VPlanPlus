@@ -46,7 +46,7 @@ class OnlineRequest(
      * @param password the password to use for basic auth, null if no basic auth should be used
      * @return DataResponse<String?> with the response body as String if the request was successful, null if the credentials were wrong or an error code if the request failed
      */
-    suspend fun getResponse(url: String, username: String?, password: String?): DataResponse<String?> {
+    suspend fun getResponse(url: String, username: String? = null, password: String? = null): DataResponse<String?> {
         return try {
             val response = getRawResponse(url, username, password)
             when (response.status.value) {
