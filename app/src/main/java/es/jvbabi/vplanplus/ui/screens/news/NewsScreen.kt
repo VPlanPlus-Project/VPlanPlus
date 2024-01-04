@@ -7,6 +7,7 @@ import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
 import android.text.style.UnderlineSpan
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -71,6 +72,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Importance
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.preview.News
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import kotlinx.coroutines.delay
 import java.time.LocalDateTime
@@ -85,7 +87,10 @@ fun NewsScreen(
     NewsScreenContent(
         state = viewModel.state.value,
         goBack = { navHostController.popBackStack() },
-        refresh = { viewModel.update() }
+        refresh = { viewModel.update() },
+        onMessageOpened = { messageId ->
+            navHostController.navigate("${Screen.NewsDetailScreen.route}/$messageId")
+        }
     )
 }
 
@@ -94,7 +99,8 @@ fun NewsScreen(
 fun NewsScreenContent(
     state: NewsState,
     goBack: () -> Unit = {},
-    refresh: () -> Unit = {}
+    refresh: () -> Unit = {},
+    onMessageOpened: (String) -> Unit = {}
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     Scaffold(
@@ -134,14 +140,13 @@ fun NewsScreenContent(
                     .nestedScroll(pullRefreshState.nestedScrollConnection)
             ) {
                 var unreadDone = false
-                var first = true
                 if (state.news.isNotEmpty() || !state.initialized) {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
                         items(state.news.sortedBy { (it.isRead).toString()+it.date.toInstant(ZoneOffset.UTC) }) {
-                            if (!unreadDone && it.isRead && !first) {
+                            if (!unreadDone && it.isRead && state.news.any { n -> !n.isRead }) {
                                 unreadDone = true
                                 Box(
                                     modifier = Modifier
@@ -168,9 +173,9 @@ fun NewsScreenContent(
                                 content = it.content,
                                 date = it.date,
                                 isRead = it.isRead,
-                                importance = it.importance
+                                importance = it.importance,
+                                onClick = { onMessageOpened(it.id) }
                             )
-                            first = false
                         }
                     }
                 }
@@ -208,7 +213,8 @@ private fun NewsCard(
     content: String,
     date: LocalDateTime,
     isRead: Boolean,
-    importance: Importance
+    importance: Importance,
+    onClick: () -> Unit,
 ) {
     val spannableString = SpannableStringBuilder(content).toString()
     val spanned = HtmlCompat.fromHtml(spannableString, HtmlCompat.FROM_HTML_MODE_COMPACT).toAnnotatedString()
@@ -219,6 +225,7 @@ private fun NewsCard(
             .height(100.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
+            .clickable { onClick() }
     ) {
         if (!isRead) Box(
             modifier = Modifier
@@ -275,7 +282,7 @@ fun NewsScreenPreview() {
 @Composable
 private fun NewsCardPreview() {
     Column {
-        NewsCard(title = "Example", content = "Example <b>with</b> HTML " + es.jvbabi.vplanplus.ui.preview.Text.LOREM_IPSUM_100, date = LocalDateTime.now(), isRead = false, importance = Importance.NORMAL)
+        NewsCard(title = "Example", content = "Example <b>with</b> HTML " + es.jvbabi.vplanplus.ui.preview.Text.LOREM_IPSUM_100, date = LocalDateTime.now(), isRead = false, importance = Importance.NORMAL) {}
     }
 }
 

@@ -15,6 +15,7 @@ import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.logs.LogsScreen
 import es.jvbabi.vplanplus.ui.screens.news.NewsScreen
+import es.jvbabi.vplanplus.ui.screens.news.detail.NewsDetailScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingCause
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingDefaultLessonScreen
@@ -54,6 +55,16 @@ fun NavigationGraph(
 
         composable(route = Screen.NewsScreen.route) {
             NewsScreen(navController)
+        }
+
+        composable(route = Screen.NewsDetailScreen.route + "/{messageId}",
+            arguments = listOf(
+                navArgument("messageId") {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            NewsDetailScreen(navController, it.arguments?.getString("messageId")!!)
         }
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {

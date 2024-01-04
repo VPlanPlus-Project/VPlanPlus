@@ -20,6 +20,9 @@ abstract class MessageDao {
     @Query("SELECT * FROM messages WHERE fromVersion <= :appVersion AND toVersion >= :appVersion ORDER BY date DESC")
     abstract fun getMessages(appVersion: Int): Flow<List<Message>>
 
+    @Query("SELECT * FROM messages WHERE id = :messageId")
+    abstract fun getMessage(messageId: String): Flow<Message>
+
     @Transaction
     open suspend fun insertMessages(messages: List<Message>) {
         messages.forEach { message ->
