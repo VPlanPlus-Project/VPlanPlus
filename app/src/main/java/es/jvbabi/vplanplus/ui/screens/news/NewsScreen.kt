@@ -21,7 +21,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Newspaper
@@ -133,46 +135,53 @@ fun NewsScreenContent(
             ) {
                 var unreadDone = false
                 var first = true
-                if (state.news.isNotEmpty() || !state.initialized) LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                ) {
-                    items(state.news.sortedBy { (it.isRead).toString()+it.date.toInstant(ZoneOffset.UTC) }) {
-                        if (!unreadDone && it.isRead && !first) {
-                            unreadDone = true
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp),
-                            ) {
-                                HorizontalDivider(modifier = Modifier.offset(x = 0.dp, y = 8.dp))
-                                Row(
+                if (state.news.isNotEmpty() || !state.initialized) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        items(state.news.sortedBy { (it.isRead).toString()+it.date.toInstant(ZoneOffset.UTC) }) {
+                            if (!unreadDone && it.isRead && !first) {
+                                unreadDone = true
+                                Box(
                                     modifier = Modifier
-                                        .background(MaterialTheme.colorScheme.surface)
-                                        .align(Alignment.Center)
-                                        .padding(horizontal = 8.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                        .fillMaxWidth()
+                                        .padding(8.dp),
                                 ) {
-                                    Icon(imageVector = Icons.Outlined.Archive, contentDescription = null, modifier = Modifier
-                                        .padding(end = 4.dp)
-                                        .size(20.dp))
-                                    Text(text = "Archiv")
+                                    HorizontalDivider(modifier = Modifier.offset(x = 0.dp, y = 8.dp))
+                                    Row(
+                                        modifier = Modifier
+                                            .background(MaterialTheme.colorScheme.surface)
+                                            .align(Alignment.Center)
+                                            .padding(horizontal = 8.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(imageVector = Icons.Outlined.Archive, contentDescription = null, modifier = Modifier
+                                            .padding(end = 4.dp)
+                                            .size(20.dp))
+                                        Text(text = "Archiv")
+                                    }
                                 }
                             }
+                            NewsCard(
+                                title = it.title,
+                                content = it.content,
+                                date = it.date,
+                                isRead = it.isRead,
+                                importance = it.importance
+                            )
+                            first = false
                         }
-                        NewsCard(
-                            title = it.title,
-                            content = it.content,
-                            date = it.date,
-                            isRead = it.isRead,
-                            importance = it.importance
-                        )
-                        first = false
                     }
                 }
                 else {
                     val colorScheme = MaterialTheme.colorScheme
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState()),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Column(
                             horizontalAlignment = CenterHorizontally,
                         ) {
