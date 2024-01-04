@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.android.Android
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeout
@@ -23,7 +24,7 @@ class OnlineRequest(
     private suspend fun getRawResponse(url: String, username: String?, password: String?): HttpResponse {
         logRecordRepository.log("OnlineRequest", "requesting $url")
         Log.d("OnlineRequest", "requesting $url")
-        return HttpClient {
+        return HttpClient(Android) {
             install(HttpTimeout) {
                 requestTimeoutMillis = 5000
                 connectTimeoutMillis = 5000

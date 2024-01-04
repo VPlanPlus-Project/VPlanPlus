@@ -14,7 +14,7 @@ data class Message(
     @SerializedName("not_before_version") val notBeforeVersion: Int,
     @SerializedName("not_after_version") val notAfterVersion: Int,
     val created: String,
-    val schoolId: Number,
+    @SerializedName("school_id") val schoolId: Number,
     val expand: Expand
 )
 

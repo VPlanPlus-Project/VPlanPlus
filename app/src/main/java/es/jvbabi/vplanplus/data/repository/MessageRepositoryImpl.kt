@@ -32,8 +32,9 @@ class MessageRepositoryImpl(
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS'Z'")
         val formattedDateTime = LocalDateTime.now().format(formatter)
         val version = getAppVersion(context)?.versionNumber?.toInt()?:0
-        val url = "https://database-00.jvbabi.es/api/collections/posts/records?expand=importance&perPage=100&filter=((school_id=${schoolId?:0}) && (not_before_date <= $formattedDateTime) && (not_after_date >= $formattedDateTime) && (not_before_version <= $version) && (not_after_version >= $version))"
-        val response = onlineRequest.getResponse(url)
+        val url = "https://database-00.jvbabi.es/api/collections/posts/records?expand=importance&perPage=100&filter=((school_id=${schoolId?:0}) && (not_before_date <= \"$formattedDateTime\") && (not_after_date >= \"$formattedDateTime\") && (not_before_version <= $version) && (not_after_version >= $version))"
+            .replace("&&", "%26".repeat(2))
+        val response = onlineRequest.getResponse(url = url)
         if (response.response != Response.SUCCESS || response.data == null) return
         val messages = Gson().fromJson(response.data, MessageResponse::class.java).items.map {
             Message(

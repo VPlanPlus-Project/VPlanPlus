@@ -22,6 +22,7 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -55,7 +56,8 @@ class SyncWorker @AssistedInject constructor(
     @Assisted private val roomRepository: RoomRepository,
     @Assisted private val logRecordRepository: LogRecordRepository,
     @Assisted private val calendarRepository: CalendarRepository,
-    @Assisted private val planRepository: PlanRepository
+    @Assisted private val planRepository: PlanRepository,
+    @Assisted private val messageRepository: MessageRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -76,7 +78,13 @@ class SyncWorker @AssistedInject constructor(
         logRecordRepository.log("SyncWorker", "Syncing")
         val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
         val profileDataBefore = hashMapOf<Profile, List<Lesson>>()
+
+        // get general news
+        messageRepository.updateMessages(null)
+
         schoolUseCases.getSchools().forEach school@{ school ->
+            messageRepository.updateMessages(school.schoolId)
+            return@school // TODO: remove this line when pushing to production
             repeat(syncDays + 2) { i ->
                 val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
                 val date = LocalDate.now().plusDays(i - 2L)
