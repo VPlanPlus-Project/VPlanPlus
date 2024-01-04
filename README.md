@@ -13,7 +13,7 @@ Website: [VPlanPlus.JVBabi.es](https://vplanplus.jvbabi.es)
 | Symbol | Bedeutung                         |
 |--------|-----------------------------------|
 | ✅      | Alle Features sind verfügbar.     |
-| ⚠️️    | Funktioniert nur mit Lehrerzugang |
+| ⚠️️    | Eingeschränkter Funktionsumfang.  |
 | ❌      | Nicht kompatibel                  |
 
 | Schule                                       | Schul-ID | Kompatibel |
