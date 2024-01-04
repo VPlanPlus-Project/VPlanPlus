@@ -176,6 +176,16 @@ fun HomeScreen(
                 )
                 startActivity(context, browserIntent, null)
             },
+            onWebsiteClicked = {
+                val browserIntent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://vplanplus.jvbabi.es/")
+                )
+                startActivity(context, browserIntent, null)
+            },
+            onNewsClicked = {
+                TODO()
+            },
             onSettingsClicked = {
                 navHostController.navigate(Screen.SettingsScreen.route)
             },
@@ -187,7 +197,8 @@ fun HomeScreen(
             },
             onProfileLongClicked = {
                 navHostController.navigate(Screen.SettingsProfileScreen.route + it)
-            }
+            },
+            hasUnreadNews = state.unreadMessages.isNotEmpty(),
         )
     }
 }
@@ -217,6 +228,7 @@ fun HomeScreenContent(
             searchValue = state.searchQuery,
             onSearchTyping = { onSearchQueryChanged(it) },
             isSyncing = state.syncing,
+            showNotificationDot = state.unreadMessages.isNotEmpty()
         ) {
             if (state.searchOpen) {
                 SearchContent(

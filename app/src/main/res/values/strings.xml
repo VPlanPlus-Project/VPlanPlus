@@ -131,4 +131,9 @@
     <string name="onboarding_newProfileNotFullySupportedSchoolWarningText">Your school has disabled accessing the list of teachers and rooms with the current account. You might get incomplete search results. Consider using a teacher account. If you don\'t have access to such one, you\'re out of luck. You\'ll still be able to use the basic features of this app.</string>
     <string name="search_notFullySupportedTitle">Results might be incomplete</string>
     <string name="search_notFullySupportedText">Because your school isn\'t fully supported, there might be some rooms and teachers missing. They get added when they are involved in a time table.</string>
+    <string name="home_menuRefresh">Refresh</string>
+    <string name="home_menuClearData">Delete plan data</string>
+    <string name="home_menuLogs">Logs</string>
+    <string name="home_menuWebsite">Website</string>
+    <string name="home_menuNews">News</string>
 </resources>

@@ -272,7 +272,7 @@ class SyncWorker @AssistedInject constructor(
                 NotificationCompat.BigTextStyle()
                     .bigText(message)
             )
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.vpp)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
 

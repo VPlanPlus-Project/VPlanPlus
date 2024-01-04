@@ -28,6 +28,10 @@ class MessageRepositoryImpl(
         return messageDao.getMessages(getAppVersion(context)?.versionNumber?.toInt()?:0)
     }
 
+    override fun getUnreadMessages(): Flow<List<Message>> {
+        return messageDao.getUnreadMessages(getAppVersion(context)?.versionNumber?.toInt()?:0)
+    }
+
     override suspend fun updateMessages(schoolId: Long?) {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS'Z'")
         val formattedDateTime = LocalDateTime.now().format(formatter)

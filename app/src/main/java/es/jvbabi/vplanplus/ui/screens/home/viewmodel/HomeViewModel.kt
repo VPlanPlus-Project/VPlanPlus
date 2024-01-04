@@ -16,9 +16,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -57,6 +59,7 @@ class HomeViewModel @Inject constructor(
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
     private val timeRepository: TimeRepository,
+    private val messageRepository: MessageRepository
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -76,7 +79,7 @@ class HomeViewModel @Inject constructor(
                 keyValueRepository.getFlow(Keys.ACTIVE_PROFILE).distinctUntilChanged(),
                 keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
                 keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
-                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext).distinctUntilChanged()
+                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext).distinctUntilChanged(),
             ) { profiles, activeProfileId, lastSyncTs, v, isSyncing ->
                 version = v?.toLong()?:0
                 var school: School? = null
@@ -87,7 +90,7 @@ class HomeViewModel @Inject constructor(
                     lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
                     syncing = isSyncing,
                     activeSchool = school,
-                    fullyCompatible = school?.fullyCompatible ?: true
+                    fullyCompatible = school?.fullyCompatible ?: true,
                 )
             }.collect {
                 _state.value = it
@@ -96,10 +99,15 @@ class HomeViewModel @Inject constructor(
             }
         }
 
-        // start time
         viewModelScope.launch {
             timeRepository.getTime().distinctUntilChanged().collect {
                 _state.value = _state.value.copy(time = it)
+            }
+        }
+
+        viewModelScope.launch {
+            messageRepository.getUnreadMessages().distinctUntilChanged().collect {
+                _state.value = _state.value.copy(unreadMessages = it)
             }
         }
     }
@@ -344,6 +352,7 @@ data class HomeState(
     val notificationPermissionGranted: Boolean = false,
     val syncing: Boolean = false,
     val fullyCompatible: Boolean = true,
+    val unreadMessages: List<Message> = emptyList(),
 
     // search
     val searchOpen: Boolean = false,

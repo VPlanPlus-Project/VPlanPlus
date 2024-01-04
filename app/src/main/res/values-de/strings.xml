@@ -132,4 +132,9 @@
     <string name="onboarding_newProfileNotFullySupportedSchoolWarningText">Deine Schule hat den Zugriff auf Lehrer- und Raumlisten mit dem Schüleraccount unterbunden. Du erhälst unter Umständen unvollständige Suchergebnisse. Versuche, ein Lehrerprofil zu verwenden. Falls du auf ein solches keinen Zugang hast, kannst du leider nicht den vollen Funktionsumfang der App benutzen. Die Grundfeatures stehen dir jedoch trotzdem zur Verfügung.</string>
     <string name="search_notFullySupportedTitle">Ergebnisse sind ggf. unvollständig</string>
     <string name="search_notFullySupportedText">Da deine Schule nicht vollständig unterstützt wird, kann es sein, dass Lehrer und Räume fehlen. Sie werden hinzugefügt, sobald sie an einem Stundenplan beteiligt sind.</string>
+    <string name="home_menuRefresh">Aktualisieren</string>
+    <string name="home_menuClearData">Plandaten löschen</string>
+    <string name="home_menuLogs">Logs</string>
+    <string name="home_menuWebsite">Webseite</string>
+    <string name="home_menuNews">Nachrichten</string>
 </resources>

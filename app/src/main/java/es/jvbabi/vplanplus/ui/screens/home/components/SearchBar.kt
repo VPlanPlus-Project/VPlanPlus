@@ -12,6 +12,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -46,6 +47,7 @@ fun SearchBar(
     searchValue: String,
     onSearchTyping: (String) -> Unit,
     isSyncing: Boolean,
+    showNotificationDot: Boolean,
     content: @Composable () -> Unit
 ) {
     SearchBar(
@@ -72,7 +74,7 @@ fun SearchBar(
                 enter = fadeIn(animationSpec = TweenSpec(200)),
                 exit = fadeOut(animationSpec = TweenSpec(200))
             ) {
-                ProfileIcon(name = currentProfileName, isSyncing = isSyncing) {
+                ProfileIcon(name = currentProfileName, isSyncing = isSyncing, showNotificationDot = showNotificationDot) {
                     onMenuOpened()
                 }
             }
@@ -86,17 +88,38 @@ fun SearchBar(
 @Preview
 @Composable
 fun SearchBarPreview() {
-    SearchBar(currentProfileName = "10a", {}, {}, false, "", {}, true, {})
+    SearchBar(
+        currentProfileName = "10a",
+        onMenuOpened = {},
+        onSearchActiveChange = {},
+        searchOpen = false,
+        searchValue = "",
+        onSearchTyping = {},
+        isSyncing = true,
+        showNotificationDot = true,
+        content = {}
+    )
 }
 
 @Preview
 @Composable
 fun SearchBarOpenPreview() {
-    SearchBar(currentProfileName = "10a", {}, {}, true, "", {}, false, {})
+    SearchBar(
+        currentProfileName = "10a",
+        onMenuOpened = {},
+        onSearchActiveChange = {},
+        searchOpen = true,
+        searchValue = "",
+        onSearchTyping = {},
+        isSyncing = false,
+        showNotificationDot = false,
+        content = {}
+    )
 }
 
 @Composable
-fun ProfileIcon(name: String, isSyncing: Boolean, onClicked: () -> Unit) {
+fun ProfileIcon(name: String, isSyncing: Boolean, showNotificationDot: Boolean, onClicked: () -> Unit) {
+    val error = MaterialTheme.colorScheme.error
     Box(
         modifier = Modifier
             .padding(end = 4.dp)
@@ -106,7 +129,8 @@ fun ProfileIcon(name: String, isSyncing: Boolean, onClicked: () -> Unit) {
             .background(color = MaterialTheme.colorScheme.secondary)
             .clickable(enabled = true) {
                 onClicked()
-            },
+            }
+        ,
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -123,10 +147,19 @@ fun ProfileIcon(name: String, isSyncing: Boolean, onClicked: () -> Unit) {
             strokeWidth = stroke.dp
         )
     }
+
+    if (showNotificationDot) {
+        Box(modifier = Modifier
+            .offset(x = 30.dp, y = (-0).dp)
+            .size(12.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(color = error)
+        )
+    }
 }
 
 @Preview
 @Composable
 fun ProfileIconPreview() {
-    ProfileIcon("10a", true) {}
+    ProfileIcon(name = "10a", isSyncing = true, showNotificationDot = true) {}
 }

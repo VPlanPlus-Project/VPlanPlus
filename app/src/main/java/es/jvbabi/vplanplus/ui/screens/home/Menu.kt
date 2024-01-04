@@ -12,7 +12,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -24,8 +26,10 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.FormatListNumbered
+import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +42,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -55,7 +61,8 @@ fun MenuPreview() {
             MenuProfile(UUID.randomUUID(), "208", "208"),
             MenuProfile(UUID.randomUUID(), "Mül", "Mül"),
         ),
-        selectedProfile = MenuProfile(UUID.randomUUID(), "10a", "10a")
+        selectedProfile = MenuProfile(UUID.randomUUID(), "10a", "10a"),
+        hasUnreadNews = true
     )
 }
 
@@ -73,6 +80,9 @@ fun Menu(
     onManageProfilesClicked: () -> Unit = {},
     onDeletePlansClicked: () -> Unit = {},
     onLogsClicked: () -> Unit = {},
+    onNewsClicked: () -> Unit = {},
+    onWebsiteClicked: () -> Unit = {},
+    hasUnreadNews: Boolean,
 ) {
     Box(
         modifier = Modifier
@@ -169,11 +179,14 @@ fun Menu(
                         .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
                 ) {
                     Column {
-                        ButtonRow(Icons.Outlined.Refresh, text = "Refresh", onClick = { onRefreshClicked() })
+                        ButtonRow(icon = Icons.Outlined.Newspaper, text = stringResource(id = R.string.home_menuNews), showNotificationDot = hasUnreadNews, onClick = { onNewsClicked() })
+                        ButtonRow(Icons.Outlined.Refresh, text = stringResource(id = R.string.home_menuRefresh), onClick = { onRefreshClicked() })
                         ButtonRow(Icons.Outlined.Settings, stringResource(id = R.string.home_menuSettings), onClick = { onSettingsClicked() })
-                        ButtonRow(icon = Icons.Outlined.DeleteForever, text = "Plandaten löschen", onClick = { onDeletePlansClicked() })
-                        ButtonRow(icon = Icons.Outlined.FormatListNumbered, text = "Logs", onClick = { onLogsClicked() })
+                        ButtonRow(icon = Icons.Outlined.DeleteForever, text = stringResource(id = R.string.home_menuClearData), onClick = { onDeletePlansClicked() })
+                        ButtonRow(icon = Icons.Outlined.FormatListNumbered, text = stringResource(id = R.string.home_menuLogs), onClick = { onLogsClicked() })
+                        HorizontalDivider()
                         ButtonRow(Icons.Outlined.DeveloperMode, stringResource(id = R.string.home_menuRepository), onClick = { onRepositoryClicked() })
+                        ButtonRow(icon = painterResource(id = R.drawable.vpp), text = stringResource(id = R.string.home_menuWebsite), onClick = { onWebsiteClicked() } )
                     }
                 }
             }
@@ -182,7 +195,7 @@ fun Menu(
 }
 
 @Composable
-fun ButtonRow(icon: ImageVector, text: String, onClick: () -> Unit = {}) {
+fun ButtonRow(icon: ImageVector, text: String, showNotificationDot: Boolean = false, onClick: () -> Unit = {}) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -201,6 +214,47 @@ fun ButtonRow(icon: ImageVector, text: String, onClick: () -> Unit = {}) {
             modifier = Modifier
                 .padding(start = 16.dp)
                 .width(24.dp)
+        )
+        if (showNotificationDot) Box(modifier = Modifier
+            .size(10.dp)
+            .offset(x = (-6).dp, y = (-8).dp)
+            .clip(RoundedCornerShape(5.dp))
+            .background(MaterialTheme.colorScheme.error)
+        )
+        Text(text = text,
+            modifier = Modifier.padding(start = 12.dp),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    }
+}
+
+@Composable
+fun ButtonRow(icon: Painter, text: String, showNotificationDot: Boolean = false, onClick: () -> Unit = {}) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp)
+            .height(50.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                onClick()
+            },
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Icon(
+            painter = icon,
+            contentDescription = text,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            modifier = Modifier
+                .padding(start = 16.dp)
+                .width(24.dp)
+        )
+        if (showNotificationDot) Box(modifier = Modifier
+            .size(10.dp)
+            .offset(x = (-6).dp, y = (-8).dp)
+            .clip(RoundedCornerShape(5.dp))
+            .background(MaterialTheme.colorScheme.error)
         )
         Text(text = text,
             modifier = Modifier.padding(start = 12.dp),
