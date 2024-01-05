@@ -26,6 +26,7 @@ class GetRoomMapUseCase(
         val lessonTimes = classes.associateWith { lessonTimeRepository.getLessonTimesByClass(it) }
         val maxLessons = lessonTimes.values.maxOf { it.size }
         val roomResult = mutableListOf<RoomRecord>()
+
         rooms.forEach { room ->
             val times = mutableListOf<TimeSpan?>()
             val lessons = lessonUseCases.getLessonsForRoom(room, LocalDate.now(), version).first()
@@ -45,6 +46,7 @@ class GetRoomMapUseCase(
                     )
                 } else times.add(null)
             }
+
             roomResult.add(RoomRecord(room, times))
         }
         return RoomMap(school, maxLessons, roomResult)

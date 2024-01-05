@@ -57,6 +57,8 @@ import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.GetRoomMapUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
@@ -355,7 +357,6 @@ object VppModule {
     fun provideFindRoomUseCases(
         roomRepository: RoomRepository,
         keyValueRepository: KeyValueRepository,
-        schoolRepository: SchoolRepository,
         classRepository: ClassRepository,
         lessonTimeRepository: LessonTimeRepository,
         lessonUseCases: LessonUseCases
@@ -367,7 +368,7 @@ object VppModule {
                 lessonUseCases = lessonUseCases,
                 lessonTimeRepository = lessonTimeRepository,
                 classRepository = classRepository
-            )
+            ),
         )
     }
 
@@ -399,5 +400,17 @@ object VppModule {
             teacherRepository = teacherRepository,
             roomRepository = roomRepository
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetClassByProfileUseCase(classRepository: ClassRepository): GetClassByProfileUseCase {
+        return GetClassByProfileUseCase(classRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentLessonNumberUseCase(lessonTimeRepository: LessonTimeRepository): GetCurrentLessonNumberUseCase {
+        return GetCurrentLessonNumberUseCase(lessonTimeRepository)
     }
 }

@@ -135,4 +135,5 @@
     <string name="searchAvailableRoom_filterNow">Now</string>
     <string name="searchAvailableRoom_filterNext">Next lesson</string>
     <string name="searchAvailableRoom_labelAvailability">Availability</string>
+    <string name="searchAvailableRoom_noResults">No results</string>
 </resources>
