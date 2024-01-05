@@ -188,7 +188,7 @@ class VPlanUseCases(
                 school = school,
                 createAt = lastPlanUpdate,
                 date = planDate,
-                info = vPlanData.wPlanDataObject.info?.info,
+                info = vPlanData.wPlanDataObject.info?.joinToString("\n"),
                 version = version
             )
         )
