@@ -84,7 +84,7 @@ class SyncWorker @AssistedInject constructor(
 
         schoolUseCases.getSchools().forEach school@{ school ->
             messageRepository.updateMessages(school.schoolId)
-            return@school // TODO: remove this line when pushing to production
+
             repeat(syncDays + 2) { i ->
                 val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
                 val date = LocalDate.now().plusDays(i - 2L)

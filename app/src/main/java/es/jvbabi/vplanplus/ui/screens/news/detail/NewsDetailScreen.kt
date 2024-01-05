@@ -13,6 +13,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -20,8 +21,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -32,6 +33,7 @@ import androidx.navigation.NavHostController
 import com.google.android.material.textview.MaterialTextView
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.preview.News
+import es.jvbabi.vplanplus.util.DateUtils
 
 @Composable
 fun NewsDetailScreen(
@@ -76,6 +78,7 @@ private fun NewsDetailScreenContent(
         Column(
             modifier = Modifier
                 .padding(paddingValues)
+                .padding(horizontal = 8.dp)
         ) {
             if (state.message == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -84,9 +87,11 @@ private fun NewsDetailScreenContent(
                 return@Scaffold
             }
 
+            val colorScheme = MaterialTheme.colorScheme
+            Text(text = DateUtils.localizedRelativeDate(LocalContext.current, state.message.date.toLocalDate()))
+
             AndroidView(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState()),
                 factory = {
@@ -94,7 +99,7 @@ private fun NewsDetailScreenContent(
                         // links
                         autoLinkMask = Linkify.WEB_URLS
                         linksClickable = true
-                        setLinkTextColor(Color.White.toArgb())
+                        setLinkTextColor(colorScheme.primary.toArgb())
                     }
                 },
                 update = {
