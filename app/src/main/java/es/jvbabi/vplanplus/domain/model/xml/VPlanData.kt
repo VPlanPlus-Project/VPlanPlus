@@ -12,7 +12,11 @@ class VPlanData(val xml: String, val schoolId: Long) {
     val wPlanDataObject: VpMobilVpXml
     init {
         val serializer: Serializer = Persister()
-        val modified = xml.replace("<Kurse/>", "")
+
+        // Angry checkpoint: There are things in the XML data that you'd never expect to be there.
+        var modified = xml.replace("<Kurse/>", "")
+        modified = modified.replace("+</Nr>", "</Nr>") // HOW DID THIS + EVEN GET HERE
+
         val reader = modified.reader()
         wPlanDataObject = serializer.read(VpMobilVpXml::class.java, reader, false)
     }
@@ -23,15 +27,8 @@ class VpMobilVpXml {
     @field:Element(name = "Kopf")
     var head: WplanVpXmlHead? = null
 
-    @field:ElementList(name = "FreieTage", entry = "ft") var holidays: List<WplanVpXmlHoliday>? = null
     @field:ElementList(name = "Klassen") var classes: List<WplanVpXmlSchoolClass>? = null
-    @field:Element(name = "ZusatzInfo", required = false) var info: VPlanVpAdditionalInfoXml? = null
-}
-
-@Root(name = "ft")
-class WplanVpXmlHoliday {
-    @field:Text var date: String = ""
-    @field:Attribute(name = "feier", required = false) var isPublicHoliday: String = ""
+    @field:ElementList(name = "ZusatzInfo", required = false, entry = "ZiZeile") var info: List<String>? = null
 }
 
 @Root(name = "Kopf", strict = false)
@@ -79,16 +76,10 @@ class WplanVpXmlSubject {
 @Root(name = "Le")
 class VpMobilVpXmlTeacher {
     @field:Text(required = false) var teacher: String = ""
-    @field:Attribute(name = "LeAe", required = false) var teacherChanged: String = ""
 }
 
 @Root(name = "Ra")
 class VpMobilVpXmlRoom {
     @field:Text(required = false) var room: String = ""
     @field:Attribute(name = "RaAe", required = false) var roomChanged: String = ""
-}
-
-@Root(name = "ZusatzInfo")
-class VPlanVpAdditionalInfoXml {
-    @field:Element(required = false, name = "ZiZeile") var info: String? = null
 }

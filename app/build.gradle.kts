@@ -14,7 +14,7 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 17
+        versionCode = 18
         versionName = "0.8.1-alpha-dev-1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
