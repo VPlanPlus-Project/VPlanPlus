@@ -53,9 +53,12 @@ import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
-import es.jvbabi.vplanplus.domain.usecase.RoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
+import es.jvbabi.vplanplus.domain.usecase.find_room.GetRoomMapUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
@@ -248,20 +251,6 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideRoomUseCases(
-        roomRepository: RoomRepository,
-        lessonUseCases: LessonUseCases,
-        keyValueUseCases: KeyValueUseCases
-    ): RoomUseCases {
-        return RoomUseCases(
-            roomRepository = roomRepository,
-            lessonUseCases = lessonUseCases,
-            keyValueUseCases = keyValueUseCases
-        )
-    }
-
-    @Provides
-    @Singleton
     fun provideProfileUseCases(
         repository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
@@ -358,6 +347,57 @@ object VppModule {
         return LogsUseCases(
             getLogsUseCase = GetLogsUseCase(logRecordRepository),
             deleteAllLogsUseCase = DeleteAllLogsUseCase(logRecordRepository)
+        )
+    }
+
+    @Singleton
+    @Provides
+    fun provideFindRoomUseCases(
+        roomRepository: RoomRepository,
+        keyValueRepository: KeyValueRepository,
+        schoolRepository: SchoolRepository,
+        classRepository: ClassRepository,
+        lessonTimeRepository: LessonTimeRepository,
+        lessonUseCases: LessonUseCases
+    ): FindRoomUseCases {
+        return FindRoomUseCases(
+            getRoomMapUseCase = GetRoomMapUseCase(
+                roomRepository = roomRepository,
+                keyValueRepository = keyValueRepository,
+                lessonUseCases = lessonUseCases,
+                lessonTimeRepository = lessonTimeRepository,
+                classRepository = classRepository
+            )
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentProfileUseCase(
+        profileRepository: ProfileRepository,
+        keyValueRepository: KeyValueRepository
+    ): GetCurrentProfileUseCase {
+        return GetCurrentProfileUseCase(
+            profileRepository = profileRepository,
+            keyValueRepository = keyValueRepository
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentSchoolUseCase(
+        keyValueRepository: KeyValueRepository,
+        profileRepository: ProfileRepository,
+        classRepository: ClassRepository,
+        teacherRepository: TeacherRepository,
+        roomRepository: RoomRepository
+    ): GetCurrentSchoolUseCase {
+        return GetCurrentSchoolUseCase(
+            keyValueRepository = keyValueRepository,
+            profileRepository = profileRepository,
+            classRepository = classRepository,
+            teacherRepository = teacherRepository,
+            roomRepository = roomRepository
         )
     }
 }

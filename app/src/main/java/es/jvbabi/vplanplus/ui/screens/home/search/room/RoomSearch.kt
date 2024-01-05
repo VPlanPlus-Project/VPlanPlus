@@ -13,21 +13,26 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +42,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.School
+import kotlin.random.Random
 
 @Composable
 fun FindAvailableRoomScreen(
@@ -48,6 +54,9 @@ fun FindAvailableRoomScreen(
     FindAvailableRoomScreenContent(
         state = state,
         onBackClicked = { navController.popBackStack() },
+        onRoomFilterValueChanged = { roomSearchViewModel.onRoomFilterValueChanged(it) },
+        onNowToggled = { roomSearchViewModel.toggleFilterNow() },
+        onNextToggled = { roomSearchViewModel.toggleFilterNext() },
     )
 }
 
@@ -56,22 +65,21 @@ fun FindAvailableRoomScreen(
 fun FindAvailableRoomScreenContent(
     state: RoomSearchState,
     onBackClicked: () -> Unit,
+    onRoomFilterValueChanged: (String) -> Unit = {},
+    onNowToggled: () -> Unit = {},
+    onNextToggled: () -> Unit = {},
 ) {
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     Scaffold(
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = { Text(text = stringResource(id = R.string.search_searchAvailableRoom)) },
                 navigationIcon = {
                     IconButton(onClick = { onBackClicked() }) {
                         BackIcon()
                     }
                 },
-                scrollBehavior = scrollBehavior
             )
         },
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
         Box(
             modifier = Modifier.padding(paddingValues)
@@ -81,10 +89,54 @@ fun FindAvailableRoomScreenContent(
             ) {
                 Text(text = state.currentSchool?.name?: stringResource(id = R.string.loadingData))
                 Text(text = stringResource(id = R.string.searchAvailableRoom_text))
+                OutlinedTextField(
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
+                    placeholder = { Text(text = stringResource(id = R.string.searchAvailableRoom_findPlaceholder)) },
+                    value = state.roomFilter,
+                    onValueChange = { onRoomFilterValueChanged(it) }
+                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState())
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.searchAvailableRoom_labelAvailability),
+                        modifier = Modifier.padding(end = 4.dp)
+                    )
+                    FilterChip(
+                        enabled = true,
+                        selected = state.filterNow,
+                        leadingIcon = { Icon(
+                            imageVector = if (state.filterNow) Icons.Default.Check else Icons.Default.AccessTime,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        ) },
+                        onClick = { onNowToggled() },
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNow)) },
+                    )
+                    FilterChip(
+                        enabled = true,
+                        selected = state.filterNext,
+                        leadingIcon = { Icon(
+                            imageVector = if (state.filterNext) Icons.Default.Check else Icons.Default.MoreTime,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        ) },
+                        onClick = { onNextToggled() },
+                        modifier = Modifier.padding(horizontal = 4.dp),
+                        label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNext)) },
+                    )
+                }
                 Box(modifier = Modifier.fillMaxSize()) {
-                    if (!state.loading) Column {
+                    if (!state.loading && state.rooms != null) Column {
                         Row(
                             modifier = Modifier
+                                .padding(top = 8.dp)
                                 .fillMaxWidth()
                                 .horizontalScroll(rememberScrollState())
                         ) {
@@ -110,46 +162,29 @@ fun FindAvailableRoomScreenContent(
                             }
                         }
                         Column(
-                            modifier = Modifier.verticalScroll(rememberScrollState())
+                            modifier = Modifier
+                                .verticalScroll(rememberScrollState())
                         ) {
-                            state.rooms.forEach {
-                                Row(
-                                    modifier = Modifier.padding(vertical = 4.dp)
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(40.dp)
-                                            .padding(horizontal = 4.dp)
-                                            .clip(RoundedCornerShape(8.dp))
-                                            .background(MaterialTheme.colorScheme.primaryContainer)
-                                            .weight(1 / 12f, false),
-                                        verticalArrangement = Arrangement.SpaceAround
-                                    ) {
-                                        Text(
-                                            text = it.key,
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                            style = MaterialTheme.typography.labelSmall,
-                                            textAlign = TextAlign.Center,
-                                            modifier = Modifier.rotate(90f)
+                            if (state.roomsFiltered.isNotEmpty()) {
+                                state.roomsFiltered
+                                    .sortedBy { it.room.name }
+                                    .forEach {
+                                        RoomListRecord(
+                                            name = it.room.name,
+                                            available = it.availability.map { a -> a == null }
                                         )
                                     }
-                                    it.value.forEach { available ->
-                                        Column(
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(40.dp)
-                                                .padding(horizontal = 4.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(if (available) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.error)
-                                                .weight(1 / 12f, false),
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.SpaceAround
-                                        ) {
-                                        }
-                                    }
-                                }
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                             }
+                            state.roomsFiltered
+                                .sortedBy { it.room.name }
+                                .forEach {
+                                    RoomListRecord(
+                                        name = it.room.name,
+                                        available = it.availability.map { a -> a == null }
+                                    )
+                                }
+
                         }
                     } else {
                         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -166,7 +201,75 @@ fun FindAvailableRoomScreenContent(
 @Preview(showBackground = true)
 fun FindAvailableRoomScreenPreview() {
     FindAvailableRoomScreenContent(
-        state = RoomSearchState(currentSchool = School.generateRandomSchools(1).first(), loading = true),
+        state = RoomSearchState(
+            currentSchool = School.generateRandomSchools(1).first(),
+            loading = false,
+        ),
         onBackClicked = {},
+    )
+}
+
+@Composable
+private fun RoomListRecord(
+    name: String,
+    available: List<Boolean>
+) {
+    Row(
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(40.dp)
+                .padding(horizontal = 4.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(MaterialTheme.colorScheme.primaryContainer)
+                .weight(1 / 12f, false),
+            verticalArrangement = Arrangement.SpaceAround
+        ) {
+            Text(
+                text = name,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                style = MaterialTheme.typography.labelSmall,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.rotate(90f)
+            )
+        }
+        available.forEach { available ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .padding(horizontal = 4.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(if (available) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.error)
+                    .weight(1 / 12f, false),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.SpaceAround
+            ) {
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun RoomListRecordPreview() {
+    RoomListRecord(
+        name = "220",
+        available = listOf(
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+            Random.nextBoolean(),
+        )
     )
 }
