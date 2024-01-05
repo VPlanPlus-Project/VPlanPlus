@@ -72,9 +72,11 @@ class RoomSearchViewModel @Inject constructor(
                 }
             }
             if (state.value.filterNext && state.value.currentClass != null) {
-                filteredRoomMap = filteredRoomMap.filter {
-                    it.availability[ceil(currentLessonNumber).toInt()+1] == null
-                }
+                try {
+                    filteredRoomMap = filteredRoomMap.filter {
+                        it.availability[ceil(currentLessonNumber).toInt()+1] == null
+                    }
+                } catch (_: IndexOutOfBoundsException) {}
             }
             _state.value = _state.value.copy(roomsFiltered = filteredRoomMap)
         }
