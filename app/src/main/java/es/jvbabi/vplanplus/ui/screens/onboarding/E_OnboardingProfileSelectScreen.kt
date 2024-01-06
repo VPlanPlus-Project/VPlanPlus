@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -16,8 +17,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -32,26 +34,33 @@ import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
-import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingProfileOptionListScreen(
-    navController: NavHostController,
+    navHostController: NavHostController,
     onboardingViewModel: OnboardingViewModel
 ) {
     val state = onboardingViewModel.state.value
-    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = state.stage, block = {
+        if (state.stage == Stage.PROFILE_TYPE) navHostController.popBackStack()
+        if (state.stage == Stage.DEFAULT_LESSONS) navHostController.navigate(Screen.OnboardingDefaultLessonScreen.route)
+        if (state.stage == Stage.PERMISSIONS) navHostController.navigate(Screen.OnboardingPermissionsScreen.route)
+        if (state.stage == Stage.FINISH) navHostController.navigate(Screen.OnboardingSetupScreen.route)
+    })
 
     ProfileOptionsScreen(
         state = state,
-        onClassSelect = { onboardingViewModel.onProfileSelect(it) }, {
-            coroutineScope.launch { onboardingViewModel.onProfileSubmit() }
-            if (state.profileType == ProfileType.STUDENT) navController.navigate(Screen.OnboardingDefaultLessonScreen.route) { popUpTo(0) }
-            else navController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
-        },
-        setDialogVisibility = { onboardingViewModel.setTeacherDialogVisibility(it) }
+        onClassSelect = { onboardingViewModel.onProfileSelect(it) },
+        onButtonClick = { onboardingViewModel.nextStageDefaultLessonOrPermissions(context) },
+        setDialogVisibility = { onboardingViewModel.setTeacherDialogVisibility(it) },
     )
 
+    BackHandler {
+        if (state.task == Task.CREATE_PROFILE) navHostController.navigate(Screen.OnboardingNewProfileScreen.route) { popUpTo(0) }
+        else onboardingViewModel.goBackToProfileType()
+    }
 }
 
 @Composable
@@ -59,7 +68,7 @@ fun ProfileOptionsScreen(
     state: OnboardingState,
     onClassSelect: (String) -> Unit,
     onButtonClick: () -> Unit,
-    setDialogVisibility: (Boolean) -> Unit = {}
+    setDialogVisibility: (Boolean) -> Unit = {},
 ) {
 
     val studentText = studentAnnotatedText()
@@ -88,26 +97,28 @@ fun ProfileOptionsScreen(
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
         enabled = !state.isLoading && state.selectedProfileOption != null,
-        onButtonClick = { onButtonClick() }) {
+        onButtonClick = { onButtonClick() },
+        content = {
 
-        if (state.showTeacherDialog) InfoDialog(
-            icon = Icons.Default.Info,
-            title = stringResource(id = R.string.info),
-            message = stringResource(
-                id = R.string.onboarding_firstProfileTeacherDialogText
-            ),
-            onOk = { setDialogVisibility(false) }
-        )
+            if (state.showTeacherDialog) InfoDialog(
+                icon = Icons.Default.Info,
+                title = stringResource(id = R.string.info),
+                message = stringResource(
+                    id = R.string.onboarding_firstProfileTeacherDialogText
+                ),
+                onOk = { setDialogVisibility(false) }
+            )
 
-        Column {
-            state.profileOptions.forEach {
-                ProfileOptionsItem(
-                    className = it,
-                    isSelected = state.selectedProfileOption == it
-                ) { onClassSelect(it) }
+            Column {
+                state.profileOptions.forEach {
+                    ProfileOptionsItem(
+                        className = it,
+                        isSelected = state.selectedProfileOption == it
+                    ) { onClassSelect(it) }
+                }
             }
         }
-    }
+    )
 }
 
 @Composable
@@ -198,7 +209,7 @@ fun ClassListScreenPreview() {
             )
         ),
         onClassSelect = {},
-        onButtonClick = {}
+        onButtonClick = {},
     )
 }
 
@@ -211,7 +222,7 @@ fun TeacherListScreenPreview() {
             profileOptions = listOf("Bac", "Mei", "Kra", "Vle")
         ),
         onClassSelect = {},
-        onButtonClick = {}
+        onButtonClick = {},
     )
 }
 
@@ -224,7 +235,7 @@ fun RoomListScreenPreview() {
             profileOptions = listOf("108", "109", "TH1", "TH2", "K17", "207", "208")
         ),
         onClassSelect = {},
-        onButtonClick = {}
+        onButtonClick = {},
     )
 }
 

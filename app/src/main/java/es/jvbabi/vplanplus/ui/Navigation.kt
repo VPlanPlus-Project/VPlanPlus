@@ -8,7 +8,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
+import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
+import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
@@ -20,13 +22,13 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingCause
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingLoginScreen
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingPermissionScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingProfileOptionListScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSchoolIdScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.Task
-import es.jvbabi.vplanplus.ui.screens.onboarding.permissions.PermissionsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
@@ -136,15 +138,19 @@ fun NavigationGraph(
             composable(
                 route = Screen.OnboardingWelcomeScreen.route,
                 enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
             ) {
-                OnboardingWelcomeScreen(navController)
+                OnboardingWelcomeScreen(navController, onboardingViewModel)
             }
 
             composable(
                 route = Screen.OnboardingSchoolIdScreen.route,
                 enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
             ) {
                 OnboardingSchoolIdScreen(navController, onboardingViewModel)
             }
@@ -152,7 +158,9 @@ fun NavigationGraph(
             composable(
                 route = Screen.OnboardingLoginScreen.route,
                 enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
             ) {
                 OnboardingLoginScreen(navController, onboardingViewModel)
             }
@@ -160,7 +168,9 @@ fun NavigationGraph(
             composable(
                 route = Screen.OnboardingFirstProfileScreen.route,
                 enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
             ) {
                 OnboardingAddProfileScreen(navController, onboardingViewModel)
             }
@@ -179,7 +189,9 @@ fun NavigationGraph(
             composable(
                 route = Screen.OnboardingProfileSelectScreen.route,
                 enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
             ) {
                 OnboardingProfileOptionListScreen(navController, onboardingViewModel)
             }
@@ -187,7 +199,9 @@ fun NavigationGraph(
             composable(
                 route = Screen.OnboardingDefaultLessonScreen.route,
                 enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
             ) {
                 OnboardingDefaultLessonScreen(navController, onboardingViewModel)
             }
@@ -195,15 +209,22 @@ fun NavigationGraph(
             composable(
                 route = Screen.OnboardingPermissionsScreen.route,
                 enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
             ) {
-                PermissionsScreen(navController = navController)
+                OnboardingPermissionScreen(
+                    navController = navController,
+                    viewModel = onboardingViewModel,
+                )
             }
 
             composable(
                 route = Screen.OnboardingSetupScreen.route,
                 enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
             ) {
                 OnboardingSetupScreen(navController, onboardingViewModel)
             }
