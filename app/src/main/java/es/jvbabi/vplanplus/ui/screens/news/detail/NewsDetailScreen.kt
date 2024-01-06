@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -61,7 +62,15 @@ private fun NewsDetailScreenContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = if (state.message == null) stringResource(id = R.string.loadingData) else state.message.title) },
+                title = {
+                    Column {
+                        Text(
+                            text = if (state.message == null) stringResource(id = R.string.loadingData) else state.message.title,
+                            maxLines = 1, overflow = TextOverflow.Ellipsis
+                        )
+                        if (state.message != null )Text(text = DateUtils.localizedRelativeDate(LocalContext.current, state.message.date.toLocalDate()), style = MaterialTheme.typography.labelSmall)
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = { goBack() }) {
                         Icon(
@@ -88,7 +97,6 @@ private fun NewsDetailScreenContent(
             }
 
             val colorScheme = MaterialTheme.colorScheme
-            Text(text = DateUtils.localizedRelativeDate(LocalContext.current, state.message.date.toLocalDate()))
 
             AndroidView(
                 modifier = Modifier
@@ -100,6 +108,7 @@ private fun NewsDetailScreenContent(
                         autoLinkMask = Linkify.WEB_URLS
                         linksClickable = true
                         setLinkTextColor(colorScheme.primary.toArgb())
+                        setTextColor(colorScheme.onSurface.toArgb())
                     }
                 },
                 update = {

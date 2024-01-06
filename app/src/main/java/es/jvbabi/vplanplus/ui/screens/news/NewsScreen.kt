@@ -12,14 +12,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -50,6 +47,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
@@ -61,15 +59,16 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.BaselineShift
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.text.HtmlCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.Importance
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.preview.News
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -173,7 +172,6 @@ fun NewsScreenContent(
                                 content = it.content,
                                 date = it.date,
                                 isRead = it.isRead,
-                                importance = it.importance,
                                 onClick = { onMessageOpened(it.id) }
                             )
                         }
@@ -183,8 +181,8 @@ fun NewsScreenContent(
                     val colorScheme = MaterialTheme.colorScheme
                     Box(
                         modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
                         contentAlignment = Alignment.Center
                     ) {
                         Column(
@@ -213,30 +211,31 @@ private fun NewsCard(
     content: String,
     date: LocalDateTime,
     isRead: Boolean,
-    importance: Importance,
     onClick: () -> Unit,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     val spannableString = SpannableStringBuilder(content).toString()
     val spanned = HtmlCompat.fromHtml(spannableString, HtmlCompat.FROM_HTML_MODE_COMPACT).toAnnotatedString()
     Box(
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 4.dp)
             .fillMaxWidth()
-            .height(100.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.secondaryContainer)
             .clickable { onClick() }
+            .drawWithContent {
+                drawContent()
+                if (!isRead) drawRect(
+                    colorScheme.primary,
+                    topLeft = Offset(0f, 0f),
+                    size = Size(8.dp.toPx(), size.height)
+                )
+            }
     ) {
-        if (!isRead) Box(
-            modifier = Modifier
-                .fillMaxHeight()
-                .width(8.dp)
-                .background(MaterialTheme.colorScheme.primary)
-        )
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .fillMaxWidth()
+                .padding(16.dp),
             verticalArrangement = Arrangement.Center
         ) {
             Row(
@@ -244,18 +243,16 @@ private fun NewsCard(
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = title,
-                    modifier = Modifier.padding(end = 8.dp),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = if (importance == Importance.CRITICAL) FontWeight.Black else FontWeight.Bold
-                )
-                Text(text = DOT)
-                Text(
-                    text = DateUtils.localizedRelativeDate(LocalContext.current, date.toLocalDate()),
-                    modifier = Modifier.padding(start = 8.dp),
-                    style = MaterialTheme.typography.labelMedium,
-                )
+                val context = LocalContext.current
+                val annotatedString = buildAnnotatedString {
+                    withStyle(MaterialTheme.typography.headlineSmall.toSpanStyle()) {
+                        append(title)
+                    }
+                    withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(baselineShift = BaselineShift(0.25f))) {
+                        append(" $DOT ${DateUtils.localizedRelativeDate(context, date.toLocalDate())}")
+                    }
+                }
+                Text(text = annotatedString)
             }
             Text(
                 text = spanned,
@@ -282,7 +279,7 @@ fun NewsScreenPreview() {
 @Composable
 private fun NewsCardPreview() {
     Column {
-        NewsCard(title = "Example", content = "Example <b>with</b> HTML " + es.jvbabi.vplanplus.ui.preview.Text.LOREM_IPSUM_100, date = LocalDateTime.now(), isRead = false, importance = Importance.NORMAL) {}
+        NewsCard(title = "Example with a very, very long title", content = "Example <b>with</b> HTML " + es.jvbabi.vplanplus.ui.preview.Text.LOREM_IPSUM_100, date = LocalDateTime.now(), isRead = false) {}
     }
 }
 
