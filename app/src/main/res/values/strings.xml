@@ -136,4 +136,13 @@
     <string name="searchAvailableRoom_filterNext">Next lesson</string>
     <string name="searchAvailableRoom_labelAvailability">Availability</string>
     <string name="searchAvailableRoom_noResults">No results</string>
+    <string name="onboarding_welcomeContinueTestSchool">Continue with test-school</string>
+    <string name="onboarding_welcomeTestSchoolErrorTitle">Error</string>
+    <string name="onboarding_welcomeTestSchoolErrorText">There was an error when trying to connect to the test school</string>
+    <string name="onboarding_cancelOnboardingTitle">Cancel Onboarding?</string>
+    <string name="onboarding_cancelOnboardingText">Do you really want to cancel the onboarding process? You can come back any time when you want to set up the app.</string>
+    <string name="onboarding_credentialsLoginAt">Login at school %1$s</string>
+    <string name="onboarding_credentialsWrongSchoolIdLink">Wrong school id?</string>
+    <string name="onboarding_skipPermissionButton">Don\'t give permission</string>
+    <string name="onboarding_setupTakingLong">This is taking longer than expected. Please be patient. It will be done soon. Hopefully.</string>
 </resources>

@@ -1,7 +1,10 @@
-package es.jvbabi.vplanplus.ui.screens.onboarding.permissions
+package es.jvbabi.vplanplus.ui.common
 
 import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.content.ContextCompat
 import es.jvbabi.vplanplus.R
 
 /**
@@ -13,7 +16,7 @@ import es.jvbabi.vplanplus.R
 data class Permission(
     val type: String,
     val name: Int,
-    val description: Int,
+    val description: Int
 ) {
     companion object {
         val permissions = listOfNotNull(
@@ -21,7 +24,7 @@ data class Permission(
                 Permission(
                     type = Manifest.permission.POST_NOTIFICATIONS,
                     name = R.string.permission_notificationsTitle,
-                    description = R.string.permission_notificationsText
+                    description = R.string.permission_notificationsText,
                 )
             else null,
 
@@ -37,5 +40,10 @@ data class Permission(
                 description = R.string.permission_readCalendarText
             ),
         )
+
+        fun isGranted(context: Context, type: String): Boolean {
+            return (ContextCompat.checkSelfPermission(context, type)
+                    == PackageManager.PERMISSION_GRANTED)
+        }
     }
 }

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -15,7 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -26,8 +27,8 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.onboarding.common.CloseOnboardingDialog
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
-import kotlinx.coroutines.launch
 
 @Composable
 fun OnboardingAddProfileScreen(
@@ -35,22 +36,27 @@ fun OnboardingAddProfileScreen(
     viewModel: OnboardingViewModel,
 ) {
     val state = viewModel.state.value
-    val coroutineScope = rememberCoroutineScope()
 
-    if (state.profileOptions.isNotEmpty() && state.profileType != null) {
-        viewModel.newScreen()
-        navController.navigate(Screen.OnboardingProfileSelectScreen.route) { if (state.onboardingCause == OnboardingCause.FIRST_START) popUpTo(0) else popUpTo(Screen.SettingsProfileScreen.route) }
-    }
+    LaunchedEffect(key1 = state.stage, block = {
+        if (state.stage == Stage.PROFILE) {
+            viewModel.newScreen()
+            navController.navigate(Screen.OnboardingProfileSelectScreen.route) { if (state.onboardingCause == OnboardingCause.NEW_PROFILE) popUpTo(Screen.SettingsProfileScreen.route) }
+        }
+    })
 
     AddProfileScreen(
         state = state,
         onProfileSelect = { viewModel.onFirstProfileSelect(it) },
         onButtonClick = {
-            coroutineScope.launch {
-                viewModel.onProfileTypeSubmit()
-            }
-        }
+            viewModel.nextStageProfile()
+        },
+        showCloseDialog = state.showCloseDialog,
+        hideCloseDialog = { viewModel.hideCloseDialog() },
     )
+
+    BackHandler(enabled = true) {
+        viewModel.showCloseDialog()
+    }
 }
 
 @Composable
@@ -58,6 +64,8 @@ fun AddProfileScreen(
     state: OnboardingState,
     onProfileSelect: (ProfileType) -> Unit,
     onButtonClick: () -> Unit,
+    showCloseDialog: Boolean,
+    hideCloseDialog: () -> Unit,
 ) {
     OnboardingScreen(
         title = if (state.task == Task.CREATE_SCHOOL) stringResource(id = R.string.onboarding_firstProfileTitle) else stringResource(id = R.string.onboarding_newProfileTitle),
@@ -65,36 +73,39 @@ fun AddProfileScreen(
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
         enabled = state.profileType != null,
-        onButtonClick = { onButtonClick() }) {
+        onButtonClick = { onButtonClick() },
+        content = {
+            if (state.loginState == LoginState.PARTIAL) InfoCard(
+                imageVector = Icons.Default.Warning,
+                title = stringResource(id = R.string.onboarding_newProfileNotFullySupportedSchoolWarningTitle),
+                text = stringResource(id = R.string.onboarding_newProfileNotFullySupportedSchoolWarningText),
+                modifier = Modifier.padding(vertical = 8.dp)
+            )
 
-        if (state.loginState == LoginState.PARTIAL) InfoCard(
-            imageVector = Icons.Default.Warning,
-            title = stringResource(id = R.string.onboarding_newProfileNotFullySupportedSchoolWarningTitle),
-            text = stringResource(id = R.string.onboarding_newProfileNotFullySupportedSchoolWarningText),
-            modifier = Modifier.padding(vertical = 8.dp)
-        )
+            ProfileCard(
+                title = stringResource(id = R.string.onboarding_firstProfileStudentTitle),
+                text = stringResource(id = R.string.onboarding_firstProfileStudentText),
+                isSelected = state.profileType == ProfileType.STUDENT,
+                enabled = true
+            ) { onProfileSelect(ProfileType.STUDENT) }
 
-        ProfileCard(
-            title = stringResource(id = R.string.onboarding_firstProfileStudentTitle),
-            text = stringResource(id = R.string.onboarding_firstProfileStudentText),
-            isSelected = state.profileType == ProfileType.STUDENT,
-            enabled = true
-        ) { onProfileSelect(ProfileType.STUDENT) }
+            ProfileCard(
+                title = stringResource(id = R.string.onboarding_firstProfileTeacherTitle),
+                text = stringResource(id = R.string.onboarding_firstProfileTeacherText),
+                isSelected = state.profileType == ProfileType.TEACHER,
+                enabled = state.loginState == LoginState.FULL
+            ) { onProfileSelect(ProfileType.TEACHER) }
 
-        ProfileCard(
-            title = stringResource(id = R.string.onboarding_firstProfileTeacherTitle),
-            text = stringResource(id = R.string.onboarding_firstProfileTeacherText),
-            isSelected = state.profileType == ProfileType.TEACHER,
-            enabled = state.loginState == LoginState.FULL
-        ) { onProfileSelect(ProfileType.TEACHER) }
+            ProfileCard(
+                title = stringResource(id = R.string.onboarding_firstProfileRoomTitle),
+                text = stringResource(id = R.string.onboarding_firstProfileRoomText),
+                isSelected = state.profileType == ProfileType.ROOM,
+                enabled = state.loginState == LoginState.FULL
+            ) { onProfileSelect(ProfileType.ROOM) }
+        }
+    )
 
-        ProfileCard(
-            title = stringResource(id = R.string.onboarding_firstProfileRoomTitle),
-            text = stringResource(id = R.string.onboarding_firstProfileRoomText),
-            isSelected = state.profileType == ProfileType.ROOM,
-            enabled = state.loginState == LoginState.FULL
-        ) { onProfileSelect(ProfileType.ROOM) }
-    }
+    if (showCloseDialog) CloseOnboardingDialog(onNo = { hideCloseDialog() })
 }
 
 @Composable
@@ -177,6 +188,8 @@ fun OnboardingNewProfileScreenPreview() {
             loginState = LoginState.PARTIAL,
         ),
         onProfileSelect = {},
-        onButtonClick = {}
+        onButtonClick = {},
+        showCloseDialog = false,
+        hideCloseDialog = {},
     )
 }

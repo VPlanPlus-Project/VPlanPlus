@@ -33,6 +33,7 @@ fun OnboardingScreen(
     enabled: Boolean,
     onButtonClick: () -> Unit,
     content: @Composable () -> Unit,
+    footer: @Composable () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()
     Column(
@@ -58,19 +59,25 @@ fun OnboardingScreen(
                     content()
                 }
             }
-            Button(onClick = { onButtonClick() }, modifier = Modifier
-                .padding(PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp))
-                .fillMaxWidth(),
-                enabled = enabled && !isLoading
+            Column(
+                modifier = Modifier
+                    .padding(PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp))
+                    .fillMaxWidth()
             ) {
-                if (isLoading) CircularProgressIndicator(
-                    strokeWidth = 2.dp,
-                    modifier = Modifier
-                        .width(24.dp)
-                        .height(24.dp)
-                        .padding(6.dp)
-                )
-                else Text(text = buttonText)
+                footer()
+                Button(onClick = { onButtonClick() }, modifier = Modifier
+                    .fillMaxWidth(),
+                    enabled = enabled && !isLoading
+                ) {
+                    if (isLoading) CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        modifier = Modifier
+                            .width(24.dp)
+                            .height(24.dp)
+                            .padding(6.dp)
+                    )
+                    else Text(text = buttonText)
+                }
             }
         }
     }
@@ -87,8 +94,8 @@ fun OnboardingScreenPreview() {
         enabled = true,
         onButtonClick = {},
         content = {
+            val lines = 200
             Column {
-                val lines = 200
                 repeat(lines) {
                     Text(text = "Very long content (line ${it + 1}/$lines)")
                 }

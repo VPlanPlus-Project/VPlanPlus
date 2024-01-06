@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,9 +17,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -34,18 +37,28 @@ fun OnboardingDefaultLessonScreen(
     onboardingViewModel: OnboardingViewModel
 ) {
     val state = onboardingViewModel.state.value
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = state.stage, block = {
+        if (state.stage == Stage.PERMISSIONS) navHostController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
+        if (state.stage == Stage.PROFILE) navHostController.popBackStack()
+        if (state.stage == Stage.FINISH) navHostController.navigate(Screen.OnboardingSetupScreen.route)
+    })
 
     OnboardingDefaultLessonContent(
         state = state,
         onNextClicked = {
-            onboardingViewModel.onInsertData()
-            navHostController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
+            onboardingViewModel.nextStagePermissions(context)
         },
         onDefaultLessonClicked = {
             onboardingViewModel.setDefaultLesson(it, !state.defaultLessons[it]!!)
         },
-        onReloadDefaultLessons = { onboardingViewModel.loadDefaultLessons() }
+        onReloadDefaultLessons = { onboardingViewModel.loadDefaultLessons(true) }
     )
+
+    BackHandler {
+        onboardingViewModel.goBackToProfile()
+    }
 }
 
 @Composable
@@ -61,30 +74,36 @@ fun OnboardingDefaultLessonContent(
         buttonText = stringResource(id = R.string.next),
         isLoading = false,
         enabled = state.defaultLessons.values.any { it },
-        onButtonClick = { onNextClicked() }) {
-        Column {
-            if (state.defaultLessonsLoading) Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            } else {
-                if (state.defaultLessons.isEmpty()) {
-                    Button(onClick = { onReloadDefaultLessons() }) {
-                        Text(text = "Reload")
-                    }
-                } else state.defaultLessons.toList().sortedBy { (key, _) -> key.subject}.toMap().forEach {
-                    Box(
-                        modifier = Modifier.padding(top = 8.dp),
-                    ) {
-                        DefaultLessonCard(
-                            subject = it.key.subject,
-                            teacherAcronym = it.key.teacher,
-                            activated = it.value,
-                            onClick = { onDefaultLessonClicked(it.key) }
-                        )
+        onButtonClick = { onNextClicked() },
+        content = {
+            Column {
+                if (state.defaultLessonsLoading) Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                } else {
+                    if (state.defaultLessons.isEmpty()) {
+                        Button(onClick = { onReloadDefaultLessons() }) {
+                            Text(text = "Reload")
+                        }
+                    } else state.defaultLessons.toList().sortedBy { (key, _) -> key.subject }
+                        .toMap().forEach {
+                        Box(
+                            modifier = Modifier.padding(top = 8.dp),
+                        ) {
+                            DefaultLessonCard(
+                                subject = it.key.subject,
+                                teacherAcronym = it.key.teacher,
+                                activated = it.value,
+                                onClick = { onDefaultLessonClicked(it.key) }
+                            )
+                        }
                     }
                 }
             }
         }
-    }
+    )
 }
 
 @Preview(showBackground = true)
