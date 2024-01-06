@@ -417,6 +417,10 @@ fun HomeScreenContent(
                                             }
                                         }
                                     }
+                                    item {
+                                        Spacer(modifier = Modifier.height(70.dp))
+                                        Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.systemBars))
+                                    }
                                 }
                             }
                         }
