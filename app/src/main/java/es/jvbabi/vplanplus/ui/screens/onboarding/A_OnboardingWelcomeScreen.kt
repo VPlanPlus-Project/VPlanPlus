@@ -109,12 +109,12 @@ fun Welcome(
 
 @Preview(showBackground = true)
 @Composable
-fun OnboardingWelcomeScreenPreview() {
+private fun OnboardingWelcomeScreenPreview() {
     Welcome(
         onButtonClick = {},
         onTestSchoolClick = {},
         onDialogDismissed = {},
         testSchoolError = false,
-        isLoading = true
+        isLoading = false
     )
 }
