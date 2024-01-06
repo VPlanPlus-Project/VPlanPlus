@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.worker
 
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -22,6 +21,8 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.repository.MessageRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -55,7 +56,9 @@ class SyncWorker @AssistedInject constructor(
     @Assisted private val roomRepository: RoomRepository,
     @Assisted private val logRecordRepository: LogRecordRepository,
     @Assisted private val calendarRepository: CalendarRepository,
-    @Assisted private val planRepository: PlanRepository
+    @Assisted private val planRepository: PlanRepository,
+    @Assisted private val messageRepository: MessageRepository,
+    @Assisted private val notificationRepository: NotificationRepository
 ) : CoroutineWorker(context, params) {
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -76,7 +79,13 @@ class SyncWorker @AssistedInject constructor(
         logRecordRepository.log("SyncWorker", "Syncing")
         val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
         val profileDataBefore = hashMapOf<Profile, List<Lesson>>()
+
+        // get general news
+        messageRepository.updateMessages(null)
+
         schoolUseCases.getSchools().forEach school@{ school ->
+            messageRepository.updateMessages(school.schoolId)
+
             repeat(syncDays + 2) { i ->
                 val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
                 val date = LocalDate.now().plusDays(i - 2L)
@@ -213,10 +222,6 @@ class SyncWorker @AssistedInject constructor(
     }
 
     private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>, info: String?, date: LocalDate, notificationType: NotificationType) {
-        logRecordRepository.log(
-            "SyncWorker",
-            "Sending notification for profile ${profile.displayName}"
-        )
 
         val intent = Intent(context, MainActivity::class.java)
             .putExtra("profileId", profile.id.toString())
@@ -253,24 +258,17 @@ class SyncWorker @AssistedInject constructor(
                     buildChangedNotificationString(changedLessons)
         }
 
-        val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
-            .setContentTitle(context.getString(when (notificationType) {
+        notificationRepository.sendNotification(
+            "PROFILE_${profile.id.toString().lowercase()}",
+            MathTools.cantor(profile.id.hashCode(), date.toString().replace("-", "").toInt()),
+            context.getString(when (notificationType) {
                 NotificationType.NEW_PLAN -> R.string.notification_newPlanTitle
                 NotificationType.CHANGED_LESSONS -> R.string.notification_planChangedTitle
-            }))
-            .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText(message)
-            )
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setContentIntent(pendingIntent)
-            .setAutoCancel(true)
-
-        val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.notify(MathTools.cantor(profile.id.hashCode(), date.toString().replace("-", "").toInt()), builder.build())
+            }),
+            message,
+            R.drawable.vpp,
+            pendingIntent
+        )
     }
 
     private fun buildChangedNotificationString(changedLessons: List<Lesson>): String {

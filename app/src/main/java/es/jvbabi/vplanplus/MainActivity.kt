@@ -1,8 +1,5 @@
 package es.jvbabi.vplanplus
 
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -27,12 +24,14 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
 import es.jvbabi.vplanplus.worker.SyncWorker
+import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
@@ -63,7 +62,9 @@ class MainActivity : ComponentActivity() {
             })
             VPlanPlusTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize().imePadding(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .imePadding(),
                     color = MaterialTheme.colorScheme.surface
                 ) {
                     val navController = rememberNavController()
@@ -77,22 +78,10 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+            LaunchedEffect(key1 = true, block = {
+                Notification.createChannels(applicationContext, profileUseCases.getProfiles().first())
+            })
         }
-
-        val channelName = "Sync"
-        val descriptionText = "Benachrichtigungen für laufende Synchronisierungen"
-        val importance = NotificationManager.IMPORTANCE_LOW
-        val channel = NotificationChannel(
-            "SYNC",
-            channelName,
-            importance
-        ).apply {
-            description = descriptionText
-        }
-        // Register the channel with the system.
-        val notificationManager: NotificationManager =
-            applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
 
         val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
             15,

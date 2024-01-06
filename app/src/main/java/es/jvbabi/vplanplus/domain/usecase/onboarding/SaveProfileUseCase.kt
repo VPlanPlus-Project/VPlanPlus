@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.domain.usecase.onboarding
 
-import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import com.google.gson.Gson
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Holiday
@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.Keys
+import es.jvbabi.vplanplus.android.notification.Notification
 import java.time.LocalDate
 import java.util.UUID
 
@@ -188,20 +189,12 @@ class SaveProfileUseCase(
         kv.delete("onboarding.school.$schoolId.lessonTimes")
 
         // notification channel
-
-        val channelName = "Profil $referenceName"
-        val descriptionText = "Benachrichtigungen für neue Pläne"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(
-            "PROFILE_$referenceName",
-            channelName,
-            importance
-        ).apply {
-            description = descriptionText
-        }
-        // Register the channel with the system.
-        val notificationManager: NotificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
+        Notification.createChannel(
+            context,
+            "PROFILE_$profileId",
+            context.getString(R.string.notification_profileName, referenceName),
+            context.getString(R.string.notification_profileDescription),
+            NotificationManager.IMPORTANCE_DEFAULT
+        )
     }
 }

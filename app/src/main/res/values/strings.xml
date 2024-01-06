@@ -136,6 +136,24 @@
     <string name="searchAvailableRoom_filterNext">Next lesson</string>
     <string name="searchAvailableRoom_labelAvailability">Availability</string>
     <string name="searchAvailableRoom_noResults">No results</string>
+    <string name="home_menuRefresh">Refresh</string>
+    <string name="home_menuClearData">Delete plan data</string>
+    <string name="home_menuLogs">Logs</string>
+    <string name="home_menuWebsite">Website</string>
+    <string name="home_menuNews">News</string>
+    <string name="news_homeTitle">News</string>
+    <string name="news_noNews">No news available</string>
+    <string name="notification_syncName">Sync</string>
+    <string name="notification_syncDescription">Notifications for running sync tasks</string>
+    <string name="notification_profileName">Profile %1$s</string>
+    <string name="notification_profileDescription">Notififications for new plans and plan changes</string>
+    <string name="notification_newsName">News</string>
+    <string name="notification_newsDescription">News about the app, current problems and more</string>
+    <string name="notification_criticalNewsTitle">Important information</string>
+    <plurals name="notification_criticalNewsText">
+        <item quantity="one">There is %1$%d critical message:%2$s</item>
+        <item quantity="other">There are %1$%d critical messages:%2$s</item>
+    </plurals>
     <string name="onboarding_welcomeContinueTestSchool">Continue with test-school</string>
     <string name="onboarding_welcomeTestSchoolErrorTitle">Error</string>
     <string name="onboarding_welcomeTestSchoolErrorText">There was an error when trying to connect to the test school</string>

@@ -20,5 +20,8 @@ sealed class Screen(val route: String) {
     data object SettingsProfileDefaultLessonsScreen: Screen("settings/profile/{profileId}/default_lessons")
     data object SettingsGeneralSettingsScreen: Screen("settings/general_settings")
 
+    data object NewsScreen: Screen("news_screen")
+    data object NewsDetailScreen: Screen("news_screen")
+
     data object LogsScreen: Screen("logs_screen")
 }
