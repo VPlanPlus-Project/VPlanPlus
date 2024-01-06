@@ -145,4 +145,5 @@
     <string name="onboarding_credentialsLoginAt">Anmeldung bei Schule %1$s</string>
     <string name="onboarding_credentialsWrongSchoolIdLink">Falsche Schul-ID?</string>
     <string name="onboarding_skipPermissionButton">Berechtigung nicht erteilen</string>
+    <string name="onboarding_setupTakingLong">Das dauert länger als erwartet. Bitte warte solange. Die Einrichtung wird bald abgeschlossen sein. Hoffentlich.</string>
 </resources>
