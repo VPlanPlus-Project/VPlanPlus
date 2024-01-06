@@ -4,6 +4,8 @@ import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbPlanData
@@ -60,11 +62,11 @@ import es.jvbabi.vplanplus.domain.model.Week
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 6,
+    version = 7,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6) // add messages
-    ]
+    ],
 )
 @TypeConverters(
     LocalDateConverter::class,
@@ -90,4 +92,12 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val profileDefaultLessonsCrossoverDao: ProfileDefaultLessonsCrossoverDao
     abstract val planDao: PlanDao
     abstract val messageDao: MessageDao
+
+    companion object {
+        val migration_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE messages ADD COLUMN notificationSent INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+    }
 }

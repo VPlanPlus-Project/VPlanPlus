@@ -144,7 +144,7 @@ fun NewsScreenContent(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
-                        items(state.news.sortedBy { (it.isRead).toString()+it.date.toInstant(ZoneOffset.UTC) }) {
+                        items(state.news.sortedBy { (!it.isRead).toString()+(it.date.toInstant(ZoneOffset.UTC).epochSecond) }.reversed()) {
                             if (!unreadDone && it.isRead && state.news.any { n -> !n.isRead }) {
                                 unreadDone = true
                                 Box(

@@ -149,4 +149,9 @@
     <string name="notification_profileDescription">Notififications for new plans and plan changes</string>
     <string name="notification_newsName">News</string>
     <string name="notification_newsDescription">News about the app, current problems and more</string>
+    <string name="notification_criticalNewsTitle">Important information</string>
+    <plurals name="notification_criticalNewsText">
+        <item quantity="one">There is %1$%d critical message:%2$s</item>
+        <item quantity="other">There are %1$%d critical messages:%2$s</item>
+    </plurals>
 </resources>

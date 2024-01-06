@@ -16,7 +16,8 @@ data class Message(
     val importance: Importance,
     val fromVersion: Int,
     val toVersion: Int,
-    val schoolId: Long
+    val schoolId: Long,
+    val notificationSent: Boolean = false
 )
 
 enum class Importance {

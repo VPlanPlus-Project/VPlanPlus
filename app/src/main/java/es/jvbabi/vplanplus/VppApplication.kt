@@ -9,6 +9,7 @@ import dagger.hilt.android.HiltAndroidApp
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
@@ -60,6 +61,9 @@ class VppApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var messageRepository: MessageRepository
 
+    @Inject
+    lateinit var notificationRepository: NotificationRepository
+
     override val workManagerConfiguration: Configuration
         get() = Configuration.Builder()
             .setWorkerFactory(
@@ -75,7 +79,8 @@ class VppApplication : Application(), Configuration.Provider {
                     teacherRepository = teacherRepository,
                     calendarRepository = calendarRepository,
                     planRepository = planRepository,
-                    messageRepository = messageRepository
+                    messageRepository = messageRepository,
+                    notificationRepository = notificationRepository
                 )
             )
             .build()
@@ -93,7 +98,8 @@ class SyncWorkerFactory @Inject constructor(
     private val teacherRepository: TeacherRepository,
     private val calendarRepository: CalendarRepository,
     private val planRepository: PlanRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val notificationRepository: NotificationRepository
     ) : WorkerFactory() {
     override fun createWorker(
         appContext: Context,
@@ -114,7 +120,8 @@ class SyncWorkerFactory @Inject constructor(
             classUseCases = classUseCases,
             teacherRepository = teacherRepository,
             planRepository = planRepository,
-            messageRepository = messageRepository
+            messageRepository = messageRepository,
+            notificationRepository = notificationRepository
         )
     }
 }

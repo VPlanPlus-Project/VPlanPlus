@@ -32,4 +32,7 @@ abstract class MessageDao {
 
     @Query("UPDATE messages SET isRead = 1 WHERE id = :messageId")
     abstract suspend fun markMessageAsRead(messageId: String)
+
+    @Query("UPDATE messages SET notificationSent = 1 WHERE id = :messageId")
+    abstract suspend fun markMessageAsSent(messageId: String)
 }

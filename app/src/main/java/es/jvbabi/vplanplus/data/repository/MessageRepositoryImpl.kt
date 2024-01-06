@@ -5,21 +5,26 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.content.pm.PackageInfoCompat
 import com.google.gson.Gson
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.online.my.MessageResponse
 import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
 import es.jvbabi.vplanplus.data.source.online.OnlineRequest
+import es.jvbabi.vplanplus.domain.model.Importance
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 class MessageRepositoryImpl(
     private val messageDao: MessageDao,
     private val context: Context,
-    logRecordRepository: LogRecordRepository
+    logRecordRepository: LogRecordRepository,
+    private val notificationRepository: NotificationRepository
 ) : MessageRepository {
 
     private val onlineRequest = OnlineRequest(logRecordRepository)
@@ -58,6 +63,24 @@ class MessageRepositoryImpl(
             )
         }
         messageDao.insertMessages(messages)
+        val dontSend = getMessages().first().filter { it.isRead || it.notificationSent }
+
+        val criticalNew = messages
+            .filter { it.importance == Importance.CRITICAL }
+            .filter { !dontSend.map { ds -> ds.id }.contains(it.id) }
+
+        if (criticalNew.isNotEmpty()) notificationRepository.sendNotification(
+            "NEWS",
+            title = context.getString(R.string.notification_criticalNewsTitle),
+            message = context.resources.getQuantityString(R.plurals.notification_criticalNewsText, criticalNew.size, criticalNew.size, criticalNew.joinToString { "\n - ${it.title}" }),
+            id = 20,
+            icon = R.drawable.vpp,
+            pendingIntent = null
+        )
+
+        criticalNew.forEach {
+            messageDao.markMessageAsSent(it.id)
+        }
     }
 
     override suspend fun markMessageAsRead(messageId: String) {
