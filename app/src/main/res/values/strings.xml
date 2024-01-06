@@ -143,4 +143,10 @@
     <string name="home_menuNews">News</string>
     <string name="news_homeTitle">News</string>
     <string name="news_noNews">No news available</string>
+    <string name="notification_syncName">Sync</string>
+    <string name="notification_syncDescription">Notifications for running sync tasks</string>
+    <string name="notification_profileName">Profile %1$s</string>
+    <string name="notification_profileDescription">Notififications for new plans and plan changes</string>
+    <string name="notification_newsName">News</string>
+    <string name="notification_newsDescription">News about the app, current problems and more</string>
 </resources>

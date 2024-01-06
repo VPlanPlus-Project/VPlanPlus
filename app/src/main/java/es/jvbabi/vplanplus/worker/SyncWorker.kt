@@ -261,7 +261,7 @@ class SyncWorker @AssistedInject constructor(
                     buildChangedNotificationString(changedLessons)
         }
 
-        val builder = NotificationCompat.Builder(context, "PROFILE_${profile.originalName}")
+        val builder = NotificationCompat.Builder(context, "PROFILE_${profile.id.toString().lowercase()}")
             .setContentTitle(context.getString(when (notificationType) {
                 NotificationType.NEW_PLAN -> R.string.notification_newPlanTitle
                 NotificationType.CHANGED_LESSONS -> R.string.notification_planChangedTitle

@@ -144,4 +144,10 @@
     <string name="home_menuNews">Nachrichten</string>
     <string name="news_homeTitle">Nachrichten</string>
     <string name="news_noNews">Keine Informationen verfügbar</string>
+    <string name="notification_syncName">Sync</string>
+    <string name="notification_syncDescription">Benachrichtigungen für laufende Synchronisierungen</string>
+    <string name="notification_profileName">Profil %1$s</string>
+    <string name="notification_profileDescription">Benachrichtigungen für neue Pläne und Planänderungen</string>
+    <string name="notification_newsName">Nachrichten</string>
+    <string name="notification_newsDescription">Nachrichten zur App, aktuellen Störungen und mehr</string>
 </resources>
