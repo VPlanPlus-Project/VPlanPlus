@@ -136,4 +136,11 @@
     <string name="searchAvailableRoom_filterNext">Next lesson</string>
     <string name="searchAvailableRoom_labelAvailability">Availability</string>
     <string name="searchAvailableRoom_noResults">No results</string>
+    <string name="home_menuRefresh">Refresh</string>
+    <string name="home_menuClearData">Delete plan data</string>
+    <string name="home_menuLogs">Logs</string>
+    <string name="home_menuWebsite">Website</string>
+    <string name="home_menuNews">News</string>
+    <string name="news_homeTitle">News</string>
+    <string name="news_noNews">No news available</string>
 </resources>

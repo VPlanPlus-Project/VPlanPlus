@@ -8,3 +8,5 @@ import androidx.compose.runtime.Composable
 fun SmallText(text: String) {
     Text(text = text, style = MaterialTheme.typography.labelSmall)
 }
+
+const val DOT = "•"

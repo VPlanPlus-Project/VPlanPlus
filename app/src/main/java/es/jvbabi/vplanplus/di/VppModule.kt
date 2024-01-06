@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LogRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.MessageRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.PlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
@@ -41,6 +42,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -88,7 +90,6 @@ object VppModule {
             VppDatabase::class.java,
             "vpp.db"
         )
-            .fallbackToDestructiveMigration()
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())
@@ -125,6 +126,12 @@ object VppModule {
     @Singleton
     fun provideKeyValueRepository(db: VppDatabase): KeyValueRepository {
         return KeyValueRepositoryImpl(db.keyValueDao)
+    }
+
+    @Provides
+    @Singleton
+    fun provideMessageRepository(db: VppDatabase, @ApplicationContext context: Context, logRecordRepository: LogRecordRepository): MessageRepository {
+        return MessageRepositoryImpl(db.messageDao, context, logRecordRepository)
     }
 
     @Provides

@@ -14,12 +14,16 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 20
-        versionName = "0.8.1-alpha-dev-3"
+        versionCode = 21
+        versionName = "0.8.2-alpha-dev-1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
+        }
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
         }
     }
 

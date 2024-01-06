@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.source.database
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -24,6 +25,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
+import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
@@ -35,6 +37,7 @@ import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.LogRecord
+import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Week
 
@@ -50,14 +53,18 @@ import es.jvbabi.vplanplus.domain.model.Week
         DbDefaultLesson::class,
         DbPlanData::class,
         DbSchoolEntity::class,
+        Message::class,
 
         LessonSchoolEntityCrossover::class,
         DbProfileDefaultLesson::class,
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 5,
-    exportSchema = false
+    version = 6,
+    exportSchema = true,
+    autoMigrations = [
+        AutoMigration(from = 5, to = 6) // add messages
+    ]
 )
 @TypeConverters(
     LocalDateConverter::class,
@@ -82,4 +89,5 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val defaultLessonDao: DefaultLessonDao
     abstract val profileDefaultLessonsCrossoverDao: ProfileDefaultLessonsCrossoverDao
     abstract val planDao: PlanDao
+    abstract val messageDao: MessageDao
 }

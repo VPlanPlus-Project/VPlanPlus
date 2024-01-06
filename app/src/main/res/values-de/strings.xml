@@ -137,4 +137,11 @@
     <string name="searchAvailableRoom_filterNext">Nächste Stunde</string>
     <string name="searchAvailableRoom_labelAvailability">Verfügbarkeit</string>
     <string name="searchAvailableRoom_noResults">Nichts gefunden</string>
+    <string name="home_menuRefresh">Aktualisieren</string>
+    <string name="home_menuClearData">Plandaten löschen</string>
+    <string name="home_menuLogs">Logs</string>
+    <string name="home_menuWebsite">Webseite</string>
+    <string name="home_menuNews">Nachrichten</string>
+    <string name="news_homeTitle">Nachrichten</string>
+    <string name="news_noNews">Keine Informationen verfügbar</string>
 </resources>
