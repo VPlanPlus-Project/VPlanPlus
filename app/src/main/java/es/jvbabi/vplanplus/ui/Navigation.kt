@@ -122,7 +122,7 @@ fun NavigationGraph(
                 enterTransition = enterSlideTransition,
                 exitTransition = exitSlideTransition
             ) {
-                OnboardingWelcomeScreen(navController)
+                OnboardingWelcomeScreen(navController, onboardingViewModel)
             }
 
             composable(

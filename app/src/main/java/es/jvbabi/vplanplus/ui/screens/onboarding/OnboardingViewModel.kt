@@ -206,6 +206,18 @@ class OnboardingViewModel @Inject constructor(
     fun isLoading(loading: Boolean) {
         _state.value = _state.value.copy(isLoading = loading)
     }
+
+    fun useTestSchool() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(
+                schoolId = "10000000",
+                username = "schueler",
+                password = "test",
+                schoolIdState = SchoolIdCheckResult.VALID
+            )
+            onLogin()
+        }
+    }
 }
 
 data class OnboardingState(

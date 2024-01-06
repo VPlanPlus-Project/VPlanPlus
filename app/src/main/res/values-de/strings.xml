@@ -137,4 +137,7 @@
     <string name="searchAvailableRoom_filterNext">Nächste Stunde</string>
     <string name="searchAvailableRoom_labelAvailability">Verfügbarkeit</string>
     <string name="searchAvailableRoom_noResults">Nichts gefunden</string>
+    <string name="onboarding_welcomeContinueTestSchool">Mit Beispielschule fortfahren</string>
+    <string name="onboarding_welcomeTestSchoolErrorTitle">Fehler</string>
+    <string name="onboarding_welcomeTestSchoolErrorText">Beim Verbinden mit der Testschule ist ein Fehler aufgetreten.</string>
 </resources>
