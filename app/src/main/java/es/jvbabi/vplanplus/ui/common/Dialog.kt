@@ -50,7 +50,8 @@ fun YesNoDialog(
     title: String,
     message: String,
     onYes: () -> Unit = {},
-    onNo: () -> Unit = {}
+    onNo: () -> Unit = {},
+    onDismiss: (() -> Unit)? = null,
 ) {
     Box(
         modifier = Modifier
@@ -60,14 +61,16 @@ fun YesNoDialog(
             title = { Text(text = title) },
             text = { Text(text = message) },
             icon = { Icon(imageVector = icon, contentDescription = null) },
-            onDismissRequest = { onNo() },
+            onDismissRequest = { if (onDismiss == null) onNo() else onDismiss() },
             confirmButton = {
                 TextButton(onClick = { onYes() }) {
                     Text(text = stringResource(id = R.string.yes))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { onNo() }) {
+                TextButton(onClick = {
+                    onNo()
+                }) {
                     Text(text = stringResource(id = R.string.no))
                 }
             }

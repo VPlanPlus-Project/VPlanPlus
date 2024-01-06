@@ -140,4 +140,9 @@
     <string name="onboarding_welcomeContinueTestSchool">Mit Beispielschule fortfahren</string>
     <string name="onboarding_welcomeTestSchoolErrorTitle">Fehler</string>
     <string name="onboarding_welcomeTestSchoolErrorText">Beim Verbinden mit der Testschule ist ein Fehler aufgetreten.</string>
+    <string name="onboarding_cancelOnboardingTitle">Onboarding abbrechen?</string>
+    <string name="onboarding_cancelOnboardingText">Möchtest du den Onboarding Prozess wirklich beenden? Du kannst jederzeit zurückkommen, um die App einzurichten.</string>
+    <string name="onboarding_credentialsLoginAt">Anmeldung bei Schule %1$s</string>
+    <string name="onboarding_credentialsWrongSchoolIdLink">Falsche Schul-ID?</string>
+    <string name="onboarding_skipPermissionButton">Berechtigung nicht erteilen</string>
 </resources>
