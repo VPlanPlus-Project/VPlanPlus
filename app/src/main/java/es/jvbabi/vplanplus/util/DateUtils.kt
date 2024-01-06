@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.util
 import android.annotation.SuppressLint
 import android.content.Context
 import es.jvbabi.vplanplus.R
+import java.sql.Time
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -88,5 +89,12 @@ object DateUtils {
                 localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
             }
         }.replace(";DATE", localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)))
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun toTime(t: String): Time {
+        val formatter = SimpleDateFormat("HH:mm")
+        val date = formatter.parse(t)!!
+        return Time(date.time)
     }
 }
