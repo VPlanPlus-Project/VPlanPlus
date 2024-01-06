@@ -5,13 +5,15 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -19,6 +21,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
+import java.time.LocalDateTime
 
 @Composable
 fun OnboardingSetupScreen(
@@ -27,19 +31,18 @@ fun OnboardingSetupScreen(
 ) {
     val state = viewModel.state.value
     val start by rememberSaveable {
-        mutableLongStateOf(System.currentTimeMillis())
+        mutableStateOf(LocalDateTime.now())
     }
-    val now = System.currentTimeMillis()
 
     if (!state.isLoading) {
         navHostController.navigate(Screen.HomeScreen.route)
     }
 
-    SetupScreen(start, now)
+    SetupScreen(start, state.time)
 }
 
 @Composable
-fun SetupScreen(start: Long, now: Long) {
+fun SetupScreen(start: LocalDateTime, now: LocalDateTime) {
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
@@ -49,13 +52,12 @@ fun SetupScreen(start: Long, now: Long) {
             modifier = Modifier.padding(16.dp)
         ) {
             CircularProgressIndicator()
-            if (now - start >= 5000) {
-                Text(
-                    text = stringResource(id = R.string.onboarding_setupTakingLong),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
+            Text(
+                text = stringResource(id = R.string.onboarding_setupTakingLong),
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(16.dp),
+                color = if (now.toLocalUnixTimestamp() - start.toLocalUnixTimestamp() >= 3) MaterialTheme.colorScheme.onSurface else Color.Transparent
+            )
         }
     }
 }
@@ -64,7 +66,7 @@ fun SetupScreen(start: Long, now: Long) {
 @Composable
 fun SetupScreenPreview() {
     SetupScreen(
-        System.currentTimeMillis()-6000,
-        System.currentTimeMillis()
+        LocalDateTime.now().minusSeconds(5),
+        LocalDateTime.now()
     )
 }

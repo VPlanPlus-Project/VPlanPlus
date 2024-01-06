@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLesson
@@ -15,17 +16,27 @@ import es.jvbabi.vplanplus.domain.usecase.onboarding.toLoginState
 import es.jvbabi.vplanplus.domain.usecase.onboarding.toResponse
 import es.jvbabi.vplanplus.ui.common.Permission
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val onboardingUseCases: OnboardingUseCases
+    private val onboardingUseCases: OnboardingUseCases,
+    private val timeRepository: TimeRepository
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
     val state: State<OnboardingState> = _state
 
     fun nextStageSchoolId() {
         _state.value = _state.value.copy(stage = Stage.SCHOOL_ID)
+    }
+
+    init {
+        viewModelScope.launch {
+            timeRepository.getTime().collect {
+                _state.value = _state.value.copy(time = it)
+            }
+        }
     }
 
     fun nextStageCredentials() {
@@ -93,6 +104,7 @@ class OnboardingViewModel @Inject constructor(
                 _state.value = _state.value.copy(stage = Stage.DEFAULT_LESSONS)
                 loadDefaultLessons(false)
             }
+
             else -> nextStagePermissions(context)
         }
     }
@@ -154,7 +166,8 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun toggleUserName() {
-        if (state.value.username == "schueler") _state.value = _state.value.copy(username = "lehrer")
+        if (state.value.username == "schueler") _state.value =
+            _state.value.copy(username = "lehrer")
         else _state.value = _state.value.copy(username = "schueler")
     }
 
@@ -169,7 +182,7 @@ class OnboardingViewModel @Inject constructor(
                     username = state.value.username,
                     password = state.value.password,
                     className = state.value.selectedProfileOption!!
-                )?.associateWith { true }?: mapOf(),
+                )?.associateWith { true } ?: mapOf(),
                 defaultLessonsLoading = false,
                 defaultLessonsClass = state.value.selectedProfileOption!!,
             )
@@ -282,9 +295,13 @@ class OnboardingViewModel @Inject constructor(
 
     fun nextPermission(context: Context) {
         val currentPermissionIndex = state.value.currentPermissionIndex
-        if (currentPermissionIndex+1 < Permission.permissions.size) {
-            _state.value = _state.value.copy(currentPermissionIndex = currentPermissionIndex+1)
-            if (Permission.isGranted(context, Permission.permissions[currentPermissionIndex+1].type)) {
+        if (currentPermissionIndex + 1 < Permission.permissions.size) {
+            _state.value = _state.value.copy(currentPermissionIndex = currentPermissionIndex + 1)
+            if (Permission.isGranted(
+                    context,
+                    Permission.permissions[currentPermissionIndex + 1].type
+                )
+            ) {
                 nextPermission(context)
             }
         } else {
@@ -323,6 +340,8 @@ data class OnboardingState(
     val showCloseDialog: Boolean = false,
 
     val stage: Stage = Stage.WELCOME,
+
+    val time: LocalDateTime = LocalDateTime.now(),
 
     val currentPermissionIndex: Int = 0
 )

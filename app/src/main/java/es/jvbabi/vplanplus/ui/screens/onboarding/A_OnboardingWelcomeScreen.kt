@@ -18,6 +18,10 @@ fun OnboardingWelcomeScreen(
     viewModel: OnboardingViewModel
 ) {
     val state = viewModel.state.value
+    
+    LaunchedEffect(key1 = "A", block = {
+        viewModel.reset()
+    })
 
     LaunchedEffect(key1 = state.stage, block = {
         if (state.stage == Stage.SCHOOL_ID) navController.navigate(Screen.OnboardingSchoolIdScreen.route)
