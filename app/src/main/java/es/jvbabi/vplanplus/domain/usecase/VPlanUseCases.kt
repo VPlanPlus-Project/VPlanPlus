@@ -86,15 +86,36 @@ class VPlanUseCases(
                     } else listOfNotNull(lesson.teacher.teacher)
                 }
 
-                val rawRoomNames = if (DefaultValues.isEmpty(lesson.room.room)) emptyList() else {
-                    if (lesson.room.room.contains(",")) {
-                        lesson.room.room.split(",")
-                    } else listOfNotNull(lesson.room.room)
+                val rawRoomNames = if (DefaultValues.isEmpty(lesson.room.room)) null
+                else lesson.room.room
+
+                val lessonRooms = mutableListOf<String>()
+
+                // this algorithm tries to find existing rooms within the raw room string. It splits the string by spaces and tries to find a room with the joined string.
+                // An example would be "TH 1 TH 2" where it's not clear where to split.
+                // Time for another angry checkpoint: While teachers are separated by commas, rooms are separated by spaces. But sometimes, there are spaces in room names.
+                if (rawRoomNames != null) {
+                    if (rooms.map { r -> r.name }.contains(lesson.room.room)) {
+                        lessonRooms.add(lesson.room.room)
+                    } else {
+                        val split = lesson.room.room.split(" ")
+                        var join = 0
+                        var start = 0
+                        for (a in 0..split.size) {
+                            val joined = split.subList(start, join).joinToString(" ")
+                            if (rooms.map { r -> r.name }.contains(joined)) {
+                                lessonRooms.add(joined)
+                                start = join
+                            }
+                            join += 1
+                        }
+                        if (start == 0) lessonRooms.add(lesson.room.room)
+                    }
                 }
 
                 // add teachers and rooms to db if they don't exist
                 val addTeachers = rawTeacherAcronyms.filter { t -> !teachers.map { dbT -> dbT.acronym }.contains(t) }
-                val addRooms = rawRoomNames.filter { r -> !rooms.map { dbR -> dbR.name }.contains(r) }
+                val addRooms = lessonRooms.filter { r -> !rooms.map { dbR -> dbR.name }.contains(r) }
 
                 addTeachers.forEach { teacher ->
                     teacherRepository.createTeacher(
@@ -116,10 +137,7 @@ class VPlanUseCases(
                 if (addRooms.isNotEmpty()) rooms = roomRepository.getRoomsBySchool(school)
 
                 //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
-                val dbRooms = if (DefaultValues.isEmpty(lesson.room.room)) emptyList() else {
-                    // exceptions for rooms because the api is shit
-                    rooms.filter { r -> replaceSpecificRooms(lesson.room.room).split(" ").contains(r.name) }
-                }
+                val dbRooms = rooms.filter { r -> lessonRooms.contains(r.name) }
                 val roomChanged = lesson.room.roomChanged == "RaGeaendert"
 
                 val dbTeachers = teachers.filter { t -> rawTeacherAcronyms.contains(t.acronym) }
@@ -198,11 +216,4 @@ class VPlanUseCases(
         lessonRepository.deleteAllLessons()
         planRepository.deleteAllPlans()
     }
-}
-
-fun replaceSpecificRooms(s: String): String {
-    return s
-        .replace("TH 1", "TH1")
-        .replace("TH 2", "TH2")
-        .replace("TH 3", "TH3")
 }
