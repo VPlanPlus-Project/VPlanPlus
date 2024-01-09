@@ -13,8 +13,8 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Day
-import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -224,97 +224,74 @@ class HomeViewModel @Inject constructor(
             val schools = schoolUseCases.getSchools()
             val resultGroups = mutableListOf<ResultGroup>()
             schools.forEach { school ->
+
+                var selectedTeacherId = _state.value.results.firstOrNull { it.school.schoolId == school.schoolId }?.selectedTeacherId
+                var selectedRoomId = _state.value.results.firstOrNull { it.school.schoolId == school.schoolId }?.selectedRoomId
+                var selectedClassId = _state.value.results.firstOrNull { it.school.schoolId == school.schoolId }?.selectedClassId
+
                 val searchResult = mutableListOf<SearchResult>()
-                if (_state.value.filter[FilterType.TEACHER]!!) {
+                if (_state.value.filter[SchoolEntityType.TEACHER]!!) {
                     val teachers = teacherRepository.getTeachersBySchoolId(school.schoolId).filter {
                         it.acronym.lowercase().contains(_state.value.searchQuery.lowercase())
                     }
-                    val firstTeacher = teachers.firstOrNull()
-                    if (firstTeacher != null) {
+                    teachers.forEachIndexed { index, teacher ->
+                        if (selectedTeacherId == null && index == 0) selectedTeacherId = teacher.teacherId
                         val day = lessonUseCases.getLessonsForTeacher(
-                            firstTeacher, LocalDate.now(), keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
+                            teacher, LocalDate.now(), keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
                         ).firstOrNull()
-                        teachers.forEachIndexed { index, teacher ->
-                            if (index == 0  && day != null && day.lessons.isNotEmpty() && day.state == DayDataState.DATA) {
-                                searchResult.add(
-                                    SearchResult(
-                                        teacher.teacherId,
-                                        teacher.acronym,
-                                        FilterType.TEACHER,
-                                        day.lessons
-                                    )
-                                )
-                            } else {
-                                searchResult.add(
-                                    SearchResult(
-                                        teacher.teacherId,
-                                        teacher.acronym,
-                                        FilterType.TEACHER
-                                    )
-                                )
-                            }
-                        }
+                        searchResult.add(
+                            SearchResult(
+                                id = teacher.teacherId,
+                                name = teacher.acronym,
+                                type = SchoolEntityType.TEACHER,
+                                lessons = day?.lessons?: emptyList(),
+                                detailed = teacher.teacherId == selectedTeacherId
+                            )
+                        )
                     }
                 }
-                if (state.value.filter[FilterType.ROOM]!!) {
+                if (state.value.filter[SchoolEntityType.ROOM]!!) {
                     val rooms = roomRepository.getRoomsBySchool(school).filter {
                         it.name.lowercase().contains(_state.value.searchQuery.lowercase())
                     }
-                    val firstRoom = rooms.firstOrNull()
-                    if (firstRoom != null) {
+                    rooms.forEachIndexed { index, room ->
+                        if (selectedRoomId == null && index == 0) selectedRoomId = room.roomId
                         val day = lessonUseCases.getLessonsForRoom(
-                            firstRoom,
+                            room,
                             LocalDate.now(),
                             keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
                         ).firstOrNull()
-                        rooms.forEachIndexed { index, room ->
-                            if (index == 0  && day != null && day.lessons.isNotEmpty() && day.state == DayDataState.DATA) {
-                                searchResult.add(
-                                    SearchResult(
-                                        room.roomId,
-                                        room.name,
-                                        FilterType.ROOM,
-                                        day.lessons
-                                    )
-                                )
-                            } else {
-                                searchResult.add(SearchResult(room.roomId, room.name, FilterType.ROOM))
-                            }
-                        }
+                        searchResult.add(
+                            SearchResult(
+                                id = room.roomId,
+                                name = room.name,
+                                type = SchoolEntityType.ROOM,
+                                lessons = day?.lessons?: emptyList(),
+                                detailed = room.roomId == selectedRoomId
+                            )
+                        )
                     }
                 }
-                if (state.value.filter[FilterType.CLASS]!!) {
+                if (state.value.filter[SchoolEntityType.CLASS]!!) {
                     val classes = classUseCases.getClassesBySchool(school).filter {
                         it.name.lowercase().contains(_state.value.searchQuery.lowercase())
                     }
-                    val firstClass = classes.firstOrNull()
-                    if (firstClass != null) {
+                    classes.forEachIndexed { index, `class` ->
+                        if (selectedClassId == null && index == 0) selectedClassId = `class`.classId
                         val day = lessonUseCases.getLessonsForClass(
-                            firstClass,
+                            `class`,
                             LocalDate.now(),
                             keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
+                        ).firstOrNull()
+                        searchResult.add(
+                            SearchResult(
+                                id = `class`.classId,
+                                name = `class`.name,
+                                type = SchoolEntityType.CLASS,
+                                lessons = day?.lessons?: emptyList(),
+                                detailed = `class`.classId == selectedClassId
+                            )
                         )
-                            .firstOrNull()
-                        classes.forEachIndexed { index, `class` ->
-                            if (index == 0  && day != null && day.lessons.isNotEmpty() && day.state == DayDataState.DATA) {
-                                searchResult.add(
-                                    SearchResult(
-                                        `class`.classId,
-                                        `class`.name,
-                                        FilterType.CLASS,
-                                        day.lessons
-                                    )
-                                )
-                            } else {
-                                searchResult.add(
-                                    SearchResult(
-                                        `class`.classId,
-                                        `class`.name,
-                                        FilterType.CLASS
-                                    )
-                                )
-                            }
-                        }
                     }
                 }
 
@@ -329,12 +306,25 @@ class HomeViewModel @Inject constructor(
         onSearchQueryUpdate(_state.value.searchQuery)
     }
 
-    fun searchToggleFilter(filterType: FilterType) {
+    fun searchToggleFilter(SchoolEntityType: SchoolEntityType) {
         _state.value = _state.value.copy(
             filter = _state.value.filter.plus(
-                filterType to !(_state.value.filter[filterType] ?: true)
+                SchoolEntityType to !(_state.value.filter[SchoolEntityType] ?: true)
             )
         )
+        onSearchQueryUpdate()
+    }
+
+    fun selectSearchResult(schoolId: Long, type: SchoolEntityType, id: UUID) {
+        val resultGroup = _state.value.results.firstOrNull { it.school.schoolId == schoolId } ?: return
+        when (type) {
+            SchoolEntityType.CLASS -> resultGroup.selectedClassId = id
+            SchoolEntityType.TEACHER -> resultGroup.selectedTeacherId = id
+            SchoolEntityType.ROOM -> resultGroup.selectedRoomId = id
+        }
+        _state.value = _state.value.copy(results = _state.value.results.map {
+            if (it.school.schoolId == schoolId) resultGroup else it
+        })
         onSearchQueryUpdate()
     }
 }
@@ -357,10 +347,10 @@ data class HomeState(
     // search
     val searchOpen: Boolean = false,
     val searchQuery: String = "",
-    val filter: Map<FilterType, Boolean> = mapOf(
-        FilterType.TEACHER to true,
-        FilterType.ROOM to true,
-        FilterType.CLASS to true,
+    val filter: Map<SchoolEntityType, Boolean> = mapOf(
+        SchoolEntityType.TEACHER to true,
+        SchoolEntityType.ROOM to true,
+        SchoolEntityType.CLASS to true,
     ),
     val results: List<ResultGroup> = emptyList(),
 
@@ -381,18 +371,16 @@ enum class ViewType {
 
 data class ResultGroup(
     val school: School,
-    val searchResults: List<SearchResult>
+    val searchResults: List<SearchResult>,
+    var selectedClassId: UUID? = null,
+    var selectedTeacherId: UUID? = null,
+    var selectedRoomId: UUID? = null
 )
 
 data class SearchResult(
     val id: UUID,
     val name: String,
-    val type: FilterType,
-    val lessons: List<Lesson> = emptyList()
+    val type: SchoolEntityType,
+    val lessons: List<Lesson> = emptyList(),
+    val detailed: Boolean = false
 )
-
-enum class FilterType {
-    TEACHER,
-    ROOM,
-    CLASS,
-}

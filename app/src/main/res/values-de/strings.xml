@@ -164,4 +164,5 @@
     <string name="onboarding_credentialsWrongSchoolIdLink">Falsche Schul-ID?</string>
     <string name="onboarding_skipPermissionButton">Berechtigung nicht erteilen</string>
     <string name="onboarding_setupTakingLong">Das dauert länger als erwartet. Bitte warte solange. Die Einrichtung wird bald abgeschlossen sein. Hoffentlich.</string>
+    <string name="search_notDetailedResult">%1$s • %2$d Stunden</string>
 </resources>
