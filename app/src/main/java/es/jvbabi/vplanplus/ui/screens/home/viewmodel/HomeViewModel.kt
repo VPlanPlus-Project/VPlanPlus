@@ -306,10 +306,10 @@ class HomeViewModel @Inject constructor(
         onSearchQueryUpdate(_state.value.searchQuery)
     }
 
-    fun searchToggleFilter(SchoolEntityType: SchoolEntityType) {
+    fun searchToggleFilter(type: SchoolEntityType) {
         _state.value = _state.value.copy(
             filter = _state.value.filter.plus(
-                SchoolEntityType to !(_state.value.filter[SchoolEntityType] ?: true)
+                type to !(_state.value.filter[type] ?: true)
             )
         )
         onSearchQueryUpdate()
