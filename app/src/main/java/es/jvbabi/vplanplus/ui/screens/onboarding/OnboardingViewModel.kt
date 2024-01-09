@@ -117,7 +117,7 @@ class OnboardingViewModel @Inject constructor(
                 nextPermission(context)
             }
         } else {
-            _state.value = _state.value.copy(stage = Stage.FINISH)
+            _state.value = _state.value.copy(stage = Stage.FINISH, isLoading = true)
         }
     }
 
@@ -305,7 +305,7 @@ class OnboardingViewModel @Inject constructor(
                 nextPermission(context)
             }
         } else {
-            _state.value = _state.value.copy(stage = Stage.FINISH)
+            _state.value = _state.value.copy(stage = Stage.FINISH, isLoading = true)
         }
     }
 }
