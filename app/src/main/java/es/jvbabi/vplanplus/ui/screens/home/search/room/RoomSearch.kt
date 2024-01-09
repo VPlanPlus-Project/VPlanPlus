@@ -71,6 +71,9 @@ fun FindAvailableRoomScreenContent(
     onNowToggled: () -> Unit = {},
     onNextToggled: () -> Unit = {},
 ) {
+    val show0 = state.rooms?.rooms?.any { it.availability[0] != null }?:true
+    val zeroMod = if (show0) 1 else 0
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -100,7 +103,7 @@ fun FindAvailableRoomScreenContent(
                     value = state.roomFilter,
                     onValueChange = { onRoomFilterValueChanged(it) }
                 )
-                if (state.currentClass != null) Row(
+                if (state.currentClass != null && (state.currentLesson?:0.toDouble())+ 0.5 != state.rooms?.maxLessons?.toDouble()) Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -110,7 +113,7 @@ fun FindAvailableRoomScreenContent(
                         text = stringResource(id = R.string.searchAvailableRoom_labelAvailability),
                         modifier = Modifier.padding(end = 4.dp)
                     )
-                    FilterChip(
+                    if ((state.currentLesson?:0.5) % 1 == 0.toDouble()) FilterChip(
                         enabled = state.currentLesson != null,
                         selected = state.filterNow,
                         leadingIcon = { Icon(
@@ -135,8 +138,6 @@ fun FindAvailableRoomScreenContent(
                         label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNext)) },
                     )
                 }
-                val show0 = state.rooms?.rooms?.any { it.availability[0] != null }?:true
-                val zeroMod = if (show0) 1 else 0
                 Box(modifier = Modifier.fillMaxSize()) {
                     if (!state.loading && state.rooms != null) Column {
                         Row(
@@ -153,10 +154,8 @@ fun FindAvailableRoomScreenContent(
                                         .padding(horizontal = 4.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(
-                                            if (lessonNumber - zeroMod == state.currentLesson?.toInt()) MaterialTheme.colorScheme.tertiaryContainer
-                                            else if (lessonNumber - zeroMod < (state.currentLesson?.toInt()
-                                                    ?: -1)
-                                            ) MaterialTheme.colorScheme.secondaryContainer
+                                            if (lessonNumber - zeroMod.toDouble() == state.currentLesson) MaterialTheme.colorScheme.tertiaryContainer
+                                            else if (lessonNumber - zeroMod.toDouble() < (state.currentLesson ?: (-1).toDouble())) MaterialTheme.colorScheme.secondaryContainer
                                             else MaterialTheme.colorScheme.primaryContainer
                                         )
                                         .weight(1 / (11f + zeroMod), false),
