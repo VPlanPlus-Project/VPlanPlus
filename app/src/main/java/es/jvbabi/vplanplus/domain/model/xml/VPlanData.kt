@@ -28,7 +28,7 @@ class VpMobilVpXml {
     var head: WplanVpXmlHead? = null
 
     @field:ElementList(name = "Klassen") var classes: List<WplanVpXmlSchoolClass>? = null
-    @field:ElementList(name = "ZusatzInfo", required = false, entry = "ZiZeile") var info: List<String>? = null
+    @field:ElementList(name = "ZusatzInfo", required = false, entry = "ZiZeile") var info: List<String?>? = null
 }
 
 @Root(name = "Kopf", strict = false)
