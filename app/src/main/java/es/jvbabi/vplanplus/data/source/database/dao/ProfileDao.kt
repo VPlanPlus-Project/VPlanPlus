@@ -30,7 +30,7 @@ abstract class ProfileDao {
     @Query("DELETE FROM profile WHERE profileId = :profileId")
     abstract suspend fun deleteProfile(profileId: UUID)
 
-    @Query("SELECT * FROM profile WHERE (type = 1 AND referenceId IN (SELECT id FROM school_entity WHERE schoolId = :schoolId))")
+    @Query("SELECT * FROM profile WHERE referenceId IN (SELECT id FROM school_entity WHERE schoolId = :schoolId)")
     @Transaction
     abstract suspend fun getProfilesBySchoolId(schoolId: Long): List<CProfile>
 }
