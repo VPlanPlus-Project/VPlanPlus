@@ -163,4 +163,6 @@
     <string name="onboarding_credentialsWrongSchoolIdLink">Wrong school id?</string>
     <string name="onboarding_skipPermissionButton">Don\'t give permission</string>
     <string name="onboarding_setupTakingLong">This is taking longer than expected. Please be patient. It will be done soon. Hopefully.</string>
+    <string name="search_notDetailedResult">%1$s • %2$d lessons</string>
+    <string name="search_noLessons">No lessons</string>
 </resources>

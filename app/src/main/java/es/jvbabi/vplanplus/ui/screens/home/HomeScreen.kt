@@ -69,6 +69,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
@@ -84,7 +85,6 @@ import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.NoData
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
 import es.jvbabi.vplanplus.ui.screens.home.search.SearchContent
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.FilterType
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.ViewType
@@ -95,6 +95,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Period
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import kotlin.math.abs
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -140,6 +141,9 @@ fun HomeScreen(
         },
         onFindAvailableRoomClicked = {
             navHostController.navigate(Screen.SearchAvailableRoomScreen.route)
+        },
+        onSelectSearchResult = { schoolId, type, id ->
+            viewModel.selectSearchResult(schoolId, type, id)
         }
     )
 
@@ -215,13 +219,14 @@ fun HomeScreenContent(
     state: HomeState,
     onSearchOpened: (Boolean) -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
-    onFilterToggle: (FilterType) -> Unit = {},
+    onFilterToggle: (SchoolEntityType) -> Unit = {},
     onMenuOpened: () -> Unit = {},
     onViewModeChanged: (type: ViewType) -> Unit = {},
     lessonPagerState: PagerState = rememberPagerState(
         initialPage = LocalDate.now().dayOfWeek.value,
         pageCount = { 5 }),
-    onFindAvailableRoomClicked: () -> Unit = {}
+    onFindAvailableRoomClicked: () -> Unit = {},
+    onSelectSearchResult: (schoolId: Long, type: SchoolEntityType, id: UUID) -> Unit = { _, _, _ -> }
 ) {
     Box(
         modifier = Modifier.fillMaxSize()
@@ -241,7 +246,8 @@ fun HomeScreenContent(
                     state = state,
                     onFindAvailableRoomClicked = { onFindAvailableRoomClicked() },
                     onFilterToggle = { onFilterToggle(it) },
-                    time = state.time
+                    time = state.time,
+                    onSelectSearchResult = onSelectSearchResult
                 )
             }
         }

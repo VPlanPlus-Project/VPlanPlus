@@ -1,16 +1,11 @@
 package es.jvbabi.vplanplus.ui.screens.home.search
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
-import androidx.compose.foundation.basicMarquee
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -31,6 +26,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -43,22 +39,23 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.preview.Lessons
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.FilterType
+import es.jvbabi.vplanplus.ui.screens.home.components.search.DetailedResult
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.SearchResult
-import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.util.UUID
+import kotlin.random.Random
 
 @Composable
 fun SearchContent(
     state: HomeState,
     onFindAvailableRoomClicked: () -> Unit = {},
-    onFilterToggle: (FilterType) -> Unit = {},
-    time: LocalDateTime = LocalDateTime.now()
+    onFilterToggle: (SchoolEntityType) -> Unit = {},
+    time: LocalDateTime = LocalDateTime.now(),
+    onSelectSearchResult: (schoolId: Long, type: SchoolEntityType, id: UUID) -> Unit
 ) {
     AssistChip(
         onClick = { onFindAvailableRoomClicked() },
@@ -76,8 +73,8 @@ fun SearchContent(
     ) {
         val paddingModifier = Modifier.padding(end = 8.dp)
         FilterChip(
-            selected = state.filter[FilterType.TEACHER]!!,
-            onClick = { onFilterToggle(FilterType.TEACHER) },
+            selected = state.filter[SchoolEntityType.TEACHER]!!,
+            onClick = { onFilterToggle(SchoolEntityType.TEACHER) },
             label = { Text(text = stringResource(id = R.string.search_teacherFilter)) },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.Person, contentDescription = null)
@@ -85,8 +82,8 @@ fun SearchContent(
             modifier = paddingModifier
         )
         FilterChip(
-            selected = state.filter[FilterType.ROOM]!!,
-            onClick = { onFilterToggle(FilterType.ROOM) },
+            selected = state.filter[SchoolEntityType.ROOM]!!,
+            onClick = { onFilterToggle(SchoolEntityType.ROOM) },
             label = { Text(text = stringResource(id = R.string.search_roomFilter)) },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.DoorBack, contentDescription = null)
@@ -94,8 +91,8 @@ fun SearchContent(
             modifier = paddingModifier
         )
         FilterChip(
-            selected = state.filter[FilterType.CLASS]!!,
-            onClick = { onFilterToggle(FilterType.CLASS) },
+            selected = state.filter[SchoolEntityType.CLASS]!!,
+            onClick = { onFilterToggle(SchoolEntityType.CLASS) },
             label = { Text(text = stringResource(id = R.string.search_classesFilter)) },
             leadingIcon = {
                 Icon(imageVector = Icons.Default.People, contentDescription = null)
@@ -112,7 +109,11 @@ fun SearchContent(
                     name = resultGroup.school.name,
                     searchResults = resultGroup.searchResults,
                     filterMap = state.filter,
-                    time = time
+                    time = time,
+                    onSelectSearchResult = { schoolId, type, id ->
+                        onSelectSearchResult(schoolId, type, id)
+                    },
+                    schoolId = resultGroup.school.schoolId
                 )
             }
         }
@@ -155,9 +156,16 @@ fun SearchContent(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
+
 @Composable
-fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map<FilterType, Boolean>, time: LocalDateTime) {
+fun SchoolResult(
+    schoolId: Long,
+    name: String,
+    searchResults: List<SearchResult>,
+    filterMap: Map<SchoolEntityType, Boolean>,
+    time: LocalDateTime,
+    onSelectSearchResult: (schoolId: Long, type: SchoolEntityType, id: UUID) -> Unit
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -170,14 +178,13 @@ fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map
                 style = MaterialTheme.typography.headlineSmall,
                 modifier = Modifier.padding(16.dp)
             )
-            FilterType.entries.forEach { filterType ->
-                if (filterMap[filterType]!!) {
+            filterMap.forEach { filterOption ->
+                if (filterOption.value) {
                     Text(
-                        text = when (filterType) {
-                            FilterType.TEACHER -> stringResource(id = R.string.search_teacherFilter)
-                            FilterType.ROOM -> stringResource(id = R.string.search_roomFilter)
-                            FilterType.CLASS -> stringResource(id = R.string.search_classesFilter)
-//                            FilterType.PROFILE -> stringResource(id = R.string.search_profileFilter)
+                        text = when (filterOption.key) {
+                            SchoolEntityType.TEACHER -> stringResource(id = R.string.search_teacherFilter)
+                            SchoolEntityType.ROOM -> stringResource(id = R.string.search_roomFilter)
+                            SchoolEntityType.CLASS -> stringResource(id = R.string.search_classesFilter)
                         },
                         style = MaterialTheme.typography.labelMedium,
                         modifier = Modifier.padding(8.dp)
@@ -187,7 +194,7 @@ fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map
                             .fillMaxWidth()
                             .background(CardDefaults.cardColors().containerColor)
                     ) {
-                        if (searchResults.groupBy { it.type }[filterType]?.isEmpty() != false) {
+                        if (searchResults.groupBy { it.type }[filterOption.key]?.isEmpty() != false) {
                             Text(
                                 text = stringResource(id = R.string.search_noResultsFound),
                                 style = MaterialTheme.typography.bodySmall,
@@ -197,99 +204,43 @@ fun SchoolResult(name: String, searchResults: List<SearchResult>, filterMap: Map
                                     bottom = 8.dp
                                 )
                             )
-                        } else {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp)
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.tertiaryContainer)
-                            ) {
-                                val firstResult = searchResults.sortedBy { it.name }
-                                    .first { it.type == filterType }
-                                Column {
-                                    Text(
-                                        text = firstResult.name,
-                                        modifier = Modifier.padding(12.dp),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                    Row(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .horizontalScroll(rememberScrollState())
-                                    ) {
-                                        firstResult.lessons.forEach { lesson ->
-                                            Box(
-                                                modifier = Modifier
-                                                    .padding(start = 8.dp, bottom = 8.dp)
-                                                    .size(65.dp)
-                                                    .border(
-                                                        1.dp,
-                                                        MaterialTheme.colorScheme.primary,
-                                                        RoundedCornerShape(8.dp)
-                                                    )
-                                                    .clip(RoundedCornerShape(8.dp))
-                                                    .background(CardDefaults.cardColors().containerColor),
-                                            ) {
-                                                val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-                                                val progress = DateUtils.calculateProgress(lesson.start.format(timeFormatter), time.format(timeFormatter), lesson.end.format(timeFormatter))?:0.0
-                                                if (progress > 0) Box(modifier = Modifier
-                                                    .background(MaterialTheme.colorScheme.tertiaryContainer)
-                                                    .fillMaxWidth(minOf(progress.toFloat(), 1f))
-                                                    .fillMaxHeight()
-                                                ) // Progress bar
-                                                Box(
-                                                    modifier = Modifier
-                                                        .padding(4.dp)
-                                                        .fillMaxSize(),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Column(
-                                                        modifier = Modifier
-                                                            .basicMarquee(
-                                                                iterations = Int.MAX_VALUE,
-                                                                velocity = 80.dp,
-                                                                spacing = MarqueeSpacing(12.dp)
-                                                            ),
-                                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                                        verticalArrangement = Arrangement.Center
-                                                    )  {
-                                                        Text(
-                                                            text = lesson.lessonNumber.toString() + ". " + lesson.displaySubject,
-                                                            style = MaterialTheme.typography.titleMedium
-                                                        )
-                                                        Text(
-                                                            text = when (filterType) {
-                                                                FilterType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
-                                                                    ", "
-                                                                )
-
-                                                                FilterType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
-                                                                    ", "
-                                                                )
-
-                                                                FilterType.CLASS -> lesson.teachers.joinToString(
-                                                                    ", "
-                                                                ) + " • " + lesson.rooms.joinToString(", ")
-                                                            },
-                                                            style = MaterialTheme.typography.labelSmall
-                                                        )
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
                         }
                     }
                 }
-                searchResults.filter { it.type == filterType }.sortedBy { it.name }.drop(1)
+                searchResults.filter { it.type == filterOption.key }.sortedBy { (!it.detailed).toString() + it.name }
                     .forEach { result ->
-                        Text(
-                            text = result.name,
-                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-                        )
+                        if (result.detailed) {
+                            Column {
+                                DetailedResult(result, time)
+                                if (searchResults.filter { it.type == filterOption.key }.size > 1) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(
+                                            horizontal = 8.dp,
+                                        )
+                                    )
+                                }
+                            }
+                        } else {
+                            Column(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        onSelectSearchResult(schoolId, result.type, result.id)
+                                    }
+                            ) {
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.search_notDetailedResult,
+                                        result.name,
+                                        result.lessons.filter { it.displaySubject != "-" }
+                                            .groupBy { it.lessonNumber }.size
+                                    ),
+                                    modifier = Modifier.padding(8.dp),
+                                )
+                            }
+                        }
                     }
             }
         }
@@ -306,35 +257,37 @@ fun SchoolResultPreview() {
             SearchResult(
                 UUID.randomUUID(),
                 Lessons.randomRoom().first().name,
-                FilterType.ROOM,
+                SchoolEntityType.ROOM,
                 Lessons.generateLessons(3)
             ),
             SearchResult(
                 UUID.randomUUID(),
                 Lessons.randomRoom().first().name,
-                FilterType.ROOM,
+                SchoolEntityType.ROOM,
+                Lessons.generateLessons(3),
+                detailed = true
+            ),
+            SearchResult(
+                UUID.randomUUID(),
+                Lessons.randomTeacher().first().acronym,
+                SchoolEntityType.TEACHER,
                 Lessons.generateLessons(3)
             ),
             SearchResult(
                 UUID.randomUUID(),
                 Lessons.randomTeacher().first().acronym,
-                FilterType.TEACHER,
-                Lessons.generateLessons(3)
-            ),
-            SearchResult(
-                UUID.randomUUID(),
-                Lessons.randomTeacher().first().acronym,
-                FilterType.TEACHER,
+                SchoolEntityType.TEACHER,
                 Lessons.generateLessons(3, true)
             ),
         ),
         filterMap = mapOf(
-            FilterType.TEACHER to true,
-            FilterType.ROOM to true,
-            FilterType.CLASS to true,
-//            FilterType.PROFILE to true
+            SchoolEntityType.TEACHER to true,
+            SchoolEntityType.ROOM to true,
+            SchoolEntityType.CLASS to true
         ),
-        time = LocalDateTime.now()
+        time = LocalDateTime.now(),
+        onSelectSearchResult = { _, _, _ -> },
+        schoolId = Random.nextLong()
     )
 }
 
@@ -344,11 +297,12 @@ private fun SearchContentPreview() {
     SearchContent(
         state = HomeState(
             filter = mapOf(
-                FilterType.TEACHER to true,
-                FilterType.ROOM to true,
-                FilterType.CLASS to true
+                SchoolEntityType.TEACHER to true,
+                SchoolEntityType.ROOM to true,
+                SchoolEntityType.CLASS to true
             ),
             fullyCompatible = false
-        )
+        ),
+        onSelectSearchResult = { _, _, _ -> }
     )
 }
