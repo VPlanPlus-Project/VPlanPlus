@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.usecase.find_room
 
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -28,26 +29,13 @@ class GetRoomMapUseCase(
         val roomResult = mutableListOf<RoomRecord>()
 
         rooms.forEach { room ->
-            val times = mutableListOf<TimeSpan?>()
-            val lessons = lessonUseCases.getLessonsForRoom(room, LocalDate.now(), version).first()
+            val lessons = mutableListOf<Lesson?>()
+            val roomLessons = lessonUseCases.getLessonsForRoom(room, LocalDate.now(), version).first()
             repeat(maxLessons) { l ->
-                val lesson = lessons.lessons.firstOrNull { it.lessonNumber == l }
-                if (lesson != null) {
-                    // Angry checkpoint: Classes don't necessarily have lesson times 😠
-                    var lessonTimesNotNull = lessonTimes[lesson.`class`]?:lessonTimes[classes.first { it.classId != lesson.`class`.classId }]!!
-                    if (lessonTimesNotNull.isEmpty()) {
-                        lessonTimesNotNull = lessonTimes[classes.first { it.classId != lesson.`class`.classId }]!!
-                    }
-                    times.add(
-                        TimeSpan(
-                            lessonTimesNotNull[l]!!.start,
-                            lessonTimesNotNull[l]!!.end
-                        )
-                    )
-                } else times.add(null)
+                lessons.add(roomLessons.lessons.firstOrNull { it.lessonNumber == l })
             }
 
-            roomResult.add(RoomRecord(room, times))
+            roomResult.add(RoomRecord(room, lessons))
         }
         return RoomMap(school, maxLessons, roomResult)
     }
@@ -61,11 +49,6 @@ data class RoomMap(
 
 data class RoomRecord (
     val room: Room,
-    val availability: List<TimeSpan?>,
+    val lessons: List<Lesson?>,
     val displayed: Boolean = true
-)
-
-data class TimeSpan(
-    val start: String,
-    val end: String
 )

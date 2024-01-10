@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.ui.screens.home.search.room
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,6 +20,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,9 +43,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.preview.Classes
+import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
+import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 
 @Composable
@@ -59,6 +66,8 @@ fun FindAvailableRoomScreen(
         onRoomFilterValueChanged = { roomSearchViewModel.onRoomFilterValueChanged(it) },
         onNowToggled = { roomSearchViewModel.toggleFilterNow() },
         onNextToggled = { roomSearchViewModel.toggleFilterNext() },
+        onOpenLessonDetailDialog = { roomSearchViewModel.showDialog(it) },
+        onCloseLessonDetailDialog = { roomSearchViewModel.closeDialog() }
     )
 }
 
@@ -70,9 +79,29 @@ fun FindAvailableRoomScreenContent(
     onRoomFilterValueChanged: (String) -> Unit = {},
     onNowToggled: () -> Unit = {},
     onNextToggled: () -> Unit = {},
+    onOpenLessonDetailDialog: (Lesson) -> Unit = {},
+    onCloseLessonDetailDialog: () -> Unit = {}
 ) {
-    val show0 = state.rooms?.rooms?.any { it.availability[0] != null } ?: true
+    val show0 = state.rooms?.rooms?.any { it.lessons[0] != null } ?: true
     val zeroMod = if (show0) 1 else 0
+
+    if (state.detailLesson != null) {
+        var info = state.detailLesson.info
+        info = if (info == null) "" else "$info\n"
+        InfoDialog(
+            icon = Icons.Default.School,
+            title = state.detailLesson.displaySubject + " " + DOT + " " + state.detailLesson.`class`.name,
+            message = stringResource(
+                id = R.string.searchAvailableRoom_lessonDetail,
+                state.detailLesson.teachers.joinToString(", "),
+                state.detailLesson.rooms.joinToString(", "),
+                info,
+                state.detailLesson.start.format(DateTimeFormatter.ofPattern("HH:mm")),
+                state.detailLesson.end.format(DateTimeFormatter.ofPattern("HH:mm")),
+            ),
+            onOk = { onCloseLessonDetailDialog() }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -135,7 +164,8 @@ fun FindAvailableRoomScreenContent(
                         Text(
                             text = stringResource(
                                 id = R.string.searchAvailableRoom_roomBooked,
-                                state.currentClass?.name ?: stringResource(R.string.searchAvailableRoom_roomBookedAClass)
+                                state.currentClass?.name
+                                    ?: stringResource(R.string.searchAvailableRoom_roomBookedAClass)
                             ),
                             modifier = Modifier.padding(horizontal = 8.dp),
                             color = MaterialTheme.colorScheme.onTertiaryContainer
@@ -258,12 +288,15 @@ fun FindAvailableRoomScreenContent(
                                 state.rooms.rooms
                                     .sortedBy { it.room.name }
                                     .forEach {
-                                        var map = it.availability.map { a -> a == null }
+                                        var map = it.lessons
                                         if (!show0) map = map.drop(1)
                                         RoomListRecord(
                                             name = it.room.name,
-                                            available = map,
-                                            displayed = it.displayed
+                                            lessons = map,
+                                            displayed = it.displayed,
+                                            onLessonClicked = { lesson ->
+                                                onOpenLessonDetailDialog(lesson)
+                                            }
                                         )
                                     }
                             } else {
@@ -307,7 +340,8 @@ fun FindAvailableRoomScreenPreview() {
         state = RoomSearchState(
             currentSchool = school,
             loading = false,
-            currentClass = Classes.generateClass(school)
+            currentClass = Classes.generateClass(school),
+            detailLesson = Lessons.generateLessons(1).first()
         ),
         onBackClicked = {},
     )
@@ -316,8 +350,9 @@ fun FindAvailableRoomScreenPreview() {
 @Composable
 private fun RoomListRecord(
     name: String,
-    available: List<Boolean>,
-    displayed: Boolean
+    lessons: List<Lesson?>,
+    displayed: Boolean,
+    onLessonClicked: (Lesson) -> Unit = {}
 ) {
     val height = animateFloatAsState(targetValue = if (displayed) 48f else 0f, label = "room entry")
     Box(
@@ -342,15 +377,18 @@ private fun RoomListRecord(
                     style = MaterialTheme.typography.labelSmall,
                 )
             }
-            available.forEach { available ->
+            lessons.forEach { lesson ->
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(40.dp)
                         .padding(horizontal = 4.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(if (available) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.error)
-                        .weight(1 / 12f, false),
+                        .background(if (lesson == null) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.error)
+                        .weight(1 / 12f, false)
+                        .clickable {
+                            if (lesson != null) onLessonClicked(lesson)
+                        },
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.SpaceAround
                 ) {
@@ -365,20 +403,7 @@ private fun RoomListRecord(
 private fun RoomListRecordPreview() {
     RoomListRecord(
         name = "r220",
-        available = listOf(
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-        ),
+        lessons = Array(12) { if (Random.nextBoolean()) Lessons.generateLessons(1).first() else null }.toList(),
         true
     )
 }

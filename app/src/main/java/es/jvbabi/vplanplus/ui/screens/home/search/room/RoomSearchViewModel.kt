@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.RoomMap
@@ -74,7 +75,7 @@ class RoomSearchViewModel @Inject constructor(
                 if (currentLessonNumber == null) return@launch
                 if (state.value.filterNow && state.value.currentClass != null) {
                     filteredRoomMap = filteredRoomMap.map {
-                        if (it.availability[ceil(currentLessonNumber).toInt()] != null) {
+                        if (it.lessons[ceil(currentLessonNumber).toInt()] != null) {
                             it.copy(displayed = false)
                         } else it
                     }
@@ -82,7 +83,7 @@ class RoomSearchViewModel @Inject constructor(
                 if (state.value.filterNext && state.value.currentClass != null) {
                     try {
                         filteredRoomMap = filteredRoomMap.map {
-                            if (it.availability[ceil(currentLessonNumber).toInt() + 1] != null) {
+                            if (it.lessons[ceil(currentLessonNumber).toInt() + 1] != null) {
                                 it.copy(displayed = false)
                             } else it
                         }
@@ -109,6 +110,14 @@ class RoomSearchViewModel @Inject constructor(
         _state.value = _state.value.copy(filterNext = !_state.value.filterNext)
         filter()
     }
+
+    fun showDialog(lesson: Lesson) {
+        _state.value = _state.value.copy(detailLesson = lesson)
+    }
+
+    fun closeDialog() {
+        _state.value = _state.value.copy(detailLesson = null)
+    }
 }
 
 data class RoomSearchState(
@@ -119,6 +128,7 @@ data class RoomSearchState(
     val roomFilter: String = "",
     val filterNow: Boolean = false,
     val filterNext: Boolean = true,
-    val currentLesson: Double? = null
+    val currentLesson: Double? = null,
+    val detailLesson: Lesson? = null,
 )
 

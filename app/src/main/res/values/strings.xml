@@ -169,4 +169,5 @@
     <string name="searchAvailableRoom_roomAvailable">Available</string>
     <string name="searchAvailableRoom_roomBooked">Booked for %1$s</string>
     <string name="searchAvailableRoom_roomBookedAClass">a class</string>
+    <string name="searchAvailableRoom_lessonDetail">%1$s in %2$s\n%3$sFrom %4$s to %5$s</string>
 </resources>
