@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.ui.screens.home.search.room
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +20,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -34,16 +37,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.InfoDialog
+import es.jvbabi.vplanplus.ui.preview.Classes
+import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
+import java.time.format.DateTimeFormatter
 import kotlin.random.Random
 
 @Composable
@@ -59,6 +66,8 @@ fun FindAvailableRoomScreen(
         onRoomFilterValueChanged = { roomSearchViewModel.onRoomFilterValueChanged(it) },
         onNowToggled = { roomSearchViewModel.toggleFilterNow() },
         onNextToggled = { roomSearchViewModel.toggleFilterNext() },
+        onOpenLessonDetailDialog = { roomSearchViewModel.showDialog(it) },
+        onCloseLessonDetailDialog = { roomSearchViewModel.closeDialog() }
     )
 }
 
@@ -70,9 +79,29 @@ fun FindAvailableRoomScreenContent(
     onRoomFilterValueChanged: (String) -> Unit = {},
     onNowToggled: () -> Unit = {},
     onNextToggled: () -> Unit = {},
+    onOpenLessonDetailDialog: (Lesson) -> Unit = {},
+    onCloseLessonDetailDialog: () -> Unit = {}
 ) {
-    val show0 = state.rooms?.rooms?.any { it.availability[0] != null }?:true
+    val show0 = state.rooms?.rooms?.any { it.lessons[0] != null } ?: true
     val zeroMod = if (show0) 1 else 0
+
+    if (state.detailLesson != null) {
+        var info = state.detailLesson.info
+        info = if (info == null) "" else "$info\n"
+        InfoDialog(
+            icon = Icons.Default.School,
+            title = state.detailLesson.displaySubject + " " + DOT + " " + state.detailLesson.`class`.name,
+            message = stringResource(
+                id = R.string.searchAvailableRoom_lessonDetail,
+                state.detailLesson.teachers.joinToString(", "),
+                state.detailLesson.rooms.joinToString(", "),
+                info,
+                state.detailLesson.start.format(DateTimeFormatter.ofPattern("HH:mm")),
+                state.detailLesson.end.format(DateTimeFormatter.ofPattern("HH:mm")),
+            ),
+            onOk = { onCloseLessonDetailDialog() }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -92,18 +121,74 @@ fun FindAvailableRoomScreenContent(
             Column(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
-                Text(text = state.currentSchool?.name?: stringResource(id = R.string.loadingData))
-                Text(text = stringResource(id = R.string.searchAvailableRoom_text))
+                Text(text = state.currentSchool?.name ?: stringResource(id = R.string.loadingData))
+                Row(
+                    modifier = Modifier.padding(vertical = 8.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .padding(horizontal = 4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.searchAvailableRoom_roomAvailable),
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .padding(horizontal = 4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.error),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.searchAvailableRoom_roomInUse),
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            color = MaterialTheme.colorScheme.onError
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .height(40.dp)
+                            .padding(horizontal = 4.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(MaterialTheme.colorScheme.tertiaryContainer),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = stringResource(
+                                id = R.string.searchAvailableRoom_roomBooked,
+                                state.currentClass?.name
+                                    ?: stringResource(R.string.searchAvailableRoom_roomBookedAClass)
+                            ),
+                            modifier = Modifier.padding(horizontal = 8.dp),
+                            color = MaterialTheme.colorScheme.onTertiaryContainer
+                        )
+                    }
+                }
                 OutlinedTextField(
                     modifier = Modifier
                         .padding(top = 8.dp)
                         .fillMaxWidth(),
-                    leadingIcon = { Icon(imageVector = Icons.Default.FilterAlt, contentDescription = null) },
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.FilterAlt,
+                            contentDescription = null
+                        )
+                    },
                     placeholder = { Text(text = stringResource(id = R.string.searchAvailableRoom_findPlaceholder)) },
                     value = state.roomFilter,
                     onValueChange = { onRoomFilterValueChanged(it) }
                 )
-                if (state.currentClass != null && (state.currentLesson?:0.toDouble())+ 0.5 != state.rooms?.maxLessons?.toDouble()) Row(
+                if (state.currentClass != null && (state.currentLesson
+                        ?: 0.toDouble()) + 0.5 != state.rooms?.maxLessons?.toDouble()
+                ) Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -113,14 +198,16 @@ fun FindAvailableRoomScreenContent(
                         text = stringResource(id = R.string.searchAvailableRoom_labelAvailability),
                         modifier = Modifier.padding(end = 4.dp)
                     )
-                    if ((state.currentLesson?:0.5) % 1 == 0.toDouble()) FilterChip(
+                    if ((state.currentLesson ?: 0.5) % 1 == 0.toDouble()) FilterChip(
                         enabled = state.currentLesson != null,
                         selected = state.filterNow,
-                        leadingIcon = { Icon(
-                            imageVector = if (state.filterNow) Icons.Default.Check else Icons.Default.AccessTime,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        ) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = if (state.filterNow) Icons.Default.Check else Icons.Default.AccessTime,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
                         onClick = { onNowToggled() },
                         modifier = Modifier.padding(horizontal = 4.dp),
                         label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNow)) },
@@ -128,11 +215,13 @@ fun FindAvailableRoomScreenContent(
                     FilterChip(
                         enabled = true,
                         selected = state.filterNext,
-                        leadingIcon = { Icon(
-                            imageVector = if (state.filterNext) Icons.Default.Check else Icons.Default.MoreTime,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurface
-                        ) },
+                        leadingIcon = {
+                            Icon(
+                                imageVector = if (state.filterNext) Icons.Default.Check else Icons.Default.MoreTime,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        },
                         onClick = { onNextToggled() },
                         modifier = Modifier.padding(horizontal = 4.dp),
                         label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNext)) },
@@ -146,47 +235,70 @@ fun FindAvailableRoomScreenContent(
                                 .fillMaxWidth()
                                 .horizontalScroll(rememberScrollState())
                         ) {
-                            repeat(state.rooms.maxLessons+zeroMod) { lessonNumber ->
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(40.dp)
+                                    .padding(horizontal = 4.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.primaryContainer)
+                                    .weight(2 / (12f + zeroMod), false),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.SpaceAround
+                            ) {}
+                            repeat(state.rooms.maxLessons + zeroMod - 1) { lessonNumber ->
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(50.dp)
+                                        .height(40.dp)
                                         .padding(horizontal = 4.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(
                                             if (lessonNumber - zeroMod.toDouble() == state.currentLesson) MaterialTheme.colorScheme.tertiaryContainer
-                                            else if (lessonNumber - zeroMod.toDouble() < (state.currentLesson ?: (-1).toDouble())) MaterialTheme.colorScheme.secondaryContainer
+                                            else if (lessonNumber - zeroMod.toDouble() < (state.currentLesson
+                                                    ?: (-1).toDouble())
+                                            ) MaterialTheme.colorScheme.secondaryContainer
                                             else MaterialTheme.colorScheme.primaryContainer
                                         )
                                         .weight(1 / (11f + zeroMod), false),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.SpaceAround
                                 ) {
-                                    if (lessonNumber > 0) {
-                                        Text(
-                                            text = "${lessonNumber - zeroMod}",
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                                        )
-                                    }
+                                    Text(
+                                        text = "${lessonNumber - zeroMod + 1}",
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                                    )
+
                                 }
                             }
                         }
+                        HorizontalDivider(
+                            modifier = Modifier.padding(
+                                top = 4.dp,
+                                bottom = 2.dp,
+                                start = 2.dp,
+                                end = 2.dp
+                            )
+                        )
                         Column(
                             modifier = Modifier
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            if (state.roomsFiltered.isNotEmpty()) {
-                                state.roomsFiltered
+                            if (state.rooms.rooms.isNotEmpty()) {
+                                state.rooms.rooms
                                     .sortedBy { it.room.name }
                                     .forEach {
-                                        var map = it.availability.map { a -> a == null }
+                                        var map = it.lessons
                                         if (!show0) map = map.drop(1)
                                         RoomListRecord(
                                             name = it.room.name,
-                                            available = map
+                                            lessons = map,
+                                            displayed = it.displayed,
+                                            onLessonClicked = { lesson ->
+                                                onOpenLessonDetailDialog(lesson)
+                                            }
                                         )
                                     }
-                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                             } else {
                                 Box(
                                     contentAlignment = Alignment.Center,
@@ -197,25 +309,20 @@ fun FindAvailableRoomScreenContent(
                                             .padding(4.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(imageVector = Icons.Default.SearchOff, contentDescription = null)
+                                        Icon(
+                                            imageVector = Icons.Default.SearchOff,
+                                            contentDescription = null
+                                        )
                                         Text(text = stringResource(id = R.string.search_noResultsFound))
                                     }
                                 }
                             }
-                            state.roomsFiltered
-                                .sortedBy { it.room.name }
-                                .forEach {
-                                    var map = it.availability.map { a -> a == null }
-                                    if (!show0) map = map.drop(1)
-                                    RoomListRecord(
-                                        name = it.room.name,
-                                        available = map
-                                    )
-                                }
-
                         }
                     } else {
-                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
                             CircularProgressIndicator()
                         }
                     }
@@ -228,10 +335,13 @@ fun FindAvailableRoomScreenContent(
 @Composable
 @Preview(showBackground = true)
 fun FindAvailableRoomScreenPreview() {
+    val school = School.generateRandomSchools(1).first()
     FindAvailableRoomScreenContent(
         state = RoomSearchState(
-            currentSchool = School.generateRandomSchools(1).first(),
+            currentSchool = school,
             loading = false,
+            currentClass = Classes.generateClass(school),
+            detailLesson = Lessons.generateLessons(1).first()
         ),
         onBackClicked = {},
     )
@@ -240,41 +350,49 @@ fun FindAvailableRoomScreenPreview() {
 @Composable
 private fun RoomListRecord(
     name: String,
-    available: List<Boolean>
+    lessons: List<Lesson?>,
+    displayed: Boolean,
+    onLessonClicked: (Lesson) -> Unit = {}
 ) {
-    Row(
-        modifier = Modifier.padding(vertical = 4.dp)
+    val height = animateFloatAsState(targetValue = if (displayed) 48f else 0f, label = "room entry")
+    Box(
+        modifier = Modifier.height(height.value.dp)
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .padding(horizontal = 4.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
-                .weight(1 / 12f, false),
-            verticalArrangement = Arrangement.SpaceAround
+        Row(
+            modifier = Modifier.padding(vertical = 4.dp)
         ) {
-            Text(
-                text = name,
-                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.rotate(90f)
-            )
-        }
-        available.forEach { available ->
-            Column(
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(40.dp)
                     .padding(horizontal = 4.dp)
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (available) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.error)
-                    .weight(1 / 12f, false),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceAround
+                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .weight(2 / 13f, false),
+                contentAlignment = Alignment.Center
             ) {
+                Text(
+                    text = name,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    style = MaterialTheme.typography.labelSmall,
+                )
+            }
+            lessons.forEach { lesson ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(40.dp)
+                        .padding(horizontal = 4.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(if (lesson == null) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.error)
+                        .weight(1 / 12f, false)
+                        .clickable {
+                            if (lesson != null) onLessonClicked(lesson)
+                        },
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceAround
+                ) {
+                }
             }
         }
     }
@@ -284,20 +402,8 @@ private fun RoomListRecord(
 @Composable
 private fun RoomListRecordPreview() {
     RoomListRecord(
-        name = "220",
-        available = listOf(
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-            Random.nextBoolean(),
-        )
+        name = "r220",
+        lessons = Array(12) { if (Random.nextBoolean()) Lessons.generateLessons(1).first() else null }.toList(),
+        true
     )
 }
