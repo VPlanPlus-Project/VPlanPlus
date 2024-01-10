@@ -61,7 +61,8 @@ data class RoomMap(
 
 data class RoomRecord (
     val room: Room,
-    val availability: List<TimeSpan?>
+    val availability: List<TimeSpan?>,
+    val displayed: Boolean = true
 )
 
 data class TimeSpan(

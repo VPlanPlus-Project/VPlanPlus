@@ -165,4 +165,8 @@
     <string name="onboarding_setupTakingLong">This is taking longer than expected. Please be patient. It will be done soon. Hopefully.</string>
     <string name="search_notDetailedResult">%1$s • %2$d lessons</string>
     <string name="search_noLessons">No lessons</string>
+    <string name="searchAvailableRoom_roomInUse">In use</string>
+    <string name="searchAvailableRoom_roomAvailable">Available</string>
+    <string name="searchAvailableRoom_roomBooked">Booked for %1$s</string>
+    <string name="searchAvailableRoom_roomBookedAClass">a class</string>
 </resources>

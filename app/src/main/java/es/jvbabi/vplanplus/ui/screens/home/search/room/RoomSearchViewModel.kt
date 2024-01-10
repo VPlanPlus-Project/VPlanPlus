@@ -10,7 +10,6 @@ import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.RoomMap
-import es.jvbabi.vplanplus.domain.usecase.find_room.RoomRecord
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
@@ -59,26 +58,36 @@ class RoomSearchViewModel @Inject constructor(
 
     fun filter() {
         viewModelScope.launch {
-            var filteredRoomMap = state.value.rooms?.rooms?:return@launch
+
+            var filteredRoomMap = state.value.rooms?.rooms?.map { it.copy(displayed = true) }?:return@launch
+
             if (state.value.roomFilter.isNotBlank()) {
-                filteredRoomMap = filteredRoomMap.filter { it.room.name.contains(state.value.roomFilter, ignoreCase = true) }
+                filteredRoomMap = filteredRoomMap.map {
+                    if (!it.room.name.contains(state.value.roomFilter, ignoreCase = true)) {
+                        it.copy(displayed = false)
+                    } else it
+                }
             }
             val currentLessonNumber = getCurrentLessonNumberUseCase(state.value.currentClass!!)
            _state.value = _state.value.copy(currentLesson = currentLessonNumber)
             if (currentLessonNumber == null) return@launch
             if (state.value.filterNow && state.value.currentClass != null) {
-                filteredRoomMap = filteredRoomMap.filter {
-                    it.availability[ceil(currentLessonNumber).toInt()] == null
+                filteredRoomMap = filteredRoomMap.map {
+                    if (it.availability[ceil(currentLessonNumber).toInt()] != null) {
+                        it.copy(displayed = false)
+                    } else it
                 }
             }
             if (state.value.filterNext && state.value.currentClass != null) {
                 try {
-                    filteredRoomMap = filteredRoomMap.filter {
-                        it.availability[ceil(currentLessonNumber).toInt()+1] == null
+                    filteredRoomMap = filteredRoomMap.map {
+                        if (it.availability[ceil(currentLessonNumber).toInt()+1] != null) {
+                            it.copy(displayed = false)
+                        } else it
                     }
                 } catch (_: IndexOutOfBoundsException) {}
             }
-            _state.value = _state.value.copy(roomsFiltered = filteredRoomMap)
+            _state.value = _state.value.copy(rooms = _state.value.rooms?.copy(rooms = filteredRoomMap))
         }
     }
 
@@ -102,7 +111,6 @@ data class RoomSearchState(
     val currentSchool: School? = null,
     val currentClass: Classes? = null, // only if user is student
     val rooms: RoomMap? = null,
-    val roomsFiltered: List<RoomRecord> = emptyList(),
     val loading: Boolean = true,
     val roomFilter: String = "",
     val filterNow: Boolean = false,
