@@ -58,8 +58,8 @@ class RoomSearchViewModel @Inject constructor(
 
     fun filter() {
         viewModelScope.launch {
-
-            var filteredRoomMap = state.value.rooms?.rooms?.map { it.copy(displayed = true) }?:return@launch
+            var filteredRoomMap =
+                state.value.rooms?.rooms?.map { it.copy(displayed = true) } ?: return@launch
 
             if (state.value.roomFilter.isNotBlank()) {
                 filteredRoomMap = filteredRoomMap.map {
@@ -68,26 +68,30 @@ class RoomSearchViewModel @Inject constructor(
                     } else it
                 }
             }
-            val currentLessonNumber = getCurrentLessonNumberUseCase(state.value.currentClass!!)
-           _state.value = _state.value.copy(currentLesson = currentLessonNumber)
-            if (currentLessonNumber == null) return@launch
-            if (state.value.filterNow && state.value.currentClass != null) {
-                filteredRoomMap = filteredRoomMap.map {
-                    if (it.availability[ceil(currentLessonNumber).toInt()] != null) {
-                        it.copy(displayed = false)
-                    } else it
-                }
-            }
-            if (state.value.filterNext && state.value.currentClass != null) {
-                try {
+            if (_state.value.currentClass != null) {
+                val currentLessonNumber = getCurrentLessonNumberUseCase(state.value.currentClass!!)
+                _state.value = _state.value.copy(currentLesson = currentLessonNumber)
+                if (currentLessonNumber == null) return@launch
+                if (state.value.filterNow && state.value.currentClass != null) {
                     filteredRoomMap = filteredRoomMap.map {
-                        if (it.availability[ceil(currentLessonNumber).toInt()+1] != null) {
+                        if (it.availability[ceil(currentLessonNumber).toInt()] != null) {
                             it.copy(displayed = false)
                         } else it
                     }
-                } catch (_: IndexOutOfBoundsException) {}
+                }
+                if (state.value.filterNext && state.value.currentClass != null) {
+                    try {
+                        filteredRoomMap = filteredRoomMap.map {
+                            if (it.availability[ceil(currentLessonNumber).toInt() + 1] != null) {
+                                it.copy(displayed = false)
+                            } else it
+                        }
+                    } catch (_: IndexOutOfBoundsException) {
+                    }
+                }
             }
-            _state.value = _state.value.copy(rooms = _state.value.rooms?.copy(rooms = filteredRoomMap))
+            _state.value =
+                _state.value.copy(rooms = _state.value.rooms?.copy(rooms = filteredRoomMap))
         }
     }
 
