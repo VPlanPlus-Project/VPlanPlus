@@ -26,6 +26,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -206,10 +207,19 @@ fun SchoolResult(
                         }
                     }
                 }
-                searchResults.filter { it.type == filterOption.key }.sortedBy { it.name }
+                searchResults.filter { it.type == filterOption.key }.sortedBy { (!it.detailed).toString() + it.name }
                     .forEach { result ->
                         if (result.detailed) {
-                            DetailedResult(result, time)
+                            Column {
+                                DetailedResult(result, time)
+                                if (searchResults.filter { it.type == filterOption.key }.size > 1) {
+                                    HorizontalDivider(
+                                        modifier = Modifier.padding(
+                                            horizontal = 8.dp,
+                                        )
+                                    )
+                                }
+                            }
                         } else {
                             Column(
                                 modifier = Modifier
