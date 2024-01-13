@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 
 import android.annotation.SuppressLint
-import android.app.NotificationManager
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
@@ -9,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -99,11 +99,9 @@ class ProfileSettingsViewModel @Inject constructor(
                 if (activeProfile.id == profile.id) {
                     keyValueUseCases.set(Keys.ACTIVE_PROFILE, (profileUseCases.getProfiles().first().find { it.id != profile.id }?.id ?: -1).toString())
                 }
+                Notification.deleteChannel(context, "PROFILE_${profile.id.toString().lowercase()}")
                 profileUseCases.deleteProfile(profile.id)
                 setDeleteProfileResult(ProfileManagementDeletionResult.SUCCESS)
-                val notificationManager: NotificationManager =
-                    context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.deleteNotificationChannel("PROFILE_${profile.originalName}")
             }
         }
     }

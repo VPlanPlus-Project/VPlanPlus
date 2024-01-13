@@ -49,4 +49,10 @@ object Notification {
             )
         }
     }
+
+    fun deleteChannel(context: Context, id: String) {
+        val notificationManager: NotificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.deleteNotificationChannel(id)
+    }
 }

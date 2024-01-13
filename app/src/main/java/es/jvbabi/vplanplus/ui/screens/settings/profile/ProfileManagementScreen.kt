@@ -45,6 +45,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -70,6 +71,7 @@ fun ProfileManagementScreen(
 ) {
     val state = viewModel.state.value
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     ProfileManagementScreenContent(
         onBackClicked = { navController.popBackStack() },
@@ -89,7 +91,7 @@ fun ProfileManagementScreen(
             navController.navigate(Screen.OnboardingSchoolIdScreen.route)
         },
         onDeleteSchoolOpenDialog = { viewModel.openDeleteSchoolDialog(it) },
-        onDeleteSchoolConfirm = { viewModel.deleteSchool() },
+        onDeleteSchoolConfirm = { viewModel.deleteSchool(context) },
         onDeleteSchoolDismiss = { viewModel.closeDeleteSchoolDialog() }
     )
 }

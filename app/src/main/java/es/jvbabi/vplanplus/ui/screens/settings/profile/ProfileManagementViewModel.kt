@@ -1,10 +1,12 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile
 
+import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -125,8 +127,11 @@ class ProfileManagementViewModel @Inject constructor(
         _state.value = _state.value.copy(deletingSchool = null)
     }
 
-    fun deleteSchool() {
+    fun deleteSchool(context: Context) {
         if (_state.value.deletingSchool == null) return
+        _state.value.deletingSchool!!.profiles.map { "PROFILE_${it.id.toString().lowercase()}" }.forEach {
+            Notification.deleteChannel(context, it)
+        }
         viewModelScope.launch {
             schoolUseCases.deleteSchool(schoolUseCases.getSchoolByName(_state.value.deletingSchool!!.name).schoolId)
             val firstProfile = profileUseCases.getProfiles().first().firstOrNull()
