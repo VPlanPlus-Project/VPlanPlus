@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.DeveloperMode
-import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
@@ -79,7 +78,6 @@ fun Menu(
     onRepositoryClicked: () -> Unit = {},
     onManageProfilesClicked: () -> Unit = {},
     onDeletePlansClicked: () -> Unit = {},
-    onLogsClicked: () -> Unit = {},
     onNewsClicked: () -> Unit = {},
     onWebsiteClicked: () -> Unit = {},
     hasUnreadNews: Boolean,
@@ -88,14 +86,14 @@ fun Menu(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.7f))
-            .noRippleClickable(enabled = true) { onCloseClicked() },
+            .noRippleClickable { onCloseClicked() },
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth(0.9f)
                 .clip(RoundedCornerShape(16.dp))
-                .noRippleClickable(enabled = true, onClick = { })
+                .noRippleClickable(onClick = { })
                 .background(MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Column {
@@ -183,7 +181,6 @@ fun Menu(
                         ButtonRow(Icons.Outlined.Refresh, text = stringResource(id = R.string.home_menuRefresh), onClick = { onRefreshClicked() })
                         ButtonRow(Icons.Outlined.Settings, stringResource(id = R.string.home_menuSettings), onClick = { onSettingsClicked() })
                         ButtonRow(icon = Icons.Outlined.DeleteForever, text = stringResource(id = R.string.home_menuClearData), onClick = { onDeletePlansClicked() })
-                        ButtonRow(icon = Icons.Outlined.FormatListNumbered, text = stringResource(id = R.string.home_menuLogs), onClick = { onLogsClicked() })
                         HorizontalDivider()
                         ButtonRow(Icons.Outlined.DeveloperMode, stringResource(id = R.string.home_menuRepository), onClick = { onRepositoryClicked() })
                         ButtonRow(icon = painterResource(id = R.drawable.vpp), text = stringResource(id = R.string.home_menuWebsite), onClick = { onWebsiteClicked() } )
@@ -276,15 +273,12 @@ data class MenuProfile(
     val customName: String
 )
 
-// https://www.droidcon.com/2023/02/16/remove-ripple-effect-from-clickable-and-toggleable-widget-in-jetpack-compose/
 inline fun Modifier.noRippleClickable(
-    enabled: Boolean = false,
-    crossinline onClick: () -> Unit,
+    crossinline onClick: () -> Unit
 ): Modifier = composed {
-    clickable(
+    then(Modifier.clickable(
         indication = null,
-        enabled = enabled,
         interactionSource = remember { MutableInteractionSource() }) {
         onClick()
-    }
+    })
 }

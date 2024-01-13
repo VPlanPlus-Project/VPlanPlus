@@ -15,7 +15,7 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
-import es.jvbabi.vplanplus.ui.screens.logs.LogsScreen
+import es.jvbabi.vplanplus.ui.screens.settings.advanced.logs.LogsScreen
 import es.jvbabi.vplanplus.ui.screens.news.NewsScreen
 import es.jvbabi.vplanplus.ui.screens.news.detail.NewsDetailScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingAddProfileScreen
@@ -30,6 +30,7 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.Task
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
+import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
@@ -122,7 +123,11 @@ fun NavigationGraph(
             )
         }
 
-        composable(route = Screen.LogsScreen.route) {
+        composable(route = Screen.SettingsAdvancedScreen.route) {
+            AdvancedSettingsScreen(navHostController = navController)
+        }
+
+        composable(route = Screen.SettingsAdvancedLogScreen.route) {
             LogsScreen(navController)
         }
 

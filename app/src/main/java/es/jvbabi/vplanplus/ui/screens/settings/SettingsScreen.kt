@@ -9,6 +9,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -77,6 +78,14 @@ fun SettingsScreen(navController: NavHostController) {
                         navController.navigate(Screen.SettingsProfileScreen.route)
                     }
                 ),
+                SettingEntry(
+                    icon = Icons.Outlined.DataObject,
+                    title = stringResource(id = R.string.settings_advancedTitle),
+                    subtitle = stringResource(id = R.string.settings_advancedSubtitle),
+                    onClick = {
+                        navController.navigate(Screen.SettingsAdvancedScreen.route)
+                    }
+                )
             )
 
             LazyColumn(

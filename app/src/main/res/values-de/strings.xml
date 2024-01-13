@@ -139,7 +139,7 @@
     <string name="searchAvailableRoom_noResults">Nichts gefunden</string>
     <string name="home_menuRefresh">Aktualisieren</string>
     <string name="home_menuClearData">Plandaten löschen</string>
-    <string name="home_menuLogs">Logs</string>
+    <string name="advancedSettings_logsTitle">Logs</string>
     <string name="home_menuWebsite">Webseite</string>
     <string name="home_menuNews">Nachrichten</string>
     <string name="news_homeTitle">Nachrichten</string>
@@ -171,4 +171,10 @@
     <string name="searchAvailableRoom_roomBooked">Für %1$s gebucht</string>
     <string name="searchAvailableRoom_roomBookedAClass">eine Klasse</string>
     <string name="searchAvailableRoom_lessonDetail">%1$s in %2$s\n%3$sVon %4$s bis %5$s</string>
+    <string name="settings_advancedTitle">Erweitert</string>
+    <string name="settings_advancedSubtitle">Experimentelle Features und Debug-Optionen. Mit Vorsicht verwenden.</string>
+    <string name="advancedSettings_title">Erweiterte Einstellungen</string>
+    <string name="advancedSettings_logsSubtitle">Verfolge Netzwerkanfragen und andere Informationen</string>
+    <string name="advancedSettings_infoProfileTitle">Aktuelles Profil</string>
+    <string name="advancedSettings_infoCurrentLessonTitle">Stunde</string>
 </resources>

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ManageAccounts
@@ -66,8 +67,10 @@ fun SettingsSetting(
                         imageVector = icon,
                         contentDescription = null,
                         tint = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
-                        modifier = Modifier.padding(horizontal = 12.dp)
+                        modifier = Modifier.padding(start = 12.dp, end = 16.dp)
                     )
+                } else {
+                    Box(modifier = Modifier.width(52.dp))
                 }
             }
             Column {
@@ -96,6 +99,7 @@ fun SettingsSetting(
 
                 SettingsType.NUMERIC_INPUT -> {}
                 SettingsType.SELECT -> {}
+                SettingsType.DISPLAY -> {}
 
                 SettingsType.CHECKBOX -> {
                     // TODO
@@ -114,7 +118,8 @@ enum class SettingsType {
     CHECKBOX,
     FUNCTION,
     NUMERIC_INPUT,
-    SELECT
+    SELECT,
+    DISPLAY
 }
 
 @Composable
@@ -122,6 +127,20 @@ enum class SettingsType {
 fun SettingsOptionPreview() {
     SettingsSetting(
         icon = Icons.Default.ManageAccounts,
+        title = "Test",
+        subtitle = "Test",
+        type = SettingsType.NUMERIC_INPUT,
+        checked = true,
+        doAction = {},
+        enabled = true
+    )
+}
+
+@Composable
+@Preview(showBackground = true)
+fun SettingsOptionNoIconPreview() {
+    SettingsSetting(
+        icon = null,
         title = "Test",
         subtitle = "Test",
         type = SettingsType.NUMERIC_INPUT,

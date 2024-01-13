@@ -15,13 +15,18 @@ sealed class Screen(val route: String) {
     data object OnboardingPermissionsScreen: Screen("onboarding/permissions_screen")
     data object OnboardingSetupScreen: Screen("onboarding/setup_screen")
 
+
+    // SETTINGS
     data object SettingsScreen: Screen("settings/main")
     data object SettingsProfileScreen: Screen("settings/profile")
+
     data object SettingsProfileDefaultLessonsScreen: Screen("settings/profile/{profileId}/default_lessons")
     data object SettingsGeneralSettingsScreen: Screen("settings/general_settings")
 
-    data object NewsScreen: Screen("news_screen")
-    data object NewsDetailScreen: Screen("news_screen")
+    data object SettingsAdvancedScreen: Screen("settings/advanced")
+    data object SettingsAdvancedLogScreen: Screen("settings/advanced/logs")
 
-    data object LogsScreen: Screen("logs_screen")
+    data object NewsScreen: Screen("news_screen")
+
+    data object NewsDetailScreen: Screen("news_screen")
 }

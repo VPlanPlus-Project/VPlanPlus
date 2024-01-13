@@ -65,6 +65,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
@@ -438,5 +439,11 @@ object VppModule {
     @Singleton
     fun provideGetCurrentLessonNumberUseCase(lessonTimeRepository: LessonTimeRepository): GetCurrentLessonNumberUseCase {
         return GetCurrentLessonNumberUseCase(lessonTimeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentTimeUseCase(): GetCurrentTimeUseCase {
+        return GetCurrentTimeUseCase()
     }
 }

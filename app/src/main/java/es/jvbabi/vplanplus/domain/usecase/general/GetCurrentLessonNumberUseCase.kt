@@ -20,7 +20,7 @@ class GetCurrentLessonNumberUseCase(
             val start = LocalDateTime.parse(lessonTime.value.start + " 01.01.1970", DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy"))
             val end = LocalDateTime.parse(lessonTime.value.end + " 01.01.1970", DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy"))
             if (now.isAfter(start) || now.isEqual(start)) currentLesson += 0.5
-            if (now.isAfter(end)) currentLesson += 0.5
+            if (now.isAfter(end) || now.isEqual(end)) currentLesson += 0.5
         }
         return if (currentLesson == 0.5) null else currentLesson-1
     }
