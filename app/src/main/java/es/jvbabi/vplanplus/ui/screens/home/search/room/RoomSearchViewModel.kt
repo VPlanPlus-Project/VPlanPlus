@@ -18,7 +18,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlin.math.ceil
+import kotlin.math.floor
 
 @HiltViewModel
 class RoomSearchViewModel @Inject constructor(
@@ -75,7 +75,7 @@ class RoomSearchViewModel @Inject constructor(
                 if (currentLessonNumber == null) return@launch
                 if (state.value.filterNow && state.value.currentClass != null) {
                     filteredRoomMap = filteredRoomMap.map {
-                        if (it.lessons[ceil(currentLessonNumber).toInt()] != null) {
+                        if (it.lessons.any { l -> l?.lessonNumber == floor(currentLessonNumber).toInt()+1 }) {
                             it.copy(displayed = false)
                         } else it
                     }
@@ -83,7 +83,7 @@ class RoomSearchViewModel @Inject constructor(
                 if (state.value.filterNext && state.value.currentClass != null) {
                     try {
                         filteredRoomMap = filteredRoomMap.map {
-                            if (it.lessons[ceil(currentLessonNumber).toInt() + 1] != null) {
+                            if (it.lessons.any { l -> l?.lessonNumber == floor(currentLessonNumber).toInt()+2 }) {
                                 it.copy(displayed = false)
                             } else it
                         }
