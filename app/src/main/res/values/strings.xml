@@ -138,7 +138,7 @@
     <string name="searchAvailableRoom_noResults">No results</string>
     <string name="home_menuRefresh">Refresh</string>
     <string name="home_menuClearData">Delete plan data</string>
-    <string name="home_menuLogs">Logs</string>
+    <string name="advancedSettings_logsTitle">Logs</string>
     <string name="home_menuWebsite">Website</string>
     <string name="home_menuNews">News</string>
     <string name="news_homeTitle">News</string>
@@ -170,4 +170,10 @@
     <string name="searchAvailableRoom_roomBooked">Booked for %1$s</string>
     <string name="searchAvailableRoom_roomBookedAClass">a class</string>
     <string name="searchAvailableRoom_lessonDetail">%1$s in %2$s\n%3$sFrom %4$s to %5$s</string>
+    <string name="settings_advancedTitle">Advanced</string>
+    <string name="settings_advancedSubtitle">Experimental features and debug options. Use with caution.</string>
+    <string name="advancedSettings_title">Advanced settings</string>
+    <string name="advancedSettings_logsSubtitle">Track network requests and other data</string>
+    <string name="advancedSettings_infoProfileTitle">Current profile</string>
+    <string name="advancedSettings_infoCurrentLessonTitle">Current lesson</string>
 </resources>

@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.logs
+package es.jvbabi.vplanplus.ui.screens.settings.advanced.logs
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

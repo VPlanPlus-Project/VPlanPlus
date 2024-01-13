@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material3.Icon
@@ -16,6 +18,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,8 +52,9 @@ fun SettingsSetting(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
             .clickable { if (enabled) doAction() }
-            .padding(vertical = 8.dp),
+            .padding(vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -62,21 +66,23 @@ fun SettingsSetting(
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray,
-                        modifier = Modifier.padding(end = 16.dp)
+                        tint = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
+                        modifier = Modifier.padding(start = 12.dp, end = 16.dp)
                     )
+                } else {
+                    Box(modifier = Modifier.width(52.dp))
                 }
             }
             Column {
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray
+                    style = MaterialTheme.typography.titleLarge,
+                    color = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray
                 )
                 if (subtitle != null) {
                     Text(
                         text = subtitle,
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.bodyMedium,
                         color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray
                     )
                 }
@@ -93,6 +99,7 @@ fun SettingsSetting(
 
                 SettingsType.NUMERIC_INPUT -> {}
                 SettingsType.SELECT -> {}
+                SettingsType.DISPLAY -> {}
 
                 SettingsType.CHECKBOX -> {
                     // TODO
@@ -111,7 +118,8 @@ enum class SettingsType {
     CHECKBOX,
     FUNCTION,
     NUMERIC_INPUT,
-    SELECT
+    SELECT,
+    DISPLAY
 }
 
 @Composable
@@ -124,6 +132,20 @@ fun SettingsOptionPreview() {
         type = SettingsType.NUMERIC_INPUT,
         checked = true,
         doAction = {},
-        enabled = false
+        enabled = true
+    )
+}
+
+@Composable
+@Preview(showBackground = true)
+fun SettingsOptionNoIconPreview() {
+    SettingsSetting(
+        icon = null,
+        title = "Test",
+        subtitle = "Test",
+        type = SettingsType.NUMERIC_INPUT,
+        checked = true,
+        doAction = {},
+        enabled = true
     )
 }
