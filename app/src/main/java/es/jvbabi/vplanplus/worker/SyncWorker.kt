@@ -82,6 +82,8 @@ class SyncWorker @AssistedInject constructor(
 
         // get general news
         messageRepository.updateMessages(null)
+        
+        val notifications = mutableListOf<NotificationData>()
 
         schoolUseCases.getSchools().forEach school@{ school ->
             messageRepository.updateMessages(school.schoolId)
@@ -136,7 +138,7 @@ class SyncWorker @AssistedInject constructor(
                     val type = if (profileDataBefore[profile]!!.isEmpty()) NotificationType.NEW_PLAN else NotificationType.CHANGED_LESSONS
 
                     if (changedLessons.isEmpty()) return@profile
-                    if (canSendNotification() && !date.isBefore(LocalDate.now())) sendNewPlanNotification(profile, changedLessons, day.info, date, type)
+                    if (canSendNotification() && !date.isBefore(LocalDate.now())) notifications.add(NotificationData(profile, changedLessons, day.info, date, type))
 
                     // build calendar
                     val calendar = profileUseCases.getCalendarFromProfile(profile)
@@ -213,55 +215,60 @@ class SyncWorker @AssistedInject constructor(
             (keyValueUseCases.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2")
                 .toLong() + 1L).toString()
         )
+        keyValueUseCases.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
         lessonUseCases.deleteLessonsByVersion(keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)!!.toLong()-1L)
         planRepository.deletePlansByVersion(keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)!!.toLong()-1L)
-        keyValueUseCases.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
         Log.d("SyncWorker", "SYNCED")
-        logRecordRepository.log("SyncWorker", "Synced sucessfully")
+        logRecordRepository.log("SyncWorker", "Synced successfully")
+        
+        notifications.forEach { notificationData ->
+            sendNewPlanNotification(notificationData)
+        }
+        
         return Result.success()
     }
 
-    private suspend fun sendNewPlanNotification(profile: Profile, changedLessons: List<Lesson>, info: String?, date: LocalDate, notificationType: NotificationType) {
+    private suspend fun sendNewPlanNotification(notificationData: NotificationData) {
 
         val intent = Intent(context, MainActivity::class.java)
-            .putExtra("profileId", profile.id.toString())
-            .putExtra("dateStr", date.toString())
+            .putExtra("profileId", notificationData.profile.id.toString())
+            .putExtra("dateStr", notificationData.date.toString())
 
-        Log.d("SyncWorker.Notification", "Sending $notificationType for ${profile.displayName} at ${date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}")
-        Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(profile.id.hashCode(), "${date.dayOfMonth}${date.monthValue}".toInt()))
+        Log.d("SyncWorker.Notification", "Sending ${notificationData.notificationType} for ${notificationData.profile.displayName} at ${notificationData.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}")
+        Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(notificationData.profile.id.hashCode(), "${notificationData.date.dayOfMonth}${notificationData.date.monthValue}".toInt()))
 
         val pendingIntent = PendingIntent.getActivity(
             context,
-            MathTools.cantor(profile.id.hashCode(), date.toString().replace("-", "").toInt()),
+            MathTools.cantor(notificationData.profile.id.hashCode(), notificationData.date.toString().replace("-", "").toInt()),
             intent,
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val school = profileUseCases.getSchoolFromProfileId(profile.id)
+        val school = profileUseCases.getSchoolFromProfileId(notificationData.profile.id)
 
-        val message = when (notificationType) {
+        val message = when (notificationData.notificationType) {
             NotificationType.CHANGED_LESSONS -> context.getString(
                 R.string.notification_planChangedText,
-                profile.displayName,
+                notificationData.profile.displayName,
                 school.name,
-                DateUtils.localizedRelativeDate(context, date)
+                DateUtils.localizedRelativeDate(context, notificationData.date)
             ) +
-                    buildInfoNotificationString(info) +
-                    buildChangedNotificationString(changedLessons)
+                    buildInfoNotificationString(notificationData.info) +
+                    buildChangedNotificationString(notificationData.changedLessons)
             NotificationType.NEW_PLAN -> context.getString(
                 R.string.notification_newPlanText,
-                profile.displayName,
+                notificationData.profile.displayName,
                 school.name,
-                DateUtils.localizedRelativeDate(context, date)
+                DateUtils.localizedRelativeDate(context, notificationData.date)
             ) +
-                    buildInfoNotificationString(info) +
-                    buildChangedNotificationString(changedLessons)
+                    buildInfoNotificationString(notificationData.info) +
+                    buildChangedNotificationString(notificationData.changedLessons)
         }
 
         notificationRepository.sendNotification(
-            "PROFILE_${profile.id.toString().lowercase()}",
-            MathTools.cantor(profile.id.hashCode(), date.toString().replace("-", "").toInt()),
-            context.getString(when (notificationType) {
+            "PROFILE_${notificationData.profile.id.toString().lowercase()}",
+            MathTools.cantor(notificationData.profile.id.hashCode(), notificationData.date.toString().replace("-", "").toInt()),
+            context.getString(when (notificationData.notificationType) {
                 NotificationType.NEW_PLAN -> R.string.notification_newPlanTitle
                 NotificationType.CHANGED_LESSONS -> R.string.notification_planChangedTitle
             }),
@@ -326,3 +333,11 @@ class SyncWorker @AssistedInject constructor(
 private enum class NotificationType {
     NEW_PLAN, CHANGED_LESSONS
 }
+
+private data class NotificationData(
+    val profile: Profile, 
+    val changedLessons: List<Lesson>,
+    val info: String?,
+    val date: LocalDate, 
+    val notificationType: NotificationType
+)
