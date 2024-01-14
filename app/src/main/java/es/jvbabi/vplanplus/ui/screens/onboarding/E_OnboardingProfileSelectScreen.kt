@@ -44,7 +44,7 @@ fun OnboardingProfileOptionListScreen(
     val context = LocalContext.current
 
     LaunchedEffect(key1 = state.stage, block = {
-        if (state.stage == Stage.PROFILE_TYPE) navHostController.popBackStack()
+        if (state.stage == Stage.PROFILE_TYPE) navHostController.navigateUp()
         if (state.stage == Stage.DEFAULT_LESSONS) navHostController.navigate(Screen.OnboardingDefaultLessonScreen.route)
         if (state.stage == Stage.PERMISSIONS) navHostController.navigate(Screen.OnboardingPermissionsScreen.route)
         if (state.stage == Stage.FINISH) navHostController.navigate(Screen.OnboardingSetupScreen.route)

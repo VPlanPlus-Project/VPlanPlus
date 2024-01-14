@@ -44,7 +44,7 @@ fun SettingsScreen(navController: NavHostController) {
             TopAppBar(
                 title = { Text(stringResource(id = R.string.home_menuSettings)) },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    IconButton(onClick = { navController.navigateUp() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Default.ArrowBack,
                             contentDescription = stringResource(

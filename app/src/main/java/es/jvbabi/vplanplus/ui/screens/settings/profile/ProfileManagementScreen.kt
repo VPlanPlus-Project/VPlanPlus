@@ -74,7 +74,7 @@ fun ProfileManagementScreen(
     val context = LocalContext.current
 
     ProfileManagementScreenContent(
-        onBackClicked = { navController.popBackStack() },
+        onBackClicked = { navController.navigateUp() },
         state = state,
         onNewSchoolProfileClicked = {
             scope.launch {

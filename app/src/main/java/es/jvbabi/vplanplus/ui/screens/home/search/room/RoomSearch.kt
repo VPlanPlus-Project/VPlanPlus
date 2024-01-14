@@ -62,7 +62,7 @@ fun FindAvailableRoomScreen(
 
     FindAvailableRoomScreenContent(
         state = state,
-        onBackClicked = { navController.popBackStack() },
+        onBackClicked = { navController.navigateUp() },
         onRoomFilterValueChanged = { roomSearchViewModel.onRoomFilterValueChanged(it) },
         onNowToggled = { roomSearchViewModel.toggleFilterNow() },
         onNextToggled = { roomSearchViewModel.toggleFilterNext() },
