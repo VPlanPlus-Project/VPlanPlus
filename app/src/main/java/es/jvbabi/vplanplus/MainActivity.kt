@@ -110,7 +110,7 @@ class MainActivity : ComponentActivity() {
                 val dateStr = intent.getStringExtra("dateStr") ?: return
                 val date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
                 Log.d("MainActivity.Intent", "Switching to date: $date (Difference: ${Period.between(LocalDate.now(), date).days})")
-                homeViewModel.onInitPageChanged(date)
+                homeViewModel.onPageChanged(date)
             }
         }
     }

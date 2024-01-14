@@ -122,15 +122,6 @@ class HomeViewModel @Inject constructor(
     }
 
     /**
-     * Called when user clicks notification and gets redirected to specific page
-     * @param date The date of the page to show
-     */
-    fun onInitPageChanged(date: LocalDate) {
-        _state.value = _state.value.copy(initDate = date)
-        onPageChanged(date)
-    }
-
-    /**
      * Starts the UI sync for the given date
      * @param date The date to sync
      * @param neighbors The number of neighbors to sync as well
