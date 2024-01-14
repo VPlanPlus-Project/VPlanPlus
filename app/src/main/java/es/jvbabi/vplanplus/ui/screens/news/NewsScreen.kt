@@ -85,7 +85,7 @@ fun NewsScreen(
 
     NewsScreenContent(
         state = viewModel.state.value,
-        goBack = { navHostController.popBackStack() },
+        goBack = { navHostController.navigateUp() },
         refresh = { viewModel.update() },
         onMessageOpened = { messageId ->
             navHostController.navigate("${Screen.NewsDetailScreen.route}/$messageId")

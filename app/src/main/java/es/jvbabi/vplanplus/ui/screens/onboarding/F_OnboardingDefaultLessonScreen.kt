@@ -41,7 +41,7 @@ fun OnboardingDefaultLessonScreen(
 
     LaunchedEffect(key1 = state.stage, block = {
         if (state.stage == Stage.PERMISSIONS) navHostController.navigate(Screen.OnboardingPermissionsScreen.route) { popUpTo(0) }
-        if (state.stage == Stage.PROFILE) navHostController.popBackStack()
+        if (state.stage == Stage.PROFILE) navHostController.navigateUp()
         if (state.stage == Stage.FINISH) navHostController.navigate(Screen.OnboardingSetupScreen.route)
     })
 

@@ -269,7 +269,7 @@ fun HomeScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (state.lastSync == null) SmallText(text = stringResource(id = R.string.home_lastSyncNever))
-                else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) + "\n${state.date}\n${lessonPagerState.currentPage}"))
+                else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))))
                 ViewSwitcher(viewType = state.viewMode, onViewModeChanged = onViewModeChanged)
             }
             Column {

@@ -52,7 +52,7 @@ fun ProfileSettingsDefaultLessonScreen(
     })
     ProfileSettingsDefaultLessonContent(
         state = state,
-        onBackClicked = { navController.popBackStack() },
+        onBackClicked = { navController.navigateUp() },
         onDefaultLessonChanged = { dl, value ->
             viewModel.onDefaultLessonChanged(dl, value)
         },

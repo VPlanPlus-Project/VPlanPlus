@@ -36,7 +36,7 @@ fun GeneralSettingsScreen(
 ) {
     val state = generalSettingsViewModel.state.value
     GeneralSettingsContent(
-        onBackClicked = { navHostController.popBackStack() },
+        onBackClicked = { navHostController.navigateUp() },
         state = state,
 
         onShowNotificationsOnAppOpenedClicked = {

@@ -68,15 +68,15 @@ fun ProfileSettingsScreen(
 
     if (state.initDone) {
         if (state.profile == null) {
-            navController.popBackStack()
+            navController.navigateUp()
             return
         }
         ProfileSettingsScreenContent(
             state = state,
-            onBackClicked = { navController.popBackStack() },
+            onBackClicked = { navController.navigateUp() },
             onProfileDeleteDialogYes = {
                 viewModel.deleteProfile(context)
-                navController.popBackStack()
+                navController.navigateUp()
             },
             onProfileRenamed = {
                 viewModel.renameProfile(it)

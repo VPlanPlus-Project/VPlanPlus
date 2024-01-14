@@ -46,7 +46,7 @@ fun OnboardingLoginScreen(
     LaunchedEffect(key1 = state.stage, block = {
         if (state.stage == Stage.SCHOOL_ID) {
             viewModel.newScreen()
-            navController.popBackStack()
+            navController.navigateUp()
         }
         if (state.stage == Stage.PROFILE_TYPE) {
             viewModel.newScreen()

@@ -39,7 +39,7 @@ fun LogsScreen(
     val state = viewModel.state.value
     LogsScreenContent(
         state = state,
-        onBackClicked = { navHostController.popBackStack() },
+        onBackClicked = { navHostController.navigateUp() },
         onDeleteLogsClicked = { viewModel.onDeleteLogsClicked() }
     )
 }

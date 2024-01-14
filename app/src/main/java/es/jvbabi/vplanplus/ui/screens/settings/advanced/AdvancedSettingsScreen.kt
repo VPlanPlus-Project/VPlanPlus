@@ -33,7 +33,7 @@ fun AdvancedSettingsScreen(
     val state = viewModel.state.value
 
     AdvancedSettingsScreenContent(
-        onBack = { navHostController.popBackStack() },
+        onBack = { navHostController.navigateUp() },
         onLogsClicked = { navHostController.navigate(Screen.SettingsAdvancedLogScreen.route) },
         state = state
     )

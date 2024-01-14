@@ -49,7 +49,7 @@ fun NewsDetailScreen(
 
     NewsDetailScreenContent(
         state = newsDetailViewModel.state.value,
-        goBack = { navHostController.popBackStack() }
+        goBack = { navHostController.navigateUp() }
     )
 }
 
