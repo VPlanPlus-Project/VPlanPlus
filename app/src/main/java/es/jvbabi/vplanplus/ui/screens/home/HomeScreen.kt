@@ -98,6 +98,8 @@ import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.math.abs
 
+const val PAGER_SIZE = 20
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
@@ -108,14 +110,17 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     var menuOpened by remember { mutableStateOf(false) }
     val context = LocalContext.current
-    val lessonPagerState = rememberPagerState(initialPage = 100/2+Period.between(LocalDate.now(), state.initDate).days, pageCount = { 100 })
+    val lessonPagerState = rememberPagerState(initialPage = PAGER_SIZE/2+Period.between(LocalDate.now(), state.date).days, pageCount = { PAGER_SIZE })
 
-    LaunchedEffect(key1 = lessonPagerState, block = {
-        snapshotFlow { lessonPagerState.currentPage }.collect {
-            val date = state.date.plusDays(it - 100 / 2L)
-            viewModel.onPageChanged(date)
-        }
+    LaunchedEffect(key1 = state.date, block = {
+        lessonPagerState.animateScrollToPage(PAGER_SIZE/2+Period.between(LocalDate.now(), state.date).days)
     })
+
+    LaunchedEffect(lessonPagerState) {
+        snapshotFlow { lessonPagerState.currentPage }.collect { page ->
+            viewModel.onPageChanged(LocalDate.now().plusDays(page - PAGER_SIZE / 2L))
+        }
+    }
 
     HomeScreenContent(
         state = state,
@@ -125,7 +130,7 @@ fun HomeScreen(
             viewModel.setViewType(it)
             coroutineScope.launch {
                 delay(450)
-                lessonPagerState.animateScrollToPage(100 / 2)
+                lessonPagerState.animateScrollToPage(PAGER_SIZE / 2)
             }
         },
         lessonPagerState = lessonPagerState,
@@ -219,9 +224,7 @@ fun HomeScreenContent(
     onFilterToggle: (SchoolEntityType) -> Unit = {},
     onMenuOpened: () -> Unit = {},
     onViewModeChanged: (type: ViewType) -> Unit = {},
-    lessonPagerState: PagerState = rememberPagerState(
-        initialPage = LocalDate.now().dayOfWeek.value,
-        pageCount = { 5 }),
+    lessonPagerState: PagerState,
     onFindAvailableRoomClicked: () -> Unit = {},
     onSelectSearchResult: (schoolId: Long, type: SchoolEntityType, id: UUID) -> Unit = { _, _, _ -> }
 ) {
@@ -266,7 +269,7 @@ fun HomeScreenContent(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 if (state.lastSync == null) SmallText(text = stringResource(id = R.string.home_lastSyncNever))
-                else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))))
+                else SmallText(text = stringResource(id = R.string.home_lastSync, state.lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")) + "\n${state.date}\n${lessonPagerState.currentPage}"))
                 ViewSwitcher(viewType = state.viewMode, onViewModeChanged = onViewModeChanged)
             }
             Column {
@@ -284,7 +287,7 @@ fun HomeScreenContent(
                             .fillMaxHeight()
                             .padding(top = 8.dp)
                     ) {
-                        val date = LocalDate.now().plusDays(index - 100 / 2L)
+                        val date = LocalDate.now().plusDays(index - PAGER_SIZE / 2L)
                         if (state.lessons[date]?.state == DayDataState.NO_DATA || state.lessons[date]?.state == null) NoData(state.viewMode == ViewType.WEEK)
                         else when (state.lessons[date]!!.type) {
                             DayType.WEEKEND -> WeekendPlaceholder(
@@ -334,7 +337,7 @@ fun HomeScreenContent(
                                             color = Color.Gray,
                                             modifier = Modifier
                                                 .basicMarquee(
-                                                    iterations = 100,
+                                                    iterations = 20,
                                                     velocity = 80.dp,
                                                     spacing = MarqueeSpacing(12.dp)
                                                 )
@@ -442,7 +445,7 @@ fun HomeScreenContent(
                 alpha = 1 - abs(lessonPagerState.currentPageOffsetFraction) * 2,
                 onClick = {
                     scope.launch {
-                        lessonPagerState.animateScrollToPage(100 / 2)
+                        lessonPagerState.animateScrollToPage(PAGER_SIZE / 2)
                     }
                 }
             )
@@ -469,7 +472,8 @@ private fun HomeScreenPreview() {
             ),
             syncing = true,
         ),
-        onMenuOpened = {}
+        onMenuOpened = {},
+        lessonPagerState = rememberPagerState(initialPage = PAGER_SIZE/2+Period.between(LocalDate.now(), LocalDate.now()).days, pageCount = { PAGER_SIZE }),
     )
 }
 

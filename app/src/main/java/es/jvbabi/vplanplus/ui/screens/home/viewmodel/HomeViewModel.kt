@@ -122,15 +122,6 @@ class HomeViewModel @Inject constructor(
     }
 
     /**
-     * Called when user clicks notification and gets redirected to specific page
-     * @param date The date of the page to show
-     */
-    fun onInitPageChanged(date: LocalDate) {
-        _state.value = _state.value.copy(initDate = date)
-        onPageChanged(date)
-    }
-
-    /**
      * Starts the UI sync for the given date
      * @param date The date to sync
      * @param neighbors The number of neighbors to sync as well
@@ -336,7 +327,6 @@ data class HomeState(
     val profiles: List<Profile> = listOf(),
     val activeProfile: Profile? = null,
     val activeSchool: School? = null,
-    val initDate: LocalDate = LocalDate.now(),
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,
