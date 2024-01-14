@@ -327,7 +327,6 @@ data class HomeState(
     val profiles: List<Profile> = listOf(),
     val activeProfile: Profile? = null,
     val activeSchool: School? = null,
-    val initDate: LocalDate = LocalDate.now(),
     val date: LocalDate = LocalDate.now(),
     val viewMode: ViewType = ViewType.DAY,
     val notificationPermissionGranted: Boolean = false,
