@@ -112,6 +112,10 @@ fun HomeScreen(
     val context = LocalContext.current
     val lessonPagerState = rememberPagerState(initialPage = PAGER_SIZE/2+Period.between(LocalDate.now(), state.date).days, pageCount = { PAGER_SIZE })
 
+    LaunchedEffect(key1 = state.date, block = {
+        lessonPagerState.animateScrollToPage(PAGER_SIZE/2+Period.between(LocalDate.now(), state.date).days)
+    })
+
     LaunchedEffect(lessonPagerState) {
         snapshotFlow { lessonPagerState.currentPage }.collect { page ->
             viewModel.onPageChanged(LocalDate.now().plusDays(page - PAGER_SIZE / 2L))
