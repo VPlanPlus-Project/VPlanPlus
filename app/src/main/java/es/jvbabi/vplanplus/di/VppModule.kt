@@ -77,6 +77,7 @@ import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileOptionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.SaveProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
+import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -445,5 +446,19 @@ object VppModule {
     @Singleton
     fun provideGetCurrentTimeUseCase(): GetCurrentTimeUseCase {
         return GetCurrentTimeUseCase()
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetSchoolFromProfileUseCase(
+        classRepository: ClassRepository,
+        teacherRepository: TeacherRepository,
+        roomRepository: RoomRepository
+    ): GetSchoolFromProfileUseCase {
+        return GetSchoolFromProfileUseCase(
+            classRepository = classRepository,
+            teacherRepository = teacherRepository,
+            roomRepository = roomRepository
+        )
     }
 }

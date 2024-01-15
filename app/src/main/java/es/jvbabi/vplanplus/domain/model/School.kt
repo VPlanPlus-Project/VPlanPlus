@@ -17,4 +17,28 @@ data class School(
     val password: String,
     val daysPerWeek: Int,
     val fullyCompatible: Boolean
-)
+) {
+    override fun hashCode(): Int {
+        var result = schoolId.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + username.hashCode()
+        result = 31 * result + password.hashCode()
+        result = 31 * result + daysPerWeek
+        result = 31 * result + fullyCompatible.hashCode()
+        return result
+    }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as School
+
+        if (schoolId != other.schoolId) return false
+        if (name != other.name) return false
+        if (username != other.username) return false
+        if (password != other.password) return false
+        if (daysPerWeek != other.daysPerWeek) return false
+        return fullyCompatible == other.fullyCompatible
+    }
+}
