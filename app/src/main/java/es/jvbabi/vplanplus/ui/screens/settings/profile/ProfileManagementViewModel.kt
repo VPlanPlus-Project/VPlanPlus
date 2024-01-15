@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
+import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -28,7 +29,8 @@ class ProfileManagementViewModel @Inject constructor(
     private val schoolUseCases: SchoolUseCases,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
-    private val keyValueUseCases: KeyValueUseCases
+    private val keyValueUseCases: KeyValueUseCases,
+    private val getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase
 ) : ViewModel() {
 
     private val _state = mutableStateOf(ProfileManagementState())
@@ -133,10 +135,11 @@ class ProfileManagementViewModel @Inject constructor(
             Notification.deleteChannel(context, it)
         }
         viewModelScope.launch {
-            schoolUseCases.deleteSchool(schoolUseCases.getSchoolByName(_state.value.deletingSchool!!.name).schoolId)
-            val firstProfile = profileUseCases.getProfiles().first().firstOrNull()
+            val school = schoolUseCases.getSchoolByName(_state.value.deletingSchool!!.name)
+            val firstProfile = profileUseCases.getProfiles().first().firstOrNull { p -> getSchoolFromProfileUseCase(p) != school }
             if (firstProfile != null) keyValueUseCases.set(Keys.ACTIVE_PROFILE, firstProfile.id.toString())
             else keyValueUseCases.set(Keys.ACTIVE_PROFILE, "")
+            schoolUseCases.deleteSchool(school.schoolId)
             closeDeleteSchoolDialog()
         }
     }
