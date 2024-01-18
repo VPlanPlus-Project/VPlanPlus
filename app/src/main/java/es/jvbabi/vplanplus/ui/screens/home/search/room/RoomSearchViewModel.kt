@@ -58,18 +58,18 @@ class RoomSearchViewModel @Inject constructor(
 
                 val currentLessonNumber = getCurrentLessonNumberUseCase(`class`)!!
                 val times = getLessonTimesForClassUseCase(`class`)
-                val now = times[floor(currentLessonNumber).toInt()]!!
-                val next = times[floor(currentLessonNumber).toInt() + 1]!!
+                val now = times[floor(currentLessonNumber).toInt()]
+                val next = times[floor(currentLessonNumber).toInt() + 1]
 
-                val nowTimespan = Pair(
+                val nowTimespan = if (now != null) Pair(
                     "${now.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
                     "${now.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                )
+                ) else null
 
-                val nextTimespan = Pair(
+                val nextTimespan = if (next != null) Pair(
                     "${next.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
                     "${next.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                )
+                ) else null
 
                 _state.value.copy(
                     currentSchool = school,
@@ -126,7 +126,7 @@ class RoomSearchViewModel @Inject constructor(
                 }
             }
 
-            if (state.value.filterNext) {
+            if (state.value.filterNext && state.value.filterNextTimespan != null) {
                 filteredRoomMap = filteredRoomMap.map { rr ->
                     if (rr.lessons
                             .filterNotNull()
