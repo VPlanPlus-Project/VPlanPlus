@@ -16,20 +16,13 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.FilterAlt
-import androidx.compose.material.icons.filled.MoreTime
-import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -45,12 +38,13 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.BackIcon
-import es.jvbabi.vplanplus.ui.common.DOT
-import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.preview.Classes
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
-import java.time.format.DateTimeFormatter
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.FilterChips
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.Guide
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.LessonDialog
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.SearchField
 import kotlin.random.Random
 
 @Composable
@@ -86,20 +80,9 @@ fun FindAvailableRoomScreenContent(
     val zeroMod = if (show0) 1 else 0
 
     if (state.detailLesson != null) {
-        var info = state.detailLesson.info
-        info = if (info == null) "" else "$info\n"
-        InfoDialog(
-            icon = Icons.Default.School,
-            title = state.detailLesson.displaySubject + " " + DOT + " " + state.detailLesson.`class`.name,
-            message = stringResource(
-                id = R.string.searchAvailableRoom_lessonDetail,
-                state.detailLesson.teachers.joinToString(", "),
-                state.detailLesson.rooms.joinToString(", "),
-                info,
-                state.detailLesson.start.format(DateTimeFormatter.ofPattern("HH:mm")),
-                state.detailLesson.end.format(DateTimeFormatter.ofPattern("HH:mm")),
-            ),
-            onOk = { onCloseLessonDetailDialog() }
+        LessonDialog(
+            lesson = state.detailLesson,
+            onCloseLessonDetailDialog = onCloseLessonDetailDialog
         )
     }
 
@@ -122,109 +105,18 @@ fun FindAvailableRoomScreenContent(
                 modifier = Modifier.padding(horizontal = 16.dp)
             ) {
                 Text(text = state.currentSchool?.name ?: stringResource(id = R.string.loadingData))
-                Row(
-                    modifier = Modifier.padding(vertical = 8.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .height(40.dp)
-                            .padding(horizontal = 4.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.searchAvailableRoom_roomAvailable),
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .height(40.dp)
-                            .padding(horizontal = 4.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.error),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.searchAvailableRoom_roomInUse),
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                            color = MaterialTheme.colorScheme.onError
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .height(40.dp)
-                            .padding(horizontal = 4.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.tertiaryContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = stringResource(
-                                id = R.string.searchAvailableRoom_roomBooked,
-                                state.currentClass?.name
-                                    ?: stringResource(R.string.searchAvailableRoom_roomBookedAClass)
-                            ),
-                            modifier = Modifier.padding(horizontal = 8.dp),
-                            color = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                    }
-                }
-                OutlinedTextField(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
-                    leadingIcon = {
-                        Icon(
-                            imageVector = Icons.Default.FilterAlt,
-                            contentDescription = null
-                        )
-                    },
-                    placeholder = { Text(text = stringResource(id = R.string.searchAvailableRoom_findPlaceholder)) },
-                    value = state.roomFilter,
-                    onValueChange = { onRoomFilterValueChanged(it) }
-                )
+                Guide(className = state.currentClass?.name)
+
+                SearchField(state.roomFilter) { onRoomFilterValueChanged(it) }
                 if (state.currentClass != null && (state.currentLesson
                         ?: 0.toDouble()) + 0.5 != state.rooms?.maxLessons?.toDouble()
-                ) Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .horizontalScroll(rememberScrollState())
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.searchAvailableRoom_labelAvailability),
-                        modifier = Modifier.padding(end = 4.dp)
-                    )
-                    if ((state.currentLesson ?: 0.5) % 1 == 0.toDouble()) FilterChip(
-                        enabled = state.currentLesson != null,
-                        selected = state.filterNow,
-                        leadingIcon = {
-                            Icon(
-                                imageVector = if (state.filterNow) Icons.Default.Check else Icons.Default.AccessTime,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        },
-                        onClick = { onNowToggled() },
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNow)) },
-                    )
-                    FilterChip(
-                        enabled = true,
-                        selected = state.filterNext,
-                        leadingIcon = {
-                            Icon(
-                                imageVector = if (state.filterNext) Icons.Default.Check else Icons.Default.MoreTime,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onSurface
-                            )
-                        },
-                        onClick = { onNextToggled() },
-                        modifier = Modifier.padding(horizontal = 4.dp),
-                        label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNext)) },
+                    FilterChips(
+                        currentLesson = state.currentLesson,
+                        filterNowActive = state.filterNow,
+                        filterNextActive = state.filterNext,
+                        filterNowToggled = { onNowToggled() },
+                        filterNextToggled = { onNextToggled() }
                     )
                 }
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -341,7 +233,7 @@ fun FindAvailableRoomScreenPreview() {
             currentSchool = school,
             loading = false,
             currentClass = Classes.generateClass(school),
-            detailLesson = Lessons.generateLessons(1).first()
+            detailLesson = null
         ),
         onBackClicked = {},
     )
