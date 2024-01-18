@@ -80,6 +80,7 @@ class RoomSearchViewModel @Inject constructor(
                     showFilterChips = currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble(),
                     filterNowTimespan = nowTimespan,
                     filterNextTimespan = nextTimespan,
+                    showNowFilter = currentLessonNumber %1 != 0.5
                 )
             }.collect {
                 _state.value = it
