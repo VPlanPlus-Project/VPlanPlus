@@ -5,68 +5,67 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileCreationStage
+import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileCreationStatus
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
-import java.time.LocalDateTime
 
 @Composable
 fun OnboardingSetupScreen(
-    navHostController: NavHostController,
-    viewModel: OnboardingViewModel
+    navHostController: NavHostController, viewModel: OnboardingViewModel
 ) {
     val state = viewModel.state.value
-    val start by rememberSaveable {
-        mutableStateOf(LocalDateTime.now())
-    }
 
     if (!state.isLoading) {
         navHostController.navigate(Screen.HomeScreen.route)
     }
 
-    SetupScreen(start, state.time)
+    SetupScreen(state.creationStatus)
 }
 
 @Composable
-fun SetupScreen(start: LocalDateTime, now: LocalDateTime) {
+fun SetupScreen(creationStatus: ProfileCreationStatus) {
+    if (creationStatus.progress != null) LinearProgressIndicator(progress = { creationStatus.progress.toFloat() })
     Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
+        modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp)
+            horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.padding(16.dp)
         ) {
             CircularProgressIndicator()
             Text(
-                text = stringResource(id = R.string.onboarding_setupTakingLong),
+                text = when (creationStatus.profileCreationStage) {
+                    ProfileCreationStage.INSERT_CLASSES -> stringResource(R.string.onboarding_setupInsertClasses)
+                    ProfileCreationStage.INSERT_TEACHERS -> stringResource(R.string.onboarding_setupInsertTeachers)
+                    ProfileCreationStage.INSERT_ROOMS -> stringResource(R.string.onboarding_setupInsertRooms)
+                    ProfileCreationStage.INSERT_HOLIDAYS -> stringResource(R.string.onboarding_setupInsertHolidays)
+                    ProfileCreationStage.INITIAL_SYNC -> stringResource(R.string.onboarding_setupInitialSync)
+                    else -> ""
+                },
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(16.dp),
-                color = if (now.toLocalUnixTimestamp() - start.toLocalUnixTimestamp() >= 3) MaterialTheme.colorScheme.onSurface else Color.Transparent
             )
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun SetupScreenPreview() {
     SetupScreen(
-        LocalDateTime.now().minusSeconds(5),
-        LocalDateTime.now()
+        ProfileCreationStatus(
+            ProfileCreationStage.INSERT_CLASSES,
+            0.5
+        )
     )
 }

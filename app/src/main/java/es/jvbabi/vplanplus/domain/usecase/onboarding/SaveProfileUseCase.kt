@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Holiday
@@ -18,7 +19,6 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.android.notification.Notification
 import java.time.LocalDate
 import java.util.UUID
 
@@ -48,18 +48,36 @@ class SaveProfileUseCase(
         password: String,
         referenceName: String,
         type: ProfileType,
-        defaultLessonsEnabled: Map<Long, Boolean> = emptyMap()
+        defaultLessonsEnabled: Map<Long, Boolean> = emptyMap(),
+        onStatusUpdate: (ProfileCreationStatus) -> Unit
     ) {
         var school = schoolRepository.getSchoolFromId(schoolId)
 
-        val defaultLessons = Gson().fromJson(kv.get("onboarding.school.$schoolId.defaultLessons")?:"[]", Array<DefaultLesson>::class.java).toList()
+        val defaultLessons = Gson().fromJson(
+            kv.get("onboarding.school.$schoolId.defaultLessons") ?: "[]",
+            Array<DefaultLesson>::class.java
+        ).toList()
 
         if (school == null) { // school not in database
-            val classes = kv.get("onboarding.school.$schoolId.classes")?.split(",")?.filter { it != "" } ?: emptyList()
-            val teachers = kv.get("onboarding.school.$schoolId.teachers")?.split(",")?.filter { it != "" } ?: emptyList()
-            val rooms = kv.get("onboarding.school.$schoolId.rooms")?.split(",")?.filter { it != "" } ?: emptyList()
-            val holidays = kv.get("onboarding.school.$schoolId.holidays")?.split(",")?.filter { it != "" }?.map { LocalDate.parse(it) } ?: emptyList()
-            val lessonTimes = Gson().fromJson(kv.get("onboarding.school.$schoolId.lessonTimes")?:"[]", Array<LessonTime>::class.java).toList()
+            val classes =
+                kv.get("onboarding.school.$schoolId.classes")?.split(",")?.filter { it != "" }
+                    ?: emptyList()
+            val teachers =
+                kv.get("onboarding.school.$schoolId.teachers")?.split(",")?.filter { it != "" }
+                    ?: emptyList()
+            val rooms = kv.get("onboarding.school.$schoolId.rooms")?.split(",")?.filter { it != "" }
+                ?: emptyList()
+            val holidays =
+                kv.get("onboarding.school.$schoolId.holidays")?.split(",")?.filter { it != "" }
+                    ?.map { LocalDate.parse(it) } ?: emptyList()
+            val lessonTimes = Gson().fromJson(
+                kv.get("onboarding.school.$schoolId.lessonTimes") ?: "[]",
+                Array<LessonTime>::class.java
+            ).toList()
+
+            val total =
+                classes.size + teachers.size + rooms.size + defaultLessons.size + holidays.size
+            var progress = 0.0
 
             schoolRepository.createSchool(
                 schoolId = schoolId,
@@ -71,42 +89,54 @@ class SaveProfileUseCase(
             )
 
             // insert classes, teachers and rooms
-            classes.forEach {
+            classes.forEachIndexed { i, c ->
                 classRepository.createClass(
                     schoolId = schoolId,
-                    className = it
+                    className = c
                 )
+                progress++
+                onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_CLASSES, progress / total))
             }
-            teachers.forEach {
+            teachers.forEachIndexed { i, t ->
                 teacherRepository.createTeacher(
                     schoolId = schoolId,
-                    acronym = it
+                    acronym = t
                 )
+                progress++
+                onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_TEACHERS, progress / total))
             }
 
             school = schoolRepository.getSchoolFromId(schoolId)!!
-            rooms.forEach {
+            rooms.forEachIndexed { i, r ->
                 roomRepository.createRoom(
                     Room(
                         school = school,
-                        name = it
+                        name = r
                     )
                 )
+                progress++
+                onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_ROOMS, progress / total))
             }
 
-            holidays.forEach {
+            holidays.forEachIndexed { i, h ->
                 holidayRepository.insertHoliday(
                     holiday = Holiday(
                         schoolHolidayRefId = schoolId,
-                        date = it
+                        date = h
                     )
                 )
+                progress++
+                onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_HOLIDAYS, progress / total))
             }
 
             lessonTimes.forEach {
                 lessonTimeRepository.insertLessonTime(
                     es.jvbabi.vplanplus.domain.model.LessonTime(
-                        classLessonTimeRefId = classRepository.getClassBySchoolIdAndClassName(schoolId, it.className, false)!!.classId,
+                        classLessonTimeRefId = classRepository.getClassBySchoolIdAndClassName(
+                            schoolId,
+                            it.className,
+                            false
+                        )!!.classId,
                         lessonNumber = it.lessonNumber,
                         start = it.startTime,
                         end = it.endTime,
@@ -122,7 +152,11 @@ class SaveProfileUseCase(
                     vpId = it.vpId,
                     subject = it.subject,
                     teacherId = teacherRepository.find(school, it.teacher, false)?.teacherId,
-                    classId = classRepository.getClassBySchoolIdAndClassName(schoolId, it.className, false)!!.classId
+                    classId = classRepository.getClassBySchoolIdAndClassName(
+                        schoolId,
+                        it.className,
+                        false
+                    )!!.classId
                 )
             )
         }
@@ -139,6 +173,7 @@ class SaveProfileUseCase(
                 referenceId = teacher.teacherId
                 name = teacher.acronym
             }
+
             ProfileType.STUDENT -> {
                 val `class` = classRepository.getClassBySchoolIdAndClassName(
                     schoolId = schoolId,
@@ -148,6 +183,7 @@ class SaveProfileUseCase(
                 referenceId = `class`.classId
                 name = `class`.name
             }
+
             ProfileType.ROOM -> {
                 val room = roomRepository.getRoomByName(
                     school = school,
@@ -197,4 +233,18 @@ class SaveProfileUseCase(
             NotificationManager.IMPORTANCE_DEFAULT
         )
     }
+}
+
+data class ProfileCreationStatus(
+    val profileCreationStage: ProfileCreationStage,
+    val progress: Double?,
+)
+
+enum class ProfileCreationStage {
+    NONE,
+    INSERT_TEACHERS,
+    INSERT_CLASSES,
+    INSERT_ROOMS,
+    INSERT_HOLIDAYS,
+    INITIAL_SYNC,
 }
