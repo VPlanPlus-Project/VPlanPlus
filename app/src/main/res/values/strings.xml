@@ -180,4 +180,9 @@
     <string name="onboarding_setupInsertTeachers">Inserting teachers</string>
     <string name="onboarding_setupInsertRooms">Inserting rooms</string>
     <string name="onboarding_setupInsertHolidays">Inserting holidays</string>
+    <string name="onboarding_setupSettingUpTitle">We\'re just getting some things ready for you.</string>
+    <string name="onboarding_setupSettingUpText">"That might take some time. Please be patient.\nThank you for choosing VPlanPlus. If there are any issues, report them on GitHub. "</string>
+    <string name="onboarding_setupDoneTitle">All set!</string>
+    <string name="onboarding_setupDoneText">VPlanPlus is set up.</string>
+    <string name="onboarding_setupDoneLetsGo">Let\'s go!</string>
 </resources>

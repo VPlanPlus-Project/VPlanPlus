@@ -181,4 +181,9 @@
     <string name="onboarding_setupInsertTeachers">Lade Lehrer</string>
     <string name="onboarding_setupInsertRooms">Lade Räume</string>
     <string name="onboarding_setupInsertHolidays">Lade Ferien</string>
+    <string name="onboarding_setupSettingUpTitle">Wir bereiten noch einige Sachen für dich vor.</string>
+    <string name="onboarding_setupSettingUpText">Das könnte eine Weile dauern. Bitte warte solange. Vielen Dank, dass du VPlanPlus gewählt hast. Falls Probleme auftreten sollten, fühle dich frei, diese auf GitHub zu melden.</string>
+    <string name="onboarding_setupDoneTitle">Alles bereit!</string>
+    <string name="onboarding_setupDoneText">VPlanPlus ist fertig eingerichtet.</string>
+    <string name="onboarding_setupDoneLetsGo">Auf geht\'s!</string>
 </resources>
