@@ -80,6 +80,7 @@ import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileOptionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.SaveProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
+import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
@@ -473,5 +474,11 @@ object VppModule {
             runSyncUseCase = RunSyncUseCase(context, isSyncRunningUseCase),
             isSyncRunningUseCase = isSyncRunningUseCase
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetLessonTimesForClassUseCase(lessonTimeRepository: LessonTimeRepository): GetLessonTimesForClassUseCase {
+        return GetLessonTimesForClassUseCase(lessonTimeRepository)
     }
 }

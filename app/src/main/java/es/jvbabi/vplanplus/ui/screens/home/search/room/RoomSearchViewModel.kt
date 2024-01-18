@@ -15,8 +15,11 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
+import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
+import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlin.math.floor
 
@@ -26,7 +29,8 @@ class RoomSearchViewModel @Inject constructor(
     private val findCurrentSchoolUseCase: GetCurrentSchoolUseCase,
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     private val getClassByProfileUseCase: GetClassByProfileUseCase,
-    private val getCurrentLessonNumberUseCase: GetCurrentLessonNumberUseCase
+    private val getCurrentLessonNumberUseCase: GetCurrentLessonNumberUseCase,
+    private val getLessonTimesForClassUseCase: GetLessonTimesForClassUseCase
 ) : ViewModel() {
 
     private val _state = mutableStateOf(RoomSearchState())
@@ -43,6 +47,14 @@ class RoomSearchViewModel @Inject constructor(
                 val roomMap = findRoomUseCases.getRoomMapUseCase(school)
                 if (profile.type == ProfileType.STUDENT) {
                     `class` = getClassByProfileUseCase(profile)
+                    var start = getLessonTimesForClassUseCase(`class`!!).entries.first()
+                    if (roomMap.rooms.all { it.lessons.first() == null } && start.key == 0) { // if 0th lesson exists and no room is used in 0th lesson
+                        start = getLessonTimesForClassUseCase(`class`).entries.first { it.key > 0 }
+                        _state.value = _state.value.copy(showLesson0 = false)
+                    }
+                    _state.value = _state.value.copy(
+                        profileStart = "${start.value.start}:00".toLocalDateTime()
+                    )
                 }
                 _state.value.copy(
                     currentSchool = school,
@@ -132,6 +144,8 @@ data class RoomSearchState(
     val filterNext: Boolean = true,
     val currentLesson: Double? = null,
     val detailLesson: Lesson? = null,
-    val showFilterChips: Boolean = false
+    val showFilterChips: Boolean = false,
+    val profileStart: LocalDateTime? = null,
+    val showLesson0: Boolean = true
 )
 

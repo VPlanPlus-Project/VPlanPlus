@@ -26,20 +26,6 @@ fun Guide(className: String?) {
                 .height(40.dp)
                 .padding(horizontal = 4.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(id = R.string.searchAvailableRoom_roomAvailable),
-                modifier = Modifier.padding(horizontal = 8.dp),
-                color = MaterialTheme.colorScheme.onPrimaryContainer
-            )
-        }
-        Box(
-            modifier = Modifier
-                .height(40.dp)
-                .padding(horizontal = 4.dp)
-                .clip(RoundedCornerShape(8.dp))
                 .background(MaterialTheme.colorScheme.error),
             contentAlignment = Alignment.Center
         ) {
