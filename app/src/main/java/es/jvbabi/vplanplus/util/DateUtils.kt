@@ -102,4 +102,8 @@ object DateUtils {
     fun LocalDateTime.atBeginningOfTheWorld(): LocalDateTime {
         return LocalDateTime.of(1970, 1, 1, this.hour, this.minute)
     }
+
+    fun LocalDateTime.between(start: LocalDateTime, end: LocalDateTime): Boolean {
+        return (this.isAfter(start) || this.isEqual(start)) && this.isBefore(end)
+    }
 }

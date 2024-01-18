@@ -22,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 @ExperimentalMaterial3Api
@@ -47,11 +49,13 @@ fun SearchField(
 
 @Composable
 fun FilterChips(
-    currentLesson: Double?,
     filterNowActive: Boolean,
     filterNextActive: Boolean,
     filterNowToggled: () -> Unit,
     filterNextToggled: () -> Unit,
+    filterNowTimespan: Pair<LocalDateTime, LocalDateTime>?,
+    filterNextTimespan: Pair<LocalDateTime, LocalDateTime>?,
+    showNowFilter: Boolean
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -63,8 +67,13 @@ fun FilterChips(
             text = stringResource(id = R.string.searchAvailableRoom_labelAvailability),
             modifier = Modifier.padding(end = 4.dp)
         )
-        if ((currentLesson ?: 0.5) % 1 == 0.toDouble()) FilterChip(
-            enabled = currentLesson != null,
+
+        var labelNow = stringResource(id = R.string.searchAvailableRoom_filterNow)
+        if (filterNowTimespan != null) {
+            labelNow += " (${filterNowTimespan.first.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${filterNowTimespan.second.format(DateTimeFormatter.ofPattern("HH:mm"))})"
+        }
+        if (showNowFilter) FilterChip(
+            enabled = true,
             selected = filterNowActive,
             leadingIcon = {
                 Icon(
@@ -75,8 +84,13 @@ fun FilterChips(
             },
             onClick = { filterNowToggled() },
             modifier = Modifier.padding(horizontal = 4.dp),
-            label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNow)) },
+            label = { Text(text = labelNow) },
         )
+
+        var labelNext = stringResource(id = R.string.searchAvailableRoom_filterNext)
+        if (filterNextTimespan != null) {
+            labelNext += " (${filterNextTimespan.first.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${filterNextTimespan.second.format(DateTimeFormatter.ofPattern("HH:mm"))})"
+        }
         FilterChip(
             enabled = true,
             selected = filterNextActive,
@@ -89,7 +103,7 @@ fun FilterChips(
             },
             onClick = { filterNextToggled() },
             modifier = Modifier.padding(horizontal = 4.dp),
-            label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNext)) },
+            label = { Text(text = labelNext) },
         )
     }
 }
