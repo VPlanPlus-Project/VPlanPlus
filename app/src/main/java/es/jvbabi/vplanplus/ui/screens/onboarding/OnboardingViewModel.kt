@@ -10,11 +10,16 @@ import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
+import es.jvbabi.vplanplus.domain.usecase.general.data.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
+import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileCreationStage
+import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileCreationStatus
 import es.jvbabi.vplanplus.domain.usecase.onboarding.toLoginState
 import es.jvbabi.vplanplus.domain.usecase.onboarding.toResponse
 import es.jvbabi.vplanplus.ui.common.Permission
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -22,6 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val onboardingUseCases: OnboardingUseCases,
+    private val syncUseCases: SyncUseCases,
     private val timeRepository: TimeRepository
 ) : ViewModel() {
     private val _state = mutableStateOf(OnboardingState())
@@ -200,9 +206,22 @@ class OnboardingViewModel @Inject constructor(
                 referenceName = state.value.selectedProfileOption!!,
                 defaultLessonsEnabled = state.value.defaultLessons.map {
                     it.key.vpId to it.value
-                }.toMap()
+                }.toMap(),
+                onStatusUpdate = {
+                    _state.value = _state.value.copy(creationStatus = it)
+                }
             )
-            _state.value = _state.value.copy(isLoading = false)
+            if (_state.value.task == Task.CREATE_SCHOOL) {
+                _state.value = _state.value.copy(creationStatus = state.value.creationStatus.copy(progress = null, profileCreationStage = ProfileCreationStage.INITIAL_SYNC))
+                syncUseCases.runSyncUseCase(true)
+                delay(1000) // allow worker to start
+                syncUseCases.isSyncRunningUseCase().collect {
+                    if (!it) {
+                        isLoading(false)
+                        this.cancel()
+                    }
+                }
+            }
         }
     }
 
@@ -340,6 +359,7 @@ data class OnboardingState(
     val showCloseDialog: Boolean = false,
 
     val stage: Stage = Stage.WELCOME,
+    val creationStatus: ProfileCreationStatus = ProfileCreationStatus(ProfileCreationStage.NONE, null),
 
     val time: LocalDateTime = LocalDateTime.now(),
 

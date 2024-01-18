@@ -66,6 +66,9 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.data.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.data.RunSyncUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.data.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
@@ -459,6 +462,16 @@ object VppModule {
             classRepository = classRepository,
             teacherRepository = teacherRepository,
             roomRepository = roomRepository
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideSyncUseCases(@ApplicationContext context: Context): SyncUseCases {
+        val isSyncRunningUseCase = IsSyncRunningUseCase(context)
+        return SyncUseCases(
+            runSyncUseCase = RunSyncUseCase(context, isSyncRunningUseCase),
+            isSyncRunningUseCase = isSyncRunningUseCase
         )
     }
 }

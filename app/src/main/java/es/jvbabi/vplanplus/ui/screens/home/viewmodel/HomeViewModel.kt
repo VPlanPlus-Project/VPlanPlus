@@ -143,7 +143,6 @@ class HomeViewModel @Inject constructor(
 
     fun getVPlanData(context: Context) {
         viewModelScope.launch {
-
             if (_state.value.syncing) {
                 Log.d("HomeViewModel", "getVPlanData; already syncing")
                 return@launch

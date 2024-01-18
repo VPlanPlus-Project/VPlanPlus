@@ -162,7 +162,6 @@
     <string name="onboarding_credentialsLoginAt">Login at school %1$s</string>
     <string name="onboarding_credentialsWrongSchoolIdLink">Wrong school id?</string>
     <string name="onboarding_skipPermissionButton">Don\'t give permission</string>
-    <string name="onboarding_setupTakingLong">This is taking longer than expected. Please be patient. It will be done soon. Hopefully.</string>
     <string name="search_notDetailedResult">%1$s • %2$d lessons</string>
     <string name="search_noLessons">No lessons</string>
     <string name="searchAvailableRoom_roomInUse">In use</string>
@@ -176,4 +175,14 @@
     <string name="advancedSettings_logsSubtitle">Track network requests and other data</string>
     <string name="advancedSettings_infoProfileTitle">Current profile</string>
     <string name="advancedSettings_infoCurrentLessonTitle">Current lesson</string>
+    <string name="onboarding_setupInsertClasses">Inserting classes</string>
+    <string name="onboarding_setupInitialSync">Loading current plan</string>
+    <string name="onboarding_setupInsertTeachers">Inserting teachers</string>
+    <string name="onboarding_setupInsertRooms">Inserting rooms</string>
+    <string name="onboarding_setupInsertHolidays">Inserting holidays</string>
+    <string name="onboarding_setupSettingUpTitle">We\'re just getting some things ready for you.</string>
+    <string name="onboarding_setupSettingUpText">"That might take some time. Please be patient.\nThank you for choosing VPlanPlus. If there are any issues, report them on GitHub. "</string>
+    <string name="onboarding_setupDoneTitle">All set!</string>
+    <string name="onboarding_setupDoneText">VPlanPlus is set up.</string>
+    <string name="onboarding_setupDoneLetsGo">Let\'s go!</string>
 </resources>
