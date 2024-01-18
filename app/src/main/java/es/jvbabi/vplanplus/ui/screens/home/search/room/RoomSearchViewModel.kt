@@ -61,11 +61,13 @@ class RoomSearchViewModel @Inject constructor(
                     rooms = roomMap,
                     currentClass = `class`,
                     loading = false,
-                    showFilterChips = state.value.currentClass != null && (state.value.currentLesson
-                        ?: 0.toDouble()) + 0.5 != state.value.rooms?.maxLessons?.toDouble()
                 )
             }.collect {
                 _state.value = it
+                _state.value = _state.value.copy(
+                    showFilterChips = state.value.currentClass != null && (state.value.currentLesson
+                        ?: 0.toDouble()) + 0.5 != state.value.rooms?.maxLessons?.toDouble()
+                )
                 filter()
             }
         }

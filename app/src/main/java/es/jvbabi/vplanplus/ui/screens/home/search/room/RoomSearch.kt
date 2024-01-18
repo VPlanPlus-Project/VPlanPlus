@@ -31,6 +31,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -146,8 +149,27 @@ fun FindAvailableRoomScreenContent(
                         .width(width.dp)
                 ) {
                     // lesson data
+                    val current = first.start.atBeginningOfTheWorld().until(LocalDateTime.now().atBeginningOfTheWorld(), ChronoUnit.MINUTES) * scaling
+                    val color = MaterialTheme.colorScheme.onSurfaceVariant
                     Row(
-                        modifier = Modifier.padding(start = 20.dp)
+                        modifier = Modifier
+                            .padding(start = 20.dp)
+                            .drawWithContent {
+                                drawContent()
+                                drawLine(
+                                    brush = Brush.horizontalGradient(
+                                        colors = listOf(
+                                            color.copy(alpha = 0f),
+                                            color.copy(alpha = 1f),
+                                        ),
+                                        startX = current - 10f,
+                                        endX = current + 10f
+                                    ),
+                                    start = Offset(current, 0f),
+                                    end = Offset(current, size.height),
+                                    strokeWidth = 10f
+                                )
+                            }
                     ) {
                         Column(
                             modifier = Modifier
@@ -259,8 +281,8 @@ private fun RoomListRecord(
                     var lessonStart = lesson.start.withDayOfYear(1).withYear(1970)
                     if (lessonStart.isBefore(start)) lessonStart = start
                     val lessonEnd = lesson.end.withDayOfYear(1).withYear(1970)
-                    val offset = start.until(lessonStart, ChronoUnit.SECONDS) / 60 * scaling
-                    val length = lessonStart.until(lessonEnd, ChronoUnit.SECONDS) / 60 * scaling
+                    val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
+                    val length = lessonStart.until(lessonEnd, ChronoUnit.MINUTES) * scaling
                     Box(
                         modifier = Modifier
                             .offset(x = offset.toInt().dp)
