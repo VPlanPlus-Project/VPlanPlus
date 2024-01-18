@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -166,6 +165,7 @@ fun FindAvailableRoomScreenContent(
                                         },
                                         scaling = scaling,
                                         width = width.dp,
+                                        currentClassName = state.currentClass!!.name
                                     )
                                 }
                             }
@@ -175,10 +175,15 @@ fun FindAvailableRoomScreenContent(
                     // room names
                     Column {
                         state.rooms.rooms.sortedBy { it.room.name }.forEach { room ->
+                            val height = animateFloatAsState(
+                                targetValue = if (room.displayed) 40f else 0f,
+                                label = "room entry"
+                            )
                             Box(
                                 modifier = Modifier
-                                    .padding(4.dp)
-                                    .size(40.dp)
+                                    .padding((4 * (height.value / 40)).dp)
+                                    .width(40.dp)
+                                    .height(height.value.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .background(MaterialTheme.colorScheme.primaryContainer),
                                 contentAlignment = Alignment.Center
@@ -236,9 +241,9 @@ private fun RoomListRecord(
     onLessonClicked: (Lesson) -> Unit = {},
     scaling: Float = 1f,
     width: Dp,
+    currentClassName: String
 ) {
-    val height =
-        animateFloatAsState(targetValue = if (displayed) 48f else 0f, label = "room entry")
+    val height = animateFloatAsState(targetValue = if (displayed) 48f else 0f, label = "room entry")
 
     Box(
         modifier = Modifier
@@ -262,13 +267,13 @@ private fun RoomListRecord(
                             .width(length.toInt().dp)
                             .height(40.dp)
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.error)
+                            .background(if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.error)
                             .clickable { onLessonClicked(lesson) },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = lesson.`class`.name,
-                            color = MaterialTheme.colorScheme.onError,
+                            color = if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onError,
                             style = MaterialTheme.typography.labelMedium,
                         )
                     }
@@ -287,7 +292,8 @@ private fun RoomListRecordPreview() {
             if (Random.nextBoolean()) Lessons.generateLessons(1).first() else null
         }.toList(),
         true,
-        width = 200.dp
+        width = 200.dp,
+        currentClassName = "12a"
     )
 }
 
