@@ -61,7 +61,7 @@ fun FindAvailableRoomScreen(
         onNowToggled = { roomSearchViewModel.toggleFilterNow() },
         onNextToggled = { roomSearchViewModel.toggleFilterNext() },
         onOpenLessonDetailDialog = { roomSearchViewModel.showDialog(it) },
-        onCloseLessonDetailDialog = { roomSearchViewModel.closeDialog() }
+        onCloseLessonDetailDialog = { roomSearchViewModel.closeDialog() },
     )
 }
 
@@ -98,124 +98,115 @@ fun FindAvailableRoomScreenContent(
             )
         },
     ) { paddingValues ->
-        Box(
-            modifier = Modifier.padding(paddingValues)
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = 16.dp)
         ) {
-            Column(
-                modifier = Modifier.padding(horizontal = 16.dp)
-            ) {
-                Text(text = state.currentSchool?.name ?: stringResource(id = R.string.loadingData))
-                Guide(className = state.currentClass?.name)
+            Text(text = state.currentSchool?.name ?: stringResource(id = R.string.loadingData))
+            Guide(className = state.currentClass?.name)
 
-                SearchField(state.roomFilter) { onRoomFilterValueChanged(it) }
-                if (state.currentClass != null && (state.currentLesson
-                        ?: 0.toDouble()) + 0.5 != state.rooms?.maxLessons?.toDouble()
-                ) {
-                    FilterChips(
-                        currentLesson = state.currentLesson,
-                        filterNowActive = state.filterNow,
-                        filterNextActive = state.filterNext,
-                        filterNowToggled = { onNowToggled() },
-                        filterNextToggled = { onNextToggled() }
-                    )
-                }
-                Box(modifier = Modifier.fillMaxSize()) {
-                    if (!state.loading && state.rooms != null) Column {
-                        Row(
+            SearchField(state.roomFilter) { onRoomFilterValueChanged(it) }
+            if (state.showFilterChips) FilterChips(
+                currentLesson = state.currentLesson,
+                filterNowActive = state.filterNow,
+                filterNextActive = state.filterNext,
+                filterNowToggled = { onNowToggled() },
+                filterNextToggled = { onNextToggled() }
+            )
+            if (state.loading || state.rooms == null) {
+                Loading()
+                return@Scaffold
+            }
+            Box(modifier = Modifier.fillMaxSize()) {
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .fillMaxWidth()
+                            .horizontalScroll(rememberScrollState())
+                    ) {
+                        Column(
                             modifier = Modifier
-                                .padding(top = 8.dp)
                                 .fillMaxWidth()
-                                .horizontalScroll(rememberScrollState())
-                        ) {
+                                .height(40.dp)
+                                .padding(horizontal = 4.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer)
+                                .weight(2 / (12f + zeroMod), false),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.SpaceAround
+                        ) {}
+                        repeat(state.rooms.maxLessons + zeroMod - 1) { lessonNumber ->
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(40.dp)
                                     .padding(horizontal = 4.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .background(MaterialTheme.colorScheme.primaryContainer)
-                                    .weight(2 / (12f + zeroMod), false),
+                                    .background(
+                                        if (lessonNumber - zeroMod.toDouble() == state.currentLesson) MaterialTheme.colorScheme.tertiaryContainer
+                                        else if (lessonNumber - zeroMod.toDouble() < (state.currentLesson
+                                                ?: (-1).toDouble())
+                                        ) MaterialTheme.colorScheme.secondaryContainer
+                                        else MaterialTheme.colorScheme.primaryContainer
+                                    )
+                                    .weight(1 / (11f + zeroMod), false),
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.SpaceAround
-                            ) {}
-                            repeat(state.rooms.maxLessons + zeroMod - 1) { lessonNumber ->
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(40.dp)
-                                        .padding(horizontal = 4.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(
-                                            if (lessonNumber - zeroMod.toDouble() == state.currentLesson) MaterialTheme.colorScheme.tertiaryContainer
-                                            else if (lessonNumber - zeroMod.toDouble() < (state.currentLesson
-                                                    ?: (-1).toDouble())
-                                            ) MaterialTheme.colorScheme.secondaryContainer
-                                            else MaterialTheme.colorScheme.primaryContainer
-                                        )
-                                        .weight(1 / (11f + zeroMod), false),
-                                    horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.SpaceAround
-                                ) {
-                                    Text(
-                                        text = "${lessonNumber - zeroMod + 1}",
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer
-                                    )
+                            ) {
+                                Text(
+                                    text = "${lessonNumber - zeroMod + 1}",
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
 
-                                }
                             }
                         }
-                        HorizontalDivider(
-                            modifier = Modifier.padding(
-                                top = 4.dp,
-                                bottom = 2.dp,
-                                start = 2.dp,
-                                end = 2.dp
-                            )
+                    }
+                    HorizontalDivider(
+                        modifier = Modifier.padding(
+                            top = 4.dp,
+                            bottom = 2.dp,
+                            start = 2.dp,
+                            end = 2.dp
                         )
-                        Column(
-                            modifier = Modifier
-                                .verticalScroll(rememberScrollState())
-                        ) {
-                            if (state.rooms.rooms.isNotEmpty()) {
-                                state.rooms.rooms
-                                    .sortedBy { it.room.name }
-                                    .forEach {
-                                        var map = it.lessons
-                                        if (!show0) map = map.drop(1)
-                                        RoomListRecord(
-                                            name = it.room.name,
-                                            lessons = map,
-                                            displayed = it.displayed,
-                                            onLessonClicked = { lesson ->
-                                                onOpenLessonDetailDialog(lesson)
-                                            }
-                                        )
-                                    }
-                            } else {
-                                Box(
-                                    contentAlignment = Alignment.Center,
-                                    modifier = Modifier.fillMaxWidth()
+                    )
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        if (state.rooms.rooms.isNotEmpty()) {
+                            state.rooms.rooms
+                                .sortedBy { it.room.name }
+                                .forEach {
+                                    var map = it.lessons
+                                    if (!show0) map = map.drop(1)
+                                    RoomListRecord(
+                                        name = it.room.name,
+                                        lessons = map,
+                                        displayed = it.displayed,
+                                        onLessonClicked = { lesson ->
+                                            onOpenLessonDetailDialog(lesson)
+                                        }
+                                    )
+                                }
+                        } else {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .padding(4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
                                 ) {
-                                    Row(
-                                        modifier = Modifier
-                                            .padding(4.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.SearchOff,
-                                            contentDescription = null
-                                        )
-                                        Text(text = stringResource(id = R.string.search_noResultsFound))
-                                    }
+                                    Icon(
+                                        imageVector = Icons.Default.SearchOff,
+                                        contentDescription = null
+                                    )
+                                    Text(text = stringResource(id = R.string.search_noResultsFound))
                                 }
                             }
-                        }
-                    } else {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
                         }
                     }
                 }
@@ -295,7 +286,19 @@ private fun RoomListRecord(
 private fun RoomListRecordPreview() {
     RoomListRecord(
         name = "r220",
-        lessons = Array(12) { if (Random.nextBoolean()) Lessons.generateLessons(1).first() else null }.toList(),
+        lessons = Array(12) {
+            if (Random.nextBoolean()) Lessons.generateLessons(1).first() else null
+        }.toList(),
         true
     )
+}
+
+@Composable
+private fun Loading() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
 }

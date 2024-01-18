@@ -48,7 +48,9 @@ class RoomSearchViewModel @Inject constructor(
                     currentSchool = school,
                     rooms = roomMap,
                     currentClass = `class`,
-                    loading = false
+                    loading = false,
+                    showFilterChips = state.value.currentClass != null && (state.value.currentLesson
+                        ?: 0.toDouble()) + 0.5 != state.value.rooms?.maxLessons?.toDouble()
                 )
             }.collect {
                 _state.value = it
@@ -75,7 +77,7 @@ class RoomSearchViewModel @Inject constructor(
                 if (currentLessonNumber == null) return@launch
                 if (state.value.filterNow && state.value.currentClass != null) {
                     filteredRoomMap = filteredRoomMap.map {
-                        if (it.lessons.any { l -> l?.lessonNumber == floor(currentLessonNumber).toInt()+1 }) {
+                        if (it.lessons.any { l -> l?.lessonNumber == floor(currentLessonNumber).toInt() + 1 }) {
                             it.copy(displayed = false)
                         } else it
                     }
@@ -83,7 +85,7 @@ class RoomSearchViewModel @Inject constructor(
                 if (state.value.filterNext && state.value.currentClass != null) {
                     try {
                         filteredRoomMap = filteredRoomMap.map {
-                            if (it.lessons.any { l -> l?.lessonNumber == floor(currentLessonNumber).toInt()+2 }) {
+                            if (it.lessons.any { l -> l?.lessonNumber == floor(currentLessonNumber).toInt() + 2 }) {
                                 it.copy(displayed = false)
                             } else it
                         }
@@ -130,5 +132,6 @@ data class RoomSearchState(
     val filterNext: Boolean = true,
     val currentLesson: Double? = null,
     val detailLesson: Lesson? = null,
+    val showFilterChips: Boolean = false
 )
 
