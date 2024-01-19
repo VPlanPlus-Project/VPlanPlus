@@ -15,8 +15,14 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
+import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
+import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
+import es.jvbabi.vplanplus.util.DateUtils.between
+import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlin.math.floor
 
@@ -26,29 +32,72 @@ class RoomSearchViewModel @Inject constructor(
     private val findCurrentSchoolUseCase: GetCurrentSchoolUseCase,
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     private val getClassByProfileUseCase: GetClassByProfileUseCase,
+    private val getLessonTimesForClassUseCase: GetLessonTimesForClassUseCase,
     private val getCurrentLessonNumberUseCase: GetCurrentLessonNumberUseCase
 ) : ViewModel() {
 
     private val _state = mutableStateOf(RoomSearchState())
     val state: State<RoomSearchState> = _state
 
+    private var filterJob: Job? = null
+
     init {
         viewModelScope.launch {
             combine(
                 findCurrentSchoolUseCase(),
-                getCurrentProfileUseCase()
+                getCurrentProfileUseCase(),
             ) { school, profile ->
-                var `class`: Classes? = null
                 if (school == null || profile == null) return@combine state.value
                 val roomMap = findRoomUseCases.getRoomMapUseCase(school)
+
+                var profileStart: LocalDateTime? = null
+                var currentClass: Classes? = null
+                var showFilterChips = false
+                var showNowFilter = false
+                var nowTimespan: Pair<LocalDateTime, LocalDateTime>? = null
+                var nextTimespan: Pair<LocalDateTime, LocalDateTime>? = null
+
                 if (profile.type == ProfileType.STUDENT) {
-                    `class` = getClassByProfileUseCase(profile)
+                    currentClass = getClassByProfileUseCase(profile)
+                    var start = getLessonTimesForClassUseCase(currentClass!!).entries.first()
+                    if (roomMap.rooms.all { it.lessons.first() == null } && start.key == 0) { // if 0th lesson exists and no room is used in 0th lesson
+                        start = getLessonTimesForClassUseCase(currentClass).entries.first { it.key > 0 }
+                        _state.value = _state.value.copy(showLesson0 = false)
+                    }
+                    val currentLessonNumber = getCurrentLessonNumberUseCase(currentClass)
+                    val times = getLessonTimesForClassUseCase(currentClass)
+
+                    val now =
+                        if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt()] else null
+                    val next =
+                        if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt() + 1] else null
+
+                    nowTimespan = if (now != null) Pair(
+                        "${now.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                        "${now.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                    ) else null
+
+                    nextTimespan = if (next != null) Pair(
+                        "${next.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                        "${next.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                    ) else null
+                    profileStart = "${start.value.start}:00".toLocalDateTime()
+                    showFilterChips = currentLessonNumber != null && currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble()
+                    showNowFilter = (currentLessonNumber ?: 0.0) % 1 != 0.5
                 }
+
                 _state.value.copy(
                     currentSchool = school,
                     rooms = roomMap,
-                    currentClass = `class`,
-                    loading = false
+                    profileStart = profileStart,
+                    currentClass = currentClass,
+                    loading = false,
+                    showFilterChips = showFilterChips,
+                    filterNowTimespan = nowTimespan,
+                    filterNextTimespan = nextTimespan,
+                    showNowFilter = showNowFilter,
+                    filterNow = if (!showNowFilter) false else _state.value.filterNow,
+                    filterNext = if (!showFilterChips) false else _state.value.filterNext,
                 )
             }.collect {
                 _state.value = it
@@ -58,10 +107,12 @@ class RoomSearchViewModel @Inject constructor(
     }
 
     fun filter() {
-        viewModelScope.launch {
+        filterJob?.cancel()
+        filterJob = viewModelScope.launch {
             var filteredRoomMap =
                 state.value.rooms?.rooms?.map { it.copy(displayed = true) } ?: return@launch
 
+            // filter name
             if (state.value.roomFilter.isNotBlank()) {
                 filteredRoomMap = filteredRoomMap.map {
                     if (!it.room.name.contains(state.value.roomFilter, ignoreCase = true)) {
@@ -69,28 +120,49 @@ class RoomSearchViewModel @Inject constructor(
                     } else it
                 }
             }
-            if (_state.value.currentClass != null) {
-                val currentLessonNumber = getCurrentLessonNumberUseCase(state.value.currentClass!!)
-                _state.value = _state.value.copy(currentLesson = currentLessonNumber)
-                if (currentLessonNumber == null) return@launch
-                if (state.value.filterNow && state.value.currentClass != null) {
-                    filteredRoomMap = filteredRoomMap.map {
-                        if (it.lessons.any { l -> l?.lessonNumber == floor(currentLessonNumber).toInt()+1 }) {
-                            it.copy(displayed = false)
-                        } else it
-                    }
-                }
-                if (state.value.filterNext && state.value.currentClass != null) {
-                    try {
-                        filteredRoomMap = filteredRoomMap.map {
-                            if (it.lessons.any { l -> l?.lessonNumber == floor(currentLessonNumber).toInt()+2 }) {
-                                it.copy(displayed = false)
-                            } else it
-                        }
-                    } catch (_: IndexOutOfBoundsException) {
-                    }
+
+            // filter availability now
+            if (state.value.filterNow && state.value.filterNowTimespan != null) {
+
+                filteredRoomMap = filteredRoomMap.map { rr ->
+                    if (rr.lessons
+                            .filterNotNull()
+                            .any { l ->
+                                l.start.atBeginningOfTheWorld().between(
+                                    _state.value.filterNowTimespan!!.first,
+                                    _state.value.filterNowTimespan!!.second
+                                ) ||
+                                        l.end.atBeginningOfTheWorld().between(
+                                            _state.value.filterNowTimespan!!.first,
+                                            _state.value.filterNowTimespan!!.second
+                                        )
+                            }
+                    ) {
+                        rr.copy(displayed = false)
+                    } else rr
                 }
             }
+
+            if (state.value.filterNext && state.value.filterNextTimespan != null) {
+                filteredRoomMap = filteredRoomMap.map { rr ->
+                    if (rr.lessons
+                            .filterNotNull()
+                            .any { l ->
+                                l.start.atBeginningOfTheWorld().between(
+                                    _state.value.filterNextTimespan!!.first,
+                                    _state.value.filterNextTimespan!!.second
+                                ) ||
+                                        l.end.atBeginningOfTheWorld().between(
+                                            _state.value.filterNextTimespan!!.first,
+                                            _state.value.filterNextTimespan!!.second
+                                        )
+                            }
+                    ) {
+                        rr.copy(displayed = false)
+                    } else rr
+                }
+            }
+
             _state.value =
                 _state.value.copy(rooms = _state.value.rooms?.copy(rooms = filteredRoomMap))
         }
@@ -128,7 +200,12 @@ data class RoomSearchState(
     val roomFilter: String = "",
     val filterNow: Boolean = false,
     val filterNext: Boolean = true,
-    val currentLesson: Double? = null,
     val detailLesson: Lesson? = null,
+    val showFilterChips: Boolean = false,
+    val profileStart: LocalDateTime? = null,
+    val showLesson0: Boolean = true,
+    val filterNowTimespan: Pair<LocalDateTime, LocalDateTime>? = null,
+    val filterNextTimespan: Pair<LocalDateTime, LocalDateTime>? = null,
+    val showNowFilter: Boolean = true,
 )
 

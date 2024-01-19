@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.util
 import android.annotation.SuppressLint
 import android.content.Context
 import es.jvbabi.vplanplus.R
-import java.sql.Time
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -11,6 +10,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeParseException
 import java.time.format.FormatStyle
 
 object DateUtils {
@@ -91,10 +91,19 @@ object DateUtils {
         }.replace(";DATE", localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)))
     }
 
-    @SuppressLint("SimpleDateFormat")
-    fun toTime(t: String): Time {
-        val formatter = SimpleDateFormat("HH:mm")
-        val date = formatter.parse(t)!!
-        return Time(date.time)
+    fun String.toLocalDateTime(): LocalDateTime {
+        return try {
+            LocalDateTime.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        } catch (e: DateTimeParseException) {
+            LocalDateTime.parse("1970-01-01 $this", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+        }
+    }
+
+    fun LocalDateTime.atBeginningOfTheWorld(): LocalDateTime {
+        return LocalDateTime.of(1970, 1, 1, this.hour, this.minute)
+    }
+
+    fun LocalDateTime.between(start: LocalDateTime, end: LocalDateTime): Boolean {
+        return (this.isAfter(start) || this.isEqual(start)) && this.isBefore(end)
     }
 }

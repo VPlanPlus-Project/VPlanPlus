@@ -80,6 +80,7 @@ import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileOptionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.SaveProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
+import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeletePlansUseCase
@@ -477,6 +478,12 @@ object VppModule {
         )
     }
 
+    @Provides
+    @Singleton
+    fun provideGetLessonTimesForClassUseCase(lessonTimeRepository: LessonTimeRepository): GetLessonTimesForClassUseCase {
+        return GetLessonTimesForClassUseCase(lessonTimeRepository)
+    }
+    
     @Provides
     @Singleton
     fun provideAdvancedSettingsUseCases(

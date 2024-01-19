@@ -166,7 +166,6 @@
     <string name="search_notDetailedResult">%1$s • %2$d Stunden</string>
     <string name="search_noLessons">Keine Stunden</string>
     <string name="searchAvailableRoom_roomInUse">Belegt</string>
-    <string name="searchAvailableRoom_roomAvailable">Verfügbar</string>
     <string name="searchAvailableRoom_roomBooked">Für %1$s gebucht</string>
     <string name="searchAvailableRoom_roomBookedAClass">eine Klasse</string>
     <string name="searchAvailableRoom_lessonDetail">%1$s in %2$s\n%3$sVon %4$s bis %5$s</string>
