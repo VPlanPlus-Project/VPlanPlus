@@ -31,7 +31,6 @@ import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
-import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
@@ -49,7 +48,6 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val app: Application,
     private val profileUseCases: ProfileUseCases,
-    private val vPlanUseCases: VPlanUseCases,
     private val planRepository: PlanRepository,
     private val keyValueRepository: KeyValueRepository,
     private val classUseCases: ClassUseCases,
@@ -159,12 +157,6 @@ class HomeViewModel @Inject constructor(
                 .addTag("ManualSyncWork")
                 .build()
             WorkManager.getInstance(context).enqueue(syncWork)
-        }
-    }
-
-    fun deletePlans() {
-        viewModelScope.launch {
-            vPlanUseCases.deletePlans()
         }
     }
 

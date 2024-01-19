@@ -178,12 +178,6 @@ fun HomeScreen(
                 viewModel.getVPlanData(context)
                 menuOpened = false
             },
-            onDeletePlansClicked = {
-                coroutineScope.launch {
-                    viewModel.deletePlans()
-                    menuOpened = false
-                }
-            },
             onRepositoryClicked = {
                 val browserIntent = Intent(
                     Intent.ACTION_VIEW,
