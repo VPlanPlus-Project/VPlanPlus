@@ -82,6 +82,8 @@ import es.jvbabi.vplanplus.domain.usecase.onboarding.SaveProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeletePlansUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -480,5 +482,15 @@ object VppModule {
     @Singleton
     fun provideGetLessonTimesForClassUseCase(lessonTimeRepository: LessonTimeRepository): GetLessonTimesForClassUseCase {
         return GetLessonTimesForClassUseCase(lessonTimeRepository)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideAdvancedSettingsUseCases(
+        lessonRepository: LessonRepository
+    ): AdvancedSettingsUseCases {
+        return AdvancedSettingsUseCases(
+            deletePlansUseCase = DeletePlansUseCase(lessonRepository)
+        )
     }
 }

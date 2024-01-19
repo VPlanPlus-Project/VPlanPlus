@@ -117,7 +117,7 @@ fun HomeScreen(
     })
 
     LaunchedEffect(lessonPagerState) {
-        snapshotFlow { lessonPagerState.currentPage }.collect { page ->
+        snapshotFlow { lessonPagerState.settledPage }.collect { page ->
             viewModel.onPageChanged(LocalDate.now().plusDays(page - PAGER_SIZE / 2L))
         }
     }
@@ -177,12 +177,6 @@ fun HomeScreen(
             onRefreshClicked = {
                 viewModel.getVPlanData(context)
                 menuOpened = false
-            },
-            onDeletePlansClicked = {
-                coroutineScope.launch {
-                    viewModel.deletePlans()
-                    menuOpened = false
-                }
             },
             onRepositoryClicked = {
                 val browserIntent = Intent(
@@ -441,7 +435,7 @@ fun HomeScreenContent(
                 .padding(bottom = 16.dp)
         ) {
             DateIndicator(
-                displayDate = state.date,
+                displayDate = LocalDate.now().plusDays(lessonPagerState.currentPage - PAGER_SIZE / 2L),
                 alpha = 1 - abs(lessonPagerState.currentPageOffsetFraction) * 2,
                 onClick = {
                     scope.launch {

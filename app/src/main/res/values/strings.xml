@@ -137,7 +137,7 @@
     <string name="searchAvailableRoom_labelAvailability">Availability</string>
     <string name="searchAvailableRoom_noResults">No results</string>
     <string name="home_menuRefresh">Refresh</string>
-    <string name="home_menuClearData">Delete plan data</string>
+    <string name="advancedSettings_clearDataTitle">Delete plan data</string>
     <string name="advancedSettings_logsTitle">Logs</string>
     <string name="home_menuWebsite">Website</string>
     <string name="home_menuNews">News</string>
@@ -184,4 +184,7 @@
     <string name="onboarding_setupDoneTitle">All set!</string>
     <string name="onboarding_setupDoneText">VPlanPlus is set up.</string>
     <string name="onboarding_setupDoneLetsGo">Let\'s go!</string>
+    <string name="advancedSettings_deletePlanDataDialogTitle">Delete existing plans?</string>
+    <string name="advancedSettings_deletePlanDataDialogText">Only do this if you see weird data. A sync will be required to get new data. This cannot be undone.</string>
+    <string name="advancedSettings_clearDataText">This can help if the cache is corrupted.</string>
 </resources>

@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,6 +18,7 @@ class AdvancedSettingsViewModel @Inject constructor(
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     private val getClassByProfileUseCase: GetClassByProfileUseCase,
     private val getCurrentLessonNumberUseCase: GetCurrentLessonNumberUseCase,
+    private val advancedSettingsUseCases: AdvancedSettingsUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(AdvancedSettingsState())
@@ -40,9 +42,25 @@ class AdvancedSettingsViewModel @Inject constructor(
             }
         }
     }
+
+    fun showDeletePlanDataDialog() {
+        _state.value = _state.value.copy(showDeletePlanData = true)
+    }
+
+    fun deletePlanData() {
+        viewModelScope.launch {
+            advancedSettingsUseCases.deletePlansUseCase()
+            closeDeletePlanDataDialog()
+        }
+    }
+
+    fun closeDeletePlanDataDialog() {
+        _state.value = _state.value.copy(showDeletePlanData = false)
+    }
 }
 
 data class AdvancedSettingsState(
     val currentProfileText: String = "Loading...",
     val currentLessonText: String = "Loading...",
+    val showDeletePlanData: Boolean = false
 )
