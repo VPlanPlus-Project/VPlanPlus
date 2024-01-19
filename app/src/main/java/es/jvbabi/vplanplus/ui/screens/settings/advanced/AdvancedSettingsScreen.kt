@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -24,6 +25,7 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.settings.advanced.components.DeletePlanDataDialog
 
 @Composable
 fun AdvancedSettingsScreen(
@@ -35,7 +37,10 @@ fun AdvancedSettingsScreen(
     AdvancedSettingsScreenContent(
         onBack = { navHostController.navigateUp() },
         onLogsClicked = { navHostController.navigate(Screen.SettingsAdvancedLogScreen.route) },
-        state = state
+        state = state,
+        onDeletePlansClicked = { viewModel.showDeletePlanDataDialog() },
+        onDeletePlansYes = { viewModel.deletePlanData() },
+        onDeletePlansNo = { viewModel.closeDeletePlanDataDialog() }
     )
 }
 
@@ -44,8 +49,15 @@ fun AdvancedSettingsScreen(
 private fun AdvancedSettingsScreenContent(
     onBack: () -> Unit = {},
     onLogsClicked: () -> Unit = {},
-    state: AdvancedSettingsState
+    state: AdvancedSettingsState,
+    onDeletePlansClicked: () -> Unit = {},
+    onDeletePlansYes: () -> Unit = {},
+    onDeletePlansNo: () -> Unit = {}
 ) {
+    if (state.showDeletePlanData) DeletePlanDataDialog(
+        { onDeletePlansYes() },
+        { onDeletePlansNo() }
+    )
     Scaffold(
         topBar = {
             TopAppBar(
@@ -69,6 +81,14 @@ private fun AdvancedSettingsScreenContent(
                 subtitle = stringResource(id = R.string.advancedSettings_logsSubtitle),
                 type = SettingsType.FUNCTION,
                 doAction = onLogsClicked
+            )
+            Divider()
+            SettingsSetting(
+                icon = Icons.Outlined.DeleteForever,
+                title = stringResource(id = R.string.advancedSettings_clearDataTitle),
+                subtitle = stringResource(id = R.string.advancedSettings_clearDataText),
+                type = SettingsType.FUNCTION,
+                doAction = { onDeletePlansClicked() }
             )
             Divider()
             SettingsSetting(

@@ -81,6 +81,8 @@ import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileOptionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.SaveProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeletePlansUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -472,6 +474,16 @@ object VppModule {
         return SyncUseCases(
             runSyncUseCase = RunSyncUseCase(context, isSyncRunningUseCase),
             isSyncRunningUseCase = isSyncRunningUseCase
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideAdvancedSettingsUseCases(
+        lessonRepository: LessonRepository
+    ): AdvancedSettingsUseCases {
+        return AdvancedSettingsUseCases(
+            deletePlansUseCase = DeletePlansUseCase(lessonRepository)
         )
     }
 }

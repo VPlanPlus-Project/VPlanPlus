@@ -23,7 +23,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Refresh
@@ -77,7 +76,6 @@ fun Menu(
     onSettingsClicked: () -> Unit = {},
     onRepositoryClicked: () -> Unit = {},
     onManageProfilesClicked: () -> Unit = {},
-    onDeletePlansClicked: () -> Unit = {},
     onNewsClicked: () -> Unit = {},
     onWebsiteClicked: () -> Unit = {},
     hasUnreadNews: Boolean,
@@ -180,7 +178,6 @@ fun Menu(
                         ButtonRow(icon = Icons.Outlined.Newspaper, text = stringResource(id = R.string.home_menuNews), showNotificationDot = hasUnreadNews, onClick = { onNewsClicked() })
                         ButtonRow(Icons.Outlined.Refresh, text = stringResource(id = R.string.home_menuRefresh), onClick = { onRefreshClicked() })
                         ButtonRow(Icons.Outlined.Settings, stringResource(id = R.string.home_menuSettings), onClick = { onSettingsClicked() })
-                        ButtonRow(icon = Icons.Outlined.DeleteForever, text = stringResource(id = R.string.home_menuClearData), onClick = { onDeletePlansClicked() })
                         HorizontalDivider()
                         ButtonRow(Icons.Outlined.DeveloperMode, stringResource(id = R.string.home_menuRepository), onClick = { onRepositoryClicked() })
                         ButtonRow(icon = painterResource(id = R.drawable.vpp), text = stringResource(id = R.string.home_menuWebsite), onClick = { onWebsiteClicked() } )
