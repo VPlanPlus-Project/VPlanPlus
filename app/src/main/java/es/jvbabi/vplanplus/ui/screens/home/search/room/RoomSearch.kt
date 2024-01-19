@@ -288,7 +288,7 @@ private fun RoomListRecord(
             LocalDateTime.now().atBeginningOfTheWorld(),
             ChronoUnit.MINUTES
         ) * scaling
-        Box(
+        if (current >= 0) Box(
             modifier = Modifier
                 .height((44 * height.value).dp)
                 .width(2.dp)

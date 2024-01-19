@@ -56,10 +56,12 @@ class RoomSearchViewModel @Inject constructor(
                     _state.value = _state.value.copy(showLesson0 = false)
                 }
 
-                val currentLessonNumber = getCurrentLessonNumberUseCase(`class`)!!
+                val currentLessonNumber = getCurrentLessonNumberUseCase(`class`)
                 val times = getLessonTimesForClassUseCase(`class`)
-                val now = times[floor(currentLessonNumber).toInt()]
-                val next = times[floor(currentLessonNumber).toInt() + 1]
+                val now =
+                    if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt()] else null
+                val next =
+                    if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt() + 1] else null
 
                 val nowTimespan = if (now != null) Pair(
                     "${now.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
@@ -77,10 +79,12 @@ class RoomSearchViewModel @Inject constructor(
                     profileStart = "${start.value.start}:00".toLocalDateTime(),
                     currentClass = `class`,
                     loading = false,
-                    showFilterChips = currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble(),
+                    showFilterChips = currentLessonNumber != null && currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble(),
                     filterNowTimespan = nowTimespan,
                     filterNextTimespan = nextTimespan,
-                    showNowFilter = currentLessonNumber %1 != 0.5
+                    showNowFilter = (currentLessonNumber ?: 0.0) % 1 != 0.5,
+                    filterNow = if (currentLessonNumber == null) false else _state.value.filterNow,
+                    filterNext = if (currentLessonNumber == null) false else _state.value.filterNext,
                 )
             }.collect {
                 _state.value = it
@@ -105,7 +109,7 @@ class RoomSearchViewModel @Inject constructor(
             }
 
             // filter availability now
-            if (state.value.filterNow) {
+            if (state.value.filterNow && state.value.filterNowTimespan != null) {
 
                 filteredRoomMap = filteredRoomMap.map { rr ->
                     if (rr.lessons
