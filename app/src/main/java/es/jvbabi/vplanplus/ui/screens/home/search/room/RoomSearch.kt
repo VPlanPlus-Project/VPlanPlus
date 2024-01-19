@@ -250,35 +250,37 @@ private fun RoomListRecord(
 ) {
     val height = animateFloatAsState(targetValue = if (displayed) 1f else 0f, label = "room entry")
 
-    Box(
-        modifier = Modifier
-            .padding(bottom = (4 * height.value).dp)
-            .height((40 * height.value).dp)
-    ) {
+    Box {
         Box(
-            modifier = Modifier.width(width)
+            modifier = Modifier
+                .padding(bottom = (4 * height.value).dp)
+                .height((40 * height.value).dp)
         ) {
-            lessons.filterNotNull().forEach { lesson ->
-                var lessonStart = lesson.start.withDayOfYear(1).withYear(1970)
-                if (lessonStart.isBefore(start)) lessonStart = start
-                val lessonEnd = lesson.end.withDayOfYear(1).withYear(1970)
-                val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
-                val length = lessonStart.until(lessonEnd, ChronoUnit.MINUTES) * scaling
-                Box(
-                    modifier = Modifier
-                        .offset(x = offset.toInt().dp)
-                        .width(length.toInt().dp)
-                        .height(40.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.error)
-                        .clickable { onLessonClicked(lesson) },
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = lesson.`class`.name,
-                        color = if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onError,
-                        style = MaterialTheme.typography.labelMedium,
-                    )
+            Box(
+                modifier = Modifier.width(width)
+            ) {
+                lessons.filterNotNull().forEach { lesson ->
+                    var lessonStart = lesson.start.withDayOfYear(1).withYear(1970)
+                    if (lessonStart.isBefore(start)) lessonStart = start
+                    val lessonEnd = lesson.end.withDayOfYear(1).withYear(1970)
+                    val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
+                    val length = lessonStart.until(lessonEnd, ChronoUnit.MINUTES) * scaling
+                    Box(
+                        modifier = Modifier
+                            .offset(x = offset.toInt().dp)
+                            .width(length.toInt().dp)
+                            .height(40.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.error)
+                            .clickable { onLessonClicked(lesson) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = lesson.`class`.name,
+                            color = if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onError,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
                 }
             }
         }
@@ -288,9 +290,9 @@ private fun RoomListRecord(
         ) * scaling
         Box(
             modifier = Modifier
+                .height((44 * height.value).dp)
+                .width(2.dp)
                 .offset(x = current.dp)
-                .fillMaxHeight()
-                .width(4.dp)
                 .background(MaterialTheme.colorScheme.onSurfaceVariant)
         )
     }
