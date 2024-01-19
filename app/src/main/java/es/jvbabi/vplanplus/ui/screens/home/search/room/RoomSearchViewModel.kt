@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.School
@@ -48,43 +49,55 @@ class RoomSearchViewModel @Inject constructor(
             ) { school, profile ->
                 if (school == null || profile == null) return@combine state.value
                 val roomMap = findRoomUseCases.getRoomMapUseCase(school)
-                val `class`: Classes? = getClassByProfileUseCase(profile)
 
-                var start = getLessonTimesForClassUseCase(`class`!!).entries.first()
-                if (roomMap.rooms.all { it.lessons.first() == null } && start.key == 0) { // if 0th lesson exists and no room is used in 0th lesson
-                    start = getLessonTimesForClassUseCase(`class`).entries.first { it.key > 0 }
-                    _state.value = _state.value.copy(showLesson0 = false)
+                var profileStart: LocalDateTime? = null
+                var currentClass: Classes? = null
+                var showFilterChips = false
+                var showNowFilter = false
+                var nowTimespan: Pair<LocalDateTime, LocalDateTime>? = null
+                var nextTimespan: Pair<LocalDateTime, LocalDateTime>? = null
+
+                if (profile.type == ProfileType.STUDENT) {
+                    currentClass = getClassByProfileUseCase(profile)
+                    var start = getLessonTimesForClassUseCase(currentClass!!).entries.first()
+                    if (roomMap.rooms.all { it.lessons.first() == null } && start.key == 0) { // if 0th lesson exists and no room is used in 0th lesson
+                        start = getLessonTimesForClassUseCase(currentClass).entries.first { it.key > 0 }
+                        _state.value = _state.value.copy(showLesson0 = false)
+                    }
+                    val currentLessonNumber = getCurrentLessonNumberUseCase(currentClass)
+                    val times = getLessonTimesForClassUseCase(currentClass)
+
+                    val now =
+                        if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt()] else null
+                    val next =
+                        if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt() + 1] else null
+
+                    nowTimespan = if (now != null) Pair(
+                        "${now.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                        "${now.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                    ) else null
+
+                    nextTimespan = if (next != null) Pair(
+                        "${next.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                        "${next.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                    ) else null
+                    profileStart = "${start.value.start}:00".toLocalDateTime()
+                    showFilterChips = currentLessonNumber != null && currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble()
+                    showNowFilter = (currentLessonNumber ?: 0.0) % 1 != 0.5
                 }
-
-                val currentLessonNumber = getCurrentLessonNumberUseCase(`class`)
-                val times = getLessonTimesForClassUseCase(`class`)
-                val now =
-                    if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt()] else null
-                val next =
-                    if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt() + 1] else null
-
-                val nowTimespan = if (now != null) Pair(
-                    "${now.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                    "${now.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                ) else null
-
-                val nextTimespan = if (next != null) Pair(
-                    "${next.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                    "${next.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                ) else null
 
                 _state.value.copy(
                     currentSchool = school,
                     rooms = roomMap,
-                    profileStart = "${start.value.start}:00".toLocalDateTime(),
-                    currentClass = `class`,
+                    profileStart = profileStart,
+                    currentClass = currentClass,
                     loading = false,
-                    showFilterChips = currentLessonNumber != null && currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble(),
+                    showFilterChips = showFilterChips,
                     filterNowTimespan = nowTimespan,
                     filterNextTimespan = nextTimespan,
-                    showNowFilter = (currentLessonNumber ?: 0.0) % 1 != 0.5,
-                    filterNow = if (currentLessonNumber == null) false else _state.value.filterNow,
-                    filterNext = if (currentLessonNumber == null) false else _state.value.filterNext,
+                    showNowFilter = showNowFilter,
+                    filterNow = if (!showNowFilter) false else _state.value.filterNow,
+                    filterNext = if (!showFilterChips) false else _state.value.filterNext,
                 )
             }.collect {
                 _state.value = it

@@ -132,9 +132,7 @@ fun FindAvailableRoomScreenContent(
                 .flatMap { it.lessons }
                 .filterNotNull()
 
-            val first = lessonTimes.filter {
-                it.start.isEqual(state.profileStart!!) || it.start.isAfter(state.profileStart)
-            }.minBy { it.start }
+            val first = lessonTimes.minBy { it.start }
             val last = lessonTimes.maxBy { it.end }
             val width = first.start.atBeginningOfTheWorld()
                 .until(last.end.atBeginningOfTheWorld(), ChronoUnit.MINUTES) * scaling
@@ -161,7 +159,7 @@ fun FindAvailableRoomScreenContent(
                                     Row {
                                         Spacer(modifier = Modifier.width(30.dp))
                                         RoomListRecord(
-                                            start = state.profileStart!!,
+                                            start = state.profileStart?:first.start.atBeginningOfTheWorld(),
                                             lessons = room.lessons,
                                             displayed = room.displayed,
                                             onLessonClicked = { lesson ->
@@ -169,7 +167,7 @@ fun FindAvailableRoomScreenContent(
                                             },
                                             scaling = scaling,
                                             width = width.dp,
-                                            currentClassName = state.currentClass!!.name
+                                            currentClassName = state.currentClass?.name
                                         )
                                     }
                                 }
@@ -246,7 +244,7 @@ private fun RoomListRecord(
     onLessonClicked: (Lesson) -> Unit = {},
     scaling: Float = 1f,
     width: Dp,
-    currentClassName: String
+    currentClassName: String?
 ) {
     val height = animateFloatAsState(targetValue = if (displayed) 1f else 0f, label = "room entry")
 
