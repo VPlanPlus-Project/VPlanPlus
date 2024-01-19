@@ -28,9 +28,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.boundsInWindow
+import androidx.compose.ui.layout.onPlaced
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -136,6 +139,17 @@ fun FindAvailableRoomScreenContent(
             val last = lessonTimes.maxBy { it.end }
             val width = first.start.atBeginningOfTheWorld()
                 .until(last.end.atBeginningOfTheWorld(), ChronoUnit.MINUTES) * scaling
+            val currentOffset = (state.profileStart?:first.start.atBeginningOfTheWorld()).until(
+                LocalDateTime.now().atBeginningOfTheWorld(),
+                ChronoUnit.MINUTES
+            ) * scaling + 500
+            var scrollWidth = 0
+
+            val scrollState = rememberScrollState()
+            LaunchedEffect(key1 = scrollWidth, block = {
+                if (scrollWidth == 0) return@LaunchedEffect
+                scrollState.animateScrollTo(currentOffset.toInt() + scrollWidth/3)
+            })
 
             if (state.rooms.rooms.isNotEmpty()) {
                 Box(
@@ -152,7 +166,10 @@ fun FindAvailableRoomScreenContent(
                     ) {
                         Box(
                             modifier = Modifier
-                                .horizontalScroll(rememberScrollState())
+                                .horizontalScroll(scrollState)
+                                .onPlaced {
+                                    scrollWidth = it.boundsInWindow().width.toInt()
+                                }
                         ) {
                             Column {
                                 state.rooms.rooms.sortedBy { it.room.name }.forEach { room ->
