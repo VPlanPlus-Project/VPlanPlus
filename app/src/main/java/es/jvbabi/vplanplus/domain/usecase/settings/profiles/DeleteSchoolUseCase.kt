@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.domain.usecase.settings.profiles
 import android.content.Context
 import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.usecase.Keys
@@ -25,7 +24,14 @@ class DeleteSchoolUseCase(
             UUID.fromString(keyValueRepository.get(Keys.ACTIVE_PROFILE))
         ).first()!!
         if (getSchoolFromProfileUseCase(currentProfile).schoolId == schoolId) {
-            keyValueRepository.set(Keys.ACTIVE_PROFILE, "")
+            keyValueRepository.set(Keys.ACTIVE_PROFILE,
+                profileRepository
+                    .getProfiles()
+                    .first()
+                    .firstOrNull {
+                        getSchoolFromProfileUseCase(it).schoolId != schoolId
+                    }?.id.toString()
+            )
         }
         val profiles = profileRepository.getProfilesBySchoolId(schoolId)
         profiles.forEach { profile ->
