@@ -40,7 +40,7 @@ fun ProfileCard(
             .clip(RoundedCornerShape(8.dp))
             .then(modifier)
             .size(width = 80.dp, height = 80.dp)
-            .dashedBorder(if (type == null) 3.dp else 0.dp, Color.Black, 16.dp)
+            .dashedBorder(if (type == null) 2.dp else 0.dp, Color.Black, 16.dp)
             .clickable(onClick = onClick)
     ) {
         Box(
