@@ -114,6 +114,31 @@ fun InfoDialog(
 }
 
 @Composable
+fun ComposableDialog(
+    icon: ImageVector,
+    title: String?,
+    content: @Composable () -> Unit,
+    onOk: () -> Unit = {},
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        AlertDialog(
+            title = { if (title != null) Text(text = title) },
+            text = { content() },
+            icon = { Icon(imageVector = icon, contentDescription = null) },
+            onDismissRequest = { onOk() },
+            confirmButton = {
+                TextButton(onClick = { onOk() }) {
+                    Text(text = stringResource(id = android.R.string.ok))
+                }
+            },
+        )
+    }
+}
+
+@Composable
 fun InputDialog(
     icon: ImageVector,
     title: String?,

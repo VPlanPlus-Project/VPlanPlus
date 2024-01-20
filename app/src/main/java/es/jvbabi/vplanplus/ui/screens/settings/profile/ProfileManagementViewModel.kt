@@ -5,6 +5,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
@@ -49,6 +50,18 @@ class ProfileManagementViewModel @Inject constructor(
             closeDeleteSchoolDialog()
         }
     }
+
+    fun share(school: School) {
+        _state.value = _state.value.copy(shareSchool = Gson().toJson(ShareSchool(
+            school.schoolId,
+            school.username,
+            school.password
+        )))
+    }
+
+    fun closeShareDialog() {
+        _state.value = _state.value.copy(shareSchool = null)
+    }
 }
 
 data class ProfileManagementState(
@@ -56,4 +69,11 @@ data class ProfileManagementState(
     val isLoading: Boolean = false,
 
     val deletingSchool: School? = null,
+    val shareSchool: String? = null,
+)
+
+private data class ShareSchool (
+    val schoolId: Long,
+    val username: String,
+    val password: String
 )

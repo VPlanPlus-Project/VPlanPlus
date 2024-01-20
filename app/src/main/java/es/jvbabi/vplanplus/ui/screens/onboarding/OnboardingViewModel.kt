@@ -277,6 +277,23 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
+    fun useQrResult() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(
+                schoolId = _state.value.qrResult!!.schoolId,
+                username = _state.value.qrResult!!.username,
+                password = _state.value.qrResult!!.password,
+                schoolIdState = SchoolIdCheckResult.VALID,
+                testSchoolLoading = true
+            )
+            nextStageProfileType()
+        }
+    }
+
+    fun saveQrResult(result: QrResult) {
+        _state.value = _state.value.copy(qrResult = result)
+    }
+
     fun goBackToSchoolId() {
         _state.value = _state.value.copy(
             isLoading = false,
@@ -327,12 +344,23 @@ class OnboardingViewModel @Inject constructor(
             _state.value = _state.value.copy(stage = Stage.FINISH, isLoading = true)
         }
     }
+
+    fun showQr() {
+        _state.value = _state.value.copy(showQr = true)
+    }
+
+    fun closeQr() {
+        _state.value = _state.value.copy(showQr = false)
+    }
 }
 
 data class OnboardingState(
     val onboardingCause: OnboardingCause = OnboardingCause.FIRST_START,
     val schoolId: String = "",
     val schoolIdState: SchoolIdCheckResult? = SchoolIdCheckResult.INVALID,
+
+    val showQr: Boolean = false,
+    val qrResult: QrResult? = null,
 
     val username: String = "schueler",
     val password: String = "",
@@ -388,3 +416,9 @@ enum class Stage {
     PERMISSIONS,
     FINISH
 }
+
+data class QrResult(
+    val schoolId: String,
+    val username: String,
+    val password: String
+)
