@@ -192,4 +192,5 @@
     <string name="settings_profileShareSchool">Teilen</string>
     <string name="settings_generalPersonalization">Personalisierung</string>
     <string name="settings_generalPersonalizationThemeTitle">Farbschema</string>
+    <string name="settings_profileShareNote">Scanne diesen QR-Code im Onboarding. Bitte gib diesen QR-Code nur an berechtigte Personen.</string>
 </resources>

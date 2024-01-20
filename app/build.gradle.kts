@@ -80,6 +80,8 @@ dependencies {
 
     implementation("org.simpleframework:simple-xml:2.7.1")
 
+    implementation("com.lightspark:compose-qr-code:1.0.1")
+
     implementation("com.google.dagger:hilt-android:2.48.1")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     kapt("androidx.hilt:hilt-compiler:1.1.0")

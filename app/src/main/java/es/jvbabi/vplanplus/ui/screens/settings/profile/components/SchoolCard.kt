@@ -44,6 +44,7 @@ fun SchoolCard(
     onAddProfileClicked: () -> Unit,
     onProfileClicked: (Profile) -> Unit,
     onDeleteRequest: () -> Unit,
+    onShareRequest: () -> Unit,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     Card(
@@ -85,11 +86,10 @@ fun SchoolCard(
                         )
                         DropdownMenuItem(
                             text = { Text(text = stringResource(id = R.string.settings_profileShareSchool)) },
-                            onClick = { /*TODO*/ },
+                            onClick = { menuExpanded = false; onShareRequest() },
                             leadingIcon = {
                                 Icon(imageVector = Icons.Default.Share, contentDescription = null)
-                            },
-                            enabled = false
+                            }
                         )
                     }
                 }
@@ -132,6 +132,7 @@ private fun SchoolCardPreview() {
         ),
         onAddProfileClicked = {},
         onProfileClicked = {},
+        onShareRequest = {},
         onDeleteRequest = {},
     )
 }
