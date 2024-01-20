@@ -84,6 +84,9 @@ import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeletePlansUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -491,6 +494,33 @@ object VppModule {
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deletePlansUseCase = DeletePlansUseCase(lessonRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideProfileSettingsUseCases(
+        profileRepository: ProfileRepository,
+        classRepository: ClassRepository,
+        teacherRepository: TeacherRepository,
+        roomRepository: RoomRepository,
+        schoolRepository: SchoolRepository,
+        keyValueRepository: KeyValueRepository,
+        getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase
+    ): ProfileSettingsUseCases {
+        return ProfileSettingsUseCases(
+            getProfilesUseCase = GetProfilesUseCase(
+                profileRepository = profileRepository,
+                classRepository = classRepository,
+                teacherRepository = teacherRepository,
+                roomRepository = roomRepository
+            ),
+            deleteSchoolUseCase = DeleteSchoolUseCase(
+                schoolRepository = schoolRepository,
+                profileRepository = profileRepository,
+                keyValueRepository = keyValueRepository,
+                getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
+            )
         )
     }
 }

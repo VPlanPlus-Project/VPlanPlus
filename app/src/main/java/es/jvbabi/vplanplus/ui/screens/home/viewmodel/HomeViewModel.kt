@@ -81,7 +81,11 @@ class HomeViewModel @Inject constructor(
             ) { profiles, activeProfileId, lastSyncTs, v, isSyncing ->
                 version = v?.toLong()?:0
                 var school: School? = null
-                if (activeProfileId != null) school = profileUseCases.getSchoolFromProfileId(UUID.fromString(activeProfileId))
+                if (activeProfileId != null) {
+                    try {
+                        school = profileUseCases.getSchoolFromProfileId(UUID.fromString(activeProfileId))
+                    } catch (_: IllegalArgumentException) {}
+                }
                 _state.value.copy(
                     profiles = profiles,
                     activeProfile = profiles.find { it.id.toString() == activeProfileId },

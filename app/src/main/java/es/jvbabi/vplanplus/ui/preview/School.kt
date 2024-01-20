@@ -11,7 +11,7 @@ object School {
                 School(
                     schoolId = i.toLong(),
                     name = randomSchoolName(),
-                    "",
+                    "schueler",
                     "",
                     5,
                     true

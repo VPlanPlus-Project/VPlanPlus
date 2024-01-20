@@ -6,31 +6,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.android.notification.Notification
-import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.domain.repository.RoomRepository
-import es.jvbabi.vplanplus.domain.repository.TeacherRepository
-import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
-import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
-import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
-import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
-import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
-import kotlinx.coroutines.flow.first
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileManagementViewModel @Inject constructor(
-    private val profileUseCases: ProfileUseCases,
-    private val classUseCases: ClassUseCases,
-    private val schoolUseCases: SchoolUseCases,
-    private val teacherRepository: TeacherRepository,
-    private val roomRepository: RoomRepository,
-    private val keyValueUseCases: KeyValueUseCases,
-    private val getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase
+    private val profileSettingsUseCase: ProfileSettingsUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(ProfileManagementState())
@@ -38,90 +22,16 @@ class ProfileManagementViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            profileUseCases.getProfiles().collect { profiles ->
-                val schools = mutableMapOf<String, List<ProfileManagementProfile>>()
-                profiles.forEach {
-                    when (it.type) {
-                        ProfileType.STUDENT -> {
-                            val `class` = classUseCases.getClassById(it.referenceId)
-                            val school = `class`.school
-                            if (schools.containsKey(school.name)) {
-                                schools[school.name] = schools[school.name]!!.plus(
-                                    ProfileManagementProfile(
-                                        id = it.id,
-                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
-                                        type = it.type
-                                    )
-                                )
-                            } else {
-                                schools[school.name] = listOf(
-                                    ProfileManagementProfile(
-                                        id = it.id,
-                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
-                                        type = it.type
-                                    )
-                                )
-                            }
-                        }
-
-                        ProfileType.TEACHER -> {
-                            val school = teacherRepository.getTeacherById(it.referenceId)!!.school
-                            if (schools.containsKey(school.name)) {
-                                schools[school.name] = schools[school.name]!!.plus(
-                                    ProfileManagementProfile(
-                                        id = it.id,
-                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
-                                        type = it.type
-                                    )
-                                )
-                            } else {
-                                schools[school.name] = listOf(
-                                    ProfileManagementProfile(
-                                        id = it.id,
-                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
-                                        type = it.type
-                                    )
-                                )
-                            }
-                        }
-
-                        ProfileType.ROOM -> {
-                            val school = roomRepository.getRoomById(it.referenceId)!!.school
-                            if (schools.containsKey(school.name)) {
-                                schools[school.name] = schools[school.name]!!.plus(
-                                    ProfileManagementProfile(
-                                        id = it.id,
-                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
-                                        type = it.type
-                                    )
-                                )
-                            } else {
-                                schools[school.name] = listOf(
-                                    ProfileManagementProfile(
-                                        id = it.id,
-                                        name = if (it.displayName.length > 4) it.originalName else it.displayName,
-                                        type = it.type
-                                    )
-                                )
-                            }
-                        }
-                    }
-                }
-                _state.value = _state.value.copy(isLoading = false, schools = schools.map {
-                    ProfileManagementSchool(
-                        name = it.key,
-                        profiles = it.value
-                    )
-                })
+            profileSettingsUseCase.getProfilesUseCase().collect {
+                _state.value = _state.value.copy(
+                    profiles = it,
+                    isLoading = false
+                )
             }
         }
     }
 
-    suspend fun getSchoolByName(name: String): School {
-        return schoolUseCases.getSchoolByName(name)
-    }
-
-    fun openDeleteSchoolDialog(school: ProfileManagementSchool) {
+    fun openDeleteSchoolDialog(school: School) {
         _state.value = _state.value.copy(deletingSchool = school)
     }
 
@@ -131,35 +41,19 @@ class ProfileManagementViewModel @Inject constructor(
 
     fun deleteSchool(context: Context) {
         if (_state.value.deletingSchool == null) return
-        _state.value.deletingSchool!!.profiles.map { "PROFILE_${it.id.toString().lowercase()}" }.forEach {
-            Notification.deleteChannel(context, it)
-        }
         viewModelScope.launch {
-            val school = schoolUseCases.getSchoolByName(_state.value.deletingSchool!!.name)
-            val firstProfile = profileUseCases.getProfiles().first().firstOrNull { p -> getSchoolFromProfileUseCase(p) != school }
-            if (firstProfile != null) keyValueUseCases.set(Keys.ACTIVE_PROFILE, firstProfile.id.toString())
-            else keyValueUseCases.set(Keys.ACTIVE_PROFILE, "")
-            schoolUseCases.deleteSchool(school.schoolId)
+            profileSettingsUseCase.deleteSchoolUseCase(
+                context,
+                _state.value.deletingSchool!!.schoolId
+            )
             closeDeleteSchoolDialog()
         }
     }
 }
 
 data class ProfileManagementState(
-    val schools: List<ProfileManagementSchool> = emptyList(),
+    val profiles: Map<School, List<Profile>> = emptyMap(),
     val isLoading: Boolean = false,
 
-    val deletingSchool: ProfileManagementSchool? = null,
+    val deletingSchool: School? = null,
 )
-
-data class ProfileManagementSchool(
-    val name: String,
-    val profiles: List<ProfileManagementProfile>
-)
-
-data class ProfileManagementProfile(
-    val id: UUID,
-    val name: String,
-    val type: ProfileType
-)
-
