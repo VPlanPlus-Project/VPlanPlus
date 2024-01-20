@@ -62,6 +62,7 @@ fun SchoolCard(
             ) {
                 Column(
                     modifier = Modifier
+                        .weight(1f, true)
                         .padding(top = 16.dp, bottom = 8.dp, end = 16.dp),
                 ) {
                     Text(
@@ -72,7 +73,9 @@ fun SchoolCard(
                     )
                     Text(text = school.username, style = MaterialTheme.typography.labelSmall)
                 }
-                Box {
+                Box(
+                    modifier = Modifier
+                ) {
                     IconButton(onClick = { menuExpanded = !menuExpanded }) {
                         Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
                     }
