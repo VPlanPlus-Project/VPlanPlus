@@ -48,6 +48,7 @@ fun SettingsSetting(
     checked: Boolean? = null,
     doAction: () -> Unit,
     enabled: Boolean = true,
+    clickable: Boolean = true,
     customContent: @Composable () -> Unit = {}
 ) {
     Column {
@@ -55,7 +56,7 @@ fun SettingsSetting(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp))
-                .clickable { if (enabled) doAction() }
+                .clickable(enabled && clickable) { if (enabled) doAction() }
                 .padding(vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,

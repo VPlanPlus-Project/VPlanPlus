@@ -131,7 +131,8 @@ fun GeneralSettingsContent(
                     icon = Icons.Outlined.Brush,
                     title = stringResource(id = R.string.settings_generalPersonalizationThemeTitle),
                     type = SettingsType.FUNCTION,
-                    doAction = {}
+                    doAction = {},
+                    clickable = false
                 ) {
                     LazyRow {
                         item {
