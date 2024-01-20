@@ -69,6 +69,8 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.RunSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.SyncUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
@@ -521,6 +523,16 @@ object VppModule {
                 keyValueRepository = keyValueRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
             )
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideHomeUseCases(
+        keyValueRepository: KeyValueRepository
+    ): HomeUseCases {
+        return HomeUseCases(
+            getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository)
         )
     }
 }

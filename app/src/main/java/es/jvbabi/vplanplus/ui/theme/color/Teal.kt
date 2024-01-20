@@ -69,7 +69,7 @@ val teal_md_theme_dark_scrim = Color(0xFF000000)
 
 val teal_seed = Color(0xFF009688)
 
-private val teal_light = lightColorScheme(
+val teal_light = lightColorScheme(
     primary = teal_md_theme_light_primary,
     onPrimary = teal_md_theme_light_onPrimary,
     primaryContainer = teal_md_theme_light_primaryContainer,

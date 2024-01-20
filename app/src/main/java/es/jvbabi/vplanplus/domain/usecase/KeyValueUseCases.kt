@@ -32,4 +32,6 @@ object Keys {
     const val LESSON_VERSION_NUMBER = "LESSON_VERSION_NUMBER"
 
     const val LAST_SYNC_TS = "LAST_SYNC_TS"
+
+    const val COLOR = "COLOR"
 }

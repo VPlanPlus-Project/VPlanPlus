@@ -26,6 +26,8 @@ import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.ColorScheme
+import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
@@ -48,6 +50,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var profileUseCases: ProfileUseCases
 
+    @Inject
+    lateinit var homeUseCases: HomeUseCases
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -56,11 +61,19 @@ class MainActivity : ComponentActivity() {
         processIntent(intent)
 
         setContent {
+            var colorScheme by remember { mutableStateOf(ColorScheme.DYNAMIC) }
+            var init by remember { mutableStateOf(false) }
             var goToOnboarding: Boolean? by remember { mutableStateOf(null) }
             LaunchedEffect(key1 = "init", block = {
+                colorScheme = homeUseCases.getColorSchemeUseCase()
+                Log.d("MainActivity", "colorscheme: ${homeUseCases.getColorSchemeUseCase()}")
                 goToOnboarding = profileUseCases.getActiveProfile() == null
+                init = true
             })
-            VPlanPlusTheme {
+            if (!init) return@setContent
+            VPlanPlusTheme(
+                cs = colorScheme,
+            ) {
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
