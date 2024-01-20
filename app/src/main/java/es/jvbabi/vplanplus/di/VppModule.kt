@@ -69,6 +69,8 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.RunSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.SyncUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
@@ -84,6 +86,8 @@ import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeletePlansUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
@@ -521,6 +525,26 @@ object VppModule {
                 keyValueRepository = keyValueRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
             )
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideHomeUseCases(
+        keyValueRepository: KeyValueRepository
+    ): HomeUseCases {
+        return HomeUseCases(
+            getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGeneralSettingsUseCases(
+        keyValueRepository: KeyValueRepository
+    ): GeneralSettingsUseCases {
+        return GeneralSettingsUseCases(
+            getColorsUseCase = GetColorsUseCase(keyValueRepository)
         )
     }
 }

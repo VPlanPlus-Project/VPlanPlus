@@ -189,4 +189,6 @@
     <string name="advancedSettings_clearDataText">This can help if the cache is corrupted.</string>
     <string name="settings_profileDeleteSchool">Delete</string>
     <string name="settings_profileShareSchool">Share</string>
+    <string name="settings_generalPersonalization">Personalization</string>
+    <string name="settings_generalPersonalizationThemeTitle">Theme</string>
 </resources>

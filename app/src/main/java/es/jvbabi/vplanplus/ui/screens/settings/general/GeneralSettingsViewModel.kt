@@ -7,14 +7,18 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
+import es.jvbabi.vplanplus.domain.usecase.home.Colors
+import es.jvbabi.vplanplus.domain.usecase.settings.general.ColorScheme
+import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class GeneralSettingsViewModel @Inject constructor(
-    private val keyValueUseCases: KeyValueUseCases
-): ViewModel() {
+    private val keyValueUseCases: KeyValueUseCases,
+    private val generalSettingsUseCases: GeneralSettingsUseCases
+) : ViewModel() {
 
     private val _state = mutableStateOf(GeneralSettingsState())
     val state: State<GeneralSettingsState> = _state
@@ -23,11 +27,14 @@ class GeneralSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 keyValueUseCases.getFlow(Keys.SETTINGS_SYNC_DAY_DIFFERENCE),
-                keyValueUseCases.getFlow(Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE)
-            ) { syncDayDifference, showNotification ->
+                keyValueUseCases.getFlow(Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE),
+                keyValueUseCases.getFlow(Keys.COLOR)
+            ) { syncDayDifference, showNotification, _ ->
                 _state.value.copy(
                     syncDayDifference = syncDayDifference?.toInt() ?: 3,
-                    notificationShowNotificationIfAppIsVisible = showNotification?.toBoolean() ?: false
+                    notificationShowNotificationIfAppIsVisible = showNotification?.toBoolean()
+                        ?: false,
+                    colors = generalSettingsUseCases.getColorsUseCase(_state.value.isDark ?: false),
                 )
             }.collect {
                 _state.value = it
@@ -35,9 +42,22 @@ class GeneralSettingsViewModel @Inject constructor(
         }
     }
 
+    fun init(isDark: Boolean) {
+        _state.value = _state.value.copy(isDark = isDark)
+    }
+
     fun onShowNotificationsOnAppOpenedClicked(show: Boolean) {
         viewModelScope.launch {
-            keyValueUseCases.set(Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE, show.toString())
+            keyValueUseCases.set(
+                Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE,
+                show.toString()
+            )
+        }
+    }
+
+    fun onColorSchemeChanged(color: Colors) {
+        viewModelScope.launch {
+            keyValueUseCases.set(Keys.COLOR, color.ordinal.toString())
         }
     }
 
@@ -50,6 +70,7 @@ class GeneralSettingsViewModel @Inject constructor(
 
 data class GeneralSettingsState(
     val notificationShowNotificationIfAppIsVisible: Boolean = false,
-
-    val syncDayDifference: Int = 3
+    val colors: Map<Colors, ColorScheme> = mapOf(),
+    val syncDayDifference: Int = 3,
+    val isDark: Boolean? = null
 )
