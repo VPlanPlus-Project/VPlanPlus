@@ -2,6 +2,8 @@ package es.jvbabi.vplanplus.ui.screens.onboarding
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -10,7 +12,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -40,6 +44,16 @@ fun OnboardingSchoolIdScreen(
 ) {
     val state = viewModel.state.value
     val context = LocalContext.current
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {
+            if (it) viewModel.showQr()
+        })
+
+    LaunchedEffect(key1 = state.showQr, block = {
+        if (state.showQr) navController.navigate(Screen.OnboardingQrScreen.route)
+    })
 
     LaunchedEffect(key1 = state.stage, block = {
         if (state.stage == Stage.CREDENTIALS) {
@@ -78,6 +92,9 @@ fun OnboardingSchoolIdScreen(
             } else {
                 navController.navigateUp()
             }
+        },
+        onQrCodeClick = {
+            launcher.launch(android.Manifest.permission.CAMERA)
         }
     )
 
@@ -90,6 +107,7 @@ fun OnboardingSchoolIdScreen(
 fun SchoolId(
     onSchoolIdInputChange: (String) -> Unit,
     onButtonClick: () -> Unit,
+    onQrCodeClick: () -> Unit,
     onTestSchoolClick: () -> Unit,
     onTestSchoolErrorDialogDismissed: () -> Unit,
     showCloseDialog: Boolean,
@@ -144,19 +162,41 @@ fun SchoolId(
             }
         },
         footer = {
-            TextButton(
-                onClick = onTestSchoolClick,
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !state.isLoading && !state.testSchoolLoading
             ) {
-                if (state.testSchoolLoading) CircularProgressIndicator(
-                    strokeWidth = 2.dp,
-                    color = Color.Gray,
+                TextButton(
+                    onClick = { onQrCodeClick() },
                     modifier = Modifier
-                        .width(24.dp)
-                        .height(24.dp)
-                        .padding(6.dp)
-                ) else Text(text = stringResource(id = R.string.onboarding_welcomeContinueTestSchool))
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    enabled = !state.isLoading && !state.testSchoolLoading
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.QrCode,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .height(20.dp)
+                            .padding(end = 8.dp)
+                    )
+                    Text(text = stringResource(id = R.string.onboarding_welcomeScanQrCode))
+                }
+                TextButton(
+                    onClick = onTestSchoolClick,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp),
+                    enabled = !state.isLoading && !state.testSchoolLoading
+                ) {
+                    if (state.testSchoolLoading) CircularProgressIndicator(
+                        strokeWidth = 2.dp,
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .width(24.dp)
+                            .height(24.dp)
+                            .padding(6.dp)
+                    ) else Text(text = stringResource(id = R.string.onboarding_welcomeContinueTestSchool))
+                }
             }
         }
     )
@@ -188,6 +228,7 @@ private fun SchoolIdScreenPreview() {
         showCloseDialog = false,
         hideCloseDialog = {},
         closeOnboarding = {},
-        state = OnboardingState()
+        state = OnboardingState(),
+        onQrCodeClick = {}
     )
 }

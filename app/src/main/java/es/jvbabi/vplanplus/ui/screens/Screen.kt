@@ -6,6 +6,7 @@ sealed class Screen(val route: String) {
 
     data object Onboarding: Screen("onboarding")
     data object OnboardingWelcomeScreen: Screen("onboarding/welcome_screen")
+    data object OnboardingQrScreen: Screen("onboarding/qr_screen")
     data object OnboardingSchoolIdScreen: Screen("onboarding/school_id_screen")
     data object OnboardingLoginScreen: Screen("onboarding/login_screen")
     data object OnboardingNewProfileScreen: Screen("onboarding/first_profile_screen") // used for creating another profile

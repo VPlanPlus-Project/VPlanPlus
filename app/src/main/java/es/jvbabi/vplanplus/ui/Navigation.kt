@@ -29,6 +29,7 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingSetupScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.Task
+import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingQrScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
@@ -148,6 +149,16 @@ fun NavigationGraph(
                 popExitTransition = exitSlideTransitionRight
             ) {
                 OnboardingWelcomeScreen(navController, onboardingViewModel)
+            }
+
+            composable(
+                route = Screen.OnboardingQrScreen.route,
+                enterTransition = enterSlideTransition,
+                exitTransition = exitSlideTransition,
+                popEnterTransition = enterSlideTransitionRight,
+                popExitTransition = exitSlideTransitionRight
+            ) {
+                OnboardingQrScreen(navController, onboardingViewModel)
             }
 
             composable(

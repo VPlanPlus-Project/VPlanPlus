@@ -192,4 +192,8 @@
     <string name="settings_generalPersonalization">Personalization</string>
     <string name="settings_generalPersonalizationThemeTitle">Theme</string>
     <string name="settings_profileShareNote">Scan this qr while onboarding. Please only pass this qr on to authorized persons.</string>
+    <string name="onboarding_welcomeScanQrCode">I have a qr code</string>
+    <string name="onboarding_qrTitle">Scan the QR</string>
+    <string name="onboarding_qrText">Please make sure that the qr is clearly visible</string>
+    <string name="onboarding_qrNext">Proceed with %1$d</string>
 </resources>
