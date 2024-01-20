@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.settings.general
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -140,21 +141,25 @@ fun GeneralSettingsContent(
                         items(state.colors.toList().sortedBy { it.first.ordinal }) { (color, record) ->
                             val surface = MaterialTheme.colorScheme.surface
                             val onSurface = MaterialTheme.colorScheme.onSurface
+                            val factor = animateFloatAsState(
+                                targetValue = if (record.active) 1f else 0.0f,
+                                label = "checkmark"
+                            )
                             Box(
                                 modifier = Modifier
                                     .padding(horizontal = 4.dp)
                                     .size(48.dp)
                                     .clip(RoundedCornerShape(24.dp))
-                                    .background(record.primary?:onSurface)
+                                    .background(record.primary ?: onSurface)
                                     .drawWithContent {
                                         if (record.active) {
                                             drawCircle(
-                                                color = surface,
+                                                color = surface.copy(alpha = factor.value),
                                                 radius = 22.dp.toPx(),
                                                 center = center,
                                             )
                                             drawCircle(
-                                                color = record.primary?:onSurface,
+                                                color = record.primary ?: onSurface,
                                                 radius = 20.dp.toPx(),
                                                 center = center,
                                             )
@@ -164,17 +169,18 @@ fun GeneralSettingsContent(
                                     .clickable { onColorSchemeChanged(color) },
                                 contentAlignment = Alignment.Center
                             ) {
-                                if (record.active)
-                                    Icon(
-                                        imageVector = Icons.Default.Check,
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary
-                                    )
-                                else if (color == Colors.DYNAMIC) {
+                                Icon(
+                                    imageVector = Icons.Default.Check,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    modifier = Modifier.size((20*factor.value).dp)
+                                )
+                                if (!record.active && color == Colors.DYNAMIC) {
                                     Icon(
                                         imageVector = Icons.Outlined.AutoAwesome,
                                         contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.surface
+                                        tint = MaterialTheme.colorScheme.surface,
+                                        modifier = Modifier.size((20*(1-factor.value)).dp)
                                     )
 
                                 }
