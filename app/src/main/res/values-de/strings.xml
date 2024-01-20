@@ -190,4 +190,6 @@
     <string name="advancedSettings_clearDataText">Dies kann helfen, wenn der Cache beschädigt ist.</string>
     <string name="settings_profileDeleteSchool">Löschen</string>
     <string name="settings_profileShareSchool">Teilen</string>
+    <string name="settings_generalPersonalization">Personalisierung</string>
+    <string name="settings_generalPersonalizationThemeTitle">Farbschema</string>
 </resources>

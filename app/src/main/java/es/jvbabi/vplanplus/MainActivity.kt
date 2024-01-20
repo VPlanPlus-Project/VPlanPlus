@@ -25,8 +25,10 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.android.notification.Notification
+import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
+import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
-import es.jvbabi.vplanplus.domain.usecase.home.ColorScheme
+import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
@@ -53,6 +55,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var homeUseCases: HomeUseCases
 
+    @Inject
+    lateinit var keyValueUseCases: KeyValueUseCases
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -61,18 +66,22 @@ class MainActivity : ComponentActivity() {
         processIntent(intent)
 
         setContent {
-            var colorScheme by remember { mutableStateOf(ColorScheme.DYNAMIC) }
+            var colors by remember { mutableStateOf(Colors.DYNAMIC) }
             var init by remember { mutableStateOf(false) }
             var goToOnboarding: Boolean? by remember { mutableStateOf(null) }
             LaunchedEffect(key1 = "init", block = {
-                colorScheme = homeUseCases.getColorSchemeUseCase()
+                colors = homeUseCases.getColorSchemeUseCase()
                 Log.d("MainActivity", "colorscheme: ${homeUseCases.getColorSchemeUseCase()}")
                 goToOnboarding = profileUseCases.getActiveProfile() == null
                 init = true
+
+                keyValueUseCases.getFlow(Keys.COLOR).collect {
+                    colors = homeUseCases.getColorSchemeUseCase()
+                }
             })
             if (!init) return@setContent
             VPlanPlusTheme(
-                cs = colorScheme,
+                cs = colors,
             ) {
                 Surface(
                     modifier = Modifier
@@ -92,7 +101,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
             LaunchedEffect(key1 = true, block = {
-                Notification.createChannels(applicationContext, profileUseCases.getProfiles().first())
+                Notification.createChannels(
+                    applicationContext,
+                    profileUseCases.getProfiles().first()
+                )
             })
         }
 
@@ -122,7 +134,15 @@ class MainActivity : ComponentActivity() {
             if (intent.getStringExtra("dateStr") != null) {
                 val dateStr = intent.getStringExtra("dateStr") ?: return
                 val date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                Log.d("MainActivity.Intent", "Switching to date: $date (Difference: ${Period.between(LocalDate.now(), date).days})")
+                Log.d(
+                    "MainActivity.Intent",
+                    "Switching to date: $date (Difference: ${
+                        Period.between(
+                            LocalDate.now(),
+                            date
+                        ).days
+                    })"
+                )
                 homeViewModel.onPageChanged(date)
             }
         }

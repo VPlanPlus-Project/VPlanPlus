@@ -86,6 +86,8 @@ import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeletePlansUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
@@ -533,6 +535,16 @@ object VppModule {
     ): HomeUseCases {
         return HomeUseCases(
             getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGeneralSettingsUseCases(
+        keyValueRepository: KeyValueRepository
+    ): GeneralSettingsUseCases {
+        return GeneralSettingsUseCases(
+            getColorsUseCase = GetColorsUseCase(keyValueRepository)
         )
     }
 }

@@ -6,13 +6,14 @@ import es.jvbabi.vplanplus.domain.usecase.Keys
 class GetColorSchemeUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
-    suspend operator fun invoke(): ColorScheme {
-        val id = keyValueRepository.get(Keys.COLOR) ?: return ColorScheme.DYNAMIC
-        return ColorScheme.entries[id.toInt()]
+    suspend operator fun invoke(): Colors {
+        val id = keyValueRepository.get(Keys.COLOR) ?: return Colors.DYNAMIC
+        return Colors.entries[id.toInt()]
     }
 }
 
-enum class ColorScheme {
+enum class Colors {
+    DYNAMIC,
     AMBER,
     BLUE,
     BLUE_GREY,
@@ -32,7 +33,4 @@ enum class ColorScheme {
     RED,
     TEAL,
     YELLOW,
-    DYNAMIC
-
-
 }

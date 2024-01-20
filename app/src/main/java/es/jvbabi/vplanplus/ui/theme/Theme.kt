@@ -45,7 +45,7 @@ import es.jvbabi.vplanplus.ui.theme.color.teal_dark
 import es.jvbabi.vplanplus.ui.theme.color.teal_light
 import es.jvbabi.vplanplus.ui.theme.color.yellow_dark
 import es.jvbabi.vplanplus.ui.theme.color.yellow_light
-import es.jvbabi.vplanplus.domain.usecase.home.ColorScheme as CustomColorScheme
+import es.jvbabi.vplanplus.domain.usecase.home.Colors as CustomColorScheme
 
 
 @Composable
@@ -60,7 +60,7 @@ fun VPlanPlusTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> {
+        !darkTheme -> {
             when (cs) {
                 CustomColorScheme.AMBER -> amber_light
                 CustomColorScheme.BLUE -> blue_light

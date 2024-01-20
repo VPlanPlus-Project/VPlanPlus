@@ -47,69 +47,73 @@ fun SettingsSetting(
     type: SettingsType,
     checked: Boolean? = null,
     doAction: () -> Unit,
-    enabled: Boolean = true
+    enabled: Boolean = true,
+    customContent: @Composable () -> Unit = {}
 ) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(24.dp))
-            .clickable { if (enabled) doAction() }
-            .padding(vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Row(modifier = Modifier.weight(1f, false), verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier.padding(start = 16.dp)
-            ) {
-                if (icon != null) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
-                        modifier = Modifier.padding(start = 12.dp, end = 16.dp)
-                    )
-                } else {
-                    Box(modifier = Modifier.width(52.dp))
-                }
-            }
-            Column {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleLarge,
-                    color = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray
-                )
-                if (subtitle != null) {
-                    Text(
-                        text = subtitle,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray
-                    )
-                }
-            }
-        }
-        Box(
+    Column {
+        Row(
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(24.dp))
+                .clickable { if (enabled) doAction() }
+                .padding(vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            when (type) {
-                SettingsType.TOGGLE -> {
-                    Switch(checked = checked ?: false, onCheckedChange = { doAction() })
+            Row(modifier = Modifier.weight(1f, false), verticalAlignment = Alignment.CenterVertically) {
+                Box(
+                    modifier = Modifier.padding(start = 16.dp)
+                ) {
+                    if (icon != null) {
+                        Icon(
+                            imageVector = icon,
+                            contentDescription = null,
+                            tint = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
+                            modifier = Modifier.padding(start = 12.dp, end = 16.dp)
+                        )
+                    } else {
+                        Box(modifier = Modifier.width(52.dp))
+                    }
                 }
-
-                SettingsType.NUMERIC_INPUT -> {}
-                SettingsType.SELECT -> {}
-                SettingsType.DISPLAY -> {}
-
-                SettingsType.CHECKBOX -> {
-                    // TODO
+                Column {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray
+                    )
+                    if (subtitle != null) {
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray
+                        )
+                    }
                 }
+            }
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            ) {
+                when (type) {
+                    SettingsType.TOGGLE -> {
+                        Switch(checked = checked ?: false, onCheckedChange = { doAction() })
+                    }
 
-                SettingsType.FUNCTION -> {
-                    // TODO
+                    SettingsType.NUMERIC_INPUT -> {}
+                    SettingsType.SELECT -> {}
+                    SettingsType.DISPLAY -> {}
+
+                    SettingsType.CHECKBOX -> {
+                        // TODO
+                    }
+
+                    SettingsType.FUNCTION -> {
+                        // TODO
+                    }
                 }
             }
         }
+        customContent()
     }
 }
 
@@ -147,5 +151,7 @@ fun SettingsOptionNoIconPreview() {
         checked = true,
         doAction = {},
         enabled = true
-    )
+    ) {
+        Text(text = "Custom content")
+    }
 }
