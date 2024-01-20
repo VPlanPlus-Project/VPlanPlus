@@ -135,14 +135,14 @@ fun FindAvailableRoomScreenContent(
                 .flatMap { it.lessons }
                 .filterNotNull()
 
-            val first = lessonTimes.minBy { it.start }
-            val last = lessonTimes.maxBy { it.end }
-            val width = first.start.atBeginningOfTheWorld()
-                .until(last.end.atBeginningOfTheWorld(), ChronoUnit.MINUTES) * scaling
-            val currentOffset = (state.profileStart?:first.start.atBeginningOfTheWorld()).until(
+            val first = lessonTimes.minByOrNull { it.start }
+            val last = lessonTimes.maxByOrNull { it.end }
+            val width = (first?.start?.atBeginningOfTheWorld()
+                ?.until(last?.end?.atBeginningOfTheWorld(), ChronoUnit.MINUTES) ?:0)* scaling
+            val currentOffset = ((state.profileStart?:first?.start?.atBeginningOfTheWorld())?.until(
                 LocalDateTime.now().atBeginningOfTheWorld(),
                 ChronoUnit.MINUTES
-            ) * scaling + 500
+            )?:0) * scaling + 500
             var scrollWidth = 0
 
             val scrollState = rememberScrollState()
@@ -151,7 +151,7 @@ fun FindAvailableRoomScreenContent(
                 scrollState.animateScrollTo(currentOffset.toInt() + scrollWidth/3)
             })
 
-            if (state.rooms.rooms.isNotEmpty()) {
+            if (state.rooms.rooms.isNotEmpty() && first != null && last != null) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
