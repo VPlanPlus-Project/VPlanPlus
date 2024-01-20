@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.DropdownMenu
@@ -76,11 +77,19 @@ fun SchoolCard(
                     }
                     DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                         DropdownMenuItem(
-                            text = { Text(text = stringResource(id = R.string.settings_profileDeleteProfile)) },
+                            text = { Text(text = stringResource(id = R.string.settings_profileDeleteSchool)) },
                             onClick = { menuExpanded = false; onDeleteRequest() },
                             leadingIcon = {
                                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                             }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.settings_profileShareSchool)) },
+                            onClick = { /*TODO*/ },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Default.Share, contentDescription = null)
+                            },
+                            enabled = false
                         )
                     }
                 }

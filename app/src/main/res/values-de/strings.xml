@@ -188,5 +188,6 @@
     <string name="advancedSettings_deletePlanDataDialogTitle">Aktuelle Plandaten löschen?</string>
     <string name="advancedSettings_deletePlanDataDialogText">Tue dies nur, wenn du seltsame Daten siehst. Nach dem Löschen ist eine Datensynchronsiierung notwendig, um die aktuellsten Daten zu laden. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
     <string name="advancedSettings_clearDataText">Dies kann helfen, wenn der Cache beschädigt ist.</string>
-    <string name="settings_profileDeleteProfile">Löschen</string>
+    <string name="settings_profileDeleteSchool">Löschen</string>
+    <string name="settings_profileShareSchool">Teilen</string>
 </resources>
