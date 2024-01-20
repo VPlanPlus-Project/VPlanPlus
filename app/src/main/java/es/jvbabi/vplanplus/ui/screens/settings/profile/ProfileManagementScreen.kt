@@ -150,7 +150,8 @@ fun ProfileManagementScreenContent(
                             school = school,
                             profiles = profiles,
                             onAddProfileClicked = { onNewSchoolProfileClicked(school) },
-                            onProfileClicked = onProfileClicked
+                            onProfileClicked = onProfileClicked,
+                            onDeleteRequest = { onDeleteSchoolOpenDialog(school) }
                         )
                     }
                     /*

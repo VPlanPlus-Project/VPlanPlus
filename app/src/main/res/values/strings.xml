@@ -187,4 +187,5 @@
     <string name="advancedSettings_deletePlanDataDialogTitle">Delete existing plans?</string>
     <string name="advancedSettings_deletePlanDataDialogText">Only do this if you see weird data. A sync will be required to get new data. This cannot be undone.</string>
     <string name="advancedSettings_clearDataText">This can help if the cache is corrupted.</string>
+    <string name="settings_profileDeleteProfile">Delete</string>
 </resources>
