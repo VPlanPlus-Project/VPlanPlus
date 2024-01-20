@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -18,6 +19,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -42,6 +44,7 @@ fun OnboardingLoginScreen(
     viewModel: OnboardingViewModel
 ) {
     val state = viewModel.state.value
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = state.stage, block = {
         if (state.stage == Stage.SCHOOL_ID) {
@@ -67,6 +70,13 @@ fun OnboardingLoginScreen(
         hideCloseDialog = { viewModel.hideCloseDialog() },
         goBack = {
             viewModel.goBackToSchoolId()
+        },
+        closeOnboarding = {
+            if (state.onboardingCause == OnboardingCause.FIRST_START) {
+                (context as Activity).finish()
+            } else {
+                navController.navigateUp()
+            }
         }
     )
 
@@ -84,6 +94,7 @@ fun LoginScreen(
     onPasswordVisibilityToggle: () -> Unit,
     onLogin: () -> Unit,
     showCloseDialog: Boolean,
+    closeOnboarding: () -> Unit,
     hideCloseDialog: () -> Unit,
     goBack: () -> Unit,
 ) {
@@ -194,7 +205,12 @@ fun LoginScreen(
         }
     )
 
-    if (showCloseDialog) CloseOnboardingDialog(onNo = { hideCloseDialog() })
+    if (showCloseDialog) {
+        CloseOnboardingDialog(
+            onYes = { closeOnboarding() },
+            onNo = { hideCloseDialog() }
+        )
+    }
 }
 
 @Composable
@@ -211,6 +227,7 @@ private fun OnboardingLoginScreenPreview() {
         onLogin = {},
         showCloseDialog = false,
         hideCloseDialog = {},
-        goBack = {}
+        goBack = {},
+        closeOnboarding = {}
     )
 }

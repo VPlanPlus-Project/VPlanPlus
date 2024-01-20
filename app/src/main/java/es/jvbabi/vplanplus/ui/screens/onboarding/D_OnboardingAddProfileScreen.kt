@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
@@ -19,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,6 +38,7 @@ fun OnboardingAddProfileScreen(
     viewModel: OnboardingViewModel,
 ) {
     val state = viewModel.state.value
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = state.stage, block = {
         if (state.stage == Stage.PROFILE) {
@@ -52,6 +55,13 @@ fun OnboardingAddProfileScreen(
         },
         showCloseDialog = state.showCloseDialog,
         hideCloseDialog = { viewModel.hideCloseDialog() },
+        closeOnboarding = {
+            if (state.onboardingCause == OnboardingCause.FIRST_START) {
+                (context as Activity).finish()
+            } else {
+                navController.navigateUp()
+            }
+        }
     )
 
     BackHandler(enabled = true) {
@@ -65,6 +75,7 @@ fun AddProfileScreen(
     onProfileSelect: (ProfileType) -> Unit,
     onButtonClick: () -> Unit,
     showCloseDialog: Boolean,
+    closeOnboarding: () -> Unit,
     hideCloseDialog: () -> Unit,
 ) {
     OnboardingScreen(
@@ -105,7 +116,12 @@ fun AddProfileScreen(
         }
     )
 
-    if (showCloseDialog) CloseOnboardingDialog(onNo = { hideCloseDialog() })
+    if (showCloseDialog) {
+        CloseOnboardingDialog(
+            onYes = { closeOnboarding() },
+            onNo = { hideCloseDialog() }
+        )
+    }
 }
 
 @Composable
@@ -191,5 +207,6 @@ fun OnboardingNewProfileScreenPreview() {
         onButtonClick = {},
         showCloseDialog = false,
         hideCloseDialog = {},
+        closeOnboarding = {},
     )
 }

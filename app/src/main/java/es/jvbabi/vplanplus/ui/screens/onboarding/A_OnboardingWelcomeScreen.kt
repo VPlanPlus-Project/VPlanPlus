@@ -1,9 +1,11 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -18,19 +20,31 @@ fun OnboardingWelcomeScreen(
     viewModel: OnboardingViewModel
 ) {
     val state = viewModel.state.value
+    val context = LocalContext.current
     
     LaunchedEffect(key1 = "A", block = {
         viewModel.reset()
     })
 
     LaunchedEffect(key1 = state.stage, block = {
-        if (state.stage == Stage.SCHOOL_ID) navController.navigate(Screen.OnboardingSchoolIdScreen.route)
+        if (state.stage == Stage.SCHOOL_ID) navController.navigate(Screen.OnboardingSchoolIdScreen.route) {
+            if (state.onboardingCause == OnboardingCause.NEW_PROFILE) popUpTo(Screen.SettingsProfileScreen.route) {
+                inclusive = true
+            }
+        }
     })
 
     Welcome(
         onButtonClick = { viewModel.nextStageSchoolId() },
         showCloseDialog = state.showCloseDialog,
-        hideCloseDialog = { viewModel.hideCloseDialog() }
+        hideCloseDialog = { viewModel.hideCloseDialog() },
+        closeOnboarding = {
+            if (state.onboardingCause == OnboardingCause.FIRST_START) {
+                (context as Activity).finish()
+            } else {
+                navController.navigateUp()
+            }
+        }
     )
 
     BackHandler(enabled = !state.showCloseDialog) {
@@ -42,6 +56,7 @@ fun OnboardingWelcomeScreen(
 fun Welcome(
     onButtonClick: () -> Unit,
     showCloseDialog: Boolean,
+    closeOnboarding: () -> Unit,
     hideCloseDialog: () -> Unit
 ) {
     OnboardingScreen(
@@ -54,7 +69,12 @@ fun Welcome(
         content = {},
         footer = {})
 
-    if (showCloseDialog) CloseOnboardingDialog(onNo = { hideCloseDialog() })
+    if (showCloseDialog) {
+        CloseOnboardingDialog(
+            onYes = { closeOnboarding() },
+            onNo = { hideCloseDialog() }
+        )
+    }
 }
 
 @Preview(showBackground = true)
@@ -63,6 +83,7 @@ private fun OnboardingWelcomeScreenPreview() {
     Welcome(
         onButtonClick = {},
         showCloseDialog = true,
+        closeOnboarding = {},
         hideCloseDialog = {}
     )
 }
