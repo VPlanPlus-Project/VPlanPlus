@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.onboarding
 
+import android.app.Activity
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,15 +39,24 @@ fun OnboardingSchoolIdScreen(
     viewModel: OnboardingViewModel
 ) {
     val state = viewModel.state.value
+    val context = LocalContext.current
 
     LaunchedEffect(key1 = state.stage, block = {
         if (state.stage == Stage.CREDENTIALS) {
             viewModel.newScreen()
-            navController.navigate(Screen.OnboardingLoginScreen.route)
+            navController.navigate(Screen.OnboardingLoginScreen.route) {
+                if (state.onboardingCause == OnboardingCause.NEW_PROFILE) popUpTo(Screen.SettingsProfileScreen.route) {
+                    inclusive = true
+                }
+            }
         }
         if (state.stage == Stage.PROFILE_TYPE) {
             viewModel.newScreen()
-            navController.navigate(Screen.OnboardingFirstProfileScreen.route)
+            navController.navigate(Screen.OnboardingFirstProfileScreen.route) {
+                if (state.onboardingCause == OnboardingCause.NEW_PROFILE) popUpTo(Screen.SettingsProfileScreen.route) {
+                    inclusive = true
+                }
+            }
         }
     })
 
@@ -60,7 +71,14 @@ fun OnboardingSchoolIdScreen(
             viewModel.useTestSchool()
         },
         showCloseDialog = state.showCloseDialog,
-        hideCloseDialog = { viewModel.hideCloseDialog() }
+        hideCloseDialog = { viewModel.hideCloseDialog() },
+        closeOnboarding = {
+            if (state.onboardingCause == OnboardingCause.FIRST_START) {
+                (context as Activity).finish()
+            } else {
+                navController.navigateUp()
+            }
+        }
     )
 
     BackHandler(enabled = !state.showCloseDialog) {
@@ -75,6 +93,7 @@ fun SchoolId(
     onTestSchoolClick: () -> Unit,
     onTestSchoolErrorDialogDismissed: () -> Unit,
     showCloseDialog: Boolean,
+    closeOnboarding: () -> Unit,
     hideCloseDialog: () -> Unit,
     state: OnboardingState
 ) {
@@ -150,7 +169,12 @@ fun SchoolId(
             onOk = { onTestSchoolErrorDialogDismissed() }
         )
     }
-    if (showCloseDialog) CloseOnboardingDialog(onNo = { hideCloseDialog() })
+    if (showCloseDialog) {
+        CloseOnboardingDialog(
+            onYes = { closeOnboarding() },
+            onNo = { hideCloseDialog() }
+        )
+    }
 }
 
 @Composable
@@ -163,6 +187,7 @@ private fun SchoolIdScreenPreview() {
         onTestSchoolErrorDialogDismissed = {},
         showCloseDialog = false,
         hideCloseDialog = {},
+        closeOnboarding = {},
         state = OnboardingState()
     )
 }

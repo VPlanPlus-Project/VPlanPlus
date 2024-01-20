@@ -21,7 +21,6 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.Permission
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.onboarding.common.CloseOnboardingDialog
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
 
 @Composable
@@ -46,8 +45,6 @@ fun OnboardingPermissionScreen(
         state = state,
         onAskForPermission = { launcher.launch(Permission.permissions[state.currentPermissionIndex].type) },
         onSkipPermission = { viewModel.nextPermission(context) },
-        showCloseDialog = state.showCloseDialog,
-        hideCloseDialog = { viewModel.hideCloseDialog() }
     )
 
     BackHandler {
@@ -60,8 +57,6 @@ fun PermissionScreenContent(
     state: OnboardingState,
     onAskForPermission: () -> Unit = {},
     onSkipPermission: () -> Unit = {},
-    showCloseDialog: Boolean,
-    hideCloseDialog: () -> Unit
 ) {
     OnboardingScreen(
         title = stringResource(
@@ -98,8 +93,6 @@ fun PermissionScreenContent(
             }
         },
     )
-
-    if (showCloseDialog) CloseOnboardingDialog(onNo = { hideCloseDialog() })
 }
 
 @Preview(showBackground = true)
@@ -107,7 +100,5 @@ fun PermissionScreenContent(
 private fun PermissionScreenPreview() {
     PermissionScreenContent(
         state = OnboardingState(),
-        showCloseDialog = false,
-        hideCloseDialog = {}
     )
 }
