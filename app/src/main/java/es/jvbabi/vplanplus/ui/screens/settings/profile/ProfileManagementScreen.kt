@@ -160,7 +160,7 @@ fun ProfileManagementScreenContent(
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.primaryContainer)
+                                    .background(MaterialTheme.colorScheme.surfaceContainer)
                                     .padding(8.dp),
                                 contentAlignment = androidx.compose.ui.Alignment.Center
                             ) {
@@ -236,6 +236,7 @@ fun ProfileManagementScreenPreview() {
                 es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.Profile.generateClassProfile()),
                 es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.Profile.generateClassProfile())
             ),
+            shareSchool = "12345678"
         )
     )
 }
