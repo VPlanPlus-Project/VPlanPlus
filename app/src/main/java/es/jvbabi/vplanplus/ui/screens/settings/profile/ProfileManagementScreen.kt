@@ -147,7 +147,7 @@ fun ProfileManagementScreenContent(
                             data = state.shareSchool,
                             modifier = Modifier.size(300.dp),
                             colors = QrCodeColors(
-                                background = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
+                                background = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
                                 foreground = MaterialTheme.colorScheme.onSurface
                             ),
                             dotShape = DotShape.Circle
