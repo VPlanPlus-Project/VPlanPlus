@@ -1,8 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -30,12 +27,12 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
@@ -43,7 +40,6 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -151,27 +147,11 @@ fun ProfileManagementScreenContent(
                             data = state.shareSchool,
                             modifier = Modifier.size(300.dp),
                             colors = QrCodeColors(
-                                background = MaterialTheme.colorScheme.surfaceContainer,
+                                background = MaterialTheme.colorScheme.surfaceColorAtElevation(3.dp),
                                 foreground = MaterialTheme.colorScheme.onSurface
                             ),
                             dotShape = DotShape.Circle
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                                    .padding(8.dp),
-                                contentAlignment = androidx.compose.ui.Alignment.Center
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.vpp_logo_dark),
-                                    contentDescription = null,
-                                    modifier = Modifier
-
-                                )
-                            }
-                        }
+                        ) {}
                         Row {
                             Icon(
                                 imageVector = Icons.Default.Info,

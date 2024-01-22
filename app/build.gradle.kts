@@ -14,8 +14,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 37
-        versionName = "0.8.3-alpha-dev-14"
+        versionCode = 38
+        versionName = "0.8.3-alpha-dev-15"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
