@@ -62,7 +62,7 @@ import es.jvbabi.vplanplus.domain.model.Week
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6) // add messages
@@ -97,6 +97,22 @@ abstract class VppDatabase : RoomDatabase() {
         val migration_6_7 = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE messages ADD COLUMN notificationSent INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val migration_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE lesson_time ADD COLUMN start_unix_timestamp INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE lesson_time ADD COLUMN end_unix_timestamp INTEGER NOT NULL DEFAULT 0")
+
+                db.execSQL("UPDATE lesson_time SET start_unix_timestamp = (strftime('%s', '1970-01-01 ' || start))")
+                db.execSQL("UPDATE lesson_time SET end_unix_timestamp = (strftime('%s', '1970-01-01 ' || end))")
+
+                db.execSQL("ALTER TABLE lesson_time DROP COLUMN start")
+                db.execSQL("ALTER TABLE lesson_time DROP COLUMN end")
+
+                db.execSQL("ALTER TABLE lesson_time RENAME COLUMN start_unix_timestamp TO start")
+                db.execSQL("ALTER TABLE lesson_time RENAME COLUMN end_unix_timestamp TO end")
             }
         }
     }

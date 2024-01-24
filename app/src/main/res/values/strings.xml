@@ -196,4 +196,5 @@
     <string name="onboarding_qrTitle">Scan the QR</string>
     <string name="onboarding_qrText">Please make sure that the qr is clearly visible</string>
     <string name="onboarding_qrNext">Proceed with %1$d</string>
+    <string name="searchAvailableRoom_bookDescription">Book room</string>
 </resources>

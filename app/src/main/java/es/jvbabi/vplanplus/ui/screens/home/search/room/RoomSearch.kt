@@ -18,6 +18,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.SearchOff
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -42,6 +43,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.Classes
 import es.jvbabi.vplanplus.ui.preview.Lessons
@@ -51,7 +53,6 @@ import es.jvbabi.vplanplus.ui.screens.home.search.room.components.Guide
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.LessonDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.SearchField
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
-import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
@@ -139,17 +140,18 @@ fun FindAvailableRoomScreenContent(
             val first = lessonTimes.minByOrNull { it.start }
             val last = lessonTimes.maxByOrNull { it.end }
             val width = (first?.start?.atBeginningOfTheWorld()
-                ?.until(last?.end?.atBeginningOfTheWorld(), ChronoUnit.MINUTES) ?:0)* scaling
-            val currentOffset = ((state.profileStart?:first?.start?.atBeginningOfTheWorld())?.until(
-                LocalDateTime.now().atBeginningOfTheWorld(),
-                ChronoUnit.MINUTES
-            )?:0) * scaling + 500
+                ?.until(last?.end?.atBeginningOfTheWorld(), ChronoUnit.MINUTES) ?: 0) * scaling
+            val currentOffset =
+                ((state.profileStart ?: first?.start?.atBeginningOfTheWorld())?.until(
+                    LocalDateTime.now().atBeginningOfTheWorld(),
+                    ChronoUnit.MINUTES
+                ) ?: 0) * scaling + 500
             var scrollWidth = 0
 
             val scrollState = rememberScrollState()
             LaunchedEffect(key1 = scrollWidth, block = {
                 if (scrollWidth == 0) return@LaunchedEffect
-                scrollState.animateScrollTo(currentOffset.toInt() + scrollWidth/3)
+                scrollState.animateScrollTo(currentOffset.toInt() + scrollWidth / 3)
             })
 
             if (state.lessonTimes != null && first != null) Row(
@@ -160,32 +162,33 @@ fun FindAvailableRoomScreenContent(
                 Box(
                     modifier = Modifier.width(width.dp)
                 ) {
-                    state.lessonTimes.entries.sortedBy { it.key }.forEach { (lessonNumber, lessonTime) ->
-                        if (lessonNumber == 0 && !state.showLesson0) return@forEach
-                        val offset = first.start.atBeginningOfTheWorld().until(
-                            "${lessonTime.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                            ChronoUnit.MINUTES
-                        ) * scaling
-                        val length = "${lessonTime.start}:00".toLocalDateTime().atBeginningOfTheWorld().until(
-                            "${lessonTime.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                            ChronoUnit.MINUTES
-                        ) * scaling
-                        Box(
-                            modifier = Modifier
-                                .offset(x = offset.toInt().dp)
-                                .width(length.toInt().dp)
-                                .height(40.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(MaterialTheme.colorScheme.primaryContainer),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = lessonNumber.toString(),
-                                color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                style = MaterialTheme.typography.labelMedium,
-                            )
+                    state.lessonTimes.entries.sortedBy { it.key }
+                        .forEach { (lessonNumber, lessonTime) ->
+                            if (lessonNumber == 0 && !state.showLesson0) return@forEach
+                            val offset = first.start.atBeginningOfTheWorld().until(
+                                lessonTime.start,
+                                ChronoUnit.MINUTES
+                            ) * scaling
+                            val length = lessonTime.start.until(
+                                lessonTime.end,
+                                ChronoUnit.MINUTES
+                            ) * scaling
+                            Box(
+                                modifier = Modifier
+                                    .offset(x = offset.toInt().dp)
+                                    .width(length.toInt().dp)
+                                    .height(40.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.primaryContainer),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = lessonNumber.toString(),
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
                         }
-                    }
                 }
             }
 
@@ -214,7 +217,8 @@ fun FindAvailableRoomScreenContent(
                                     Row {
                                         Spacer(modifier = Modifier.width(30.dp))
                                         RoomListRecord(
-                                            start = state.profileStart?:first.start.atBeginningOfTheWorld(),
+                                            start = state.profileStart
+                                                ?: first.start.atBeginningOfTheWorld(),
                                             lessons = room.lessons,
                                             displayed = room.displayed,
                                             onLessonClicked = { lesson ->
@@ -222,7 +226,8 @@ fun FindAvailableRoomScreenContent(
                                             },
                                             scaling = scaling,
                                             width = width.dp,
-                                            currentClassName = state.currentClass?.name
+                                            currentClassName = state.currentClass?.name,
+                                            lessonTimes = state.lessonTimes
                                         )
                                     }
                                 }
@@ -299,7 +304,8 @@ private fun RoomListRecord(
     onLessonClicked: (Lesson) -> Unit = {},
     scaling: Float = 1f,
     width: Dp,
-    currentClassName: String?
+    currentClassName: String?,
+    lessonTimes: Map<Int, LessonTime>?
 ) {
     val height = animateFloatAsState(targetValue = if (displayed) 1f else 0f, label = "room entry")
 
@@ -312,8 +318,52 @@ private fun RoomListRecord(
             Box(
                 modifier = Modifier.width(width)
             ) {
+                lessonTimes?.entries?.sortedBy { it.key }?.forEach { (lessonNumber, times) ->
+                    if (!lessons.filterNotNull().any { it.lessonNumber == lessonNumber }) {
+                        val lessonStart = times.start
+                        if (lessonStart.isBefore(start)) return@forEach
+                        val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
+                        val length = lessonStart.until(times.end, ChronoUnit.MINUTES) * scaling
+                        val prevHasLesson =
+                            lessons.filterNotNull().any { it.lessonNumber == lessonNumber - 1 }
+                        var roundPrevious = 1
+                        if (!prevHasLesson && lessonTimes[lessonNumber - 1]?.end?.isEqual(times.start) == true) {
+                            roundPrevious = 0
+                        }
+
+                        val nextHasLesson =
+                            lessons.filterNotNull().any { it.lessonNumber == lessonNumber + 1 }
+                        var roundNext = 1
+                        if (!nextHasLesson && lessonTimes[lessonNumber + 1]?.start?.isEqual(times.end) == true) {
+                            roundNext = 0
+                        }
+                        Box(
+                            modifier = Modifier
+                                .offset(x = offset.toInt().dp)
+                                .width(length.toInt().dp)
+                                .height(40.dp)
+                                .clip(
+                                    RoundedCornerShape(
+                                        (roundPrevious * 8).dp,
+                                        (roundNext * 8).dp,
+                                        (roundNext * 8).dp,
+                                        (roundPrevious * 8).dp
+                                    )
+                                )
+                                .background(MaterialTheme.colorScheme.surfaceVariant),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Add,
+                                contentDescription = stringResource(
+                                    id = R.string.searchAvailableRoom_bookDescription
+                                )
+                            )
+                        }
+                    }
+                }
                 lessons.filterNotNull().forEach { lesson ->
-                    var lessonStart = lesson.start.withDayOfYear(1).withYear(1970)
+                    var lessonStart = lesson.start.atBeginningOfTheWorld()
                     if (lessonStart.isBefore(start)) lessonStart = start
                     val lessonEnd = lesson.end.withDayOfYear(1).withYear(1970)
                     val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
@@ -361,7 +411,8 @@ private fun RoomListRecordPreview() {
         }.toList(),
         true,
         width = 200.dp,
-        currentClassName = "12a"
+        currentClassName = "12a",
+        lessonTimes = null
     )
 }
 

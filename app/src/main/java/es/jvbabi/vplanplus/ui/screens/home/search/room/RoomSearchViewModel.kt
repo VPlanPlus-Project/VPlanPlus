@@ -19,7 +19,6 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.between
-import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -76,16 +75,10 @@ class RoomSearchViewModel @Inject constructor(
                     val next =
                         if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt() + 1] else null
 
-                    nowTimespan = if (now != null) Pair(
-                        "${now.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                        "${now.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                    ) else null
+                    nowTimespan = if (now != null) Pair(now.start, now.end) else null
 
-                    nextTimespan = if (next != null) Pair(
-                        "${next.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                        "${next.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                    ) else null
-                    profileStart = "${start.value.start}:00".toLocalDateTime()
+                    nextTimespan = if (next != null) Pair(next.start, next.end) else null
+                    profileStart = start.value.start
                     showFilterChips = currentLessonNumber != null && currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble()
                     showNowFilter = (currentLessonNumber ?: 0.0) % 1 != 0.5
                 }

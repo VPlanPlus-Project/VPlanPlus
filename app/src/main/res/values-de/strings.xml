@@ -197,4 +197,5 @@
     <string name="onboarding_qrTitle">Scanne den QR-Code</string>
     <string name="onboarding_qrText">Bitte stelle sicher, dass der QR gut sichtbar ist.</string>
     <string name="onboarding_qrNext">Mit %1$d fortfahren</string>
+    <string name="searchAvailableRoom_bookDescription">Raum buchen</string>
 </resources>

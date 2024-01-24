@@ -108,6 +108,7 @@ object VppModule {
             "vpp.db"
         )
             .addMigrations(VppDatabase.migration_6_7)
+            .addMigrations(VppDatabase.migration_7_8)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())

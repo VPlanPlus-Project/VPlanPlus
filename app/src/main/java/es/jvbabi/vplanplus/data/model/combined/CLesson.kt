@@ -10,7 +10,6 @@ import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
-import es.jvbabi.vplanplus.util.DateUtils
 
 data class CLesson(
     @Embedded val lesson: DbLesson,
@@ -52,7 +51,7 @@ data class CLesson(
             rooms = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.ROOM }.map { it.toRoomModel().name },
             roomIsChanged = lesson.roomIsChanged,
             info = lesson.info,
-            start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(
+            start =
                 lessonTimes.getOrElse(
                     lesson.lessonNumber
                 ) {
@@ -60,9 +59,8 @@ data class CLesson(
                         `class`.schoolEntity.id,
                         lesson.lessonNumber
                     )
-                }.start, lesson.day
-            ),
-            end = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(
+                }.start.withDayOfYear(lesson.day.dayOfYear).withYear(lesson.day.year),
+            end =
                 lessonTimes.getOrElse(
                     lesson.lessonNumber
                 ) {
@@ -70,8 +68,7 @@ data class CLesson(
                         `class`.schoolEntity.id,
                         lesson.lessonNumber
                     )
-                }.end, lesson.day
-            ),
+                }.end.withDayOfYear(lesson.day.dayOfYear).withYear(lesson.day.year),
             vpId = defaultLesson?.defaultLesson?.vpId
         )
     }
