@@ -201,4 +201,6 @@
     <string name="searchAvailableRoom_bookTitle">Raum %1$s buchen?</string>
     <string name="searchAvailableRoom_bookText">Möchtest du diesen Raum von %1$s bis %2$s für die Klasse %3$s buchen?\n\nBitte beachte, dass dies an deiner Schule möglicherweise nicht offiziell ist. Buche keine Räume, die du nicht selbst betreten darfst.</string>
     <string name="comingSoon">Bald verfügbar</string>
+    <string name="settings_profileManagementCalendarPermissionDialogTitle">Fehlende Berechtigungen</string>
+    <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus hat nicht die notwendigen Android Berechtigungen um auf deine Kalender zuzugreifen. Um dieses Feature nutzen zu können, musst du der App in den Systemeinstellungen Zugriff auf deine Kalender gewähren.</string>
 </resources>

@@ -2,9 +2,11 @@ package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +19,7 @@ import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -34,19 +37,26 @@ class ProfileSettingsViewModel @Inject constructor(
     val state: State<ProfileSettingsState> = _state
 
     @SuppressLint("Range")
-    fun init(profileId: UUID) {
-
+    fun init(profileId: UUID, context: Context) {
+        _state.value = _state.value.copy(
+            calendarPermissionState = if (ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.WRITE_CALENDAR
+                ) == PackageManager.PERMISSION_GRANTED
+            ) CalendarPermissionState.GRANTED else CalendarPermissionState.DENIED
+        )
         viewModelScope.launch {
             combine(
-                profileUseCases.getProfileById(profileId),
-                calendarRepository.getCalendars(),
+                profileUseCases.getProfileById(profileId).distinctUntilChanged(),
+                calendarRepository.getCalendars().distinctUntilChanged(),
             ) { profile, calendars ->
                 if (profile == null) _state.value.copy(initDone = true)
                 else _state.value.copy(
                     profile = profile,
                     calendars = calendars,
                     initDone = true,
-                    profileCalendar = calendars.firstOrNull { it.id == profile.calendarId })
+                    profileCalendar = calendars.firstOrNull { it.id == profile.calendarId },
+                )
             }.collect {
                 _state.value = it
             }
@@ -60,11 +70,24 @@ class ProfileSettingsViewModel @Inject constructor(
     }
 
     fun setCalendarMode(calendarMode: ProfileCalendarType) {
+        if (_state.value.calendarPermissionState == CalendarPermissionState.DENIED) {
+            _state.value = _state.value.copy(calendarPermissionState = CalendarPermissionState.SHOW_DIALOG)
+            viewModelScope.launch {
+                _state.value.profile?.let { profile ->
+                    profileUseCases.setCalendarType(profile.id, calendarType = ProfileCalendarType.NONE)
+                }
+            }
+            return
+        }
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
                 profileUseCases.setCalendarType(profile.id, calendarType = calendarMode)
             }
         }
+    }
+
+    fun dismissPermissionDialog() {
+        _state.value = _state.value.copy(calendarPermissionState = CalendarPermissionState.DENIED)
     }
 
     fun setCalendar(calendarId: Long) {
@@ -97,7 +120,11 @@ class ProfileSettingsViewModel @Inject constructor(
                 }
                 val activeProfile = profileUseCases.getActiveProfile()!!
                 if (activeProfile.id == profile.id) {
-                    keyValueUseCases.set(Keys.ACTIVE_PROFILE, (profileUseCases.getProfiles().first().find { it.id != profile.id }?.id ?: -1).toString())
+                    keyValueUseCases.set(
+                        Keys.ACTIVE_PROFILE,
+                        (profileUseCases.getProfiles().first().find { it.id != profile.id }?.id
+                            ?: -1).toString()
+                    )
                 }
                 Notification.deleteChannel(context, "PROFILE_${profile.id.toString().lowercase()}")
                 profileUseCases.deleteProfile(profile.id)
@@ -123,11 +150,19 @@ data class ProfileSettingsState(
     val calendars: List<Calendar> = listOf(),
 
     val dialogOpen: Boolean = false,
-    val dialogCall: @Composable () -> Unit = {}
+    val dialogCall: @Composable () -> Unit = {},
+
+    val calendarPermissionState: CalendarPermissionState = CalendarPermissionState.GRANTED,
 )
 
 
 enum class ProfileManagementDeletionResult {
     SUCCESS,
     LAST_PROFILE,
+}
+
+enum class CalendarPermissionState {
+    GRANTED,
+    DENIED,
+    SHOW_DIALOG
 }

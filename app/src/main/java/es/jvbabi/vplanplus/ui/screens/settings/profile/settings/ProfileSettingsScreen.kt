@@ -39,6 +39,7 @@ import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
+import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.RadioCard
 import es.jvbabi.vplanplus.ui.common.RadioCardGroup
@@ -62,7 +63,7 @@ fun ProfileSettingsScreen(
     val context = LocalContext.current
 
     LaunchedEffect(key1 = profileId, block = {
-        viewModel.init(profileId = profileId)
+        viewModel.init(profileId = profileId, context = context)
     })
 
 
@@ -95,7 +96,8 @@ fun ProfileSettingsScreen(
                 )
             },
             onSetDialogVisible = { viewModel.setDialogOpen(it) },
-            onSetDialogCall = { viewModel.setDialogCall(it) }
+            onSetDialogCall = { viewModel.setDialogCall(it) },
+            onDismissedPermissionDialog = { viewModel.dismissPermissionDialog() }
         )
     }
 }
@@ -111,7 +113,8 @@ private fun ProfileSettingsScreenContent(
     onCalendarSet: (Calendar) -> Unit = {},
     onSetDialogVisible: (Boolean) -> Unit = {},
     onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
-    onDefaultLessonsClicked: () -> Unit = {}
+    onDefaultLessonsClicked: () -> Unit = {},
+    onDismissedPermissionDialog: () -> Unit = {}
 ) {
     if (state.profile == null) return
 
@@ -228,7 +231,7 @@ private fun ProfileSettingsScreenContent(
                     icon = Icons.Default.EditCalendar,
                     title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
                     type = SettingsType.SELECT,
-                    enabled = state.profile.calendarType != ProfileCalendarType.NONE && state.calendars.isNotEmpty(),
+                    enabled = state.profile.calendarType != ProfileCalendarType.NONE && state.calendars.isNotEmpty() && state.calendarPermissionState == CalendarPermissionState.GRANTED,
                     subtitle =
                     if (state.profile.calendarType == ProfileCalendarType.NONE) stringResource(id = R.string.settings_profileManagementCalendarNameDisabled)
                     else if (state.calendars.isEmpty()) stringResource(id = R.string.settings_profileManagementNoCalendars)
@@ -271,6 +274,15 @@ private fun ProfileSettingsScreenContent(
                     })
             }
         }
+    }
+
+    if (state.calendarPermissionState == CalendarPermissionState.SHOW_DIALOG) {
+        InfoDialog(
+            icon = Icons.Default.EditCalendar,
+            title = stringResource(id = R.string.settings_profileManagementCalendarPermissionDialogTitle),
+            message = stringResource(id = R.string.settings_profileManagementCalendarPermissionDialogText),
+            onOk = { onDismissedPermissionDialog() }
+        )
     }
 }
 
