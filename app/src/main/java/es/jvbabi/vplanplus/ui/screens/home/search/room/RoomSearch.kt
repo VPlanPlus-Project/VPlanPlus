@@ -51,6 +51,7 @@ import es.jvbabi.vplanplus.ui.screens.home.search.room.components.Guide
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.LessonDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.SearchField
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
+import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
@@ -150,6 +151,43 @@ fun FindAvailableRoomScreenContent(
                 if (scrollWidth == 0) return@LaunchedEffect
                 scrollState.animateScrollTo(currentOffset.toInt() + scrollWidth/3)
             })
+
+            if (state.lessonTimes != null && first != null) Row(
+                modifier = Modifier
+                    .horizontalScroll(scrollState)
+            ) {
+                Spacer(modifier = Modifier.width(50.dp))
+                Box(
+                    modifier = Modifier.width(width.dp)
+                ) {
+                    state.lessonTimes.entries.sortedBy { it.key }.forEach { (lessonNumber, lessonTime) ->
+                        if (lessonNumber == 0 && !state.showLesson0) return@forEach
+                        val offset = first.start.atBeginningOfTheWorld().until(
+                            "${lessonTime.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                            ChronoUnit.MINUTES
+                        ) * scaling
+                        val length = "${lessonTime.start}:00".toLocalDateTime().atBeginningOfTheWorld().until(
+                            "${lessonTime.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                            ChronoUnit.MINUTES
+                        ) * scaling
+                        Box(
+                            modifier = Modifier
+                                .offset(x = offset.toInt().dp)
+                                .width(length.toInt().dp)
+                                .height(40.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = lessonNumber.toString(),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                style = MaterialTheme.typography.labelMedium,
+                            )
+                        }
+                    }
+                }
+            }
 
             if (state.rooms.rooms.isNotEmpty() && first != null && last != null) {
                 Box(
