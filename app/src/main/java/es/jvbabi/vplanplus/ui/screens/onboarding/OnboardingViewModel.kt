@@ -221,7 +221,7 @@ class OnboardingViewModel @Inject constructor(
                         this.cancel()
                     }
                 }
-            }
+            } else isLoading(false)
         }
     }
 
