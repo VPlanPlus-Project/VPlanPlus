@@ -19,6 +19,8 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.Keys
+import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
+import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import java.time.LocalDate
 import java.util.UUID
 
@@ -89,7 +91,7 @@ class SaveProfileUseCase(
             )
 
             // insert classes, teachers and rooms
-            classes.forEachIndexed { i, c ->
+            classes.forEach { c ->
                 classRepository.createClass(
                     schoolId = schoolId,
                     className = c
@@ -97,7 +99,7 @@ class SaveProfileUseCase(
                 progress++
                 onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_CLASSES, progress / total))
             }
-            teachers.forEachIndexed { i, t ->
+            teachers.forEach { t ->
                 teacherRepository.createTeacher(
                     schoolId = schoolId,
                     acronym = t
@@ -107,7 +109,7 @@ class SaveProfileUseCase(
             }
 
             school = schoolRepository.getSchoolFromId(schoolId)!!
-            rooms.forEachIndexed { i, r ->
+            rooms.forEach { r ->
                 roomRepository.createRoom(
                     Room(
                         school = school,
@@ -118,7 +120,7 @@ class SaveProfileUseCase(
                 onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_ROOMS, progress / total))
             }
 
-            holidays.forEachIndexed { i, h ->
+            holidays.forEach{ h ->
                 holidayRepository.insertHoliday(
                     holiday = Holiday(
                         schoolHolidayRefId = schoolId,
@@ -138,8 +140,8 @@ class SaveProfileUseCase(
                             false
                         )!!.classId,
                         lessonNumber = it.lessonNumber,
-                        start = it.startTime,
-                        end = it.endTime,
+                        start = "${it.startTime}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                        end = "${it.endTime}:00".toLocalDateTime().atBeginningOfTheWorld(),
                     )
                 )
             }

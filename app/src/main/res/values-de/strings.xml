@@ -197,4 +197,8 @@
     <string name="onboarding_qrTitle">Scanne den QR-Code</string>
     <string name="onboarding_qrText">Bitte stelle sicher, dass der QR gut sichtbar ist.</string>
     <string name="onboarding_qrNext">Mit %1$d fortfahren</string>
+    <string name="searchAvailableRoom_bookDescription">Raum buchen</string>
+    <string name="searchAvailableRoom_bookTitle">Raum %1$s buchen?</string>
+    <string name="searchAvailableRoom_bookText">Möchtest du diesen Raum von %1$s bis %2$s für die Klasse %3$s buchen?\n\nBitte beachte, dass dies an deiner Schule möglicherweise nicht offiziell ist. Buche keine Räume, die du nicht selbst betreten darfst.</string>
+    <string name="comingSoon">Bald verfügbar</string>
 </resources>

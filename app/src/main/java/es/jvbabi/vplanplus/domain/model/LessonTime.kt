@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import java.time.LocalDateTime
 import java.util.UUID
 
 
@@ -36,6 +37,11 @@ data class LessonTime(
     val lessonTimeId: UUID = UUID.randomUUID(),
     val classLessonTimeRefId: UUID,
     val lessonNumber: Int,
-    val start: String,
-    val end: String,
-)
+    val start: LocalDateTime,
+    val end: LocalDateTime,
+) {
+    init {
+        require(start.dayOfYear == 1 && start.year == 1970) { "Start date needs to be 1970-01-01" }
+        require(end.dayOfYear == 1 && end.year == 1970) { "End date needs to be 1970-01-01" }
+    }
+}
