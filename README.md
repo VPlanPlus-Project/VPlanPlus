@@ -38,7 +38,7 @@ Website: [VPlanPlus.JVBabi.es](https://vplanplus.jvbabi.es)
 
 Deine Schule steht nicht auf der Liste? Wenn deine Schule **alle** Punkte erfüllt, dann ist sie kompatibel.
 - Die Pläne deiner Schule sind auf [stundenplan24.de](https://stundenplan24.de) verfügbar.
-- Du kannst die Pläne über die Schaltfläche "Wochenplan (Version 6) ansehen"
-- Du kannst im Wochenplan auf der Startseite das Dropdown verwenden um auch Lehrer- und Raumpläne anzuzeigen.
+- Du kannst die Pläne über die Schaltfläche "Wochenplan (Version 6)" ansehen
+- Du kannst im Wochenplan auf der Startseite das Dropdown verwenden um auch Lehrer- und Raumpläne anzuzeigen (nur für vollen Funktionsumfang notwendig).
 
 Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es anderen Schülern/Lehrern an der Schule einfacher zu machen.
