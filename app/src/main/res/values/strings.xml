@@ -196,4 +196,10 @@
     <string name="onboarding_qrTitle">Scan the QR</string>
     <string name="onboarding_qrText">Please make sure that the qr is clearly visible</string>
     <string name="onboarding_qrNext">Proceed with %1$d</string>
+    <string name="searchAvailableRoom_bookDescription">Book room</string>
+    <string name="searchAvailableRoom_bookTitle">Book room %1$s?</string>
+    <string name="searchAvailableRoom_bookText">"Do you want to book this room from %1$s to %2$s for class %3$s?\n\nPlease note that this might be not official at your school. Make sure that you don't book rooms you're not permitted to enter on your own. "</string>
+    <string name="comingSoon">Coming soon</string>
+    <string name="settings_profileManagementCalendarPermissionDialogTitle">Missing permission</string>
+    <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus doesn\'t have permission to edit your calendar. To use this feature, you must grant access to your calenar in system settings.</string>
 </resources>

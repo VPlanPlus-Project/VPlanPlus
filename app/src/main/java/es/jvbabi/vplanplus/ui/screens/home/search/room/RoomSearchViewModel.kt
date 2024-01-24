@@ -8,6 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.LessonTime
+import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.RoomMap
@@ -18,7 +20,6 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.between
-import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -57,11 +58,14 @@ class RoomSearchViewModel @Inject constructor(
                 var nowTimespan: Pair<LocalDateTime, LocalDateTime>? = null
                 var nextTimespan: Pair<LocalDateTime, LocalDateTime>? = null
 
+                var lessonTimes: Map<Int, LessonTime>? = null
+
                 if (profile.type == ProfileType.STUDENT) {
                     currentClass = getClassByProfileUseCase(profile)
-                    var start = getLessonTimesForClassUseCase(currentClass!!).entries.first()
+                    lessonTimes = getLessonTimesForClassUseCase(currentClass!!)
+                    var start = lessonTimes.entries.first()
                     if (roomMap.rooms.all { it.lessons.first() == null } && start.key == 0) { // if 0th lesson exists and no room is used in 0th lesson
-                        start = getLessonTimesForClassUseCase(currentClass).entries.first { it.key > 0 }
+                        start = lessonTimes.entries.first { it.key > 0 }
                         _state.value = _state.value.copy(showLesson0 = false)
                     }
                     val currentLessonNumber = getCurrentLessonNumberUseCase(currentClass)
@@ -72,16 +76,10 @@ class RoomSearchViewModel @Inject constructor(
                     val next =
                         if (currentLessonNumber != null) times[floor(currentLessonNumber).toInt() + 1] else null
 
-                    nowTimespan = if (now != null) Pair(
-                        "${now.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                        "${now.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                    ) else null
+                    nowTimespan = if (now != null) Pair(now.start, now.end) else null
 
-                    nextTimespan = if (next != null) Pair(
-                        "${next.start}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                        "${next.end}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                    ) else null
-                    profileStart = "${start.value.start}:00".toLocalDateTime()
+                    nextTimespan = if (next != null) Pair(next.start, next.end) else null
+                    profileStart = start.value.start
                     showFilterChips = currentLessonNumber != null && currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble()
                     showNowFilter = (currentLessonNumber ?: 0.0) % 1 != 0.5
                 }
@@ -91,6 +89,7 @@ class RoomSearchViewModel @Inject constructor(
                     rooms = roomMap,
                     profileStart = profileStart,
                     currentClass = currentClass,
+                    lessonTimes = lessonTimes,
                     loading = false,
                     showFilterChips = showFilterChips,
                     filterNowTimespan = nowTimespan,
@@ -190,6 +189,20 @@ class RoomSearchViewModel @Inject constructor(
     fun closeDialog() {
         _state.value = _state.value.copy(detailLesson = null)
     }
+
+    fun openBookRoomDialog(room: Room, from: LocalDateTime, to: LocalDateTime) {
+        _state.value = _state.value.copy(
+            currentRoomBooking = RoomBooking(
+                room,
+                from,
+                to
+            )
+        )
+    }
+
+    fun closeBookRoomDialog() {
+        _state.value = _state.value.copy(currentRoomBooking = null)
+    }
 }
 
 data class RoomSearchState(
@@ -207,5 +220,14 @@ data class RoomSearchState(
     val filterNowTimespan: Pair<LocalDateTime, LocalDateTime>? = null,
     val filterNextTimespan: Pair<LocalDateTime, LocalDateTime>? = null,
     val showNowFilter: Boolean = true,
+    val lessonTimes: Map<Int, LessonTime>? = null,
+
+    val currentRoomBooking: RoomBooking? = null,
+)
+
+data class RoomBooking(
+    val room: Room,
+    val start: LocalDateTime,
+    val end: LocalDateTime
 )
 

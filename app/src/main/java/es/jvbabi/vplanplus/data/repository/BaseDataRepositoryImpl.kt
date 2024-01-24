@@ -18,6 +18,8 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.Response
+import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
+import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import java.time.LocalDate
 
 class BaseDataRepositoryImpl(
@@ -43,8 +45,8 @@ class BaseDataRepositoryImpl(
                     LessonTime(
                         classLessonTimeRefId = `class`.classId,
                         lessonNumber = lessonTime.key,
-                        start = lessonTime.value.first,
-                        end = lessonTime.value.second
+                        start = "${lessonTime.value.first}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                        end = "${lessonTime.value.second}:00".toLocalDateTime().atBeginningOfTheWorld(),
                     )
                 )
             }

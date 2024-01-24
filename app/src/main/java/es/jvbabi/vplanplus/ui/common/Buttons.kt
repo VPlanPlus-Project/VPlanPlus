@@ -85,7 +85,7 @@ fun BigButtonGroup(buttons: List<BigButton>, modifier: Modifier = Modifier) {
             .fillMaxWidth()
             .height(70.dp)
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row {
             buttons.forEachIndexed { i, button ->
@@ -103,13 +103,13 @@ fun BigButtonGroup(buttons: List<BigButton>, modifier: Modifier = Modifier) {
                         Icon(
                             imageVector = button.icon,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
                             text = button.text,
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(top = 4.dp),
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
