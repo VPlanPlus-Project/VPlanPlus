@@ -33,19 +33,21 @@ class CalendarRepositoryImpl(
                 CalendarContract.Calendars.CALENDAR_DISPLAY_NAME,
                 CalendarContract.Calendars.OWNER_ACCOUNT
             )
-            val cursor = contentResolver.query(calendarsUri, projection, null, null, null)
-            if (cursor != null && cursor.moveToFirst()) {
-                do {
-                    val calendarId =
-                        cursor.getLong(cursor.getColumnIndex(CalendarContract.Calendars._ID))
-                    val calendarName =
-                        cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME))
-                    val owner =
-                        cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.OWNER_ACCOUNT))
-                    calendars.add(Calendar(calendarId, calendarName, owner))
-                } while (cursor.moveToNext())
-                cursor.close()
-            }
+            try {
+                val cursor = contentResolver.query(calendarsUri, projection, null, null, null)
+                if (cursor != null && cursor.moveToFirst()) {
+                    do {
+                        val calendarId =
+                            cursor.getLong(cursor.getColumnIndex(CalendarContract.Calendars._ID))
+                        val calendarName =
+                            cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.CALENDAR_DISPLAY_NAME))
+                        val owner =
+                            cursor.getString(cursor.getColumnIndex(CalendarContract.Calendars.OWNER_ACCOUNT))
+                        calendars.add(Calendar(calendarId, calendarName, owner))
+                    } while (cursor.moveToNext())
+                    cursor.close()
+                }
+            } catch (_: SecurityException) {}
             emit(calendars)
         }
     }
