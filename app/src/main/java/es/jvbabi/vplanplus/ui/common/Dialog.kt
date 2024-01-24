@@ -119,6 +119,9 @@ fun ComposableDialog(
     title: String?,
     content: @Composable () -> Unit,
     onOk: () -> Unit = {},
+    okEnabled: Boolean = true,
+    onDismiss: (() -> Unit)? = {},
+    onCancel: (() -> Unit)? = null,
 ) {
     Box(
         modifier = Modifier
@@ -128,10 +131,15 @@ fun ComposableDialog(
             title = { if (title != null) Text(text = title) },
             text = { content() },
             icon = { Icon(imageVector = icon, contentDescription = null) },
-            onDismissRequest = { onOk() },
+            onDismissRequest = { if (onDismiss == null) onOk() else onDismiss() },
             confirmButton = {
-                TextButton(onClick = { onOk() }) {
+                TextButton(onClick = { onOk() }, enabled = okEnabled) {
                     Text(text = stringResource(id = android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                if (onCancel != null) TextButton(onClick = { onCancel() }) {
+                    Text(text = stringResource(id = android.R.string.cancel))
                 }
             },
         )

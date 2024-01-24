@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
+import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.RoomMap
@@ -188,6 +189,20 @@ class RoomSearchViewModel @Inject constructor(
     fun closeDialog() {
         _state.value = _state.value.copy(detailLesson = null)
     }
+
+    fun openBookRoomDialog(room: Room, from: LocalDateTime, to: LocalDateTime) {
+        _state.value = _state.value.copy(
+            currentRoomBooking = RoomBooking(
+                room,
+                from,
+                to
+            )
+        )
+    }
+
+    fun closeBookRoomDialog() {
+        _state.value = _state.value.copy(currentRoomBooking = null)
+    }
 }
 
 data class RoomSearchState(
@@ -206,5 +221,13 @@ data class RoomSearchState(
     val filterNextTimespan: Pair<LocalDateTime, LocalDateTime>? = null,
     val showNowFilter: Boolean = true,
     val lessonTimes: Map<Int, LessonTime>? = null,
+
+    val currentRoomBooking: RoomBooking? = null,
+)
+
+data class RoomBooking(
+    val room: Room,
+    val start: LocalDateTime,
+    val end: LocalDateTime
 )
 
