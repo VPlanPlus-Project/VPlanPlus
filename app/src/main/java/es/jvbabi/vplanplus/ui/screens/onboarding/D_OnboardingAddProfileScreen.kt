@@ -153,11 +153,11 @@ fun ProfileCard(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.headlineSmall,
-                        color = if (!enabled) Color.Gray else Color.Unspecified,
+                        color = if (!enabled) Color.Gray else MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                     Text(
                         text = text,
-                        color = if (!enabled) Color.Gray else Color.Unspecified,
+                        color = if (!enabled) Color.Gray else MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                 }
             }
@@ -182,11 +182,11 @@ fun ProfileCard(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.headlineSmall,
-                        color = if (!enabled) Color.Gray else Color.Unspecified,
+                        color = if (!enabled) Color.Gray else MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                     Text(
                         text = text,
-                        color = if (!enabled) Color.Gray else Color.Unspecified,
+                        color = if (!enabled) Color.Gray else MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                 }
             }

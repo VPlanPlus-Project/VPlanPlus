@@ -174,10 +174,16 @@ fun LoginScreen(
             HorizontalDivider(modifier = Modifier.padding(top = 16.dp))
 
             val schoolIdAnnotatedString = buildAnnotatedString {
-                append(stringResource(id = R.string.onboarding_credentialsLoginAt, state.schoolId))
-                append(" ")
-                append(DOT)
-                append(" ")
+                withStyle(
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    append(stringResource(id = R.string.onboarding_credentialsLoginAt, state.schoolId))
+                    append(" ")
+                    append(DOT)
+                    append(" ")
+                }
                 pushStringAnnotation("WRONG_SCHOOL_ID", "this") // Annotate the text
                 withStyle(
                     SpanStyle(
