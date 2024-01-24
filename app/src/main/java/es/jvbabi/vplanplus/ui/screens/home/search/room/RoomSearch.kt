@@ -200,7 +200,7 @@ fun FindAvailableRoomScreenContent(
                 scrollState.animateScrollTo(currentOffset.toInt() + scrollWidth / 3)
             })
 
-            if (state.lessonTimes != null && first != null) Row(
+            if (state.lessonTimes != null && first != null && state.profileStart != null) Row(
                 modifier = Modifier
                     .horizontalScroll(scrollState)
             ) {
@@ -211,7 +211,7 @@ fun FindAvailableRoomScreenContent(
                     state.lessonTimes.entries.sortedBy { it.key }
                         .forEach { (lessonNumber, lessonTime) ->
                             if (lessonNumber == 0 && !state.showLesson0) return@forEach
-                            val offset = first.start.atBeginningOfTheWorld().until(
+                            val offset = state.profileStart.until(
                                 lessonTime.start,
                                 ChronoUnit.MINUTES
                             ) * scaling
