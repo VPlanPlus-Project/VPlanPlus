@@ -156,7 +156,7 @@ fun Menu(
                                     ) {
                                         Text(
                                             text = if (profile.customName.length > 4) profile.name else profile.customName,
-                                            color = MaterialTheme.colorScheme.onSecondary
+                                            color = if (profile.profileId != selectedProfile.profileId) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onTertiaryContainer,
                                         )
                                     }
                                 }

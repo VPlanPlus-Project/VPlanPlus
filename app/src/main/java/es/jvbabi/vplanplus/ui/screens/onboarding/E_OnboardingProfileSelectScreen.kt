@@ -151,17 +151,15 @@ fun ProfileOptionsItem(
                 Column {
                     Text(
                         text = className,
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                     )
-
                 }
             }
         }
     } else {
         Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.surfaceVariant,
-            ),
+            colors = CardDefaults.cardColors(),
             modifier = Modifier
                 .padding(PaddingValues(0.dp, 4.dp))
                 .fillMaxWidth(),
@@ -176,7 +174,8 @@ fun ProfileOptionsItem(
                 Column {
                     Text(
                         text = className,
-                        style = MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
                     )
                 }
             }
@@ -241,13 +240,27 @@ fun RoomListScreenPreview() {
 
 @Composable
 fun studentAnnotatedText(): AnnotatedString {
-    return buildAnnotatedString { append(stringResource(id = R.string.onboarding_studentChooseClassText)) }
+    return buildAnnotatedString {
+        withStyle(
+            SpanStyle(
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        ) {
+            append(stringResource(id = R.string.onboarding_studentChooseClassText))
+        }
+    }
 }
 
 @Composable
 fun teacherAnnotatedText(showHint: Boolean): AnnotatedString {
     return buildAnnotatedString {
-        append(stringResource(id = R.string.onboarding_teacherChooseTeacherText))
+        withStyle(
+            SpanStyle(
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        ) {
+            append(stringResource(id = R.string.onboarding_teacherChooseTeacherText))
+        }
         if (!showHint) return@buildAnnotatedString
         append(" ")
         pushStringAnnotation("CANT_FIND_ACRONYM", "this") // Annotate the text
@@ -264,5 +277,13 @@ fun teacherAnnotatedText(showHint: Boolean): AnnotatedString {
 
 @Composable
 fun roomAnnotatedText(): AnnotatedString {
-    return buildAnnotatedString { append(stringResource(id = R.string.onboarding_roomChooseRoomText)) }
+    return buildAnnotatedString {
+        withStyle(
+            SpanStyle(
+                color = MaterialTheme.colorScheme.onSurface
+            )
+        ) {
+            append(stringResource(id = R.string.onboarding_roomChooseRoomText))
+        }
+    }
 }
