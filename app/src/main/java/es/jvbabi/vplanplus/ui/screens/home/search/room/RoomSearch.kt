@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.home.search.room
 
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -37,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -191,13 +193,18 @@ fun FindAvailableRoomScreenContent(
                 ((state.profileStart ?: first?.start?.atBeginningOfTheWorld())?.until(
                     LocalDateTime.now().atBeginningOfTheWorld(),
                     ChronoUnit.MINUTES
-                ) ?: 0) * scaling + 500
+                ) ?: 0) * scaling
             var scrollWidth = 0
 
             val scrollState = rememberScrollState()
+            val currentOffsetDp = LocalDensity.current.run { currentOffset.dp.roundToPx() }
+            LaunchedEffect(key1 = scrollState.value) {
+                Log.d("scroll", "scrollState: ${scrollState.value} | $currentOffsetDp | $scrollWidth")
+            }
+
             LaunchedEffect(key1 = scrollWidth, block = {
                 if (scrollWidth == 0) return@LaunchedEffect
-                scrollState.animateScrollTo(currentOffset.toInt() + scrollWidth / 3)
+                scrollState.animateScrollTo(currentOffsetDp - (scrollWidth / 2))
             })
 
             if (state.lessonTimes != null && first != null && state.profileStart != null) Row(
