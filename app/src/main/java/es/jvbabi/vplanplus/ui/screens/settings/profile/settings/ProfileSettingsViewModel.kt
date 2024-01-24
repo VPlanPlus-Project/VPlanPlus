@@ -19,7 +19,6 @@ import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -47,8 +46,8 @@ class ProfileSettingsViewModel @Inject constructor(
         )
         viewModelScope.launch {
             combine(
-                profileUseCases.getProfileById(profileId).distinctUntilChanged(),
-                calendarRepository.getCalendars().distinctUntilChanged(),
+                profileUseCases.getProfileById(profileId),
+                calendarRepository.getCalendars(),
             ) { profile, calendars ->
                 if (profile == null) _state.value.copy(initDone = true)
                 else _state.value.copy(
