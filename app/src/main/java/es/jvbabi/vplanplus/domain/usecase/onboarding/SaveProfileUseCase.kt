@@ -8,7 +8,6 @@ import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Holiday
-import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -91,34 +90,26 @@ class SaveProfileUseCase(
             )
 
             // insert classes, teachers and rooms
-            classes.forEach { c ->
-                classRepository.createClass(
-                    schoolId = schoolId,
-                    className = c
-                )
-                progress++
-                onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_CLASSES, progress / total))
-            }
-            teachers.forEach { t ->
-                teacherRepository.createTeacher(
-                    schoolId = schoolId,
-                    acronym = t
-                )
-                progress++
-                onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_TEACHERS, progress / total))
-            }
+            classRepository.insertClasses(
+                schoolId = schoolId,
+                classes = classes
+            )
+            progress += classes.size
+            onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_CLASSES, progress / total))
 
-            school = schoolRepository.getSchoolFromId(schoolId)!!
-            rooms.forEach { r ->
-                roomRepository.createRoom(
-                    Room(
-                        school = school,
-                        name = r
-                    )
-                )
-                progress++
-                onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_ROOMS, progress / total))
-            }
+            teacherRepository.insertTeachersByAcronym(
+                schoolId = schoolId,
+                teachers = teachers
+            )
+            progress += teachers.size
+            onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_TEACHERS, progress / total))
+
+            roomRepository.insertRoomsByName(
+                schoolId = schoolId,
+                rooms = rooms
+            )
+            progress += rooms.size
+            onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_ROOMS, progress / total))
 
             holidays.forEach{ h ->
                 holidayRepository.insertHoliday(
@@ -131,6 +122,7 @@ class SaveProfileUseCase(
                 onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_HOLIDAYS, progress / total))
             }
 
+            school = schoolRepository.getSchoolFromId(schoolId)!!
             lessonTimes.forEach {
                 lessonTimeRepository.insertLessonTime(
                     es.jvbabi.vplanplus.domain.model.LessonTime(

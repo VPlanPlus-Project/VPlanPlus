@@ -21,8 +21,15 @@ abstract class SchoolEntityDao {
     @Query("SELECT * FROM school_entity WHERE schoolId = :schoolId AND name = :name AND type = :type")
     abstract suspend fun getSchoolEntityByName(schoolId: Long, name: String, type: SchoolEntityType): CSchoolEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun insertSchoolEntity(schoolEntity: DbSchoolEntity)
+
+    @Transaction
+    open suspend fun insertSchoolEntities(schoolEntities: List<DbSchoolEntity>) {
+        schoolEntities.forEach {
+            insertSchoolEntity(it)
+        }
+    }
 
     @Query("SELECT * FROM school_entity WHERE id = :schoolEntityId")
     abstract suspend fun getSchoolEntityById(schoolEntityId: UUID): CSchoolEntity?
