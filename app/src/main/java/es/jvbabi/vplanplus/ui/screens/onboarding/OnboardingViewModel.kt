@@ -80,7 +80,6 @@ class OnboardingViewModel @Inject constructor(
                 isLoading = false,
                 currentResponseType = baseDataResponse.toResponse(),
                 loginState = baseDataResponse.toLoginState(),
-                testSchoolError = baseDataResponse.toResponse() != Response.SUCCESS && state.value.schoolId == "10000000",
                 stage = if (baseDataResponse.toResponse() == Response.SUCCESS) Stage.PROFILE_TYPE else Stage.CREDENTIALS
             )
         }
@@ -260,23 +259,6 @@ class OnboardingViewModel @Inject constructor(
         _state.value = _state.value.copy(isLoading = loading)
     }
 
-    fun onTestSchoolErrorDialogDismissed() {
-        _state.value = _state.value.copy(testSchoolError = false)
-    }
-
-    fun useTestSchool() {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(
-                schoolId = "10000000",
-                username = "schueler",
-                password = "test",
-                schoolIdState = SchoolIdCheckResult.VALID,
-                testSchoolLoading = true
-            )
-            nextStageProfileType()
-        }
-    }
-
     fun useQrResult() {
         viewModelScope.launch {
             _state.value = _state.value.copy(
@@ -284,7 +266,6 @@ class OnboardingViewModel @Inject constructor(
                 username = _state.value.qrResult!!.username,
                 password = _state.value.qrResult!!.password,
                 schoolIdState = SchoolIdCheckResult.VALID,
-                testSchoolLoading = true
             )
             nextStageProfileType()
         }
@@ -382,8 +363,6 @@ data class OnboardingState(
     val defaultLessonsClass: String = "",
     val defaultLessonsLoading: Boolean = false,
 
-    val testSchoolError: Boolean = false,
-    val testSchoolLoading: Boolean = false,
     val showCloseDialog: Boolean = false,
 
     val stage: Stage = Stage.WELCOME,
