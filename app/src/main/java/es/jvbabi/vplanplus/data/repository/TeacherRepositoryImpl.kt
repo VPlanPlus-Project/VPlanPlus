@@ -52,8 +52,15 @@ class TeacherRepositoryImpl(
     }
 
     override suspend fun insertTeachersByAcronym(schoolId: Long, teachers: List<String>) {
-        teachers.forEach {
-            createTeacher(schoolId, it)
-        }
+        schoolEntityDao.insertSchoolEntities(
+            teachers.map {
+                DbSchoolEntity(
+                    id = UUID.randomUUID(),
+                    schoolId = schoolId,
+                    name = it,
+                    type = SchoolEntityType.TEACHER
+                )
+            }
+        )
     }
 }

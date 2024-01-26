@@ -12,6 +12,10 @@ class LessonTimeRepositoryImpl(
         lessonTimeDao.insertLessonTime(lessonTime)
     }
 
+    override suspend fun insertLessonTimes(lessonTimes: List<LessonTime>) {
+        lessonTimeDao.insertLessonTimes(lessonTimes)
+    }
+
     override suspend fun deleteLessonTimes(`class`: Classes) {
         lessonTimeDao.deleteLessonTimes(`class`.classId)
     }

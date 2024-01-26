@@ -51,16 +51,16 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>) {
-        rooms.forEach {
-            schoolEntityDao.insertSchoolEntity(
+        schoolEntityDao.insertSchoolEntities(
+            rooms.map {
                 DbSchoolEntity(
                     id = UUID.randomUUID(),
                     schoolId = schoolId,
                     name = it,
                     type = SchoolEntityType.ROOM
                 )
-            )
-        }
+            }
+        )
     }
 
     override suspend fun getRoomsBySchool(school: School): List<Room> {

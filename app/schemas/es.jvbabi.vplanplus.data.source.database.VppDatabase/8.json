@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "3df65b4d3c95feaaec2185cd7e4243fb",
+    "identityHash": "4cc3de3f1b5fd86916816c8eed334285",
     "entities": [
       {
         "tableName": "lesson",
@@ -684,7 +684,7 @@
       },
       {
         "tableName": "school_entity",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `schoolId` INTEGER NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`schoolId`) REFERENCES `school`(`schoolId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `schoolId` INTEGER NOT NULL, `type` TEXT NOT NULL, PRIMARY KEY(`id`, `schoolId`, `type`, `name`), FOREIGN KEY(`schoolId`) REFERENCES `school`(`schoolId`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -714,7 +714,10 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "id"
+            "id",
+            "schoolId",
+            "type",
+            "name"
           ]
         },
         "indices": [
@@ -1060,7 +1063,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '3df65b4d3c95feaaec2185cd7e4243fb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4cc3de3f1b5fd86916816c8eed334285')"
     ]
   }
 }

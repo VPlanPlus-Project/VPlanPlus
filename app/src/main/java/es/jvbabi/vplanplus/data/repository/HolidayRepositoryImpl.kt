@@ -29,9 +29,7 @@ class HolidayRepositoryImpl(
         holidays.map { it.schoolHolidayRefId }.toSet().forEach {
             holidayDao.deleteHolidaysBySchoolId(it?:return@forEach)
         }
-        holidays.forEach {
-            holidayDao.insertHoliday(it)
-        }
+        holidayDao.insertHolidays(holidays)
     }
 
     override suspend fun insertHoliday(holiday: Holiday) {

@@ -8,7 +8,7 @@ import java.util.UUID
 
 @Entity(
     tableName = "school_entity",
-    primaryKeys = ["id"],
+    primaryKeys = ["id", "schoolId", "type", "name"],
     indices = [
         Index(value = ["id"], unique = true),
         Index(value = ["schoolId"]),
