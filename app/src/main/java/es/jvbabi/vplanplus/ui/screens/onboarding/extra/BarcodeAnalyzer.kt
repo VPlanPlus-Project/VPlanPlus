@@ -21,11 +21,23 @@ class QrCodeAnalyzer(
         ImageFormat.YUV_444_888,
     )
 
+    private var invert = false
+
     override fun analyze(image: ImageProxy) {
         if(image.format in supportedImageFormats) {
-            val bytes = image.planes.first().buffer.toByteArray()
+            val originalBytes = image.planes.first().buffer.toByteArray()
+            val modifiedBytes = ByteArray(originalBytes.size)
+
+            for (i in originalBytes.indices) {
+                modifiedBytes[i] = if (invert) {
+                    (255 - originalBytes[i]).toByte()
+                } else {
+                    originalBytes[i]
+                }
+            }
+            invert = !invert
             val source = PlanarYUVLuminanceSource(
-                bytes,
+                modifiedBytes,
                 image.width,
                 image.height,
                 0,
