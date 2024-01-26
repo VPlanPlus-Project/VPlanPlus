@@ -77,7 +77,7 @@ class SyncWorker @AssistedInject constructor(
 
         Log.d("SyncWorker", "SYNCING")
         logRecordRepository.log("SyncWorker", "Syncing")
-        val syncDays = (keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE) ?: "3").toInt()
+        val syncDays = keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toInt()?:Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
         val profileDataBefore = hashMapOf<Profile, List<Lesson>>()
 
         // get general news

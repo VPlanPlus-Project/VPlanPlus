@@ -31,7 +31,7 @@ class GeneralSettingsViewModel @Inject constructor(
                 keyValueUseCases.getFlow(Keys.COLOR)
             ) { syncDayDifference, showNotification, _ ->
                 _state.value.copy(
-                    syncDayDifference = syncDayDifference?.toInt() ?: 3,
+                    syncDayDifference = syncDayDifference?.toInt() ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT,
                     notificationShowNotificationIfAppIsVisible = showNotification?.toBoolean()
                         ?: false,
                     colors = generalSettingsUseCases.getColorsUseCase(_state.value.isDark ?: false),
