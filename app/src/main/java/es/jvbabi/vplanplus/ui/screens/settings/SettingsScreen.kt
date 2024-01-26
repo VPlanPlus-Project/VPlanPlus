@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Person
@@ -62,6 +63,14 @@ fun SettingsScreen(navController: NavHostController) {
                 .padding(paddingValues)
         ) {
             val settings = listOf(
+                SettingEntry(
+                    icon = Icons.Outlined.AccountCircle,
+                    title = stringResource(id = R.string.settings_vppIdTitle),
+                    subtitle = stringResource(id = R.string.settings_vppIdSubtitle),
+                    onClick = {
+                        //navController.navigate(Screen.SettingsVppIdScreen.route)
+                    }
+                ),
                 SettingEntry(
                     icon = Icons.Outlined.Build,
                     title = stringResource(id = R.string.settings_generalSettingsTitle),
