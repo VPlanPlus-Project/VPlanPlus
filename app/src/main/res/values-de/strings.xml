@@ -155,7 +155,6 @@
         <item quantity="one">Es gibt eine wichtige Information zur App:%2$s</item>
         <item quantity="other">Es gibt %1$d wichtige Informationen zur App:%2$s</item>
     </plurals>
-    <string name="onboarding_welcomeContinueTestSchool">Mit Beispielschule fortfahren</string>
     <string name="onboarding_welcomeTestSchoolErrorTitle">Fehler</string>
     <string name="onboarding_welcomeTestSchoolErrorText">Beim Verbinden mit der Testschule ist ein Fehler aufgetreten.</string>
     <string name="onboarding_cancelOnboardingTitle">Onboarding abbrechen?</string>

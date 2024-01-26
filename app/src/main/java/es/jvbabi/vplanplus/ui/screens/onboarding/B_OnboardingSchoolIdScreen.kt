@@ -8,12 +8,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.QrCode
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,7 +19,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -32,7 +28,6 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.usecase.Response
 import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
-import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.CloseOnboardingDialog
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen
@@ -80,10 +75,6 @@ fun OnboardingSchoolIdScreen(
             viewModel.nextStageCredentials()
         },
         state = state,
-        onTestSchoolErrorDialogDismissed = { viewModel.onTestSchoolErrorDialogDismissed() },
-        onTestSchoolClick = {
-            viewModel.useTestSchool()
-        },
         showCloseDialog = state.showCloseDialog,
         hideCloseDialog = { viewModel.hideCloseDialog() },
         closeOnboarding = {
@@ -108,8 +99,6 @@ fun SchoolId(
     onSchoolIdInputChange: (String) -> Unit,
     onButtonClick: () -> Unit,
     onQrCodeClick: () -> Unit,
-    onTestSchoolClick: () -> Unit,
-    onTestSchoolErrorDialogDismissed: () -> Unit,
     showCloseDialog: Boolean,
     closeOnboarding: () -> Unit,
     hideCloseDialog: () -> Unit,
@@ -170,7 +159,7 @@ fun SchoolId(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
-                    enabled = !state.isLoading && !state.testSchoolLoading
+                    enabled = !state.isLoading
                 ) {
                     Icon(
                         imageVector = Icons.Default.QrCode,
@@ -181,34 +170,10 @@ fun SchoolId(
                     )
                     Text(text = stringResource(id = R.string.onboarding_welcomeScanQrCode))
                 }
-                TextButton(
-                    onClick = onTestSchoolClick,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(48.dp),
-                    enabled = !state.isLoading && !state.testSchoolLoading
-                ) {
-                    if (state.testSchoolLoading) CircularProgressIndicator(
-                        strokeWidth = 2.dp,
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .width(24.dp)
-                            .height(24.dp)
-                            .padding(6.dp)
-                    ) else Text(text = stringResource(id = R.string.onboarding_welcomeContinueTestSchool))
-                }
             }
         }
     )
 
-    if (state.testSchoolError) {
-        InfoDialog(
-            icon = Icons.Default.Error,
-            title = stringResource(id = R.string.onboarding_welcomeTestSchoolErrorTitle),
-            message = stringResource(id = R.string.onboarding_welcomeTestSchoolErrorText),
-            onOk = { onTestSchoolErrorDialogDismissed() }
-        )
-    }
     if (showCloseDialog) {
         CloseOnboardingDialog(
             onYes = { closeOnboarding() },
@@ -223,8 +188,6 @@ private fun SchoolIdScreenPreview() {
     SchoolId(
         onSchoolIdInputChange = {},
         onButtonClick = {},
-        onTestSchoolClick = {},
-        onTestSchoolErrorDialogDismissed = {},
         showCloseDialog = false,
         hideCloseDialog = {},
         closeOnboarding = {},

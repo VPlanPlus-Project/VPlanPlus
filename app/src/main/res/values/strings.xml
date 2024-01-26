@@ -154,7 +154,6 @@
         <item quantity="one">There is %1$%d critical message:%2$s</item>
         <item quantity="other">There are %1$%d critical messages:%2$s</item>
     </plurals>
-    <string name="onboarding_welcomeContinueTestSchool">Continue with test-school</string>
     <string name="onboarding_welcomeTestSchoolErrorTitle">Error</string>
     <string name="onboarding_welcomeTestSchoolErrorText">There was an error when trying to connect to the test school</string>
     <string name="onboarding_cancelOnboardingTitle">Cancel Onboarding?</string>
