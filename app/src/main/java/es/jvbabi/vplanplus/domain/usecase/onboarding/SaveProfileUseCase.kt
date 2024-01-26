@@ -111,20 +111,20 @@ class SaveProfileUseCase(
             progress += rooms.size
             onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_ROOMS, progress / total))
 
-            holidays.forEach{ h ->
-                holidayRepository.insertHoliday(
-                    holiday = Holiday(
+            holidayRepository.replaceHolidays(
+                holidays = holidays.map {
+                    Holiday(
                         schoolHolidayRefId = schoolId,
-                        date = h
+                        date = it
                     )
-                )
-                progress++
-                onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_HOLIDAYS, progress / total))
-            }
+                }
+            )
+            progress += holidays.size
+            onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_HOLIDAYS, progress / total))
 
             school = schoolRepository.getSchoolFromId(schoolId)!!
-            lessonTimes.forEach {
-                lessonTimeRepository.insertLessonTime(
+            lessonTimeRepository.insertLessonTimes(
+                lessonTimes = lessonTimes.map {
                     es.jvbabi.vplanplus.domain.model.LessonTime(
                         classLessonTimeRefId = classRepository.getClassBySchoolIdAndClassName(
                             schoolId,
@@ -135,8 +135,10 @@ class SaveProfileUseCase(
                         start = "${it.startTime}:00".toLocalDateTime().atBeginningOfTheWorld(),
                         end = "${it.endTime}:00".toLocalDateTime().atBeginningOfTheWorld(),
                     )
-                )
-            }
+                }
+            )
+            progress += lessonTimes.size
+            onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INITIAL_SYNC, progress / total))
         }
 
         defaultLessons.forEach {

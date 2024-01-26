@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Transaction
 import es.jvbabi.vplanplus.domain.model.Holiday
 import java.time.LocalDate
 
@@ -24,4 +25,11 @@ abstract class HolidayDao {
 
     @Delete
     abstract suspend fun deleteHoliday(holiday: Holiday)
+
+    @Transaction
+    open suspend fun insertHolidays(holidays: List<Holiday>) {
+        holidays.forEach {
+            insertHoliday(it)
+        }
+    }
 }
