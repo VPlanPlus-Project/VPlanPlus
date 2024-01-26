@@ -202,4 +202,6 @@
     <string name="comingSoon">Bald verfügbar</string>
     <string name="settings_profileManagementCalendarPermissionDialogTitle">Fehlende Berechtigungen</string>
     <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus hat nicht die notwendigen Android Berechtigungen um auf deine Kalender zuzugreifen. Um dieses Feature nutzen zu können, musst du der App in den Systemeinstellungen Zugriff auf deine Kalender gewähren.</string>
+    <string name="settings_vppIdTitle">vpp.ID</string>
+    <string name="settings_vppIdSubtitle">Verwalte deine vpp.ID</string>
 </resources>

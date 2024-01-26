@@ -201,4 +201,6 @@
     <string name="comingSoon">Coming soon</string>
     <string name="settings_profileManagementCalendarPermissionDialogTitle">Missing permission</string>
     <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus doesn\'t have permission to edit your calendar. To use this feature, you must grant access to your calenar in system settings.</string>
+    <string name="settings_vppIdTitle">vpp.ID</string>
+    <string name="settings_vppIdSubtitle">Manage your vpp.ID</string>
 </resources>
