@@ -207,4 +207,8 @@
     <string name="vppidSettings_title">vpp.ID</string>
     <string name="vppidSettings_add">Eine weitere vpp.ID hinzufügen</string>
     <string name="vppidSettings_info">Du brauchst eine vpp.ID um zu bestätigen, dass du einer Klasse angehörst um einige Features der App nutzen zu können. Du wirst über beste.schule oder notenbuch.online angemeldet.</string>
+    <string name="vppidSettings_addTitle">vpp.ID hinzufügen</string>
+    <string name="vppidSettings_addMessage">Hast du bereits eine vpp.ID oder möchtest du eine neue erstellen?</string>
+    <string name="vppidSettings_createId">Neu erstellen</string>
+    <string name="vppidSettings_linkId">Existierende verbinden</string>
 </resources>

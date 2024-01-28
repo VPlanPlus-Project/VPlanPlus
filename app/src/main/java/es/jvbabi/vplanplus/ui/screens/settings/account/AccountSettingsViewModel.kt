@@ -28,5 +28,5 @@ class AccountSettingsViewModel @Inject constructor(
 }
 
 data class AccountSettingsState(
-    val accounts: List<VppId>? = null
+    val accounts: List<VppId>? = null,
 )

@@ -1,5 +1,7 @@
 package es.jvbabi.vplanplus.ui.screens.settings.account
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,9 +25,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -42,9 +46,17 @@ fun AccountSettingsScreen(
     viewModel: AccountSettingsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+    val context = LocalContext.current
 
     AccountSettingsScreenContent(
         onBack = { navHostController.popBackStack() },
+        onLogin = {
+            val browserIntent = Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://id.vpp.jvbabi.es/link")
+            )
+            ContextCompat.startActivity(context, browserIntent, null)
+        },
         state = state
     )
 }
@@ -53,6 +65,7 @@ fun AccountSettingsScreen(
 @Composable
 private fun AccountSettingsScreenContent(
     onBack: () -> Unit,
+    onLogin: () -> Unit = {},
     state: AccountSettingsState
 ) {
     Scaffold(
@@ -91,7 +104,7 @@ private fun AccountSettingsScreenContent(
                             icon = Icons.Default.Add,
                             title = stringResource(id = R.string.vppidSettings_add),
                             type = SettingsType.FUNCTION,
-                            doAction = {},
+                            doAction = { onLogin() },
                         )
                     }
                     item { HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp)) }
@@ -122,7 +135,9 @@ private fun AccountSettingsScreenContent(
 private fun AccountSettingsPreviewNoAccounts() {
     AccountSettingsScreenContent(
         onBack = {},
-        state = AccountSettingsState(accounts = emptyList())
+        state = AccountSettingsState(
+            accounts = emptyList(),
+        )
     )
 }
 
