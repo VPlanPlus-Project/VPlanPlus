@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
@@ -33,6 +34,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
+import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
 import es.jvbabi.vplanplus.domain.model.DbCalendarEvent
 import es.jvbabi.vplanplus.domain.model.Holiday
@@ -56,17 +58,19 @@ import es.jvbabi.vplanplus.domain.model.Week
         DbPlanData::class,
         DbSchoolEntity::class,
         Message::class,
+        DbVppId::class,
 
         LessonSchoolEntityCrossover::class,
         DbProfileDefaultLesson::class,
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 9,
+    version = 10,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
-        AutoMigration(from = 8, to = 9) // primary keys for school entity
+        AutoMigration(from = 8, to = 9), // primary keys for school entity
+        AutoMigration(from = 9, to = 10), // add vppId
     ],
 )
 @TypeConverters(
@@ -93,6 +97,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val profileDefaultLessonsCrossoverDao: ProfileDefaultLessonsCrossoverDao
     abstract val planDao: PlanDao
     abstract val messageDao: MessageDao
+    abstract val vppIdDao: VppIdDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {

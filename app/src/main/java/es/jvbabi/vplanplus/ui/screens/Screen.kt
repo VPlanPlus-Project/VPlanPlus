@@ -24,6 +24,8 @@ sealed class Screen(val route: String) {
     data object SettingsProfileDefaultLessonsScreen: Screen("settings/profile/{profileId}/default_lessons")
     data object SettingsGeneralSettingsScreen: Screen("settings/general_settings")
 
+    data object SettingsVppIdScreen: Screen("settings/vpp_id")
+
     data object SettingsAdvancedScreen: Screen("settings/advanced")
     data object SettingsAdvancedLogScreen: Screen("settings/advanced/logs")
 

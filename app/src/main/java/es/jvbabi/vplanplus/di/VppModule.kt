@@ -27,6 +27,7 @@ import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -52,6 +53,7 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
@@ -91,6 +93,8 @@ import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -267,6 +271,12 @@ object VppModule {
         return NotificationRepositoryImpl(context, logRecordRepository)
     }
 
+    @Provides
+    @Singleton
+    fun provideVppIdRepository(db: VppDatabase): VppIdRepository {
+        return VppIdRepositoryImpl(db.vppIdDao)
+    }
+
     // Use cases
 
     @Provides
@@ -342,6 +352,16 @@ object VppModule {
             lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
             planRepository = providePlanRepository(db)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountSettingsUseCases(
+        vppIdRepository: VppIdRepository
+    ): AccountSettingsUseCases {
+        return AccountSettingsUseCases(
+            getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository)
         )
     }
 

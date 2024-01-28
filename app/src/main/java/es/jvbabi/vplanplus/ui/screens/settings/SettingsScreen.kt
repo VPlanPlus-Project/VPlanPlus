@@ -39,7 +39,6 @@ fun SettingsScreenPreview() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(navController: NavHostController) {
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -68,7 +67,7 @@ fun SettingsScreen(navController: NavHostController) {
                     title = stringResource(id = R.string.settings_vppIdTitle),
                     subtitle = stringResource(id = R.string.settings_vppIdSubtitle),
                     onClick = {
-                        //navController.navigate(Screen.SettingsVppIdScreen.route)
+                        navController.navigate(Screen.SettingsVppIdScreen.route)
                     }
                 ),
                 SettingEntry(

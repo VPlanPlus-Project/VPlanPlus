@@ -31,6 +31,7 @@ import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.ui.screens.onboarding.Task
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingQrScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
+import es.jvbabi.vplanplus.ui.screens.settings.account.AccountSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
@@ -77,6 +78,10 @@ fun NavigationGraph(
 
         composable(route = Screen.SettingsScreen.route) {
             SettingsScreen(navController)
+        }
+
+        composable(route = Screen.SettingsVppIdScreen.route) {
+            AccountSettingsScreen(navHostController = navController)
         }
 
         composable(

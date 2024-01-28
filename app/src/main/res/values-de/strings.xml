@@ -204,4 +204,7 @@
     <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus hat nicht die notwendigen Android Berechtigungen um auf deine Kalender zuzugreifen. Um dieses Feature nutzen zu können, musst du der App in den Systemeinstellungen Zugriff auf deine Kalender gewähren.</string>
     <string name="settings_vppIdTitle">vpp.ID</string>
     <string name="settings_vppIdSubtitle">Verwalte deine vpp.ID</string>
+    <string name="vppidSettings_title">vpp.ID</string>
+    <string name="vppidSettings_add">Eine weitere vpp.ID hinzufügen</string>
+    <string name="vppidSettings_info">Du brauchst eine vpp.ID um zu bestätigen, dass du einer Klasse angehörst um einige Features der App nutzen zu können. Du wirst über beste.schule oder notenbuch.online angemeldet.</string>
 </resources>
