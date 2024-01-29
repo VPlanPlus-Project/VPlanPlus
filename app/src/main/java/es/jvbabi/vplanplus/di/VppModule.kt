@@ -282,6 +282,7 @@ object VppModule {
     ): VppIdRepository {
         return VppIdRepositoryImpl(
             db.vppIdDao,
+            db.vppIdTokenDao,
             classRepository
         )
     }
