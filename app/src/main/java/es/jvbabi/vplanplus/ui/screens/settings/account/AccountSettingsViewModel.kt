@@ -21,12 +21,41 @@ class AccountSettingsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             accountSettingsUseCases.getAccountsUseCase().collect {
-                _state.value = AccountSettingsState(it)
+                _state.value = _state.value.copy(accounts = it.associateWith { vppId ->
+                    null
+                })
+                _state.value.accounts?.forEach { (vppId, _) ->
+                    viewModelScope.launch {
+                        val response = accountSettingsUseCases.testAccountUseCase(vppId)
+                        _state.value =
+                            _state.value.copy(accounts = _state.value.accounts?.plus(vppId to response.data))
+                    }
+                }
             }
+        }
+    }
+
+    fun showDeleteDialog(vppId: VppId) {
+        _state.value = _state.value.copy(deleteVppId = vppId)
+    }
+
+    fun dismissDeleteDialog() {
+        _state.value = _state.value.copy(deleteVppId = null)
+    }
+
+    fun deleteAccount(vppId: VppId) {
+        _state.value = _state.value.copy(deletionResult = null)
+        viewModelScope.launch {
+            _state.value = _state.value.copy(
+                deletionResult = accountSettingsUseCases.deleteAccountUseCase(vppId),
+                deleteVppId = null
+            )
         }
     }
 }
 
 data class AccountSettingsState(
-    val accounts: List<VppId>? = null,
+    val accounts: Map<VppId, Boolean?>? = null,
+    val deleteVppId: VppId? = null,
+    val deletionResult: Boolean? = null,
 )

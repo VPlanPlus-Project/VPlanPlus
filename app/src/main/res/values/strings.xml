@@ -211,5 +211,9 @@
     <string name="vppidSettings_createId">Create new</string>
     <string name="vppidSettings_linkId">Link existing</string>
     <string name="vppidlink_welcome">Welcome, %1$s</string>
-    <string name="vppidlink_message">You can now use all features of %1$s in class %2$s</string>
+    <string name="vppidlink_message">You can now use all features of %1$s in class %2$s. Tap an existing one to remove it.</string>
+    <string name="vppidlink_unlinkVppIdTitle">Unlink?</string>
+    <string name="vppidlink_unlinkVppIdMessage">Do you really want to unlink %1$s? You wont be able to use the extended feature set anymore.</string>
+    <string name="vppidlink_unlinkVppIdSuccess">Unlinked account</string>
+    <string name="vppidlink_unlinkVppIdError">Something went wrong. Your account hasn\'t been unlinked.</string>
 </resources>

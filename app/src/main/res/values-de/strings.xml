@@ -212,5 +212,9 @@
     <string name="vppidSettings_createId">Neu erstellen</string>
     <string name="vppidSettings_linkId">Existierende verbinden</string>
     <string name="vppidlink_welcome">Willkommen, %1$s</string>
-    <string name="vppidlink_message">Du kannst nun alle Features der Schule %1$s in der Klasse %2$s nutzen.</string>
+    <string name="vppidlink_message">Du kannst nun alle Features der Schule %1$s in der Klasse %2$s nutzen. Tippe auf eine bestehende vpp.ID um sie zu entfernen.</string>
+    <string name="vppidlink_unlinkVppIdTitle">Verbindung trennen?</string>
+    <string name="vppidlink_unlinkVppIdMessage">Möchtest du wirklich %1$s trennen? Du wirst danach nicht mehr alle Features verwenden können.</string>
+    <string name="vppidlink_unlinkVppIdSuccess">Account getrennt</string>
+    <string name="vppidlink_unlinkVppIdError">Etwas ist schiefgelaufen. Dein Account wurde nicht getrennt.</string>
 </resources>

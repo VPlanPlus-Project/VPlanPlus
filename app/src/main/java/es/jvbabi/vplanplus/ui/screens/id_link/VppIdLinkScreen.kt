@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.id_link
+package es.jvbabi.vplanplus.ui.screens.id_link
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
