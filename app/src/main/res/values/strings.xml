@@ -216,4 +216,9 @@
     <string name="vppidlink_unlinkVppIdMessage">Do you really want to unlink %1$s? You wont be able to use the extended feature set anymore.</string>
     <string name="vppidlink_unlinkVppIdSuccess">Unlinked account</string>
     <string name="vppidlink_unlinkVppIdError">Something went wrong. Your account hasn\'t been unlinked.</string>
+    <string name="searchAvailableRoom_cannotBookRoomNotVerifiedTitle">Not verified</string>
+    <string name="searchAvailableRoom_cannotBookRoomNotVerifiedText">You need to connect your vpp.ID in order to book a room. This is to prevent spam. You can create one using your beste.schule or notenbuch.online account. Visit the settings page to learn more.</string>
+    <string name="searchAvailableRoom_cannotBookRoomWrongTypeTitle">Wrong account type</string>
+    <string name="searchAvailableRoom_cannotBookRoomWrongTypeText">You need to use a stundent profile in order to book a room.</string>
+    <string name="beta">Beta</string>
 </resources>

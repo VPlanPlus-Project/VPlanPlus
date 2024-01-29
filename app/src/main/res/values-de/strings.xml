@@ -217,4 +217,9 @@
     <string name="vppidlink_unlinkVppIdMessage">Möchtest du wirklich %1$s trennen? Du wirst danach nicht mehr alle Features verwenden können.</string>
     <string name="vppidlink_unlinkVppIdSuccess">Account getrennt</string>
     <string name="vppidlink_unlinkVppIdError">Etwas ist schiefgelaufen. Dein Account wurde nicht getrennt.</string>
+    <string name="searchAvailableRoom_cannotBookRoomNotVerifiedTitle">Nicht bestätigt</string>
+    <string name="searchAvailableRoom_cannotBookRoomNotVerifiedText">Du musst deine vpp.ID verbinden um einen Raum buchen zu können. Dies ist eine Maßnahme, um Spam vorzubeugen. Du kannst eine vpp.ID mit deinem beste.schule oder notenbuch.online Konto anlegen. Öffne die App-Einstellungen, um mehr zu erfahren.</string>
+    <string name="searchAvailableRoom_cannotBookRoomWrongTypeTitle">Falscher Accounttyp</string>
+    <string name="searchAvailableRoom_cannotBookRoomWrongTypeText">Du musst ein Schülerprofil verwenden, um einen Raum buchen zu können.</string>
+    <string name="beta">Beta</string>
 </resources>

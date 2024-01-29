@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomAbility
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.RoomMap
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
@@ -47,7 +48,8 @@ class RoomSearchViewModel @Inject constructor(
             combine(
                 findCurrentSchoolUseCase(),
                 getCurrentProfileUseCase(),
-            ) { school, profile ->
+                findRoomUseCases.canBookRoomUseCase()
+            ) { school, profile, canBookRooms ->
                 if (school == null || profile == null) return@combine state.value
                 val roomMap = findRoomUseCases.getRoomMapUseCase(school)
 
@@ -97,6 +99,7 @@ class RoomSearchViewModel @Inject constructor(
                     showNowFilter = showNowFilter,
                     filterNow = if (!showNowFilter) false else _state.value.filterNow,
                     filterNext = if (!showFilterChips) false else _state.value.filterNext,
+                    canBookRoom = canBookRooms,
                 )
             }.collect {
                 _state.value = it
@@ -223,6 +226,7 @@ data class RoomSearchState(
     val lessonTimes: Map<Int, LessonTime>? = null,
 
     val currentRoomBooking: RoomBooking? = null,
+    val canBookRoom: BookRoomAbility = BookRoomAbility.CAN_BOOK,
 )
 
 data class RoomBooking(

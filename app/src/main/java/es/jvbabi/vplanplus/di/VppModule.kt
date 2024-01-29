@@ -62,6 +62,7 @@ import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.GetRoomMapUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
@@ -437,7 +438,9 @@ object VppModule {
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         lessonTimeRepository: LessonTimeRepository,
-        lessonUseCases: LessonUseCases
+        vppIdRepository: VppIdRepository,
+        lessonUseCases: LessonUseCases,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ): FindRoomUseCases {
         return FindRoomUseCases(
             getRoomMapUseCase = GetRoomMapUseCase(
@@ -447,6 +450,11 @@ object VppModule {
                 lessonTimeRepository = lessonTimeRepository,
                 classRepository = classRepository
             ),
+            canBookRoomUseCase = CanBookRoomUseCase(
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
+                classRepository = classRepository,
+                vppIdRepository = vppIdRepository
+            )
         )
     }
 
