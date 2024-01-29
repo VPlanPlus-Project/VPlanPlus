@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
 import androidx.room.Index
+import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import java.util.UUID
 
@@ -17,7 +18,8 @@ data class DbVppId(
     val name: String,
     val schoolId: Long,
     val className: String,
-    val classId: UUID?
+    val classId: UUID?,
+    val state: State
 ) {
     fun toModel(): VppId {
         return VppId(
@@ -26,7 +28,8 @@ data class DbVppId(
             schoolId = schoolId,
             school = null,
             className = className,
-            classes = null
+            classes = null,
+            state = state
         )
     }
 }

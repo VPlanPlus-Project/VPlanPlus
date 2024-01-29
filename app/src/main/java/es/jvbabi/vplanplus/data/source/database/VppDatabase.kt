@@ -20,6 +20,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
+import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
@@ -82,7 +83,8 @@ import es.jvbabi.vplanplus.domain.model.Week
     ProfileCalendarTypeConverter::class,
     UuidConverter::class,
     DayDataTypeConverter::class,
-    LocalDateTimeConverter::class
+    LocalDateTimeConverter::class,
+    VppIdStateConverter::class
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao

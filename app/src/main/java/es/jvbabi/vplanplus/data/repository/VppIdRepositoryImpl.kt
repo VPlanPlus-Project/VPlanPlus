@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
@@ -95,6 +96,7 @@ class VppIdRepositoryImpl(
                 schoolId = vppId.schoolId,
                 className = vppId.className,
                 classId = classRepository.getClassBySchoolIdAndClassName(vppId.schoolId, vppId.className)?.classId,
+                state = State.ACTIVE
             )
         )
     }

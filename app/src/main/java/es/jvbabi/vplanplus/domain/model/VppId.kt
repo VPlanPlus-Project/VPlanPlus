@@ -8,5 +8,11 @@ data class VppId(
     @SerializedName("school_id") val schoolId: Long,
     val school: School?,
     @SerializedName("class_name") val className: String,
-    val classes: Classes?
+    val classes: Classes?,
+    val state: State = State.ACTIVE
 )
+
+enum class State {
+    ACTIVE,
+    DISABLED
+}
