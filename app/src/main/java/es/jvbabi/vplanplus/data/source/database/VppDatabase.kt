@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
@@ -35,6 +36,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossov
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
+import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
 import es.jvbabi.vplanplus.domain.model.DbCalendarEvent
 import es.jvbabi.vplanplus.domain.model.Holiday
@@ -59,6 +61,7 @@ import es.jvbabi.vplanplus.domain.model.Week
         DbSchoolEntity::class,
         Message::class,
         DbVppId::class,
+        DbVppIdToken::class,
 
         LessonSchoolEntityCrossover::class,
         DbProfileDefaultLesson::class,
@@ -98,6 +101,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val planDao: PlanDao
     abstract val messageDao: MessageDao
     abstract val vppIdDao: VppIdDao
+    abstract val vppIdTokenDao: VppIdTokenDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {

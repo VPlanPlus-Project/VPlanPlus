@@ -3,7 +3,9 @@ package es.jvbabi.vplanplus.data.repository
 import android.util.Log
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
+import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -28,6 +30,7 @@ import java.net.UnknownHostException
 
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
+    private val vppIdTokenDao: VppIdTokenDao,
     private val classRepository: ClassRepository
 ) : VppIdRepository {
     override fun getVppIds(): Flow<List<VppId>> {
@@ -94,5 +97,18 @@ class VppIdRepositoryImpl(
                 classId = classRepository.getClassBySchoolIdAndClassName(vppId.schoolId, vppId.className)?.classId,
             )
         )
+    }
+
+    override suspend fun addVppIdToken(vppId: VppId, token: String) {
+        vppIdTokenDao.insert(
+            DbVppIdToken(
+                vppId = vppId.id,
+                token = token
+            )
+        )
+    }
+
+    override suspend fun getVppIdToken(vppId: VppId): String? {
+        return vppIdTokenDao.getTokenByVppId(vppId.id)?.token
     }
 }

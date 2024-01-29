@@ -8,4 +8,7 @@ interface VppIdRepository {
     fun getVppIds(): Flow<List<VppId>>
     suspend fun getVppIdOnline(token: String): DataResponse<VppId?>
     suspend fun addVppId(vppId: VppId)
+
+    suspend fun addVppIdToken(vppId: VppId, token: String)
+    suspend fun getVppIdToken(vppId: VppId): String?
 }
