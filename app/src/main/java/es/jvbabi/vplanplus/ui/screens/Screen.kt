@@ -16,6 +16,8 @@ sealed class Screen(val route: String) {
     data object OnboardingPermissionsScreen: Screen("onboarding/permissions_screen")
     data object OnboardingSetupScreen: Screen("onboarding/setup_screen")
 
+    data object AccountAddedScreen: Screen("account_added_screen")
+
 
     // SETTINGS
     data object SettingsScreen: Screen("settings/main")

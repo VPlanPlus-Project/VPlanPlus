@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.ui.screens.settings.account
 
+import android.app.Activity
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,6 +39,7 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
+import java.net.URLEncoder
 import es.jvbabi.vplanplus.ui.preview.Classes as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
@@ -53,9 +56,10 @@ fun AccountSettingsScreen(
         onLogin = {
             val browserIntent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("https://id.vpp.jvbabi.es/link")
+                Uri.parse("https://id.vpp.jvbabi.es/link/?name=VPlanPlus%20on%20Android%20" + URLEncoder.encode(Build.VERSION.RELEASE, "UTF-8"))
             )
             ContextCompat.startActivity(context, browserIntent, null)
+            (context as Activity).finish()
         },
         state = state
     )
@@ -93,7 +97,7 @@ private fun AccountSettingsScreenContent(
                         SettingsSetting(
                             icon = null,
                             title = account.name,
-                            subtitle = account.schoolName + " / " + account.className,
+                            subtitle = account.schoolId.toString() + " / " + account.className,
                             type = SettingsType.FUNCTION,
                             doAction = {},
                         )
@@ -153,7 +157,7 @@ private fun AccountSettingsPreview() {
                 VppId(
                     id = 654,
                     name = "Max Mustermann",
-                    schoolName = school.name,
+                    schoolId = school.schoolId,
                     school = school,
                     className = classes.name,
                     classes = classes

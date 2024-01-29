@@ -1,10 +1,12 @@
 package es.jvbabi.vplanplus.domain.model
 
+import com.google.gson.annotations.SerializedName
+
 data class VppId(
     val id: Int,
     val name: String,
-    val schoolName: String,
+    @SerializedName("school_id") val schoolId: Long,
     val school: School?,
-    val className: String,
+    @SerializedName("class_name") val className: String,
     val classes: Classes?
 )

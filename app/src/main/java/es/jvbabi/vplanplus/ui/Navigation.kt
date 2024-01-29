@@ -1,16 +1,19 @@
 package es.jvbabi.vplanplus.ui
 
+import android.content.Intent
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
+import es.jvbabi.vplanplus.ui.id_link.VppIdLinkScreen
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
@@ -50,6 +53,24 @@ fun NavigationGraph(
         navController = navController,
         startDestination = if (goToOnboarding) Screen.Onboarding.route else Screen.HomeScreen.route
     ) {
+
+        composable(
+            route = Screen.AccountAddedScreen.route,
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "https://id.vpp.jvbabi.es/link_success/{token}"
+                    action = Intent.ACTION_VIEW
+                }
+            ),
+            arguments = listOf(
+                navArgument("token") {
+                    type = NavType.StringType
+                }
+            ),
+            content = {
+                VppIdLinkScreen(navHostController = navController, token = it.arguments?.getString("token"))
+            }
+        )
 
         composable(route = Screen.HomeScreen.route) {
             HomeScreen(

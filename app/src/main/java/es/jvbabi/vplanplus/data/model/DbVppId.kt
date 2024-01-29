@@ -15,8 +15,7 @@ import java.util.UUID
 data class DbVppId(
     val id: Int,
     val name: String,
-    val schoolName: String,
-    val schoolId: Long?,
+    val schoolId: Long,
     val className: String,
     val classId: UUID?
 ) {
@@ -24,7 +23,7 @@ data class DbVppId(
         return VppId(
             id = id,
             name = name,
-            schoolName = schoolName,
+            schoolId = schoolId,
             school = null,
             className = className,
             classes = null

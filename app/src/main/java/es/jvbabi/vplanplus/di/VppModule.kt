@@ -95,6 +95,9 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -273,8 +276,14 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideVppIdRepository(db: VppDatabase): VppIdRepository {
-        return VppIdRepositoryImpl(db.vppIdDao)
+    fun provideVppIdRepository(
+        db: VppDatabase,
+        classRepository: ClassRepository
+    ): VppIdRepository {
+        return VppIdRepositoryImpl(
+            db.vppIdDao,
+            classRepository
+        )
     }
 
     // Use cases
@@ -566,6 +575,18 @@ object VppModule {
     ): GeneralSettingsUseCases {
         return GeneralSettingsUseCases(
             getColorsUseCase = GetColorsUseCase(keyValueRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideVppIdLinkUseCases(
+        vppIdRepository: VppIdRepository,
+        classRepository: ClassRepository
+    ): VppIdLinkUseCases {
+        return VppIdLinkUseCases(
+            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository),
+            getClassUseCase = GetClassUseCase(classRepository)
         )
     }
 }

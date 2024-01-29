@@ -210,4 +210,6 @@
     <string name="vppidSettings_addMessage">Do you already have a vpp.ID or do you want to create a new one?</string>
     <string name="vppidSettings_createId">Create new</string>
     <string name="vppidSettings_linkId">Link existing</string>
+    <string name="vppidlink_welcome">Welcome, %1$s</string>
+    <string name="vppidlink_message">You can now use all features of %1$s in class %2$s</string>
 </resources>

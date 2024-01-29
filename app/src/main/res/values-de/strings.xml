@@ -211,4 +211,6 @@
     <string name="vppidSettings_addMessage">Hast du bereits eine vpp.ID oder möchtest du eine neue erstellen?</string>
     <string name="vppidSettings_createId">Neu erstellen</string>
     <string name="vppidSettings_linkId">Existierende verbinden</string>
+    <string name="vppidlink_welcome">Willkommen, %1$s</string>
+    <string name="vppidlink_message">Du kannst nun alle Features der Schule %1$s in der Klasse %2$s nutzen.</string>
 </resources>
