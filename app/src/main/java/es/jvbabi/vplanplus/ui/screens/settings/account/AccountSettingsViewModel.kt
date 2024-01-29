@@ -21,12 +21,20 @@ class AccountSettingsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             accountSettingsUseCases.getAccountsUseCase().collect {
-                _state.value = AccountSettingsState(it)
+                _state.value = _state.value.copy(accounts = it.associateWith {  vppId ->
+                    null
+                })
+                _state.value.accounts?.forEach { (vppId, _) ->
+                    viewModelScope.launch {
+                        val response = accountSettingsUseCases.testAccountUseCase(vppId)
+                        _state.value = _state.value.copy(accounts = _state.value.accounts?.plus(vppId to response.data))
+                    }
+                }
             }
         }
     }
 }
 
 data class AccountSettingsState(
-    val accounts: List<VppId>? = null,
+    val accounts: Map<VppId, Boolean?>? = null,
 )

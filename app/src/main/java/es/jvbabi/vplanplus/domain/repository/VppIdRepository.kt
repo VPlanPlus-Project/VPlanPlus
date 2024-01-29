@@ -11,4 +11,6 @@ interface VppIdRepository {
 
     suspend fun addVppIdToken(vppId: VppId, token: String)
     suspend fun getVppIdToken(vppId: VppId): String?
+
+    suspend fun testVppId(vppId: VppId): DataResponse<Boolean?>
 }

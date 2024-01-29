@@ -13,7 +13,7 @@ import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
-import es.jvbabi.vplanplus.ui.id_link.VppIdLinkScreen
+import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen

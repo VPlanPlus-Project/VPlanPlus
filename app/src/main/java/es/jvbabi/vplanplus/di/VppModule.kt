@@ -96,6 +96,7 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.TestAccountUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
@@ -373,7 +374,8 @@ object VppModule {
         vppIdRepository: VppIdRepository
     ): AccountSettingsUseCases {
         return AccountSettingsUseCases(
-            getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository)
+            getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository),
+            testAccountUseCase = TestAccountUseCase(vppIdRepository = vppIdRepository)
         )
     }
 

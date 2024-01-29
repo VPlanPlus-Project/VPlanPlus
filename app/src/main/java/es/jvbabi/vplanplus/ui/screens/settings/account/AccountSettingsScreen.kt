@@ -14,7 +14,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -93,10 +95,12 @@ private fun AccountSettingsScreenContent(
                 }
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(state.accounts) { account ->
+                    items(state.accounts.entries.toList()) { (account, enabled) ->
                         SettingsSetting(
-                            icon = null,
+                            icon = if (enabled == true) Icons.Outlined.Check else Icons.Default.ErrorOutline,
+                            iconTint = if (enabled == true) null else MaterialTheme.colorScheme.error,
                             title = account.name,
+                            isLoading = enabled == null,
                             subtitle = account.schoolId.toString() + " / " + account.className,
                             type = SettingsType.FUNCTION,
                             doAction = {},
@@ -140,7 +144,7 @@ private fun AccountSettingsPreviewNoAccounts() {
     AccountSettingsScreenContent(
         onBack = {},
         state = AccountSettingsState(
-            accounts = emptyList(),
+            accounts = emptyMap(),
         )
     )
 }
@@ -153,7 +157,7 @@ private fun AccountSettingsPreview() {
     AccountSettingsScreenContent(
         onBack = {},
         state = AccountSettingsState(
-            accounts = listOf(
+            accounts = mapOf(
                 VppId(
                     id = 654,
                     name = "Max Mustermann",
@@ -161,7 +165,7 @@ private fun AccountSettingsPreview() {
                     school = school,
                     className = classes.name,
                     classes = classes
-                )
+                ) to false
             )
         )
     )
