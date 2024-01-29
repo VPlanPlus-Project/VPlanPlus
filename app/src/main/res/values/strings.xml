@@ -203,4 +203,13 @@
     <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus doesn\'t have permission to edit your calendar. To use this feature, you must grant access to your calenar in system settings.</string>
     <string name="settings_vppIdTitle">vpp.ID</string>
     <string name="settings_vppIdSubtitle">Manage your vpp.ID</string>
+    <string name="vppidSettings_title">vpp.ID</string>
+    <string name="vppidSettings_add">Add a vpp.ID</string>
+    <string name="vppidSettings_info">You need a vpp.ID to verify that you belong to a class in order to use certain features of the app. You\'ll be authenticated with your beste.schule or notenbuch.online account.</string>
+    <string name="vppidSettings_addTitle">Add vpp.ID</string>
+    <string name="vppidSettings_addMessage">Do you already have a vpp.ID or do you want to create a new one?</string>
+    <string name="vppidSettings_createId">Create new</string>
+    <string name="vppidSettings_linkId">Link existing</string>
+    <string name="vppidlink_welcome">Welcome, %1$s</string>
+    <string name="vppidlink_message">You can now use all features of %1$s in class %2$s</string>
 </resources>

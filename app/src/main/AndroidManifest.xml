@@ -8,9 +8,10 @@
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
-    <uses-feature android:name="android.hardware.camera"/>
-    <uses-feature android:name="android.hardware.camera.autofocus"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <application
         android:name=".VppApplication"
@@ -34,6 +35,17 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
+                <data android:host="id.vpp.jvbabi.es" />
+                <data android:pathPrefix="/link_success" />
+            </intent-filter>
+
         </activity>
 
         <provider
@@ -41,7 +53,8 @@
             android:name="androidx.startup.InitializationProvider"
             tools:node="remove" />
 
-        <receiver android:name=".android.receiver.LanguageChangedReceiver"
+        <receiver
+            android:name=".android.receiver.LanguageChangedReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.LOCALE_CHANGED" />

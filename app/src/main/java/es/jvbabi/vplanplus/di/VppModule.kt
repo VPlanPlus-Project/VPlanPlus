@@ -27,6 +27,7 @@ import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -34,6 +35,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
+import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -52,6 +54,7 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
@@ -91,6 +94,11 @@ import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -114,6 +122,7 @@ object VppModule {
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
+            .addTypeConverter(VppIdStateConverter())
             .allowMainThreadQueries()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
@@ -267,6 +276,19 @@ object VppModule {
         return NotificationRepositoryImpl(context, logRecordRepository)
     }
 
+    @Provides
+    @Singleton
+    fun provideVppIdRepository(
+        db: VppDatabase,
+        classRepository: ClassRepository
+    ): VppIdRepository {
+        return VppIdRepositoryImpl(
+            db.vppIdDao,
+            db.vppIdTokenDao,
+            classRepository
+        )
+    }
+
     // Use cases
 
     @Provides
@@ -342,6 +364,16 @@ object VppModule {
             lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
             planRepository = providePlanRepository(db)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountSettingsUseCases(
+        vppIdRepository: VppIdRepository
+    ): AccountSettingsUseCases {
+        return AccountSettingsUseCases(
+            getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository)
         )
     }
 
@@ -546,6 +578,18 @@ object VppModule {
     ): GeneralSettingsUseCases {
         return GeneralSettingsUseCases(
             getColorsUseCase = GetColorsUseCase(keyValueRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideVppIdLinkUseCases(
+        vppIdRepository: VppIdRepository,
+        classRepository: ClassRepository
+    ): VppIdLinkUseCases {
+        return VppIdLinkUseCases(
+            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository),
+            getClassUseCase = GetClassUseCase(classRepository)
         )
     }
 }

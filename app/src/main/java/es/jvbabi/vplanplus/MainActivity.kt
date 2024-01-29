@@ -121,10 +121,12 @@ class MainActivity : ComponentActivity() {
             .build()
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
+        // ATTENTION: This was auto-generated to handle app links.
     }
 
     private fun processIntent(intent: Intent) {
         Log.d("MainActivity.Intent", "onNewIntent: $intent")
+        Log.d("MainActivity.Intent", "Data: ${intent.data}")
         if (intent.hasExtra("profileId")) {
             val profileId = intent.getStringExtra("profileId")
             Log.d("MainActivity.Intent", "profileId: $profileId")
