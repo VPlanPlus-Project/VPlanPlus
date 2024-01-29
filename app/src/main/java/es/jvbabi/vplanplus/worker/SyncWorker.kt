@@ -75,6 +75,9 @@ class SyncWorker @AssistedInject constructor(
     override suspend fun doWork(): Result {
         if (profileUseCases.getProfiles().first().isEmpty()) return Result.success()
 
+        // delete data for next version since there might be some data left from a canceled sync
+        lessonUseCases.deleteLessonsByVersion((keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong()?:0)+1L)
+
         Log.d("SyncWorker", "SYNCING")
         logRecordRepository.log("SyncWorker", "Syncing")
         val syncDays = keyValueUseCases.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toInt()?:Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
