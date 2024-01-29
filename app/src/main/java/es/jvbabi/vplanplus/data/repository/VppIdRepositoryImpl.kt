@@ -174,6 +174,47 @@ class VppIdRepositoryImpl(
         }
     }
 
+    override suspend fun unlinkVppId(vppId: VppId): Boolean {
+        val client = createClient()
+        val currentToken = getVppIdToken(vppId) ?: return false
+        return try {
+            val response = client.request {
+                url {
+                    protocol = URLProtocol.HTTPS
+                    host = "id.vpp.jvbabi.es"
+                    encodedPath = "/api/v1/vpp_id/unlink_session"
+                    method = HttpMethod.Post
+                }
+                headers {
+                    set("Authorization", currentToken)
+                }
+                setBody(
+                    Gson().toJson(
+                        TestRequest(
+                            id = vppId.id,
+                            userName = vppId.name
+                        )
+                    )
+                )
+            }
+            if (response.status != HttpStatusCode.OK) return false
+            vppIdDao.delete(vppId.id)
+            true
+        } catch (e: Exception) {
+            when (e) {
+                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> false
+
+                else -> {
+                    Log.d(
+                        "OnlineRequest",
+                        "other error on /api/v1/vpp_id/test_session: ${e.stackTraceToString()}"
+                    )
+                    return false
+                }
+            }
+        }
+    }
+
     companion object {
         fun createClient(): HttpClient {
             return HttpClient(Android) {

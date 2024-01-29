@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.data.source.database.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Query
 import androidx.room.Upsert
 import es.jvbabi.vplanplus.data.model.DbVppId
@@ -12,8 +11,8 @@ abstract class VppIdDao {
     @Upsert
     abstract suspend fun upsert(vppId: DbVppId)
 
-    @Delete
-    abstract suspend fun delete(vppId: DbVppId)
+    @Query("DELETE FROM vpp_id WHERE id = :vppId")
+    abstract suspend fun delete(vppId: Int)
 
     @Query("SELECT * FROM vpp_id")
     abstract fun getAll(): Flow<List<DbVppId>>
