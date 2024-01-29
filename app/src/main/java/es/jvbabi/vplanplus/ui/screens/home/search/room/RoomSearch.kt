@@ -112,42 +112,44 @@ fun FindAvailableRoomScreenContent(
     }
 
     if (state.currentRoomBooking != null) {
-        if (state.canBookRoom == BookRoomAbility.NO_VPP_ID) CannotBookRoomNotVerifiedDialog {
-            onCloseBookRoomDialog()
-        }
-        else if (state.canBookRoom == BookRoomAbility.WRONG_TYPE) CannotBookRoomWrongTypeDialog {
-            onCloseBookRoomDialog()
-        }
-        else ComposableDialog(
-            icon = Icons.Default.MeetingRoom,
-            title = stringResource(
-                id = R.string.searchAvailableRoom_bookTitle,
-                state.currentRoomBooking.room.name
-            ),
-            content = {
-                Column {
-                    Badge(color = MaterialTheme.colorScheme.primary, text = stringResource(id = R.string.beta))
-                    Text(
-                        text = stringResource(
-                            id = R.string.searchAvailableRoom_bookText,
-                            state.currentRoomBooking.start.format(
-                                DateTimeFormatter.ofPattern("HH:mm")
-                            ),
-                            state.currentRoomBooking.end.format(
-                                DateTimeFormatter.ofPattern("HH:mm")
-                            ),
-                            state.currentClass!!.name
-                        )
-                    )
-                }
-            },
-            okEnabled = state.canBookRoom == BookRoomAbility.CAN_BOOK,
-            onDismiss = onCloseBookRoomDialog,
-            onCancel = onCloseBookRoomDialog,
-            onOk = {
+        when (state.canBookRoom) {
+            BookRoomAbility.NO_VPP_ID -> CannotBookRoomNotVerifiedDialog {
                 onCloseBookRoomDialog()
-            },
-        )
+            }
+            BookRoomAbility.WRONG_TYPE -> CannotBookRoomWrongTypeDialog {
+                onCloseBookRoomDialog()
+            }
+            else -> ComposableDialog(
+                icon = Icons.Default.MeetingRoom,
+                title = stringResource(
+                    id = R.string.searchAvailableRoom_bookTitle,
+                    state.currentRoomBooking.room.name
+                ),
+                content = {
+                    Column {
+                        Badge(color = MaterialTheme.colorScheme.primary, text = stringResource(id = R.string.beta))
+                        Text(
+                            text = stringResource(
+                                id = R.string.searchAvailableRoom_bookText,
+                                state.currentRoomBooking.start.format(
+                                    DateTimeFormatter.ofPattern("HH:mm")
+                                ),
+                                state.currentRoomBooking.end.format(
+                                    DateTimeFormatter.ofPattern("HH:mm")
+                                ),
+                                state.currentClass!!.name
+                            )
+                        )
+                    }
+                },
+                okEnabled = state.canBookRoom == BookRoomAbility.CAN_BOOK,
+                onDismiss = onCloseBookRoomDialog,
+                onCancel = onCloseBookRoomDialog,
+                onOk = {
+                    onCloseBookRoomDialog()
+                },
+            )
+        }
     }
 
     Scaffold(
