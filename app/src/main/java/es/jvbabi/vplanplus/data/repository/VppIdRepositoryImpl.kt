@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -31,6 +32,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.net.ConnectException
 import java.net.UnknownHostException
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
@@ -197,6 +201,7 @@ class VppIdRepositoryImpl(
                     )
                 )
             }
+            client.close()
             if (response.status != HttpStatusCode.OK) return false
             vppIdDao.delete(vppId.id)
             true
@@ -229,6 +234,63 @@ class VppIdRepositoryImpl(
             }
         }
     }
+
+    override suspend fun bookRoom(
+        vppId: VppId,
+        room: Room,
+        from: LocalDateTime,
+        to: LocalDateTime
+    ): BookResult {
+        val client = createClient()
+        val currentToken = getVppIdToken(vppId) ?: return BookResult.OTHER
+        val zoneOffset = ZoneId
+            .systemDefault().rules
+            .getOffset(
+                Instant.now()
+            )
+        return try {
+            val response = client.request {
+                url {
+                    protocol = URLProtocol.HTTPS
+                    host = "id.vpp.jvbabi.es"
+                    encodedPath = "/api/v1/vpp_id/booking/book_room"
+                    method = HttpMethod.Post
+                }
+                headers {
+                    set("Authorization", currentToken)
+                }
+                setBody(
+                    Gson().toJson(
+                        BookRoomRequest(
+                            schoolId = room.school.schoolId,
+                            roomName = room.name,
+                            from = from.toEpochSecond(zoneOffset),
+                            to = to.toEpochSecond(zoneOffset)
+                        )
+                    )
+                )
+            }
+            client.close()
+            if (response.status != HttpStatusCode.OK) {
+                return when (response.status) {
+                    HttpStatusCode.Conflict -> BookResult.CONFLICT
+                    else -> BookResult.OTHER
+                }
+            }
+            BookResult.SUCCESS
+        } catch (e: Exception) {
+            when (e) {
+                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> BookResult.NO_INTERNET
+                else -> {
+                    Log.d(
+                        "OnlineRequest",
+                        "other error on /api/v1/vpp_id/test_session: ${e.stackTraceToString()}"
+                    )
+                    return BookResult.OTHER
+                }
+            }
+        }
+    }
 }
 
 private data class TestRequest(
@@ -239,3 +301,17 @@ private data class TestRequest(
 private data class TestResponse(
     val result: Boolean
 )
+
+private data class BookRoomRequest(
+    @SerializedName("school_id") val schoolId: Long,
+    @SerializedName("room_name") val roomName: String,
+    @SerializedName("start") val from: Long,
+    @SerializedName("end") val to: Long,
+)
+
+enum class BookResult {
+    NO_INTERNET,
+    CONFLICT,
+    SUCCESS,
+    OTHER
+}

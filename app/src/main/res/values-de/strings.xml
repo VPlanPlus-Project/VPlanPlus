@@ -222,4 +222,8 @@
     <string name="searchAvailableRoom_cannotBookRoomWrongTypeTitle">Falscher Accounttyp</string>
     <string name="searchAvailableRoom_cannotBookRoomWrongTypeText">Du musst ein Schülerprofil verwenden, um einen Raum buchen zu können.</string>
     <string name="beta">Beta</string>
+    <string name="searchAvailableRoom_bookSuccess">Raum erfolgreich gebucht!</string>
+    <string name="searchAvailableRoom_bookConflict">Deine Buchung steht im Konflikt mit einer anderen Buchung</string>
+    <string name="searchAvailableRoom_bookOther">Ein unbekannter Fehler ist aufgetreten.</string>
+    <string name="searchAvailableRoom_bookNoInternet">Konnte Serververbindung nicht herstellen</string>
 </resources>
