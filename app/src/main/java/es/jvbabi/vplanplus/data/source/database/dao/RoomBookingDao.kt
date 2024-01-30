@@ -20,4 +20,9 @@ abstract class RoomBookingDao {
     @Transaction
     @Query("SELECT * FROM room_booking WHERE class = :classId")
     abstract fun getRoomBookings(classId: UUID): List<CRoomBooking>
+
+    @Transaction
+    open fun upsertAll(roomBookings: List<DbRoomBooking>) {
+        roomBookings.forEach { upsert(it) }
+    }
 }

@@ -251,12 +251,15 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun providePlanRepository(db: VppDatabase): PlanRepository {
+    fun providePlanRepository(
+        db: VppDatabase,
+        roomRepository: RoomRepository
+    ): PlanRepository {
         return PlanRepositoryImpl(
             holidayRepository = provideHolidayRepository(db),
             teacherRepository = provideTeacherRepository(db),
             classRepository = provideClassRepository(db),
-            roomRepository = provideRoomRepository(db),
+            roomRepository = roomRepository,
             lessonRepository = provideLessonRepository(db),
             planDao = db.planDao
         )
@@ -264,8 +267,17 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideRoomRepository(db: VppDatabase): RoomRepository {
-        return RoomRepositoryImpl(db.schoolEntityDao, db.roomBookingDao)
+    fun provideRoomRepository(
+        db: VppDatabase,
+        vppIdRepository: VppIdRepository,
+        classRepository: ClassRepository
+    ): RoomRepository {
+        return RoomRepositoryImpl(
+            db.schoolEntityDao,
+            db.roomBookingDao,
+            vppIdRepository,
+            classRepository
+        )
     }
 
     @Provides
@@ -367,7 +379,7 @@ object VppModule {
             defaultLessonRepository = defaultLessonRepository,
             lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
-            planRepository = providePlanRepository(db)
+            planRepository = providePlanRepository(db, roomRepository),
         )
     }
 
