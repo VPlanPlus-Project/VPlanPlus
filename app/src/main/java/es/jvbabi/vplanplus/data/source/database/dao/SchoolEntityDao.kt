@@ -32,6 +32,7 @@ abstract class SchoolEntityDao {
     }
 
     @Query("SELECT * FROM school_entity WHERE id = :schoolEntityId")
+    @Transaction
     abstract suspend fun getSchoolEntityById(schoolEntityId: UUID): CSchoolEntity?
 
     @Query("DELETE FROM school_entity WHERE schoolId = :schoolId AND type = :type")

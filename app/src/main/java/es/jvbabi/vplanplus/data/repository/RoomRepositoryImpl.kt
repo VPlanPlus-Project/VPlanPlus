@@ -2,14 +2,18 @@ package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
+import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import java.util.UUID
 
 class RoomRepositoryImpl(
-    private val schoolEntityDao: SchoolEntityDao
+    private val schoolEntityDao: SchoolEntityDao,
+    private val roomBookingDao: RoomBookingDao
 ) : RoomRepository {
     override suspend fun getRooms(schoolId: Long): List<Room> {
         return schoolEntityDao.getSchoolEntities(schoolId, SchoolEntityType.ROOM).map { it.toRoomModel() }
@@ -65,5 +69,9 @@ class RoomRepositoryImpl(
 
     override suspend fun getRoomsBySchool(school: School): List<Room> {
         return schoolEntityDao.getSchoolEntities(school.schoolId, SchoolEntityType.ROOM).map { it.toRoomModel() }
+    }
+
+    override suspend fun getRoomBookingsByClass(classes: Classes): List<RoomBooking> {
+        return roomBookingDao.getRoomBookings(classes.classId).map { it.toModel() }
     }
 }

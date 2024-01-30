@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import java.util.UUID
 
@@ -13,4 +15,6 @@ interface RoomRepository {
     suspend fun deleteRoomsBySchoolId(schoolId: Long)
     suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>)
     suspend fun getRoomsBySchool(school: School): List<Room>
+
+    suspend fun getRoomBookingsByClass(classes: Classes): List<RoomBooking>
 }

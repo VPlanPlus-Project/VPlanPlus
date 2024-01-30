@@ -265,7 +265,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideRoomRepository(db: VppDatabase): RoomRepository {
-        return RoomRepositoryImpl(db.schoolEntityDao)
+        return RoomRepositoryImpl(db.schoolEntityDao, db.roomBookingDao)
     }
 
     @Provides

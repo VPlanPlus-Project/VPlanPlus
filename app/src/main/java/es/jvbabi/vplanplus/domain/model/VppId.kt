@@ -14,5 +14,6 @@ data class VppId(
 
 enum class State {
     ACTIVE,
-    DISABLED
+    DISABLED,
+    CACHE
 }
