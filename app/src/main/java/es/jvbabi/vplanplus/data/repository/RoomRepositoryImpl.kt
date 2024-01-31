@@ -105,7 +105,7 @@ class RoomRepositoryImpl(
 
     override suspend fun fetchRoomBookings(school: School) {
         val client = VppIdRepositoryImpl.createClient()
-        val vppId = vppIdRepository.getVppIds().first().first { it.schoolId == school.schoolId }
+        val vppId = vppIdRepository.getVppIds().first().firstOrNull { it.schoolId == school.schoolId } ?: return
         val token = vppIdRepository.getVppIdToken(vppId) ?: return
 
         try {

@@ -59,6 +59,7 @@ import es.jvbabi.vplanplus.ui.common.ComposableDialog
 import es.jvbabi.vplanplus.ui.preview.Classes
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.BookingDetailDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.CannotBookRoomNotVerifiedDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.CannotBookRoomWrongTypeDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.FilterChips
@@ -85,7 +86,8 @@ fun FindAvailableRoomScreen(
         onRoomFilterValueChanged = { roomSearchViewModel.onRoomFilterValueChanged(it) },
         onNowToggled = { roomSearchViewModel.toggleFilterNow() },
         onNextToggled = { roomSearchViewModel.toggleFilterNext() },
-        onOpenLessonDetailDialog = { roomSearchViewModel.showDialog(it) },
+        onOpenLessonDetailDialog = { roomSearchViewModel.showLessonDetailDialog(it) },
+        onOpenBookingDetailDialog = { roomSearchViewModel.showBookingDetailDialog(it) },
         onCloseLessonDetailDialog = { roomSearchViewModel.closeDialog() },
         onBookRoomClicked = { room, start, end ->
             roomSearchViewModel.openBookRoomDialog(room, start, end)
@@ -120,6 +122,7 @@ fun FindAvailableRoomScreenContent(
     onNowToggled: () -> Unit = {},
     onNextToggled: () -> Unit = {},
     onOpenLessonDetailDialog: (Lesson) -> Unit = {},
+    onOpenBookingDetailDialog: (es.jvbabi.vplanplus.domain.model.RoomBooking) -> Unit = {},
     onCloseLessonDetailDialog: () -> Unit = {},
     onBookRoomClicked: (Room, LocalDateTime, LocalDateTime) -> Unit = { _, _, _ -> },
     onConfirmBooking: () -> Unit = {},
@@ -130,6 +133,10 @@ fun FindAvailableRoomScreenContent(
             lesson = state.detailLesson,
             onCloseLessonDetailDialog = onCloseLessonDetailDialog
         )
+    }
+
+    if (state.detailBooking != null) BookingDetailDialog(booking = state.detailBooking) {
+        onCloseLessonDetailDialog()
     }
 
     if (state.currentRoomBooking != null) {
@@ -318,6 +325,9 @@ fun FindAvailableRoomScreenContent(
                                             onLessonClicked = { lesson ->
                                                 onOpenLessonDetailDialog(lesson)
                                             },
+                                            onBookingClicked = {
+                                                onOpenBookingDetailDialog(it)
+                                            },
                                             onBookRoomClicked = { start, end ->
                                                 onBookRoomClicked(room.room, start, end)
                                             },
@@ -405,6 +415,7 @@ private fun RoomListRecord(
     bookings: List<es.jvbabi.vplanplus.domain.model.RoomBooking>,
     displayed: Boolean,
     onLessonClicked: (Lesson) -> Unit = {},
+    onBookingClicked: (es.jvbabi.vplanplus.domain.model.RoomBooking) -> Unit = {},
     onBookRoomClicked: (start: LocalDateTime, end: LocalDateTime) -> Unit = { _, _ -> },
     scaling: Float = 1f,
     width: Dp,
@@ -521,7 +532,7 @@ private fun RoomListRecord(
                             .height(40.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .background(if (currentClassName == booking.`class`.name) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.error)
-                            .clickable {},
+                            .clickable { onBookingClicked(booking) },
                         contentAlignment = Alignment.Center
                     ) {
                         Text(

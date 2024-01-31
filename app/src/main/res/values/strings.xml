@@ -225,4 +225,7 @@
     <string name="searchAvailableRoom_bookConflict">There was a conflict with another existing booking.</string>
     <string name="searchAvailableRoom_bookOther">An unknown error occurred.</string>
     <string name="searchAvailableRoom_bookNoInternet">Couldn\'t connect to server</string>
+    <string name="searchAvailableRoom_bookingDetailTitle">Room booking in %1$s</string>
+    <string name="searchAvailableRoom_bookingDetailText">%1$s booked this room for class %2$s from %3$s until %4$s</string>
+    <string name="unknownVppId">Unknown User</string>
 </resources>

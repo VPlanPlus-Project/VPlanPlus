@@ -197,12 +197,16 @@ class RoomSearchViewModel @Inject constructor(
         filter()
     }
 
-    fun showDialog(lesson: Lesson) {
+    fun showLessonDetailDialog(lesson: Lesson) {
         _state.value = _state.value.copy(detailLesson = lesson)
     }
 
+    fun showBookingDetailDialog(booking: es.jvbabi.vplanplus.domain.model.RoomBooking) {
+        _state.value = _state.value.copy(detailBooking = booking)
+    }
+
     fun closeDialog() {
-        _state.value = _state.value.copy(detailLesson = null)
+        _state.value = _state.value.copy(detailLesson = null, detailBooking = null)
     }
 
     fun openBookRoomDialog(room: Room, from: LocalDateTime, to: LocalDateTime) {
@@ -248,6 +252,7 @@ data class RoomSearchState(
     val filterNow: Boolean = false,
     val filterNext: Boolean = true,
     val detailLesson: Lesson? = null,
+    val detailBooking: es.jvbabi.vplanplus.domain.model.RoomBooking? = null,
     val showFilterChips: Boolean = false,
     val profileStart: LocalDateTime? = null,
     val showLesson0: Boolean = true,
