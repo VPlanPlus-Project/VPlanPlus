@@ -20,7 +20,7 @@ fun BookingDetailDialog(
     onCloseBookingDetailDialog: () -> Unit
 ) {
     val from = DateTimeFormatter.ofPattern("HH:mm").format(booking.from)
-    val to = DateTimeFormatter.ofPattern("HH:mm").format(booking.to)
+    val to = DateTimeFormatter.ofPattern("HH:mm").format(booking.to.plusMinutes(1))
     InfoDialog(
         icon = Icons.Default.MeetingRoom,
         title = stringResource(id = R.string.searchAvailableRoom_bookingDetailTitle, booking.room.name),
