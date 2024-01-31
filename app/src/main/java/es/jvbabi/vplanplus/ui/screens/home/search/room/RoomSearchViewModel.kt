@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.home.search.room
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -47,12 +48,21 @@ class RoomSearchViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            init()
+        }
+    }
+
+    suspend fun init() {
+        viewModelScope.launch {
             combine(
                 findCurrentSchoolUseCase(),
                 getCurrentProfileUseCase(),
                 findRoomUseCases.canBookRoomUseCase()
             ) { school, profile, canBookRooms ->
-                if (school == null || profile == null) return@combine state.value
+                if (school == null || profile == null) {
+                    Log.d("RoomSearchViewModel", "school or profile is null")
+                    return@combine state.value
+                }
                 val roomMap = findRoomUseCases.getRoomMapUseCase(school)
 
                 var profileStart: LocalDateTime? = null
@@ -187,12 +197,16 @@ class RoomSearchViewModel @Inject constructor(
         filter()
     }
 
-    fun showDialog(lesson: Lesson) {
+    fun showLessonDetailDialog(lesson: Lesson) {
         _state.value = _state.value.copy(detailLesson = lesson)
     }
 
+    fun showBookingDetailDialog(booking: es.jvbabi.vplanplus.domain.model.RoomBooking) {
+        _state.value = _state.value.copy(detailBooking = booking)
+    }
+
     fun closeDialog() {
-        _state.value = _state.value.copy(detailLesson = null)
+        _state.value = _state.value.copy(detailLesson = null, detailBooking = null)
     }
 
     fun openBookRoomDialog(room: Room, from: LocalDateTime, to: LocalDateTime) {
@@ -223,6 +237,7 @@ class RoomSearchViewModel @Inject constructor(
                     currentRoomBooking = null,
                     roomBookingResult = result
                 )
+                if (result == BookResult.SUCCESS) init()
             }
         }
     }
@@ -237,6 +252,7 @@ data class RoomSearchState(
     val filterNow: Boolean = false,
     val filterNext: Boolean = true,
     val detailLesson: Lesson? = null,
+    val detailBooking: es.jvbabi.vplanplus.domain.model.RoomBooking? = null,
     val showFilterChips: Boolean = false,
     val profileStart: LocalDateTime? = null,
     val showLesson0: Boolean = true,

@@ -226,4 +226,7 @@
     <string name="searchAvailableRoom_bookConflict">Deine Buchung steht im Konflikt mit einer anderen Buchung</string>
     <string name="searchAvailableRoom_bookOther">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="searchAvailableRoom_bookNoInternet">Konnte Serververbindung nicht herstellen</string>
+    <string name="searchAvailableRoom_bookingDetailTitle">Raumbuchung für %1$s</string>
+    <string name="searchAvailableRoom_bookingDetailText">%1$s hat diesen Raum von %3$s bis %4$s für Klasse %2$s gebucht.</string>
+    <string name="unknownVppId">Unbekannter Nutzer</string>
 </resources>

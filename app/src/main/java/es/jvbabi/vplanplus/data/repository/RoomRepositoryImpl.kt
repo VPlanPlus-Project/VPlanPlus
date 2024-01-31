@@ -96,12 +96,16 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun getRoomBookingsByClass(classes: Classes): List<RoomBooking> {
-        return roomBookingDao.getRoomBookings(classes.classId).map { it.toModel() }
+        return roomBookingDao.getRoomBookingsByClass(classes.classId).map { it.toModel() }
+    }
+
+    override suspend fun getRoomBookingsByRoom(room: Room): List<RoomBooking> {
+        return roomBookingDao.getRoomBookingsByRoom(room.roomId).map { it.toModel() }
     }
 
     override suspend fun fetchRoomBookings(school: School) {
         val client = VppIdRepositoryImpl.createClient()
-        val vppId = vppIdRepository.getVppIds().first().first { it.schoolId == school.schoolId }
+        val vppId = vppIdRepository.getVppIds().first().firstOrNull { it.schoolId == school.schoolId } ?: return
         val token = vppIdRepository.getVppIdToken(vppId) ?: return
 
         try {

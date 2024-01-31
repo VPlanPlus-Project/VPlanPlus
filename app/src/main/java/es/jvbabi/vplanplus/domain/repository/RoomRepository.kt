@@ -17,6 +17,7 @@ interface RoomRepository {
     suspend fun getRoomsBySchool(school: School): List<Room>
 
     suspend fun getRoomBookingsByClass(classes: Classes): List<RoomBooking>
+    suspend fun getRoomBookingsByRoom(room: Room): List<RoomBooking>
 
     suspend fun fetchRoomBookings(school: School)
 }

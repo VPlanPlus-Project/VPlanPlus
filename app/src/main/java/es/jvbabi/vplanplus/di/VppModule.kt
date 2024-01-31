@@ -453,7 +453,7 @@ object VppModule {
         lessonTimeRepository: LessonTimeRepository,
         vppIdRepository: VppIdRepository,
         lessonUseCases: LessonUseCases,
-        getCurrentProfileUseCase: GetCurrentProfileUseCase
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
     ): FindRoomUseCases {
         return FindRoomUseCases(
             getRoomMapUseCase = GetRoomMapUseCase(
@@ -471,7 +471,8 @@ object VppModule {
             bookRoomUseCase = BookRoomUseCase(
                 vppIdRepository = vppIdRepository,
                 classRepository = classRepository,
-                getCurrentProfileUseCase = getCurrentProfileUseCase
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
+                roomRepository = roomRepository
             )
         )
     }
