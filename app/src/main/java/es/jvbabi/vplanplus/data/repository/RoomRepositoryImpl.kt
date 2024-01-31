@@ -96,7 +96,11 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun getRoomBookingsByClass(classes: Classes): List<RoomBooking> {
-        return roomBookingDao.getRoomBookings(classes.classId).map { it.toModel() }
+        return roomBookingDao.getRoomBookingsByClass(classes.classId).map { it.toModel() }
+    }
+
+    override suspend fun getRoomBookingsByRoom(room: Room): List<RoomBooking> {
+        return roomBookingDao.getRoomBookingsByRoom(room.roomId).map { it.toModel() }
     }
 
     override suspend fun fetchRoomBookings(school: School) {

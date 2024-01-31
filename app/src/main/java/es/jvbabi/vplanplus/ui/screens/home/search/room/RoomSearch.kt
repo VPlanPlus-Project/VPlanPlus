@@ -313,6 +313,7 @@ fun FindAvailableRoomScreenContent(
                                             start = state.profileStart
                                                 ?: first.start.atBeginningOfTheWorld(),
                                             lessons = room.lessons,
+                                            bookings = room.bookings,
                                             displayed = room.displayed,
                                             onLessonClicked = { lesson ->
                                                 onOpenLessonDetailDialog(lesson)
@@ -401,6 +402,7 @@ fun FindAvailableRoomScreenPreview() {
 private fun RoomListRecord(
     start: LocalDateTime,
     lessons: List<Lesson?>,
+    bookings: List<es.jvbabi.vplanplus.domain.model.RoomBooking>,
     displayed: Boolean,
     onLessonClicked: (Lesson) -> Unit = {},
     onBookRoomClicked: (start: LocalDateTime, end: LocalDateTime) -> Unit = { _, _ -> },
@@ -422,6 +424,19 @@ private fun RoomListRecord(
             ) {
                 lessonTimes?.entries?.sortedBy { it.key }?.forEach { (lessonNumber, times) ->
                     if (!lessons.filterNotNull().any { it.lessonNumber == lessonNumber }) {
+
+                        if (bookings.any { booking ->
+                                (booking.from.atBeginningOfTheWorld()
+                                    .isBefore(times.end) && booking.to.atBeginningOfTheWorld()
+                                    .isAfter(
+                                        times.start
+                                    )) || (booking.from.atBeginningOfTheWorld()
+                                    .isEqual(times.start)) || (booking.to.atBeginningOfTheWorld()
+                                    .isEqual(
+                                        times.end
+                                    ))
+                            }) return@forEach
+
                         val lessonStart = times.start
                         if (lessonStart.isBefore(start)) return@forEach
                         val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
@@ -492,6 +507,30 @@ private fun RoomListRecord(
                         )
                     }
                 }
+                bookings.forEach { booking ->
+                    var bookingStart = booking.from.atBeginningOfTheWorld()
+                    if (bookingStart.isBefore(start)) bookingStart = start
+                    val bookingEnd = booking.to.atBeginningOfTheWorld()
+                    val offset = start.until(bookingStart, ChronoUnit.MINUTES) * scaling
+                    val length = bookingStart.until(bookingEnd, ChronoUnit.MINUTES) * scaling
+
+                    Box(
+                        modifier = Modifier
+                            .offset(x = offset.toInt().dp)
+                            .width(length.toInt().dp)
+                            .height(40.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (currentClassName == booking.`class`.name) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.error)
+                            .clickable {},
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = booking.`class`.name,
+                            color = if (currentClassName == booking.`class`.name) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onError,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                }
             }
         }
         val current = start.atBeginningOfTheWorld().until(
@@ -516,6 +555,7 @@ private fun RoomListRecordPreview() {
         lessons = Array(12) {
             if (Random.nextBoolean()) Lessons.generateLessons(1).first() else null
         }.toList(),
+        bookings = emptyList(),
         true,
         width = 200.dp,
         currentClassName = "12a",

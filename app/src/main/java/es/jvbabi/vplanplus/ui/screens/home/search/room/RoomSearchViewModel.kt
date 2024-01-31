@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.home.search.room
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -47,12 +48,21 @@ class RoomSearchViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            init()
+        }
+    }
+
+    suspend fun init() {
+        viewModelScope.launch {
             combine(
                 findCurrentSchoolUseCase(),
                 getCurrentProfileUseCase(),
                 findRoomUseCases.canBookRoomUseCase()
             ) { school, profile, canBookRooms ->
-                if (school == null || profile == null) return@combine state.value
+                if (school == null || profile == null) {
+                    Log.d("RoomSearchViewModel", "school or profile is null")
+                    return@combine state.value
+                }
                 val roomMap = findRoomUseCases.getRoomMapUseCase(school)
 
                 var profileStart: LocalDateTime? = null
@@ -223,6 +233,7 @@ class RoomSearchViewModel @Inject constructor(
                     currentRoomBooking = null,
                     roomBookingResult = result
                 )
+                if (result == BookResult.SUCCESS) init()
             }
         }
     }
