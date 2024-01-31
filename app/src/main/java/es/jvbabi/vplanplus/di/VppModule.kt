@@ -62,6 +62,8 @@ import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomUseCase
+import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.GetRoomMapUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
@@ -249,12 +251,15 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun providePlanRepository(db: VppDatabase): PlanRepository {
+    fun providePlanRepository(
+        db: VppDatabase,
+        roomRepository: RoomRepository
+    ): PlanRepository {
         return PlanRepositoryImpl(
             holidayRepository = provideHolidayRepository(db),
             teacherRepository = provideTeacherRepository(db),
             classRepository = provideClassRepository(db),
-            roomRepository = provideRoomRepository(db),
+            roomRepository = roomRepository,
             lessonRepository = provideLessonRepository(db),
             planDao = db.planDao
         )
@@ -262,8 +267,17 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideRoomRepository(db: VppDatabase): RoomRepository {
-        return RoomRepositoryImpl(db.schoolEntityDao)
+    fun provideRoomRepository(
+        db: VppDatabase,
+        vppIdRepository: VppIdRepository,
+        classRepository: ClassRepository
+    ): RoomRepository {
+        return RoomRepositoryImpl(
+            db.schoolEntityDao,
+            db.roomBookingDao,
+            vppIdRepository,
+            classRepository
+        )
     }
 
     @Provides
@@ -365,7 +379,7 @@ object VppModule {
             defaultLessonRepository = defaultLessonRepository,
             lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
-            planRepository = providePlanRepository(db)
+            planRepository = providePlanRepository(db, roomRepository),
         )
     }
 
@@ -437,7 +451,9 @@ object VppModule {
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         lessonTimeRepository: LessonTimeRepository,
-        lessonUseCases: LessonUseCases
+        vppIdRepository: VppIdRepository,
+        lessonUseCases: LessonUseCases,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ): FindRoomUseCases {
         return FindRoomUseCases(
             getRoomMapUseCase = GetRoomMapUseCase(
@@ -447,6 +463,16 @@ object VppModule {
                 lessonTimeRepository = lessonTimeRepository,
                 classRepository = classRepository
             ),
+            canBookRoomUseCase = CanBookRoomUseCase(
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
+                classRepository = classRepository,
+                vppIdRepository = vppIdRepository,
+            ),
+            bookRoomUseCase = BookRoomUseCase(
+                vppIdRepository = vppIdRepository,
+                classRepository = classRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            )
         )
     }
 

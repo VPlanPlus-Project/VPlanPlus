@@ -6,11 +6,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.data.repository.BookResult
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomAbility
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.RoomMap
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
@@ -23,6 +25,7 @@ import es.jvbabi.vplanplus.util.DateUtils.between
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.inject.Inject
 import kotlin.math.floor
@@ -47,7 +50,8 @@ class RoomSearchViewModel @Inject constructor(
             combine(
                 findCurrentSchoolUseCase(),
                 getCurrentProfileUseCase(),
-            ) { school, profile ->
+                findRoomUseCases.canBookRoomUseCase()
+            ) { school, profile, canBookRooms ->
                 if (school == null || profile == null) return@combine state.value
                 val roomMap = findRoomUseCases.getRoomMapUseCase(school)
 
@@ -97,6 +101,7 @@ class RoomSearchViewModel @Inject constructor(
                     showNowFilter = showNowFilter,
                     filterNow = if (!showNowFilter) false else _state.value.filterNow,
                     filterNext = if (!showFilterChips) false else _state.value.filterNext,
+                    canBookRoom = canBookRooms,
                 )
             }.collect {
                 _state.value = it
@@ -203,6 +208,24 @@ class RoomSearchViewModel @Inject constructor(
     fun closeBookRoomDialog() {
         _state.value = _state.value.copy(currentRoomBooking = null)
     }
+
+    fun confirmBooking() {
+        viewModelScope.launch {
+            if (state.value.currentRoomBooking != null) {
+                val today = LocalDate.now()
+                _state.value = _state.value.copy(roomBookingResult = null)
+                val result = findRoomUseCases.bookRoomUseCase(
+                    state.value.currentRoomBooking!!.room,
+                    state.value.currentRoomBooking!!.start.withDayOfYear(today.dayOfYear).withYear(today.year),
+                    state.value.currentRoomBooking!!.end.withDayOfYear(today.dayOfYear).withYear(today.year)
+                )
+                _state.value = _state.value.copy(
+                    currentRoomBooking = null,
+                    roomBookingResult = result
+                )
+            }
+        }
+    }
 }
 
 data class RoomSearchState(
@@ -223,6 +246,8 @@ data class RoomSearchState(
     val lessonTimes: Map<Int, LessonTime>? = null,
 
     val currentRoomBooking: RoomBooking? = null,
+    val canBookRoom: BookRoomAbility = BookRoomAbility.CAN_BOOK,
+    val roomBookingResult: BookResult? = null
 )
 
 data class RoomBooking(

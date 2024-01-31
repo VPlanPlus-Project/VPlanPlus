@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
+import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
@@ -34,6 +35,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
+import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
@@ -63,18 +65,19 @@ import es.jvbabi.vplanplus.domain.model.Week
         Message::class,
         DbVppId::class,
         DbVppIdToken::class,
-
+        DbRoomBooking::class,
         LessonSchoolEntityCrossover::class,
         DbProfileDefaultLesson::class,
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 10,
+    version = 11,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
         AutoMigration(from = 8, to = 9), // primary keys for school entity
         AutoMigration(from = 9, to = 10), // add vppId
+        AutoMigration(from = 10, to = 11), // add room booking table
     ],
 )
 @TypeConverters(
@@ -104,6 +107,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val messageDao: MessageDao
     abstract val vppIdDao: VppIdDao
     abstract val vppIdTokenDao: VppIdTokenDao
+    abstract val roomBookingDao: RoomBookingDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {

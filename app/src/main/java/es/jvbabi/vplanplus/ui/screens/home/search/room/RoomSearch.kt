@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.ui.screens.home.search.room
 
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.boundsInWindow
 import androidx.compose.ui.layout.onPlaced
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -46,15 +48,19 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.repository.BookResult
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomAbility
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
 import es.jvbabi.vplanplus.ui.preview.Classes
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.CannotBookRoomNotVerifiedDialog
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.CannotBookRoomWrongTypeDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.FilterChips
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.Guide
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.LessonDialog
@@ -84,8 +90,25 @@ fun FindAvailableRoomScreen(
         onBookRoomClicked = { room, start, end ->
             roomSearchViewModel.openBookRoomDialog(room, start, end)
         },
+        onConfirmBooking = { roomSearchViewModel.confirmBooking() },
         onCloseBookRoomDialog = { roomSearchViewModel.closeBookRoomDialog() }
     )
+
+    val context = LocalContext.current
+    val messages = mapOf(
+        BookResult.SUCCESS to stringResource(id = R.string.searchAvailableRoom_bookSuccess),
+        BookResult.CONFLICT to stringResource(id = R.string.searchAvailableRoom_bookConflict),
+        BookResult.OTHER to stringResource(id = R.string.searchAvailableRoom_bookOther),
+        BookResult.NO_INTERNET to stringResource(id = R.string.searchAvailableRoom_bookNoInternet),
+    )
+    LaunchedEffect(key1 = state.roomBookingResult) {
+        if (state.roomBookingResult == null) return@LaunchedEffect
+        Toast.makeText(
+            context,
+            messages[state.roomBookingResult]!!,
+            Toast.LENGTH_SHORT
+        ).show()
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,6 +122,7 @@ fun FindAvailableRoomScreenContent(
     onOpenLessonDetailDialog: (Lesson) -> Unit = {},
     onCloseLessonDetailDialog: () -> Unit = {},
     onBookRoomClicked: (Room, LocalDateTime, LocalDateTime) -> Unit = { _, _, _ -> },
+    onConfirmBooking: () -> Unit = {},
     onCloseBookRoomDialog: () -> Unit = {}
 ) {
     if (state.detailLesson != null) {
@@ -109,36 +133,49 @@ fun FindAvailableRoomScreenContent(
     }
 
     if (state.currentRoomBooking != null) {
-        ComposableDialog(
-            icon = Icons.Default.MeetingRoom,
-            title = stringResource(
-                id = R.string.searchAvailableRoom_bookTitle,
-                state.currentRoomBooking.room.name
-            ),
-            content = {
-                Column {
-                    Badge(color = MaterialTheme.colorScheme.tertiary, text = stringResource(id = R.string.comingSoon))
-                    Text(
-                        text = stringResource(
-                            id = R.string.searchAvailableRoom_bookText,
-                            state.currentRoomBooking.start.format(
-                                DateTimeFormatter.ofPattern("HH:mm")
-                            ),
-                            state.currentRoomBooking.end.format(
-                                DateTimeFormatter.ofPattern("HH:mm")
-                            ),
-                            state.currentClass!!.name
-                        )
-                    )
-                }
-            },
-            okEnabled = false,
-            onDismiss = onCloseBookRoomDialog,
-            onCancel = onCloseBookRoomDialog,
-            onOk = {
+        when (state.canBookRoom) {
+            BookRoomAbility.NO_VPP_ID -> CannotBookRoomNotVerifiedDialog {
                 onCloseBookRoomDialog()
-            },
-        )
+            }
+
+            BookRoomAbility.WRONG_TYPE -> CannotBookRoomWrongTypeDialog {
+                onCloseBookRoomDialog()
+            }
+
+            else -> ComposableDialog(
+                icon = Icons.Default.MeetingRoom,
+                title = stringResource(
+                    id = R.string.searchAvailableRoom_bookTitle,
+                    state.currentRoomBooking.room.name
+                ),
+                content = {
+                    Column {
+                        Badge(
+                            color = MaterialTheme.colorScheme.primary,
+                            text = stringResource(id = R.string.beta)
+                        )
+                        Text(
+                            text = stringResource(
+                                id = R.string.searchAvailableRoom_bookText,
+                                state.currentRoomBooking.start.format(
+                                    DateTimeFormatter.ofPattern("HH:mm")
+                                ),
+                                state.currentRoomBooking.end.format(
+                                    DateTimeFormatter.ofPattern("HH:mm")
+                                ),
+                                state.currentClass!!.name
+                            )
+                        )
+                    }
+                },
+                okEnabled = state.canBookRoom == BookRoomAbility.CAN_BOOK,
+                onDismiss = onCloseBookRoomDialog,
+                onCancel = onCloseBookRoomDialog,
+                onOk = {
+                    onConfirmBooking()
+                },
+            )
+        }
     }
 
     Scaffold(
@@ -199,7 +236,10 @@ fun FindAvailableRoomScreenContent(
             val scrollState = rememberScrollState()
             val currentOffsetDp = LocalDensity.current.run { currentOffset.dp.roundToPx() }
             LaunchedEffect(key1 = scrollState.value) {
-                Log.d("scroll", "scrollState: ${scrollState.value} | $currentOffsetDp | $scrollWidth")
+                Log.d(
+                    "scroll",
+                    "scrollState: ${scrollState.value} | $currentOffsetDp | $scrollWidth"
+                )
             }
 
             LaunchedEffect(key1 = scrollWidth, block = {
