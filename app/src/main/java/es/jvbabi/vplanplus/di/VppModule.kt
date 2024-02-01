@@ -90,7 +90,7 @@ import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
-import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeletePlansUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
@@ -558,10 +558,14 @@ object VppModule {
     @Provides
     @Singleton
     fun provideAdvancedSettingsUseCases(
-        lessonRepository: LessonRepository
+        lessonRepository: LessonRepository,
+        roomRepository: RoomRepository
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
-            deletePlansUseCase = DeletePlansUseCase(lessonRepository)
+            deleteCacheUseCase = DeleteCacheUseCase(
+                lessonRepository,
+                roomRepository
+            )
         )
     }
 
