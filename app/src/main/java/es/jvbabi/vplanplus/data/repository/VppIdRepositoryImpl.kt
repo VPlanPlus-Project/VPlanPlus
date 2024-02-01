@@ -58,7 +58,7 @@ class VppIdRepositoryImpl(
                 url {
                     protocol = URLProtocol.HTTPS
                     host = "id.vpp.jvbabi.es"
-                    encodedPath = "/api/v1/vpp_id/get_user_details"
+                    encodedPath = "/api/v1/vpp_id/user/get_user_details"
                 }
             }
             client.close()
@@ -84,7 +84,7 @@ class VppIdRepositoryImpl(
                 else -> {
                     Log.d(
                         "OnlineRequest",
-                        "other error on /api/v1/vpp_id/get_user_details: ${e.stackTraceToString()}"
+                        "other error on /api/v1/vpp_id/user/get_user_details: ${e.stackTraceToString()}"
                     )
                     return DataResponse(null, Response.OTHER)
                 }
