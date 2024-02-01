@@ -21,9 +21,7 @@ class AccountSettingsViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             accountSettingsUseCases.getAccountsUseCase().collect {
-                _state.value = _state.value.copy(accounts = it.associateWith { vppId ->
-                    null
-                })
+                _state.value = _state.value.copy(accounts = it.associateWith { null })
                 _state.value.accounts?.forEach { (vppId, _) ->
                     viewModelScope.launch {
                         val response = accountSettingsUseCases.testAccountUseCase(vppId)
