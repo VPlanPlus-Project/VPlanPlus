@@ -106,8 +106,6 @@ class RoomRepositoryImpl(
 
     override suspend fun fetchRoomBookings(school: School) {
         val client = VppIdRepositoryImpl.createClient()
-        val vppId = vppIdRepository.getVppIds().first().firstOrNull { it.schoolId == school.schoolId } ?: return
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return
 
         try {
             val response = client.request {
@@ -118,7 +116,7 @@ class RoomRepositoryImpl(
                     method = HttpMethod.Get
                 }
                 headers {
-                    set("Authorization", token)
+                    set("Authorization", school.buildToken())
                 }
             }
             if (response.status != HttpStatusCode.OK) {
@@ -133,10 +131,13 @@ class RoomRepositoryImpl(
             val rooms = getRooms(school.schoolId)
             val vppIds = vppIdRepository.getVppIds().first()
             roomBookingDao.upsertAll(
-                roomBookings.bookings.map { bookingResponse ->
+                roomBookings.bookings.mapNotNull { bookingResponse ->
+                    var vppId = vppIds.firstOrNull { it.id == bookingResponse.bookedBy }
+                    if (vppId == null) vppId = vppIdRepository.cacheVppId(bookingResponse.bookedBy, school)
+                    if (vppId == null) return@mapNotNull null
                     DbRoomBooking(
                         roomId = rooms.first { room -> bookingResponse.roomName == room.name }.roomId,
-                        bookedBy = vppIds.first { it.id == bookingResponse.bookedBy }.id,
+                        bookedBy = vppId.id,
                         from = DateUtils.getDateTimeFromTimestamp(bookingResponse.start),
                         to = DateUtils.getDateTimeFromTimestamp(bookingResponse.end),
                         `class` = classes.first { it.name == bookingResponse.`class` }.classId

@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -291,6 +292,53 @@ class VppIdRepositoryImpl(
             }
         }
     }
+
+    override suspend fun cacheVppId(id: Int, school: School): VppId? {
+        val vppId = vppIdDao.getVppId(id)
+        if (vppId != null) return vppId.toModel()
+        val client = createClient()
+        return try {
+            val response = client.request {
+                url {
+                    protocol = URLProtocol.HTTPS
+                    host = "id.vpp.jvbabi.es"
+                    encodedPath = "/api/v1/vpp_id/user/get_username/$id"
+                    method = HttpMethod.Get
+                }
+                headers {
+                    set("Authorization", school.buildToken())
+                }
+            }
+            client.close()
+            if (response.status != HttpStatusCode.OK) return null
+            val r = Gson().fromJson(response.bodyAsText(), UserNameResponse::class.java)
+            vppIdDao.upsert(
+                DbVppId(
+                    id = id,
+                    name = r.username,
+                    className = r.className,
+                    schoolId = school.schoolId,
+                    state = State.CACHE,
+                    classId = classRepository.getClassBySchoolIdAndClassName(
+                        school.schoolId,
+                        r.className
+                    )?.classId,
+                )
+            )
+            vppIdDao.getVppId(id)?.toModel()
+        } catch (e: Exception) {
+            when (e) {
+                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> null
+                else -> {
+                    Log.d(
+                        "OnlineRequest",
+                        "other error on /api/v1/vpp_id/user/get_username/$id: ${e.stackTraceToString()}"
+                    )
+                    return null
+                }
+            }
+        }
+    }
 }
 
 private data class TestRequest(
@@ -315,3 +363,8 @@ enum class BookResult {
     SUCCESS,
     OTHER
 }
+
+private data class UserNameResponse(
+    @SerializedName("name") val username: String,
+    @SerializedName("class_name") val className: String,
+)

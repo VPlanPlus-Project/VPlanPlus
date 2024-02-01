@@ -16,4 +16,7 @@ abstract class VppIdDao {
 
     @Query("SELECT * FROM vpp_id")
     abstract fun getAll(): Flow<List<DbVppId>>
+
+    @Query("SELECT * FROM vpp_id WHERE id = :vppId")
+    abstract suspend fun getVppId(vppId: Int): DbVppId?
 }
