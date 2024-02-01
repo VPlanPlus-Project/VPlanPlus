@@ -138,7 +138,7 @@
     <string name="searchAvailableRoom_labelAvailability">Verfügbarkeit</string>
     <string name="searchAvailableRoom_noResults">Nichts gefunden</string>
     <string name="home_menuRefresh">Aktualisieren</string>
-    <string name="advancedSettings_clearDataTitle">Plandaten löschen</string>
+    <string name="advancedSettings_clearCacheDialogTitle">App-cache leeren?</string>
     <string name="advancedSettings_logsTitle">Logs</string>
     <string name="home_menuWebsite">Webseite</string>
     <string name="home_menuNews">Nachrichten</string>
@@ -184,9 +184,9 @@
     <string name="onboarding_setupDoneTitle">Alles bereit!</string>
     <string name="onboarding_setupDoneText">VPlanPlus ist fertig eingerichtet.</string>
     <string name="onboarding_setupDoneLetsGo">Auf geht\'s!</string>
-    <string name="advancedSettings_deletePlanDataDialogTitle">Aktuelle Plandaten löschen?</string>
-    <string name="advancedSettings_deletePlanDataDialogText">Tue dies nur, wenn du seltsame Daten siehst. Nach dem Löschen ist eine Datensynchronsiierung notwendig, um die aktuellsten Daten zu laden. Dieser Vorgang kann nicht rückgängig gemacht werden.</string>
-    <string name="advancedSettings_clearDataText">Dies kann helfen, wenn der Cache beschädigt ist.</string>
+    <string name="advancedSettings_clearCacheTitle">App-Cache löschen</string>
+    <string name="advancedSettings_clearCacheDialogText">Tue dies nur, wenn du seltsame Daten siehst. Nach dem Löschen ist eine Datensynchronsiierung notwendig, um die aktuellsten Daten zu laden. Dieser Vorgang kann nicht rückgängig gemacht werden. Alle Stunden und Raumbuchungen werden von dem Gerät entfernt.</string>
+    <string name="advancedSettings_clearCacheText">Dies kann helfen, wenn der Cache beschädigt ist.</string>
     <string name="settings_profileDeleteSchool">Löschen</string>
     <string name="settings_profileShareSchool">Teilen</string>
     <string name="settings_generalPersonalization">Personalisierung</string>

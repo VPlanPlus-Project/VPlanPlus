@@ -85,8 +85,8 @@ private fun AdvancedSettingsScreenContent(
             Divider()
             SettingsSetting(
                 icon = Icons.Outlined.DeleteForever,
-                title = stringResource(id = R.string.advancedSettings_clearDataTitle),
-                subtitle = stringResource(id = R.string.advancedSettings_clearDataText),
+                title = stringResource(id = R.string.advancedSettings_clearCacheTitle),
+                subtitle = stringResource(id = R.string.advancedSettings_clearCacheText),
                 type = SettingsType.FUNCTION,
                 doAction = { onDeletePlansClicked() }
             )
