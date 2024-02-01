@@ -24,6 +24,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.URLProtocol
 import io.ktor.http.encodedPath
 import kotlinx.coroutines.flow.first
+import java.time.LocalDate
 import java.util.UUID
 
 class RoomRepositoryImpl(
@@ -95,12 +96,12 @@ class RoomRepositoryImpl(
             .map { it.toRoomModel() }
     }
 
-    override suspend fun getRoomBookingsByClass(classes: Classes): List<RoomBooking> {
-        return roomBookingDao.getRoomBookingsByClass(classes.classId).map { it.toModel() }
+    override suspend fun getRoomBookingsByClass(classes: Classes, date: LocalDate): List<RoomBooking> {
+        return roomBookingDao.getRoomBookingsByClass(classes.classId).map { it.toModel() }.filter { it.from.toLocalDate().isEqual(date) }
     }
 
-    override suspend fun getRoomBookingsByRoom(room: Room): List<RoomBooking> {
-        return roomBookingDao.getRoomBookingsByRoom(room.roomId).map { it.toModel() }
+    override suspend fun getRoomBookingsByRoom(room: Room, date: LocalDate): List<RoomBooking> {
+        return roomBookingDao.getRoomBookingsByRoom(room.roomId).map { it.toModel() }.filter { it.from.toLocalDate().isEqual(date) }
     }
 
     override suspend fun fetchRoomBookings(school: School) {

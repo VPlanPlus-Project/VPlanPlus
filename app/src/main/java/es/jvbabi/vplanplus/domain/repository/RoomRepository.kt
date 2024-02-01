@@ -4,6 +4,7 @@ import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
+import java.time.LocalDate
 import java.util.UUID
 
 interface RoomRepository {
@@ -16,8 +17,8 @@ interface RoomRepository {
     suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>)
     suspend fun getRoomsBySchool(school: School): List<Room>
 
-    suspend fun getRoomBookingsByClass(classes: Classes): List<RoomBooking>
-    suspend fun getRoomBookingsByRoom(room: Room): List<RoomBooking>
+    suspend fun getRoomBookingsByClass(classes: Classes, date: LocalDate = LocalDate.now()): List<RoomBooking>
+    suspend fun getRoomBookingsByRoom(room: Room, date: LocalDate = LocalDate.now()): List<RoomBooking>
 
     suspend fun fetchRoomBookings(school: School)
 }
