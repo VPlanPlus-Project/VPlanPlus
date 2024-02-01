@@ -495,29 +495,6 @@ private fun RoomListRecord(
                         }
                     }
                 }
-                lessons.filterNotNull().forEach { lesson ->
-                    var lessonStart = lesson.start.atBeginningOfTheWorld()
-                    if (lessonStart.isBefore(start)) lessonStart = start
-                    val lessonEnd = lesson.end.withDayOfYear(1).withYear(1970)
-                    val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
-                    val length = lessonStart.until(lessonEnd, ChronoUnit.MINUTES) * scaling
-                    Box(
-                        modifier = Modifier
-                            .offset(x = offset.toInt().dp)
-                            .width(length.toInt().dp)
-                            .height(40.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.error)
-                            .clickable { onLessonClicked(lesson) },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = lesson.`class`.name,
-                            color = if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onError,
-                            style = MaterialTheme.typography.labelMedium,
-                        )
-                    }
-                }
                 bookings.forEach { booking ->
                     var bookingStart = booking.from.atBeginningOfTheWorld()
                     if (bookingStart.isBefore(start)) bookingStart = start
@@ -538,6 +515,29 @@ private fun RoomListRecord(
                         Text(
                             text = booking.`class`.name,
                             color = if (currentClassName == booking.`class`.name) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onError,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+                }
+                lessons.filterNotNull().forEach { lesson ->
+                    var lessonStart = lesson.start.atBeginningOfTheWorld()
+                    if (lessonStart.isBefore(start)) lessonStart = start
+                    val lessonEnd = lesson.end.withDayOfYear(1).withYear(1970)
+                    val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
+                    val length = lessonStart.until(lessonEnd, ChronoUnit.MINUTES) * scaling
+                    Box(
+                        modifier = Modifier
+                            .offset(x = offset.toInt().dp)
+                            .width(length.toInt().dp)
+                            .height(40.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.error)
+                            .clickable { onLessonClicked(lesson) },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = lesson.`class`.name,
+                            color = if (currentClassName == lesson.`class`.name) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onError,
                             style = MaterialTheme.typography.labelMedium,
                         )
                     }
