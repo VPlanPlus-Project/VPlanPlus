@@ -43,24 +43,24 @@ class AdvancedSettingsViewModel @Inject constructor(
         }
     }
 
-    fun showDeletePlanDataDialog() {
-        _state.value = _state.value.copy(showDeletePlanData = true)
+    fun showDeleteCacheDialog() {
+        _state.value = _state.value.copy(showDeleteCacheDialog = true)
     }
 
-    fun deletePlanData() {
+    fun deleteCache() {
         viewModelScope.launch {
-            advancedSettingsUseCases.deletePlansUseCase()
-            closeDeletePlanDataDialog()
+            advancedSettingsUseCases.deleteCacheUseCase()
+            closeDeleteCacheDialog()
         }
     }
 
-    fun closeDeletePlanDataDialog() {
-        _state.value = _state.value.copy(showDeletePlanData = false)
+    fun closeDeleteCacheDialog() {
+        _state.value = _state.value.copy(showDeleteCacheDialog = false)
     }
 }
 
 data class AdvancedSettingsState(
     val currentProfileText: String = "Loading...",
     val currentLessonText: String = "Loading...",
-    val showDeletePlanData: Boolean = false
+    val showDeleteCacheDialog: Boolean = false
 )

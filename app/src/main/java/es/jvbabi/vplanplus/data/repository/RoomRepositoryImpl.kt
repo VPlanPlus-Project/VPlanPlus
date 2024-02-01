@@ -147,6 +147,10 @@ class RoomRepositoryImpl(
             e.printStackTrace()
         }
     }
+
+    override suspend fun deleteAllRoomBookings() {
+        roomBookingDao.deleteAll()
+    }
 }
 
 private data class RoomBookingResponse(
