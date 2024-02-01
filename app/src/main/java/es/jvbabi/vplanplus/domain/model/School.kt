@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
 import androidx.room.Index
+import java.util.Base64
 
 @Entity(
     tableName = "school",
@@ -40,5 +41,9 @@ data class School(
         if (password != other.password) return false
         if (daysPerWeek != other.daysPerWeek) return false
         return fullyCompatible == other.fullyCompatible
+    }
+
+    fun buildToken(): String {
+        return "sp24." + Base64.getEncoder().encode("$schoolId+$username+$password".toByteArray()).toString(Charsets.UTF_8)
     }
 }
