@@ -140,7 +140,7 @@ fun ActiveDayContent(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val end = lessons.last().end
+                val end = lessons.lastOrNull()?.end?:return@Column
                 val difference = currentTime.until(end, ChronoUnit.SECONDS)
                 Icon(
                     imageVector = Icons.Default.SportsEsports,
