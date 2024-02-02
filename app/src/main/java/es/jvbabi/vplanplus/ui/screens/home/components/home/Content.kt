@@ -70,17 +70,6 @@ fun ActiveDayContent(
         Column(
             modifier = Modifier.fillMaxSize()
         ) root@{
-            if (info != null) {
-                Box(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    InfoCard(
-                        imageVector = Icons.Default.Info,
-                        title = stringResource(id = R.string.home_activeDaySchoolInformation),
-                        text = info
-                    )
-                }
-            }
             Row(
                 modifier = Modifier.padding(start = 8.dp)
             ) {
@@ -99,6 +88,17 @@ fun ActiveDayContent(
                         lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
                     ), style = MaterialTheme.typography.labelSmall
                 )
+            }
+            if (info != null) {
+                Box(
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                ) {
+                    InfoCard(
+                        imageVector = Icons.Default.Info,
+                        title = stringResource(id = R.string.home_activeDaySchoolInformation),
+                        text = info
+                    )
+                }
             }
             val currentLessons = lessons.filter { it.progress(currentTime) in 0.0..<1.0 }
             if (currentLessons.isNotEmpty()) {
@@ -274,7 +274,7 @@ private fun DetailedLessonCard(
 }
 
 @Composable
-private fun LessonCard(
+fun LessonCard(
     lessons: List<Lesson>
 ) {
     val colorScheme = MaterialTheme.colorScheme

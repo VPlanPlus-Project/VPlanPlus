@@ -106,8 +106,9 @@ class MainActivity : ComponentActivity() {
                 val navBarItems = listOf(
                     NavigationBarItem(
                         onClick = {
+                            if (selectedIndex == 0) return@NavigationBarItem
                             selectedIndex = 0
-                            navController.navigate(Screen.HomeScreen.route)
+                            navController.navigate(Screen.HomeScreen.route) { popUpTo(0) }
                         },
                         icon = {
                             Icon(
@@ -119,7 +120,11 @@ class MainActivity : ComponentActivity() {
                         route = Screen.HomeScreen.route
                     ),
                     NavigationBarItem(
-                        onClick = {},
+                        onClick = {
+                            if (selectedIndex == 1) return@NavigationBarItem
+                            selectedIndex = 1
+                            navController.navigate(Screen.TimetableScreen.route)
+                        },
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.FormatListNumbered,
@@ -127,7 +132,7 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         label = { Text(text = stringResource(id = R.string.main_timetable)) },
-                        route = "Screen.TimetableScreen.route"
+                        route = Screen.TimetableScreen.route
                     ),
                     NavigationBarItem(
                         onClick = {},

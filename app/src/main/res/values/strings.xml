@@ -247,4 +247,6 @@
     <string name="main_timetable">Timetable</string>
     <string name="home_activeDayCountdown">School\'s over in %1$s</string>
     <string name="home_activeDayEnd">You\'ve made it through the day! Congrats.</string>
+    <string name="timetable_title">Timetable</string>
+    <string name="timetable_toToday">Back to today</string>
 </resources>

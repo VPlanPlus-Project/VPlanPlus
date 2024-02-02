@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
+import es.jvbabi.vplanplus.ui.screens.timetable.TimetableScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
@@ -82,6 +83,13 @@ fun NavigationGraph(
             HomeScreen(
                 navHostController = navController,
                 viewModel = homeViewModel,
+                navBar = navBar
+            )
+        }
+
+        composable(route = Screen.TimetableScreen.route) {
+            TimetableScreen(
+                navHostController = navController,
                 navBar = navBar
             )
         }

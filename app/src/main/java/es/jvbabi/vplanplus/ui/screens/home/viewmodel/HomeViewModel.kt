@@ -76,7 +76,6 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             homeUseCases.getCurrentIdentity().collect {
-                Log.d("HomeViewModel.Updater", "New identity received: $it")
                 if (it == null) return@collect
                 _state.value = _state.value.copy(
                     activeProfile = it.profile,

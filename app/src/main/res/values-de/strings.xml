@@ -248,4 +248,6 @@
     <string name="main_timetable">Stundenplan</string>
     <string name="home_activeDayCountdown">Schulschluss in %1$s</string>
     <string name="home_activeDayEnd">Du hast den Tag erfolgreich überstanden. Herzlichen Glückwunsch.</string>
+    <string name="timetable_title">Stundenplan</string>
+    <string name="timetable_toToday">Zurück zu heute</string>
 </resources>
