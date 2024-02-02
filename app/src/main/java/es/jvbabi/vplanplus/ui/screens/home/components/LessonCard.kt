@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -21,6 +19,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,10 +30,15 @@ import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
+import es.jvbabi.vplanplus.util.DateUtils
+import java.time.LocalDate
+import java.time.LocalDateTime
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LessonCard(
+    date: LocalDate,
+    now: LocalDateTime,
     displayMode: ProfileType,
     lesson: Lesson,
     isCompactMode: Boolean,
@@ -40,25 +46,38 @@ fun LessonCard(
     onFindAvailableRoomClicked: () -> Unit
 ) {
 
-    var height = if (!lesson.info.isNullOrBlank() || isCompactMode) 100.dp else 70.dp
-
-    if (showFindAvailableRoom) height += 20.dp
-
+    val colorScheme = MaterialTheme.colorScheme
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(height)
+            .drawWithContent {
+                drawContent()
+                var progress = 0.0
+                if (date.isBefore(LocalDate.now())) progress = 1.0
+                if (date.isAfter(LocalDate.now())) progress = 0.0
+                if (date == LocalDate.now()) progress = DateUtils.calculateProgress(
+                    DateUtils.localDateTimeToTimeString(lesson.start),
+                    "${now.hour}:${now.minute}",
+                    DateUtils.localDateTimeToTimeString(lesson.end)
+                )?:0.0
+                return@drawWithContent
+                drawRect(
+                    color = colorScheme.secondary,
+                    topLeft = Offset(0f, 0f),
+                    size = Size(25f, size.height * progress.toFloat())
+                )
+            }
     ) {
         if (!isCompactMode) {
             Row(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(start = 16.dp, top = 4.dp, bottom = 4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                     Column(
                         modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
                             .weight(1f, false),
                         verticalArrangement = Arrangement.Center,
                     ) {
@@ -125,7 +144,7 @@ fun LessonCard(
         } else {
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
                     .padding(4.dp),
                 verticalArrangement = Arrangement.Center,
                 horizontalAlignment = Alignment.CenterHorizontally
@@ -154,17 +173,39 @@ fun LessonCard(
 @Preview(showBackground = true)
 @Composable
 private fun LessonCardPreview() {
-    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateLessons(1, true).first(), isCompactMode = false, onFindAvailableRoomClicked = { })
+    LessonCard(
+        date = LocalDate.now(),
+        now = LocalDateTime.now(),
+        displayMode = ProfileType.STUDENT,
+        lesson = Lessons.generateLessons(1, true).first(),
+        isCompactMode = false,
+        onFindAvailableRoomClicked = { }
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun CompactLessonCardPreview() {
-    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateLessons(1).first(), isCompactMode = true, onFindAvailableRoomClicked = { })
+    LessonCard(
+        date = LocalDate.now(),
+        now = LocalDateTime.now(),
+        displayMode = ProfileType.STUDENT,
+        lesson = Lessons.generateLessons(1).first(),
+        isCompactMode = true,
+        onFindAvailableRoomClicked = { }
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun CancelledLessonCard() {
-    LessonCard(displayMode = ProfileType.STUDENT, lesson = Lessons.generateCanceledLesson(), isCompactMode = false, onFindAvailableRoomClicked = { }, showFindAvailableRoom = true)
+    LessonCard(
+        date = LocalDate.now(),
+        now = LocalDateTime.now(),
+        displayMode = ProfileType.STUDENT,
+        lesson = Lessons.generateCanceledLesson(),
+        isCompactMode = false,
+        onFindAvailableRoomClicked = { },
+        showFindAvailableRoom = true
+    )
 }

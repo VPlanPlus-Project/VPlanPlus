@@ -128,6 +128,7 @@ object VppModule {
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())
             .allowMainThreadQueries()
+            .fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .build()
     }
@@ -380,6 +381,7 @@ object VppModule {
             lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
             planRepository = providePlanRepository(db, roomRepository),
+            lessonTimesRepository = provideLessonTimeRepository(db),
         )
     }
 

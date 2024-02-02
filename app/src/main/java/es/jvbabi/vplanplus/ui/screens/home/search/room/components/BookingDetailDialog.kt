@@ -37,6 +37,7 @@ private fun BookingDetailDialogPreview() {
     val school = School.generateRandomSchools(1).first()
     BookingDetailDialog(
         booking = RoomBooking(
+            id = 0,
             bookedBy = null,
             `class` = Classes.generateClass(school),
             room = Room.generateRoom(school),

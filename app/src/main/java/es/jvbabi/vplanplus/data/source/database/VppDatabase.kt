@@ -71,7 +71,7 @@ import es.jvbabi.vplanplus.domain.model.Week
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 11,
+    version = 12,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages

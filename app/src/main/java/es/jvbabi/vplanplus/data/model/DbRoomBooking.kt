@@ -8,9 +8,9 @@ import java.util.UUID
 
 @Entity(
     tableName = "room_booking",
-    primaryKeys = ["roomId", "bookedBy", "from", "to"],
+    primaryKeys = ["id", "roomId", "bookedBy", "from", "to"],
     indices = [
-        Index(value = ["roomId", "bookedBy", "from", "to", "class"], unique = true)
+        Index(value = ["id"], unique = true),
     ],
     foreignKeys = [
         ForeignKey(
@@ -28,6 +28,7 @@ import java.util.UUID
     ]
 )
 data class DbRoomBooking(
+    val id: Long,
     val roomId: UUID,
     val bookedBy: Int,
     val from: LocalDateTime,

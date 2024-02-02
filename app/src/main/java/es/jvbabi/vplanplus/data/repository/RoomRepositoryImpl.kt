@@ -136,6 +136,7 @@ class RoomRepositoryImpl(
                     if (vppId == null) vppId = vppIdRepository.cacheVppId(bookingResponse.bookedBy, school)
                     if (vppId == null) return@mapNotNull null
                     DbRoomBooking(
+                        id = bookingResponse.id,
                         roomId = rooms.first { room -> bookingResponse.roomName == room.name }.roomId,
                         bookedBy = vppId.id,
                         from = DateUtils.getDateTimeFromTimestamp(bookingResponse.start),
@@ -159,6 +160,7 @@ private data class RoomBookingResponse(
 )
 
 private data class RoomBookingResponseItem(
+    val id: Long,
     @SerializedName("room_name") val roomName: String,
     @SerializedName("booked_by") val bookedBy: Int,
     val start: Long,

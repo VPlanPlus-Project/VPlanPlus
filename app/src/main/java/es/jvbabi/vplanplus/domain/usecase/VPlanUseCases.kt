@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
+import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
@@ -33,7 +34,8 @@ class VPlanUseCases(
     private val defaultLessonRepository: DefaultLessonRepository,
     private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val keyValueUseCases: KeyValueUseCases,
-    private val planRepository: PlanRepository
+    private val planRepository: PlanRepository,
+    private val lessonTimesRepository: LessonTimeRepository
 ) {
     suspend fun getVPlanData(school: School, date: LocalDate): DataResponse<VPlanData?> {
         return vPlanRepository.getVPlanData(school, date)
@@ -71,6 +73,8 @@ class VPlanUseCases(
                 true
             )!!
             val defaultLessons = defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
+            val bookings = roomRepository.getRoomBookingsByClass(`class`)
+            val times = lessonTimesRepository.getLessonTimesByClass(`class`)
 
             // set lessons
             it.lessons!!.forEach lesson@{ lesson ->
@@ -172,7 +176,14 @@ class VPlanUseCases(
                         defaultLessonId = defaultLessonDbId,
                         changedSubject = changedSubject,
                         classLessonRefId = `class`.classId,
-                        version = version
+                        version = version,
+                        roomBookingId = bookings.firstOrNull { booking ->
+                            booking.from.toLocalDate().isEqual(planDate) && booking.from.toLocalTime().isBefore(
+                                times[lesson.lesson]?.end?.toLocalTime()
+                            ) && booking.to.toLocalTime().isAfter(
+                                times[lesson.lesson]?.start?.toLocalTime()
+                            )
+                        }?.id
                     )
                 )
 
@@ -210,10 +221,5 @@ class VPlanUseCases(
                 version = version
             )
         )
-    }
-
-    suspend fun deletePlans() {
-        lessonRepository.deleteAllLessons()
-        planRepository.deleteAllPlans()
     }
 }

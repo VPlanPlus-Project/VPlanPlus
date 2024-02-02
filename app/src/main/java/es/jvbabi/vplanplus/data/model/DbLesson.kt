@@ -15,6 +15,12 @@ import java.util.UUID
             childColumns = ["classLessonRefId"],
             onDelete = ForeignKey.CASCADE
         ),
+        ForeignKey(
+            entity = DbRoomBooking::class,
+            parentColumns = ["id"],
+            childColumns = ["roomBookingId"],
+            onDelete = ForeignKey.SET_NULL
+        )
     ],
     primaryKeys = ["lessonId"],
     indices = [
@@ -31,5 +37,6 @@ data class DbLesson(
     val info: String?,
     val roomIsChanged: Boolean,
     val day: LocalDate,
-    val version: Long
+    val version: Long,
+    val roomBookingId: Long?
 )

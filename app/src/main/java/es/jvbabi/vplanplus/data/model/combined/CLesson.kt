@@ -5,6 +5,7 @@ import androidx.room.Junction
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
@@ -36,7 +37,12 @@ data class CLesson(
         parentColumn = "classLessonRefId",
         entityColumn = "classLessonTimeRefId",
         entity = LessonTime::class
-    ) val lessonTimes: List<LessonTime>
+    ) val lessonTimes: List<LessonTime>,
+    @Relation(
+        parentColumn = "roomBookingId",
+        entityColumn = "roomId",
+        entity = DbRoomBooking::class
+    ) val roomBooking: CRoomBooking?
 ) {
     fun toModel(): Lesson {
         return Lesson(
@@ -69,7 +75,8 @@ data class CLesson(
                         lesson.lessonNumber
                     )
                 }.end.withDayOfYear(lesson.day.dayOfYear).withYear(lesson.day.year),
-            vpId = defaultLesson?.defaultLesson?.vpId
+            vpId = defaultLesson?.defaultLesson?.vpId,
+            roomBooking = roomBooking?.toModel()
         )
     }
 }

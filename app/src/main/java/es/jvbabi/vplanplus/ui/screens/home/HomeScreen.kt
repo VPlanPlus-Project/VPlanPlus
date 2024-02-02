@@ -97,6 +97,7 @@ import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.math.abs
+import es.jvbabi.vplanplus.ui.preview.Profile as ProfilePreview
 
 const val PAGER_SIZE = 20
 
@@ -394,7 +395,9 @@ fun HomeScreenContent(
                                                                             isNotFirstOrLastLesson &&
                                                                             state.activeProfile.type == ProfileType.STUDENT &&
                                                                             it.displaySubject == "-",
-                                                                    onFindAvailableRoomClicked = onFindAvailableRoomClicked
+                                                                    onFindAvailableRoomClicked = onFindAvailableRoomClicked,
+                                                                    now = state.time,
+                                                                    date = state.date
                                                                 )
                                                             }
                                                             if (index != lessons[lessonNumber]!!.size - 1) HorizontalDivider(
@@ -465,6 +468,7 @@ private fun HomeScreenPreview() {
                 )
             ),
             syncing = true,
+            activeProfile = ProfilePreview.generateClassProfile()
         ),
         onMenuOpened = {},
         lessonPagerState = rememberPagerState(initialPage = PAGER_SIZE/2+Period.between(LocalDate.now(), LocalDate.now()).days, pageCount = { PAGER_SIZE }),

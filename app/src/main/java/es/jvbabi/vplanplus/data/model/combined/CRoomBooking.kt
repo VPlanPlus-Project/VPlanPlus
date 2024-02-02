@@ -26,6 +26,7 @@ data class CRoomBooking(
 ) {
     fun toModel(): RoomBooking {
         return RoomBooking(
+            id = roomBooking.id,
             room = room.toRoomModel(),
             bookedBy = vppId?.toModel(),
             from = roomBooking.from,

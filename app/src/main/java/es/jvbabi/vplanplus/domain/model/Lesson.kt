@@ -15,7 +15,8 @@ data class Lesson(
     val info: String?,
     val start: LocalDateTime,
     val end: LocalDateTime,
-    val vpId: Long?
+    val vpId: Long?,
+    val roomBooking: RoomBooking? = null
 ) {
     fun toHash(): String {
         return "$lessonNumber${originalSubject ?: ""}${changedSubject ?: ""}${teachers.joinToString("")}${rooms.joinToString("")}${info ?: ""}".sha256()
