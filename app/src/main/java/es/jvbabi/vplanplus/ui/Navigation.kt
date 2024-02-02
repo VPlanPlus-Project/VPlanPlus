@@ -47,12 +47,18 @@ fun NavigationGraph(
     navController: NavHostController,
     onboardingViewModel: OnboardingViewModel,
     homeViewModel: HomeViewModel,
-    goToOnboarding: Boolean
+    goToOnboarding: Boolean,
+    navBar: @Composable () -> Unit,
+    onNavigationChanged: (String?) -> Unit
 ) {
     NavHost(
         navController = navController,
         startDestination = if (goToOnboarding) Screen.Onboarding.route else Screen.HomeScreen.route
     ) {
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            onNavigationChanged(destination.route)
+        }
 
         composable(
             route = Screen.AccountAddedScreen.route,
@@ -76,6 +82,7 @@ fun NavigationGraph(
             HomeScreen(
                 navHostController = navController,
                 viewModel = homeViewModel,
+                navBar = navBar
             )
         }
 

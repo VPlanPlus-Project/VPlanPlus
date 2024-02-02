@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.ui.preview
 
-object Classes {
+object ClassesPreview {
     fun generateClass(school: es.jvbabi.vplanplus.domain.model.School? = null): es.jvbabi.vplanplus.domain.model.Classes {
         return es.jvbabi.vplanplus.domain.model.Classes(
             classId = java.util.UUID.randomUUID(),

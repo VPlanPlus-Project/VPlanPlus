@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,14 +10,26 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FormatListNumbered
+import androidx.compose.material.icons.filled.Grade
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -31,6 +44,7 @@ import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.ui.NavigationGraph
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
@@ -58,6 +72,7 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var keyValueUseCases: KeyValueUseCases
 
+    @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -83,22 +98,85 @@ class MainActivity : ComponentActivity() {
             VPlanPlusTheme(
                 cs = colors,
             ) {
+                val navController = rememberNavController()
+
+                var selectedIndex by rememberSaveable {
+                    mutableIntStateOf(0)
+                }
+                val navBarItems = listOf(
+                    NavigationBarItem(
+                        onClick = {
+                            selectedIndex = 0
+                            navController.navigate(Screen.HomeScreen.route)
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Home,
+                                contentDescription = null
+                            )
+                        },
+                        label = { Text(text = stringResource(id = R.string.main_home)) },
+                        route = Screen.HomeScreen.route
+                    ),
+                    NavigationBarItem(
+                        onClick = {},
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.FormatListNumbered,
+                                contentDescription = null
+                            )
+                        },
+                        label = { Text(text = stringResource(id = R.string.main_timetable)) },
+                        route = "Screen.TimetableScreen.route"
+                    ),
+                    NavigationBarItem(
+                        onClick = {},
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Grade,
+                                contentDescription = null
+                            )
+                        },
+                        label = { Text(text = stringResource(id = R.string.main_grades)) },
+                        route = "Screen.SettingsScreen.route"
+                    )
+                )
+
+                val navBar = @Composable {
+                    NavigationBar {
+                        navBarItems.forEachIndexed { index, item ->
+                            NavigationBarItem(
+                                selected = index == selectedIndex,
+                                onClick = item.onClick,
+                                icon = item.icon,
+                                label = item.label
+                            )
+                        }
+                    }
+                }
                 Surface(
                     modifier = Modifier
                         .fillMaxSize()
                         .imePadding(),
                     color = MaterialTheme.colorScheme.surface
                 ) {
-                    val navController = rememberNavController()
                     if (goToOnboarding != null) {
                         NavigationGraph(
                             navController = navController,
                             onboardingViewModel = onboardingViewModel,
                             homeViewModel = homeViewModel,
-                            goToOnboarding = goToOnboarding!!
+                            goToOnboarding = goToOnboarding!!,
+                            navBar = navBar,
+                            onNavigationChanged = { route ->
+                                val item = navBarItems.firstOrNull { it.route == route }
+                                if (item != null) {
+                                    selectedIndex = navBarItems.indexOf(item)
+                                }
+                            }
                         )
                     }
                 }
+
             }
             LaunchedEffect(key1 = true, block = {
                 Notification.createChannels(
@@ -121,7 +199,6 @@ class MainActivity : ComponentActivity() {
             .build()
         WorkManager.getInstance(this)
             .enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
-        // ATTENTION: This was auto-generated to handle app links.
     }
 
     private fun processIntent(intent: Intent) {
@@ -145,7 +222,7 @@ class MainActivity : ComponentActivity() {
                         ).days
                     })"
                 )
-                homeViewModel.onPageChanged(date)
+                // homeViewModel.onPageChanged(date) TODO fix this
             }
         }
     }
@@ -155,3 +232,10 @@ class MainActivity : ComponentActivity() {
         processIntent(intent ?: return)
     }
 }
+
+private data class NavigationBarItem(
+    val onClick: () -> Unit,
+    val route: String,
+    val icon: @Composable () -> Unit,
+    val label: @Composable () -> Unit
+)

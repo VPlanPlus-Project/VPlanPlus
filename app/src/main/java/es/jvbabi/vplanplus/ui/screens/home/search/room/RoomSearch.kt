@@ -56,7 +56,7 @@ import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomAbility
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
-import es.jvbabi.vplanplus.ui.preview.Classes
+import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.BookingDetailDialog
@@ -396,7 +396,7 @@ fun FindAvailableRoomScreenPreview() {
         state = RoomSearchState(
             currentSchool = school,
             loading = false,
-            currentClass = Classes.generateClass(school),
+            currentClass = ClassesPreview.generateClass(school),
             detailLesson = null,
             currentRoomBooking = RoomBooking(
                 PreviewRoom.generateRoom(school),

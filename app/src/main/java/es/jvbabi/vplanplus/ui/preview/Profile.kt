@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.ui.preview
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.ui.preview.Classes.classNames
+import es.jvbabi.vplanplus.ui.preview.ClassesPreview.classNames
 import java.util.UUID
 
 object Profile {

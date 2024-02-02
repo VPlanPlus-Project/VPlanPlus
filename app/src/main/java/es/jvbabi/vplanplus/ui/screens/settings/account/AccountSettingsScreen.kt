@@ -46,7 +46,7 @@ import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import java.net.URLEncoder
-import es.jvbabi.vplanplus.ui.preview.Classes as PreviewClasses
+import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
 @Composable

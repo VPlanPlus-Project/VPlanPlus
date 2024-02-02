@@ -228,4 +228,23 @@
     <string name="searchAvailableRoom_bookingDetailTitle">Room booking in %1$s</string>
     <string name="searchAvailableRoom_bookingDetailText">%1$s booked this room for class %2$s from %3$s until %4$s</string>
     <string name="unknownVppId">Unknown User</string>
+    <string name="greeting_hello">Hello</string>
+    <string name="greeting_morning">Good morning</string>
+    <string name="greeting_afternoon">Good afternoon</string>
+    <string name="greeting_evening">Good evening</string>
+    <string name="home_activeDayNow">Current lesson</string>
+    <string name="home_activeDayCurrentLessonRoombooking">%1$s booked this room</string>
+    <string name="home_activeDayNext">Next lesson - %1$s until %2$s</string>
+    <string name="home_activeDayNextLessonTitleWith">with</string>
+    <string name="home_activeDayNextLessonTitleIn">in</string>
+    <string name="home_activeDayNextLessonCanceled">Canceled</string>
+    <string name="home_activeBookRoom">Book a room</string>
+    <string name="home_activeRoomBookedBy">%1$s booked room %2$s for this canceled lesson</string>
+    <string name="home_activeDaySchoolInformation">Information from your school</string>
+    <string name="greeting_day">Good day</string>
+    <string name="main_home">Home</string>
+    <string name="main_grades">Grades</string>
+    <string name="main_timetable">Timetable</string>
+    <string name="home_activeDayCountdown">School\'s over in %1$s</string>
+    <string name="home_activeDayEnd">You\'ve made it through the day! Congrats.</string>
 </resources>

@@ -8,7 +8,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.ui.common.InfoDialog
-import es.jvbabi.vplanplus.ui.preview.Classes
+import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Room
 import es.jvbabi.vplanplus.ui.preview.School
 import java.time.LocalDateTime
@@ -39,7 +39,7 @@ private fun BookingDetailDialogPreview() {
         booking = RoomBooking(
             id = 0,
             bookedBy = null,
-            `class` = Classes.generateClass(school),
+            `class` = ClassesPreview.generateClass(school),
             room = Room.generateRoom(school),
             from = LocalDateTime.now(),
             to = LocalDateTime.now().plusHours(1),
