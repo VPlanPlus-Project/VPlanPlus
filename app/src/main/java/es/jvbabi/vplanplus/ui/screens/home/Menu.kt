@@ -1,11 +1,13 @@
 package es.jvbabi.vplanplus.ui.screens.home
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,16 +25,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -40,14 +41,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.DOT
 import java.util.UUID
 
 @Composable
@@ -104,13 +106,24 @@ fun Menu(
                     IconButton(onClick = { onCloseClicked() }) {
                         Icon(imageVector = Icons.Default.Close, contentDescription = null)
                     }
-                    Text(
-                        text = stringResource(id = R.string.app_name),
-                        style = MaterialTheme.typography.titleLarge,
-                        textAlign = TextAlign.Center,
+                    Row(
                         modifier = Modifier
-                            .fillMaxWidth(),
-                    )
+                            .align(Alignment.Center),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Image(
+                            painter = if (isSystemInDarkTheme()) painterResource(id = R.drawable.vpp_logo_light) else painterResource(id = R.drawable.vpp_logo_dark),
+                            contentDescription = stringResource(id = R.string.app_name),
+                            modifier = Modifier
+                                .size(32.dp),
+                        )
+                        VerticalDivider(modifier = Modifier.padding(8.dp).height(20.dp))
+                        Text(
+                            text = stringResource(id = R.string.app_name),
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier,
+                        )
+                    }
                 }
 
                 Box(
@@ -161,8 +174,15 @@ fun Menu(
                                     }
                                 }
                             }
-                            TextButton(onClick = { onManageProfilesClicked() }, modifier = Modifier.padding(start = 0.dp)) {
-                                Icon(imageVector = Icons.Default.ChevronRight, contentDescription = null, modifier = Modifier.padding(start = 0.dp))
+                            TextButton(
+                                onClick = { onManageProfilesClicked() },
+                                modifier = Modifier.padding(start = 0.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ChevronRight,
+                                    contentDescription = null,
+                                    modifier = Modifier.padding(start = 0.dp)
+                                )
                                 Text(text = stringResource(id = R.string.home_menuManageProfiles))
                             }
                         }
@@ -175,12 +195,51 @@ fun Menu(
                         .padding(start = 16.dp, end = 16.dp, bottom = 8.dp)
                 ) {
                     Column {
-                        ButtonRow(icon = Icons.Outlined.Newspaper, text = stringResource(id = R.string.home_menuNews), showNotificationDot = hasUnreadNews, onClick = { onNewsClicked() })
-                        ButtonRow(Icons.Outlined.Refresh, text = stringResource(id = R.string.home_menuRefresh), onClick = { onRefreshClicked() })
-                        ButtonRow(Icons.Outlined.Settings, stringResource(id = R.string.home_menuSettings), onClick = { onSettingsClicked() })
-                        HorizontalDivider()
-                        ButtonRow(Icons.Outlined.DeveloperMode, stringResource(id = R.string.home_menuRepository), onClick = { onRepositoryClicked() })
-                        ButtonRow(icon = painterResource(id = R.drawable.vpp), text = stringResource(id = R.string.home_menuWebsite), onClick = { onWebsiteClicked() } )
+                        ButtonRow(
+                            icon = Icons.Outlined.Newspaper,
+                            text = stringResource(id = R.string.home_menuNews),
+                            showNotificationDot = hasUnreadNews,
+                            onClick = { onNewsClicked() })
+                        ButtonRow(
+                            Icons.Outlined.Refresh,
+                            text = stringResource(id = R.string.home_menuRefresh),
+                            onClick = { onRefreshClicked() })
+                        ButtonRow(
+                            Icons.Outlined.Settings,
+                            stringResource(id = R.string.home_menuSettings),
+                            onClick = { onSettingsClicked() })
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.home_menuRepository),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
+                                textAlign = TextAlign.End,
+                                modifier = Modifier
+                                    .padding(end = 16.dp)
+                                    .weight(1f, true)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { onRepositoryClicked() }
+                                    .padding(8.dp),
+                            )
+                            Text(
+                                text = DOT,
+                            )
+                            Text(
+                                text = stringResource(id = R.string.home_menuWebsite),
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
+                                textAlign = TextAlign.Start,
+                                modifier = Modifier
+                                    .padding(start = 16.dp)
+                                    .weight(1f, true)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { onWebsiteClicked() }
+                                    .padding(8.dp),
+                            )
+                        }
                     }
                 }
             }
@@ -189,7 +248,12 @@ fun Menu(
 }
 
 @Composable
-fun ButtonRow(icon: ImageVector, text: String, showNotificationDot: Boolean = false, onClick: () -> Unit = {}) {
+fun ButtonRow(
+    icon: ImageVector,
+    text: String,
+    showNotificationDot: Boolean = false,
+    onClick: () -> Unit = {}
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -209,48 +273,15 @@ fun ButtonRow(icon: ImageVector, text: String, showNotificationDot: Boolean = fa
                 .padding(start = 16.dp)
                 .width(24.dp)
         )
-        if (showNotificationDot) Box(modifier = Modifier
-            .size(10.dp)
-            .offset(x = (-6).dp, y = (-8).dp)
-            .clip(RoundedCornerShape(5.dp))
-            .background(MaterialTheme.colorScheme.error)
-        )
-        Text(text = text,
-            modifier = Modifier.padding(start = 12.dp),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
-        )
-    }
-}
-
-@Composable
-fun ButtonRow(icon: Painter, text: String, showNotificationDot: Boolean = false, onClick: () -> Unit = {}) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp)
-            .height(50.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .clickable {
-                onClick()
-            },
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(
-            painter = icon,
-            contentDescription = text,
-            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+        if (showNotificationDot) Box(
             modifier = Modifier
-                .padding(start = 16.dp)
-                .width(24.dp)
+                .size(10.dp)
+                .offset(x = (-6).dp, y = (-8).dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(MaterialTheme.colorScheme.error)
         )
-        if (showNotificationDot) Box(modifier = Modifier
-            .size(10.dp)
-            .offset(x = (-6).dp, y = (-8).dp)
-            .clip(RoundedCornerShape(5.dp))
-            .background(MaterialTheme.colorScheme.error)
-        )
-        Text(text = text,
+        Text(
+            text = text,
             modifier = Modifier.padding(start = 12.dp),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onPrimaryContainer

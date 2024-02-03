@@ -10,7 +10,9 @@ data class VppId(
     @SerializedName("class_name") val className: String,
     val classes: Classes?,
     val state: State = State.ACTIVE
-)
+) {
+    fun isActive() = state == State.ACTIVE
+}
 
 enum class State {
     ACTIVE,

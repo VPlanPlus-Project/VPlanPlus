@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.Index
+import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import java.util.UUID
@@ -11,6 +13,20 @@ import java.util.UUID
     primaryKeys = ["id"],
     indices = [
         Index(value = ["id"], unique = true)
+    ],
+    foreignKeys = [
+        ForeignKey(
+            entity = School::class,
+            parentColumns = ["schoolId"],
+            childColumns = ["schoolId"],
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = DbSchoolEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["classId"],
+            onDelete = ForeignKey.CASCADE
+        )
     ]
 )
 data class DbVppId(

@@ -18,6 +18,7 @@ interface RoomRepository {
     suspend fun getRoomsBySchool(school: School): List<Room>
 
     suspend fun getRoomBookingsByClass(classes: Classes, date: LocalDate = LocalDate.now()): List<RoomBooking>
+    suspend fun getRoomBookings(date: LocalDate = LocalDate.now()): List<RoomBooking>
     suspend fun getRoomBookingsByRoom(room: Room, date: LocalDate = LocalDate.now()): List<RoomBooking>
     suspend fun deleteAllRoomBookings()
 

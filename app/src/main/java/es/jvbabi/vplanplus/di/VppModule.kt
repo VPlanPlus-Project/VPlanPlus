@@ -75,6 +75,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.data.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.RunSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
@@ -130,6 +131,7 @@ object VppModule {
             .allowMainThreadQueries()
             .fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .enableMultiInstanceInvalidation()
             .build()
     }
 
@@ -601,10 +603,21 @@ object VppModule {
     @Provides
     @Singleton
     fun provideHomeUseCases(
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        classRepository: ClassRepository,
+        vppIdRepository: VppIdRepository,
+        profileRepository: ProfileRepository,
+        getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase
     ): HomeUseCases {
         return HomeUseCases(
-            getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository)
+            getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
+            getCurrentIdentity = GetCurrentIdentityUseCase(
+                vppIdRepository = vppIdRepository,
+                classRepository = classRepository,
+                keyValueRepository = keyValueRepository,
+                profileRepository = profileRepository,
+                getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
+            )
         )
     }
 

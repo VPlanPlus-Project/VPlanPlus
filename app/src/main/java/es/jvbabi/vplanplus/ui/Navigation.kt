@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
+import es.jvbabi.vplanplus.ui.screens.timetable.TimetableScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
@@ -40,6 +41,7 @@ import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
+import java.time.LocalDate
 import java.util.UUID
 
 @Composable
@@ -47,12 +49,18 @@ fun NavigationGraph(
     navController: NavHostController,
     onboardingViewModel: OnboardingViewModel,
     homeViewModel: HomeViewModel,
-    goToOnboarding: Boolean
+    goToOnboarding: Boolean,
+    navBar: @Composable () -> Unit,
+    onNavigationChanged: (String?) -> Unit
 ) {
     NavHost(
         navController = navController,
         startDestination = if (goToOnboarding) Screen.Onboarding.route else Screen.HomeScreen.route
     ) {
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            onNavigationChanged(destination.route)
+        }
 
         composable(
             route = Screen.AccountAddedScreen.route,
@@ -76,6 +84,30 @@ fun NavigationGraph(
             HomeScreen(
                 navHostController = navController,
                 viewModel = homeViewModel,
+                navBar = navBar
+            )
+        }
+
+        composable(route = Screen.TimetableScreen.route) {
+            TimetableScreen(
+                navHostController = navController,
+                navBar = navBar
+            )
+        }
+
+        composable(route = Screen.TimetableScreen.route + "/{startDate}",
+            arguments = listOf(
+                navArgument("startDate") {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            TimetableScreen(
+                navHostController = navController,
+                startDate = it.arguments?.getString("startDate")?.let { date ->
+                    LocalDate.parse(date)
+                } ?: LocalDate.now(),
+                navBar = navBar
             )
         }
 
