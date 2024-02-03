@@ -122,11 +122,16 @@ fun ActiveDayContent(
                 Column(
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    DetailedLessonCard(lessons = currentLessons, onFindRoomClicked = onFindRoomClicked)
+                    DetailedLessonCard(
+                        lessons = currentLessons,
+                        onFindRoomClicked = onFindRoomClicked
+                    )
                     HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
                 }
             }
-            val nextLesson = day.lessons.firstOrNull { it.progress(currentTime) < 0 }
+            val nextLesson = day.lessons.firstOrNull {
+                it.progress(currentTime) < 0
+            }
             if (nextLesson != null && currentLessons.isEmpty()) {
                 val nextLessons = day.lessons.filter { it.lessonNumber == nextLesson.lessonNumber }
                 Box(
@@ -134,8 +139,9 @@ fun ActiveDayContent(
                 ) {
                     DetailedLessonCard(lessons = nextLessons, onFindRoomClicked = onFindRoomClicked)
                 }
-            } else if (nextLesson != null) {
-                day.lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
+            }
+            if (nextLesson != null) {
+                day.lessons.filter { it.lessonNumber > nextLesson.lessonNumber }
                     .groupBy { it.lessonNumber }
                     .forEach { (_, lessons) ->
                         Box(
