@@ -407,7 +407,8 @@ private fun RoomBookingCard(roomBooking: RoomBooking) {
                     id = R.string.home_activeBookedBy,
                     roomBooking.bookedBy?.name ?: stringResource(
                         id = R.string.unknownVppId
-                    )
+                    ),
+                    roomBooking.`class`.name
                 )
             )
         }

@@ -252,6 +252,6 @@
     <string name="home_activeDayWeekendTitle">Weekend</string>
     <string name="home_activeDayWeekendSubtitle">It\'s weekend 🎉</string>
     <string name="home_activeDayBooking">(booked)</string>
-    <string name="home_activeBookedBy">Booked by %1$s</string>
+    <string name="home_activeBookedBy">Booked by %1$s for class %2$s</string>
     <string name="home_activeDayBookings">Booked rooms</string>
 </resources>
