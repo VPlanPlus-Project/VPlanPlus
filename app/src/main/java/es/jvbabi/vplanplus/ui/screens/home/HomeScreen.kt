@@ -12,8 +12,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,39 +53,29 @@ fun HomeScreen(
     var menuOpened by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    Scaffold(
-        bottomBar = navBar,
-    ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(bottom = paddingValues.calculateBottomPadding())
-        ) {
-            HomeScreenContent(
-                state = state,
-                onMenuOpened = {
-                    menuOpened = true
-                },
-                onSearchOpened = {
-                    if (it) viewModel.onSearchOpened()
-                    else viewModel.onSearchClosed()
-                },
-                onSearchQueryChanged = {
-                    viewModel.onSearchQueryUpdate(it)
-                },
-                onFilterToggle = {
-                    viewModel.searchToggleFilter(it)
-                },
-                onFindAvailableRoomClicked = {
-                    navHostController.navigate(Screen.SearchAvailableRoomScreen.route)
-                },
-                onSelectSearchResult = { schoolId, type, id ->
-                    viewModel.selectSearchResult(schoolId, type, id)
-                }
-            )
-        }
-    }
-
+    HomeScreenContent(
+        state = state,
+        onMenuOpened = {
+            menuOpened = true
+        },
+        onSearchOpened = {
+            if (it) viewModel.onSearchOpened()
+            else viewModel.onSearchClosed()
+        },
+        onSearchQueryChanged = {
+            viewModel.onSearchQueryUpdate(it)
+        },
+        onFilterToggle = {
+            viewModel.searchToggleFilter(it)
+        },
+        onFindAvailableRoomClicked = {
+            navHostController.navigate(Screen.SearchAvailableRoomScreen.route)
+        },
+        onSelectSearchResult = { schoolId, type, id ->
+            viewModel.selectSearchResult(schoolId, type, id)
+        },
+        navBar = navBar
+    )
 
     BackHandler(enabled = menuOpened, onBack = {
         if (menuOpened) {
@@ -148,6 +136,7 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     state: HomeState,
+    navBar: @Composable () -> Unit = {},
     onSearchOpened: (Boolean) -> Unit = {},
     onSearchQueryChanged: (String) -> Unit = {},
     onFilterToggle: (SchoolEntityType) -> Unit = {},
@@ -155,7 +144,9 @@ fun HomeScreenContent(
     onFindAvailableRoomClicked: () -> Unit = {},
     onSelectSearchResult: (schoolId: Long, type: SchoolEntityType, id: UUID) -> Unit = { _, _, _ -> }
 ) {
-    Column(modifier = Modifier.fillMaxSize()) root@{
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
         SearchBar(
             currentProfileName = state.getActiveProfileDisplayName(),
             onMenuOpened = onMenuOpened,
@@ -176,29 +167,41 @@ fun HomeScreenContent(
                 )
             }
         }
+        Scaffold(
+            bottomBar = navBar
+        ) { paddingValues ->
+            Box {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = paddingValues.calculateBottomPadding())
+                ) root@{
+                    Box(modifier = Modifier.padding(start = 8.dp, top = 8.dp)) greeting@{
+                        Greeting(state.time, vppId = state.currentVppId)
+                    }
 
-        Box(modifier = Modifier.padding(start = 8.dp, top = 8.dp)) greeting@{
-            Greeting(state.time, vppId = state.currentVppId)
-        }
+                    val hiddenLessons = state.day?.lessons?.count {
+                        !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
+                    } ?: 0
 
-        val hiddenLessons = state.day?.lessons?.count {
-            !state.activeProfile!!.isDefaultLessonEnabled(it.vpId)
-        } ?: 0
+                    if (state.day == null) return@root
 
-        Box(
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-                .fillMaxSize()
-        ) {
-            ActiveDayContent(
-                info = state.day?.info,
-                currentTime = state.time,
-                lessons = state.day?.lessons ?: emptyList(),
-                bookings = emptyList(),
-                hiddenLessons,
-                state.lastSync,
-                state.isLoading,
-            )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                    ) {
+                        ActiveDayContent(
+                            info = state.day.info,
+                            currentTime = state.time,
+                            day = state.day,
+                            bookings = emptyList(),
+                            hiddenLessons,
+                            state.lastSync,
+                            state.isLoading,
+                        )
+                    }
+                }
+            }
         }
     }
 }

@@ -250,4 +250,6 @@
     <string name="home_activeDayEnd">Du hast den Tag erfolgreich überstanden. Herzlichen Glückwunsch.</string>
     <string name="timetable_title">Stundenplan</string>
     <string name="timetable_toToday">Zurück zu heute</string>
+    <string name="home_activeDayWeekendTitle">Wochenende</string>
+    <string name="home_activeDayWeekendSubtitle">Es ist Wochenende 🎉 Gönne dir etwas Entspannung von den letzten Tagen.</string>
 </resources>

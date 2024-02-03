@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.ui.screens.home.components.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -27,6 +29,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -34,6 +38,9 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Day
+import es.jvbabi.vplanplus.domain.model.DayDataState
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.ui.common.DOT
@@ -48,14 +55,15 @@ import java.time.temporal.ChronoUnit
 fun ActiveDayContent(
     info: String?,
     currentTime: LocalDateTime,
-    lessons: List<Lesson>,
+    day: Day,
     bookings: List<RoomBooking>,
     hiddenLessons: Int,
     lastSync: LocalDateTime?,
     isLoading: Boolean
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
     ) {
         if (isLoading) {
             Column(
@@ -64,6 +72,35 @@ fun ActiveDayContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CircularProgressIndicator()
+            }
+            return
+        }
+        if (day.type == DayType.WEEKEND) {
+            Column(
+                modifier = Modifier.fillMaxSize().padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Image(
+                    painter = if (isSystemInDarkTheme()) painterResource(id = R.drawable.weekend_dark) else painterResource(
+                        id = R.drawable.weekend
+                    ),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxWidth(0.8f),
+                )
+                Text(
+                    text = stringResource(id = R.string.home_activeDayWeekendTitle),
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        brush = Brush.horizontalGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary
+                            )
+                        )
+                    ),
+                    textAlign = TextAlign.Center
+                )
+                Text(text = stringResource(id = R.string.home_activeDayWeekendSubtitle), textAlign = TextAlign.Center)
             }
             return
         }
@@ -100,7 +137,7 @@ fun ActiveDayContent(
                     )
                 }
             }
-            val currentLessons = lessons.filter { it.progress(currentTime) in 0.0..<1.0 }
+            val currentLessons = day.lessons.filter { it.progress(currentTime) in 0.0..<1.0 }
             if (currentLessons.isNotEmpty()) {
                 Text(
                     text = stringResource(id = R.string.home_activeDayNow),
@@ -114,16 +151,16 @@ fun ActiveDayContent(
                     HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
                 }
             }
-            val nextLesson = lessons.firstOrNull { it.progress(currentTime) < 0 }
+            val nextLesson = day.lessons.firstOrNull { it.progress(currentTime) < 0 }
             if (nextLesson != null && currentLessons.isEmpty()) {
-                val nextLessons = lessons.filter { it.lessonNumber == nextLesson.lessonNumber }
+                val nextLessons = day.lessons.filter { it.lessonNumber == nextLesson.lessonNumber }
                 Box(
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     DetailedLessonCard(lessons = nextLessons)
                 }
             } else if (nextLesson != null) {
-                lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
+                day.lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
                     .groupBy { it.lessonNumber }
                     .forEach { (_, lessons) ->
                         Box(
@@ -140,7 +177,7 @@ fun ActiveDayContent(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val end = lessons.lastOrNull()?.end?:return@Column
+                val end = day.lessons.lastOrNull()?.end ?: return@Column
                 val difference = currentTime.until(end, ChronoUnit.SECONDS)
                 Icon(
                     imageVector = Icons.Default.SportsEsports,
@@ -354,7 +391,13 @@ private fun ContentPreview() {
     ActiveDayContent(
         info = "Info",
         currentTime = LocalDateTime.now(),
-        lessons = Lessons.generateLessons(2, true),
+        day = Day(
+            lessons = Lessons.generateLessons(2, true),
+            type = DayType.WEEKEND,
+            date = LocalDateTime.now().toLocalDate(),
+            info = null,
+            state = DayDataState.DATA
+        ),
         bookings = emptyList(),
         hiddenLessons = 2,
         lastSync = LocalDateTime.now(),

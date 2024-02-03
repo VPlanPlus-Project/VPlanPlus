@@ -25,7 +25,7 @@
     <string name="home_search">Search for rooms, teachers…</string>
     <string name="home_menuProfileList">Profiles</string>
     <string name="home_menuManageProfiles">Manage profiles</string>
-    <string name="home_menuRepository">Code-Repository</string>
+    <string name="home_menuRepository">Repository</string>
     <string name="home_menuSettings">Settings</string>
     <string name="settings_profileTitle">Profiles</string>
     <string name="settings_profileSubtitle">Manage your viewing profiles</string>
@@ -249,4 +249,6 @@
     <string name="home_activeDayEnd">You\'ve made it through the day! Congrats.</string>
     <string name="timetable_title">Timetable</string>
     <string name="timetable_toToday">Back to today</string>
+    <string name="home_activeDayWeekendTitle">Weekend</string>
+    <string name="home_activeDayWeekendSubtitle">It\'s weekend 🎉</string>
 </resources>
