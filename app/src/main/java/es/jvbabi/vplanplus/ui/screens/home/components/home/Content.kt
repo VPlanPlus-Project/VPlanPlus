@@ -1,8 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.home.components.home
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,8 +27,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -47,8 +43,9 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.Lessons
+import es.jvbabi.vplanplus.ui.screens.home.components.home.screens.Weekend
+import es.jvbabi.vplanplus.ui.screens.home.components.home.text.LastSyncText
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
 @Composable
@@ -76,31 +73,9 @@ fun ActiveDayContent(
             return
         }
         if (day.type == DayType.WEEKEND) {
-            Column(
-                modifier = Modifier.fillMaxSize().padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                Image(
-                    painter = if (isSystemInDarkTheme()) painterResource(id = R.drawable.weekend_dark) else painterResource(
-                        id = R.drawable.weekend
-                    ),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxWidth(0.8f),
-                )
-                Text(
-                    text = stringResource(id = R.string.home_activeDayWeekendTitle),
-                    style = MaterialTheme.typography.headlineMedium.copy(
-                        brush = Brush.horizontalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.primary,
-                                MaterialTheme.colorScheme.secondary
-                            )
-                        )
-                    ),
-                    textAlign = TextAlign.Center
-                )
-                Text(text = stringResource(id = R.string.home_activeDayWeekendSubtitle), textAlign = TextAlign.Center)
+            Column {
+                LastSyncText(lastSync, modifier = Modifier.padding(start = 16.dp))
+                Weekend()
             }
             return
         }
@@ -119,12 +94,7 @@ fun ActiveDayContent(
                         style = MaterialTheme.typography.labelSmall
                     )
                 }
-                Text(
-                    text = if (lastSync == null) stringResource(id = R.string.home_lastSyncNever) else stringResource(
-                        id = R.string.home_lastSync,
-                        lastSync.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"))
-                    ), style = MaterialTheme.typography.labelSmall
-                )
+                LastSyncText(lastSync)
             }
             if (info != null) {
                 Box(
