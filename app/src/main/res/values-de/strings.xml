@@ -252,4 +252,5 @@
     <string name="timetable_toToday">Zurück zu heute</string>
     <string name="home_activeDayWeekendTitle">Wochenende</string>
     <string name="home_activeDayWeekendSubtitle">Es ist Wochenende 🎉 Gönne dir etwas Entspannung von den letzten Tagen.</string>
+    <string name="home_activeDayBooking">(gebucht)</string>
 </resources>

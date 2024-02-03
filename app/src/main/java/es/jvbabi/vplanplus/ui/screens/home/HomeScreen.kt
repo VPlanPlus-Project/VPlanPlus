@@ -198,6 +198,9 @@ fun HomeScreenContent(
                             hiddenLessons,
                             state.lastSync,
                             state.isLoading,
+                            onFindRoomClicked = {
+                                onFindAvailableRoomClicked()
+                            }
                         )
                     }
                 }

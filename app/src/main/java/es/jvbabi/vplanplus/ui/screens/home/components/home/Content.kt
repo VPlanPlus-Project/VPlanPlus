@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MeetingRoom
@@ -56,7 +58,8 @@ fun ActiveDayContent(
     bookings: List<RoomBooking>,
     hiddenLessons: Int,
     lastSync: LocalDateTime?,
-    isLoading: Boolean
+    isLoading: Boolean,
+    onFindRoomClicked: () -> Unit = {}
 ) {
     Box(
         modifier = Modifier
@@ -80,7 +83,9 @@ fun ActiveDayContent(
             return
         }
         Column(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) root@{
             Row(
                 modifier = Modifier.padding(start = 8.dp)
@@ -117,7 +122,7 @@ fun ActiveDayContent(
                 Column(
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    DetailedLessonCard(lessons = currentLessons)
+                    DetailedLessonCard(lessons = currentLessons, onFindRoomClicked = onFindRoomClicked)
                     HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
                 }
             }
@@ -127,7 +132,7 @@ fun ActiveDayContent(
                 Box(
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
-                    DetailedLessonCard(lessons = nextLessons)
+                    DetailedLessonCard(lessons = nextLessons, onFindRoomClicked = onFindRoomClicked)
                 }
             } else if (nextLesson != null) {
                 day.lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
@@ -171,7 +176,8 @@ fun ActiveDayContent(
 
 @Composable
 private fun DetailedLessonCard(
-    lessons: List<Lesson>
+    lessons: List<Lesson>,
+    onFindRoomClicked: () -> Unit = {}
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Row(
@@ -246,7 +252,7 @@ private fun DetailedLessonCard(
                         if (lesson.displaySubject == "-") {
                             if (lesson.roomBooking == null) {
                                 if (lesson.progress(LocalDateTime.now()) < 1f) AssistChip(
-                                    onClick = { /*TODO*/ },
+                                    onClick = { onFindRoomClicked() },
                                     label = { Text(text = stringResource(id = R.string.home_activeBookRoom)) },
                                     leadingIcon = {
                                         Icon(
@@ -307,7 +313,10 @@ fun LessonCard(
                     if (lesson.displaySubject == "-") withStyle(changed) {
                         append(stringResource(id = R.string.home_activeDayNextLessonCanceled))
                         if (lesson.roomBooking != null) {
-                            withStyle(normal) { append(" $DOT ${lesson.roomBooking.room.name}") }
+                            withStyle(normal) {
+                                append(" $DOT ${lesson.roomBooking.room.name} ")
+                                append(stringResource(id = R.string.home_activeDayBooking))
+                            }
                             return@buildAnnotatedString
                         }
                     }

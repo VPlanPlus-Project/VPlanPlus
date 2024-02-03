@@ -115,7 +115,7 @@ private fun TimetableContent(
                     Column {
                         Text(text = stringResource(id = R.string.timetable_title))
                         Text(
-                            text = state.date.format(
+                            text = LocalDate.now().plusDays(pagerState.currentPage - PAGES / 2L).format(
                                 DateTimeFormatter.ofPattern("dd.MM.yyyy")
                             ) + " $DOT ${state.activeProfile?.displayName}",
                             style = MaterialTheme.typography.titleSmall

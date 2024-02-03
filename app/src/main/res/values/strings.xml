@@ -251,4 +251,5 @@
     <string name="timetable_toToday">Back to today</string>
     <string name="home_activeDayWeekendTitle">Weekend</string>
     <string name="home_activeDayWeekendSubtitle">It\'s weekend 🎉</string>
+    <string name="home_activeDayBooking">(booked)</string>
 </resources>

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
+import android.util.Log
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
@@ -9,6 +10,7 @@ import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -42,33 +44,79 @@ class PlanRepositoryImpl(
         val teacher = teacherRepository.getTeacherById(teacherId)!!
         val school = teacher.school
 
-        lessonRepository.getLessonsForTeacher(teacherId, date, version).distinctUntilChanged().collect { lessons ->
-            emit(build(school, lessons, date, planDao.getPlanByDate(school.schoolId, date)?.planData?.info))
-        }
+        lessonRepository.getLessonsForTeacher(teacherId, date, version).distinctUntilChanged()
+            .collect { lessons ->
+                val bookings = roomRepository.getRoomBookings(date)
+                emit(
+                    build(
+                        school,
+                        lessons,
+                        date,
+                        planDao.getPlanByDate(school.schoolId, date)?.planData?.info,
+                        bookings
+                    )
+                )
+            }
     }
 
     override fun getDayForClass(classId: UUID, date: LocalDate, version: Long) = flow {
         val `class` = classRepository.getClassById(classId)!!
         val school = `class`.school
 
-        lessonRepository.getLessonsForClass(`class`.classId, date, version).distinctUntilChanged().collect { lessons ->
-            emit(build(school, lessons, date, planDao.getPlanByDate(school.schoolId, date)?.planData?.info))
-        }
+        lessonRepository.getLessonsForClass(`class`.classId, date, version).distinctUntilChanged()
+            .collect { lessons ->
+                val bookings = roomRepository.getRoomBookings(date)
+                emit(
+                    build(
+                        school,
+                        lessons,
+                        date,
+                        planDao.getPlanByDate(school.schoolId, date)?.planData?.info,
+                        bookings
+                    )
+                )
+            }
     }
 
     override fun getDayForRoom(roomId: UUID, date: LocalDate, version: Long) = flow {
         val room = roomRepository.getRoomById(roomId)!!
         val school = room.school
 
-        lessonRepository.getLessonsForRoom(room.roomId, date, version).distinctUntilChanged().collect { lessons ->
-            emit(build(school, lessons, date, planDao.getPlanByDate(school.schoolId, date)?.planData?.info))
-        }
+        lessonRepository.getLessonsForRoom(room.roomId, date, version).distinctUntilChanged()
+            .collect { lessons ->
+                val bookings = roomRepository.getRoomBookings(date)
+                emit(
+                    build(
+                        school,
+                        lessons,
+                        date,
+                        planDao.getPlanByDate(school.schoolId, date)?.planData?.info,
+                        bookings
+                    )
+                )
+            }
     }
 
-    private suspend fun build(school: School, lessons: List<Lesson>?, date: LocalDate, info: String?): Day {
+    private suspend fun build(
+        school: School,
+        lessons: List<Lesson>?,
+        date: LocalDate,
+        info: String?,
+        bookings: List<RoomBooking>
+    ): Day {
         val dayType = holidayRepository.getDayType(school.schoolId, date)
+        val lessonsWithBookings = lessons?.map { lesson ->
+            val booking = bookings.firstOrNull { roomBooking ->
+                roomBooking.`class` == lesson.`class` &&
+                        lesson.start.isEqual(roomBooking.from) &&
+                        lesson.end.isEqual(roomBooking.to.plusSeconds(1)) &&
+                        date == roomBooking.from.toLocalDate()
+            }
+            Log.d("PlanRepositoryImpl", "build: $booking")
+            lesson.copy(roomBooking = booking)
+        }
         if (dayType == DayType.NORMAL) {
-            return if (lessons == null) {
+            return if (lessonsWithBookings == null) {
                 Day(
                     date = date,
                     type = dayType,
@@ -81,7 +129,7 @@ class PlanRepositoryImpl(
                     date = date,
                     type = dayType,
                     state = DayDataState.DATA,
-                    lessons = lessons,
+                    lessons = lessonsWithBookings,
                     info = info
                 )
             }
