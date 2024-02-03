@@ -41,6 +41,7 @@ import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
+import java.time.LocalDate
 import java.util.UUID
 
 @Composable
@@ -90,6 +91,22 @@ fun NavigationGraph(
         composable(route = Screen.TimetableScreen.route) {
             TimetableScreen(
                 navHostController = navController,
+                navBar = navBar
+            )
+        }
+
+        composable(route = Screen.TimetableScreen.route + "/{startDate}",
+            arguments = listOf(
+                navArgument("startDate") {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            TimetableScreen(
+                navHostController = navController,
+                startDate = it.arguments?.getString("startDate")?.let { date ->
+                    LocalDate.parse(date)
+                } ?: LocalDate.now(),
                 navBar = navBar
             )
         }

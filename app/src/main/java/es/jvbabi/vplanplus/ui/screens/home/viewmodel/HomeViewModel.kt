@@ -37,6 +37,7 @@ import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -124,6 +125,7 @@ class HomeViewModel @Inject constructor(
         if (dataSyncJob != null && !force) return
         if (force) dataSyncJob?.cancel()
         dataSyncJob = viewModelScope.launch {
+            while (getActiveProfile() == null) delay(50)
             planRepository.getDayForProfile(getActiveProfile()!!, LocalDate.now(), version).distinctUntilChanged().collect { day ->
                 _state.value = _state.value.copy(day = day, isLoading = false)
             }

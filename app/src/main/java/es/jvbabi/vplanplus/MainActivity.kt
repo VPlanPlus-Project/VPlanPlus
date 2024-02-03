@@ -30,6 +30,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -49,7 +51,9 @@ import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
 import es.jvbabi.vplanplus.worker.SyncWorker
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
@@ -71,6 +75,8 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var keyValueUseCases: KeyValueUseCases
+
+    private lateinit var navController: NavHostController
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -98,7 +104,7 @@ class MainActivity : ComponentActivity() {
             VPlanPlusTheme(
                 cs = colors,
             ) {
-                val navController = rememberNavController()
+                navController = rememberNavController()
 
                 var selectedIndex by rememberSaveable {
                     mutableIntStateOf(0)
@@ -173,7 +179,7 @@ class MainActivity : ComponentActivity() {
                             goToOnboarding = goToOnboarding!!,
                             navBar = navBar,
                             onNavigationChanged = { route ->
-                                val item = navBarItems.firstOrNull { it.route == route }
+                                val item = navBarItems.firstOrNull { route?.startsWith(it.route) == true }
                                 if (item != null) {
                                     selectedIndex = navBarItems.indexOf(item)
                                 }
@@ -227,6 +233,10 @@ class MainActivity : ComponentActivity() {
                         ).days
                     })"
                 )
+                lifecycleScope.launch {
+                    while (homeViewModel.state.value.activeProfile == null) delay(50)
+                    navController.navigate(Screen.TimetableScreen.route + "/$date")
+                }
                 // homeViewModel.onPageChanged(date) TODO fix this
             }
         }
