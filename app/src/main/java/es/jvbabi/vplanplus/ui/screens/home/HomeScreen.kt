@@ -194,7 +194,7 @@ fun HomeScreenContent(
                             info = state.day.info,
                             currentTime = state.time,
                             day = state.day,
-                            bookings = emptyList(),
+                            bookings = state.bookings,
                             hiddenLessons,
                             state.lastSync,
                             state.isLoading,

@@ -253,4 +253,6 @@
     <string name="home_activeDayWeekendTitle">Wochenende</string>
     <string name="home_activeDayWeekendSubtitle">Es ist Wochenende 🎉 Gönne dir etwas Entspannung von den letzten Tagen.</string>
     <string name="home_activeDayBooking">(gebucht)</string>
+    <string name="home_activeBookedBy">Gebucht von %1$s</string>
+    <string name="home_activeDayBookings">Raumbuchungen</string>
 </resources>

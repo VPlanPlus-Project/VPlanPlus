@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -127,7 +128,8 @@ class HomeViewModel @Inject constructor(
         dataSyncJob = viewModelScope.launch {
             while (getActiveProfile() == null) delay(50)
             planRepository.getDayForProfile(getActiveProfile()!!, LocalDate.now(), version).distinctUntilChanged().collect { day ->
-                _state.value = _state.value.copy(day = day, isLoading = false)
+                val bookings = roomRepository.getRoomBookings(LocalDate.now())
+                _state.value = _state.value.copy(day = day, isLoading = false, bookings = bookings)
             }
         }
     }
@@ -298,6 +300,7 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val time: LocalDateTime = LocalDateTime.now(),
     val day: Day? = null,
+    val bookings: List<RoomBooking> = emptyList(),
     val isLoading: Boolean = true,
     val profiles: List<Profile> = listOf(),
     val activeProfile: Profile? = null,

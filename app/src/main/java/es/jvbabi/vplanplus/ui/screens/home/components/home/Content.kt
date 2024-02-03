@@ -44,11 +44,16 @@ import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
+import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
+import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.home.components.home.screens.Weekend
 import es.jvbabi.vplanplus.ui.screens.home.components.home.text.LastSyncText
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import es.jvbabi.vplanplus.ui.preview.Room as PreviewRoom
 
 @Composable
 fun ActiveDayContent(
@@ -151,6 +156,18 @@ fun ActiveDayContent(
                         }
                     }
                 HorizontalDivider(modifier = Modifier.padding(8.dp))
+            }
+            if (bookings.isNotEmpty()) {
+                Text(
+                    text = stringResource(id = R.string.home_activeDayBookings),
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
+                bookings.forEach { booking ->
+                    Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                        RoomBookingCard(roomBooking = booking)
+                    }
+                }
             }
             Column(
                 modifier = Modifier
@@ -370,6 +387,33 @@ fun LessonCard(
     }
 }
 
+@Composable
+private fun RoomBookingCard(roomBooking: RoomBooking) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(16.dp)
+    ) {
+        val formatter = DateTimeFormatter.ofPattern("HH:mm")
+        Column {
+            Text(
+                text = "${roomBooking.room.name} $DOT ${roomBooking.from.format(formatter)} - ${roomBooking.to.plusSeconds(1).format(formatter)}",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = stringResource(
+                    id = R.string.home_activeBookedBy,
+                    roomBooking.bookedBy?.name ?: stringResource(
+                        id = R.string.unknownVppId
+                    )
+                )
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun ContentPreview() {
@@ -387,6 +431,24 @@ private fun ContentPreview() {
         hiddenLessons = 2,
         lastSync = LocalDateTime.now(),
         false
+    )
+}
+
+@Preview
+@Composable
+private fun RoomBookingPreview() {
+    val school = School.generateRandomSchools(1).first()
+    val classes = ClassesPreview.generateClass(school)
+    val room = PreviewRoom.generateRoom(school)
+    RoomBookingCard(
+        roomBooking = RoomBooking(
+            1,
+            from = LocalDateTime.now(),
+            to = LocalDateTime.now().plusHours(1),
+            bookedBy = VppIdPreview.generateVppId(null),
+            room = room,
+            `class` = classes
+        )
     )
 }
 
