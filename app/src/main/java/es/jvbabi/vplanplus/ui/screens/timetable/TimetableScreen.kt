@@ -2,7 +2,6 @@
 
 package es.jvbabi.vplanplus.ui.screens.timetable
 
-import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -33,6 +32,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,10 +42,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.screens.home.components.home.LessonCard
+import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
+import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
+import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
 import java.time.LocalDate
+import java.time.Period
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.math.floor
@@ -60,26 +65,22 @@ fun TimetableScreen(
     navBar: @Composable () -> Unit
 ) {
     val state = viewModel.state.value
+
     val pagerState = rememberPagerState(
         (floor(PAGES / 2.0) + LocalDate.now().until(startDate, ChronoUnit.DAYS)).toInt()
     ) { 200 }
 
-    LaunchedEffect(key1 = startDate, block = {
-        viewModel.init(startDate)
-    })
-
     LaunchedEffect(key1 = state.date, block = {
-        pagerState.animateScrollToPage(
-            (floor(PAGES / 2.0) + LocalDate.now().until(state.date, ChronoUnit.DAYS)).toInt()
-        )
+        pagerState.animateScrollToPage(PAGES/2+ Period.between(LocalDate.now(), state.date).days)
     })
 
-    LaunchedEffect(key1 = pagerState.currentPage, block = {
-        val date = LocalDate.now().plusDays((pagerState.currentPage - floor(PAGES / 2.0)).toLong())
-        viewModel.init(date)
-        viewModel.setDate(date)
-        Log.d("TimetableScreen", "LaunchedEffect: $date")
-    })
+    LaunchedEffect(pagerState) {
+        snapshotFlow { pagerState.settledPage }.collect { page ->
+            val date = LocalDate.now().plusDays(page - PAGES / 2L)
+            viewModel.init(date, true)
+            viewModel.setDate(date)
+        }
+    }
 
     Scaffold(
         bottomBar = navBar,
@@ -116,7 +117,8 @@ private fun TimetableContent(
                         Text(
                             text = state.date.format(
                                 DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                            ) + " $DOT ${state.activeProfile?.displayName}", style = MaterialTheme.typography.titleSmall
+                            ) + " $DOT ${state.activeProfile?.displayName}",
+                            style = MaterialTheme.typography.titleSmall
                         )
                     }
                 },
@@ -151,16 +153,31 @@ private fun TimetableContent(
                     val pageDate = LocalDate.now().plusDays((it - floor(PAGES / 2.0)).toLong())
                     if (state.days[pageDate] == null
                     ) return@LazyColumn
-                    items(state.days[pageDate]!!.lessons.groupBy { it.lessonNumber }
-                        .toList()) { (_, lessons) ->
-                        Box(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            LessonCard(lessons = lessons)
+                    when (state.days[pageDate]!!.type) {
+                        DayType.NORMAL -> {
+                            items(state.days[pageDate]!!.lessons.groupBy { it.lessonNumber }
+                                .toList()) { (_, lessons) ->
+                                Box(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                ) {
+                                    LessonCard(lessons = lessons)
+                                }
+                            }
+                            item {
+                                Spacer(modifier = Modifier.height(64.dp))
+                            }
                         }
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(64.dp))
+                        DayType.WEEKEND -> item {
+                            WeekendPlaceholder(
+                                compactMode = false,
+                                type = if (pageDate.isEqual(LocalDate.now())) WeekendType.TODAY else if (LocalDate.now()
+                                        .isBefore(pageDate)
+                                ) WeekendType.COMING_UP else WeekendType.OVER
+                            )
+                        }
+                        DayType.HOLIDAY -> item {
+                            Holiday(compactMode = false)
+                        }
                     }
                 }
             }

@@ -45,7 +45,7 @@ class TimetableViewModel @Inject constructor(
         }
     }
 
-    fun init(date: LocalDate) {
+    fun init(date: LocalDate, directNeighbors: Boolean = false) {
         viewModelScope.launch {
             while (_state.value.activeProfile == null) delay(50)
             if (jobs.containsKey(date)) return@launch
@@ -56,6 +56,10 @@ class TimetableViewModel @Inject constructor(
                         isLoading = false
                     )
                 }
+            }
+            if (directNeighbors) {
+                init(date.minusDays(1))
+                init(date.plusDays(1))
             }
         }
     }
