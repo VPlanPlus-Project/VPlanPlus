@@ -35,4 +35,7 @@ abstract class RoomBookingDao {
     open fun upsertAll(roomBookings: List<DbRoomBooking>) {
         roomBookings.forEach { upsert(it) }
     }
+
+    @Query("DELETE FROM room_booking WHERE id = :id")
+    abstract fun deleteById(id: Long)
 }

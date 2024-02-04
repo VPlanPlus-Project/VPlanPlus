@@ -255,4 +255,7 @@
     <string name="home_activeDayBooking">(gebucht)</string>
     <string name="home_activeBookedBy">Gebucht von %1$s für Klasse %2$s</string>
     <string name="home_activeDayBookings">Raumbuchungen</string>
+    <string name="searchAvailableRoom_bookingDetailCancel">Buchung zurücknehmen</string>
+    <string name="searchAvailableRoom_cancelSuccess">Deine Raumbuchung wurde erfolgreich zurückgenommen</string>
+    <string name="searchAvailableRoom_cancelNotFound">Deine Buchung konnte nicht mehr aufgefunden werden, Möglicherweise ist sie bereits storniert.</string>
 </resources>

@@ -12,14 +12,13 @@ import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Room
-import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomAbility
+import es.jvbabi.vplanplus.domain.usecase.find_room.CancelBookingResult
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.RoomMap
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.between
@@ -34,8 +33,6 @@ import kotlin.math.floor
 @HiltViewModel
 class RoomSearchViewModel @Inject constructor(
     private val findRoomUseCases: FindRoomUseCases,
-    private val findCurrentSchoolUseCase: GetCurrentSchoolUseCase,
-    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     private val getClassByProfileUseCase: GetClassByProfileUseCase,
     private val getLessonTimesForClassUseCase: GetLessonTimesForClassUseCase,
     private val getCurrentLessonNumberUseCase: GetCurrentLessonNumberUseCase
@@ -55,15 +52,14 @@ class RoomSearchViewModel @Inject constructor(
     suspend fun init() {
         viewModelScope.launch {
             combine(
-                findCurrentSchoolUseCase(),
-                getCurrentProfileUseCase(),
+                findRoomUseCases.getCurrentIdentityUseCase(),
                 findRoomUseCases.canBookRoomUseCase()
-            ) { school, profile, canBookRooms ->
-                if (school == null || profile == null) {
+            ) { identity, canBookRooms ->
+                if (identity?.school == null || identity.profile == null) {
                     Log.d("RoomSearchViewModel", "school or profile is null")
                     return@combine state.value
                 }
-                val roomMap = findRoomUseCases.getRoomMapUseCase(school)
+                val roomMap = findRoomUseCases.getRoomMapUseCase(identity.school)
 
                 var profileStart: LocalDateTime? = null
                 var currentClass: Classes? = null
@@ -74,8 +70,8 @@ class RoomSearchViewModel @Inject constructor(
 
                 var lessonTimes: Map<Int, LessonTime>? = null
 
-                if (profile.type == ProfileType.STUDENT) {
-                    currentClass = getClassByProfileUseCase(profile)
+                if (identity.profile.type == ProfileType.STUDENT) {
+                    currentClass = getClassByProfileUseCase(identity.profile)
                     lessonTimes = getLessonTimesForClassUseCase(currentClass!!)
                     var start = lessonTimes.entries.first()
                     if (roomMap.rooms.all { it.lessons.first() == null } && start.key == 0) { // if 0th lesson exists and no room is used in 0th lesson
@@ -99,10 +95,10 @@ class RoomSearchViewModel @Inject constructor(
                 }
 
                 _state.value.copy(
-                    currentSchool = school,
+                    identity = identity,
+                    `class` = currentClass,
                     rooms = roomMap,
                     profileStart = profileStart,
-                    currentClass = currentClass,
                     lessonTimes = lessonTimes,
                     loading = false,
                     showFilterChips = showFilterChips,
@@ -241,11 +237,24 @@ class RoomSearchViewModel @Inject constructor(
             }
         }
     }
+
+    fun cancelCurrentBooking() {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(roomCancelBookingResult = null)
+            val booking = state.value.detailBooking
+            _state.value = _state.value.copy(detailBooking = null)
+            if (booking == null) return@launch
+            _state.value = _state.value.copy(
+                roomCancelBookingResult = findRoomUseCases.cancelBooking(booking)
+            )
+            init()
+        }
+    }
 }
 
 data class RoomSearchState(
-    val currentSchool: School? = null,
-    val currentClass: Classes? = null, // only if user is student
+    val identity: Identity? = null,
+    val `class`: Classes? = null,
     val rooms: RoomMap? = null,
     val loading: Boolean = true,
     val roomFilter: String = "",
@@ -263,7 +272,8 @@ data class RoomSearchState(
 
     val currentRoomBooking: RoomBooking? = null,
     val canBookRoom: BookRoomAbility = BookRoomAbility.CAN_BOOK,
-    val roomBookingResult: BookResult? = null
+    val roomBookingResult: BookResult? = null,
+    val roomCancelBookingResult: CancelBookingResult? = null
 )
 
 data class RoomBooking(

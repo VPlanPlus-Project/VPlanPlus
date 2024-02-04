@@ -5,10 +5,12 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
+import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
@@ -24,6 +26,7 @@ import io.ktor.client.plugins.UserAgent
 import io.ktor.client.request.headers
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -36,11 +39,13 @@ import java.net.UnknownHostException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import kotlin.jvm.Throws
 
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
     private val vppIdTokenDao: VppIdTokenDao,
-    private val classRepository: ClassRepository
+    private val classRepository: ClassRepository,
+    private val roomBookingDao: RoomBookingDao
 ) : VppIdRepository {
     override fun getVppIds(): Flow<List<VppId>> {
         return vppIdDao.getAll().map { list ->
@@ -234,6 +239,35 @@ class VppIdRepositoryImpl(
                 }
             }
         }
+
+        @Throws(
+            UnknownHostException::class,
+            ConnectTimeoutException::class,
+            HttpRequestTimeoutException::class,
+            ConnectException::class
+        )
+        suspend fun executeRequest(
+            url: String,
+            token: String,
+            method: HttpMethod = HttpMethod.Get,
+            body: String? = null
+        ): HttpResponse {
+            val client = createClient()
+            val response = client.request {
+                url {
+                    protocol = URLProtocol.HTTPS
+                    host = "id.vpp.jvbabi.es"
+                    encodedPath = url
+                    this@request.method = method
+                }
+                headers {
+                    set("Authorization", token)
+                }
+                if (body != null) setBody(body)
+            }
+            client.close()
+            return response
+        }
     }
 
     override suspend fun bookRoom(
@@ -242,36 +276,27 @@ class VppIdRepositoryImpl(
         from: LocalDateTime,
         to: LocalDateTime
     ): BookResult {
-        val client = createClient()
         val currentToken = getVppIdToken(vppId) ?: return BookResult.OTHER
         val zoneOffset = ZoneId
             .systemDefault().rules
             .getOffset(
                 Instant.now()
             )
+        val url = "/api/v1/vpp_id/booking/book_room"
         return try {
-            val response = client.request {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = "id.vpp.jvbabi.es"
-                    encodedPath = "/api/v1/vpp_id/booking/book_room"
-                    method = HttpMethod.Post
-                }
-                headers {
-                    set("Authorization", currentToken)
-                }
-                setBody(
-                    Gson().toJson(
-                        BookRoomRequest(
-                            schoolId = room.school.schoolId,
-                            roomName = room.name,
-                            from = from.toEpochSecond(zoneOffset),
-                            to = to.toEpochSecond(zoneOffset)
-                        )
+            val response = executeRequest(
+                url,
+                currentToken,
+                HttpMethod.Post,
+                Gson().toJson(
+                    BookRoomRequest(
+                        schoolId = room.school.schoolId,
+                        roomName = room.name,
+                        from = from.toEpochSecond(zoneOffset),
+                        to = to.toEpochSecond(zoneOffset)
                     )
                 )
-            }
-            client.close()
+            )
             if (response.status != HttpStatusCode.OK) {
                 return when (response.status) {
                     HttpStatusCode.Conflict -> BookResult.CONFLICT
@@ -285,7 +310,7 @@ class VppIdRepositoryImpl(
                 else -> {
                     Log.d(
                         "OnlineRequest",
-                        "other error on /api/v1/vpp_id/test_session: ${e.stackTraceToString()}"
+                        "other error on $url: ${e.stackTraceToString()}"
                     )
                     return BookResult.OTHER
                 }
@@ -296,20 +321,12 @@ class VppIdRepositoryImpl(
     override suspend fun cacheVppId(id: Int, school: School): VppId? {
         val vppId = vppIdDao.getVppId(id)
         if (vppId != null) return vppId.toModel()
-        val client = createClient()
+        val url = "/api/v1/vpp_id/user/get_username/$id"
         return try {
-            val response = client.request {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = "id.vpp.jvbabi.es"
-                    encodedPath = "/api/v1/vpp_id/user/get_username/$id"
-                    method = HttpMethod.Get
-                }
-                headers {
-                    set("Authorization", school.buildToken())
-                }
-            }
-            client.close()
+            val response = executeRequest(
+                url,
+                school.buildToken()
+            )
             if (response.status != HttpStatusCode.OK) return null
             val r = Gson().fromJson(response.bodyAsText(), UserNameResponse::class.java)
             vppIdDao.upsert(
@@ -332,7 +349,38 @@ class VppIdRepositoryImpl(
                 else -> {
                     Log.d(
                         "OnlineRequest",
-                        "other error on /api/v1/vpp_id/user/get_username/$id: ${e.stackTraceToString()}"
+                        "other error on $url: ${e.stackTraceToString()}"
+                    )
+                    return null
+                }
+            }
+        }
+    }
+
+    override suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode? {
+        val url = "/api/v1/vpp_id/booking/cancel_booking/${roomBooking.id}"
+        val currentToken = getVppIdToken(roomBooking.bookedBy ?: return null) ?: return null
+        return try {
+            val response = executeRequest(
+                url,
+                currentToken,
+                HttpMethod.Post
+            )
+            if (response.status == HttpStatusCode.OK || response.status == HttpStatusCode.NotFound) roomBookingDao.deleteById(
+                roomBooking.id
+            )
+            if (response.status != HttpStatusCode.OK) {
+                Log.d("CancelBooking", "status not ok: ${response.status}")
+                return response.status
+            }
+            response.status
+        } catch (e: Exception) {
+            when (e) {
+                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> null
+                else -> {
+                    Log.d(
+                        "OnlineRequest",
+                        "other error on $url: ${e.stackTraceToString()}"
                     )
                     return null
                 }

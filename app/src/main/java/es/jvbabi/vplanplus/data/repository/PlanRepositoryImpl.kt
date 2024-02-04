@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.data.repository
 
-import android.util.Log
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
@@ -112,7 +111,6 @@ class PlanRepositoryImpl(
                         lesson.end.isEqual(roomBooking.to.plusSeconds(1)) &&
                         date == roomBooking.from.toLocalDate()
             }
-            Log.d("PlanRepositoryImpl", "build: $booking")
             lesson.copy(roomBooking = booking)
         }
         if (dayType == DayType.NORMAL) {

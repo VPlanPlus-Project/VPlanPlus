@@ -144,9 +144,8 @@ fun ActiveDayContent(
                 ) {
                     DetailedLessonCard(lessons = nextLessons, onFindRoomClicked = onFindRoomClicked)
                 }
-            }
-            if (nextLesson != null) {
-                day.lessons.filter { it.lessonNumber > nextLesson.lessonNumber }
+            } else if (nextLesson != null) {
+                day.lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
                     .groupBy { it.lessonNumber }
                     .forEach { (_, lessons) ->
                         Box(
