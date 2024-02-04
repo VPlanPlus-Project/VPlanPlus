@@ -130,7 +130,7 @@ object VppModule {
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())
             .allowMainThreadQueries()
-            .fallbackToDestructiveMigration()
+            //.fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .enableMultiInstanceInvalidation()
             .build()

@@ -71,13 +71,12 @@ import es.jvbabi.vplanplus.domain.model.Week
         LogRecord::class,
         DbCalendarEvent::class
     ],
-    version = 12,
+    version = 10,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
         AutoMigration(from = 8, to = 9), // primary keys for school entity
         AutoMigration(from = 9, to = 10), // add vppId
-        AutoMigration(from = 10, to = 11), // add room booking table
     ],
 )
 @TypeConverters(
