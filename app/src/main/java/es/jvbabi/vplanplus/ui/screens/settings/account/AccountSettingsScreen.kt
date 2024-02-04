@@ -62,7 +62,7 @@ fun AccountSettingsScreen(
         onLogin = {
             val browserIntent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("https://id.vpp.jvbabi.es/link/?name=VPlanPlus%20on%20Android%20" + URLEncoder.encode(Build.VERSION.RELEASE, "UTF-8"))
+                Uri.parse("https://id.vpp.jvbabi.es/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"))
             )
             ContextCompat.startActivity(context, browserIntent, null)
             (context as Activity).finish()
