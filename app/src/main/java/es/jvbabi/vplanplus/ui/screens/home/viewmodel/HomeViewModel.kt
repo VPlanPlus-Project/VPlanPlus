@@ -68,7 +68,7 @@ class HomeViewModel @Inject constructor(
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
 
-    private var dataSyncJob: Job? = null
+    private var dataSyncJob: MutableMap<LocalDate, Job?> = mutableMapOf()
     private var searchJob: Job? = null
 
     private var version = 0L
@@ -85,7 +85,8 @@ class HomeViewModel @Inject constructor(
                     currentVppId = it.vppId,
                     fullyCompatible = it.school?.fullyCompatible?:false
                 )
-                startLessonUiSync(true)
+                startLessonUiSync(true, LocalDate.now())
+                startLessonUiSync(true, LocalDate.now().plusDays(1))
             }
         }
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
@@ -103,7 +104,8 @@ class HomeViewModel @Inject constructor(
                 )
             }.collect {
                 _state.value = it
-                startLessonUiSync(true)
+                startLessonUiSync(true, LocalDate.now())
+                startLessonUiSync(true, LocalDate.now().plusDays(1))
             }
         }
 
@@ -123,14 +125,15 @@ class HomeViewModel @Inject constructor(
     /**
      * Starts the UI sync
      */
-    private fun startLessonUiSync(force: Boolean) {
-        if (dataSyncJob != null && !force) return
-        if (force) dataSyncJob?.cancel()
-        dataSyncJob = viewModelScope.launch {
+    private fun startLessonUiSync(force: Boolean, date: LocalDate) {
+        if (dataSyncJob.containsKey(date) && !force) return
+        if (force) dataSyncJob[date]?.cancel()
+        dataSyncJob[date] = viewModelScope.launch {
             while (getActiveProfile() == null) delay(50)
-            planRepository.getDayForProfile(getActiveProfile()!!, LocalDate.now(), version).distinctUntilChanged().collect { day ->
-                val bookings = roomRepository.getRoomBookings(LocalDate.now())
-                _state.value = _state.value.copy(day = day, isLoading = false, bookings = bookings)
+            planRepository.getDayForProfile(getActiveProfile()!!, date, version).distinctUntilChanged().collect { day ->
+                val bookings = roomRepository.getRoomBookings(date)
+                if (date.isEqual(LocalDate.now())) _state.value = _state.value.copy(day = day, isLoading = false, bookings = bookings)
+                else _state.value = _state.value.copy(nextDay = day, isLoading = false, bookings = bookings)
             }
         }
     }
@@ -159,7 +162,8 @@ class HomeViewModel @Inject constructor(
     fun onProfileSelected(profileId: UUID) {
         Log.d("HomeViewMode.ChangedProfile", "onProfileSelected: $profileId")
         viewModelScope.launch {
-            startLessonUiSync(true)
+            startLessonUiSync(true, LocalDate.now())
+            startLessonUiSync(true, LocalDate.now().plusDays(1))
             clearLessons()
             keyValueRepository.set(Keys.ACTIVE_PROFILE, profileId.toString())
         }
@@ -301,6 +305,7 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val time: LocalDateTime = LocalDateTime.now(),
     val day: Day? = null,
+    val nextDay: Day? = null,
     val bookings: List<RoomBooking> = emptyList(),
     val isLoading: Boolean = true,
     val profiles: List<Profile> = listOf(),

@@ -253,8 +253,10 @@
     <string name="home_activeDayWeekendSubtitle">It\'s weekend 🎉</string>
     <string name="home_activeDayBooking">(booked)</string>
     <string name="home_activeBookedBy">Booked by %1$s for class %2$s</string>
-    <string name="home_activeDayBookings">Booked rooms</string>
     <string name="searchAvailableRoom_bookingDetailCancel">Cancel booking</string>
     <string name="searchAvailableRoom_cancelSuccess">The room booking was canceled successfully</string>
     <string name="searchAvailableRoom_cancelNotFound">This booking wasn\'t found. It might be canceled already.</string>
+    <string name="home_nextDayTitle">Prepare your next school day</string>
+    <string name="home_nextDayStartingAt">%1$s - starting at %2$s</string>
+    <string name="home_nextDayLessonDescription">At %1$s lesson</string>
 </resources>

@@ -17,7 +17,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +30,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,12 +43,15 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.Grid
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
+import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
+import es.jvbabi.vplanplus.ui.screens.home.components.home.components.FullLoading
 import es.jvbabi.vplanplus.ui.screens.home.components.home.screens.Weekend
 import es.jvbabi.vplanplus.ui.screens.home.components.home.text.LastSyncText
 import java.time.LocalDateTime
@@ -58,151 +61,191 @@ import es.jvbabi.vplanplus.ui.preview.Room as PreviewRoom
 
 @Composable
 fun ActiveDayContent(
-    info: String?,
     currentTime: LocalDateTime,
     day: Day,
+    nextDay: Day?,
     profile: Profile,
-    bookings: List<RoomBooking>,
     hiddenLessons: Int,
     lastSync: LocalDateTime?,
     isLoading: Boolean,
     onFindRoomClicked: () -> Unit = {}
 ) {
     val lessons = day.lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
-    Box(
+    val scrollState = rememberScrollState()
+    Column(
         modifier = Modifier
             .fillMaxSize()
-    ) {
+            .verticalScroll(scrollState)
+    ) root@{
         if (isLoading) {
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                CircularProgressIndicator()
-            }
+            FullLoading()
             return
         }
         if (day.type == DayType.WEEKEND) {
-            Column {
-                LastSyncText(lastSync, modifier = Modifier.padding(start = 16.dp))
-                Weekend()
-            }
+            LastSyncText(lastSync, modifier = Modifier.padding(start = 16.dp))
+            Weekend()
             return
+        }
+        Row(
+            modifier = Modifier.padding(start = 8.dp)
+        ) {
+            if (hiddenLessons > 0) {
+                Text(
+                    text = stringResource(
+                        id = R.string.home_lessonsHidden,
+                        hiddenLessons
+                    ) + " $DOT ",
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+            LastSyncText(lastSync)
+        }
+        if (day.info != null) {
+            Box(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                InfoCard(
+                    imageVector = Icons.Default.Info,
+                    title = stringResource(id = R.string.home_activeDaySchoolInformation),
+                    text = day.info
+                )
+            }
+        }
+        val currentLessons = lessons.filter { it.progress(currentTime) in 0.0..<1.0 }
+        if (currentLessons.isNotEmpty()) {
+            Text(
+                text = stringResource(id = R.string.home_activeDayNow),
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(horizontal = 8.dp)
+            )
+            Column(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                DetailedLessonCard(
+                    lessons = currentLessons,
+                    onFindRoomClicked = onFindRoomClicked
+                )
+                HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+            }
+        }
+        val nextLesson = lessons.firstOrNull {
+            it.progress(currentTime) < 0
+        }
+        if (nextLesson != null && currentLessons.isEmpty()) {
+            val nextLessons = lessons.filter { it.lessonNumber == nextLesson.lessonNumber }
+            Box(
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+            ) {
+                DetailedLessonCard(lessons = nextLessons, onFindRoomClicked = onFindRoomClicked)
+            }
+
+            lessons.filter { it.lessonNumber > nextLesson.lessonNumber }
+                .groupBy { it.lessonNumber }
+                .forEach { (_, lessons) ->
+                    Box(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        LessonCard(lessons = lessons)
+                    }
+                }
+        } else if (nextLesson != null) {
+            lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
+                .groupBy { it.lessonNumber }
+                .forEach { (_, lessons) ->
+                    Box(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    ) {
+                        LessonCard(lessons = lessons)
+                    }
+                }
+            HorizontalDivider(modifier = Modifier.padding(8.dp))
         }
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-        ) root@{
-            Row(
-                modifier = Modifier.padding(start = 8.dp)
-            ) {
-                if (hiddenLessons > 0) {
-                    Text(
-                        text = stringResource(
-                            id = R.string.home_lessonsHidden,
-                            hiddenLessons
-                        ) + " $DOT ",
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-                LastSyncText(lastSync)
-            }
-            if (info != null) {
-                Box(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    InfoCard(
-                        imageVector = Icons.Default.Info,
-                        title = stringResource(id = R.string.home_activeDaySchoolInformation),
-                        text = info
-                    )
-                }
-            }
-            val currentLessons = lessons.filter { it.progress(currentTime) in 0.0..<1.0 }
-            if (currentLessons.isNotEmpty()) {
+                .padding(16.dp)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            val end = lessons.lastOrNull { it.displaySubject != "-" }?.end ?: return@Column
+            val difference = currentTime.until(end, ChronoUnit.SECONDS)
+            Icon(
+                imageVector = Icons.Default.SportsEsports,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp)
+            )
+            if (difference > 0) Text(
+                text = stringResource(
+                    id = R.string.home_activeDayCountdown,
+                    formatDuration(difference)
+                )
+            )
+            else {
                 Text(
-                    text = stringResource(id = R.string.home_activeDayNow),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-                Column(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    DetailedLessonCard(
-                        lessons = currentLessons,
-                        onFindRoomClicked = onFindRoomClicked
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
-                }
-            }
-            val nextLesson = lessons.firstOrNull {
-                it.progress(currentTime) < 0
-            }
-            if (nextLesson != null && currentLessons.isEmpty()) {
-                val nextLessons = lessons.filter { it.lessonNumber == nextLesson.lessonNumber }
-                Box(
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                ) {
-                    DetailedLessonCard(lessons = nextLessons, onFindRoomClicked = onFindRoomClicked)
-                }
-
-                lessons.filter { it.lessonNumber > nextLesson.lessonNumber }
-                    .groupBy { it.lessonNumber }
-                    .forEach { (_, lessons) ->
-                        Box(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            LessonCard(lessons = lessons)
-                        }
-                    }
-            } else if (nextLesson != null) {
-                lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
-                    .groupBy { it.lessonNumber }
-                    .forEach { (_, lessons) ->
-                        Box(
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            LessonCard(lessons = lessons)
-                        }
-                    }
-                HorizontalDivider(modifier = Modifier.padding(8.dp))
-            }
-            if (bookings.isNotEmpty()) {
-                Text(
-                    text = stringResource(id = R.string.home_activeDayBookings),
-                    style = MaterialTheme.typography.titleMedium,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
-                bookings.forEach { booking ->
-                    Box(modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
-                        RoomBookingCard(roomBooking = booking)
-                    }
-                }
-            }
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                val end = lessons.lastOrNull{ it.displaySubject != "-" }?.end ?: return@Column
-                val difference = currentTime.until(end, ChronoUnit.SECONDS)
-                Icon(
-                    imageVector = Icons.Default.SportsEsports,
-                    contentDescription = null,
-                    modifier = Modifier.size(40.dp)
-                )
-                if (difference > 0) Text(
-                    text = stringResource(
-                        id = R.string.home_activeDayCountdown,
-                        formatDuration(difference)
-                    )
-                )
-                else Text(
                     text = stringResource(id = R.string.home_activeDayEnd),
                     textAlign = TextAlign.Center
+                )
+            }
+        }
+        if (lessons.none { it.progress(currentTime) < 1f } && nextDay != null) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) nextDay@{
+                val nextDayLessons = nextDay.lessons
+                    .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                    .sortedBy { it.lessonNumber }
+                Text(
+                    text = stringResource(id = R.string.home_nextDayTitle),
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = stringResource(
+                        id = R.string.home_nextDayStartingAt,
+                        nextDay.date.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
+                        nextDayLessons.first().start.format(
+                            DateTimeFormatter.ofPattern("HH:mm")
+                        )
+                    ), style = MaterialTheme.typography.bodySmall
+                )
+                if (nextDay.info != null) {
+                    Text(
+                        text = nextDay.info,
+                        style = MaterialTheme.typography.bodySmall,
+                        fontStyle = FontStyle.Italic
+                    )
+                }
+                val subjects =
+                    nextDayLessons.map { it.displaySubject }.distinct().filter { it != "-" }
+
+                if (subjects.isEmpty()) return@nextDay
+                Grid(
+                    columns = 2,
+                    modifier = Modifier.padding(top = 8.dp),
+                    content = subjects.map { subject ->
+                        {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(2.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                                    .padding(8.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                val lessonNumbers =
+                                    nextDayLessons.filter { it.displaySubject == subject }
+                                        .map { it.lessonNumber.toLocalizedString() }
+                                SubjectIcon(subject = subject, modifier = Modifier.size(38.dp))
+                                Text(text = subject, style = MaterialTheme.typography.labelMedium)
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.home_nextDayLessonDescription,
+                                        lessonNumbers.joinToString(", ")
+                                    ),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                    }
                 )
             }
         }
@@ -411,7 +454,11 @@ private fun RoomBookingCard(roomBooking: RoomBooking) {
         val formatter = DateTimeFormatter.ofPattern("HH:mm")
         Column {
             Text(
-                text = "${roomBooking.room.name} $DOT ${roomBooking.from.format(formatter)} - ${roomBooking.to.plusSeconds(1).format(formatter)}",
+                text = "${roomBooking.room.name} $DOT ${roomBooking.from.format(formatter)} - ${
+                    roomBooking.to.plusSeconds(
+                        1
+                    ).format(formatter)
+                }",
                 style = MaterialTheme.typography.titleMedium
             )
             Text(
@@ -431,16 +478,21 @@ private fun RoomBookingCard(roomBooking: RoomBooking) {
 @Composable
 private fun ContentPreview() {
     ActiveDayContent(
-        info = "Info",
         currentTime = LocalDateTime.now(),
         day = Day(
-            lessons = Lessons.generateLessons(2, true),
-            type = DayType.WEEKEND,
+            lessons = Lessons.generateLessons(2, false),
+            type = DayType.NORMAL,
             date = LocalDateTime.now().toLocalDate(),
             info = null,
             state = DayDataState.DATA
         ),
-        bookings = emptyList(),
+        nextDay = Day(
+            lessons = Lessons.generateLessons(2, true),
+            type = DayType.NORMAL,
+            date = LocalDateTime.now().toLocalDate().plusDays(1),
+            info = null,
+            state = DayDataState.DATA
+        ),
         profile = es.jvbabi.vplanplus.ui.preview.Profile.generateClassProfile(),
         hiddenLessons = 2,
         lastSync = LocalDateTime.now(),

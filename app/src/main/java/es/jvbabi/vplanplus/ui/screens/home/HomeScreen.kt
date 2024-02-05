@@ -191,10 +191,9 @@ fun HomeScreenContent(
                             .fillMaxSize()
                     ) {
                         ActiveDayContent(
-                            info = state.day.info,
                             currentTime = state.time,
                             day = state.day,
-                            bookings = state.bookings,
+                            nextDay = state.nextDay,
                             profile = state.activeProfile!!,
                             hiddenLessons = hiddenLessons,
                             lastSync = state.lastSync,
