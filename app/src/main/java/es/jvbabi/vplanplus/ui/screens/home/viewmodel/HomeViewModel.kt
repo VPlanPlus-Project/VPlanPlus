@@ -103,6 +103,7 @@ class HomeViewModel @Inject constructor(
                 )
             }.collect {
                 _state.value = it
+                startLessonUiSync(true)
             }
         }
 

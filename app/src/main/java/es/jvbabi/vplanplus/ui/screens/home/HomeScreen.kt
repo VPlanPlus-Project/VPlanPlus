@@ -195,9 +195,10 @@ fun HomeScreenContent(
                             currentTime = state.time,
                             day = state.day,
                             bookings = state.bookings,
-                            hiddenLessons,
-                            state.lastSync,
-                            state.isLoading,
+                            profile = state.activeProfile!!,
+                            hiddenLessons = hiddenLessons,
+                            lastSync = state.lastSync,
+                            isLoading = state.isLoading,
                             onFindRoomClicked = {
                                 onFindAvailableRoomClicked()
                             }

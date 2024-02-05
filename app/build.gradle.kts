@@ -10,12 +10,14 @@ android {
     namespace = "es.jvbabi.vplanplus"
     compileSdk = 34
 
+    ndkVersion = "23.0.7599858"
+
     defaultConfig {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 52
-        versionName = "0.9-beta"
+        versionCode = 57
+        versionName = "0.9-beta-quick-fix-2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -29,14 +31,11 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            ndk {
-                debugSymbolLevel = "FULL"
-            }
         }
     }
     compileOptions {
@@ -58,6 +57,7 @@ android {
         }
     }
 }
+
 
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
