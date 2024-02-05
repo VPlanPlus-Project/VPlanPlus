@@ -147,6 +147,16 @@ fun ActiveDayContent(
                 ) {
                     DetailedLessonCard(lessons = nextLessons, onFindRoomClicked = onFindRoomClicked)
                 }
+
+                lessons.filter { it.lessonNumber > nextLesson.lessonNumber }
+                    .groupBy { it.lessonNumber }
+                    .forEach { (_, lessons) ->
+                        Box(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            LessonCard(lessons = lessons)
+                        }
+                    }
             } else if (nextLesson != null) {
                 lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
                     .groupBy { it.lessonNumber }
@@ -177,7 +187,7 @@ fun ActiveDayContent(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val end = lessons.lastOrNull()?.end ?: return@Column
+                val end = lessons.lastOrNull{ it.displaySubject != "-" }?.end ?: return@Column
                 val difference = currentTime.until(end, ChronoUnit.SECONDS)
                 Icon(
                     imageVector = Icons.Default.SportsEsports,
