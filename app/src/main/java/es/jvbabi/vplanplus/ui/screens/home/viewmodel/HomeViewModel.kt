@@ -85,8 +85,15 @@ class HomeViewModel @Inject constructor(
                     currentVppId = it.vppId,
                     fullyCompatible = it.school?.fullyCompatible?:false
                 )
-                startLessonUiSync(true, LocalDate.now())
-                startLessonUiSync(true, LocalDate.now().plusDays(1))
+                if (it.school == null) return@collect
+                var tomorrow = LocalDate.now().plusDays(1)
+                while (tomorrow.dayOfWeek.value > it.school.daysPerWeek) {
+                    tomorrow = tomorrow.plusDays(1)
+                }
+                _state.value = _state.value.copy(
+                    nextDayDate = tomorrow
+                )
+                restartUiSync()
             }
         }
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
@@ -104,8 +111,7 @@ class HomeViewModel @Inject constructor(
                 )
             }.collect {
                 _state.value = it
-                startLessonUiSync(true, LocalDate.now())
-                startLessonUiSync(true, LocalDate.now().plusDays(1))
+                restartUiSync()
             }
         }
 
@@ -162,8 +168,7 @@ class HomeViewModel @Inject constructor(
     fun onProfileSelected(profileId: UUID) {
         Log.d("HomeViewMode.ChangedProfile", "onProfileSelected: $profileId")
         viewModelScope.launch {
-            startLessonUiSync(true, LocalDate.now())
-            startLessonUiSync(true, LocalDate.now().plusDays(1))
+            restartUiSync()
             clearLessons()
             keyValueRepository.set(Keys.ACTIVE_PROFILE, profileId.toString())
         }
@@ -300,10 +305,16 @@ class HomeViewModel @Inject constructor(
         })
         onSearchQueryUpdate()
     }
+
+    private fun restartUiSync() {
+        startLessonUiSync(true, _state.value.time.toLocalDate())
+        startLessonUiSync(true, _state.value.nextDayDate)
+    }
 }
 
 data class HomeState(
     val time: LocalDateTime = LocalDateTime.now(),
+    val nextDayDate: LocalDate = LocalDate.now().plusDays(1),
     val day: Day? = null,
     val nextDay: Day? = null,
     val bookings: List<RoomBooking> = emptyList(),

@@ -260,4 +260,6 @@
     <string name="home_nextDayTitle">Bereite den nächsten Schultag vor</string>
     <string name="home_nextDayStartingAt">%1$s - ab %2$s</string>
     <string name="home_nextDayLessonDescription">In %1$s Stunde</string>
+    <string name="home_nextDayNoData">Für den nächsten Schultag gibt es noch keine Daten. Keine Sorge, wir benachrichtigen dich, wenn ein neuer Plan verfügbar ist.</string>
+    <string name="home_nextDayLessons">Dieses Fächer werden stattfinden</string>
 </resources>

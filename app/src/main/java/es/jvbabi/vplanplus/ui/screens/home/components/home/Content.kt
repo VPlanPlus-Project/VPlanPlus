@@ -186,67 +186,82 @@ fun ActiveDayContent(
                 )
             }
         }
-        if (lessons.none { it.progress(currentTime) < 1f } && nextDay != null) {
+        if (lessons.none { it.progress(currentTime) < 1f }) {
             Column(
                 modifier = Modifier.padding(16.dp)
             ) nextDay@{
-                val nextDayLessons = nextDay.lessons
-                    .filter { profile.isDefaultLessonEnabled(it.vpId) }
-                    .sortedBy { it.lessonNumber }
                 Text(
                     text = stringResource(id = R.string.home_nextDayTitle),
                     style = MaterialTheme.typography.titleMedium
                 )
-                Text(
-                    text = stringResource(
-                        id = R.string.home_nextDayStartingAt,
-                        nextDay.date.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
-                        nextDayLessons.first().start.format(
-                            DateTimeFormatter.ofPattern("HH:mm")
-                        )
-                    ), style = MaterialTheme.typography.bodySmall
-                )
-                if (nextDay.info != null) {
+                if (nextDay == null || nextDay.state == DayDataState.NO_DATA) {
                     Text(
-                        text = nextDay.info,
-                        style = MaterialTheme.typography.bodySmall,
-                        fontStyle = FontStyle.Italic
+                        text = stringResource(id = R.string.home_nextDayNoData),
+                        style = MaterialTheme.typography.bodySmall
                     )
-                }
-                val subjects =
-                    nextDayLessons.map { it.displaySubject }.distinct().filter { it != "-" }
-
-                if (subjects.isEmpty()) return@nextDay
-                Grid(
-                    columns = 2,
-                    modifier = Modifier.padding(top = 8.dp),
-                    content = subjects.map { subject ->
-                        {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(2.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceVariant)
-                                    .padding(8.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                val lessonNumbers =
-                                    nextDayLessons.filter { it.displaySubject == subject }
-                                        .map { it.lessonNumber.toLocalizedString() }
-                                SubjectIcon(subject = subject, modifier = Modifier.size(38.dp))
-                                Text(text = subject, style = MaterialTheme.typography.labelMedium)
-                                Text(
-                                    text = stringResource(
-                                        id = R.string.home_nextDayLessonDescription,
-                                        lessonNumbers.joinToString(", ")
-                                    ),
-                                    style = MaterialTheme.typography.labelSmall
-                                )
+                } else {
+                    val nextDayLessons = nextDay.lessons
+                        .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                        .filter { it.displaySubject != "-" }
+                        .sortedBy { it.lessonNumber }
+                    Text(
+                        text = stringResource(
+                            id = R.string.home_nextDayStartingAt,
+                            nextDay.date.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
+                            nextDayLessons.first().start.format(
+                                DateTimeFormatter.ofPattern("HH:mm")
+                            )
+                        ), style = MaterialTheme.typography.bodySmall
+                    )
+                    if (nextDay.info != null) {
+                        Text(
+                            text = nextDay.info,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontStyle = FontStyle.Italic
+                        )
+                    }
+                    val subjects =
+                        nextDayLessons.map { it.displaySubject }.distinct()
+                    if (subjects.isEmpty()) return@nextDay
+                    Text(
+                        text = stringResource(id = R.string.home_nextDayLessons),
+                        style = MaterialTheme.typography.titleSmall
+                    )
+                    Grid(
+                        columns = 2,
+                        modifier = Modifier.padding(top = 8.dp),
+                        content = subjects.map { subject ->
+                            {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(2.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                                        .padding(8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    val lessonNumbers =
+                                        nextDayLessons.filter { it.displaySubject == subject }
+                                            .map { it.lessonNumber.toLocalizedString() }
+                                    SubjectIcon(subject = subject, modifier = Modifier.size(38.dp))
+                                    Text(
+                                        text = subject,
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.home_nextDayLessonDescription,
+                                            lessonNumbers.joinToString(", ")
+                                        ),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
                             }
                         }
-                    }
-                )
+                    )
+                }
+
             }
         }
     }
