@@ -40,6 +40,7 @@ import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -60,12 +61,14 @@ fun ActiveDayContent(
     info: String?,
     currentTime: LocalDateTime,
     day: Day,
+    profile: Profile,
     bookings: List<RoomBooking>,
     hiddenLessons: Int,
     lastSync: LocalDateTime?,
     isLoading: Boolean,
     onFindRoomClicked: () -> Unit = {}
 ) {
+    val lessons = day.lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -117,7 +120,7 @@ fun ActiveDayContent(
                     )
                 }
             }
-            val currentLessons = day.lessons.filter { it.progress(currentTime) in 0.0..<1.0 }
+            val currentLessons = lessons.filter { it.progress(currentTime) in 0.0..<1.0 }
             if (currentLessons.isNotEmpty()) {
                 Text(
                     text = stringResource(id = R.string.home_activeDayNow),
@@ -134,18 +137,18 @@ fun ActiveDayContent(
                     HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
                 }
             }
-            val nextLesson = day.lessons.firstOrNull {
+            val nextLesson = lessons.firstOrNull {
                 it.progress(currentTime) < 0
             }
             if (nextLesson != null && currentLessons.isEmpty()) {
-                val nextLessons = day.lessons.filter { it.lessonNumber == nextLesson.lessonNumber }
+                val nextLessons = lessons.filter { it.lessonNumber == nextLesson.lessonNumber }
                 Box(
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                 ) {
                     DetailedLessonCard(lessons = nextLessons, onFindRoomClicked = onFindRoomClicked)
                 }
             } else if (nextLesson != null) {
-                day.lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
+                lessons.filter { it.lessonNumber >= nextLesson.lessonNumber }
                     .groupBy { it.lessonNumber }
                     .forEach { (_, lessons) ->
                         Box(
@@ -174,7 +177,7 @@ fun ActiveDayContent(
                     .fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                val end = day.lessons.lastOrNull()?.end ?: return@Column
+                val end = lessons.lastOrNull()?.end ?: return@Column
                 val difference = currentTime.until(end, ChronoUnit.SECONDS)
                 Icon(
                     imageVector = Icons.Default.SportsEsports,
@@ -428,9 +431,10 @@ private fun ContentPreview() {
             state = DayDataState.DATA
         ),
         bookings = emptyList(),
+        profile = es.jvbabi.vplanplus.ui.preview.Profile.generateClassProfile(),
         hiddenLessons = 2,
         lastSync = LocalDateTime.now(),
-        false
+        isLoading = false
     )
 }
 
