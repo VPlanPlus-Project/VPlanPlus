@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.general.data
+package es.jvbabi.vplanplus.domain.usecase.sync
 
 import android.content.Context
 import androidx.work.Constraints
@@ -9,7 +9,7 @@ import androidx.work.WorkManager
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.flow.first
 
-class RunSyncUseCase(
+class TriggerSyncUseCase(
     private val context: Context,
     private val isSyncRunningUseCase: IsSyncRunningUseCase
 ) {

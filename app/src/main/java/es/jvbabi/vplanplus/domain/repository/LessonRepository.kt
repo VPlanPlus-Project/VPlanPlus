@@ -11,6 +11,7 @@ interface LessonRepository {
     fun getLessonsForTeacher(teacherId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
     fun getLessonsForClass(classId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
     fun getLessonsForRoom(roomId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
+    suspend fun getLessonsForProfile(profileId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
 
     suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate, version: Long)
 

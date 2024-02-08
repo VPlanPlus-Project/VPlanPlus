@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.general.data
+package es.jvbabi.vplanplus.domain.usecase.sync
 
 import android.content.Context
 import es.jvbabi.vplanplus.util.Worker

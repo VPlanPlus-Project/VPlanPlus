@@ -40,9 +40,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.android.notification.Notification
-import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
-import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.ui.NavigationGraph
@@ -68,13 +65,7 @@ class MainActivity : ComponentActivity() {
     private val homeViewModel: HomeViewModel by viewModels()
 
     @Inject
-    lateinit var profileUseCases: ProfileUseCases
-
-    @Inject
     lateinit var homeUseCases: HomeUseCases
-
-    @Inject
-    lateinit var keyValueUseCases: KeyValueUseCases
 
     private lateinit var navController: NavHostController
 
@@ -91,13 +82,11 @@ class MainActivity : ComponentActivity() {
             var init by remember { mutableStateOf(false) }
             var goToOnboarding: Boolean? by remember { mutableStateOf(null) }
             LaunchedEffect(key1 = "init", block = {
-                colors = homeUseCases.getColorSchemeUseCase()
                 Log.d("MainActivity", "colorscheme: ${homeUseCases.getColorSchemeUseCase()}")
-                goToOnboarding = profileUseCases.getActiveProfile() == null
+                goToOnboarding = homeUseCases.getCurrentIdentity.invoke().first()?.profile == null
                 init = true
-
-                keyValueUseCases.getFlow(Keys.COLOR).collect {
-                    colors = homeUseCases.getColorSchemeUseCase()
+                homeUseCases.getColorSchemeUseCase().collect {
+                    colors = it
                 }
             })
             if (!init) return@setContent
@@ -192,7 +181,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(key1 = true, block = {
                 Notification.createChannels(
                     applicationContext,
-                    profileUseCases.getProfiles().first()
+                    homeUseCases.getProfilesUseCase().first().map { it.value }.flatten()
                 )
             })
         }

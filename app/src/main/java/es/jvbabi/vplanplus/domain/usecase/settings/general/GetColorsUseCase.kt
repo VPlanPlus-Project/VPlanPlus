@@ -42,13 +42,14 @@ import es.jvbabi.vplanplus.ui.theme.color.teal_md_theme_dark_primary
 import es.jvbabi.vplanplus.ui.theme.color.teal_md_theme_light_primary
 import es.jvbabi.vplanplus.ui.theme.color.yellow_md_theme_dark_primary
 import es.jvbabi.vplanplus.ui.theme.color.yellow_md_theme_light_primary
+import kotlinx.coroutines.flow.first
 
 
 class GetColorsUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
     suspend operator fun invoke(darkScheme: Boolean): Map<Colors, ColorScheme> {
-        val active = GetColorSchemeUseCase(keyValueRepository).invoke()
+        val active = GetColorSchemeUseCase(keyValueRepository).invoke().first()
         return if (darkScheme) {
             mapOf(
                 Colors.AMBER to ColorScheme(amber_md_theme_dark_primary, active == Colors.AMBER),
