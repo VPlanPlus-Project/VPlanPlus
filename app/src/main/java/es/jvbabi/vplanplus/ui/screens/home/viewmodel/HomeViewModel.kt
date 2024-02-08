@@ -18,7 +18,9 @@ import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -31,10 +33,12 @@ import es.jvbabi.vplanplus.domain.usecase.Keys
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.firstOrNull
@@ -57,13 +61,14 @@ class HomeViewModel @Inject constructor(
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
     private val timeRepository: TimeRepository,
-    private val messageRepository: MessageRepository
+    private val messageRepository: MessageRepository,
+    private val homeUseCases: HomeUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
     val state: State<HomeState> = _state
 
-    private val dataSyncJobs: HashMap<LocalDate, Job> = HashMap()
+    private var dataSyncJob: MutableMap<LocalDate, Job?> = mutableMapOf()
     private var searchJob: Job? = null
 
     private var version = 0L
@@ -71,33 +76,42 @@ class HomeViewModel @Inject constructor(
     private var homeUiSyncJob: Job? = null
 
     init {
+        viewModelScope.launch {
+            homeUseCases.getCurrentIdentity().collect {
+                if (it == null) return@collect
+                _state.value = _state.value.copy(
+                    activeProfile = it.profile,
+                    activeSchool = it.school,
+                    currentVppId = it.vppId,
+                    fullyCompatible = it.school?.fullyCompatible?:false
+                )
+                if (it.school == null) return@collect
+                var tomorrow = LocalDate.now().plusDays(1)
+                while (tomorrow.dayOfWeek.value > it.school.daysPerWeek) {
+                    tomorrow = tomorrow.plusDays(1)
+                }
+                _state.value = _state.value.copy(
+                    nextDayDate = tomorrow
+                )
+                restartUiSync()
+            }
+        }
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
                 profileUseCases.getProfiles().distinctUntilChanged(),
-                keyValueRepository.getFlow(Keys.ACTIVE_PROFILE).distinctUntilChanged(),
                 keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
                 keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
                 Worker.isWorkerRunningFlow("SyncWork", app.applicationContext).distinctUntilChanged(),
-            ) { profiles, activeProfileId, lastSyncTs, v, isSyncing ->
+            ) { profiles, lastSyncTs, v, isSyncing ->
                 version = v?.toLong()?:0
-                var school: School? = null
-                if (activeProfileId != null) {
-                    try {
-                        school = profileUseCases.getSchoolFromProfileId(UUID.fromString(activeProfileId))
-                    } catch (_: IllegalArgumentException) {}
-                }
                 _state.value.copy(
                     profiles = profiles,
-                    activeProfile = profiles.find { it.id.toString() == activeProfileId },
                     lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
                     syncing = isSyncing,
-                    activeSchool = school,
-                    fullyCompatible = school?.fullyCompatible ?: true,
                 )
             }.collect {
                 _state.value = it
-                killUiSyncJobs()
-                startLessonUiSync(state.value.date, 5)
+                restartUiSync()
             }
         }
 
@@ -115,31 +129,18 @@ class HomeViewModel @Inject constructor(
     }
 
     /**
-     * Called when the user changes the page
-     * @param date The date of the new page
+     * Starts the UI sync
      */
-    fun onPageChanged(date: LocalDate) {
-        startLessonUiSync(date, 5)
-        _state.value = _state.value.copy(date = date)
-    }
-
-    /**
-     * Starts the UI sync for the given date
-     * @param date The date to sync
-     * @param neighbors The number of neighbors to sync as well
-     */
-    private fun startLessonUiSync(date: LocalDate, neighbors: Int) {
-        if (dataSyncJobs.containsKey(date) || getActiveProfile() == null) return
-        dataSyncJobs[date] = viewModelScope.launch {
+    private fun startLessonUiSync(force: Boolean, date: LocalDate) {
+        if (dataSyncJob.containsKey(date) && !force) return
+        if (force) dataSyncJob[date]?.cancel()
+        dataSyncJob[date] = viewModelScope.launch {
+            while (getActiveProfile() == null) delay(50)
             planRepository.getDayForProfile(getActiveProfile()!!, date, version).distinctUntilChanged().collect { day ->
-                _state.value = _state.value.copy(lessons = _state.value.lessons.plus(
-                    date to day
-                ))
+                val bookings = roomRepository.getRoomBookings(date)
+                if (date.isEqual(LocalDate.now())) _state.value = _state.value.copy(day = day, isLoading = false, bookings = bookings)
+                else _state.value = _state.value.copy(nextDay = day, isLoading = false, bookings = bookings)
             }
-        }
-        repeat(neighbors/2) {
-            startLessonUiSync(date.plusDays(it.toLong()), 0)
-            startLessonUiSync(date.minusDays(it.toLong()), 0)
         }
     }
 
@@ -167,25 +168,16 @@ class HomeViewModel @Inject constructor(
     fun onProfileSelected(profileId: UUID) {
         Log.d("HomeViewMode.ChangedProfile", "onProfileSelected: $profileId")
         viewModelScope.launch {
-            killUiSyncJobs()
+            restartUiSync()
             clearLessons()
             keyValueRepository.set(Keys.ACTIVE_PROFILE, profileId.toString())
         }
     }
 
-    fun setViewType(viewType: ViewType) {
-        _state.value = _state.value.copy(viewMode = viewType)
-    }
-
     private fun getActiveProfile() = _state.value.activeProfile
 
     private fun clearLessons() {
-        _state.value = _state.value.copy(lessons = mapOf())
-    }
-
-    private fun killUiSyncJobs() {
-        dataSyncJobs.forEach { it.value.cancel() }
-        dataSyncJobs.clear()
+        _state.value = _state.value.copy(day = null)
     }
 
     // search
@@ -313,17 +305,24 @@ class HomeViewModel @Inject constructor(
         })
         onSearchQueryUpdate()
     }
+
+    private fun restartUiSync() {
+        startLessonUiSync(true, _state.value.time.toLocalDate())
+        startLessonUiSync(true, _state.value.nextDayDate)
+    }
 }
 
 data class HomeState(
     val time: LocalDateTime = LocalDateTime.now(),
-    val lessons: Map<LocalDate, Day> = mapOf(),
-    val isLoading: Boolean = false,
+    val nextDayDate: LocalDate = LocalDate.now().plusDays(1),
+    val day: Day? = null,
+    val nextDay: Day? = null,
+    val bookings: List<RoomBooking> = emptyList(),
+    val isLoading: Boolean = true,
     val profiles: List<Profile> = listOf(),
     val activeProfile: Profile? = null,
     val activeSchool: School? = null,
-    val date: LocalDate = LocalDate.now(),
-    val viewMode: ViewType = ViewType.DAY,
+    val currentVppId: VppId? = null,
     val notificationPermissionGranted: Boolean = false,
     val syncing: Boolean = false,
     val fullyCompatible: Boolean = true,
@@ -348,10 +347,6 @@ data class HomeState(
         ) this.activeProfile?.originalName ?: "" else this.activeProfile?.displayName
             ?: ""
     }
-}
-
-enum class ViewType {
-    WEEK, DAY
 }
 
 data class ResultGroup(

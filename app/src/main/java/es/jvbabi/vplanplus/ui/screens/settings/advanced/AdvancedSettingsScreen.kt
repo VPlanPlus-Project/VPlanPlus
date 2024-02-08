@@ -38,9 +38,9 @@ fun AdvancedSettingsScreen(
         onBack = { navHostController.navigateUp() },
         onLogsClicked = { navHostController.navigate(Screen.SettingsAdvancedLogScreen.route) },
         state = state,
-        onDeletePlansClicked = { viewModel.showDeletePlanDataDialog() },
-        onDeletePlansYes = { viewModel.deletePlanData() },
-        onDeletePlansNo = { viewModel.closeDeletePlanDataDialog() }
+        onDeletePlansClicked = { viewModel.showDeleteCacheDialog() },
+        onDeletePlansYes = { viewModel.deleteCache() },
+        onDeletePlansNo = { viewModel.closeDeleteCacheDialog() }
     )
 }
 
@@ -54,7 +54,7 @@ private fun AdvancedSettingsScreenContent(
     onDeletePlansYes: () -> Unit = {},
     onDeletePlansNo: () -> Unit = {}
 ) {
-    if (state.showDeletePlanData) DeletePlanDataDialog(
+    if (state.showDeleteCacheDialog) DeletePlanDataDialog(
         { onDeletePlansYes() },
         { onDeletePlansNo() }
     )
@@ -85,8 +85,8 @@ private fun AdvancedSettingsScreenContent(
             Divider()
             SettingsSetting(
                 icon = Icons.Outlined.DeleteForever,
-                title = stringResource(id = R.string.advancedSettings_clearDataTitle),
-                subtitle = stringResource(id = R.string.advancedSettings_clearDataText),
+                title = stringResource(id = R.string.advancedSettings_clearCacheTitle),
+                subtitle = stringResource(id = R.string.advancedSettings_clearCacheText),
                 type = SettingsType.FUNCTION,
                 doAction = { onDeletePlansClicked() }
             )

@@ -27,6 +27,7 @@ import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -34,6 +35,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
+import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -52,6 +54,7 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
@@ -59,6 +62,9 @@ import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
 import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.VPlanUseCases
+import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomUseCase
+import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
+import es.jvbabi.vplanplus.domain.usecase.find_room.CancelBookingUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.GetRoomMapUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
@@ -70,6 +76,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.data.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.RunSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.data.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
@@ -85,12 +92,19 @@ import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
-import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeletePlansUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.DeleteAccountUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.TestAccountUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -114,8 +128,11 @@ object VppModule {
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
+            .addTypeConverter(VppIdStateConverter())
             .allowMainThreadQueries()
+            //.fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
+            .enableMultiInstanceInvalidation()
             .build()
     }
 
@@ -238,12 +255,15 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun providePlanRepository(db: VppDatabase): PlanRepository {
+    fun providePlanRepository(
+        db: VppDatabase,
+        roomRepository: RoomRepository
+    ): PlanRepository {
         return PlanRepositoryImpl(
             holidayRepository = provideHolidayRepository(db),
             teacherRepository = provideTeacherRepository(db),
             classRepository = provideClassRepository(db),
-            roomRepository = provideRoomRepository(db),
+            roomRepository = roomRepository,
             lessonRepository = provideLessonRepository(db),
             planDao = db.planDao
         )
@@ -251,8 +271,17 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideRoomRepository(db: VppDatabase): RoomRepository {
-        return RoomRepositoryImpl(db.schoolEntityDao)
+    fun provideRoomRepository(
+        db: VppDatabase,
+        vppIdRepository: VppIdRepository,
+        classRepository: ClassRepository
+    ): RoomRepository {
+        return RoomRepositoryImpl(
+            db.schoolEntityDao,
+            db.roomBookingDao,
+            vppIdRepository,
+            classRepository
+        )
     }
 
     @Provides
@@ -265,6 +294,20 @@ object VppModule {
     @Singleton
     fun provideNotificationRepository(@ApplicationContext context: Context, logRecordRepository: LogRecordRepository): NotificationRepository {
         return NotificationRepositoryImpl(context, logRecordRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideVppIdRepository(
+        db: VppDatabase,
+        classRepository: ClassRepository
+    ): VppIdRepository {
+        return VppIdRepositoryImpl(
+            db.vppIdDao,
+            db.vppIdTokenDao,
+            classRepository,
+            db.roomBookingDao
+        )
     }
 
     // Use cases
@@ -341,7 +384,20 @@ object VppModule {
             defaultLessonRepository = defaultLessonRepository,
             lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
             keyValueUseCases = provideKeyValueUseCases(provideKeyValueRepository(db)),
-            planRepository = providePlanRepository(db)
+            planRepository = providePlanRepository(db, roomRepository),
+            lessonTimesRepository = provideLessonTimeRepository(db),
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideAccountSettingsUseCases(
+        vppIdRepository: VppIdRepository
+    ): AccountSettingsUseCases {
+        return AccountSettingsUseCases(
+            getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository),
+            testAccountUseCase = TestAccountUseCase(vppIdRepository = vppIdRepository),
+            deleteAccountUseCase = DeleteAccountUseCase(vppIdRepository = vppIdRepository)
         )
     }
 
@@ -401,7 +457,10 @@ object VppModule {
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         lessonTimeRepository: LessonTimeRepository,
-        lessonUseCases: LessonUseCases
+        vppIdRepository: VppIdRepository,
+        lessonUseCases: LessonUseCases,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
+        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): FindRoomUseCases {
         return FindRoomUseCases(
             getRoomMapUseCase = GetRoomMapUseCase(
@@ -411,6 +470,19 @@ object VppModule {
                 lessonTimeRepository = lessonTimeRepository,
                 classRepository = classRepository
             ),
+            canBookRoomUseCase = CanBookRoomUseCase(
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
+                classRepository = classRepository,
+                vppIdRepository = vppIdRepository,
+            ),
+            bookRoomUseCase = BookRoomUseCase(
+                vppIdRepository = vppIdRepository,
+                classRepository = classRepository,
+                roomRepository = roomRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
+            ),
+            getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+            cancelBooking = CancelBookingUseCase(vppIdRepository)
         )
     }
 
@@ -423,6 +495,29 @@ object VppModule {
         return GetCurrentProfileUseCase(
             profileRepository = profileRepository,
             keyValueRepository = keyValueRepository
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentIdentityUseCase(
+        vppIdRepository: VppIdRepository,
+        classRepository: ClassRepository,
+        teacherRepository: TeacherRepository,
+        roomRepository: RoomRepository,
+        keyValueRepository: KeyValueRepository,
+        profileRepository: ProfileRepository
+    ): GetCurrentIdentityUseCase {
+        return GetCurrentIdentityUseCase(
+            vppIdRepository = vppIdRepository,
+            classRepository = classRepository,
+            keyValueRepository = keyValueRepository,
+            profileRepository = profileRepository,
+            getSchoolFromProfileUseCase = GetSchoolFromProfileUseCase(
+                classRepository = classRepository,
+                teacherRepository = teacherRepository,
+                roomRepository = roomRepository
+            )
         )
     }
 
@@ -495,10 +590,14 @@ object VppModule {
     @Provides
     @Singleton
     fun provideAdvancedSettingsUseCases(
-        lessonRepository: LessonRepository
+        lessonRepository: LessonRepository,
+        roomRepository: RoomRepository
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
-            deletePlansUseCase = DeletePlansUseCase(lessonRepository)
+            deleteCacheUseCase = DeleteCacheUseCase(
+                lessonRepository,
+                roomRepository
+            )
         )
     }
 
@@ -532,10 +631,21 @@ object VppModule {
     @Provides
     @Singleton
     fun provideHomeUseCases(
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        classRepository: ClassRepository,
+        vppIdRepository: VppIdRepository,
+        profileRepository: ProfileRepository,
+        getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase
     ): HomeUseCases {
         return HomeUseCases(
-            getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository)
+            getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
+            getCurrentIdentity = GetCurrentIdentityUseCase(
+                vppIdRepository = vppIdRepository,
+                classRepository = classRepository,
+                keyValueRepository = keyValueRepository,
+                profileRepository = profileRepository,
+                getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
+            )
         )
     }
 
@@ -546,6 +656,18 @@ object VppModule {
     ): GeneralSettingsUseCases {
         return GeneralSettingsUseCases(
             getColorsUseCase = GetColorsUseCase(keyValueRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideVppIdLinkUseCases(
+        vppIdRepository: VppIdRepository,
+        classRepository: ClassRepository
+    ): VppIdLinkUseCases {
+        return VppIdLinkUseCases(
+            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository),
+            getClassUseCase = GetClassUseCase(classRepository)
         )
     }
 }

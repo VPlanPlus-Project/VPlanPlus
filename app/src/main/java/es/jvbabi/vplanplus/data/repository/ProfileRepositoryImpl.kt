@@ -8,9 +8,11 @@ import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import java.util.UUID
 
 class ProfileRepositoryImpl(
@@ -51,8 +53,9 @@ class ProfileRepositoryImpl(
         return profileDao.getProfileByReferenceId(referenceId = referenceId, type = type).toModel()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getProfileById(id: UUID): Flow<Profile?> {
-        return profileDao.getProfileById(id = id).map {
+        return profileDao.getProfileById(id = id).mapLatest {
             it?.toModel()
         }
     }

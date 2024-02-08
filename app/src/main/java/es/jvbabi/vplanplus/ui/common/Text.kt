@@ -1,12 +1,17 @@
 package es.jvbabi.vplanplus.ui.common
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-
-@Composable
-fun SmallText(text: String) {
-    Text(text = text, style = MaterialTheme.typography.labelSmall)
-}
+import java.util.Locale
 
 const val DOT = "•"
+
+fun Int.toLocalizedString(): String {
+    return when (Locale.getDefault().language) {
+        "de" -> "$this."
+        else -> when (this.toString().last()) {
+            '1' -> "${this}st"
+            '2' -> "${this}nd"
+            '3' -> "${this}rd"
+            else -> "${this}th"
+        }
+    }
+}

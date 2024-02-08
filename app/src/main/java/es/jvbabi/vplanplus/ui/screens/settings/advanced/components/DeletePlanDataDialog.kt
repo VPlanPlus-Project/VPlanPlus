@@ -15,8 +15,8 @@ fun DeletePlanDataDialog(
 ) {
     YesNoDialog(
         icon = Icons.Default.DeleteForever,
-        title = stringResource(id = R.string.advancedSettings_deletePlanDataDialogTitle),
-        message = stringResource(id = R.string.advancedSettings_deletePlanDataDialogText),
+        title = stringResource(id = R.string.advancedSettings_clearCacheDialogTitle),
+        message = stringResource(id = R.string.advancedSettings_clearCacheDialogText),
         onYes = { onOk() },
         onDismiss = { onDismiss() },
         onNo = { onDismiss() }

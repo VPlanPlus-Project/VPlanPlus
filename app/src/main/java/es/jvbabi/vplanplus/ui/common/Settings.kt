@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ManageAccounts
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
@@ -42,6 +44,7 @@ fun SettingsCategory(title: String, content: @Composable () -> Unit = {}) {
 @Composable
 fun SettingsSetting(
     icon: ImageVector?,
+    iconTint: Color? = MaterialTheme.colorScheme.onSurface,
     title: String,
     subtitle: String? = null,
     type: SettingsType,
@@ -49,6 +52,7 @@ fun SettingsSetting(
     doAction: () -> Unit,
     enabled: Boolean = true,
     clickable: Boolean = true,
+    isLoading: Boolean = false,
     customContent: @Composable () -> Unit = {}
 ) {
     Column {
@@ -63,14 +67,25 @@ fun SettingsSetting(
         ) {
             Row(modifier = Modifier.weight(1f, false), verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    modifier = Modifier.padding(start = 16.dp)
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .size(52.dp),
+                    contentAlignment = Alignment.Center
                 ) {
-                    if (icon != null) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .padding(4.dp)
+                        )
+                    } else if (icon != null) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
-                            modifier = Modifier.padding(start = 12.dp, end = 16.dp)
+                            tint = if (!enabled) Color.Gray else iconTint?: MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .padding(start = 12.dp, end = 16.dp)
                         )
                     } else {
                         Box(modifier = Modifier.width(52.dp))
@@ -146,6 +161,7 @@ fun SettingsOptionPreview() {
 fun SettingsOptionNoIconPreview() {
     SettingsSetting(
         icon = null,
+        isLoading = true,
         title = "Test",
         subtitle = "Test",
         type = SettingsType.NUMERIC_INPUT,

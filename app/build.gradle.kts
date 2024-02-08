@@ -10,12 +10,14 @@ android {
     namespace = "es.jvbabi.vplanplus"
     compileSdk = 34
 
+    ndkVersion = "23.0.7599858"
+
     defaultConfig {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 41
-        versionName = "0.8.3-alpha-dev-18"
+        versionCode = 59
+        versionName = "0.9-beta-quick-fix-4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -56,6 +58,7 @@ android {
     }
 }
 
+
 dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
@@ -65,8 +68,8 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.navigation:navigation-compose:2.7.6")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0-rc01")
-    implementation("androidx.compose.material3:material3-android:1.2.0-beta02")
+    implementation("androidx.compose.material:material-icons-extended:1.6.0")
+    implementation("androidx.compose.material3:material3-android:1.2.0-rc01")
     implementation("com.google.android.material:material:1.11.0")
 
     // camera

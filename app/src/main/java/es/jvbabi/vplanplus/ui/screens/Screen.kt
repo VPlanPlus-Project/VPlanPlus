@@ -16,6 +16,9 @@ sealed class Screen(val route: String) {
     data object OnboardingPermissionsScreen: Screen("onboarding/permissions_screen")
     data object OnboardingSetupScreen: Screen("onboarding/setup_screen")
 
+    data object AccountAddedScreen: Screen("account_added_screen")
+
+    data object TimetableScreen: Screen("timetable_screen")
 
     // SETTINGS
     data object SettingsScreen: Screen("settings/main")
@@ -23,6 +26,8 @@ sealed class Screen(val route: String) {
 
     data object SettingsProfileDefaultLessonsScreen: Screen("settings/profile/{profileId}/default_lessons")
     data object SettingsGeneralSettingsScreen: Screen("settings/general_settings")
+
+    data object SettingsVppIdScreen: Screen("settings/vpp_id")
 
     data object SettingsAdvancedScreen: Screen("settings/advanced")
     data object SettingsAdvancedLogScreen: Screen("settings/advanced/logs")

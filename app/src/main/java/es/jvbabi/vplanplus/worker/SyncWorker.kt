@@ -85,11 +85,12 @@ class SyncWorker @AssistedInject constructor(
 
         // get general news
         messageRepository.updateMessages(null)
-        
+
         val notifications = mutableListOf<NotificationData>()
 
         schoolUseCases.getSchools().forEach school@{ school ->
             messageRepository.updateMessages(school.schoolId)
+            roomRepository.fetchRoomBookings(school)
 
             repeat(syncDays + 2) { i ->
                 val profiles = profileUseCases.getProfilesBySchoolId(school.schoolId)
