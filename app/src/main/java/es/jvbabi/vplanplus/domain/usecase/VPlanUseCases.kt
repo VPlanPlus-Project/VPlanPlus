@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
 
+@Deprecated("This class is not used anymore")
 class VPlanUseCases(
     private val vPlanRepository: VPlanRepository,
     private val lessonRepository: LessonRepository,

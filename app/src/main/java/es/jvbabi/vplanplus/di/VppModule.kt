@@ -102,6 +102,8 @@ import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.DeleteAccountUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.TestAccountUseCase
+import es.jvbabi.vplanplus.domain.usecase.timetable.GetDataUseCase
+import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
@@ -668,6 +670,22 @@ object VppModule {
         return VppIdLinkUseCases(
             getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository),
             getClassUseCase = GetClassUseCase(classRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideTimetableUseCases(
+        keyValueRepository: KeyValueRepository,
+        planRepository: PlanRepository,
+        getActiveProfileUseCase: GetCurrentProfileUseCase
+    ): TimetableUseCases {
+        return TimetableUseCases(
+            getDataUseCase = GetDataUseCase(
+                keyValueRepository = keyValueRepository,
+                planRepository = planRepository,
+                getActiveProfileUseCase = getActiveProfileUseCase
+            )
         )
     }
 }

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.util.UUID
 
+@Deprecated("This class is not used anymore")
 class ProfileUseCases(
     private val profileRepository: ProfileRepository,
     private val classRepository: ClassRepository,

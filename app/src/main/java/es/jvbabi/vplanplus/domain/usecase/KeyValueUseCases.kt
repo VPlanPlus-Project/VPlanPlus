@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.domain.usecase
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import kotlinx.coroutines.flow.Flow
 
+@Deprecated("This class is not used anymore")
 class KeyValueUseCases(
     private val keyValueRepository: KeyValueRepository
 ) {

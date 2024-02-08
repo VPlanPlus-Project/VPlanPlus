@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
+@Deprecated("This class is not used anymore")
 class LessonUseCases(
     private val lessonRepository: LessonRepository,
     private val planRepository: PlanRepository,

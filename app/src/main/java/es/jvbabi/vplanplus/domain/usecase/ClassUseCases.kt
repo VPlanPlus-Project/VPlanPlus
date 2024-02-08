@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import java.util.UUID
 
+@Deprecated("This class is not used anymore")
 class ClassUseCases(private val classRepository: ClassRepository) {
 
     suspend fun getClassById(id: UUID): Classes {
