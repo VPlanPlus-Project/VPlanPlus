@@ -17,7 +17,7 @@ import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
-import es.jvbabi.vplanplus.domain.usecase.Response
+import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import java.time.LocalDate

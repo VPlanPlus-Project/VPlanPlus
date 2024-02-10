@@ -5,8 +5,8 @@ import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
-import es.jvbabi.vplanplus.domain.usecase.Response
-import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
+import es.jvbabi.vplanplus.domain.Response
+import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import io.ktor.client.HttpClient
 import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException

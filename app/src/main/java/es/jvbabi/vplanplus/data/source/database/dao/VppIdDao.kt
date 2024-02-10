@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.source.database.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.combined.CVppId
@@ -15,9 +16,11 @@ abstract class VppIdDao {
     @Query("DELETE FROM vpp_id WHERE id = :vppId")
     abstract suspend fun delete(vppId: Int)
 
+    @Transaction
     @Query("SELECT * FROM vpp_id")
     abstract fun getAll(): Flow<List<CVppId>>
 
+    @Transaction
     @Query("SELECT * FROM vpp_id WHERE id = :vppId")
     abstract suspend fun getVppId(vppId: Int): CVppId?
 }

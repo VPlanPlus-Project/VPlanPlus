@@ -11,4 +11,6 @@ interface NotificationRepository {
         icon: Int,
         pendingIntent: PendingIntent?
     )
+
+    fun deleteChannel(channelId: String)
 }

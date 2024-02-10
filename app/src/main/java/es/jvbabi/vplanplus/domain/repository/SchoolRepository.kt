@@ -1,8 +1,7 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.domain.usecase.Response
-import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
 
 interface SchoolRepository {
     suspend fun getSchools(): List<School>
@@ -18,4 +17,11 @@ interface SchoolRepository {
     fun checkSchoolIdSyntax(schoolId: String): Boolean {
         return schoolId.length == 8 && schoolId.toIntOrNull() != null
     }
+}
+
+enum class SchoolIdCheckResult {
+    INVALID,
+    VALID,
+    SYNTACTICALLY_CORRECT,
+    NOT_FOUND
 }

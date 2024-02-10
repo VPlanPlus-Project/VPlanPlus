@@ -17,6 +17,7 @@ abstract class RoomBookingDao {
     @Query("DELETE FROM room_booking WHERE `from` < :now")
     abstract fun deleteOld(now: Long)
 
+    @Transaction
     @Query("SELECT * FROM room_booking")
     abstract fun getAll(): List<CRoomBooking>
 

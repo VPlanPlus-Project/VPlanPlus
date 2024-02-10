@@ -26,8 +26,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.usecase.Response
-import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
+import es.jvbabi.vplanplus.domain.Response
+import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.CloseOnboardingDialog
 import es.jvbabi.vplanplus.ui.screens.onboarding.common.OnboardingScreen

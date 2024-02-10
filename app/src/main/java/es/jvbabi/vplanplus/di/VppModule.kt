@@ -60,8 +60,6 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
-import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
-import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.CancelBookingUseCase
@@ -94,9 +92,19 @@ import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseC
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetCalendarsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.shared.GetProfileByIdUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.UpdateCalendarIdUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.UpdateCalendarTypeUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.UpdateProfileDisplayNameUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ChangeDefaultLessonUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.FixDefaultLessonsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.IsInconsistentStateUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ProfileDefaultLessonsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.DeleteAccountUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
@@ -326,12 +334,6 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideSchoolUseCases(repository: SchoolRepository): SchoolUseCases {
-        return SchoolUseCases(repository)
-    }
-
-    @Provides
-    @Singleton
     fun provideKeyValueUseCases(repository: KeyValueRepository): KeyValueUseCases {
         return KeyValueUseCases(repository)
     }
@@ -348,21 +350,25 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideProfileUseCases(
-        repository: ProfileRepository,
-        keyValueRepository: KeyValueRepository,
-        classRepository: ClassRepository,
-        teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository,
-        calendarRepository: CalendarRepository
-    ): ProfileUseCases {
-        return ProfileUseCases(
-            profileRepository = repository,
-            keyValueRepository = keyValueRepository,
-            classRepository = classRepository,
-            teacherRepository = teacherRepository,
-            roomRepository = roomRepository,
-            calendarRepository = calendarRepository
+    fun provideProfileDefaultLessonsUseCases(
+        getProfileByIdUseCase: GetProfileByIdUseCase,
+        getClassByProfileUseCase: GetClassByProfileUseCase,
+        defaultLessonRepository: DefaultLessonRepository,
+        profileRepository: ProfileRepository
+    ): ProfileDefaultLessonsUseCases {
+        val changeDefaultLessonUseCase = ChangeDefaultLessonUseCase(profileRepository)
+        return ProfileDefaultLessonsUseCases(
+            getProfileByIdUseCase = getProfileByIdUseCase,
+            isInconsistentStateUseCase = IsInconsistentStateUseCase(
+                getClassByProfileUseCase = getClassByProfileUseCase,
+                defaultLessonRepository = defaultLessonRepository
+            ),
+            changeDefaultLessonUseCase = changeDefaultLessonUseCase,
+            fixDefaultLessonsUseCase = FixDefaultLessonsUseCase(
+                changeDefaultLessonUseCase = changeDefaultLessonUseCase,
+                defaultLessonRepository = defaultLessonRepository,
+                profileRepository = profileRepository
+            )
         )
     }
 
@@ -652,7 +658,10 @@ object VppModule {
         roomRepository: RoomRepository,
         schoolRepository: SchoolRepository,
         keyValueRepository: KeyValueRepository,
-        getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase
+        calendarRepository: CalendarRepository,
+        notificationRepository: NotificationRepository,
+        getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
+        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): ProfileSettingsUseCases {
         return ProfileSettingsUseCases(
             getProfilesUseCase = GetProfilesUseCase(
@@ -666,8 +675,38 @@ object VppModule {
                 profileRepository = profileRepository,
                 keyValueRepository = keyValueRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
+            ),
+            getProfileByIdUseCase = GetProfileByIdUseCase(
+                profileRepository = profileRepository
+            ),
+            getCalendarsUseCase = GetCalendarsUseCase(
+                calendarRepository = calendarRepository
+            ),
+            updateCalendarTypeUseCase = UpdateCalendarTypeUseCase(
+                profileRepository = profileRepository
+            ),
+            updateCalendarIdUseCase = UpdateCalendarIdUseCase(
+                profileRepository = profileRepository
+            ),
+            updateProfileDisplayNameUseCase = UpdateProfileDisplayNameUseCase(
+                profileRepository = profileRepository
+            ),
+            deleteProfileUseCase = DeleteProfileUseCase(
+                profileRepository = profileRepository,
+                schoolRepository = schoolRepository,
+                keyValueRepository = keyValueRepository,
+                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                notificationRepository = notificationRepository
             )
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetProfileByIdUseCase(
+        profileRepository: ProfileRepository
+    ): GetProfileByIdUseCase {
+        return GetProfileByIdUseCase(profileRepository)
     }
 
     @Provides

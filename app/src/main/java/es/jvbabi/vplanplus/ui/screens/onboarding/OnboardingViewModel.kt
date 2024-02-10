@@ -8,8 +8,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
-import es.jvbabi.vplanplus.domain.usecase.Response
-import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
+import es.jvbabi.vplanplus.domain.Response
+import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases

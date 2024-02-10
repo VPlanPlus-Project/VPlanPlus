@@ -10,8 +10,6 @@ android {
     namespace = "es.jvbabi.vplanplus"
     compileSdk = 34
 
-    ndkVersion = "23.0.7599858"
-
     defaultConfig {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
@@ -67,9 +65,9 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.navigation:navigation-compose:2.7.6")
-    implementation("androidx.compose.material:material-icons-extended:1.6.0")
-    implementation("androidx.compose.material3:material3-android:1.2.0-rc01")
+    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.compose.material:material-icons-extended:1.6.1")
+    implementation("androidx.compose.material3:material3-android:1.2.0")
     implementation("com.google.android.material:material:1.11.0")
 
     // camera
