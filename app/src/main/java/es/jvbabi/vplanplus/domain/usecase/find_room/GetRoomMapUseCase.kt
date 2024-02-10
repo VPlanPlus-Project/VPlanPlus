@@ -7,16 +7,16 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
-import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
+import es.jvbabi.vplanplus.domain.repository.Keys
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 class GetRoomMapUseCase(
     private val roomRepository: RoomRepository,
     private val keyValueRepository: KeyValueRepository,
-    private val lessonUseCases: LessonUseCases,
+    private val planRepository: PlanRepository,
     private val lessonTimeRepository: LessonTimeRepository,
     private val classRepository: ClassRepository
 ) {
@@ -31,7 +31,7 @@ class GetRoomMapUseCase(
         rooms.forEach { room ->
             val lessons = mutableListOf<Lesson?>()
             val roomLessons =
-                lessonUseCases.getLessonsForRoom(room, LocalDate.now(), version.toLong()).first()
+                planRepository.getDayForRoom(room.roomId, LocalDate.now(), version.toLong()).first()
             repeat(maxLessons) { l ->
                 lessons.add(roomLessons.lessons.firstOrNull { it.lessonNumber == l })
             }

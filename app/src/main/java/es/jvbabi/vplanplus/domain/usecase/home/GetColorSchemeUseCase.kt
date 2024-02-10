@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.domain.usecase.home
 
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.usecase.Keys
+import es.jvbabi.vplanplus.domain.repository.Keys
 import kotlinx.coroutines.flow.flow
 
 class GetColorSchemeUseCase(

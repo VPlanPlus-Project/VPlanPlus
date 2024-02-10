@@ -61,12 +61,13 @@ fun GeneralSettingsScreen(
     LaunchedEffect(key1 = dark, block = {
         generalSettingsViewModel.init(dark)
     })
+    if (state.settings == null) return
     GeneralSettingsContent(
         onBackClicked = { navHostController.navigateUp() },
         state = state,
 
         onShowNotificationsOnAppOpenedClicked = {
-            generalSettingsViewModel.onShowNotificationsOnAppOpenedClicked(!state.notificationShowNotificationIfAppIsVisible)
+            generalSettingsViewModel.onShowNotificationsOnAppOpenedClicked(!state.settings.showNotificationsIfAppIsVisible)
         },
 
         onSyncDaysAheadSet = {
@@ -88,6 +89,7 @@ fun GeneralSettingsContent(
     onSyncDaysAheadSet: (Int) -> Unit = {},
     onColorSchemeChanged: (Colors) -> Unit = {}
 ) {
+    if (state.settings == null) return
     var dialogCall = remember<@Composable () -> Unit> { {} }
     var dialogVisible by remember { mutableStateOf(false) }
     Scaffold(
@@ -122,7 +124,7 @@ fun GeneralSettingsContent(
                         id = R.string.settings_generalNotificationsOnAppOpenedSubtitle
                     ),
                     type = SettingsType.TOGGLE,
-                    checked = state.notificationShowNotificationIfAppIsVisible,
+                    checked = state.settings.showNotificationsIfAppIsVisible,
                     doAction = { onShowNotificationsOnAppOpenedClicked() }
                 )
             }
@@ -139,7 +141,7 @@ fun GeneralSettingsContent(
                             Spacer(modifier = Modifier.size(30.dp))
                         }
 
-                        items(state.colors.toList().sortedBy { it.first.ordinal }) { (color, record) ->
+                        items(state.settings.colorScheme.toList().sortedBy { it.first.ordinal }) { (color, record) ->
                             val surface = MaterialTheme.colorScheme.surface
                             val onSurface = MaterialTheme.colorScheme.onSurface
                             val factor = animateFloatAsState(
@@ -200,14 +202,14 @@ fun GeneralSettingsContent(
                     title = stringResource(id = R.string.settings_generalSyncDayDifference),
                     subtitle = stringResource(
                         id = R.string.settings_generalSyncDayDifferenceSubtitle,
-                        state.syncDayDifference
+                        state.settings.daysAheadSync
                     ),
                     doAction = {
                         dialogCall = {
                             InputDialog(
                                 icon = Icons.Default.Sync,
                                 title = stringResource(id = R.string.settings_generalSyncDaysTitle),
-                                value = state.syncDayDifference.toString(),
+                                value = state.settings.daysAheadSync.toString(),
                                 onOk = {
                                     if (it != null) onSyncDaysAheadSet(it.toInt())
                                     dialogVisible = false

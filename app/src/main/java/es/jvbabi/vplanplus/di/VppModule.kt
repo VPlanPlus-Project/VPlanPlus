@@ -58,8 +58,6 @@ import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
-import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
-import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.CancelBookingUseCase
@@ -92,10 +90,11 @@ import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseC
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.general.GetSettingsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.general.UpdateSettingsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetCalendarsUseCase
-import es.jvbabi.vplanplus.domain.usecase.settings.profiles.shared.GetProfileByIdUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.UpdateCalendarIdUseCase
@@ -105,6 +104,7 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ChangeDefaul
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.FixDefaultLessonsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.IsInconsistentStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ProfileDefaultLessonsUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.shared.GetProfileByIdUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.DeleteAccountUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
@@ -331,23 +331,6 @@ object VppModule {
     }
 
     // Use cases
-
-    @Provides
-    @Singleton
-    fun provideKeyValueUseCases(repository: KeyValueRepository): KeyValueUseCases {
-        return KeyValueUseCases(repository)
-    }
-
-    @Provides
-    @Singleton
-    fun provideLessonUseCases(
-        planRepository: PlanRepository,
-    ): LessonUseCases {
-        return LessonUseCases(
-            planRepository = planRepository
-        )
-    }
-
     @Provides
     @Singleton
     fun provideProfileDefaultLessonsUseCases(
@@ -465,7 +448,7 @@ object VppModule {
         classRepository: ClassRepository,
         lessonTimeRepository: LessonTimeRepository,
         vppIdRepository: VppIdRepository,
-        lessonUseCases: LessonUseCases,
+        planRepository: PlanRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): FindRoomUseCases {
@@ -473,7 +456,7 @@ object VppModule {
             getRoomMapUseCase = GetRoomMapUseCase(
                 roomRepository = roomRepository,
                 keyValueRepository = keyValueRepository,
-                lessonUseCases = lessonUseCases,
+                planRepository = planRepository,
                 lessonTimeRepository = lessonTimeRepository,
                 classRepository = classRepository
             ),
@@ -753,8 +736,14 @@ object VppModule {
     fun provideGeneralSettingsUseCases(
         keyValueRepository: KeyValueRepository
     ): GeneralSettingsUseCases {
+        val getColorsUseCase = GetColorsUseCase(keyValueRepository)
         return GeneralSettingsUseCases(
-            getColorsUseCase = GetColorsUseCase(keyValueRepository)
+            getColorsUseCase = getColorsUseCase,
+            getSettingsUseCase = GetSettingsUseCase(
+                keyValueRepository = keyValueRepository,
+                getColorsUseCase = getColorsUseCase
+            ),
+            updateSettingsUseCase = UpdateSettingsUseCase(keyValueRepository)
         )
     }
 
