@@ -58,7 +58,6 @@ import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
-import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
 import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
 import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
@@ -74,11 +73,10 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
-import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
-import es.jvbabi.vplanplus.domain.usecase.sync.TriggerSyncUseCase
-import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
@@ -104,6 +102,9 @@ import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.DeleteAccountUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.TestAccountUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
+import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
+import es.jvbabi.vplanplus.domain.usecase.sync.TriggerSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.timetable.GetDataUseCase
 import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
@@ -338,11 +339,9 @@ object VppModule {
     @Provides
     @Singleton
     fun provideLessonUseCases(
-        lessonRepository: LessonRepository,
         planRepository: PlanRepository,
     ): LessonUseCases {
         return LessonUseCases(
-            lessonRepository = lessonRepository,
             planRepository = planRepository
         )
     }
@@ -369,12 +368,6 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideClassUseCases(repository: ClassRepository): ClassUseCases {
-        return ClassUseCases(repository)
-    }
-
-    @Provides
-    @Singleton
     fun provideAccountSettingsUseCases(
         vppIdRepository: VppIdRepository
     ): AccountSettingsUseCases {
@@ -382,6 +375,30 @@ object VppModule {
             getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository),
             testAccountUseCase = TestAccountUseCase(vppIdRepository = vppIdRepository),
             deleteAccountUseCase = DeleteAccountUseCase(vppIdRepository = vppIdRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideSearchUseCases(
+        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        schoolRepository: SchoolRepository,
+        classRepository: ClassRepository,
+        teacherRepository: TeacherRepository,
+        roomRepository: RoomRepository,
+        lessonRepository: LessonRepository,
+        keyValueRepository: KeyValueRepository
+    ): SearchUseCases {
+        return SearchUseCases(
+            queryUseCase = QueryUseCase(
+                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                schoolRepository = schoolRepository,
+                classRepository = classRepository,
+                teacherRepository = teacherRepository,
+                roomRepository = roomRepository,
+                lessonRepository = lessonRepository,
+                keyValueRepository = keyValueRepository
+            )
         )
     }
 

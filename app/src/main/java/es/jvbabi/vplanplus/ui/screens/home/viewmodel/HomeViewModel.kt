@@ -15,7 +15,6 @@ import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Day
-import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
@@ -25,15 +24,11 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
-import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
-import es.jvbabi.vplanplus.domain.usecase.ClassUseCases
-import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
 import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.LessonUseCases
-import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
-import es.jvbabi.vplanplus.domain.usecase.SchoolUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.search.ResultGroup
+import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
@@ -41,7 +36,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -51,18 +45,13 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val app: Application,
-    private val profileUseCases: ProfileUseCases,
     private val planRepository: PlanRepository,
     private val keyValueRepository: KeyValueRepository,
-    private val classUseCases: ClassUseCases,
-    private val schoolUseCases: SchoolUseCases,
-    private val lessonUseCases: LessonUseCases,
-    private val keyValueUseCases: KeyValueUseCases,
-    private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
     private val timeRepository: TimeRepository,
     private val messageRepository: MessageRepository,
-    private val homeUseCases: HomeUseCases
+    private val homeUseCases: HomeUseCases,
+    private val searchUseCases: SearchUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(HomeState())
@@ -83,7 +72,7 @@ class HomeViewModel @Inject constructor(
                     activeProfile = it.profile,
                     activeSchool = it.school,
                     currentVppId = it.vppId,
-                    fullyCompatible = it.school?.fullyCompatible?:false
+                    fullyCompatible = it.school?.fullyCompatible ?: false
                 )
                 if (it.school == null) return@collect
                 var tomorrow = LocalDate.now().plusDays(1)
@@ -98,14 +87,15 @@ class HomeViewModel @Inject constructor(
         }
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
-                profileUseCases.getProfiles().distinctUntilChanged(),
+                homeUseCases.getProfilesUseCase().distinctUntilChanged(),
                 keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
                 keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
-                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext).distinctUntilChanged(),
+                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
+                    .distinctUntilChanged(),
             ) { profiles, lastSyncTs, v, isSyncing ->
-                version = v?.toLong()?:0
+                version = v?.toLong() ?: 0
                 _state.value.copy(
-                    profiles = profiles,
+                    profiles = profiles.map { it.value }.flatten(),
                     lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
                     syncing = isSyncing,
                 )
@@ -136,11 +126,14 @@ class HomeViewModel @Inject constructor(
         if (force) dataSyncJob[date]?.cancel()
         dataSyncJob[date] = viewModelScope.launch {
             while (getActiveProfile() == null) delay(50)
-            planRepository.getDayForProfile(getActiveProfile()!!, date, version).distinctUntilChanged().collect { day ->
-                val bookings = roomRepository.getRoomBookings(date)
-                if (date.isEqual(LocalDate.now())) _state.value = _state.value.copy(day = day, isLoading = false, bookings = bookings)
-                else _state.value = _state.value.copy(nextDay = day, isLoading = false, bookings = bookings)
-            }
+            planRepository.getDayForProfile(getActiveProfile()!!, date, version)
+                .distinctUntilChanged().collect { day ->
+                    val bookings = roomRepository.getRoomBookings(date)
+                    if (date.isEqual(LocalDate.now())) _state.value =
+                        _state.value.copy(day = day, isLoading = false, bookings = bookings)
+                    else _state.value =
+                        _state.value.copy(nextDay = day, isLoading = false, bookings = bookings)
+                }
         }
     }
 
@@ -186,102 +179,42 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onSearchClosed() {
-        _state.value = _state.value.copy(searchOpen = false, searchQuery = "", results = emptyList())
+        _state.value =
+            _state.value.copy(searchOpen = false, searchQuery = "", results = emptyList())
     }
 
     fun onSearchQueryUpdate(query: String) {
         _state.value = _state.value.copy(searchQuery = query)
+        doSearch()
+    }
+
+    private fun doSearch(
+        rawSelectedClassIds: List<UUID>? = null,
+        rawSelectedTeacherIds: List<UUID>? = null,
+        rawSelectedRoomIds: List<UUID>? = null
+    ) {
 
         searchJob?.cancel()
+        val query = _state.value.searchQuery
         if (query.isEmpty()) {
             _state.value = _state.value.copy(results = emptyList())
             return
         }
 
+        val selectedClassIds = rawSelectedClassIds?: _state.value.results.mapNotNull { it.selectedClassId }
+        val selectedTeacherIds = rawSelectedTeacherIds?: _state.value.results.mapNotNull { it.selectedTeacherId }
+        val selectedRoomIds = rawSelectedRoomIds?: _state.value.results.mapNotNull { it.selectedRoomId }
+
         searchJob = viewModelScope.launch {
-            val schools = schoolUseCases.getSchools()
-            val resultGroups = mutableListOf<ResultGroup>()
-            schools.forEach { school ->
-
-                var selectedTeacherId = _state.value.results.firstOrNull { it.school.schoolId == school.schoolId }?.selectedTeacherId
-                var selectedRoomId = _state.value.results.firstOrNull { it.school.schoolId == school.schoolId }?.selectedRoomId
-                var selectedClassId = _state.value.results.firstOrNull { it.school.schoolId == school.schoolId }?.selectedClassId
-
-                val searchResult = mutableListOf<SearchResult>()
-                if (_state.value.filter[SchoolEntityType.TEACHER]!!) {
-                    val teachers = teacherRepository.getTeachersBySchoolId(school.schoolId).filter {
-                        it.acronym.lowercase().contains(_state.value.searchQuery.lowercase())
-                    }
-                    teachers.forEachIndexed { index, teacher ->
-                        if (selectedTeacherId == null && index == 0) selectedTeacherId = teacher.teacherId
-                        val day = lessonUseCases.getLessonsForTeacher(
-                            teacher, LocalDate.now(), keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
-                        ).firstOrNull()
-                        searchResult.add(
-                            SearchResult(
-                                id = teacher.teacherId,
-                                name = teacher.acronym,
-                                type = SchoolEntityType.TEACHER,
-                                lessons = day?.lessons?: emptyList(),
-                                detailed = teacher.teacherId == selectedTeacherId
-                            )
-                        )
-                    }
-                }
-                if (state.value.filter[SchoolEntityType.ROOM]!!) {
-                    val rooms = roomRepository.getRoomsBySchool(school).filter {
-                        it.name.lowercase().contains(_state.value.searchQuery.lowercase())
-                    }
-                    rooms.forEachIndexed { index, room ->
-                        if (selectedRoomId == null && index == 0) selectedRoomId = room.roomId
-                        val day = lessonUseCases.getLessonsForRoom(
-                            room,
-                            LocalDate.now(),
-                            keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
-                        ).firstOrNull()
-                        searchResult.add(
-                            SearchResult(
-                                id = room.roomId,
-                                name = room.name,
-                                type = SchoolEntityType.ROOM,
-                                lessons = day?.lessons?: emptyList(),
-                                detailed = room.roomId == selectedRoomId
-                            )
-                        )
-                    }
-                }
-                if (state.value.filter[SchoolEntityType.CLASS]!!) {
-                    val classes = classUseCases.getClassesBySchool(school).filter {
-                        it.name.lowercase().contains(_state.value.searchQuery.lowercase())
-                    }
-                    classes.forEachIndexed { index, `class` ->
-                        if (selectedClassId == null && index == 0) selectedClassId = `class`.classId
-                        val day = lessonUseCases.getLessonsForClass(
-                            `class`,
-                            LocalDate.now(),
-                            keyValueUseCases.get(Keys.LESSON_VERSION_NUMBER)?.toLong() ?: 0
-                        ).firstOrNull()
-                        searchResult.add(
-                            SearchResult(
-                                id = `class`.classId,
-                                name = `class`.name,
-                                type = SchoolEntityType.CLASS,
-                                lessons = day?.lessons?: emptyList(),
-                                detailed = `class`.classId == selectedClassId
-                            )
-                        )
-                    }
-                }
-
-                resultGroups.add(ResultGroup(school, searchResult))
-            }
-
-            _state.value = _state.value.copy(results = resultGroups)
+            _state.value = _state.value.copy(
+                results = searchUseCases.queryUseCase(
+                    rawQuery = query,
+                    selectedClassIds = selectedClassIds,
+                    selectedTeacherIds = selectedTeacherIds,
+                    selectedRoomIds = selectedRoomIds
+                )
+            )
         }
-    }
-
-    private fun onSearchQueryUpdate() {
-        onSearchQueryUpdate(_state.value.searchQuery)
     }
 
     fun searchToggleFilter(type: SchoolEntityType) {
@@ -290,20 +223,15 @@ class HomeViewModel @Inject constructor(
                 type to !(_state.value.filter[type] ?: true)
             )
         )
-        onSearchQueryUpdate()
+        doSearch()
     }
 
-    fun selectSearchResult(schoolId: Long, type: SchoolEntityType, id: UUID) {
-        val resultGroup = _state.value.results.firstOrNull { it.school.schoolId == schoolId } ?: return
-        when (type) {
-            SchoolEntityType.CLASS -> resultGroup.selectedClassId = id
-            SchoolEntityType.TEACHER -> resultGroup.selectedTeacherId = id
-            SchoolEntityType.ROOM -> resultGroup.selectedRoomId = id
-        }
-        _state.value = _state.value.copy(results = _state.value.results.map {
-            if (it.school.schoolId == schoolId) resultGroup else it
-        })
-        onSearchQueryUpdate()
+    fun selectSearchResult(type: SchoolEntityType, id: UUID) {
+        doSearch(
+            rawSelectedClassIds = if (type == SchoolEntityType.CLASS) _state.value.results.mapNotNull { it.selectedClassId } + id else null,
+            rawSelectedTeacherIds = if (type == SchoolEntityType.TEACHER) _state.value.results.mapNotNull { it.selectedTeacherId } + id else null,
+            rawSelectedRoomIds = if (type == SchoolEntityType.ROOM) _state.value.results.mapNotNull { it.selectedRoomId } + id else null
+        )
     }
 
     private fun restartUiSync() {
@@ -348,19 +276,3 @@ data class HomeState(
             ?: ""
     }
 }
-
-data class ResultGroup(
-    val school: School,
-    val searchResults: List<SearchResult>,
-    var selectedClassId: UUID? = null,
-    var selectedTeacherId: UUID? = null,
-    var selectedRoomId: UUID? = null
-)
-
-data class SearchResult(
-    val id: UUID,
-    val name: String,
-    val type: SchoolEntityType,
-    val lessons: List<Lesson> = emptyList(),
-    val detailed: Boolean = false
-)

@@ -7,19 +7,12 @@ import kotlinx.coroutines.flow.Flow
 class KeyValueUseCases(
     private val keyValueRepository: KeyValueRepository
 ) {
-    suspend fun get(key: String): String? {
-        return keyValueRepository.get(key = key)
-    }
 
     suspend fun set(key: String, value: String) {
         keyValueRepository.set(key = key, value = value)
     }
 
     fun getFlow(key: String): Flow<String?> = keyValueRepository.getFlow(key = key)
-
-    suspend fun getOrDefault(key: String, defaultValue: String): String {
-        return keyValueRepository.getOrDefault(key = key, defaultValue = defaultValue)
-    }
 }
 
 object Keys {
