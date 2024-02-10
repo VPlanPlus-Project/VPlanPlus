@@ -17,7 +17,7 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
-import es.jvbabi.vplanplus.domain.usecase.Keys
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import java.time.LocalDate

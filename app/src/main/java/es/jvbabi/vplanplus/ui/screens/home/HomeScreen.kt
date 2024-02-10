@@ -71,8 +71,8 @@ fun HomeScreen(
         onFindAvailableRoomClicked = {
             navHostController.navigate(Screen.SearchAvailableRoomScreen.route)
         },
-        onSelectSearchResult = { schoolId, type, id ->
-            viewModel.selectSearchResult(schoolId, type, id)
+        onSelectSearchResult = { type, id ->
+            viewModel.selectSearchResult(type, id)
         },
         navBar = navBar
     )
@@ -142,7 +142,7 @@ fun HomeScreenContent(
     onFilterToggle: (SchoolEntityType) -> Unit = {},
     onMenuOpened: () -> Unit = {},
     onFindAvailableRoomClicked: () -> Unit = {},
-    onSelectSearchResult: (schoolId: Long, type: SchoolEntityType, id: UUID) -> Unit = { _, _, _ -> }
+    onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit = { _, _ -> }
 ) {
     Column(
         modifier = Modifier.fillMaxSize()

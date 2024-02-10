@@ -5,19 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
-import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ProfileDefaultLessonsUseCases
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
 class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
-    private val profileUseCases: ProfileUseCases,
-    private val defaultLessonRepository: DefaultLessonRepository
+    private val defaultLessonsUseCases: ProfileDefaultLessonsUseCases,
 ) : ViewModel() {
 
     private val _state = mutableStateOf(ProfileSettingsDefaultLessonsState())
@@ -25,42 +22,29 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
 
     fun init(profileId: UUID) {
         viewModelScope.launch {
-            profileUseCases.getProfileById(profileId).collect {
-
-                _state.value = ProfileSettingsDefaultLessonsState(profile = it)
-                if (_state.value.profile!!.type == ProfileType.STUDENT) {
-                    _state.value = _state.value.copy(
-                        differentDefaultLessons = defaultLessonRepository.getDefaultLessonByClassId(
-                            it!!.referenceId
-                        ).size != it.defaultLessons.size
-                    )
-                }
+            defaultLessonsUseCases.getProfileByIdUseCase(profileId).collect { profile ->
+                if (profile == null) return@collect
+                _state.value = _state.value.copy(
+                    profile = profile,
+                    differentDefaultLessons = defaultLessonsUseCases.isInconsistentStateUseCase(profile)
+                )
             }
         }
     }
 
     fun onDefaultLessonChanged(defaultLesson: DefaultLesson, value: Boolean) {
         viewModelScope.launch {
-            if (value) profileUseCases.enableDefaultLesson(
-                profileId = state.value.profile!!.id,
-                vpId = defaultLesson.vpId
-            )
-            else profileUseCases.disableDefaultLesson(
-                profileId = state.value.profile!!.id,
-                vpId = defaultLesson.vpId
+            defaultLessonsUseCases.changeDefaultLessonUseCase(
+                profile = state.value.profile!!,
+                defaultLesson = defaultLesson,
+                enabled = value
             )
         }
     }
 
     fun onFixDefaultLessons() {
         viewModelScope.launch {
-            profileUseCases.deleteDefaultLessonsFromProfile(profileId = state.value.profile!!.id)
-            defaultLessonRepository.getDefaultLessonByClassId(state.value.profile!!.referenceId).forEach { dl ->
-                profileUseCases.enableDefaultLesson(
-                    profileId = state.value.profile!!.id,
-                    vpId = dl.vpId
-                )
-            }
+            defaultLessonsUseCases.fixDefaultLessonsUseCase(state.value.profile!!)
         }
     }
 }

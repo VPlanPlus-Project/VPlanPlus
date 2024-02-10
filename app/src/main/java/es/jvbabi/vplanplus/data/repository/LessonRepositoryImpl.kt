@@ -1,12 +1,16 @@
 package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
+import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.util.UUID
@@ -14,6 +18,7 @@ import java.util.UUID
 @ExperimentalCoroutinesApi
 class LessonRepositoryImpl(
     private val lessonDao: LessonDao,
+    private val profileRepository: ProfileRepository
 ) : LessonRepository {
 
     override fun getLessonsForClass(classId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?> {
@@ -44,6 +49,20 @@ class LessonRepositoryImpl(
                     lesson.toModel()
                 }
             }
+    }
+
+    override suspend fun getLessonsForProfile(
+        profileId: UUID,
+        date: LocalDate,
+        version: Long
+    ): Flow<List<Lesson>?> {
+        val profile = profileRepository.getProfileById(profileId).first() ?: return emptyFlow()
+
+        return when (profile.type) {
+            ProfileType.STUDENT -> getLessonsForClass(profile.referenceId, date, version)
+            ProfileType.TEACHER -> getLessonsForTeacher(profile.referenceId, date, version)
+            ProfileType.ROOM -> getLessonsForRoom(profile.referenceId, date, version)
+        }
     }
 
     override suspend fun deleteLessonForClass(`class`: Classes, date: LocalDate, version: Long) {

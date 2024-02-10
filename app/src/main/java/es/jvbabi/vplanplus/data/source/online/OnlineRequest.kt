@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.data.source.online
 import android.util.Log
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
-import es.jvbabi.vplanplus.domain.usecase.Response
+import es.jvbabi.vplanplus.domain.Response
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
 import io.ktor.client.network.sockets.ConnectTimeoutException

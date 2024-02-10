@@ -40,14 +40,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.domain.usecase.home.search.SearchResult
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.home.components.search.DetailedResult
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.SearchResult
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.random.Random
 
 @Composable
 fun SearchContent(
@@ -55,7 +54,7 @@ fun SearchContent(
     onFindAvailableRoomClicked: () -> Unit = {},
     onFilterToggle: (SchoolEntityType) -> Unit = {},
     time: LocalDateTime = LocalDateTime.now(),
-    onSelectSearchResult: (schoolId: Long, type: SchoolEntityType, id: UUID) -> Unit
+    onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit
 ) {
     AssistChip(
         onClick = { onFindAvailableRoomClicked() },
@@ -110,10 +109,9 @@ fun SearchContent(
                     searchResults = resultGroup.searchResults,
                     filterMap = state.filter,
                     time = time,
-                    onSelectSearchResult = { schoolId, type, id ->
-                        onSelectSearchResult(schoolId, type, id)
+                    onSelectSearchResult = { type, id ->
+                        onSelectSearchResult(type, id)
                     },
-                    schoolId = resultGroup.school.schoolId
                 )
             }
         }
@@ -159,12 +157,11 @@ fun SearchContent(
 
 @Composable
 fun SchoolResult(
-    schoolId: Long,
     name: String,
     searchResults: List<SearchResult>,
     filterMap: Map<SchoolEntityType, Boolean>,
     time: LocalDateTime,
-    onSelectSearchResult: (schoolId: Long, type: SchoolEntityType, id: UUID) -> Unit
+    onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -227,7 +224,7 @@ fun SchoolResult(
                                     .fillMaxWidth()
                                     .clip(RoundedCornerShape(8.dp))
                                     .clickable {
-                                        onSelectSearchResult(schoolId, result.type, result.id)
+                                        onSelectSearchResult(result.type, result.id)
                                     }
                             ) {
                                 Text(
@@ -286,8 +283,7 @@ fun SchoolResultPreview() {
             SchoolEntityType.CLASS to true
         ),
         time = LocalDateTime.now(),
-        onSelectSearchResult = { _, _, _ -> },
-        schoolId = Random.nextLong()
+        onSelectSearchResult = { _, _ -> },
     )
 }
 
@@ -303,6 +299,6 @@ private fun SearchContentPreview() {
             ),
             fullyCompatible = false
         ),
-        onSelectSearchResult = { _, _, _ -> }
+        onSelectSearchResult = { _, _ -> }
     )
 }

@@ -10,16 +10,12 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.repository.CalendarRepository
-import es.jvbabi.vplanplus.domain.usecase.KeyValueUseCases
-import es.jvbabi.vplanplus.domain.usecase.Keys
-import es.jvbabi.vplanplus.domain.usecase.ProfileUseCases
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileManagementDeletionResult
+import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -27,9 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ProfileSettingsViewModel @Inject constructor(
-    private val profileUseCases: ProfileUseCases,
-    private val keyValueUseCases: KeyValueUseCases,
-    private val calendarRepository: CalendarRepository,
+    private val profileSettingsUseCases: ProfileSettingsUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(ProfileSettingsState())
@@ -46,8 +40,8 @@ class ProfileSettingsViewModel @Inject constructor(
         )
         viewModelScope.launch {
             combine(
-                profileUseCases.getProfileById(profileId),
-                calendarRepository.getCalendars(),
+                profileSettingsUseCases.getProfileByIdUseCase(profileId),
+                profileSettingsUseCases.getCalendarsUseCase()
             ) { profile, calendars ->
                 if (profile == null) _state.value.copy(initDone = true)
                 else _state.value.copy(
@@ -62,25 +56,19 @@ class ProfileSettingsViewModel @Inject constructor(
         }
     }
 
-    private fun setDeleteProfileResult(result: ProfileManagementDeletionResult) {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(deleteProfileResult = result)
-        }
-    }
-
     fun setCalendarMode(calendarMode: ProfileCalendarType) {
         if (_state.value.calendarPermissionState == CalendarPermissionState.DENIED) {
             _state.value = _state.value.copy(calendarPermissionState = CalendarPermissionState.SHOW_DIALOG)
             viewModelScope.launch {
                 _state.value.profile?.let { profile ->
-                    profileUseCases.setCalendarType(profile.id, calendarType = ProfileCalendarType.NONE)
+                    profileSettingsUseCases.updateCalendarTypeUseCase(profile, calendarType = ProfileCalendarType.NONE)
                 }
             }
             return
         }
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                profileUseCases.setCalendarType(profile.id, calendarType = calendarMode)
+                profileSettingsUseCases.updateCalendarTypeUseCase(profile, calendarType = calendarMode)
             }
         }
     }
@@ -92,7 +80,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun setCalendar(calendarId: Long) {
         viewModelScope.launch {
             _state.value.profile?.let { profile ->
-                profileUseCases.setCalendarId(profile.id, calendarId)
+                profileSettingsUseCases.updateCalendarIdUseCase(profile, calendarId)
             }
         }
     }
@@ -105,38 +93,15 @@ class ProfileSettingsViewModel @Inject constructor(
         _state.value = _state.value.copy(dialogCall = call)
     }
 
-    fun deleteProfile(context: Context) {
+    fun deleteProfile() {
         viewModelScope.launch {
-            _state.value.profile?.let { profile ->
-                if (profileUseCases.getProfilesBySchoolId(
-                        profileUseCases.getSchoolFromProfileId(
-                            profile.id
-                        ).schoolId
-                    ).size == 1
-                ) {
-                    setDeleteProfileResult(ProfileManagementDeletionResult.LAST_PROFILE)
-                    return@launch
-                }
-                val activeProfile = profileUseCases.getActiveProfile()!!
-                if (activeProfile.id == profile.id) {
-                    keyValueUseCases.set(
-                        Keys.ACTIVE_PROFILE,
-                        (profileUseCases.getProfiles().first().find { it.id != profile.id }?.id
-                            ?: -1).toString()
-                    )
-                }
-                Notification.deleteChannel(context, "PROFILE_${profile.id.toString().lowercase()}")
-                profileUseCases.deleteProfile(profile.id)
-                setDeleteProfileResult(ProfileManagementDeletionResult.SUCCESS)
-            }
+            _state.value = _state.value.copy(deleteProfileResult = profileSettingsUseCases.deleteProfileUseCase(_state.value.profile?:return@launch))
         }
     }
 
     fun renameProfile(name: String) {
         viewModelScope.launch {
-            _state.value.profile?.let { profile ->
-                profileUseCases.setDisplayName(profile.id, name)
-            }
+            profileSettingsUseCases.updateProfileDisplayNameUseCase(_state.value.profile?:return@launch, name)
         }
     }
 }
@@ -153,12 +118,6 @@ data class ProfileSettingsState(
 
     val calendarPermissionState: CalendarPermissionState = CalendarPermissionState.GRANTED,
 )
-
-
-enum class ProfileManagementDeletionResult {
-    SUCCESS,
-    LAST_PROFILE,
-}
 
 enum class CalendarPermissionState {
     GRANTED,

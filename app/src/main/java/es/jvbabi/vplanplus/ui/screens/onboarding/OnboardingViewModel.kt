@@ -8,9 +8,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
-import es.jvbabi.vplanplus.domain.usecase.Response
-import es.jvbabi.vplanplus.domain.usecase.SchoolIdCheckResult
-import es.jvbabi.vplanplus.domain.usecase.general.data.SyncUseCases
+import es.jvbabi.vplanplus.domain.Response
+import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
+import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
 import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileCreationStage
@@ -212,7 +212,7 @@ class OnboardingViewModel @Inject constructor(
             )
             if (_state.value.task == Task.CREATE_SCHOOL) {
                 _state.value = _state.value.copy(creationStatus = state.value.creationStatus.copy(progress = null, profileCreationStage = ProfileCreationStage.INITIAL_SYNC))
-                syncUseCases.runSyncUseCase(true)
+                syncUseCases.triggerSyncUseCase(true)
                 delay(1000) // allow worker to start
                 syncUseCases.isSyncRunningUseCase().collect {
                     if (!it) {

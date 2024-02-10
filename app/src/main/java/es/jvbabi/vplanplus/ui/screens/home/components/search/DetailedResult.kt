@@ -30,8 +30,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.domain.usecase.home.search.SearchResult
 import es.jvbabi.vplanplus.ui.preview.Lessons
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.SearchResult
 import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter

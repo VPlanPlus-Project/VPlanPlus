@@ -5,12 +5,16 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.provider.CalendarContract
+import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
+import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DbCalendarEvent
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
+import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
@@ -47,7 +51,8 @@ class CalendarRepositoryImpl(
                     } while (cursor.moveToNext())
                     cursor.close()
                 }
-            } catch (_: SecurityException) {}
+            } catch (_: SecurityException) {
+            }
             emit(calendars)
         }
     }
@@ -84,7 +89,8 @@ class CalendarRepositoryImpl(
     }
 
     override suspend fun deleteCalendarEvents(school: School, date: LocalDate) {
-        val calendarEvents = calendarEventDao.getCalendarEvents(date = date, schoolId = school.schoolId)
+        val calendarEvents =
+            calendarEventDao.getCalendarEvents(date = date, schoolId = school.schoolId)
         val contentResolver = context.contentResolver
         calendarEvents.forEach {
             val deleteUri =
@@ -92,5 +98,60 @@ class CalendarRepositoryImpl(
             contentResolver.delete(deleteUri, null, null)
         }
         calendarEventDao.deleteCalendarEvents(school.schoolId, date)
+    }
+
+    override suspend fun processLessons(profile: Profile, day: Day) {
+        if (profile.calendarId == null) return
+        val calendar = getCalendarById(profile.calendarId) ?: return
+        val importantLessons = day.lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
+        val school = importantLessons.firstOrNull()?.`class`?.school ?: return
+
+        when (profile.calendarType) {
+            ProfileCalendarType.DAY -> {
+                insertEvent(
+                    CalendarEvent(
+                        title = "Schultag " + profile.displayName,
+                        calendarId = calendar.id,
+                        location = school.name,
+                        startTimeStamp = day.lessons.filter {
+                            profile.isDefaultLessonEnabled(
+                                it.vpId
+                            )
+                        }.sortedBy { it.lessonNumber }
+                            .first { it.displaySubject != "-" }.start.toLocalUnixTimestamp(),
+                        endTimeStamp = day.lessons.filter {
+                            profile.isDefaultLessonEnabled(
+                                it.vpId
+                            )
+                        }.sortedBy { it.lessonNumber }
+                            .last { it.displaySubject != "-" }.end.toLocalUnixTimestamp(),
+                        date = day.date,
+                        info = day.info
+                    ),
+                    school = school
+                )
+            }
+
+            ProfileCalendarType.LESSON -> {
+                day.lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
+                    .forEach { lesson ->
+                        if (lesson.displaySubject != "-") {
+                            insertEvent(
+                                CalendarEvent(
+                                    title = lesson.displaySubject,
+                                    calendarId = calendar.id,
+                                    location = school.name + " Raum " + lesson.rooms.joinToString(", "),
+                                    startTimeStamp = lesson.start.toLocalUnixTimestamp(),
+                                    endTimeStamp = lesson.end.toLocalUnixTimestamp(),
+                                    date = day.date
+                                ),
+                                school = school
+                            )
+                        }
+                    }
+            }
+
+            else -> {}
+        }
     }
 }

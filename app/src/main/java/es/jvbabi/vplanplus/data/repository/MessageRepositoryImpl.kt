@@ -14,7 +14,7 @@ import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
-import es.jvbabi.vplanplus.domain.usecase.Response
+import es.jvbabi.vplanplus.domain.Response
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.time.LocalDateTime

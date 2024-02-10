@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
-import es.jvbabi.vplanplus.domain.usecase.Response
+import es.jvbabi.vplanplus.domain.Response
 import java.time.LocalDate
 
 class DefaultLessonUseCase(

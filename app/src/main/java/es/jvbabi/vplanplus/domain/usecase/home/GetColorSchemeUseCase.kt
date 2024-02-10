@@ -1,14 +1,16 @@
 package es.jvbabi.vplanplus.domain.usecase.home
 
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.usecase.Keys
+import es.jvbabi.vplanplus.domain.repository.Keys
+import kotlinx.coroutines.flow.flow
 
 class GetColorSchemeUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
-    suspend operator fun invoke(): Colors {
-        val id = keyValueRepository.get(Keys.COLOR) ?: return Colors.DYNAMIC
-        return Colors.entries[id.toInt()]
+    operator fun invoke() = flow {
+        keyValueRepository.getFlow(Keys.COLOR).collect {
+            if (it == null) emit(Colors.DYNAMIC) else emit(Colors.entries[it.toInt()])
+        }
     }
 }
 

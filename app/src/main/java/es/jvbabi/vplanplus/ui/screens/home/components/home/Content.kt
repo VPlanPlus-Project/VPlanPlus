@@ -194,7 +194,7 @@ fun ActiveDayContent(
                     text = stringResource(id = R.string.home_nextDayTitle),
                     style = MaterialTheme.typography.titleMedium
                 )
-                if (nextDay == null || nextDay.state == DayDataState.NO_DATA) {
+                if (nextDay == null || nextDay.state == DayDataState.NO_DATA || nextDay.type != DayType.NORMAL) {
                     Text(
                         text = stringResource(id = R.string.home_nextDayNoData),
                         style = MaterialTheme.typography.bodySmall

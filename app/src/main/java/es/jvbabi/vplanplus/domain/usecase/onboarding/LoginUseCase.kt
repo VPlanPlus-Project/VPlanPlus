@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
-import es.jvbabi.vplanplus.domain.usecase.Response
+import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.ui.screens.onboarding.LoginState
 
 class LoginUseCase(
