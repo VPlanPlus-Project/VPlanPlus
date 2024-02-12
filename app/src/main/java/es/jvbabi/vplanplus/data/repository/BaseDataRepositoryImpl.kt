@@ -5,10 +5,10 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
-import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
-import es.jvbabi.vplanplus.domain.model.xml.RoomBaseData
-import es.jvbabi.vplanplus.domain.model.xml.TeacherBaseData
-import es.jvbabi.vplanplus.domain.model.xml.WeekBaseData
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.ClassBaseData
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.RoomBaseData
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.TeacherBaseData
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.WeekBaseData
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository

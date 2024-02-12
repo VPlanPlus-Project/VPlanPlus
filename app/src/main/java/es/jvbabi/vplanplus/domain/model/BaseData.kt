@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.domain.model
 
-import es.jvbabi.vplanplus.domain.model.xml.BaseDataSchoolWeek
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.BaseDataSchoolWeek
 
 
 /**

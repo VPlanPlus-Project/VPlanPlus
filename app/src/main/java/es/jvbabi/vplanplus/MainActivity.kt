@@ -45,7 +45,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
-import es.jvbabi.vplanplus.ui.screens.onboarding.OnboardingViewModel
+import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.delay

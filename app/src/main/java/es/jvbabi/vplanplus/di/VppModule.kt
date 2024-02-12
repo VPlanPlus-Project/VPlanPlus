@@ -23,7 +23,7 @@ import es.jvbabi.vplanplus.data.repository.NotificationRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.PlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SystemRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
@@ -76,14 +76,6 @@ import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
 import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
-import es.jvbabi.vplanplus.domain.usecase.onboarding.CheckSchoolIdSyntax
-import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLessonUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.GetSchoolByIdUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.LoginUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
-import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileOptionsUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.SaveProfileUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
@@ -388,44 +380,6 @@ object VppModule {
                 lessonRepository = lessonRepository,
                 keyValueRepository = keyValueRepository
             )
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideOnboardingUseCases(
-        schoolRepository: SchoolRepository,
-        baseDataRepository: BaseDataRepository,
-        keyValueRepository: KeyValueRepository,
-        classRepository: ClassRepository,
-        teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository,
-        vPlanRepository: VPlanRepository,
-        profileRepository: ProfileRepository,
-        defaultLessonRepository: DefaultLessonRepository,
-        holidayRepository: HolidayRepository,
-        lessonTimeRepository: LessonTimeRepository,
-        @ApplicationContext context: Context
-    ): OnboardingUseCases {
-        return OnboardingUseCases(
-            checkSchoolIdSyntax = CheckSchoolIdSyntax(schoolRepository),
-            testSchoolExistence = TestSchoolExistence(schoolRepository),
-            loginUseCase = LoginUseCase(schoolRepository, keyValueRepository, baseDataRepository),
-            profileOptionsUseCase = ProfileOptionsUseCase(schoolRepository, classRepository, teacherRepository, roomRepository, keyValueRepository),
-            defaultLessonUseCase = DefaultLessonUseCase(vPlanRepository, keyValueRepository),
-            saveProfileUseCase = SaveProfileUseCase(
-                schoolRepository = schoolRepository,
-                kv = keyValueRepository,
-                classRepository = classRepository,
-                teacherRepository = teacherRepository,
-                roomRepository = roomRepository,
-                defaultLessonRepository = defaultLessonRepository,
-                profileRepository = profileRepository,
-                holidayRepository = holidayRepository,
-                lessonTimeRepository = lessonTimeRepository,
-                context = context
-            ),
-            getSchoolByIdUseCase = GetSchoolByIdUseCase(schoolRepository)
         )
     }
 
