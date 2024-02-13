@@ -7,6 +7,10 @@ import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.Response
 import java.time.LocalDate
 
+/**
+ * This class tries to find a timetable for the given school and user. If it fails, it tries again with the next day.
+ * Once it finds a timetable, it saves the default lessons to the key value store and returns them.
+ */
 class DefaultLessonUseCase(
     private val vPlanRepository: VPlanRepository,
     private val kv: KeyValueRepository
@@ -14,7 +18,6 @@ class DefaultLessonUseCase(
 
     suspend operator fun invoke(schoolId: Long, username: String, password: String, index: Int = -7, className: String): List<DefaultLesson>? {
         if (index > 7) return null
-
         val gson = Gson()
 
         val vPlanData = vPlanRepository.getVPlanData(

@@ -14,11 +14,10 @@ import es.jvbabi.vplanplus.data.repository.CalendarRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LogRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.MessageRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.NotificationRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.PlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
@@ -27,7 +26,7 @@ import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SystemRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
@@ -110,6 +109,8 @@ import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
+import es.jvbabi.vplanplus.shared.data.NetworkRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -141,6 +142,18 @@ object VppModule {
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun provideSP24NetworkRepository(): Sp24NetworkRepository {
+        return Sp24NetworkRepository()
+    }
+
+    @Provides
+    @Singleton
+    fun provideVppIdNetworkRepository(): NetworkRepositoryImpl {
+        return NetworkRepositoryImpl("https://id.vpp.jvbabi.es/")
+    }
+
     // Repositories
     @Provides
     @Singleton
@@ -167,22 +180,6 @@ object VppModule {
     @Singleton
     fun provideKeyValueRepository(db: VppDatabase): KeyValueRepository {
         return KeyValueRepositoryImpl(db.keyValueDao)
-    }
-
-    @Provides
-    @Singleton
-    fun provideMessageRepository(
-        db: VppDatabase,
-        @ApplicationContext context: Context,
-        logRecordRepository: LogRecordRepository,
-        notificationRepository: NotificationRepository
-    ): MessageRepository {
-        return MessageRepositoryImpl(
-            messageDao = db.messageDao,
-            context = context,
-            logRecordRepository = logRecordRepository,
-            notificationRepository = notificationRepository
-        )
     }
 
     @Provides
@@ -238,9 +235,9 @@ object VppModule {
     @Provides
     @Singleton
     fun provideVPlanRepository(
-        logRecordRepository: LogRecordRepository
+        sp24NetworkRepository: Sp24NetworkRepository
     ): VPlanRepository {
-        return VPlanRepositoryImpl(logRecordRepository)
+        return VPlanRepositoryImpl(sp24NetworkRepository)
     }
 
     @Provides

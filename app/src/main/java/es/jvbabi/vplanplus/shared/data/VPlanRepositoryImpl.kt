@@ -1,22 +1,22 @@
-package es.jvbabi.vplanplus.data.repository
+package es.jvbabi.vplanplus.shared.data
 
-import es.jvbabi.vplanplus.data.source.online.OnlineRequest
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
-import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
-import es.jvbabi.vplanplus.domain.Response
+import es.jvbabi.vplanplus.shared.domain.repository.NetworkRepository
 import java.time.LocalDate
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 class VPlanRepositoryImpl(
-    private val logRecordRepository: LogRecordRepository
+    private val networkRepository: NetworkRepository
 ) : VPlanRepository {
+    @OptIn(ExperimentalEncodingApi::class)
     override suspend fun getVPlanData(school: School, date: LocalDate): DataResponse<VPlanData?> {
-
-        val response = OnlineRequest(logRecordRepository).getResponse(
-            "https://www.stundenplan24.de/${school.schoolId}/mobil/mobdaten/PlanKl${date.year}${date.monthValue.toString().padStart(2, '0')}${date.dayOfMonth.toString().padStart(2, '0')}.xml",
-            school.username, school.password
+        networkRepository.authentication = BasicAuthentication(school.username, school.password)
+        val response = networkRepository.doRequest(
+            path = "/${school.schoolId}/mobil/mobdaten/PlanKl${date.year}${date.monthValue.toString().padStart(2, '0')}${date.dayOfMonth.toString().padStart(2, '0')}.xml",
         )
         if (response.response == Response.NOT_FOUND) return DataResponse(null, Response.NO_DATA_AVAILABLE)
         if (response.data == null) return DataResponse(null, response.response)

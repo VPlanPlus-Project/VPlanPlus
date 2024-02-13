@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.repository
+package es.jvbabi.vplanplus.shared.data
 
 import android.util.Log
 import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao

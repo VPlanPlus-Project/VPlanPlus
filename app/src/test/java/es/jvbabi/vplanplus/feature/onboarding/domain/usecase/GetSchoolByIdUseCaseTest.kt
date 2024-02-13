@@ -1,8 +1,6 @@
 package es.jvbabi.vplanplus.feature.onboarding.domain.usecase
 
 import com.google.common.truth.Truth.assertThat
-import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.shared.data.FakeSchoolRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
@@ -11,28 +9,13 @@ import org.junit.Test
 
 class GetSchoolByIdUseCaseTest {
 
-    private lateinit var schoolRepository: SchoolRepository
+    private lateinit var schoolRepository: FakeSchoolRepository
     private lateinit var getSchoolByIdUseCase: GetSchoolByIdUseCase
 
     @Before
     fun setUp() {
         schoolRepository = FakeSchoolRepository()
-        listOf(
-            School(10000000, "Testschool", "example", "example", 5, true),
-            School(10000001, "Albert-Einstein-Gymnasium", "schueler", "ein.stein", 5, true),
-            School(10000002, "Gymnasium am Steinwald", "schueler", "steinwald", 5, false),
-        ).forEach {
-            runBlocking {
-                schoolRepository.createSchool(
-                    schoolId = it.schoolId,
-                    username = it.username,
-                    password = it.password,
-                    name = it.name,
-                    daysPerWeek = it.daysPerWeek,
-                    fullyCompatible = it.fullyCompatible
-                )
-            }
-        }
+        runBlocking { schoolRepository.createExampleData() }
     }
 
     @Test

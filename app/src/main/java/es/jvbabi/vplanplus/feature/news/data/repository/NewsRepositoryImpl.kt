@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.repository
+package es.jvbabi.vplanplus.feature.news.data.repository
 
 import android.content.Context
 import android.content.pm.PackageManager
@@ -8,26 +8,23 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.online.my.MessageResponse
 import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
-import es.jvbabi.vplanplus.data.source.online.OnlineRequest
 import es.jvbabi.vplanplus.domain.model.Importance
 import es.jvbabi.vplanplus.domain.model.Message
-import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.Response
+import es.jvbabi.vplanplus.shared.data.NetworkRepositoryImpl
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class MessageRepositoryImpl(
+class NewsRepositoryImpl(
+    private val networkRepository: NetworkRepositoryImpl,
     private val messageDao: MessageDao,
     private val context: Context,
-    logRecordRepository: LogRecordRepository,
     private val notificationRepository: NotificationRepository
 ) : MessageRepository {
-
-    private val onlineRequest = OnlineRequest(logRecordRepository)
 
     override fun getMessages(): Flow<List<Message>> {
         return messageDao.getMessages(getAppVersion(context)?.versionNumber?.toInt()?:0)
@@ -45,9 +42,10 @@ class MessageRepositoryImpl(
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS'Z'")
         val formattedDateTime = LocalDateTime.now().format(formatter)
         val version = getAppVersion(context)?.versionNumber?.toInt()?:0
-        val url = "https://database-00.jvbabi.es/api/collections/posts/records?expand=importance&perPage=100&filter=((school_id=${schoolId?:0}) && (not_before_date <= \"$formattedDateTime\") && (not_after_date >= \"$formattedDateTime\") && (not_before_version <= $version) && (not_after_version >= $version))"
-            .replace("&&", "%26".repeat(2))
-        val response = onlineRequest.getResponse(url = url)
+
+        val response = networkRepository.doRequest(
+            path = "/api/collections/posts/records?expand=importance&perPage=100&filter=((school_id=${schoolId?:0}) && (not_before_date <= \"$formattedDateTime\") && (not_after_date >= \"$formattedDateTime\") && (not_before_version <= $version) && (not_after_version >= $version))".replace("&&", "%26".repeat(2))
+        )
         if (response.response != Response.SUCCESS || response.data == null) return
         val messages = Gson().fromJson(response.data, MessageResponse::class.java).items.map {
             Message(

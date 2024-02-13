@@ -53,4 +53,21 @@ class FakeSchoolRepository : SchoolRepository {
     override suspend fun getSchoolByName(schoolName: String): School {
         return schools.first { it.name == schoolName }
     }
+
+    suspend fun createExampleData() {
+        listOf(
+            School(10000000, "Testschool", "example", "example", 5, true),
+            School(10000001, "Albert-Einstein-Gymnasium", "schueler", "ein.stein", 5, true),
+            School(10000002, "Gymnasium am Steinwald", "schueler", "steinwald", 5, false),
+        ).forEach {
+            createSchool(
+                schoolId = it.schoolId,
+                username = it.username,
+                password = it.password,
+                name = it.name,
+                daysPerWeek = it.daysPerWeek,
+                fullyCompatible = it.fullyCompatible
+            )
+        }
+    }
 }

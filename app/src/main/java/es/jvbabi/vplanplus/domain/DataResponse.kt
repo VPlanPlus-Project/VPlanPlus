@@ -14,3 +14,14 @@ enum class Response {
     NOT_FOUND,
     NO_DATA_AVAILABLE
 }
+
+object ResponseFactory {
+    fun getResponse(responseCode: Int): Response {
+        return when (responseCode) {
+            200 -> Response.SUCCESS
+            401 -> Response.WRONG_CREDENTIALS
+            404 -> Response.NOT_FOUND
+            else -> Response.OTHER
+        }
+    }
+}
