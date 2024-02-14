@@ -7,6 +7,10 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.feature.onboarding.ui.LoginState
 
+/**
+ * Fetch the base data if school is new to local database and store its base-data to key value store.
+ * If the school is already in the local database, return the login state.
+ */
 class LoginUseCase(
     private val schoolRepository: SchoolRepository,
     private val kv: KeyValueRepository,

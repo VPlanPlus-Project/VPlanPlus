@@ -55,11 +55,7 @@ class FakeSchoolRepository : SchoolRepository {
     }
 
     suspend fun createExampleData() {
-        listOf(
-            School(10000000, "Testschool", "example", "example", 5, true),
-            School(10000001, "Albert-Einstein-Gymnasium", "schueler", "ein.stein", 5, true),
-            School(10000002, "Gymnasium am Steinwald", "schueler", "steinwald", 5, false),
-        ).forEach {
+        exampleSchools.forEach {
             createSchool(
                 schoolId = it.schoolId,
                 username = it.username,
@@ -69,5 +65,13 @@ class FakeSchoolRepository : SchoolRepository {
                 fullyCompatible = it.fullyCompatible
             )
         }
+    }
+
+    companion object {
+        val exampleSchools = listOf(
+            School(10000000, "Testschool", "example", "example", 5, true),
+            School(10000001, "Albert-Einstein-Gymnasium", "schueler", "ein.stein", 5, true),
+            School(10000002, "Gymnasium am Steinwald", "schueler", "steinwald", 5, false),
+        )
     }
 }

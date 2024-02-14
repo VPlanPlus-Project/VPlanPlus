@@ -227,9 +227,9 @@ object VppModule {
         weekRepository: WeekRepository,
         roomRepository: RoomRepository,
         teacherRepository: TeacherRepository,
-        logRecordRepository: LogRecordRepository
+        sp24NetworkRepository: Sp24NetworkRepository
     ): BaseDataRepository {
-        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository, roomRepository, teacherRepository, logRecordRepository)
+        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository, roomRepository, teacherRepository, sp24NetworkRepository)
     }
 
     @Provides
