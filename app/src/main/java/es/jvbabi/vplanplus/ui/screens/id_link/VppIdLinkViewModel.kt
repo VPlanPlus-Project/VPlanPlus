@@ -7,8 +7,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -46,7 +46,7 @@ class VppIdLinkViewModel @Inject constructor(
 
 data class VppIdLinkState(
     val vppId: VppId? = null,
-    val response: Response? = null,
+    val response: HttpStatusCode? = null,
     val classes: Classes? = null,
     val isLoading: Boolean = true,
 )

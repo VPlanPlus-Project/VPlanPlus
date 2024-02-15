@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.feature.onboarding.ui.LoginState
+import io.ktor.http.HttpStatusCode
 
 /**
  * Fetch the base data if school is new to local database and store its base-data to key value store.
@@ -24,9 +25,9 @@ class LoginUseCase(
         val gson = Gson()
 
         val baseDataResponse = baseDataRepository.getFullBaseData(schoolId.toLong(), username, password)
-        if (baseDataResponse.response != Response.SUCCESS) return when (baseDataResponse.response) {
-            Response.WRONG_CREDENTIALS -> LoginResult.WRONG_CREDENTIALS
-            Response.NO_INTERNET -> LoginResult.NO_INTERNET
+        if (baseDataResponse.response != HttpStatusCode.OK) return when (baseDataResponse.response) {
+            HttpStatusCode.Forbidden -> LoginResult.WRONG_CREDENTIALS
+            null -> LoginResult.NO_INTERNET
             else -> LoginResult.PARTIAL_SUCCESS
         }
         val lessonTimes = baseDataResponse.data!!.lessonTimes.map { `class` ->

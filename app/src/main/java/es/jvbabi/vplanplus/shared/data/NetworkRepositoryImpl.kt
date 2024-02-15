@@ -1,8 +1,6 @@
 package es.jvbabi.vplanplus.shared.data
 
 import es.jvbabi.vplanplus.domain.DataResponse
-import es.jvbabi.vplanplus.domain.Response
-import es.jvbabi.vplanplus.domain.ResponseFactory
 import es.jvbabi.vplanplus.shared.domain.repository.NetworkRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
@@ -62,12 +60,12 @@ open class NetworkRepositoryImpl(
                 }
                 if (requestMethod != HttpMethod.Get) setBody(requestBody)
             }
-            return DataResponse(response.bodyAsText(), ResponseFactory.getResponse(response.status.value))
+            return DataResponse(response.bodyAsText(), response.status)
         } catch (e: Exception) {
             return when (e) {
-                is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(null, Response.NO_INTERNET)
-                is ConnectException, is UnknownHostException -> DataResponse(null, Response.NO_INTERNET)
-                else -> DataResponse(null, Response.OTHER)
+                is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(null, null)
+                is ConnectException, is UnknownHostException -> DataResponse(null, null)
+                else -> DataResponse(null, null)
             }
         }
     }

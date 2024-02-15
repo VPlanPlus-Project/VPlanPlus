@@ -4,7 +4,7 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
-import es.jvbabi.vplanplus.domain.Response
+import io.ktor.http.HttpStatusCode
 import java.time.LocalDate
 
 /**
@@ -31,7 +31,7 @@ class DefaultLessonUseCase(
             ),
             LocalDate.now().plusDays(index.toLong())
         )
-        if (vPlanData.response != Response.SUCCESS) return invoke(schoolId, username, password, index + 1, className)
+        if (vPlanData.response != HttpStatusCode.OK) return invoke(schoolId, username, password, index + 1, className)
 
         val defaultLessons = vPlanData.data!!.wPlanDataObject.classes!!.map { c ->
             c.defaultLessons!!.map {

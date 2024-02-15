@@ -26,8 +26,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.ui.screens.Screen
+import io.ktor.http.HttpStatusCode
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
@@ -65,7 +65,7 @@ private fun VppIdLinkScreenContent(
         contentAlignment = Alignment.Center
     ) {
         if (state.isLoading || state.classes == null) CircularProgressIndicator()
-        else if (state.response == Response.SUCCESS) {
+        else if (state.response == HttpStatusCode.OK) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -107,7 +107,7 @@ private fun VppIdLinkScreenPreview() {
     VppIdLinkScreenContent(
         state = VppIdLinkState(
             isLoading = false,
-            response = Response.SUCCESS,
+            response = HttpStatusCode.OK,
             vppId = VppId(
                 id = 1,
                 name = "Maria Musterfrau",

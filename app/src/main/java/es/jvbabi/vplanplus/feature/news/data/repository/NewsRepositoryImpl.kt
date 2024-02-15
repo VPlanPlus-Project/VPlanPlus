@@ -12,8 +12,8 @@ import es.jvbabi.vplanplus.domain.model.Importance
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.shared.data.NetworkRepositoryImpl
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import java.time.LocalDateTime
@@ -46,7 +46,7 @@ class NewsRepositoryImpl(
         val response = networkRepository.doRequest(
             path = "/api/collections/posts/records?expand=importance&perPage=100&filter=((school_id=${schoolId?:0}) && (not_before_date <= \"$formattedDateTime\") && (not_after_date >= \"$formattedDateTime\") && (not_before_version <= $version) && (not_after_version >= $version))".replace("&&", "%26".repeat(2))
         )
-        if (response.response != Response.SUCCESS || response.data == null) return
+        if (response.response != HttpStatusCode.OK || response.data == null) return
         val messages = Gson().fromJson(response.data, MessageResponse::class.java).items.map {
             Message(
                 id = it.id,

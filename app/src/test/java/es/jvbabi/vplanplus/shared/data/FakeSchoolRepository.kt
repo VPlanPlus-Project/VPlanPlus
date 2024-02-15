@@ -13,7 +13,7 @@ class FakeSchoolRepository : SchoolRepository {
     }
 
     override suspend fun checkSchoolId(schoolId: Long): SchoolIdCheckResult {
-        return if (schools.any { it.schoolId == schoolId }) SchoolIdCheckResult.VALID else SchoolIdCheckResult.NOT_FOUND
+        return if (schoolId in 10000000L..15000000) SchoolIdCheckResult.VALID else SchoolIdCheckResult.NOT_FOUND
     }
 
     override suspend fun login(schoolId: Long, username: String, password: String): Response {

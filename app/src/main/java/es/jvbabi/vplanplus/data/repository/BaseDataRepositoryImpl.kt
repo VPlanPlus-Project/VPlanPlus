@@ -15,11 +15,11 @@ import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
+import io.ktor.http.HttpStatusCode
 import java.time.LocalDate
 import kotlin.io.encoding.ExperimentalEncodingApi
 
@@ -82,9 +82,9 @@ class BaseDataRepositoryImpl(
         val weeksResponse = sp24NetworkRepository.doRequest(
             "https://www.stundenplan24.de/$schoolId/wplan/wdatenk/SPlanKl_Sw1.xml",
         )
-        if (classesResponse.response != Response.SUCCESS) return DataResponse(null, classesResponse.response)
+        if (classesResponse.response != HttpStatusCode.OK) return DataResponse(null, classesResponse.response)
 
-        val fullySupported = teachersResponse.response == Response.SUCCESS && roomsResponse.response == Response.SUCCESS && weeksResponse.response == Response.SUCCESS
+        val fullySupported = teachersResponse.response == HttpStatusCode.OK && roomsResponse.response == HttpStatusCode.OK && weeksResponse.response == HttpStatusCode.OK
 
         val classBaseData = ClassBaseData(classesResponse.data!!)
         val teacherBaseData = if (fullySupported) TeacherBaseData(teachersResponse.data!!) else null
@@ -107,7 +107,7 @@ class BaseDataRepositoryImpl(
                 classBaseData.schoolWeeks,
                 weekBaseData.times
             ),
-            Response.SUCCESS
+            HttpStatusCode.OK
         )
     }
 }

@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.shared.data
 
 import es.jvbabi.vplanplus.domain.DataResponse
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
+import io.ktor.http.HttpStatusCode
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -34,7 +34,7 @@ class FakeBaseDataRepository : BaseDataRepository {
                 daysPerWeek = 5,
                 schoolName = school?.name?:"This is a fake school",
             ),
-            response = Response.SUCCESS
+            response = HttpStatusCode.OK
         )
     }
 }

@@ -1,10 +1,13 @@
 package es.jvbabi.vplanplus.domain
 
+import io.ktor.http.HttpStatusCode
+
 data class DataResponse<T>(
     val data: T,
-    val response: Response
+    val response: HttpStatusCode?
 )
 
+@Deprecated("Use HttpStatusCode instead")
 enum class Response {
     SUCCESS,
     WRONG_CREDENTIALS,
@@ -12,16 +15,4 @@ enum class Response {
     NONE,
     OTHER,
     NOT_FOUND,
-    NO_DATA_AVAILABLE
-}
-
-object ResponseFactory {
-    fun getResponse(responseCode: Int): Response {
-        return when (responseCode) {
-            200 -> Response.SUCCESS
-            401 -> Response.WRONG_CREDENTIALS
-            404 -> Response.NOT_FOUND
-            else -> Response.OTHER
-        }
-    }
 }

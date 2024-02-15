@@ -16,9 +16,11 @@ import io.ktor.client.request.request
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import java.net.UnknownHostException
 
 class SchoolRepositoryImpl(
+    private val sp24NetworkRepository: Sp24NetworkRepository,
     private val schoolDao: SchoolDao
 ) : SchoolRepository {
     override suspend fun getSchools(): List<School> {
@@ -30,15 +32,12 @@ class SchoolRepositoryImpl(
     }
 
     override suspend fun checkSchoolId(schoolId: Long): SchoolIdCheckResult? {
-        return try {
-            val response: HttpResponse =
-                HttpClient().request("https://www.stundenplan24.de/$schoolId") {
-                    method = HttpMethod.Get
-                }
-            if (response.status.value == 403) SchoolIdCheckResult.VALID else SchoolIdCheckResult.NOT_FOUND
-        } catch (e: UnknownHostException) {
-            Log.d("SchoolRepositoryImpl", "offline")
-            null
+        val result = sp24NetworkRepository.doRequest("/$schoolId")
+        if (result.data == null || result.response == null) return null
+        return when (result.response) {
+            HttpStatusCode.Forbidden -> SchoolIdCheckResult.VALID
+            HttpStatusCode.NotFound -> SchoolIdCheckResult.NOT_FOUND
+            else -> null
         }
     }
 

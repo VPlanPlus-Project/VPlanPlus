@@ -151,7 +151,6 @@ object VppModule {
     }
 
     @Provides
-    @Singleton
     fun provideSP24NetworkRepository(): Sp24NetworkRepository {
         return Sp24NetworkRepository()
     }
@@ -166,7 +165,7 @@ object VppModule {
     @Provides
     @Singleton
     fun provideSchoolRepository(db: VppDatabase): SchoolRepository {
-        return SchoolRepositoryImpl(db.schoolDao)
+        return SchoolRepositoryImpl(provideSP24NetworkRepository(), db.schoolDao)
     }
 
     @Provides
