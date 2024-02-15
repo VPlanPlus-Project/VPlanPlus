@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.logs
+package es.jvbabi.vplanplus.feature.logs.domain.usecase
 
 data class LogsUseCases(
     val getLogsUseCase: GetLogsUseCase,

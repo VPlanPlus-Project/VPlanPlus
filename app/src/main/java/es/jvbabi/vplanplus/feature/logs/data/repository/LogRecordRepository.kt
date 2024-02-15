@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.repository
+package es.jvbabi.vplanplus.feature.logs.data.repository
 
 import es.jvbabi.vplanplus.domain.model.LogRecord
 import kotlinx.coroutines.flow.Flow

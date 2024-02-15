@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.advanced.logs
+package es.jvbabi.vplanplus.feature.logs.ui
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.LogRecord
-import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
+import es.jvbabi.vplanplus.feature.logs.domain.usecase.LogsUseCases
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

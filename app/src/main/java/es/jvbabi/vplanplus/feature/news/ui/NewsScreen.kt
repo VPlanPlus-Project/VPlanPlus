@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.news
+package es.jvbabi.vplanplus.feature.news.ui
 
 import android.graphics.Typeface
 import android.text.SpannableStringBuilder

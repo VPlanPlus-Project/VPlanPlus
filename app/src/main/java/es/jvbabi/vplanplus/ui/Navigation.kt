@@ -19,9 +19,9 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
-import es.jvbabi.vplanplus.ui.screens.settings.advanced.logs.LogsScreen
-import es.jvbabi.vplanplus.ui.screens.news.NewsScreen
-import es.jvbabi.vplanplus.ui.screens.news.detail.NewsDetailScreen
+import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
+import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
+import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingAddProfileScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingCause
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingDefaultLessonScreen

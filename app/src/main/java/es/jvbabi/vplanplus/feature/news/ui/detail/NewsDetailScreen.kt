@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.news.detail
+package es.jvbabi.vplanplus.feature.news.ui.detail
 
 import android.text.util.Linkify
 import androidx.compose.foundation.layout.Box

@@ -16,7 +16,6 @@ import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.LogRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.NotificationRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.PlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
@@ -41,7 +40,7 @@ import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -70,9 +69,6 @@ import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
-import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
-import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
-import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
@@ -175,12 +171,6 @@ object VppModule {
             context = context,
             calendarEventDao = db.calendarEventDao
         )
-    }
-
-    @Provides
-    @Singleton
-    fun provideLogRepository(db: VppDatabase): LogRecordRepository {
-        return LogRepositoryImpl(db.logRecordDao)
     }
 
     @Provides
@@ -387,17 +377,6 @@ object VppModule {
                 lessonRepository = lessonRepository,
                 keyValueRepository = keyValueRepository
             )
-        )
-    }
-
-    @Singleton
-    @Provides
-    fun provideLogsUseCases(
-        logRecordRepository: LogRecordRepository
-    ): LogsUseCases {
-        return LogsUseCases(
-            getLogsUseCase = GetLogsUseCase(logRecordRepository),
-            deleteAllLogsUseCase = DeleteAllLogsUseCase(logRecordRepository)
         )
     }
 

@@ -1,6 +1,6 @@
-package es.jvbabi.vplanplus.domain.usecase.logs
+package es.jvbabi.vplanplus.feature.logs.domain.usecase
 
-import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 
 class DeleteAllLogsUseCase(
     private val logRecordRepository: LogRecordRepository
