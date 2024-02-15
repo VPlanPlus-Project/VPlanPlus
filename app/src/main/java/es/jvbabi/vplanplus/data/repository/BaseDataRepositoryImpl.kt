@@ -74,13 +74,13 @@ class BaseDataRepositoryImpl(
             "/$schoolId/wplan/wdatenk/SPlanKl_Basis.xml"
         )
         val teachersResponse = sp24NetworkRepository.doRequest(
-            "https://www.stundenplan24.de/$schoolId/wplan/wdatenl/SPlanLe_Basis.xml",
+            "/$schoolId/wplan/wdatenl/SPlanLe_Basis.xml",
         )
         val roomsResponse = sp24NetworkRepository.doRequest(
-            "https://www.stundenplan24.de/$schoolId/wplan/wdatenr/SPlanRa_Basis.xml",
+            "/$schoolId/wplan/wdatenr/SPlanRa_Basis.xml",
         )
         val weeksResponse = sp24NetworkRepository.doRequest(
-            "https://www.stundenplan24.de/$schoolId/wplan/wdatenk/SPlanKl_Sw1.xml",
+            "/$schoolId/wplan/wdatenk/SPlanKl_Sw1.xml",
         )
         if (classesResponse.response != HttpStatusCode.OK) return DataResponse(null, classesResponse.response)
 
