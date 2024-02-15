@@ -8,20 +8,23 @@ import java.util.UUID
 
 class FakeLessonTimesRepository : LessonTimeRepository {
 
+    private val lessonTimes = mutableListOf<LessonTime>()
+
     override suspend fun insertLessonTime(lessonTime: LessonTime) {
-        TODO("Not yet implemented")
+        lessonTimes.add(lessonTime)
     }
 
     override suspend fun insertLessonTimes(lessonTimes: List<LessonTime>) {
-        TODO("Not yet implemented")
+        this.lessonTimes.addAll(lessonTimes)
     }
 
     override suspend fun deleteLessonTimes(`class`: Classes) {
-        TODO("Not yet implemented")
+        lessonTimes.removeIf { it.classLessonTimeRefId == `class`.classId }
     }
 
     override suspend fun getLessonTimesByClass(`class`: Classes): Map<Int, LessonTime> {
-        TODO("Not yet implemented")
+        return lessonTimes.filter { it.classLessonTimeRefId == `class`.classId }
+            .associateBy { it.lessonNumber }
     }
 
     companion object {

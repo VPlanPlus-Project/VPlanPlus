@@ -1,10 +1,8 @@
 package es.jvbabi.vplanplus.feature.onboarding.domain.usecase
 
 import android.app.NotificationManager
-import android.content.Context
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Holiday
@@ -18,6 +16,8 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import java.time.LocalDate
@@ -33,7 +33,8 @@ class SaveProfileUseCase(
     private val profileRepository: ProfileRepository,
     private val holidayRepository: HolidayRepository,
     private val lessonTimeRepository: LessonTimeRepository,
-    private val context: Context
+    private val notificationRepository: NotificationRepository,
+    private val stringRepository: StringRepository
 ) {
 
     /**
@@ -220,12 +221,10 @@ class SaveProfileUseCase(
         kv.delete("onboarding.school.$schoolId.holidays")
         kv.delete("onboarding.school.$schoolId.lessonTimes")
 
-        // notification channel
-        Notification.createChannel(
-            context,
+        notificationRepository.createChannel(
             "PROFILE_$profileId",
-            context.getString(R.string.notification_profileName, referenceName),
-            context.getString(R.string.notification_profileDescription),
+            stringRepository.getString(R.string.notification_profileName, referenceName),
+            stringRepository.getString(R.string.notification_profileDescription),
             NotificationManager.IMPORTANCE_DEFAULT
         )
     }

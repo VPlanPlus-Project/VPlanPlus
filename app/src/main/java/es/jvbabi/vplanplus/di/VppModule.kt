@@ -51,6 +51,7 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
@@ -111,6 +112,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.shared.data.NetworkRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
+import es.jvbabi.vplanplus.shared.data.StringRepositoryImpl
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -140,6 +142,12 @@ object VppModule {
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .enableMultiInstanceInvalidation()
             .build()
+    }
+
+    @Provides
+    @Singleton
+    fun provideStringRepository(@ApplicationContext context: Context): StringRepository {
+        return StringRepositoryImpl(context)
     }
 
     @Provides

@@ -1,10 +1,8 @@
 package es.jvbabi.vplanplus.feature.onboarding.di
 
-import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -12,9 +10,11 @@ import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.CheckSchoolIdSyntax
@@ -45,7 +45,8 @@ object OnboardingModule {
         defaultLessonRepository: DefaultLessonRepository,
         holidayRepository: HolidayRepository,
         lessonTimeRepository: LessonTimeRepository,
-        @ApplicationContext context: Context
+        stringRepository: StringRepository,
+        notificationRepository: NotificationRepository
     ): OnboardingUseCases {
         return OnboardingUseCases(
             checkSchoolIdSyntax = CheckSchoolIdSyntax(schoolRepository),
@@ -63,7 +64,8 @@ object OnboardingModule {
                 profileRepository = profileRepository,
                 holidayRepository = holidayRepository,
                 lessonTimeRepository = lessonTimeRepository,
-                context = context
+                notificationRepository = notificationRepository,
+                stringRepository = stringRepository
             ),
             getSchoolByIdUseCase = GetSchoolByIdUseCase(schoolRepository)
         )

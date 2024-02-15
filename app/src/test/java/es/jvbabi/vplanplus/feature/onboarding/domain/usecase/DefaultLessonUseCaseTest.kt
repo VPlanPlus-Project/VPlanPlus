@@ -40,6 +40,7 @@ class DefaultLessonUseCaseTest {
 
     @Test
     fun `Test default lessons`() {
+        var a = ""
         runBlocking {
             val schoolId = 1L
             val defaultLessons = defaultLessonUseCase.invoke(schoolId = schoolId, username = "user", password = "password", className = "5a")
@@ -50,7 +51,9 @@ class DefaultLessonUseCaseTest {
 
             val gson = Gson()
             val defaultLessonsFromKV = gson.fromJson(keyValueRepository.getOrDefault("onboarding.school.$schoolId.defaultLessons", ""), Array<DefaultLesson>::class.java).toList()
+            a = keyValueRepository.getOrDefault("onboarding.school.$schoolId.defaultLessons", "")
             assertThat(defaultLessonsFromKV).isEqualTo(defaultLessons)
         }
+        assertThat(a).isNotEmpty()
     }
 }
