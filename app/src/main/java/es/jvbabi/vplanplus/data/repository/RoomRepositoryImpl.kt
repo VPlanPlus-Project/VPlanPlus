@@ -15,14 +15,11 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.shared.data.TokenAuthentication
+import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.util.DateUtils
-import io.ktor.client.request.headers
-import io.ktor.client.request.request
-import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.URLProtocol
-import io.ktor.http.encodedPath
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.util.UUID
@@ -31,6 +28,7 @@ class RoomRepositoryImpl(
     private val schoolEntityDao: SchoolEntityDao,
     private val roomBookingDao: RoomBookingDao,
     private val vppIdRepository: VppIdRepository,
+    private val vppIdNetworkRepository: VppIdNetworkRepository,
     private val classRepository: ClassRepository
 ) : RoomRepository {
     override suspend fun getRooms(schoolId: Long): List<Room> {
@@ -109,49 +107,43 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun fetchRoomBookings(school: School) {
-        val client = VppIdRepositoryImpl.createClient()
 
-        try {
-            val response = client.request {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = "id.vpp.jvbabi.es"
-                    encodedPath = "/api/v1/vpp_id/booking/get_room_bookings"
-                    method = HttpMethod.Get
-                }
-                headers {
-                    set("Authorization", school.buildToken())
-                }
-            }
-            if (response.status != HttpStatusCode.OK) {
-                Log.e("RoomRepositoryImpl", "Error fetching room bookings: ${response.status}\n\n${response.bodyAsText()}\n\n")
-                return
-            }
-            val roomBookings = Gson().fromJson(
-                response.bodyAsText(),
-                RoomBookingResponse::class.java
-            )
-            val classes = classRepository.getClassesBySchool(school)
-            val rooms = getRooms(school.schoolId)
-            val vppIds = vppIdRepository.getVppIds().first()
-            roomBookingDao.upsertAll(
-                roomBookings.bookings.mapNotNull { bookingResponse ->
-                    var vppId = vppIds.firstOrNull { it.id == bookingResponse.bookedBy }
-                    if (vppId == null) vppId = vppIdRepository.cacheVppId(bookingResponse.bookedBy, school)
-                    if (vppId == null) return@mapNotNull null
-                    DbRoomBooking(
-                        id = bookingResponse.id,
-                        roomId = rooms.first { room -> bookingResponse.roomName == room.name }.roomId,
-                        bookedBy = vppId.id,
-                        from = DateUtils.getDateTimeFromTimestamp(bookingResponse.start),
-                        to = DateUtils.getDateTimeFromTimestamp(bookingResponse.end),
-                        `class` = classes.first { it.name == bookingResponse.`class` }.classId
-                    )
-                }
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
+        vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
+
+        val response = vppIdNetworkRepository.doRequest(
+            "/api/v1/vpp_id/booking/get_room_bookings",
+            HttpMethod.Get,
+            null
+        )
+
+        if (response.response != HttpStatusCode.OK) {
+            Log.e("RoomRepositoryImpl", "Error fetching room bookings: ${response.response}\n\n${response.data}\n\n")
+            return
         }
+
+        val roomBookings = Gson().fromJson(
+            response.data,
+            RoomBookingResponse::class.java
+        )
+
+        val classes = classRepository.getClassesBySchool(school)
+        val rooms = getRooms(school.schoolId)
+        val vppIds = vppIdRepository.getVppIds().first()
+        roomBookingDao.upsertAll(
+            roomBookings.bookings.mapNotNull { bookingResponse ->
+                var vppId = vppIds.firstOrNull { it.id == bookingResponse.bookedBy }
+                if (vppId == null) vppId = vppIdRepository.cacheVppId(bookingResponse.bookedBy, school)
+                if (vppId == null) return@mapNotNull null
+                DbRoomBooking(
+                    id = bookingResponse.id,
+                    roomId = rooms.first { room -> bookingResponse.roomName == room.name }.roomId,
+                    bookedBy = vppId.id,
+                    from = DateUtils.getDateTimeFromTimestamp(bookingResponse.start),
+                    to = DateUtils.getDateTimeFromTimestamp(bookingResponse.end),
+                    `class` = classes.first { it.name == bookingResponse.`class` }.classId
+                )
+            }
+        )
     }
 
     override suspend fun deleteAllRoomBookings() {

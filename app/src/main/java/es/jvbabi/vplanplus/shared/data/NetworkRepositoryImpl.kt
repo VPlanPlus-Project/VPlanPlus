@@ -109,3 +109,10 @@ class Sp24NetworkRepository(
     server = "https://www.stundenplan24.de",
     userAgent = userAgent
 )
+
+class VppIdNetworkRepository(
+    userAgent: String = DEFAULT_USER_AGENT,
+): NetworkRepositoryImpl(
+    server = "https://id.vpp.jvbabi.es",
+    userAgent = userAgent
+)

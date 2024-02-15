@@ -14,7 +14,6 @@ import es.jvbabi.vplanplus.data.repository.CalendarRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
-import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LogRepositoryImpl
@@ -22,11 +21,9 @@ import es.jvbabi.vplanplus.data.repository.NotificationRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.PlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
-import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SystemRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
-import es.jvbabi.vplanplus.shared.data.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
@@ -110,9 +107,12 @@ import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
-import es.jvbabi.vplanplus.shared.data.NetworkRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
 import es.jvbabi.vplanplus.shared.data.StringRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.VPlanRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -157,8 +157,8 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideVppIdNetworkRepository(): NetworkRepositoryImpl {
-        return NetworkRepositoryImpl("https://id.vpp.jvbabi.es/")
+    fun provideVppIdNetworkRepository(): VppIdNetworkRepository {
+        return VppIdNetworkRepository()
     }
 
     // Repositories
@@ -290,6 +290,7 @@ object VppModule {
             db.schoolEntityDao,
             db.roomBookingDao,
             vppIdRepository,
+            provideVppIdNetworkRepository(),
             classRepository
         )
     }
@@ -310,13 +311,15 @@ object VppModule {
     @Singleton
     fun provideVppIdRepository(
         db: VppDatabase,
-        classRepository: ClassRepository
+        classRepository: ClassRepository,
+        vppIdNetworkRepository: VppIdNetworkRepository
     ): VppIdRepository {
         return VppIdRepositoryImpl(
             db.vppIdDao,
             db.vppIdTokenDao,
             classRepository,
-            db.roomBookingDao
+            db.roomBookingDao,
+            vppIdNetworkRepository
         )
     }
 
