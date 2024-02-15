@@ -5,7 +5,6 @@ import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import io.ktor.client.HttpClient
 import io.ktor.client.network.sockets.ConnectTimeoutException
@@ -45,7 +44,7 @@ class SchoolRepositoryImpl(
         schoolId: Long,
         username: String,
         password: String
-    ): Response {
+    ): HttpStatusCode? {
         return try {
             val response: HttpResponse =
                 HttpClient {
@@ -59,19 +58,15 @@ class SchoolRepositoryImpl(
                     basicAuth(username, password)
                 }
             Log.d("SchoolRepositoryImpl", "called https://www.stundenplan24.de/$schoolId/wplan; status: ${response.status.value}")
-            when (response.status.value) {
-                200 -> Response.SUCCESS
-                401 -> Response.WRONG_CREDENTIALS
-                else -> Response.OTHER
-            }
-        }catch (e: Exception) {
+            response.status
+        } catch (e: Exception) {
             when (e) {
-                is UnknownHostException -> return Response.NO_INTERNET
-                is ConnectTimeoutException -> return Response.NO_INTERNET
-                is HttpRequestTimeoutException -> return Response.NO_INTERNET
+                is UnknownHostException -> return null
+                is ConnectTimeoutException -> return null
+                is HttpRequestTimeoutException -> return null
                 else -> {
                     Log.d("SchoolRepositoryImpl", "other error: ${e.javaClass.name} ${e.message}")
-                    return Response.OTHER
+                    return null
                 }
             }
         }

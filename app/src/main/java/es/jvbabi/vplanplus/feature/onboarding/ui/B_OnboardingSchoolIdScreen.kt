@@ -27,11 +27,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.CloseOnboardingDialog
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import io.ktor.http.HttpStatusCode
 
 @Composable
 fun OnboardingSchoolIdScreen(
@@ -125,29 +125,28 @@ fun SchoolId(
                         .padding(top = 16.dp)
                 )
                 when (state.currentResponseType) {
-                    Response.NOT_FOUND -> {
+                    HttpStatusCode.OK -> {}
+                    HttpStatusCode.NotFound -> {
                         Text(
                             text = stringResource(id = R.string.onboarding_schoolIdNotFound),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
-                    Response.NO_INTERNET -> {
+                    null -> {
                         Text(
                             text = stringResource(id = R.string.noInternet),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
-                    Response.OTHER -> {
+                    else -> {
                         Text(
                             text = stringResource(id = R.string.unknownError),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.error,
                         )
                     }
-
-                    else -> {}
                 }
             }
         },

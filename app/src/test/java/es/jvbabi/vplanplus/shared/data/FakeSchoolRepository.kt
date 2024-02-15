@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.shared.data
 
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import io.ktor.http.HttpStatusCode
 
 class FakeSchoolRepository : SchoolRepository {
     private val schools = mutableListOf<School>()
@@ -16,9 +16,9 @@ class FakeSchoolRepository : SchoolRepository {
         return if (schoolId in 10000000L..15000000) SchoolIdCheckResult.VALID else SchoolIdCheckResult.NOT_FOUND
     }
 
-    override suspend fun login(schoolId: Long, username: String, password: String): Response {
-        val school = schools.firstOrNull { it.schoolId == schoolId } ?: return Response.NOT_FOUND
-        return if (school.username == username && school.password == password) Response.SUCCESS else Response.WRONG_CREDENTIALS
+    override suspend fun login(schoolId: Long, username: String, password: String): HttpStatusCode {
+        val school = schools.firstOrNull { it.schoolId == schoolId } ?: return HttpStatusCode.NotFound
+        return if (school.username == username && school.password == password) HttpStatusCode.OK else HttpStatusCode.Forbidden
     }
 
     override suspend fun createSchool(

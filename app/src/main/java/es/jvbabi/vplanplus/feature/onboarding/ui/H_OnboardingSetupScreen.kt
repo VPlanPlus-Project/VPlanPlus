@@ -51,7 +51,7 @@ fun OnboardingSetupScreen(
     val state = viewModel.state.value
 
     AnimatedVisibility(
-        visible = !state.isLoading,
+        visible = state.allDone,
         enter = fadeIn(tween(500)),
     ) {
         StartAppScreen(

@@ -32,11 +32,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.CloseOnboardingDialog
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import io.ktor.http.HttpStatusCode
 
 @Composable
 fun OnboardingLoginScreen(
@@ -144,15 +144,15 @@ fun LoginScreen(
             )
 
             when (state.currentResponseType) {
-                Response.WRONG_CREDENTIALS -> {
+                HttpStatusCode.OK -> {}
+                HttpStatusCode.Forbidden -> {
                     Text(
                         text = stringResource(id = R.string.onboarding_credentialsUnauthorized),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
-
-                Response.NO_INTERNET -> {
+                null -> {
                     Text(
                         text = stringResource(id = R.string.noInternet),
                         style = MaterialTheme.typography.bodyMedium,
@@ -160,15 +160,13 @@ fun LoginScreen(
                     )
                 }
 
-                Response.OTHER -> {
+                else -> {
                     Text(
                         text = stringResource(id = R.string.unknownError),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
-
-                else -> {}
             }
             
             HorizontalDivider(modifier = Modifier.padding(top = 16.dp))

@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.onboarding.ui
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -8,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.DefaultLesson
@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.ProfileCreationStat
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.toLoginState
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.toResponse
 import es.jvbabi.vplanplus.ui.common.Permission
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -56,10 +57,9 @@ class OnboardingViewModel @Inject constructor(
                 password = "",
                 schoolIdState = result,
                 currentResponseType = when (result) {
-                    SchoolIdCheckResult.VALID -> Response.SUCCESS
-                    SchoolIdCheckResult.NOT_FOUND -> Response.NOT_FOUND
-                    null -> Response.NO_INTERNET
-                    else -> Response.OTHER
+                    SchoolIdCheckResult.VALID -> HttpStatusCode.OK
+                    SchoolIdCheckResult.NOT_FOUND -> HttpStatusCode.NotFound
+                    else -> null
                 },
                 stage = if (result == SchoolIdCheckResult.VALID) Stage.CREDENTIALS else Stage.SCHOOL_ID
             )
@@ -80,7 +80,7 @@ class OnboardingViewModel @Inject constructor(
                 isLoading = false,
                 currentResponseType = baseDataResponse.toResponse(),
                 loginState = baseDataResponse.toLoginState(),
-                stage = if (baseDataResponse.toResponse() == Response.SUCCESS) Stage.PROFILE_TYPE else Stage.CREDENTIALS
+                stage = if (baseDataResponse.toResponse() == HttpStatusCode.OK) Stage.PROFILE_TYPE else Stage.CREDENTIALS
             )
         }
     }
@@ -153,7 +153,7 @@ class OnboardingViewModel @Inject constructor(
     fun newScreen() {
         _state.value = _state.value.copy(
             isLoading = false,
-            currentResponseType = Response.NONE,
+            currentResponseType = HttpStatusCode.OK,
             showTeacherDialog = false,
             showCloseDialog = false
         )
@@ -215,8 +215,10 @@ class OnboardingViewModel @Inject constructor(
                 syncUseCases.triggerSyncUseCase(true)
                 delay(1000) // allow worker to start
                 syncUseCases.isSyncRunningUseCase().collect {
+                    Log.d("OnboardingViewModel", "Sync running: $it")
                     if (!it) {
                         isLoading(false)
+                        _state.value = _state.value.copy(allDone = true)
                         this.cancel()
                     }
                 }
@@ -278,7 +280,7 @@ class OnboardingViewModel @Inject constructor(
     fun goBackToSchoolId() {
         _state.value = _state.value.copy(
             isLoading = false,
-            currentResponseType = Response.NONE,
+            currentResponseType = null,
             username = "",
             password = "",
             loginState = LoginState.NONE,
@@ -348,7 +350,7 @@ data class OnboardingState(
     val passwordVisible: Boolean = false,
     val loginState: LoginState = LoginState.NONE,
 
-    val currentResponseType: Response = Response.NONE,
+    val currentResponseType: HttpStatusCode? = HttpStatusCode.OK,
     val isLoading: Boolean = false,
 
     val profileType: ProfileType? = null,
@@ -370,7 +372,9 @@ data class OnboardingState(
 
     val time: LocalDateTime = LocalDateTime.now(),
 
-    val currentPermissionIndex: Int = 0
+    val currentPermissionIndex: Int = 0,
+
+    val allDone: Boolean = false
 )
 
 enum class Task {

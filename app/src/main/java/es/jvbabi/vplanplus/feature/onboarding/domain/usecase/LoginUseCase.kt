@@ -4,7 +4,6 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.feature.onboarding.ui.LoginState
 import io.ktor.http.HttpStatusCode
 
@@ -67,12 +66,12 @@ enum class LoginResult {
     PARTIAL_SUCCESS,
 }
 
-fun LoginResult.toResponse(): Response {
+fun LoginResult.toResponse(): HttpStatusCode? {
     return when (this) {
-        LoginResult.SUCCESS -> Response.SUCCESS
-        LoginResult.WRONG_CREDENTIALS -> Response.WRONG_CREDENTIALS
-        LoginResult.NO_INTERNET -> Response.NO_INTERNET
-        LoginResult.PARTIAL_SUCCESS -> Response.SUCCESS
+        LoginResult.SUCCESS -> HttpStatusCode.OK
+        LoginResult.WRONG_CREDENTIALS -> HttpStatusCode.Forbidden
+        LoginResult.NO_INTERNET -> null
+        LoginResult.PARTIAL_SUCCESS -> HttpStatusCode.OK
     }
 }
 
