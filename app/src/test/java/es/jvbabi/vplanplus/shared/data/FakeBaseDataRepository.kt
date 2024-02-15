@@ -7,7 +7,7 @@ import io.ktor.http.HttpStatusCode
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-class FakeBaseDataRepository : BaseDataRepository {
+class FakeBaseDataRepository(private val fullySupportedSchool: Map<Long, Boolean>) : BaseDataRepository {
     override suspend fun processBaseData(schoolId: Long, baseData: XmlBaseData) {}
 
     override suspend fun getFullBaseData(
@@ -15,7 +15,10 @@ class FakeBaseDataRepository : BaseDataRepository {
         username: String,
         password: String
     ): DataResponse<XmlBaseData?> {
-        val school = FakeSchoolRepository.exampleSchools.firstOrNull { it.schoolId == schoolId }
+        val school =
+            FakeSchoolRepository.exampleSchools.firstOrNull { it.schoolId == schoolId }?.copy(
+                fullyCompatible = fullySupportedSchool[schoolId] ?: false
+            )
         return DataResponse(
             data = XmlBaseData(
                 classNames = FakeClassRepository.classNames,
@@ -29,10 +32,10 @@ class FakeBaseDataRepository : BaseDataRepository {
                             ) to it.end.format(DateTimeFormatter.ofPattern("HH:mm")))
                         }
                 },
-                roomNames = FakeRoomRepository.roomNames,
-                teacherShorts = FakeTeacherRepository.teacherNames,
+                roomNames = if (fullySupportedSchool[schoolId] == true) FakeRoomRepository.roomNames else emptyList(),
+                teacherShorts = if (fullySupportedSchool[schoolId] == true) FakeTeacherRepository.teacherNames else emptyList(),
                 daysPerWeek = 5,
-                schoolName = school?.name?:"This is a fake school",
+                schoolName = school?.name ?: "This is a fake school",
             ),
             response = HttpStatusCode.OK
         )

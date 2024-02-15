@@ -28,7 +28,7 @@ class LoginUseCaseTest {
         keyValueRepository = FakeKeyValueRepository()
         schoolRepository = FakeSchoolRepository()
         runBlocking { (schoolRepository as FakeSchoolRepository).createExampleData() }
-        baseDataRepository = FakeBaseDataRepository()
+        baseDataRepository = FakeBaseDataRepository(mapOf(1L to true, 2L to false))
 
         loginUseCase = LoginUseCase(
             kv = keyValueRepository,
@@ -48,7 +48,7 @@ class LoginUseCaseTest {
     @Test
     fun `Fully supported school, save base data to key-value store`() {
         runBlocking {
-            val school = School.generateRandomSchools(1).first()
+            val school = School.generateRandomSchools(1).first().copy(schoolId = 1)
             val result = loginUseCase(school.schoolId.toString(), "username", "password")
             assert(result == LoginResult.SUCCESS)
 
@@ -60,6 +60,24 @@ class LoginUseCaseTest {
 
             val rooms = keyValueRepository.get("onboarding.school.${school.schoolId}.rooms")!!.split(",")
             assertThat(rooms).isEqualTo(FakeRoomRepository.roomNames)
+        }
+    }
+
+    @Test
+    fun `Not fully supported school, save base data to key-value store without teachers and rooms`() {
+        runBlocking {
+            val school = School.generateRandomSchools(1).first().copy(schoolId = 2)
+            val result = loginUseCase(school.schoolId.toString(), "username", "password")
+            assert(result == LoginResult.SUCCESS)
+
+            val classes = keyValueRepository.get("onboarding.school.${school.schoolId}.classes")!!.split(",").filter { it.isNotBlank() }
+            assertThat(classes).isEqualTo(FakeClassRepository.classNames)
+
+            val teachers = keyValueRepository.get("onboarding.school.${school.schoolId}.teachers")!!.split(",").filter { it.isNotBlank() }
+            assertThat(teachers).isEqualTo(emptyList<String>())
+
+            val rooms = keyValueRepository.get("onboarding.school.${school.schoolId}.rooms")!!.split(",").filter { it.isNotBlank() }
+            assertThat(rooms).isEqualTo(emptyList<String>())
         }
     }
 }
