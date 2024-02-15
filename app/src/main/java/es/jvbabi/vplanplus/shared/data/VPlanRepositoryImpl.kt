@@ -7,12 +7,10 @@ import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.shared.domain.repository.NetworkRepository
 import io.ktor.http.HttpStatusCode
 import java.time.LocalDate
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 class VPlanRepositoryImpl(
     private val networkRepository: NetworkRepository
 ) : VPlanRepository {
-    @OptIn(ExperimentalEncodingApi::class)
     override suspend fun getVPlanData(school: School, date: LocalDate): DataResponse<VPlanData?> {
         networkRepository.authentication = BasicAuthentication(school.username, school.password)
         val response = networkRepository.doRequest(

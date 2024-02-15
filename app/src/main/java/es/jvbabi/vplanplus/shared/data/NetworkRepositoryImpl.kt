@@ -15,8 +15,6 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import java.net.ConnectException
 import java.net.UnknownHostException
-import kotlin.io.encoding.Base64
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 const val DEFAULT_USER_AGENT = "VPlanPlus"
 
@@ -75,14 +73,13 @@ interface Authentication {
     fun toHeader(): Pair<String, String>
 }
 
-@ExperimentalEncodingApi
 class BasicAuthentication(
     private val username: String,
     private val password: String
 ) : Authentication {
     override fun toHeader(): Pair<String, String> {
         val credentials = "$username:$password"
-        val base64Credentials = Base64.encode(credentials.toByteArray())
+        val base64Credentials = java.util.Base64.getEncoder().encodeToString(credentials.toByteArray())
         return "Authorization" to "Basic $base64Credentials"
     }
 }

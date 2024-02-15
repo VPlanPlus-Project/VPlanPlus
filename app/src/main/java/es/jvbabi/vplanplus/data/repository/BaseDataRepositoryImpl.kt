@@ -21,7 +21,6 @@ import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
 import io.ktor.http.HttpStatusCode
 import java.time.LocalDate
-import kotlin.io.encoding.ExperimentalEncodingApi
 
 class BaseDataRepositoryImpl(
     private val classRepository: ClassRepository,
@@ -63,7 +62,6 @@ class BaseDataRepositoryImpl(
         }
     }
 
-    @OptIn(ExperimentalEncodingApi::class)
     override suspend fun getFullBaseData(
         schoolId: Long,
         username: String,
