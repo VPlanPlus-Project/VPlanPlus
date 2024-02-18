@@ -447,7 +447,8 @@ fun LessonCard(
                         subject = lesson.displaySubject,
                         modifier = Modifier
                             .padding(start = 8.dp)
-                            .size(32.dp)
+                            .size(32.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
 
