@@ -26,6 +26,7 @@ import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
+import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
@@ -127,12 +128,14 @@ object VppModule {
         )
             .addMigrations(VppDatabase.migration_6_7)
             .addMigrations(VppDatabase.migration_7_8)
+            .addMigrations(VppDatabase.migration_10_11)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())
+            .addTypeConverter(GradeModifierConverter())
             .allowMainThreadQueries()
             //.fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)

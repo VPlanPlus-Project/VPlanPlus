@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 
 interface VppIdRepository {
     fun getVppIds(): Flow<List<VppId>>
-    suspend fun getVppIdOnline(token: String): DataResponse<VppId?>
+    suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?>
 
     /**
      * If this id is already cached, it will return the vpp.ID, otherwise it will fetch it from the server, cache it and return its username
@@ -23,8 +23,9 @@ interface VppIdRepository {
     suspend fun cacheVppId(id: Int, school: School): VppId?
     suspend fun addVppId(vppId: VppId)
 
-    suspend fun addVppIdToken(vppId: VppId, token: String)
+    suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?)
     suspend fun getVppIdToken(vppId: VppId): String?
+    suspend fun getBsToken(vppId: VppId): String?
 
     suspend fun testVppId(vppId: VppId): DataResponse<Boolean?>
     suspend fun unlinkVppId(vppId: VppId): Boolean
@@ -32,3 +33,8 @@ interface VppIdRepository {
     suspend fun bookRoom(vppId: VppId, room: Room, from: LocalDateTime, to: LocalDateTime): BookResult
     suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode?
 }
+
+data class VppIdOnlineResponse(
+    val id: VppId,
+    val bsToken: String?
+)

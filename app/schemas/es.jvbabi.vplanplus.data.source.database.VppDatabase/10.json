@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 12,
-    "identityHash": "48dd24e0b79e9cff25dd03e48994a792",
+    "version": 10,
+    "identityHash": "47fc5157caec320893eeef548f006c89",
     "entities": [
       {
         "tableName": "lesson",
@@ -927,7 +927,7 @@
       },
       {
         "tableName": "vpp_id_token",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `vppId` INTEGER NOT NULL, `token` TEXT NOT NULL, PRIMARY KEY(`id`, `vppId`), FOREIGN KEY(`vppId`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `vppId` INTEGER NOT NULL, `token` TEXT NOT NULL, `bsToken` TEXT, PRIMARY KEY(`id`, `vppId`), FOREIGN KEY(`vppId`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -946,6 +946,12 @@
             "columnName": "token",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "bsToken",
+            "columnName": "bsToken",
+            "affinity": "TEXT",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -1311,7 +1317,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '48dd24e0b79e9cff25dd03e48994a792')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '47fc5157caec320893eeef548f006c89')"
     ]
   }
 }

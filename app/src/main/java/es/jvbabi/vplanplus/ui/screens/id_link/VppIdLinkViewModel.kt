@@ -33,12 +33,12 @@ class VppIdLinkViewModel @Inject constructor(
             val response = vppIdLinkUseCases.getVppIdDetailsUseCase(token)
             _state.value = _state.value.copy(
                 isLoading = false,
-                vppId = response.data,
+                vppId = response.data?.id,
                 response = response.response,
             )
             if (response.data != null) {
                 _state.value = _state.value.copy(
-                    classes = vppIdLinkUseCases.getClassUseCase(response.data.schoolId, response.data.className)
+                    classes = vppIdLinkUseCases.getClassUseCase(response.data.id.schoolId, response.data.id.className)
                 )
             } else {
                 Log.d("vpp.ID Link", "Something went wrong: ${response.response}")

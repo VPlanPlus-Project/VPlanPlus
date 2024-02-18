@@ -15,6 +15,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
@@ -39,7 +40,7 @@ class VppIdRepositoryImpl(
         }
     }
 
-    override suspend fun getVppIdOnline(token: String): DataResponse<VppId?> {
+    override suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?> {
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
         val response = vppIdNetworkRepository.doRequest(
             "/api/v1/vpp_id/user/get_user_details",
@@ -53,7 +54,7 @@ class VppIdRepositoryImpl(
         } else DataResponse(
             Gson().fromJson(
                 response.data,
-                VppId::class.java
+                VppIdOnlineResponse::class.java
             ), HttpStatusCode.OK
         )
     }
@@ -74,11 +75,12 @@ class VppIdRepositoryImpl(
         )
     }
 
-    override suspend fun addVppIdToken(vppId: VppId, token: String) {
+    override suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?) {
         vppIdTokenDao.insert(
             DbVppIdToken(
                 vppId = vppId.id,
-                token = token
+                token = token,
+                bsToken = bsToken
             )
         )
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
@@ -86,6 +88,10 @@ class VppIdRepositoryImpl(
 
     override suspend fun getVppIdToken(vppId: VppId): String? {
         return vppIdTokenDao.getTokenByVppId(vppId.id)?.token
+    }
+
+    override suspend fun getBsToken(vppId: VppId): String? {
+        return vppIdTokenDao.getTokenByVppId(vppId.id)?.bsToken
     }
 
     override suspend fun testVppId(vppId: VppId): DataResponse<Boolean?> {
