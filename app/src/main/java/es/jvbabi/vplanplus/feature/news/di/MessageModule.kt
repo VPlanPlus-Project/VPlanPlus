@@ -20,7 +20,7 @@ object MessageModule {
     @Provides
     @Singleton
     fun provideNewsNetworkRepository(): NewsNetworkRepository {
-        return NewsNetworkRepository()
+        return NewsNetworkRepository(logRepository = null)
     }
 
     @Provides

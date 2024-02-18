@@ -68,6 +68,10 @@ fun NavigationGraph(
                 navDeepLink {
                     uriPattern = "https://id.vpp.jvbabi.es/link_success/{token}"
                     action = Intent.ACTION_VIEW
+                },
+                navDeepLink {
+                    uriPattern = "vpp://id/link_success/{token}"
+                    action = Intent.ACTION_VIEW
                 }
             ),
             arguments = listOf(

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.id_link
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -39,6 +40,8 @@ class VppIdLinkViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     classes = vppIdLinkUseCases.getClassUseCase(response.data.schoolId, response.data.className)
                 )
+            } else {
+                Log.d("vpp.ID Link", "Something went wrong: ${response.response}")
             }
         }
     }

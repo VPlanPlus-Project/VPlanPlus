@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.shared.data
 
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.domain.repository.NetworkRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
@@ -21,6 +22,7 @@ const val DEFAULT_USER_AGENT = "VPlanPlus"
 open class NetworkRepositoryImpl(
     server: String,
     private val userAgent: String = DEFAULT_USER_AGENT,
+    private val logRepository: LogRecordRepository?
 ): NetworkRepository {
 
     private var server: String
@@ -60,6 +62,7 @@ open class NetworkRepositoryImpl(
             }
             return DataResponse(response.bodyAsText(), response.status)
         } catch (e: Exception) {
+            logRepository?.log("online", "error when requesting $server$path (${e.javaClass.name}):\n${e.localizedMessage}")
             return when (e) {
                 is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(null, null)
                 is ConnectException, is UnknownHostException -> DataResponse(null, null)
@@ -94,22 +97,28 @@ class TokenAuthentication(
 }
 
 class NewsNetworkRepository(
-    userAgent: String = DEFAULT_USER_AGENT
+    userAgent: String = DEFAULT_USER_AGENT,
+    logRepository: LogRecordRepository?
 ): NetworkRepositoryImpl(
     server = "https://database-00.jvbabi.es",
-    userAgent = userAgent
+    userAgent = userAgent,
+    logRepository = logRepository
 )
 
 class Sp24NetworkRepository(
-    userAgent: String = DEFAULT_USER_AGENT
+    userAgent: String = DEFAULT_USER_AGENT,
+    logRepository: LogRecordRepository?
 ): NetworkRepositoryImpl(
     server = "https://www.stundenplan24.de",
-    userAgent = userAgent
+    userAgent = userAgent,
+    logRepository = logRepository
 )
 
 class VppIdNetworkRepository(
     userAgent: String = DEFAULT_USER_AGENT,
+    logRepository: LogRecordRepository?
 ): NetworkRepositoryImpl(
-    server = "https://id.vpp.jvbabi.es",
-    userAgent = userAgent
+    server = VppIdServer.url,
+    userAgent = userAgent,
+    logRepository = logRepository
 )

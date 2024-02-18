@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.core.content.IntentSanitizer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -42,10 +43,10 @@ import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.android.notification.Notification
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
+import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.delay
@@ -63,7 +64,7 @@ class MainActivity : ComponentActivity() {
 
     private val onboardingViewModel: OnboardingViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
-
+    
     @Inject
     lateinit var homeUseCases: HomeUseCases
 
@@ -233,7 +234,20 @@ class MainActivity : ComponentActivity() {
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        processIntent(intent ?: return)
+        this.finish()
+        if (intent == null) return
+        val sanitized = IntentSanitizer.Builder()
+            .allowExtra("profileId", String::class.java)
+            .allowExtra("dateStr", String::class.java)
+            .allowData { true }
+            .allowFlags(0x10000000)
+            .allowAnyComponent()
+            .allowPackage { true }
+            .allowAction(Intent.ACTION_VIEW)
+            .build()
+            .sanitizeByThrowing(intent)
+        startActivity(sanitized)
+        processIntent(intent)
     }
 }
 

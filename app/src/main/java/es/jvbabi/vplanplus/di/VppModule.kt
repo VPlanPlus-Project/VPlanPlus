@@ -147,21 +147,23 @@ object VppModule {
     }
 
     @Provides
-    fun provideSP24NetworkRepository(): Sp24NetworkRepository {
-        return Sp24NetworkRepository()
+    fun provideSP24NetworkRepository(
+        logRecordRepository: LogRecordRepository?
+    ): Sp24NetworkRepository {
+        return Sp24NetworkRepository(logRepository = logRecordRepository)
     }
 
     @Provides
     @Singleton
-    fun provideVppIdNetworkRepository(): VppIdNetworkRepository {
-        return VppIdNetworkRepository()
+    fun provideVppIdNetworkRepository(logRecordRepository: LogRecordRepository?): VppIdNetworkRepository {
+        return VppIdNetworkRepository(logRepository = logRecordRepository)
     }
 
     // Repositories
     @Provides
     @Singleton
-    fun provideSchoolRepository(db: VppDatabase): SchoolRepository {
-        return SchoolRepositoryImpl(provideSP24NetworkRepository(), db.schoolDao)
+    fun provideSchoolRepository(db: VppDatabase, logRecordRepository: LogRecordRepository): SchoolRepository {
+        return SchoolRepositoryImpl(provideSP24NetworkRepository(logRecordRepository), db.schoolDao)
     }
 
     @Provides
@@ -199,8 +201,8 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideHolidayRepository(db: VppDatabase): HolidayRepository {
-        return HolidayRepositoryImpl(db.holidayDao, provideSchoolRepository(db))
+    fun provideHolidayRepository(db: VppDatabase, logRecordRepository: LogRecordRepository): HolidayRepository {
+        return HolidayRepositoryImpl(db.holidayDao, provideSchoolRepository(db, logRecordRepository))
     }
 
     @Provides
@@ -257,10 +259,11 @@ object VppModule {
     @Singleton
     fun providePlanRepository(
         db: VppDatabase,
-        roomRepository: RoomRepository
+        roomRepository: RoomRepository,
+        logRecordRepository: LogRecordRepository
     ): PlanRepository {
         return PlanRepositoryImpl(
-            holidayRepository = provideHolidayRepository(db),
+            holidayRepository = provideHolidayRepository(db, logRecordRepository),
             teacherRepository = provideTeacherRepository(db),
             classRepository = provideClassRepository(db),
             roomRepository = roomRepository,
@@ -274,13 +277,14 @@ object VppModule {
     fun provideRoomRepository(
         db: VppDatabase,
         vppIdRepository: VppIdRepository,
-        classRepository: ClassRepository
+        classRepository: ClassRepository,
+        logRecordRepository: LogRecordRepository
     ): RoomRepository {
         return RoomRepositoryImpl(
             db.schoolEntityDao,
             db.roomBookingDao,
             vppIdRepository,
-            provideVppIdNetworkRepository(),
+            provideVppIdNetworkRepository(logRecordRepository),
             classRepository
         )
     }
