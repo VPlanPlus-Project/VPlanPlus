@@ -261,4 +261,5 @@
     <string name="home_nextDayLessonDescription">At %1$s lesson</string>
     <string name="home_nextDayNoData">There\'s no data for your next school day. Don\'t worry, we\'ll notify you when there\'s a new plan available.</string>
     <string name="home_nextDayLessons">These subjects will take place</string>
+    <string name="onboarding_defaultLessonsNoData">There\'s no data available at the moment. You can enable this feaure later.</string>
 </resources>

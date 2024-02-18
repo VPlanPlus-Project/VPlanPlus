@@ -19,7 +19,6 @@ import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.toLoginState
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.toResponse
 import es.jvbabi.vplanplus.ui.common.Permission
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.time.LocalDateTime
@@ -179,7 +178,7 @@ class OnboardingViewModel @Inject constructor(
     fun loadDefaultLessons(force: Boolean) {
         if (state.value.defaultLessonsClass == state.value.selectedProfileOption && !force) return
         isLoading(true)
-        _state.value = _state.value.copy(defaultLessonsLoading = true)
+        _state.value = _state.value.copy(defaultLessonsLoading = true, hasDefaultLessons = null)
         viewModelScope.launch {
             _state.value = _state.value.copy(
                 defaultLessons = onboardingUseCases.defaultLessonUseCase(
@@ -190,6 +189,9 @@ class OnboardingViewModel @Inject constructor(
                 )?.associateWith { true } ?: mapOf(),
                 defaultLessonsLoading = false,
                 defaultLessonsClass = state.value.selectedProfileOption!!,
+            )
+            _state.value = _state.value.copy(
+                hasDefaultLessons = _state.value.defaultLessons.isNotEmpty()
             )
             isLoading(false)
         }
@@ -219,7 +221,6 @@ class OnboardingViewModel @Inject constructor(
                     if (!it) {
                         isLoading(false)
                         _state.value = _state.value.copy(allDone = true)
-                        this.cancel()
                     }
                 }
             } else isLoading(false)
@@ -362,6 +363,7 @@ data class OnboardingState(
     val showTeacherDialog: Boolean = false,
 
     val defaultLessons: Map<DefaultLesson, Boolean> = mapOf(),
+    val hasDefaultLessons: Boolean? = null,
     val defaultLessonsClass: String = "",
     val defaultLessonsLoading: Boolean = false,
 
