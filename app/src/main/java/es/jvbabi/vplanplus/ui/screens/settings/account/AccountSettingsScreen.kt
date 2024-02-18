@@ -41,6 +41,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
@@ -62,7 +63,7 @@ fun AccountSettingsScreen(
         onLogin = {
             val browserIntent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse("https://id.vpp.jvbabi.es/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"))
+                Uri.parse("${VppIdServer.url}/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"))
             )
             ContextCompat.startActivity(context, browserIntent, null)
             (context as Activity).finish()
