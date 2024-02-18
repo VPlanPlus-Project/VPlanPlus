@@ -263,4 +263,11 @@
     <string name="home_nextDayNoData">Für den nächsten Schultag gibt es noch keine Daten. Keine Sorge, wir benachrichtigen dich, wenn ein neuer Plan verfügbar ist.</string>
     <string name="home_nextDayLessons">Dieses Fächer werden stattfinden</string>
     <string name="onboarding_defaultLessonsNoData">Es sind momentan keine Daten verfügbar. Du kannst dieses Feature später aktivieren.</string>
+    <string name="grades_title">Noten</string>
+    <string name="grades_noVppId">Keine vpp.ID gefunden. Du benötigst eine, damit die App deine Noten laden kann.</string>
+    <string name="grades_noVppIdLink">Eine vpp.ID verbinden</string>
+    <string name="grades_wrongProfile">Das aktive Profil ist nicht mit einer vpp.ID verbunden, wir haben aber mindestens eine vpp.ID in dieser App gefunden. Wechsle zu einem solchen Profil, damit hier Noten angezeigt werden.</string>
+    <string name="grades_notAllowedText">Du hast der App nicht erlaubt, direkt mit beste.schule / notenbuch.online zu kommunizieren. Falls du dies bereits erlaubt hast, versuche, die aktuelle vpp.ID neuzuverbinden.</string>
+    <string name="grades_notAllowedFixOnline">Erlauben</string>
+    <string name="grades_notAllowedReconnect">vpp.ID neuverbinden</string>
 </resources>

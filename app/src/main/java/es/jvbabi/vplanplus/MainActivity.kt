@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
 
     private val onboardingViewModel: OnboardingViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
-    
+
     @Inject
     lateinit var homeUseCases: HomeUseCases
 
@@ -119,7 +119,7 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             if (selectedIndex == 1) return@NavigationBarItem
                             selectedIndex = 1
-                            navController.navigate(Screen.TimetableScreen.route)
+                            navController.navigate(Screen.TimetableScreen.route){ popUpTo(Screen.HomeScreen.route) }
                         },
                         icon = {
                             Icon(
@@ -131,7 +131,11 @@ class MainActivity : ComponentActivity() {
                         route = Screen.TimetableScreen.route
                     ),
                     NavigationBarItem(
-                        onClick = {},
+                        onClick = {
+                            if (selectedIndex == 2) return@NavigationBarItem
+                            selectedIndex = 2
+                            navController.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                        },
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.Grade,
@@ -169,7 +173,8 @@ class MainActivity : ComponentActivity() {
                             goToOnboarding = goToOnboarding!!,
                             navBar = navBar,
                             onNavigationChanged = { route ->
-                                val item = navBarItems.firstOrNull { route?.startsWith(it.route) == true }
+                                val item =
+                                    navBarItems.firstOrNull { route?.startsWith(it.route) == true }
                                 if (item != null) {
                                     selectedIndex = navBarItems.indexOf(item)
                                 }
@@ -244,6 +249,7 @@ class MainActivity : ComponentActivity() {
             .allowAnyComponent()
             .allowPackage { true }
             .allowAction(Intent.ACTION_VIEW)
+            .allowCategory(Intent.CATEGORY_BROWSABLE)
             .build()
             .sanitizeByThrowing(intent)
         startActivity(sanitized)

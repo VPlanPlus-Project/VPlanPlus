@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.repository.BookResult
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Room
@@ -36,5 +37,5 @@ interface VppIdRepository {
 
 data class VppIdOnlineResponse(
     val id: VppId,
-    val bsToken: String?
+    @SerializedName("bs_token") val bsToken: String?
 )
