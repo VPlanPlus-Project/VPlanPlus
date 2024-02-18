@@ -16,36 +16,22 @@ import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.Response
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.android.Android
-import io.ktor.client.network.sockets.ConnectTimeoutException
-import io.ktor.client.plugins.HttpRequestTimeoutException
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.UserAgent
-import io.ktor.client.request.headers
-import io.ktor.client.request.request
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
+import es.jvbabi.vplanplus.shared.data.TokenAuthentication
+import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.URLProtocol
-import io.ktor.http.encodedPath
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.net.ConnectException
-import java.net.UnknownHostException
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
-import kotlin.jvm.Throws
 
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
     private val vppIdTokenDao: VppIdTokenDao,
     private val classRepository: ClassRepository,
-    private val roomBookingDao: RoomBookingDao
+    private val roomBookingDao: RoomBookingDao,
+    private val vppIdNetworkRepository: VppIdNetworkRepository
 ) : VppIdRepository {
     override fun getVppIds(): Flow<List<VppId>> {
         return vppIdDao.getAll().map { list ->
@@ -54,49 +40,22 @@ class VppIdRepositoryImpl(
     }
 
     override suspend fun getVppIdOnline(token: String): DataResponse<VppId?> {
-
-        return try {
-            val client = createClient()
-            val response = client.request {
-                headers {
-                    set("Authorization", token)
-                }
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = "id.vpp.jvbabi.es"
-                    encodedPath = "/api/v1/vpp_id/user/get_user_details"
-                }
-            }
-            client.close()
-            if (response.status != HttpStatusCode.OK) {
-                DataResponse(
-                    null, when (response.status) {
-                        HttpStatusCode.Unauthorized -> Response.WRONG_CREDENTIALS
-                        HttpStatusCode.NotFound -> Response.NOT_FOUND
-                        else -> Response.OTHER
-                    }
-                )
-            } else DataResponse(
-                Gson().fromJson(response.bodyAsText(), VppId::class.java),
-                Response.SUCCESS
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
+        val response = vppIdNetworkRepository.doRequest(
+            "/api/v1/vpp_id/user/get_user_details",
+            HttpMethod.Get,
+            null
+        )
+        return if(response.response != HttpStatusCode.OK) {
+            DataResponse(
+                null, response.response
             )
-        } catch (e: Exception) {
-            when (e) {
-                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> return DataResponse(
-                    null,
-                    Response.NO_INTERNET
-                )
-
-                else -> {
-                    Log.d(
-                        "OnlineRequest",
-                        "other error on /api/v1/vpp_id/user/get_user_details: ${e.stackTraceToString()}"
-                    )
-                    return DataResponse(null, Response.OTHER)
-                }
-            }
-
-        }
+        } else DataResponse(
+            Gson().fromJson(
+                response.data,
+                VppId::class.java
+            ), HttpStatusCode.OK
+        )
     }
 
     override suspend fun addVppId(vppId: VppId) {
@@ -122,6 +81,7 @@ class VppIdRepositoryImpl(
                 token = token
             )
         )
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
     }
 
     override suspend fun getVppIdToken(vppId: VppId): String? {
@@ -129,145 +89,47 @@ class VppIdRepositoryImpl(
     }
 
     override suspend fun testVppId(vppId: VppId): DataResponse<Boolean?> {
-        val client = createClient()
-        val currentToken = getVppIdToken(vppId) ?: return DataResponse(false, Response.SUCCESS)
-        return try {
-            val response = client.request {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = "id.vpp.jvbabi.es"
-                    encodedPath = "/api/v1/vpp_id/test_session"
-                    method = HttpMethod.Post
-                }
-                headers {
-                    set("Authorization", currentToken)
-                }
-                setBody(
-                    Gson().toJson(
-                        TestRequest(
-                            id = vppId.id,
-                            userName = vppId.name
-                        )
-                    )
+        val currentToken = getVppIdToken(vppId) ?: return DataResponse(false, HttpStatusCode.OK)
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
+
+        val response = vppIdNetworkRepository.doRequest(
+            "/api/v1/vpp_id/test_session",
+            HttpMethod.Post,
+            Gson().toJson(
+                TestRequest(
+                    id = vppId.id,
+                    userName = vppId.name
                 )
-            }
-            if (response.status != HttpStatusCode.OK) {
-                DataResponse(
-                    null, when (response.status) {
-                        HttpStatusCode.Unauthorized -> Response.WRONG_CREDENTIALS
-                        HttpStatusCode.NotFound -> Response.NOT_FOUND
-                        else -> Response.OTHER
-                    }
-                )
-            } else DataResponse(
-                Gson().fromJson(
-                    response.bodyAsText(),
-                    TestResponse::class.java
-                ).result, Response.SUCCESS
             )
-        } catch (e: Exception) {
-            when (e) {
-                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> return DataResponse(
-                    null,
-                    Response.NO_INTERNET
-                )
-
-                else -> {
-                    Log.d(
-                        "OnlineRequest",
-                        "other error on /api/v1/vpp_id/test_session: ${e.stackTraceToString()}"
-                    )
-                    return DataResponse(null, Response.OTHER)
-                }
-            }
-
-        }
+        )
+        return if(response.response != HttpStatusCode.OK) {
+            DataResponse(
+                null, response.response
+            )
+        } else DataResponse(
+            Gson().fromJson(
+                response.data,
+                TestResponse::class.java
+            ).result, HttpStatusCode.OK
+        )
     }
 
     override suspend fun unlinkVppId(vppId: VppId): Boolean {
-        val client = createClient()
         val currentToken = getVppIdToken(vppId) ?: return false
-        return try {
-            val response = client.request {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = "id.vpp.jvbabi.es"
-                    encodedPath = "/api/v1/vpp_id/unlink_session"
-                    method = HttpMethod.Post
-                }
-                headers {
-                    set("Authorization", currentToken)
-                }
-                setBody(
-                    Gson().toJson(
-                        TestRequest(
-                            id = vppId.id,
-                            userName = vppId.name
-                        )
-                    )
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
+        val response = vppIdNetworkRepository.doRequest(
+            "/api/v1/vpp_id/unlink_session",
+            HttpMethod.Post,
+            Gson().toJson(
+                TestRequest(
+                    id = vppId.id,
+                    userName = vppId.name
                 )
-            }
-            client.close()
-            if (response.status != HttpStatusCode.OK) return false
-            vppIdDao.delete(vppId.id)
-            true
-        } catch (e: Exception) {
-            when (e) {
-                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> false
-
-                else -> {
-                    Log.d(
-                        "OnlineRequest",
-                        "other error on /api/v1/vpp_id/test_session: ${e.stackTraceToString()}"
-                    )
-                    return false
-                }
-            }
-        }
-    }
-
-    companion object {
-        fun createClient(): HttpClient {
-            return HttpClient(Android) {
-                install(HttpTimeout) {
-                    requestTimeoutMillis = 5000
-                    connectTimeoutMillis = 5000
-                    socketTimeoutMillis = 5000
-                }
-                install(UserAgent) {
-                    agent = "VPlanPlus"
-                }
-            }
-        }
-
-        @Throws(
-            UnknownHostException::class,
-            ConnectTimeoutException::class,
-            HttpRequestTimeoutException::class,
-            ConnectException::class
+            )
         )
-        suspend fun executeRequest(
-            url: String,
-            token: String,
-            method: HttpMethod = HttpMethod.Get,
-            body: String? = null
-        ): HttpResponse {
-            val client = createClient()
-            val response = client.request {
-                url {
-                    protocol = URLProtocol.HTTPS
-                    host = "id.vpp.jvbabi.es"
-                    encodedPath = url
-                    this@request.method = method
-                }
-                headers {
-                    set("Authorization", token)
-                }
-                if (body != null) setBody(body)
-            }
-            client.close()
-            return response
-        }
+        if (response.response != HttpStatusCode.OK) return false
+        vppIdDao.delete(vppId.id)
+        return true
     }
 
     override suspend fun bookRoom(
@@ -282,110 +144,76 @@ class VppIdRepositoryImpl(
             .getOffset(
                 Instant.now()
             )
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
         val url = "/api/v1/vpp_id/booking/book_room"
-        return try {
-            val response = executeRequest(
-                url,
-                currentToken,
-                HttpMethod.Post,
-                Gson().toJson(
-                    BookRoomRequest(
-                        schoolId = room.school.schoolId,
-                        roomName = room.name,
-                        from = from.toEpochSecond(zoneOffset),
-                        to = to.toEpochSecond(zoneOffset)
-                    )
+        val response = vppIdNetworkRepository.doRequest(
+            url,
+            HttpMethod.Post,
+            Gson().toJson(
+                BookRoomRequest(
+                    schoolId = room.school.schoolId,
+                    roomName = room.name,
+                    from = from.toEpochSecond(zoneOffset),
+                    to = to.toEpochSecond(zoneOffset)
                 )
             )
-            if (response.status != HttpStatusCode.OK) {
-                return when (response.status) {
-                    HttpStatusCode.Conflict -> BookResult.CONFLICT
-                    else -> BookResult.OTHER
-                }
-            }
-            BookResult.SUCCESS
-        } catch (e: Exception) {
-            when (e) {
-                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> BookResult.NO_INTERNET
-                else -> {
-                    Log.d(
-                        "OnlineRequest",
-                        "other error on $url: ${e.stackTraceToString()}"
-                    )
-                    return BookResult.OTHER
-                }
+        )
+        if (response.response != HttpStatusCode.OK) {
+            return when (response.response) {
+                HttpStatusCode.Conflict -> BookResult.CONFLICT
+                else -> BookResult.OTHER
             }
         }
+        return BookResult.SUCCESS
     }
 
     override suspend fun cacheVppId(id: Int, school: School): VppId? {
         val vppId = vppIdDao.getVppId(id)
         if (vppId != null) return vppId.toModel()
         val url = "/api/v1/vpp_id/user/get_username/$id"
-        return try {
-            val response = executeRequest(
-                url,
-                school.buildToken()
+
+        vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
+        val response = vppIdNetworkRepository.doRequest(
+            url,
+            HttpMethod.Get,
+            null
+        )
+        if (response.response != HttpStatusCode.OK) return null
+        val r = Gson().fromJson(response.data, UserNameResponse::class.java)
+        vppIdDao.upsert(
+            DbVppId(
+                id = id,
+                name = r.username,
+                className = r.className,
+                schoolId = school.schoolId,
+                state = State.CACHE,
+                classId = classRepository.getClassBySchoolIdAndClassName(
+                    school.schoolId,
+                    r.className
+                )?.classId,
             )
-            if (response.status != HttpStatusCode.OK) return null
-            val r = Gson().fromJson(response.bodyAsText(), UserNameResponse::class.java)
-            vppIdDao.upsert(
-                DbVppId(
-                    id = id,
-                    name = r.username,
-                    className = r.className,
-                    schoolId = school.schoolId,
-                    state = State.CACHE,
-                    classId = classRepository.getClassBySchoolIdAndClassName(
-                        school.schoolId,
-                        r.className
-                    )?.classId,
-                )
-            )
-            vppIdDao.getVppId(id)?.toModel()
-        } catch (e: Exception) {
-            when (e) {
-                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> null
-                else -> {
-                    Log.d(
-                        "OnlineRequest",
-                        "other error on $url: ${e.stackTraceToString()}"
-                    )
-                    return null
-                }
-            }
-        }
+        )
+        return vppIdDao.getVppId(id)?.toModel()
     }
 
     override suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode? {
         val url = "/api/v1/vpp_id/booking/cancel_booking/${roomBooking.id}"
         val currentToken = getVppIdToken(roomBooking.bookedBy ?: return null) ?: return null
-        return try {
-            val response = executeRequest(
-                url,
-                currentToken,
-                HttpMethod.Post
-            )
-            if (response.status == HttpStatusCode.OK || response.status == HttpStatusCode.NotFound) roomBookingDao.deleteById(
-                roomBooking.id
-            )
-            if (response.status != HttpStatusCode.OK) {
-                Log.d("CancelBooking", "status not ok: ${response.status}")
-                return response.status
-            }
-            response.status
-        } catch (e: Exception) {
-            when (e) {
-                is UnknownHostException, is ConnectTimeoutException, is HttpRequestTimeoutException, is ConnectException -> null
-                else -> {
-                    Log.d(
-                        "OnlineRequest",
-                        "other error on $url: ${e.stackTraceToString()}"
-                    )
-                    return null
-                }
-            }
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
+
+        val response = vppIdNetworkRepository.doRequest(
+            url,
+            HttpMethod.Post,
+            null
+        )
+        if (response.response == HttpStatusCode.OK || response.response == HttpStatusCode.NotFound) roomBookingDao.deleteById(roomBooking.id)
+
+        if (response.response != HttpStatusCode.OK) {
+            Log.d("CancelBooking", "status not ok: ${response.response}")
+            return response.response
         }
+
+        return response.response
     }
 }
 

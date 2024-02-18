@@ -19,9 +19,10 @@ import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -31,11 +32,10 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
-import es.jvbabi.vplanplus.domain.repository.Keys
-import es.jvbabi.vplanplus.domain.Response
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -101,12 +101,12 @@ class DoSyncUseCase(
                 }
 
                 val data = vPlanRepository.getVPlanData(school, date)
-                if (!listOf(Response.SUCCESS, Response.NO_DATA_AVAILABLE).contains(data.response)) {
+                if (!listOf(HttpStatusCode.OK, HttpStatusCode.NotFound).contains(data.response)) {
                     logRecordRepository.log("Sync.VPlan", "Failed to sync VPlan for $date")
                     return false
                 }
 
-                if (data.response == Response.NO_DATA_AVAILABLE) {
+                if (data.response == HttpStatusCode.NotFound) {
                     logRecordRepository.log("SyncWorker", "No data available for ${school.schoolId} (${school.name} at $date)")
                     return@repeat
                 }

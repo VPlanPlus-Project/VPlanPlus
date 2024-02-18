@@ -14,20 +14,15 @@ import es.jvbabi.vplanplus.data.repository.CalendarRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.LogRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.MessageRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.NotificationRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.PlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ProfileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SystemRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.VPlanRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
@@ -45,13 +40,14 @@ import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
@@ -73,17 +69,6 @@ import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
-import es.jvbabi.vplanplus.domain.usecase.logs.DeleteAllLogsUseCase
-import es.jvbabi.vplanplus.domain.usecase.logs.GetLogsUseCase
-import es.jvbabi.vplanplus.domain.usecase.logs.LogsUseCases
-import es.jvbabi.vplanplus.domain.usecase.onboarding.CheckSchoolIdSyntax
-import es.jvbabi.vplanplus.domain.usecase.onboarding.DefaultLessonUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.GetSchoolByIdUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.LoginUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.OnboardingUseCases
-import es.jvbabi.vplanplus.domain.usecase.onboarding.ProfileOptionsUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.SaveProfileUseCase
-import es.jvbabi.vplanplus.domain.usecase.onboarding.TestSchoolExistence
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
@@ -118,6 +103,12 @@ import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
+import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
+import es.jvbabi.vplanplus.shared.data.StringRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.VPlanRepositoryImpl
+import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Singleton
 
@@ -149,11 +140,28 @@ object VppModule {
             .build()
     }
 
+    @Provides
+    @Singleton
+    fun provideStringRepository(@ApplicationContext context: Context): StringRepository {
+        return StringRepositoryImpl(context)
+    }
+
+    @Provides
+    fun provideSP24NetworkRepository(): Sp24NetworkRepository {
+        return Sp24NetworkRepository()
+    }
+
+    @Provides
+    @Singleton
+    fun provideVppIdNetworkRepository(): VppIdNetworkRepository {
+        return VppIdNetworkRepository()
+    }
+
     // Repositories
     @Provides
     @Singleton
     fun provideSchoolRepository(db: VppDatabase): SchoolRepository {
-        return SchoolRepositoryImpl(db.schoolDao)
+        return SchoolRepositoryImpl(provideSP24NetworkRepository(), db.schoolDao)
     }
 
     @Provides
@@ -167,30 +175,8 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideLogRepository(db: VppDatabase): LogRecordRepository {
-        return LogRepositoryImpl(db.logRecordDao)
-    }
-
-    @Provides
-    @Singleton
     fun provideKeyValueRepository(db: VppDatabase): KeyValueRepository {
         return KeyValueRepositoryImpl(db.keyValueDao)
-    }
-
-    @Provides
-    @Singleton
-    fun provideMessageRepository(
-        db: VppDatabase,
-        @ApplicationContext context: Context,
-        logRecordRepository: LogRecordRepository,
-        notificationRepository: NotificationRepository
-    ): MessageRepository {
-        return MessageRepositoryImpl(
-            messageDao = db.messageDao,
-            context = context,
-            logRecordRepository = logRecordRepository,
-            notificationRepository = notificationRepository
-        )
     }
 
     @Provides
@@ -238,17 +224,17 @@ object VppModule {
         weekRepository: WeekRepository,
         roomRepository: RoomRepository,
         teacherRepository: TeacherRepository,
-        logRecordRepository: LogRecordRepository
+        sp24NetworkRepository: Sp24NetworkRepository
     ): BaseDataRepository {
-        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository, roomRepository, teacherRepository, logRecordRepository)
+        return BaseDataRepositoryImpl(classRepository, lessonTimeRepository, holidayRepository, weekRepository, roomRepository, teacherRepository, sp24NetworkRepository)
     }
 
     @Provides
     @Singleton
     fun provideVPlanRepository(
-        logRecordRepository: LogRecordRepository
+        sp24NetworkRepository: Sp24NetworkRepository
     ): VPlanRepository {
-        return VPlanRepositoryImpl(logRecordRepository)
+        return VPlanRepositoryImpl(sp24NetworkRepository)
     }
 
     @Provides
@@ -294,6 +280,7 @@ object VppModule {
             db.schoolEntityDao,
             db.roomBookingDao,
             vppIdRepository,
+            provideVppIdNetworkRepository(),
             classRepository
         )
     }
@@ -314,13 +301,15 @@ object VppModule {
     @Singleton
     fun provideVppIdRepository(
         db: VppDatabase,
-        classRepository: ClassRepository
+        classRepository: ClassRepository,
+        vppIdNetworkRepository: VppIdNetworkRepository
     ): VppIdRepository {
         return VppIdRepositoryImpl(
             db.vppIdDao,
             db.vppIdTokenDao,
             classRepository,
-            db.roomBookingDao
+            db.roomBookingDao,
+            vppIdNetworkRepository
         )
     }
 
@@ -388,55 +377,6 @@ object VppModule {
                 lessonRepository = lessonRepository,
                 keyValueRepository = keyValueRepository
             )
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideOnboardingUseCases(
-        schoolRepository: SchoolRepository,
-        baseDataRepository: BaseDataRepository,
-        keyValueRepository: KeyValueRepository,
-        classRepository: ClassRepository,
-        teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository,
-        vPlanRepository: VPlanRepository,
-        profileRepository: ProfileRepository,
-        defaultLessonRepository: DefaultLessonRepository,
-        holidayRepository: HolidayRepository,
-        lessonTimeRepository: LessonTimeRepository,
-        @ApplicationContext context: Context
-    ): OnboardingUseCases {
-        return OnboardingUseCases(
-            checkSchoolIdSyntax = CheckSchoolIdSyntax(schoolRepository),
-            testSchoolExistence = TestSchoolExistence(schoolRepository),
-            loginUseCase = LoginUseCase(schoolRepository, keyValueRepository, baseDataRepository),
-            profileOptionsUseCase = ProfileOptionsUseCase(schoolRepository, classRepository, teacherRepository, roomRepository, keyValueRepository),
-            defaultLessonUseCase = DefaultLessonUseCase(vPlanRepository, keyValueRepository),
-            saveProfileUseCase = SaveProfileUseCase(
-                schoolRepository = schoolRepository,
-                kv = keyValueRepository,
-                classRepository = classRepository,
-                teacherRepository = teacherRepository,
-                roomRepository = roomRepository,
-                defaultLessonRepository = defaultLessonRepository,
-                profileRepository = profileRepository,
-                holidayRepository = holidayRepository,
-                lessonTimeRepository = lessonTimeRepository,
-                context = context
-            ),
-            getSchoolByIdUseCase = GetSchoolByIdUseCase(schoolRepository)
-        )
-    }
-
-    @Singleton
-    @Provides
-    fun provideLogsUseCases(
-        logRecordRepository: LogRecordRepository
-    ): LogsUseCases {
-        return LogsUseCases(
-            getLogsUseCase = GetLogsUseCase(logRecordRepository),
-            deleteAllLogsUseCase = DeleteAllLogsUseCase(logRecordRepository)
         )
     }
 

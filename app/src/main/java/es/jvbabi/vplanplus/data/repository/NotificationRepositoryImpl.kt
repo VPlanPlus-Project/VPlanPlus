@@ -1,10 +1,11 @@
 package es.jvbabi.vplanplus.data.repository
 
+import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import es.jvbabi.vplanplus.domain.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 
 class NotificationRepositoryImpl(
@@ -36,6 +37,25 @@ class NotificationRepositoryImpl(
         val notificationManager =
             appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(id, builder.build())
+    }
+
+    override fun createChannel(
+        channelId: String,
+        name: String,
+        description: String,
+        importance: Int
+    ) {
+        val notificationManager =
+            appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(
+            NotificationChannel(
+                channelId,
+                name,
+                importance
+            ).apply {
+                this.description = description
+            }
+        )
     }
 
     override fun deleteChannel(channelId: String) {

@@ -12,5 +12,7 @@ interface NotificationRepository {
         pendingIntent: PendingIntent?
     )
 
+    fun createChannel(channelId: String, name: String, description: String, importance: Int)
+
     fun deleteChannel(channelId: String)
 }
