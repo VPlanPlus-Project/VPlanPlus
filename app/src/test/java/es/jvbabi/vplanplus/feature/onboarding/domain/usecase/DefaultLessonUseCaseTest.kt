@@ -32,7 +32,7 @@ class DefaultLessonUseCaseTest {
         )
 
         keyValueRepository = FakeKeyValueRepository()
-        vPlanRepository = VPlanRepositoryImpl(NetworkRepositoryImpl(server = server.url("/").toString()))
+        vPlanRepository = VPlanRepositoryImpl(NetworkRepositoryImpl(server = server.url("/").toString(), logRepository = null))
 
         defaultLessonUseCase = DefaultLessonUseCase(vPlanRepository, keyValueRepository)
 
