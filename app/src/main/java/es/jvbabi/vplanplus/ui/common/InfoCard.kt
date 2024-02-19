@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -75,6 +76,8 @@ fun InfoCard(
             TextButton(onClick = { buttonAction() }) {
                 Text(text = buttonText)
             }
+        } else {
+            Spacer(modifier = Modifier.size(16.dp))
         }
     }
 }
@@ -86,6 +89,6 @@ private fun InfoCardPreview() {
         imageVector = Icons.Default.Info,
         title = "Title",
         text = "Text\nA very big one",
-        buttonText = "Button",
+        buttonText = "null",
     )
 }
