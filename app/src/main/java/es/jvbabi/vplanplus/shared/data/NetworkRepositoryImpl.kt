@@ -96,6 +96,15 @@ class TokenAuthentication(
     }
 }
 
+class BsNetworkRepository(
+    userAgent: String = DEFAULT_USER_AGENT,
+    logRepository: LogRecordRepository?
+) : NetworkRepositoryImpl(
+    server = "https://beste.schule",
+    userAgent = userAgent,
+    logRepository = logRepository
+)
+
 class NewsNetworkRepository(
     userAgent: String = DEFAULT_USER_AGENT,
     logRepository: LogRecordRepository?

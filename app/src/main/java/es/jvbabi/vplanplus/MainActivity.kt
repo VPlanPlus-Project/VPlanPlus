@@ -40,7 +40,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
-import es.jvbabi.vplanplus.android.notification.Notification
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
@@ -64,9 +64,12 @@ class MainActivity : ComponentActivity() {
 
     private val onboardingViewModel: OnboardingViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
-    
+
     @Inject
     lateinit var homeUseCases: HomeUseCases
+
+    @Inject
+    lateinit var notificationRepository: NotificationRepository
 
     private lateinit var navController: NavHostController
 
@@ -119,7 +122,7 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             if (selectedIndex == 1) return@NavigationBarItem
                             selectedIndex = 1
-                            navController.navigate(Screen.TimetableScreen.route)
+                            navController.navigate(Screen.TimetableScreen.route){ popUpTo(Screen.HomeScreen.route) }
                         },
                         icon = {
                             Icon(
@@ -131,7 +134,11 @@ class MainActivity : ComponentActivity() {
                         route = Screen.TimetableScreen.route
                     ),
                     NavigationBarItem(
-                        onClick = {},
+                        onClick = {
+                            if (selectedIndex == 2) return@NavigationBarItem
+                            selectedIndex = 2
+                            navController.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                        },
                         icon = {
                             Icon(
                                 imageVector = Icons.Default.Grade,
@@ -139,7 +146,7 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         label = { Text(text = stringResource(id = R.string.main_grades)) },
-                        route = "Screen.SettingsScreen.route"
+                        route = Screen.GradesScreen.route
                     )
                 )
 
@@ -169,21 +176,21 @@ class MainActivity : ComponentActivity() {
                             goToOnboarding = goToOnboarding!!,
                             navBar = navBar,
                             onNavigationChanged = { route ->
-                                val item = navBarItems.firstOrNull { route?.startsWith(it.route) == true }
+                                val item =
+                                    navBarItems.firstOrNull { route?.startsWith(it.route) == true }
+                                Log.d("Navigation", "Changed to $route")
                                 if (item != null) {
                                     selectedIndex = navBarItems.indexOf(item)
+                                    Log.d("Navigation", "Selected index: $selectedIndex")
                                 }
                             }
                         )
                     }
                 }
-
             }
             LaunchedEffect(key1 = true, block = {
-                Notification.createChannels(
-                    applicationContext,
-                    homeUseCases.getProfilesUseCase().first().map { it.value }.flatten()
-                )
+                notificationRepository.createSystemChannels(applicationContext)
+                notificationRepository.createProfileChannels(applicationContext, homeUseCases.getProfilesUseCase().first().map { it.value }.flatten())
             })
         }
 
@@ -205,6 +212,15 @@ class MainActivity : ComponentActivity() {
     private fun processIntent(intent: Intent) {
         Log.d("MainActivity.Intent", "onNewIntent: $intent")
         Log.d("MainActivity.Intent", "Data: ${intent.data}")
+        if (intent.hasExtra("screen")) {
+            lifecycleScope.launch {
+                while (homeViewModel.state.value.activeProfile == null) delay(50)
+                when (intent.getStringExtra("screen")) {
+                    "grades" -> navController.navigate(Screen.GradesScreen.route)
+                    else -> {}
+                }
+            }
+        }
         if (intent.hasExtra("profileId")) {
             val profileId = intent.getStringExtra("profileId")
             Log.d("MainActivity.Intent", "profileId: $profileId")
@@ -239,13 +255,15 @@ class MainActivity : ComponentActivity() {
         val sanitized = IntentSanitizer.Builder()
             .allowExtra("profileId", String::class.java)
             .allowExtra("dateStr", String::class.java)
+            .allowExtra("screen", String::class.java)
             .allowData { true }
             .allowFlags(0x10000000)
             .allowAnyComponent()
             .allowPackage { true }
             .allowAction(Intent.ACTION_VIEW)
+            .allowCategory(Intent.CATEGORY_BROWSABLE)
             .build()
-            .sanitizeByThrowing(intent)
+            .sanitizeByFiltering(intent)
         startActivity(sanitized)
         processIntent(intent)
     }

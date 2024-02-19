@@ -5,8 +5,13 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
-import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_NEWS
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYNC
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 
 class NotificationRepositoryImpl(
     private val appContext: Context,
@@ -62,5 +67,37 @@ class NotificationRepositoryImpl(
         val notificationManager =
             appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.deleteNotificationChannel(channelId)
+    }
+
+    override fun createSystemChannels(context: Context) {
+        createChannel(
+            CHANNEL_ID_GRADES,
+            context.getString(R.string.grades_notificationTitle),
+            context.getString(R.string.grades_notificationDescription),
+            NotificationCompat.PRIORITY_DEFAULT
+        )
+        createChannel(
+            CHANNEL_ID_NEWS,
+            context.getString(R.string.notification_newsName),
+            context.getString(R.string.notification_newsDescription),
+            NotificationCompat.PRIORITY_DEFAULT
+        )
+        createChannel(
+            CHANNEL_ID_SYNC,
+            context.getString(R.string.notification_syncName),
+            context.getString(R.string.notification_syncDescription),
+            NotificationManager.IMPORTANCE_LOW
+        )
+    }
+
+    override fun createProfileChannels(context: Context, profiles: List<Profile>) {
+        profiles.forEach {
+            createChannel(
+                "PROFILE_${it.id.toString().lowercase()}",
+                context.getString(R.string.notification_profileName, it.displayName),
+                context.getString(R.string.notification_profileDescription),
+                NotificationManager.IMPORTANCE_HIGH
+            )
+        }
     }
 }

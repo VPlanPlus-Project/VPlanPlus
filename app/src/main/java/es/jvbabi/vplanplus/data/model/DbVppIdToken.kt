@@ -24,5 +24,6 @@ import java.util.UUID
 data class DbVppIdToken(
     val id: UUID = UUID.randomUUID(),
     val vppId: Int,
-    val token: String
+    val token: String,
+    val bsToken: String?
 )

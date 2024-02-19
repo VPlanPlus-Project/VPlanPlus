@@ -263,4 +263,21 @@
     <string name="home_nextDayNoData">Für den nächsten Schultag gibt es noch keine Daten. Keine Sorge, wir benachrichtigen dich, wenn ein neuer Plan verfügbar ist.</string>
     <string name="home_nextDayLessons">Dieses Fächer werden stattfinden</string>
     <string name="onboarding_defaultLessonsNoData">Es sind momentan keine Daten verfügbar. Du kannst dieses Feature später aktivieren.</string>
+    <string name="grades_title">Noten</string>
+    <string name="grades_noVppId">Keine vpp.ID gefunden. Du benötigst eine, damit die App deine Noten laden kann.</string>
+    <string name="grades_noVppIdLink">Eine vpp.ID verbinden</string>
+    <string name="grades_wrongProfile">Das aktive Profil ist nicht mit einer vpp.ID verbunden, wir haben aber mindestens eine vpp.ID in dieser App gefunden. Wechsle zu einem solchen Profil, damit hier Noten angezeigt werden.</string>
+    <string name="grades_notAllowedText">Du hast der App nicht erlaubt, direkt mit beste.schule / notenbuch.online zu kommunizieren. Falls du dies bereits erlaubt hast, versuche, die aktuelle vpp.ID neuzuverbinden.</string>
+    <string name="grades_notAllowedFixOnline">Erlauben</string>
+    <string name="grades_notAllowedReconnect">vpp.ID neuverbinden</string>
+    <string name="grades_warningCardTitle">Keine Garantie auf Korrektheit</string>
+    <string name="grades_warningCardText">Die Durchschnittswerte werden auf der Grundlage der Daten berechnet, wie sie hier zu sehen sind. Der Durchschnitt für ein Fach wird berechnet, indem der Durchschnitt der Durchschnittswerte jeder Kategorie ermittelt wird. Deine Schule oder deine Lehrer haben möglicherweise ein anderes System, um die Endnote zu berechnen.</string>
+    <string name="hideForever">Nicht mehr anzeigen</string>
+    <string name="grades_latest">Neueste Noten</string>
+    <string name="grades_notificationTitle">Neue Noten</string>
+    <string name="grades_notificationDescription">Erhalte eine Benachrichtigung, wenn eine neue Note in beste.schule oder notenbuch.online eingetragen wurde.</string>
+    <string name="notification_newGradesTitle">Neue Noten</string>
+    <string name="notification_newGradeText">Du hast eine %1$s in %2$s erhalten</string>
+    <string name="notification_newGradesText">Du hast %1$d neue Noten</string>
+    <string name="grades_noGrades">Wir haben keine Noten gefunden. Möglicherweise sind noch keine verfügbar, du kannst aber eine Synchronisierung durchführen, um die neuesten Daten zu erhalten.</string>
 </resources>

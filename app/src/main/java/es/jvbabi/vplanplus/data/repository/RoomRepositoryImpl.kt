@@ -17,6 +17,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
+import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.util.DateUtils
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -111,7 +112,7 @@ class RoomRepositoryImpl(
         vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/v1/vpp_id/booking/get_room_bookings",
+            "/api/${VppIdServer.apiVersion}/vpp_id/booking/get_room_bookings",
             HttpMethod.Get,
             null
         )

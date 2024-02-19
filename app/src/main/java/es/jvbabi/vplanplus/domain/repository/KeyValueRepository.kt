@@ -25,4 +25,6 @@ object Keys {
     const val LAST_SYNC_TS = "LAST_SYNC_TS"
 
     const val COLOR = "COLOR"
+
+    const val SHOW_BS_BANNER = "SHOW_BS_BANNER"
 }

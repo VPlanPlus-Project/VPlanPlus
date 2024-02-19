@@ -15,7 +15,7 @@ android {
         minSdk = 26
         targetSdk = 34
         versionCode = 61
-        versionName = "0.9-1-beta-dev-2"
+        versionName = "0.9.2-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -100,12 +100,14 @@ dependencies {
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.1")
+
 
     // Local unit tests
     testImplementation("androidx.test:core:1.5.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.1")
@@ -114,7 +116,7 @@ dependencies {
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.37")
     kaptAndroidTest("com.google.dagger:hilt-android-compiler:2.48.1")
     androidTestImplementation("junit:junit:4.13.2")
-    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.1")
+    androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("com.google.truth:truth:1.1.3")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

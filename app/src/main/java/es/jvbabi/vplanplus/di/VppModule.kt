@@ -26,6 +26,7 @@ import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
+import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
@@ -40,7 +41,6 @@ import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -103,6 +103,8 @@ import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
+import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -127,12 +129,16 @@ object VppModule {
         )
             .addMigrations(VppDatabase.migration_6_7)
             .addMigrations(VppDatabase.migration_7_8)
+            .addMigrations(VppDatabase.migration_10_11)
+            .addMigrations(VppDatabase.migration_11_12)
+            .addMigrations(VppDatabase.migration_12_13)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())
+            .addTypeConverter(GradeModifierConverter())
             .allowMainThreadQueries()
             //.fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
@@ -526,7 +532,8 @@ object VppModule {
         systemRepository: SystemRepository,
         calendarRepository: CalendarRepository,
         getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
-        notificationRepository: NotificationRepository
+        notificationRepository: NotificationRepository,
+        gradeRepository: GradeRepository
     ): SyncUseCases {
         val isSyncRunningUseCase = IsSyncRunningUseCase(context)
         return SyncUseCases(
@@ -551,7 +558,8 @@ object VppModule {
                 systemRepository = systemRepository,
                 calendarRepository = calendarRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase,
-                notificationRepository = notificationRepository
+                notificationRepository = notificationRepository,
+                gradeRepository = gradeRepository
             )
         )
     }
@@ -566,12 +574,14 @@ object VppModule {
     @Singleton
     fun provideAdvancedSettingsUseCases(
         lessonRepository: LessonRepository,
-        roomRepository: RoomRepository
+        roomRepository: RoomRepository,
+        gradeRepository: GradeRepository
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deleteCacheUseCase = DeleteCacheUseCase(
                 lessonRepository,
-                roomRepository
+                roomRepository,
+                gradeRepository
             )
         )
     }
@@ -601,6 +611,7 @@ object VppModule {
                 schoolRepository = schoolRepository,
                 profileRepository = profileRepository,
                 keyValueRepository = keyValueRepository,
+                notificationRepository = notificationRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
             ),
             getProfileByIdUseCase = GetProfileByIdUseCase(

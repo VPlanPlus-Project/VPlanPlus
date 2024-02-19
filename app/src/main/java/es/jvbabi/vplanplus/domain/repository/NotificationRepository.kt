@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.domain.repository
 
 import android.app.PendingIntent
+import android.content.Context
+import es.jvbabi.vplanplus.domain.model.Profile
 
 interface NotificationRepository {
     suspend fun sendNotification(
@@ -15,4 +17,12 @@ interface NotificationRepository {
     fun createChannel(channelId: String, name: String, description: String, importance: Int)
 
     fun deleteChannel(channelId: String)
+    fun createSystemChannels(context: Context)
+    fun createProfileChannels(context: Context, profiles: List<Profile>)
+
+    companion object {
+        const val CHANNEL_ID_GRADES = "grades"
+        const val CHANNEL_ID_NEWS = "news"
+        const val CHANNEL_ID_SYNC = "sync"
+    }
 }

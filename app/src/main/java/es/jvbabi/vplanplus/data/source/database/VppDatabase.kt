@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
+import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
@@ -49,6 +50,12 @@ import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Week
+import es.jvbabi.vplanplus.feature.grades.data.model.DbGrade
+import es.jvbabi.vplanplus.feature.grades.data.model.DbSubject
+import es.jvbabi.vplanplus.feature.grades.data.model.DbTeacher
+import es.jvbabi.vplanplus.feature.grades.data.source.database.GradeDao
+import es.jvbabi.vplanplus.feature.grades.data.source.database.SubjectDao
+import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
 
 @Database(
     entities = [
@@ -69,14 +76,19 @@ import es.jvbabi.vplanplus.domain.model.Week
         LessonSchoolEntityCrossover::class,
         DbProfileDefaultLesson::class,
         LogRecord::class,
-        DbCalendarEvent::class
+        DbCalendarEvent::class,
+
+        DbSubject::class,
+        DbTeacher::class,
+        DbGrade::class
     ],
-    version = 10,
+    version = 14,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
         AutoMigration(from = 8, to = 9), // primary keys for school entity
         AutoMigration(from = 9, to = 10), // add vppId
+        AutoMigration(from = 13, to = 14), // indices changed for DbGrade
     ],
 )
 @TypeConverters(
@@ -86,7 +98,8 @@ import es.jvbabi.vplanplus.domain.model.Week
     UuidConverter::class,
     DayDataTypeConverter::class,
     LocalDateTimeConverter::class,
-    VppIdStateConverter::class
+    VppIdStateConverter::class,
+    GradeModifierConverter::class
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
@@ -108,13 +121,17 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val vppIdTokenDao: VppIdTokenDao
     abstract val roomBookingDao: RoomBookingDao
 
+    // grades
+    abstract val subjectDao: SubjectDao
+    abstract val teacherDao: TeacherDao
+    abstract val gradeDao: GradeDao
+
     companion object {
         val migration_6_7 = object : Migration(6, 7) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE messages ADD COLUMN notificationSent INTEGER NOT NULL DEFAULT 0")
             }
         }
-
         val migration_7_8 = object : Migration(7, 8) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE lesson_time ADD COLUMN start_unix_timestamp INTEGER NOT NULL DEFAULT 0")
@@ -128,6 +145,51 @@ abstract class VppDatabase : RoomDatabase() {
 
                 db.execSQL("ALTER TABLE lesson_time RENAME COLUMN start_unix_timestamp TO start")
                 db.execSQL("ALTER TABLE lesson_time RENAME COLUMN end_unix_timestamp TO end")
+            }
+        }
+
+        val migration_10_11 = object : Migration(10, 11) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE vpp_id_token ADD COLUMN bsToken TEXT DEFAULT NULL")
+
+                db.execSQL("CREATE TABLE IF NOT EXISTS grade_teacher (" +
+                        "id INTEGER PRIMARY KEY NOT NULL," +
+                        "firstname TEXT NOT NULL," +
+                        "lastname TEXT NOT NULL)")
+
+                db.execSQL("CREATE TABLE IF NOT EXISTS grade_subject (" +
+                        "id INTEGER PRIMARY KEY NOT NULL," +
+                        "short TEXT NOT NULL," +
+                        "name TEXT NOT NULL)")
+
+                db.execSQL("CREATE TABLE IF NOT EXISTS grade (" +
+                        "id INTEGER PRIMARY KEY NOT NULL ," +
+                        "givenAt INTEGER NOT NULL," +
+                        "givenBy INTEGER NOT NULL," +
+                        "subject INTEGER NOT NULL," +
+                        "value REAL NOT NULL," +
+                        "modifier INTEGER NOT NULL," +
+                        "vppId INTEGER NOT NULL," +
+                        "FOREIGN KEY (givenBy) REFERENCES grade_teacher(id)," +
+                        "FOREIGN KEY (subject) REFERENCES grade_subject(id)," +
+                        "FOREIGN KEY (vppId) REFERENCES vpp_id(id))")
+
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_grade_teacher_id ON grade_teacher(id)")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_grade_subject_id ON grade_subject(id)")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_grade_id ON grade(id)")
+            }
+        }
+
+        val migration_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE grade_teacher ADD COLUMN short TEXT NOT NULL DEFAULT '???'")
+            }
+        }
+
+        val migration_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE grade ADD COLUMN type TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE grade ADD COLUMN comment TEXT NOT NULL DEFAULT ''")
             }
         }
     }

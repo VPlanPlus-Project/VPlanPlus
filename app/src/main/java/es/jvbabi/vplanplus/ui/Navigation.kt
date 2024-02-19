@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
+import es.jvbabi.vplanplus.feature.grades.ui.GradesScreen
 import es.jvbabi.vplanplus.ui.screens.timetable.TimetableScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
@@ -97,6 +98,10 @@ fun NavigationGraph(
                 navHostController = navController,
                 navBar = navBar
             )
+        }
+
+        composable(Screen.GradesScreen.route) {
+            GradesScreen(navHostController = navController, navBar = navBar)
         }
 
         composable(route = Screen.TimetableScreen.route + "/{startDate}",

@@ -262,4 +262,21 @@
     <string name="home_nextDayNoData">There\'s no data for your next school day. Don\'t worry, we\'ll notify you when there\'s a new plan available.</string>
     <string name="home_nextDayLessons">These subjects will take place</string>
     <string name="onboarding_defaultLessonsNoData">There\'s no data available at the moment. You can enable this feaure later.</string>
+    <string name="grades_title">Grades</string>
+    <string name="grades_noVppId">No vpp.ID found. You need to have one in order for the app to get your grades.</string>
+    <string name="grades_noVppIdLink">Link one</string>
+    <string name="grades_wrongProfile">This profile doesn\'t have a vpp.ID connected to it. However, there is at least one vpp.ID found in the app. Switch to a profile, that has a vpp.ID connected to it so we can display your grades.</string>
+    <string name="grades_notAllowedText">You didn\'t allow the app to talk to beste.schule or notenbuch.online. If you enabled it already, try reconnecting your existing vpp.ID.</string>
+    <string name="grades_notAllowedFixOnline">Allow</string>
+    <string name="grades_notAllowedReconnect">Reconnect vpp.ID</string>
+    <string name="grades_warningCardTitle">No guarantee of accuracy</string>
+    <string name="grades_warningCardText">The averages are calculated based on the data as seen here. The average for a subject is calculated by taking the average of the average of each category. Your school or your teachers might take a different approach on how to get the final grade.</string>
+    <string name="hideForever">Hide forever</string>
+    <string name="grades_latest">Latest grades</string>
+    <string name="grades_notificationTitle">New grades</string>
+    <string name="grades_notificationDescription">Create a notification when a new grade is published in beste.schule or notenbuch.online.</string>
+    <string name="notification_newGradesTitle">New grades</string>
+    <string name="notification_newGradeText">You got a %1$s in %2$s</string>
+    <string name="notification_newGradesText">You have got %1$d new grades</string>
+    <string name="grades_noGrades">We didn\'t find any grades. Maybe there aren\'t any available at the moment. You can run a sync to get the latest data.</string>
 </resources>
