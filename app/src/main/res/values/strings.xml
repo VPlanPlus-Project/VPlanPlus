@@ -275,4 +275,7 @@
     <string name="grades_latest">Latest grades</string>
     <string name="grades_notificationTitle">New grades</string>
     <string name="grades_notificationDescription">Create a notification when a new grade is published in beste.schule or notenbuch.online.</string>
+    <string name="notification_newGradesTitle">New grades</string>
+    <string name="notification_newGradeText">You got a %1$s in %2$s</string>
+    <string name="notification_newGradesText">You have got %1$d new grades</string>
 </resources>

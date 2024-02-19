@@ -146,7 +146,7 @@ class MainActivity : ComponentActivity() {
                             )
                         },
                         label = { Text(text = stringResource(id = R.string.main_grades)) },
-                        route = "Screen.SettingsScreen.route"
+                        route = Screen.GradesScreen.route
                     )
                 )
 
@@ -178,8 +178,10 @@ class MainActivity : ComponentActivity() {
                             onNavigationChanged = { route ->
                                 val item =
                                     navBarItems.firstOrNull { route?.startsWith(it.route) == true }
+                                Log.d("Navigation", "Changed to $route")
                                 if (item != null) {
                                     selectedIndex = navBarItems.indexOf(item)
+                                    Log.d("Navigation", "Selected index: $selectedIndex")
                                 }
                             }
                         )
@@ -210,6 +212,15 @@ class MainActivity : ComponentActivity() {
     private fun processIntent(intent: Intent) {
         Log.d("MainActivity.Intent", "onNewIntent: $intent")
         Log.d("MainActivity.Intent", "Data: ${intent.data}")
+        if (intent.hasExtra("screen")) {
+            lifecycleScope.launch {
+                while (homeViewModel.state.value.activeProfile == null) delay(50)
+                when (intent.getStringExtra("screen")) {
+                    "grades" -> navController.navigate(Screen.GradesScreen.route)
+                    else -> {}
+                }
+            }
+        }
         if (intent.hasExtra("profileId")) {
             val profileId = intent.getStringExtra("profileId")
             Log.d("MainActivity.Intent", "profileId: $profileId")
@@ -244,6 +255,7 @@ class MainActivity : ComponentActivity() {
         val sanitized = IntentSanitizer.Builder()
             .allowExtra("profileId", String::class.java)
             .allowExtra("dateStr", String::class.java)
+            .allowExtra("screen", String::class.java)
             .allowData { true }
             .allowFlags(0x10000000)
             .allowAnyComponent()
@@ -251,7 +263,7 @@ class MainActivity : ComponentActivity() {
             .allowAction(Intent.ACTION_VIEW)
             .allowCategory(Intent.CATEGORY_BROWSABLE)
             .build()
-            .sanitizeByThrowing(intent)
+            .sanitizeByFiltering(intent)
         startActivity(sanitized)
         processIntent(intent)
     }

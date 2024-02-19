@@ -29,8 +29,9 @@ class GradeRepositoryImpl(
     private val bsNetworkRepository: BsNetworkRepository,
     private val vppIdRepository: VppIdRepository
 ) : GradeRepository {
-    override suspend fun updateGrades() {
+    override suspend fun updateGrades(): List<Grade> {
         val vppIds = vppIdRepository.getVppIds().first()
+        val newGrades = mutableListOf<Grade>()
         vppIds.forEach vppId@{ vppId ->
             val bsToken = vppIdRepository.getBsToken(vppId) ?: return@vppId
 
@@ -94,8 +95,10 @@ class GradeRepositoryImpl(
                     )
                 )
                 grades = gradeDao.getAllGrades().first().map { it.toModel() }
+                newGrades.add(grades.first { it.id == grade.id })
             }
         }
+        return newGrades
     }
 
     override fun getAllGrades(): Flow<List<Grade>> = flow {

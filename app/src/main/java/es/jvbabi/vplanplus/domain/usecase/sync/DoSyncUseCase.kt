@@ -24,6 +24,7 @@ import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -32,6 +33,7 @@ import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.util.DateUtils
@@ -43,6 +45,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
+import kotlin.math.roundToInt
 
 private const val SYNC_DAYS_PAST = 2
 
@@ -70,16 +73,53 @@ class DoSyncUseCase(
 ) {
     suspend operator fun invoke(): Boolean {
         if (profileRepository.getProfiles().first().isEmpty()) return true
-        val daysAhead = keyValueRepository.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toIntOrNull() ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
+        val daysAhead = keyValueRepository.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toIntOrNull()
+            ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
-        val currentVersion = keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: 0L
+        val currentVersion =
+            keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: 0L
 
         logRecordRepository.log("Sync.Messages", "Syncing messages for all app users")
         messageRepository.updateMessages(null)
 
         logRecordRepository.log("Sync.Grades", "Syncing grades")
-        gradeRepository.updateGrades()
+        val newGrades = gradeRepository.updateGrades()
+
+        val pendingIntent = Intent(context, MainActivity::class.java)
+            .putExtra("screen", "grades")
+            .let { intent ->
+                PendingIntent.getActivity(
+                    context,
+                    0,
+                    intent,
+                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                )
+            }
+        if (newGrades.isNotEmpty()) {
+            val msg = if (newGrades.size == 1) {
+                context.getString(
+                    R.string.notification_newGradeText,
+                    newGrades.first().value.roundToInt()
+                        .toString() + when (newGrades.first().modifier) {
+                        GradeModifier.MINUS -> "-"
+                        GradeModifier.PLUS -> "+"
+                        else -> ""
+                    },
+                    newGrades.first().subject.name
+                )
+            } else {
+                context.getString(R.string.notification_newGradesText, newGrades.size)
+            }
+            notificationRepository.sendNotification(
+                CHANNEL_ID_GRADES,
+                564,
+                context.getString(R.string.notification_newGradesTitle),
+                msg,
+                R.drawable.vpp,
+                pendingIntent,
+            )
+        }
 
         val profileDataBefore = hashMapOf<Profile, List<Lesson>>()
         val notifications = mutableListOf<NotificationData>()
@@ -89,7 +129,10 @@ class DoSyncUseCase(
             logRecordRepository.log("Sync.Messages", "Syncing messages for school ${school.name}")
             messageRepository.updateMessages(school.schoolId)
 
-            logRecordRepository.log("Sync.RoomBookings", "Syncing room bookings for school ${school.name}")
+            logRecordRepository.log(
+                "Sync.RoomBookings",
+                "Syncing room bookings for school ${school.name}"
+            )
             roomRepository.fetchRoomBookings(school)
 
             repeat(daysAhead + SYNC_DAYS_PAST) {
@@ -112,20 +155,30 @@ class DoSyncUseCase(
                 }
 
                 if (data.response == HttpStatusCode.NotFound) {
-                    logRecordRepository.log("SyncWorker", "No data available for ${school.schoolId} (${school.name} at $date)")
+                    logRecordRepository.log(
+                        "SyncWorker",
+                        "No data available for ${school.schoolId} (${school.name} at $date)"
+                    )
                     return@repeat
                 }
 
-                processVPlanData(data.data?:return@forEach)
+                processVPlanData(data.data ?: return@forEach)
                 profiles.forEach profile@{ profile ->
                     // check if plan has changed
-                    val day = planRepository.getDayForProfile(profile, date, currentVersion + 1).first()
+                    val day =
+                        planRepository.getDayForProfile(profile, date, currentVersion + 1).first()
                     val importantLessons = day.lessons
                         .filter { l -> profile.isDefaultLessonEnabled(l.vpId) }
-                    val changedLessons = importantLessons.filter { l -> !profileDataBefore[profile]!!.map { prevData -> prevData.toHash() }.contains(l.toHash()) }
+                    val changedLessons = importantLessons.filter { l ->
+                        !profileDataBefore[profile]!!.map { prevData -> prevData.toHash() }
+                            .contains(l.toHash())
+                    }
                     if (changedLessons.isEmpty()) return@profile // no changes, continue with next profile
-                    val type = if (profileDataBefore[profile]!!.isEmpty()) SyncNotificationType.NEW_PLAN else SyncNotificationType.CHANGED_LESSONS
-                    if (canSendNotification() && !date.isBefore(LocalDate.now())) notifications.add(NotificationData(profile, changedLessons, day.info, date, type))
+                    val type =
+                        if (profileDataBefore[profile]!!.isEmpty()) SyncNotificationType.NEW_PLAN else SyncNotificationType.CHANGED_LESSONS
+                    if (canSendNotification() && !date.isBefore(LocalDate.now())) notifications.add(
+                        NotificationData(profile, changedLessons, day.info, date, type)
+                    )
 
                     calendarRepository.processLessons(profile, day)
                 }
@@ -136,7 +189,7 @@ class DoSyncUseCase(
             Keys.LESSON_VERSION_NUMBER,
             (currentVersion + 1).toString()
         )
-        keyValueRepository.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis()/1000).toString())
+        keyValueRepository.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis() / 1000).toString())
         lessonRepository.deleteLessonsByVersion(currentVersion)
         planRepository.deletePlansByVersion(currentVersion)
 
@@ -191,14 +244,16 @@ class DoSyncUseCase(
                 val defaultLesson =
                     it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson
 
-                val dbDefaultLesson = defaultLessons.firstOrNull { dl -> dl.vpId == defaultLesson?.lessonId?.toLong() }
+                val dbDefaultLesson =
+                    defaultLessons.firstOrNull { dl -> dl.vpId == defaultLesson?.lessonId?.toLong() }
                 var defaultLessonDbId = dbDefaultLesson?.defaultLessonId
 
-                val rawTeacherAcronyms = if (DefaultValues.isEmpty(lesson.teacher.teacher)) emptyList() else {
-                    if (lesson.teacher.teacher.replace(" ", ",").contains(",")) {
-                        lesson.teacher.teacher.replace(" ", ",").split(",")
-                    } else listOfNotNull(lesson.teacher.teacher)
-                }
+                val rawTeacherAcronyms =
+                    if (DefaultValues.isEmpty(lesson.teacher.teacher)) emptyList() else {
+                        if (lesson.teacher.teacher.replace(" ", ",").contains(",")) {
+                            lesson.teacher.teacher.replace(" ", ",").split(",")
+                        } else listOfNotNull(lesson.teacher.teacher)
+                    }
 
                 val rawRoomNames = if (DefaultValues.isEmpty(lesson.room.room)) null
                 else lesson.room.room
@@ -228,8 +283,11 @@ class DoSyncUseCase(
                 }
 
                 // add teachers and rooms to db if they don't exist
-                val addTeachers = rawTeacherAcronyms.filter { t -> !teachers.map { dbT -> dbT.acronym }.contains(t) }
-                val addRooms = lessonRooms.filter { r -> !rooms.map { dbR -> dbR.name }.contains(r) }
+                val addTeachers = rawTeacherAcronyms.filter { t ->
+                    !teachers.map { dbT -> dbT.acronym }.contains(t)
+                }
+                val addRooms =
+                    lessonRooms.filter { r -> !rooms.map { dbR -> dbR.name }.contains(r) }
 
                 addTeachers.forEach { teacher ->
                     teacherRepository.createTeacher(
@@ -247,7 +305,8 @@ class DoSyncUseCase(
                     )
                 }
 
-                if (addTeachers.isNotEmpty()) teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
+                if (addTeachers.isNotEmpty()) teachers =
+                    teacherRepository.getTeachersBySchoolId(school.schoolId)
                 if (addRooms.isNotEmpty()) rooms = roomRepository.getRoomsBySchool(school)
 
                 //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
@@ -258,7 +317,13 @@ class DoSyncUseCase(
 
                 var changedSubject =
                     if (lesson.subject.subjectChanged == "FaGeaendert") lesson.subject.subject else null
-                if (listOf("&nbsp;", "&amp;nbsp;", "---", "").contains(changedSubject)) changedSubject =
+                if (listOf(
+                        "&nbsp;",
+                        "&amp;nbsp;",
+                        "---",
+                        ""
+                    ).contains(changedSubject)
+                ) changedSubject =
                     "-"
 
                 if (dbDefaultLesson == null && defaultLesson != null) {
@@ -271,8 +336,15 @@ class DoSyncUseCase(
                             classId = `class`.classId
                         )
                     )
-                } else if (addTeachers.isNotEmpty() && dbDefaultLesson != null && defaultLesson?.teacherShort != null && dbDefaultLesson.teacher == null && addTeachers.contains(defaultLesson.teacherShort)) {
-                    defaultLessonRepository.updateTeacherId(`class`.classId, dbDefaultLesson.vpId, teachers.first { t -> t.acronym == defaultLesson.teacherShort }.teacherId)
+                } else if (addTeachers.isNotEmpty() && dbDefaultLesson != null && defaultLesson?.teacherShort != null && dbDefaultLesson.teacher == null && addTeachers.contains(
+                        defaultLesson.teacherShort
+                    )
+                ) {
+                    defaultLessonRepository.updateTeacherId(
+                        `class`.classId,
+                        dbDefaultLesson.vpId,
+                        teachers.first { t -> t.acronym == defaultLesson.teacherShort }.teacherId
+                    )
                 }
 
                 val lessonId = UUID.randomUUID()
@@ -288,7 +360,8 @@ class DoSyncUseCase(
                         classLessonRefId = `class`.classId,
                         version = version,
                         roomBookingId = bookings.firstOrNull { booking ->
-                            booking.from.toLocalDate().isEqual(planDate) && booking.from.toLocalTime().isBefore(
+                            booking.from.toLocalDate()
+                                .isEqual(planDate) && booking.from.toLocalTime().isBefore(
                                 times[lesson.lesson]?.end?.toLocalTime()
                             ) && booking.to.toLocalTime().isAfter(
                                 times[lesson.lesson]?.start?.toLocalTime()
@@ -333,9 +406,10 @@ class DoSyncUseCase(
         )
     }
 
-    private suspend fun canSendNotification() = (!systemRepository.isAppInForeground() || keyValueRepository.get(
-        Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE
-    ) == "true")
+    private suspend fun canSendNotification() =
+        (!systemRepository.isAppInForeground() || keyValueRepository.get(
+            Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE
+        ) == "true")
 
     private suspend fun sendNewPlanNotification(notificationData: NotificationData) {
 
@@ -343,12 +417,26 @@ class DoSyncUseCase(
             .putExtra("profileId", notificationData.profile.id.toString())
             .putExtra("dateStr", notificationData.date.toString())
 
-        Log.d("SyncWorker.Notification", "Sending ${notificationData.notificationType} for ${notificationData.profile.displayName} at ${notificationData.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))}")
-        Log.d("SyncWorker.Notification", "Cantor: " + MathTools.cantor(notificationData.profile.id.hashCode(), "${notificationData.date.dayOfMonth}${notificationData.date.monthValue}".toInt()))
+        Log.d(
+            "SyncWorker.Notification",
+            "Sending ${notificationData.notificationType} for ${notificationData.profile.displayName} at ${
+                notificationData.date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+            }"
+        )
+        Log.d(
+            "SyncWorker.Notification",
+            "Cantor: " + MathTools.cantor(
+                notificationData.profile.id.hashCode(),
+                "${notificationData.date.dayOfMonth}${notificationData.date.monthValue}".toInt()
+            )
+        )
 
         val pendingIntent = PendingIntent.getActivity(
             context,
-            MathTools.cantor(notificationData.profile.id.hashCode(), notificationData.date.toString().replace("-", "").toInt()),
+            MathTools.cantor(
+                notificationData.profile.id.hashCode(),
+                notificationData.date.toString().replace("-", "").toInt()
+            ),
             intent,
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
@@ -364,6 +452,7 @@ class DoSyncUseCase(
             ) +
                     buildInfoNotificationString(notificationData.info) +
                     buildChangedNotificationString(notificationData.changedLessons)
+
             SyncNotificationType.NEW_PLAN -> context.getString(
                 R.string.notification_newPlanText,
                 notificationData.profile.displayName,
@@ -376,11 +465,16 @@ class DoSyncUseCase(
 
         notificationRepository.sendNotification(
             "PROFILE_${notificationData.profile.id.toString().lowercase()}",
-            MathTools.cantor(notificationData.profile.id.hashCode(), notificationData.date.toString().replace("-", "").toInt()),
-            context.getString(when (notificationData.notificationType) {
-                SyncNotificationType.NEW_PLAN -> R.string.notification_newPlanTitle
-                SyncNotificationType.CHANGED_LESSONS -> R.string.notification_planChangedTitle
-            }),
+            MathTools.cantor(
+                notificationData.profile.id.hashCode(),
+                notificationData.date.toString().replace("-", "").toInt()
+            ),
+            context.getString(
+                when (notificationData.notificationType) {
+                    SyncNotificationType.NEW_PLAN -> R.string.notification_newPlanTitle
+                    SyncNotificationType.CHANGED_LESSONS -> R.string.notification_planChangedTitle
+                }
+            ),
             message,
             R.drawable.vpp,
             pendingIntent

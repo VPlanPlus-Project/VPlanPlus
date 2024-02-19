@@ -6,7 +6,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface GradeRepository {
 
-    suspend fun updateGrades()
+    suspend fun updateGrades(): List<Grade>
 
     fun getAllGrades(): Flow<List<Grade>>
     fun getGradesByUser(vppId: VppId): Flow<List<Grade>>

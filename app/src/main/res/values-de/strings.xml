@@ -276,4 +276,7 @@
     <string name="grades_latest">Neueste Noten</string>
     <string name="grades_notificationTitle">Neue Noten</string>
     <string name="grades_notificationDescription">Erhalte eine Benachrichtigung, wenn eine neue Note in beste.schule oder notenbuch.online eingetragen wurde.</string>
+    <string name="notification_newGradesTitle">Neue Noten</string>
+    <string name="notification_newGradeText">Du hast eine %1$s in %2$s erhalten</string>
+    <string name="notification_newGradesText">Du hast %1$d neue Noten</string>
 </resources>
