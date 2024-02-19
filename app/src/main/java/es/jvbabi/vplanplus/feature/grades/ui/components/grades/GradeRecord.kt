@@ -30,7 +30,7 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun GradeRecord(grade: Grade) {
+fun GradeRecord(grade: Grade, showSubject: Boolean = false) {
     Row(
         modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
     ) {
@@ -69,6 +69,12 @@ fun GradeRecord(grade: Grade) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 val title = buildAnnotatedString {
                     withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
+                        if (showSubject) {
+                            append(grade.subject.short)
+                            append(" ")
+                            append(DOT)
+                            append(" ")
+                        }
                         append(grade.comment)
                     }
                     withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {

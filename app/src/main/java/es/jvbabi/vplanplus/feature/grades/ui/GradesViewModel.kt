@@ -40,6 +40,7 @@ class GradesViewModel @Inject constructor(
                             avg = avg
                         )
                     },
+                    latestGrades = grades.grades.sortedByDescending { it.givenAt }.take(5),
                     avg = grades.avg,
                     showBanner = showBanner
                 )
@@ -58,6 +59,7 @@ class GradesViewModel @Inject constructor(
 
 data class GradesState(
     val enabled: GradeUseState? = null,
+    val latestGrades: List<Grade> = emptyList(),
     val grades: Map<Subject, SubjectGradeCollection> = emptyMap(),
     val avg: Double = 0.0,
     val showBanner: Boolean = false

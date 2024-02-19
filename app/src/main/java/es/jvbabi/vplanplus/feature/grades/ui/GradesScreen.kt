@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -40,6 +41,7 @@ import es.jvbabi.vplanplus.feature.grades.ui.components.error.NoVppId
 import es.jvbabi.vplanplus.feature.grades.ui.components.error.NotActivated
 import es.jvbabi.vplanplus.feature.grades.ui.components.error.WrongProfile
 import es.jvbabi.vplanplus.feature.grades.ui.components.grades.GradeSubjectGroup
+import es.jvbabi.vplanplus.feature.grades.ui.components.grades.LatestGrades
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -140,7 +142,10 @@ private fun GradesScreenContent(
                                                 colorScheme.tertiary
                                             )
                                         ),
-                                        topLeft = Offset(0f, size.height * (1 - percentage.toFloat())),
+                                        topLeft = Offset(
+                                            0f,
+                                            size.height * (1 - percentage.toFloat())
+                                        ),
                                         size = Size(size.width, size.height * percentage.toFloat())
                                     )
                                     drawContent()
@@ -155,6 +160,14 @@ private fun GradesScreenContent(
                                 color = MaterialTheme.colorScheme.onSecondary
                             )
                         }
+                    }
+                }
+                item {
+                    Column(
+                        modifier = Modifier.padding(8.dp)
+                    ) {
+                        LatestGrades(grades = state.latestGrades)
+                        HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
                     }
                 }
                 items(grades) { (_, grades) ->
