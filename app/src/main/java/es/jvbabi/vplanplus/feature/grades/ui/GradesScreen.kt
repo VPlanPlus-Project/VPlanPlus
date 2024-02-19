@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
+import es.jvbabi.vplanplus.feature.grades.ui.components.error.NoGrades
 import es.jvbabi.vplanplus.feature.grades.ui.components.error.NoVppId
 import es.jvbabi.vplanplus.feature.grades.ui.components.error.NotActivated
 import es.jvbabi.vplanplus.feature.grades.ui.components.error.WrongProfile
@@ -102,6 +103,10 @@ private fun GradesScreenContent(
                 GradeUseState.WRONG_PROFILE_SELECTED -> WrongProfile()
                 GradeUseState.NOT_ENABLED -> NotActivated(onFixOnline, onLinkVppId)
                 else -> {}
+            }
+            if (state.enabled == GradeUseState.ENABLED && state.grades.isEmpty()) {
+                NoGrades()
+                return@Scaffold
             }
             val grades = state.grades.entries.sortedBy { it.key.name }
             LazyColumn {

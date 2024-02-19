@@ -12,7 +12,7 @@ import java.time.LocalDate
     indices = [
         Index(value = ["id"], unique = true)
     ],
-    primaryKeys = ["id"],
+    primaryKeys = ["id", "givenBy", "subject", "vppId"],
     foreignKeys = [
         ForeignKey(
             parentColumns = ["id"],
@@ -22,12 +22,14 @@ import java.time.LocalDate
         ForeignKey(
             parentColumns = ["id"],
             childColumns = ["subject"],
-            entity = DbSubject::class
+            entity = DbSubject::class,
+            onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             parentColumns = ["id"],
             childColumns = ["vppId"],
-            entity = DbVppId::class
+            entity = DbVppId::class,
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )

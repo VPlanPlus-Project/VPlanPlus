@@ -82,12 +82,13 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 13,
+    version = 14,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
         AutoMigration(from = 8, to = 9), // primary keys for school entity
         AutoMigration(from = 9, to = 10), // add vppId
+        AutoMigration(from = 13, to = 14), // indices changed for DbGrade
     ],
 )
 @TypeConverters(

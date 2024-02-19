@@ -279,4 +279,5 @@
     <string name="notification_newGradesTitle">Neue Noten</string>
     <string name="notification_newGradeText">Du hast eine %1$s in %2$s erhalten</string>
     <string name="notification_newGradesText">Du hast %1$d neue Noten</string>
+    <string name="grades_noGrades">Wir haben keine Noten gefunden. Möglicherweise sind noch keine verfügbar, du kannst aber eine Synchronisierung durchführen, um die neuesten Daten zu erhalten.</string>
 </resources>
