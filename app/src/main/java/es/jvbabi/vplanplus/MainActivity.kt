@@ -40,7 +40,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
-import es.jvbabi.vplanplus.android.notification.Notification
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
@@ -67,6 +67,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var homeUseCases: HomeUseCases
+
+    @Inject
+    lateinit var notificationRepository: NotificationRepository
 
     private lateinit var navController: NavHostController
 
@@ -182,13 +185,10 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 }
-
             }
             LaunchedEffect(key1 = true, block = {
-                Notification.createChannels(
-                    applicationContext,
-                    homeUseCases.getProfilesUseCase().first().map { it.value }.flatten()
-                )
+                notificationRepository.createSystemChannels(applicationContext)
+                notificationRepository.createProfileChannels(applicationContext, homeUseCases.getProfilesUseCase().first().map { it.value }.flatten())
             })
         }
 

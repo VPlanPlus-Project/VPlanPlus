@@ -611,6 +611,7 @@ object VppModule {
                 schoolRepository = schoolRepository,
                 profileRepository = profileRepository,
                 keyValueRepository = keyValueRepository,
+                notificationRepository = notificationRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
             ),
             getProfileByIdUseCase = GetProfileByIdUseCase(

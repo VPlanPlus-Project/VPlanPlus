@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile
 
-import android.content.Context
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -40,11 +39,10 @@ class ProfileManagementViewModel @Inject constructor(
         _state.value = _state.value.copy(deletingSchool = null)
     }
 
-    fun deleteSchool(context: Context) {
+    fun deleteSchool() {
         if (_state.value.deletingSchool == null) return
         viewModelScope.launch {
             profileSettingsUseCase.deleteSchoolUseCase(
-                context,
                 _state.value.deletingSchool!!.schoolId
             )
             closeDeleteSchoolDialog()

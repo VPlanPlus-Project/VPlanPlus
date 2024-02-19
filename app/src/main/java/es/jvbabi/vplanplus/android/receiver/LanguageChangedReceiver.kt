@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
-import es.jvbabi.vplanplus.android.notification.Notification
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
@@ -15,11 +15,13 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class LanguageChangedReceiver : BroadcastReceiver() {
     @Inject lateinit var profileRepository: ProfileRepository
+    @Inject lateinit var notificationRepository: NotificationRepository
     @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null) return
         GlobalScope.launch {
-            Notification.createChannels(context, profileRepository.getProfiles().first())
+            notificationRepository.createSystemChannels(context)
+            notificationRepository.createProfileChannels(context, profileRepository.getProfiles().first())
         }
     }
 }

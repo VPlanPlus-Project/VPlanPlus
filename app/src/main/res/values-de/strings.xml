@@ -274,4 +274,6 @@
     <string name="grades_warningCardText">Die Durchschnittswerte werden auf der Grundlage der Daten berechnet, wie sie hier zu sehen sind. Der Durchschnitt für ein Fach wird berechnet, indem der Durchschnitt der Durchschnittswerte jeder Kategorie ermittelt wird. Deine Schule oder deine Lehrer haben möglicherweise ein anderes System, um die Endnote zu berechnen.</string>
     <string name="hideForever">Nicht mehr anzeigen</string>
     <string name="grades_latest">Neueste Noten</string>
+    <string name="grades_notificationTitle">Neue Noten</string>
+    <string name="grades_notificationDescription">Erhalte eine Benachrichtigung, wenn eine neue Note in beste.schule oder notenbuch.online eingetragen wurde.</string>
 </resources>
