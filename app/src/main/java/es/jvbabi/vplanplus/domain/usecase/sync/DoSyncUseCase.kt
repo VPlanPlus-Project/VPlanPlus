@@ -22,7 +22,6 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -33,6 +32,8 @@ import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
@@ -64,7 +65,8 @@ class DoSyncUseCase(
     private val systemRepository: SystemRepository,
     private val calendarRepository: CalendarRepository,
     private val getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    private val gradeRepository: GradeRepository
 ) {
     suspend operator fun invoke(): Boolean {
         if (profileRepository.getProfiles().first().isEmpty()) return true
@@ -75,6 +77,9 @@ class DoSyncUseCase(
 
         logRecordRepository.log("Sync.Messages", "Syncing messages for all app users")
         messageRepository.updateMessages(null)
+
+        logRecordRepository.log("Sync.Grades", "Syncing grades")
+        gradeRepository.updateGrades()
 
         val profileDataBefore = hashMapOf<Profile, List<Lesson>>()
         val notifications = mutableListOf<NotificationData>()

@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.feature.grades.domain.model.Teacher
 )
 data class DbTeacher(
     val id: Long,
+    val short: String,
     val firstname: String,
     val lastname: String
 ) {

@@ -41,7 +41,6 @@ import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -104,6 +103,8 @@ import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
+import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -129,6 +130,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_6_7)
             .addMigrations(VppDatabase.migration_7_8)
             .addMigrations(VppDatabase.migration_10_11)
+            .addMigrations(VppDatabase.migration_11_12)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())
@@ -529,7 +531,8 @@ object VppModule {
         systemRepository: SystemRepository,
         calendarRepository: CalendarRepository,
         getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
-        notificationRepository: NotificationRepository
+        notificationRepository: NotificationRepository,
+        gradeRepository: GradeRepository
     ): SyncUseCases {
         val isSyncRunningUseCase = IsSyncRunningUseCase(context)
         return SyncUseCases(
@@ -554,7 +557,8 @@ object VppModule {
                 systemRepository = systemRepository,
                 calendarRepository = calendarRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase,
-                notificationRepository = notificationRepository
+                notificationRepository = notificationRepository,
+                gradeRepository = gradeRepository
             )
         )
     }
