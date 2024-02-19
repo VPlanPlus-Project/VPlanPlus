@@ -16,5 +16,4 @@ fun LatestGrades(grades: List<Grade>) {
             GradeRecord(grade = grade, showSubject = true)
         }
     }
-
 }
