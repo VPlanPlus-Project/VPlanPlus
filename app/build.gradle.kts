@@ -100,6 +100,8 @@ dependencies {
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.1")
+
 
     // Local unit tests
     testImplementation("androidx.test:core:1.5.0")

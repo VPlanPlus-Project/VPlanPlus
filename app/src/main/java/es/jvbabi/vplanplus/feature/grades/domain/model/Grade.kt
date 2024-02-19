@@ -10,7 +10,9 @@ data class Grade(
     val value: Float,
     val modifier: GradeModifier,
     val subject: Subject,
-    val vppId: VppId
+    val vppId: VppId,
+    val type: String,
+    val comment: String
 )
 
 enum class GradeModifier {

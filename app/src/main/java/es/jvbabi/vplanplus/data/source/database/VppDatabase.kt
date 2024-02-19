@@ -82,7 +82,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 12,
+    version = 13,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -182,6 +182,13 @@ abstract class VppDatabase : RoomDatabase() {
         val migration_11_12 = object : Migration(11, 12) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE grade_teacher ADD COLUMN short TEXT NOT NULL DEFAULT '???'")
+            }
+        }
+
+        val migration_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE grade ADD COLUMN type TEXT NOT NULL DEFAULT ''")
+                db.execSQL("ALTER TABLE grade ADD COLUMN comment TEXT NOT NULL DEFAULT ''")
             }
         }
     }

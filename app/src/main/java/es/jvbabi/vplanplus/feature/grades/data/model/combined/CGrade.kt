@@ -35,7 +35,9 @@ data class CGrade(
             subject = subject.toModel(),
             modifier = grade.modifier,
             value = grade.value,
-            vppId = vppId.toModel()
+            vppId = vppId.toModel(),
+            type = grade.type,
+            comment = grade.comment
         )
     }
 }

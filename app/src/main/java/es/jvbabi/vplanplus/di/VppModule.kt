@@ -131,6 +131,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_7_8)
             .addMigrations(VppDatabase.migration_10_11)
             .addMigrations(VppDatabase.migration_11_12)
+            .addMigrations(VppDatabase.migration_12_13)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())
@@ -573,12 +574,14 @@ object VppModule {
     @Singleton
     fun provideAdvancedSettingsUseCases(
         lessonRepository: LessonRepository,
-        roomRepository: RoomRepository
+        roomRepository: RoomRepository,
+        gradeRepository: GradeRepository
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deleteCacheUseCase = DeleteCacheUseCase(
                 lessonRepository,
-                roomRepository
+                roomRepository,
+                gradeRepository
             )
         )
     }

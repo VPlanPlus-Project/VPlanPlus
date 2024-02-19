@@ -269,4 +269,7 @@
     <string name="grades_notAllowedText">You didn\'t allow the app to talk to beste.schule or notenbuch.online. If you enabled it already, try reconnecting your existing vpp.ID.</string>
     <string name="grades_notAllowedFixOnline">Allow</string>
     <string name="grades_notAllowedReconnect">Reconnect vpp.ID</string>
+    <string name="grades_warningCardTitle">No guarantee of accuracy</string>
+    <string name="grades_warningCardText">The averages are calculated based on the data as seen here. The average for a subject is calculated by taking the average of the average of each category. Your school or your teachers might take a different approach on how to get the final grade.</string>
+    <string name="hideForever">Hide forever</string>
 </resources>

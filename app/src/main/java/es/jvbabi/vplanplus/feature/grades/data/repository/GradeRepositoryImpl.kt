@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.grades.data.repository
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.grades.data.model.DbGrade
 import es.jvbabi.vplanplus.feature.grades.data.model.DbSubject
@@ -18,6 +19,7 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 class GradeRepositoryImpl(
@@ -34,7 +36,7 @@ class GradeRepositoryImpl(
 
             bsNetworkRepository.authentication = TokenAuthentication("Bearer ", bsToken)
             val result = bsNetworkRepository.doRequest(
-                "/api/grades"
+                "/api/grades?include=collection"
             )
             if (result.response != HttpStatusCode.OK) return@vppId
             val data = Gson().fromJson(result.data, BsGradesResponse::class.java).data
@@ -86,7 +88,9 @@ class GradeRepositoryImpl(
                         modifier = gradeModifier,
                         subject = subjects.first { it.id == grade.subject.id }.id,
                         givenBy = teachers.first { it.id == grade.teacher.id }.id,
-                        givenAt = LocalDate.parse(grade.givenAt)
+                        givenAt = LocalDate.parse(grade.givenAt),
+                        type = grade.collection.type,
+                        comment = grade.collection.name
                     )
                 )
                 grades = gradeDao.getAllGrades().first().map { it.toModel() }
@@ -99,6 +103,14 @@ class GradeRepositoryImpl(
             emit(it.map { g -> g.toModel() })
         }
     }
+
+    override fun getGradesByUser(vppId: VppId): Flow<List<Grade>> {
+        return gradeDao.getGrades(vppId.id).map { it.map { grade -> grade.toModel() } }
+    }
+
+    override suspend fun dropAll() {
+        gradeDao.dropAll()
+    }
 }
 
 data class BsGradesResponse(
@@ -110,7 +122,8 @@ data class BsGrade(
     val value: String,
     @SerializedName("given_at") val givenAt: String,
     val subject: BsSubject,
-    val teacher: BsTeacher
+    val teacher: BsTeacher,
+    val collection: BsCollection
 )
 
 data class BsSubject(
@@ -124,4 +137,9 @@ data class BsTeacher(
     @SerializedName("local_id") val short: String,
     @SerializedName("forename") val firstname: String,
     @SerializedName("name") val lastname: String
+)
+
+data class BsCollection(
+    val type: String,
+    val name: String
 )

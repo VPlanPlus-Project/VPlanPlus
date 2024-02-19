@@ -37,6 +37,8 @@ data class DbGrade(
     val givenBy: Long,
     val subject: Long,
     val value: Float,
+    val type: String,
+    val comment: String,
     val modifier: GradeModifier,
     val vppId: Int
 )

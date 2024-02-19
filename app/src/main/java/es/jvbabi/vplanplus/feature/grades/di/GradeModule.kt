@@ -5,12 +5,16 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.grades.data.repository.GradeRepositoryImpl
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.GetGradesUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseCases
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.HideBannerUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.IsEnabledUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.ShowBannerUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
 import javax.inject.Singleton
@@ -44,13 +48,21 @@ object GradeModule {
     @Singleton
     fun provideGradeUseCases(
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-        vppIdRepository: VppIdRepository
+        vppIdRepository: VppIdRepository,
+        gradeRepository: GradeRepository,
+        keyValueRepository: KeyValueRepository
     ): GradeUseCases {
         return GradeUseCases(
             isEnabledUseCase = IsEnabledUseCase(
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase,
                 vppIdRepository = vppIdRepository
-            )
+            ),
+            getGradesUseCase = GetGradesUseCase(
+                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                gradeRepository = gradeRepository
+            ),
+            showBannerUseCase = ShowBannerUseCase(keyValueRepository),
+            hideBannerUseCase = HideBannerUseCase(keyValueRepository)
         )
     }
 }
