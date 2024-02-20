@@ -1,0 +1,160 @@
+package es.jvbabi.vplanplus.ui.screens.settings.account.login
+
+import android.os.Build
+import android.webkit.WebChromeClient
+import android.webkit.WebResourceRequest
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.shared.data.VppIdServer
+import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.ui.screens.Screen
+import java.net.URLEncoder
+
+@Composable
+fun BsLoginScreen(
+    navHostController: NavHostController
+) {
+    BsLoginContent(
+        onBack = { navHostController.popBackStack() },
+        onContinue = {
+            navHostController.navigate(Screen.AccountAddedScreen.route + "/$it") {
+                popUpTo(0)
+            }
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BsLoginContent(
+    onBack: () -> Unit,
+    onContinue: (token: String) -> Unit = {}
+) {
+    var pageTitle by rememberSaveable {
+        mutableStateOf("")
+    }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Column {
+                        Text(text = stringResource(id = R.string.vppIdLogin_title))
+                        if (pageTitle.isNotBlank()) Text(text = pageTitle)
+                    }
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBack) {
+                        Icon(
+                            imageVector = Icons.Default.Close, contentDescription = stringResource(
+                                id = R.string.close
+                            )
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Box(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
+            var progress by rememberSaveable {
+                mutableIntStateOf(0)
+            }
+            var bannerVisible by rememberSaveable {
+                mutableStateOf(true)
+            }
+            AndroidView(
+                modifier = Modifier.fillMaxSize(),
+                factory = { context ->
+                    WebView(context).apply {
+                        loadUrl(
+                            "${VppIdServer.url}/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(
+                                Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
+                            )
+                        )
+                        webChromeClient = object : WebChromeClient() {
+                            override fun onProgressChanged(view: WebView?, newProgress: Int) {
+                                super.onProgressChanged(view, newProgress)
+                                progress = newProgress
+                            }
+
+                            override fun onReceivedTitle(view: WebView?, title: String?) {
+                                super.onReceivedTitle(view, title)
+                                pageTitle = title ?: ""
+                            }
+                        }
+                        webViewClient = object : WebViewClient() {
+                            override fun shouldOverrideUrlLoading(
+                                view: WebView?,
+                                request: WebResourceRequest?
+                            ): Boolean {
+                                if (request != null && request.url.scheme == "vpp") {
+                                    onContinue(request.url.pathSegments.last())
+                                    return true
+                                }
+                                return false
+                            }
+                        }
+                        settings.javaScriptEnabled = true
+                        settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                        clearCache(true)
+                        clearHistory()
+                    }
+                })
+            if (progress < 100) LinearProgressIndicator(
+                progress = { progress / 100f },
+                modifier = Modifier.fillMaxWidth()
+            )
+            if (bannerVisible) InfoCard(
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.BottomCenter),
+                imageVector = Icons.Outlined.Info,
+                title = stringResource(id = R.string.vppIdLogin_infoTitle),
+                text = stringResource(id = R.string.vppIdLogin_infoText),
+                buttonText = stringResource(id = android.R.string.ok),
+                buttonAction = { bannerVisible = false }
+            )
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BsLoginScreenPreview() {
+    BsLoginContent(
+        onBack = {}
+    )
+}

@@ -279,4 +279,8 @@
     <string name="notification_newGradeText">You got a %1$s in %2$s</string>
     <string name="notification_newGradesText">You have got %1$d new grades</string>
     <string name="grades_noGrades">We didn\'t find any grades. Maybe there aren\'t any available at the moment. You can run a sync to get the latest data.</string>
+    <string name="vppIdLogin_title">vpp.ID Login</string>
+    <string name="close">Close</string>
+    <string name="vppIdLogin_infoTitle">Important</string>
+    <string name="vppIdLogin_infoText">VPlanPlus will never get your actual password, instead, we receive a token from beste.schule to authenticate you.</string>
 </resources>
