@@ -9,5 +9,7 @@ Die App VPlanPlus und ihr Funktionsumfang lädt alle Daten direkt von stundenpla
 
 App-Nachrichten über Updates und andere Informationen werden nicht personenbezogen von den VPlanPlus Servern bezogen. Lediglich die Schulnummer wird zur Filterung zwischen den Nachrichten übermittelt, ebenso wie die App-Version.
 
+Jegliche dieser Daten werden lokal auf dem Gerät in einem Speicherbereich, welcher nur für die App zugänglich ist, gespeichert.
+
 ## vpp.ID
 Die vpp.ID ist ein Konto, welches von Nutzern freiwillig angelegt werden kann. Die Authentifizierung findet hierbei über [beste.schule](beste.schule) (nachfolgend als Schulverwalter bezeichnet) statt. Hierbei werden der Vor- und Nachname, die E-Mail-Adresse sowie die Schule und Klasse des Nutzers an die Server von vpp.ID übergeben. Dies ist zur Verifizierung notwendig, um Spam und Irreführung vorzubeugen. Der Vor- und Nachname kann von jedem VPlanPlus Nutzer eingesehen werden.
