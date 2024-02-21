@@ -4,6 +4,11 @@ Die App teilt sich in die Dienste VPlanPlus und vpp.ID auf.
 ## Generelles
 Für jede Netzwerkanfrage wird die eigene IP-Adresse übermittelt. Dies ist technisch bedingt. Jede Anfrage wird auch mit einem User-Agent ausgestattet. Dieser ist in jedem Falle "VPlanPlus".
 
+### Löschen der Daten
+Das Löschen von Daten bzw. Nutzerkonten ist nicht vorgesehen. Falls dennoch eine Löschung durchgeführt werden soll, kann eine E-Mail an julvin.babies@gmail.com geschrieben werden. Mögliche Gründe für das Löschen des Kontos können sein:
+- Ich besuche die aktuelle Schule nicht mehr
+- Ich habe versehentlich mehrere Konten erstellt
+
 ## VPlanPlus
 Die App VPlanPlus und ihr Funktionsumfang lädt alle Daten direkt von stundenplan24.de (nachfolgend als Indiware ([Datenschutzerklärung](https://indiware.de/index.php?page=datenschutz)) bezeichnet). Dabei werden die Zugangsdaten für die Schule (Schulnummer, Benutzername/Passwort), welche für eine ganze Schule gelten übertragen.
 
