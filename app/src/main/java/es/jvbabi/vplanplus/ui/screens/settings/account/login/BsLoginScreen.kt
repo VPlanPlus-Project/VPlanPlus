@@ -1,12 +1,18 @@
 package es.jvbabi.vplanplus.ui.screens.settings.account.login
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Build
+import android.util.Log
+import android.view.View.INVISIBLE
+import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebSettings
+import android.webkit.WebStorage
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -41,6 +48,7 @@ import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.net.URLEncoder
+
 
 @Composable
 fun BsLoginScreen(
@@ -63,8 +71,17 @@ fun BsLoginContent(
     onBack: () -> Unit,
     onContinue: (token: String) -> Unit = {}
 ) {
+    var cleanUp by remember {
+        mutableStateOf<() -> Unit>({
+            Log.d("VppIdLogin", "Cleaning up")
+        })
+    }
     var pageTitle by rememberSaveable {
         mutableStateOf("")
+    }
+    BackHandler {
+        cleanUp()
+        onBack()
     }
     Scaffold(
         topBar = {
@@ -76,7 +93,10 @@ fun BsLoginContent(
                     }
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = {
+                        cleanUp()
+                        onBack()
+                    }) {
                         Icon(
                             imageVector = Icons.Default.Close, contentDescription = stringResource(
                                 id = R.string.close
@@ -102,9 +122,18 @@ fun BsLoginContent(
                 modifier = Modifier.fillMaxSize(),
                 factory = { context ->
                     WebView(context).apply {
+                        cleanUp = {
+                            Log.d("VppIdLogin", "Cleaning up")
+                            this.destroy()
+                            this.visibility = INVISIBLE
+                        }
                         settings.cacheMode = WebSettings.LOAD_NO_CACHE
                         clearCache(true)
                         clearHistory()
+                        WebStorage.getInstance().deleteAllData()
+                        val cookieManager = CookieManager.getInstance()
+                        cookieManager.removeAllCookies {}
+                        cookieManager.removeSessionCookies {}
                         settings.javaScriptEnabled = true
                         clipToOutline = true
                         clipToPadding = true
@@ -129,8 +158,14 @@ fun BsLoginContent(
                                 view: WebView?,
                                 request: WebResourceRequest?
                             ): Boolean {
-                                if (request != null && request.url.scheme == "vpp") {
-                                    onContinue(request.url.pathSegments.last())
+                                if (request != null && listOf("vpp", "mailto").contains(request.url.scheme)) {
+                                    if (request.url.scheme == "vpp") onContinue(request.url.pathSegments.last())
+                                    else if (request.url.scheme == "mailto") {
+                                        view!!.context.startActivity(
+                                            Intent(Intent.ACTION_VIEW, request.url)
+                                        )
+                                        return true
+                                    }
                                     return true
                                 }
                                 return false
