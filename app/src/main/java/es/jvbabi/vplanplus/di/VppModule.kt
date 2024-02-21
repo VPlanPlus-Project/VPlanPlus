@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.CalendarRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.FirebaseCloudMessagingManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
@@ -37,6 +38,7 @@ import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -67,6 +69,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.RefreshFirebaseTokenUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
@@ -292,6 +295,22 @@ object VppModule {
             vppIdRepository,
             provideVppIdNetworkRepository(logRecordRepository),
             classRepository
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideFirebaseCloudMessagingManagerRepository(
+        vppIdRepository: VppIdRepository,
+        profileRepository: ProfileRepository,
+        classRepository: ClassRepository,
+        logRecordRepository: LogRecordRepository
+    ): FirebaseCloudMessagingManagerRepository {
+        return FirebaseCloudMessagingManagerRepositoryImpl(
+            vppIdRepository = vppIdRepository,
+            profileRepository = profileRepository,
+            classRepository = classRepository,
+            vppIdNetworkRepository = provideVppIdNetworkRepository(logRecordRepository)
         )
     }
 
@@ -669,6 +688,7 @@ object VppModule {
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         vppIdRepository: VppIdRepository,
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
         profileRepository: ProfileRepository,
         getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
         getProfilesUseCase: GetProfilesUseCase
@@ -682,7 +702,11 @@ object VppModule {
                 profileRepository = profileRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
             ),
-            getProfilesUseCase = getProfilesUseCase
+            getProfilesUseCase = getProfilesUseCase,
+            refreshFirebaseToken = RefreshFirebaseTokenUseCase(
+                keyValueRepository = keyValueRepository,
+                firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
+            )
         )
     }
 
