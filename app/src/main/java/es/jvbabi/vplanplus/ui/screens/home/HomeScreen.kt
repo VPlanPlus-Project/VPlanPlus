@@ -109,10 +109,10 @@ fun HomeScreen(
                 )
                 startActivity(context, browserIntent, null)
             },
-            onWebsiteClicked = {
+            onPrivacyPolicyClicked = {
                 val browserIntent = Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("https://vplanplus.jvbabi.es/")
+                    Uri.parse("https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md")
                 )
                 startActivity(context, browserIntent, null)
             },

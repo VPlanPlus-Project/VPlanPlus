@@ -139,7 +139,7 @@
     <string name="home_menuRefresh">Refresh</string>
     <string name="advancedSettings_clearCacheDialogTitle">Delete app cache?</string>
     <string name="advancedSettings_logsTitle">Logs</string>
-    <string name="home_menuWebsite">Website</string>
+    <string name="home_menuPrivacy">Privacy policy</string>
     <string name="home_menuNews">News</string>
     <string name="news_homeTitle">News</string>
     <string name="news_noNews">No news available</string>

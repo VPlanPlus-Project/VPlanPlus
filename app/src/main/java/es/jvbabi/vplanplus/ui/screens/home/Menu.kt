@@ -79,7 +79,7 @@ fun Menu(
     onRepositoryClicked: () -> Unit = {},
     onManageProfilesClicked: () -> Unit = {},
     onNewsClicked: () -> Unit = {},
-    onWebsiteClicked: () -> Unit = {},
+    onPrivacyPolicyClicked: () -> Unit = {},
     hasUnreadNews: Boolean,
 ) {
     Box(
@@ -130,7 +130,7 @@ fun Menu(
                     modifier = Modifier
                         .padding(16.dp)
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(32.dp))
+                        .clip(RoundedCornerShape(16.dp))
                         .background(MaterialTheme.colorScheme.surface)
                 ) {
                     Box(
@@ -176,14 +176,17 @@ fun Menu(
                             }
                             TextButton(
                                 onClick = { onManageProfilesClicked() },
-                                modifier = Modifier.padding(start = 0.dp)
+                                modifier = Modifier.padding(start = 0.dp).fillMaxWidth()
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.ChevronRight,
                                     contentDescription = null,
                                     modifier = Modifier.padding(start = 0.dp)
                                 )
-                                Text(text = stringResource(id = R.string.home_menuManageProfiles))
+                                Text(
+                                    text = stringResource(id = R.string.home_menuManageProfiles),
+                                    modifier = Modifier.fillMaxWidth()
+                                )
                             }
                         }
                     }
@@ -215,28 +218,26 @@ fun Menu(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = stringResource(id = R.string.home_menuRepository),
+                                text = stringResource(id = R.string.home_menuPrivacy),
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
-                                textAlign = TextAlign.End,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier
-                                    .padding(end = 16.dp)
                                     .weight(1f, true)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .clickable { onRepositoryClicked() }
+                                    .clickable { onPrivacyPolicyClicked() }
                                     .padding(8.dp),
                             )
                             Text(
                                 text = DOT,
                             )
                             Text(
-                                text = stringResource(id = R.string.home_menuWebsite),
+                                text = stringResource(id = R.string.home_menuRepository),
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Normal),
-                                textAlign = TextAlign.Start,
+                                textAlign = TextAlign.Center,
                                 modifier = Modifier
-                                    .padding(start = 16.dp)
                                     .weight(1f, true)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .clickable { onWebsiteClicked() }
+                                    .clickable { onRepositoryClicked() }
                                     .padding(8.dp),
                             )
                         }
