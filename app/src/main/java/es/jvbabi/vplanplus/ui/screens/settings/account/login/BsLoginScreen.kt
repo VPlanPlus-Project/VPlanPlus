@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.settings.account.login
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -18,6 +19,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -54,6 +56,7 @@ fun BsLoginScreen(
     )
 }
 
+@SuppressLint("SetJavaScriptEnabled")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BsLoginContent(
@@ -69,7 +72,7 @@ fun BsLoginContent(
                 title = {
                     Column {
                         Text(text = stringResource(id = R.string.vppIdLogin_title))
-                        if (pageTitle.isNotBlank()) Text(text = pageTitle)
+                        if (pageTitle.isNotBlank()) Text(text = pageTitle, style = MaterialTheme.typography.labelSmall)
                     }
                 },
                 navigationIcon = {
@@ -99,6 +102,12 @@ fun BsLoginContent(
                 modifier = Modifier.fillMaxSize(),
                 factory = { context ->
                     WebView(context).apply {
+                        settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                        clearCache(true)
+                        clearHistory()
+                        settings.javaScriptEnabled = true
+                        clipToOutline = true
+                        clipToPadding = true
                         loadUrl(
                             "${VppIdServer.url}/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(
                                 Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
@@ -127,10 +136,6 @@ fun BsLoginContent(
                                 return false
                             }
                         }
-                        settings.javaScriptEnabled = true
-                        settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                        clearCache(true)
-                        clearHistory()
                     }
                 })
             if (progress < 100) LinearProgressIndicator(
