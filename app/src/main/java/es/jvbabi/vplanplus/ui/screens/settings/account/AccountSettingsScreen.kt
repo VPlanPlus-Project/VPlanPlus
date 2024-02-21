@@ -1,9 +1,5 @@
 package es.jvbabi.vplanplus.ui.screens.settings.account
 
-import android.app.Activity
-import android.content.Intent
-import android.net.Uri
-import android.os.Build
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,17 +32,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
-import java.net.URLEncoder
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
@@ -61,12 +55,7 @@ fun AccountSettingsScreen(
     AccountSettingsScreenContent(
         onBack = { navHostController.popBackStack() },
         onLogin = {
-            val browserIntent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("${VppIdServer.url}/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"))
-            )
-            ContextCompat.startActivity(context, browserIntent, null)
-            (context as Activity).finish()
+            navHostController.navigate(Screen.SettingsVppIdLoginScreen.route)
         },
         onDeleteVppIdRequested = { viewModel.showDeleteDialog(it) },
         onDeleteVppId = { viewModel.deleteAccount(it) },

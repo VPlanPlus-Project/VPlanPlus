@@ -1,6 +1,10 @@
 package es.jvbabi.vplanplus.ui
 
 import android.content.Intent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -10,16 +14,6 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import es.jvbabi.vplanplus.feature.grades.ui.GradesScreen
-import es.jvbabi.vplanplus.ui.screens.timetable.TimetableScreen
-import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
-import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
-import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
-import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
-import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
-import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
-import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
@@ -29,19 +23,30 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingDefaultLessonScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingLoginScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingPermissionScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingProfileOptionListScreen
+import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingQrScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSchoolIdScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSetupScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingQrScreen
+import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
+import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
+import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
+import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
+import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
+import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
+import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
+import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.account.AccountSettingsScreen
+import es.jvbabi.vplanplus.ui.screens.settings.account.login.BsLoginScreen
 import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
+import es.jvbabi.vplanplus.ui.screens.timetable.TimetableScreen
 import java.time.LocalDate
 import java.util.UUID
 
@@ -64,7 +69,7 @@ fun NavigationGraph(
         }
 
         composable(
-            route = Screen.AccountAddedScreen.route,
+            route = Screen.AccountAddedScreen.route + "/{token}",
             deepLinks = listOf(
                 navDeepLink {
                     uriPattern = "https://id.vpp.jvbabi.es/link_success/{token}"
@@ -144,6 +149,36 @@ fun NavigationGraph(
 
         composable(route = Screen.SettingsVppIdScreen.route) {
             AccountSettingsScreen(navHostController = navController)
+        }
+
+        composable(
+            route = Screen.SettingsVppIdLoginScreen.route,
+            enterTransition = {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            },
+            exitTransition = {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            },
+            popEnterTransition = {
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = tween(300)
+                )
+            },
+            popExitTransition = {
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = tween(300)
+                ) + fadeOut(animationSpec = tween(300))
+            }
+        ) {
+            BsLoginScreen(navHostController = navController)
         }
 
         composable(
