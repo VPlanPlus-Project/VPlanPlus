@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.data.repository
 
-import android.util.Log
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Classes
@@ -67,7 +66,6 @@ class FirebaseCloudMessagingManagerRepositoryImpl(
                 HttpMethod.Put,
                 Gson().toJson(requestBody)
             )
-            Log.d("FirebaseCloudMessagingManagerRepositoryImpl", "Response: ${response.data} ${Gson().toJson(requestBody)} ${vppIdNetworkRepository.authentication}")
             responses.add(response.response == HttpStatusCode.Created)
         }
         return responses.all { it }

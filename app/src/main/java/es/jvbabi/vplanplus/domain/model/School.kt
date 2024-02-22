@@ -44,6 +44,6 @@ data class School(
     }
 
     fun buildToken(): String {
-        return "sp24." + Base64.getEncoder().encode("$schoolId+$username+$password".toByteArray()).toString(Charsets.UTF_8)
+        return Base64.getEncoder().encode("$schoolId+$username+$password".toByteArray()).toString(Charsets.UTF_8)
     }
 }

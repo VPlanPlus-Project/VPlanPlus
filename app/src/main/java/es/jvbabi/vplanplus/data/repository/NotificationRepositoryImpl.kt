@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_NEWS
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ROOM_BOOKINGS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYNC
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 
@@ -74,19 +75,25 @@ class NotificationRepositoryImpl(
             CHANNEL_ID_GRADES,
             context.getString(R.string.grades_notificationTitle),
             context.getString(R.string.grades_notificationDescription),
-            NotificationCompat.PRIORITY_DEFAULT
+            NotificationManager.IMPORTANCE_HIGH
         )
         createChannel(
             CHANNEL_ID_NEWS,
             context.getString(R.string.notification_newsName),
             context.getString(R.string.notification_newsDescription),
-            NotificationCompat.PRIORITY_DEFAULT
+            NotificationManager.IMPORTANCE_DEFAULT
         )
         createChannel(
             CHANNEL_ID_SYNC,
             context.getString(R.string.notification_syncName),
             context.getString(R.string.notification_syncDescription),
-            NotificationManager.IMPORTANCE_LOW
+            NotificationManager.IMPORTANCE_NONE
+        )
+        createChannel(
+            CHANNEL_ID_ROOM_BOOKINGS,
+            context.getString(R.string.notification_roomBookingsName),
+            context.getString(R.string.notification_roomBookingsDescription),
+            NotificationManager.IMPORTANCE_DEFAULT
         )
     }
 

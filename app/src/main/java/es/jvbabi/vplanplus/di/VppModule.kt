@@ -287,14 +287,20 @@ object VppModule {
         db: VppDatabase,
         vppIdRepository: VppIdRepository,
         classRepository: ClassRepository,
-        logRecordRepository: LogRecordRepository
+        logRecordRepository: LogRecordRepository,
+        profileRepository: ProfileRepository,
+        notificationRepository: NotificationRepository,
+        stringRepository: StringRepository
     ): RoomRepository {
         return RoomRepositoryImpl(
-            db.schoolEntityDao,
-            db.roomBookingDao,
-            vppIdRepository,
-            provideVppIdNetworkRepository(logRecordRepository),
-            classRepository
+            schoolEntityDao = db.schoolEntityDao,
+            roomBookingDao = db.roomBookingDao,
+            vppIdRepository = vppIdRepository,
+            vppIdNetworkRepository = provideVppIdNetworkRepository(logRecordRepository),
+            classRepository = classRepository,
+            profileRepository = profileRepository,
+            notificationRepository = notificationRepository,
+            stringRepository = stringRepository
         )
     }
 
