@@ -159,14 +159,11 @@ class RoomRepositoryImpl(
         vppIds = vppIdRepository.getVppIds().first()
 
         // filter out already existing bookings
-        val localBookings = roomBookingDao.getAll().map { it.toModel() }
-        val newBookings = roomBookings.bookings.filter { booking ->
-            localBookings.none { it.id == booking.id }
-        }
 
         // insert new bookings
+        roomBookingDao.deleteAll()
         roomBookingDao.upsertAll(
-            newBookings.mapNotNull { bookingResponse ->
+            roomBookings.bookings.mapNotNull { bookingResponse ->
                 DbRoomBooking(
                     id = bookingResponse.id,
                     roomId = rooms.firstOrNull { room -> bookingResponse.roomName == room.name }?.roomId ?: return@mapNotNull null,
@@ -183,7 +180,7 @@ class RoomRepositoryImpl(
             .getProfiles().first()
             .filter { it.type == ProfileType.STUDENT }
             .mapNotNull { profile -> classes.firstOrNull { it.classId == profile.referenceId }?.name }
-        newBookings
+        roomBookings.bookings
             .filter { booking -> booking.`class` in profileClasses }
             .filter { booking ->
                 DateUtils.getDateTimeFromTimestamp(booking.end)
