@@ -50,6 +50,7 @@ open class NetworkRepositoryImpl(
         requestBody: String?
     ): DataResponse<String?> {
         try {
+            logRepository?.log("Network", "Requesting $server$path")
             val response = client.request("$server$path") request@{
                 method = requestMethod
                 headers headers@{
@@ -62,7 +63,7 @@ open class NetworkRepositoryImpl(
             }
             return DataResponse(response.bodyAsText(), response.status)
         } catch (e: Exception) {
-            logRepository?.log("online", "error when requesting $server$path (${e.javaClass.name}):\n${e.localizedMessage}")
+            logRepository?.log("Network", "error when requesting $server$path (${e.javaClass.name}):\n${e.localizedMessage}")
             return when (e) {
                 is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(null, null)
                 is ConnectException, is UnknownHostException -> DataResponse(null, null)
