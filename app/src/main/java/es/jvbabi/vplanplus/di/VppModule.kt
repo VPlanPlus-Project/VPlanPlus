@@ -171,8 +171,16 @@ object VppModule {
     // Repositories
     @Provides
     @Singleton
-    fun provideSchoolRepository(db: VppDatabase, logRecordRepository: LogRecordRepository): SchoolRepository {
-        return SchoolRepositoryImpl(provideSP24NetworkRepository(logRecordRepository), db.schoolDao)
+    fun provideSchoolRepository(
+        db: VppDatabase,
+        logRecordRepository: LogRecordRepository,
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+    ): SchoolRepository {
+        return SchoolRepositoryImpl(
+            sp24NetworkRepository = provideSP24NetworkRepository(logRecordRepository = logRecordRepository),
+            schoolDao = db.schoolDao,
+            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
+        )
     }
 
     @Provides
@@ -192,8 +200,15 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideProfileRepository(db: VppDatabase): ProfileRepository {
-        return ProfileRepositoryImpl(db.profileDao, db.profileDefaultLessonsCrossoverDao)
+    fun provideProfileRepository(
+        db: VppDatabase,
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+    ): ProfileRepository {
+        return ProfileRepositoryImpl(
+            profileDao = db.profileDao,
+            profileDefaultLessonsCrossoverDao = db.profileDefaultLessonsCrossoverDao,
+            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
+        )
     }
 
     @Provides
@@ -210,8 +225,14 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideHolidayRepository(db: VppDatabase, logRecordRepository: LogRecordRepository): HolidayRepository {
-        return HolidayRepositoryImpl(db.holidayDao, provideSchoolRepository(db, logRecordRepository))
+    fun provideHolidayRepository(
+        db: VppDatabase,
+        schoolRepository: SchoolRepository
+    ): HolidayRepository {
+        return HolidayRepositoryImpl(
+            holidayDao = db.holidayDao,
+            schoolRepository = schoolRepository
+        )
     }
 
     @Provides
@@ -269,14 +290,15 @@ object VppModule {
     fun providePlanRepository(
         db: VppDatabase,
         roomRepository: RoomRepository,
-        logRecordRepository: LogRecordRepository
+        profileRepository: ProfileRepository,
+        holidayRepository: HolidayRepository
     ): PlanRepository {
         return PlanRepositoryImpl(
-            holidayRepository = provideHolidayRepository(db, logRecordRepository),
+            holidayRepository = holidayRepository,
             teacherRepository = provideTeacherRepository(db),
             classRepository = provideClassRepository(db),
             roomRepository = roomRepository,
-            lessonRepository = provideLessonRepository(db, provideProfileRepository(db)),
+            lessonRepository = provideLessonRepository(db, profileRepository),
             planDao = db.planDao
         )
     }
@@ -307,16 +329,17 @@ object VppModule {
     @Provides
     @Singleton
     fun provideFirebaseCloudMessagingManagerRepository(
-        vppIdRepository: VppIdRepository,
-        profileRepository: ProfileRepository,
         classRepository: ClassRepository,
-        logRecordRepository: LogRecordRepository
+        logRecordRepository: LogRecordRepository,
+        db: VppDatabase
     ): FirebaseCloudMessagingManagerRepository {
         return FirebaseCloudMessagingManagerRepositoryImpl(
-            vppIdRepository = vppIdRepository,
-            profileRepository = profileRepository,
+            profileDao = db.profileDao,
+            vppIdDao = db.vppIdDao,
+            vppIdTokenDao = db.vppIdTokenDao,
             classRepository = classRepository,
-            vppIdNetworkRepository = provideVppIdNetworkRepository(logRecordRepository)
+            vppIdNetworkRepository = provideVppIdNetworkRepository(logRecordRepository),
+            logRecordRepository = logRecordRepository
         )
     }
 
@@ -337,14 +360,16 @@ object VppModule {
     fun provideVppIdRepository(
         db: VppDatabase,
         classRepository: ClassRepository,
-        vppIdNetworkRepository: VppIdNetworkRepository
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
+        vppIdNetworkRepository: VppIdNetworkRepository,
     ): VppIdRepository {
         return VppIdRepositoryImpl(
-            db.vppIdDao,
-            db.vppIdTokenDao,
-            classRepository,
-            db.roomBookingDao,
-            vppIdNetworkRepository
+            vppIdDao = db.vppIdDao,
+            vppIdTokenDao = db.vppIdTokenDao,
+            classRepository = classRepository,
+            roomBookingDao = db.roomBookingDao,
+            vppIdNetworkRepository = vppIdNetworkRepository,
+            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
     }
 

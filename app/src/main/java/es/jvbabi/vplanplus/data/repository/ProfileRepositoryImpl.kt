@@ -7,20 +7,25 @@ import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 class ProfileRepositoryImpl(
     private val profileDao: ProfileDao,
     private val profileDefaultLessonsCrossoverDao: ProfileDefaultLessonsCrossoverDao,
+    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
 ) : ProfileRepository {
     override fun getProfiles(): Flow<List<Profile>> {
-        return profileDao.getProfiles().map {
+        return profileDao.getProfilesFlow().map {
             it.map { p ->
                 p.toModel()
             }
@@ -28,7 +33,7 @@ class ProfileRepositoryImpl(
     }
 
     override suspend fun getDbProfileById(profileId: UUID): DbProfile? {
-        return profileDao.getProfileById(id = profileId).first()?.profile
+        return profileDao.getProfileByIdFlow(id = profileId).first()?.profile
     }
 
     override suspend fun createProfile(
@@ -46,6 +51,9 @@ class ProfileRepositoryImpl(
             calendarId = null
         )
         profileDao.insert(dbProfile)
+        if (type == ProfileType.STUDENT) {
+            firebaseCloudMessagingManagerRepository.updateToken(null)
+        }
         return dbProfile.profileId
     }
 
@@ -55,7 +63,7 @@ class ProfileRepositoryImpl(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getProfileById(id: UUID): Flow<Profile?> {
-        return profileDao.getProfileById(id = id).mapLatest {
+        return profileDao.getProfileByIdFlow(id = id).mapLatest {
             it?.toModel()
         }
     }
@@ -64,8 +72,15 @@ class ProfileRepositoryImpl(
         profileDefaultLessonsCrossoverDao.deleteCrossoversByProfileId(profileId = profileId)
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     override suspend fun deleteProfile(profileId: UUID) {
+        val profile = profileDao.getProfileById(id = profileId)!!.toModel()
         profileDao.deleteProfile(profileId = profileId)
+        if (profile.type == ProfileType.STUDENT) {
+            GlobalScope.launch {
+                firebaseCloudMessagingManagerRepository.updateToken(null)
+            }
+        }
     }
 
     override suspend fun getProfilesBySchoolId(schoolId: Long): List<Profile> {
