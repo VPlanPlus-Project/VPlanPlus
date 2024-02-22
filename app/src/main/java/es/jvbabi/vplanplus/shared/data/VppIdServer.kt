@@ -15,6 +15,7 @@ private open class ServerEnvironment(
     open val host: String = "id.vpp.jvbabi.es"
 )
 
+@Suppress("unused")
 private class JuliusServerEnvironment : ServerEnvironment(
     "http",
     "surface-julius:8000"
