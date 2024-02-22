@@ -16,7 +16,7 @@ jobs:
 
       - name: Check scheme and host values
         run: |
-          LINE=$(grep -oP 'private val environment: ServerEnvironment = \K[^;]*' path/to/VppIdServer.kt)
+          LINE=$(grep -oP 'private val environment: ServerEnvironment = \K[^;]*' app/src/main/java/es/jvbabi/vplanplus/shared/data/VppIdServer.kt)
           if [[ "$LINE" != "ServerEnvironment()" ]]; then
             echo "Environment is not constructed using ServerEnvironment()"
             exit 1
