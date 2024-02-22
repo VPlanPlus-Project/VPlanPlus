@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - 'app/src/main/java/es/jvbabi/vplanplus/shared/data/VppIdServer.kt'
+      - '.github/workflows/vppIdServer.yml'
 
 jobs:
   check-values:
@@ -15,8 +16,8 @@ jobs:
 
       - name: Check scheme and host values
         run: |
-          SCHEME=$(grep -oP 'private const val scheme = "\K[^"]*' path/to/VppIdServer.kt)
-          HOST=$(grep -oP 'private const val host = "\K[^"]*' path/to/VppIdServer.kt)
+          SCHEME=$(grep -oP 'private const val scheme = "\K[^"]*' app/src/main/java/es/jvbabi/vplanplus/shared/data/VppIdServer.kt)
+          HOST=$(grep -oP 'private const val host = "\K[^"]*' app/src/main/java/es/jvbabi/vplanplus/shared/data/VppIdServer.kt)
           if [[ "$SCHEME" != "https" || "$HOST" != "id.vpp.jvbabi.es" ]]; then
             echo "Scheme or host values are incorrect"
             exit 1
