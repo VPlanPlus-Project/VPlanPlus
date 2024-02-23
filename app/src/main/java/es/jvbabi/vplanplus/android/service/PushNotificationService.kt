@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import dagger.hilt.android.AndroidEntryPoint
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -49,10 +50,12 @@ class PushNotificationService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         Log.d("PushNotificationService", "Message received: ${message.data["type"]}")
 
+        val prefix = if (BuildConfig.DEBUG) "DEV_" else ""
+
         GlobalScope.launch {
-            logRecordRepository.log("PushNotificationService", "Message received: ${message.data["type"]}")
+            logRecordRepository.log("PushNotificationService", "Message received: ${message.data["type"]}\nDebug: ${BuildConfig.DEBUG}")
             when (message.data.getOrDefault("type", "")) {
-                PushNotificationType.NEW_BOOKING -> {
+                prefix + PushNotificationType.NEW_BOOKING -> {
                     schoolRepository.getSchools().forEach { school ->
                         roomRepository.fetchRoomBookings(school)
                     }
