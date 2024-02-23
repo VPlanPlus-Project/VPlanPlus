@@ -10,6 +10,8 @@ import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
@@ -23,6 +25,7 @@ class FirebaseCloudMessagingManagerRepositoryImpl(
     private val vppIdNetworkRepository: VppIdNetworkRepository,
     private val classRepository: ClassRepository,
     private val logRecordRepository: LogRecordRepository,
+    private val keyValueRepository: KeyValueRepository,
     private val profileDao: ProfileDao,
     private val vppIdDao: VppIdDao,
     private val vppIdTokenDao: VppIdTokenDao
@@ -44,6 +47,14 @@ class FirebaseCloudMessagingManagerRepositoryImpl(
             Gson().toJson(
                 FcmTokenPutRequest(
                     token = token
+                )
+            )
+        ) else if (keyValueRepository.get(Keys.FCM_TOKEN) != null) vppIdNetworkRepository.doRequest(
+            "/api/${VppIdServer.apiVersion}/fcm/unregister_token/",
+            HttpMethod.Delete,
+            Gson().toJson(
+                FcmTokenPutRequest(
+                    token = keyValueRepository.get(Keys.FCM_TOKEN)!!
                 )
             )
         )

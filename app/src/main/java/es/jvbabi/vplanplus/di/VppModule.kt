@@ -331,6 +331,7 @@ object VppModule {
     fun provideFirebaseCloudMessagingManagerRepository(
         classRepository: ClassRepository,
         logRecordRepository: LogRecordRepository,
+        keyValueRepository: KeyValueRepository,
         db: VppDatabase
     ): FirebaseCloudMessagingManagerRepository {
         return FirebaseCloudMessagingManagerRepositoryImpl(
@@ -339,7 +340,8 @@ object VppModule {
             vppIdTokenDao = db.vppIdTokenDao,
             classRepository = classRepository,
             vppIdNetworkRepository = provideVppIdNetworkRepository(logRecordRepository),
-            logRecordRepository = logRecordRepository
+            logRecordRepository = logRecordRepository,
+            keyValueRepository = keyValueRepository
         )
     }
 
