@@ -287,4 +287,6 @@
     <string name="notification_roomBookingsDescription">Get notified when someone in your class books a room</string>
     <string name="notification_roomBookingTitle">New room booking</string>
     <string name="notification_roomBookingContent">%1$s booked room %2$s from %3$s to %4$s</string>
+    <string name="notification_gradeUnauthorizedTitle">Couldn\'t load grades</string>
+    <string name="notification_gradeUnauthorizedContent">You need to re-link your vpp.ID</string>
 </resources>

@@ -22,15 +22,18 @@ const val DEFAULT_USER_AGENT = "VPlanPlus"
 open class NetworkRepositoryImpl(
     server: String,
     private val userAgent: String = DEFAULT_USER_AGENT,
-    private val logRepository: LogRecordRepository?
+    private val logRepository: LogRecordRepository?,
+    init: (NetworkRepositoryImpl.() -> Unit) = {}
 ): NetworkRepository {
 
     private var server: String
+    val globalHeaders: MutableMap<String, String> = mutableMapOf()
     override var authentication: Authentication? = null
 
     init {
         this.server = server
         if (server.endsWith("/")) this.server = server.dropLast(1)
+        init()
     }
 
     private val client = HttpClient(Android) {
@@ -58,6 +61,7 @@ open class NetworkRepositoryImpl(
                         val (key, value) = authentication!!.toHeader()
                         append(key, value)
                     }
+                    globalHeaders.forEach { (key, value) -> append(key, value) }
                 }
                 if (requestMethod != HttpMethod.Get) setBody(requestBody)
             }
@@ -103,7 +107,10 @@ class BsNetworkRepository(
 ) : NetworkRepositoryImpl(
     server = "https://beste.schule",
     userAgent = userAgent,
-    logRepository = logRepository
+    logRepository = logRepository,
+    init = {
+        globalHeaders["Accept"] = "application/json"
+    }
 )
 
 class NewsNetworkRepository(

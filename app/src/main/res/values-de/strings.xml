@@ -288,4 +288,6 @@
     <string name="notification_roomBookingsDescription">Erhalte eine Benachrichtigung, wenn jemand in deiner Klasse einen Raum bucht</string>
     <string name="notification_roomBookingTitle">Neue Raumbuchung</string>
     <string name="notification_roomBookingContent">%1$s hat den Raum %2$s von %3$s bis %4$s gebucht</string>
+    <string name="notification_gradeUnauthorizedTitle">Noten konnten nicht geladen werden</string>
+    <string name="notification_gradeUnauthorizedContent">Du musst deine vpp.ID neuverbinden</string>
 </resources>

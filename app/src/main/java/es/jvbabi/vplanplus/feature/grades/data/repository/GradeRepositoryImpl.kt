@@ -2,7 +2,11 @@ package es.jvbabi.vplanplus.feature.grades.data.repository
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.grades.data.model.DbGrade
 import es.jvbabi.vplanplus.feature.grades.data.model.DbSubject
@@ -27,7 +31,9 @@ class GradeRepositoryImpl(
     private val subjectDao: SubjectDao,
     private val gradeDao: GradeDao,
     private val bsNetworkRepository: BsNetworkRepository,
-    private val vppIdRepository: VppIdRepository
+    private val vppIdRepository: VppIdRepository,
+    private val notificationRepository: NotificationRepository,
+    private val stringRepository: StringRepository
 ) : GradeRepository {
     override suspend fun updateGrades(): List<Grade> {
         val vppIds = vppIdRepository.getVppIds().first()
@@ -39,6 +45,17 @@ class GradeRepositoryImpl(
             val result = bsNetworkRepository.doRequest(
                 "/api/grades?include=collection"
             )
+            if (result.response == HttpStatusCode.Unauthorized) {
+                notificationRepository.sendNotification(
+                    CHANNEL_ID_GRADES,
+                    6000,
+                    stringRepository.getString(R.string.notification_gradeUnauthorizedTitle),
+                    stringRepository.getString(R.string.notification_gradeUnauthorizedContent),
+                    R.drawable.vpp,
+                    null
+                )
+                return@vppId
+            }
             if (result.response != HttpStatusCode.OK) return@vppId
             val data = Gson().fromJson(result.data, BsGradesResponse::class.java).data
 
