@@ -21,11 +21,11 @@ import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
-import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.search.ResultGroup
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -65,39 +65,32 @@ class HomeViewModel @Inject constructor(
     private var homeUiSyncJob: Job? = null
 
     init {
-        viewModelScope.launch {
-            homeUseCases.getCurrentIdentity().collect {
-                if (it == null) return@collect
-                _state.value = _state.value.copy(
-                    activeProfile = it.profile,
-                    activeSchool = it.school,
-                    currentVppId = it.vppId,
-                    fullyCompatible = it.school?.fullyCompatible ?: false
-                )
-                if (it.school == null) return@collect
-                var tomorrow = LocalDate.now().plusDays(1)
-                while (tomorrow.dayOfWeek.value > it.school.daysPerWeek) {
-                    tomorrow = tomorrow.plusDays(1)
-                }
-                _state.value = _state.value.copy(
-                    nextDayDate = tomorrow
-                )
-                restartUiSync()
-            }
-        }
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
                 homeUseCases.getProfilesUseCase().distinctUntilChanged(),
                 keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
                 keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
+                homeUseCases.getCurrentIdentity(),
                 Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
                     .distinctUntilChanged(),
-            ) { profiles, lastSyncTs, v, isSyncing ->
+            ) { profiles, lastSyncTs, v, identity, isSyncing ->
+                if (identity?.school == null) return@combine _state.value
                 version = v?.toLong() ?: 0
+
+                var tomorrow = LocalDate.now().plusDays(1)
+                while (tomorrow.dayOfWeek.value > identity.school.daysPerWeek) {
+                    tomorrow = tomorrow.plusDays(1)
+                }
+
                 _state.value.copy(
                     profiles = profiles.map { it.value }.flatten(),
                     lastSync = if (lastSyncTs != null) DateUtils.getDateTimeFromTimestamp(lastSyncTs.toLong()) else null,
                     syncing = isSyncing,
+                    nextDayDate = tomorrow,
+                    activeProfile = identity.profile,
+                    activeSchool = identity.school,
+                    currentVppId = identity.vppId,
+                    fullyCompatible = identity.school.fullyCompatible
                 )
             }.collect {
                 _state.value = it
