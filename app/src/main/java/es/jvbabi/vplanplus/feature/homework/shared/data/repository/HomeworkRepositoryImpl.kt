@@ -20,6 +20,12 @@ class HomeworkRepositoryImpl(
         }
     }
 
+    override suspend fun getAll(): Flow<List<Homework>> {
+        return homeworkDao.getAll().map {
+            it.map { homework -> homework.toModel() }
+        }
+    }
+
     override suspend fun getHomeworkById(homeworkId: Int): Flow<Homework> {
         return homeworkDao.getById(homeworkId).map { it.toModel() }
     }

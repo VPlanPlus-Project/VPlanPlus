@@ -319,4 +319,10 @@
     <string name="addHomework_noVppIdTitle">Keine vpp.ID gefunden</string>
     <string name="addHomework_noVppIdText">Du benötigst eine vpp.ID, um deine Hausaufgaben online zu speichern und mit deinen Klassenkameraden zu teilen. Gehe in die Einstellungen, um dich anzumelden. Ohne Anmeldung, kannst du Hausaufgaben dennoch lokal speichern.</string>
     <string name="addHomework_noVppIdButtonOpenSettings">Einstellungen</string>
+    <string name="main_homework">Hausaufgaben</string>
+    <string name="homework_title">Hausaufgaben</string>
+    <string name="homework_wrongProfile">Um diese Funktion zu verwenden, musst du ein Klassenprofil verwenden.</string>
+    <string name="homework_homeworkHead">%1$s bis %2$s</string>
+    <string name="homework_homeworkSubtitleCreatedBy">%1$s, am %2$s</string>
+    <string name="homework_homeworkSubtitleLocally">Dieses Gerät, am %1$s</string>
 </resources>

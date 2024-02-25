@@ -318,4 +318,10 @@
     <string name="addHomework_noVppIdTitle">No vpp.ID found</string>
     <string name="addHomework_noVppIdText">You need a vpp.ID to save your homework online and share it with your classmates. Go to settings, to log in. If you decide, not to log in, you can still save homework locally on your device.</string>
     <string name="addHomework_noVppIdButtonOpenSettings">Open settings</string>
+    <string name="main_homework">Homework</string>
+    <string name="homework_title">Homework</string>
+    <string name="homework_wrongProfile">Please select a class profile to use this feature.</string>
+    <string name="homework_homeworkHead">%1$s until %2$s</string>
+    <string name="homework_homeworkSubtitleCreatedBy">%1$s, at %2$s</string>
+    <string name="homework_homeworkSubtitleLocally">On this device, at %1$s</string>
 </resources>

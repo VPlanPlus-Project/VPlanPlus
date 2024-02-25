@@ -11,6 +11,8 @@ interface HomeworkRepository {
 
     suspend fun getHomeworkById(homeworkId: Int): Flow<Homework>
 
+    suspend fun getAll(): Flow<List<Homework>>
+
     suspend fun insertHomeworkLocally(homework: Homework)
 
     suspend fun updateTask(task: HomeworkTask)

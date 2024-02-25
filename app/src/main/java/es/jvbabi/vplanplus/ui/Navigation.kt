@@ -27,6 +27,7 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
+import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login.BsLoginScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
@@ -110,6 +111,13 @@ fun NavigationGraph(
 
         composable(route = Screen.TimetableScreen.route) {
             TimetableScreen(
+                navHostController = navController,
+                navBar = navBar
+            )
+        }
+
+        composable(route = Screen.HomeworkScreen.route) {
+            HomeworkScreen(
                 navHostController = navController,
                 navBar = navBar
             )

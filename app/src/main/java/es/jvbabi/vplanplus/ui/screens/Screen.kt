@@ -21,6 +21,8 @@ sealed class Screen(val route: String) {
 
     data object TimetableScreen: Screen("timetable_screen")
 
+    data object HomeworkScreen: Screen("homework_screen")
+
     data object GradesScreen: Screen("grades")
 
     // SETTINGS

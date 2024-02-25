@@ -11,6 +11,7 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
@@ -137,6 +138,21 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             if (selectedIndex == 2) return@NavigationBarItem
                             selectedIndex = 2
+                            navController.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.MenuBook,
+                                contentDescription = null
+                            )
+                        },
+                        label = { Text(text = stringResource(id = R.string.main_homework)) },
+                        route = Screen.HomeworkScreen.route
+                    ),
+                    NavigationBarItem(
+                        onClick = {
+                            if (selectedIndex == 3) return@NavigationBarItem
+                            selectedIndex = 3
                             navController.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
                         },
                         icon = {
