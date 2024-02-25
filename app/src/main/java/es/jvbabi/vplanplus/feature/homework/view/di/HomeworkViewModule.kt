@@ -8,6 +8,8 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
+import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.MarkAllDoneUseCase
+import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.MarkSingleDoneUseCase
 import javax.inject.Singleton
 
 @Module
@@ -24,6 +26,12 @@ object HomeworkViewModule {
             getHomeworkUseCase = GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase
+            ),
+            markAllDoneUseCase = MarkAllDoneUseCase(
+                homeworkRepository = homeworkRepository
+            ),
+            markSingleDoneUseCase = MarkSingleDoneUseCase(
+                homeworkRepository = homeworkRepository
             )
         )
     }

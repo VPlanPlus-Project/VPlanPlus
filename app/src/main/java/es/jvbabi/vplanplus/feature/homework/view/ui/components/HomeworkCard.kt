@@ -23,12 +23,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeworkCard(
     homework: Homework,
-    allDone: (Boolean) -> Unit
+    allDone: (Boolean) -> Unit,
+    singleDone: (HomeworkTask, Boolean) -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -42,7 +44,7 @@ fun HomeworkCard(
             Row(
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Checkbox(checked = homework.tasks.all { it.done }, onCheckedChange = allDone)
+                Checkbox(checked = homework.tasks.all { it.done }, onCheckedChange = { allDone(it) })
                 Column {
                     Text(
                         text = stringResource(
@@ -63,7 +65,7 @@ fun HomeworkCard(
                     modifier = Modifier.padding(start = 32.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Checkbox(checked = task.done, onCheckedChange = {})
+                    Checkbox(checked = task.done, onCheckedChange = { singleDone(task, it) })
                     Text(
                         text = task.content,
                         style = MaterialTheme.typography.bodyMedium,

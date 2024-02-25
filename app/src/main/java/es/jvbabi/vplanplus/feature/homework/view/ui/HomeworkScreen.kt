@@ -21,6 +21,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.HomeworkCard
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.WrongProfile
 import es.jvbabi.vplanplus.ui.common.BackIcon
@@ -37,6 +39,8 @@ fun HomeworkScreen(
     HomeworkScreenContent(
         onBack = { navHostController.popBackStack() },
         onAddHomework = { navHostController.navigate(Screen.AddHomeworkScreen.route) },
+        onMarkAllDone = viewModel::markAllDone,
+        onMarkSingleDone = viewModel::markSingleDone,
         state = state,
         navBar = navBar,
     )
@@ -47,6 +51,8 @@ fun HomeworkScreen(
 private fun HomeworkScreenContent(
     onBack: () -> Unit = {},
     onAddHomework: () -> Unit = {},
+    onMarkAllDone: (homework: Homework, done: Boolean) -> Unit = { _, _ -> },
+    onMarkSingleDone: (homeworkTask: HomeworkTask, done: Boolean) -> Unit = { _, _ -> },
     state: HomeworkState,
     navBar: @Composable () -> Unit = {},
 ) {
@@ -82,7 +88,8 @@ private fun HomeworkScreenContent(
                 items(state.homework.sortedBy { it.until }) { homework ->
                     HomeworkCard(
                         homework = homework,
-                        allDone = { /* TODO */ }
+                        allDone = { onMarkAllDone(homework, it) },
+                        singleDone = { task, done -> onMarkSingleDone(task, done) }
                     )
                 }
             }
