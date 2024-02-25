@@ -80,7 +80,18 @@ class AddHomeworkViewModel @Inject constructor(
         state.value = state.value.copy(newTask = content)
     }
 
-    fun save() {}
+    fun save() {
+        viewModelScope.launch {
+            val state = state.value
+            if (!state.canSubmit) return@launch
+            addHomeworkUseCases.saveHomeworkUseCase(
+                offline = !state.canUseCloud,
+                until = state.until!!,
+                defaultLesson = state.selectedDefaultLesson!!,
+                tasks = state.tasks
+            )
+        }
+    }
 }
 
 data class AddHomeworkState(

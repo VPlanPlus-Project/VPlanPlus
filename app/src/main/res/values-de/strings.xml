@@ -317,6 +317,6 @@
     <string name="addHomework_save">Hausaufgabe speichern</string>
     <string name="addHomework_shareSubtitleOnlyLocal">Du kannst diese Hausaufgabe nicht mit deinen Klassenkameraden teilen, da du nicht mit einer vpp.ID angemeldet bist.</string>
     <string name="addHomework_noVppIdTitle">Keine vpp.ID gefunden</string>
-    <string name="addHomework_noVppIdText">Du benötigst eine vpp.ID, um deine Hausaufgaben online zu speichern und mit deinen Klassenkameraden zu teilen. Gehe in die Einstellungen, um dich anzumelden.</string>
+    <string name="addHomework_noVppIdText">Du benötigst eine vpp.ID, um deine Hausaufgaben online zu speichern und mit deinen Klassenkameraden zu teilen. Gehe in die Einstellungen, um dich anzumelden. Ohne Anmeldung, kannst du Hausaufgaben dennoch lokal speichern.</string>
     <string name="addHomework_noVppIdButtonOpenSettings">Einstellungen</string>
 </resources>

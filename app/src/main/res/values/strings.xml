@@ -316,6 +316,6 @@
     <string name="addHomework_save">Save homework</string>
     <string name="addHomework_shareSubtitleOnlyLocal">You can\'t share this homework with your classmates because you\'re not logged in to vpp.ID.</string>
     <string name="addHomework_noVppIdTitle">No vpp.ID found</string>
-    <string name="addHomework_noVppIdText">You need a vpp.ID to save your homework online and share it with your classmates. Go to settings, to log in.</string>
+    <string name="addHomework_noVppIdText">You need a vpp.ID to save your homework online and share it with your classmates. Go to settings, to log in. If you decide, not to log in, you can still save homework locally on your device.</string>
     <string name="addHomework_noVppIdButtonOpenSettings">Open settings</string>
 </resources>

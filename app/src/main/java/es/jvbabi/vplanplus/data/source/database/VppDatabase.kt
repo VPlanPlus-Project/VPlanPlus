@@ -7,6 +7,8 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
+import es.jvbabi.vplanplus.data.model.DbHomework
+import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.DbProfile
@@ -27,6 +29,7 @@ import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCros
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
+import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
@@ -77,12 +80,14 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbProfileDefaultLesson::class,
         LogRecord::class,
         DbCalendarEvent::class,
+        DbHomework::class,
+        DbHomeworkTask::class,
 
         DbSubject::class,
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 15,
+    version = 16,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -90,6 +95,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         AutoMigration(from = 9, to = 10), // add vppId
         AutoMigration(from = 13, to = 14), // indices changed for DbGrade
         AutoMigration(from = 14, to = 15), // vpp.ID Email
+        AutoMigration(from = 15, to = 16), // add homework
     ],
 )
 @TypeConverters(
@@ -121,6 +127,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val vppIdDao: VppIdDao
     abstract val vppIdTokenDao: VppIdTokenDao
     abstract val roomBookingDao: RoomBookingDao
+    abstract val homeworkDao: HomeworkDao
 
     // grades
     abstract val subjectDao: SubjectDao

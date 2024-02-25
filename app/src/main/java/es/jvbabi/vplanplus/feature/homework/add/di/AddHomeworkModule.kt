@@ -12,6 +12,8 @@ import es.jvbabi.vplanplus.feature.homework.add.domain.usecase.AddHomeworkUseCas
 import es.jvbabi.vplanplus.feature.homework.add.domain.usecase.CanShowVppIdBannerUseCase
 import es.jvbabi.vplanplus.feature.homework.add.domain.usecase.GetDefaultLessonsUseCase
 import es.jvbabi.vplanplus.feature.homework.add.domain.usecase.HideVppIdBannerUseCase
+import es.jvbabi.vplanplus.feature.homework.add.domain.usecase.SaveHomeworkUseCase
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
 
 @Module
@@ -24,7 +26,8 @@ object AddHomeworkModule {
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
         getClassByProfileUseCase: GetClassByProfileUseCase,
         defaultLessonRepository: DefaultLessonRepository,
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        homeworkRepository: HomeworkRepository
     ): AddHomeworkUseCases {
         return AddHomeworkUseCases(
             getDefaultLessonsUseCase = GetDefaultLessonsUseCase(
@@ -37,6 +40,11 @@ object AddHomeworkModule {
             ),
             hideVppIdBannerUseCase = HideVppIdBannerUseCase(
                 keyValueRepository = keyValueRepository
+            ),
+            saveHomeworkUseCase = SaveHomeworkUseCase(
+                homeworkRepository = homeworkRepository,
+                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                getClassByProfileUseCase = getClassByProfileUseCase
             )
         )
     }
