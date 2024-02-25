@@ -297,4 +297,10 @@
     <string name="vppIdSettingsManagement_sessionsCurrent">This device</string>
     <string name="vppIdSettingsManagement_sessionsCloseInfo">Tap on a session to close it. This cannot be undone.</string>
     <string name="vppIdSettingsManagement_sessionsDate">At %1$s</string>
+    <string name="home_addHomeworkLabel">Add homework</string>
+    <string name="addHomework_defaultLessonTitle">Select lesson</string>
+    <string name="addHomework_lesson">Subject</string>
+    <string name="addHomework_lessonNotSelected">Not selected</string>
+    <string name="addHomework_lessonSubtitle">%1$s with %2$s</string>
+    <string name="addHomework_lessonSubtitleNoTeacher">%1$s</string>
 </resources>
