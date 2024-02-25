@@ -1,8 +1,12 @@
 package es.jvbabi.vplanplus.feature.homework.add.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Close
@@ -127,7 +131,10 @@ private fun AddHomeworkContent(
         }
     ) { paddingValues ->
         Column(
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
         ) {
             val withoutTeacher = stringResource(id = R.string.addHomework_lessonSubtitleNoTeacher, state.selectedDefaultLesson?.subject ?: "")
             SettingsSetting(
@@ -153,16 +160,17 @@ private fun AddHomeworkContent(
                 type = SettingsType.SELECT,
                 doAction = onOpenDateDialog,
                 customContent = {
-                    LazyRow(
-                        modifier = Modifier
-                            .padding(start = 24.dp)
-                    ) {
+                    LazyRow {
                         items(4) { i ->
                             val date = LocalDate.now().plusDays(i + 1L)
-                            DateChip(
-                                date = date,
-                                selected = state.until == date
-                            ) { onSetDate(date) }
+                            Box(
+                                modifier = if (i == 0) Modifier.padding(start = 24.dp) else Modifier
+                            ) {
+                                DateChip(
+                                    date = date,
+                                    selected = state.until == date,
+                                ) { onSetDate(date) }
+                            }
                         }
                     }
                 }
