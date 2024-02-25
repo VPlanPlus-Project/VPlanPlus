@@ -15,8 +15,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 63
-        versionName = "0.9.3-beta-dev-1"
+        versionCode = 64
+        versionName = "0.9.3-beta-dev-2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -68,7 +68,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.compose.material:material-icons-extended:1.6.1")
+    implementation("androidx.compose.material:material-icons-extended:1.6.2")
     implementation("androidx.compose.material3:material3-android:1.2.0")
     implementation("com.google.android.material:material:1.11.0")
 
@@ -88,12 +88,12 @@ dependencies {
 
     implementation("com.lightspark:compose-qr-code:1.0.1")
 
-    implementation("com.google.dagger:hilt-android:2.48.1")
+    implementation("com.google.dagger:hilt-android:2.49")
     testImplementation("junit:junit:4.13.2")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
-    kapt("androidx.hilt:hilt-compiler:1.1.0")
-    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
-    implementation("androidx.hilt:hilt-work:1.1.0")
+    kapt("androidx.hilt:hilt-compiler:1.2.0")
+    implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
+    implementation("androidx.hilt:hilt-work:1.2.0")
 
     implementation("androidx.room:room-runtime:2.6.1")
     annotationProcessor("androidx.room:room-compiler:2.6.1")
@@ -105,7 +105,7 @@ dependencies {
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
 
-    debugImplementation("androidx.compose.ui:ui-tooling:1.6.1")
+    debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
 
 
     // Local unit tests
@@ -115,7 +115,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.1")
+    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.2")
 
     // Instrumentation tests
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.37")
