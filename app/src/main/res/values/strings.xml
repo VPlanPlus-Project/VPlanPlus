@@ -308,4 +308,9 @@
     <string name="addHomework_shareSubtitleWithSubjectAndTeacher">If enabled, all classmates who have also activated %1$s with %2$s enabled will see this homework.</string>
     <string name="addHomework_shareSubtitleWithSubject">If enabled, all classmates who have also activated %1$s without a teacher will see this homework.</string>
     <string name="addHomework_shareSubtitleWithoutSubject">If enabled, all classmates will see this homework.</string>
+    <string name="addHomework_general">General</string>
+    <string name="addHomework_tasks">Tasks</string>
+    <string name="addHomework_newTask">New task</string>
+    <string name="add">Add</string>
+    <string name="delete">Delete</string>
 </resources>

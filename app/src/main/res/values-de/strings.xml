@@ -309,4 +309,9 @@
     <string name="addHomework_shareSubtitleWithSubjectAndTeacher">Wenn diese Option aktiviert ist, sehen alle Mitschüler, die auch %1$s mit %2$s aktiviert haben, diese Hausaufgabe.</string>
     <string name="addHomework_shareSubtitleWithSubject">Wenn diese Option aktiviert ist, sehen alle Mitschüler, die auch %1$s ohne Lehrer aktiviert haben, diese Hausaufgabe.</string>
     <string name="addHomework_shareSubtitleWithoutSubject">Wenn diese Option aktiviert ist, sehen alle Mitschüler diese Hausaufgabe.</string>
+    <string name="addHomework_general">Grundlegende Informationen</string>
+    <string name="addHomework_tasks">Aufgaben</string>
+    <string name="addHomework_newTask">Neue Aufgabe</string>
+    <string name="add">Hinzufügen</string>
+    <string name="delete">Löschen</string>
 </resources>

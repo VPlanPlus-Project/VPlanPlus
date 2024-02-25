@@ -47,6 +47,23 @@ class AddHomeworkViewModel @Inject constructor(
     fun toggleForAll() {
         state.value = state.value.copy(isForAll = !state.value.isForAll)
     }
+
+    fun addTask() {
+        if (state.value.newTask.isBlank() || state.value.tasks.contains(state.value.newTask)) return
+        state.value = state.value.copy(tasks = state.value.tasks + state.value.newTask)
+        setNewTask("")
+    }
+
+    fun modifyTask(before: String, after: String) {
+        val tasks = state.value.tasks.toMutableList()
+        tasks.remove(before)
+        if (after.isNotBlank()) tasks.add(after)
+        state.value = state.value.copy(tasks = tasks)
+    }
+
+    fun setNewTask(content: String) {
+        state.value = state.value.copy(newTask = content)
+    }
 }
 
 data class AddHomeworkState(
@@ -59,5 +76,8 @@ data class AddHomeworkState(
     val isUntilDialogOpen: Boolean = false,
     val until: LocalDate? = null,
 
-    val isForAll: Boolean = true
+    val isForAll: Boolean = true,
+
+    val tasks: List<String> = emptyList(),
+    val newTask: String = ""
 )
