@@ -301,7 +301,8 @@
     <string name="home_addHomeworkLabel">Hausaufgabe hinzufügen</string>
     <string name="addHomework_defaultLessonTitle">Wähle eine Stunde aus</string>
     <string name="addHomework_lesson">Fach</string>
-    <string name="addHomework_lessonNotSelected">Nicht ausgewählt</string>
+    <string name="addHomework_notSelected">Nicht ausgewählt</string>
     <string name="addHomework_lessonSubtitle">%1$s mit %2$s</string>
     <string name="addHomework_lessonSubtitleNoTeacher">%1$s ohne Lehrer</string>
+    <string name="addHomework_until">Bis</string>
 </resources>

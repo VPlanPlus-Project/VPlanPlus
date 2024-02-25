@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.homework.add.domain.AddHomeworkUseCases
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,7 +20,8 @@ class AddHomeworkViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             state.value = state.value.copy(
-                defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase()
+                defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase(),
+                daysPerWeek = addHomeworkUseCases.getDaysPerWeekUseCase()
             )
         }
     }
@@ -28,14 +30,28 @@ class AddHomeworkViewModel @Inject constructor(
         state.value = state.value.copy(isLessonDialogOpen = isOpen)
     }
 
+    fun setUntilDialogOpen(isOpen: Boolean) {
+        state.value = state.value.copy(isUntilDialogOpen = isOpen)
+    }
+
     fun setDefaultLesson(defaultLesson: DefaultLesson?) {
         state.value = state.value.copy(selectedDefaultLesson = defaultLesson)
         setLessonDialogOpen(false)
     }
+
+    fun setUntil(until: LocalDate?) {
+        state.value = state.value.copy(until = until)
+        setUntilDialogOpen(false)
+    }
 }
 
 data class AddHomeworkState(
+    val daysPerWeek: Int = 5,
+
     val defaultLessons: List<DefaultLesson> = emptyList(),
     val selectedDefaultLesson: DefaultLesson? = null,
-    val isLessonDialogOpen: Boolean = false
+    val isLessonDialogOpen: Boolean = false,
+
+    val isUntilDialogOpen: Boolean = false,
+    val until: LocalDate? = null,
 )

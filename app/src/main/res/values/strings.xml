@@ -300,7 +300,8 @@
     <string name="home_addHomeworkLabel">Add homework</string>
     <string name="addHomework_defaultLessonTitle">Select lesson</string>
     <string name="addHomework_lesson">Subject</string>
-    <string name="addHomework_lessonNotSelected">Not selected</string>
+    <string name="addHomework_notSelected">Not selected</string>
     <string name="addHomework_lessonSubtitle">%1$s with %2$s</string>
     <string name="addHomework_lessonSubtitleNoTeacher">%1$s</string>
+    <string name="addHomework_until">Until</string>
 </resources>
