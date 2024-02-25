@@ -24,7 +24,7 @@ interface VppIdRepository {
     suspend fun cacheVppId(id: Int, school: School): VppId?
     suspend fun addVppId(vppId: VppId)
 
-    suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?)
+    suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?, initialCreation: Boolean)
     suspend fun getVppIdToken(vppId: VppId): String?
     suspend fun getBsToken(vppId: VppId): String?
 

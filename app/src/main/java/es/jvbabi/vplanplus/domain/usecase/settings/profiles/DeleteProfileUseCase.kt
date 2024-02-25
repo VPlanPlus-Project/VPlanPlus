@@ -2,10 +2,10 @@ package es.jvbabi.vplanplus.domain.usecase.settings.profiles
 
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
-import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import kotlinx.coroutines.flow.first
 
@@ -28,7 +28,7 @@ class DeleteProfileUseCase(
         val schoolProfiles = profileRepository.getProfilesBySchoolId(
             (currentIdentity.school ?: return ProfileManagementDeletionResult.ERROR).schoolId
         )
-        if (schoolProfiles.size == 1 || schoolRepository.getSchools().size == 1) return ProfileManagementDeletionResult.LAST_PROFILE
+        if (schoolProfiles.size == 1 && schoolRepository.getSchools().size == 1) return ProfileManagementDeletionResult.LAST_PROFILE
         val newProfile = profileRepository.getProfiles().first().first { it.id != profile.id }
         keyValueRepository.set(Keys.ACTIVE_PROFILE, newProfile.id.toString())
         profileRepository.deleteProfile(profile.id)

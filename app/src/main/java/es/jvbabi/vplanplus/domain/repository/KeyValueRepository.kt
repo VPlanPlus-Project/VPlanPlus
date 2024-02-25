@@ -26,5 +26,7 @@ object Keys {
 
     const val COLOR = "COLOR"
 
+    const val FCM_TOKEN = "FCM_TOKEN"
+
     const val SHOW_BS_BANNER = "SHOW_BS_BANNER"
 }

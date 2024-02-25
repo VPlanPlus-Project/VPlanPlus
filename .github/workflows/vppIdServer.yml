@@ -1,0 +1,23 @@
+name: Check VppIdServer values
+
+on:
+  push:
+    paths:
+      - 'app/src/main/java/es/jvbabi/vplanplus/shared/data/VppIdServer.kt'
+      - '.github/workflows/vppIdServer.yml'
+
+jobs:
+  check-values:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Check scheme and host values
+        run: |
+          LINE=$(grep -oP 'private val environment: ServerEnvironment = \K[^;]*' app/src/main/java/es/jvbabi/vplanplus/shared/data/VppIdServer.kt)
+          if [[ "$LINE" != "ServerEnvironment()" ]]; then
+            echo "Environment is not constructed using ServerEnvironment()"
+            exit 1
+          fi

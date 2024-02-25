@@ -3,8 +3,10 @@ package es.jvbabi.vplanplus.data.repository
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
@@ -13,7 +15,10 @@ import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
@@ -23,6 +28,8 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class RoomRepositoryImpl(
@@ -30,7 +37,10 @@ class RoomRepositoryImpl(
     private val roomBookingDao: RoomBookingDao,
     private val vppIdRepository: VppIdRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
-    private val classRepository: ClassRepository
+    private val classRepository: ClassRepository,
+    private val profileRepository: ProfileRepository,
+    private val notificationRepository: NotificationRepository,
+    private val stringRepository: StringRepository
 ) : RoomRepository {
     override suspend fun getRooms(schoolId: Long): List<Room> {
         return schoolEntityDao.getSchoolEntities(schoolId, SchoolEntityType.ROOM)
@@ -99,12 +109,17 @@ class RoomRepositoryImpl(
             .map { it.toRoomModel() }
     }
 
-    override suspend fun getRoomBookingsByClass(classes: Classes, date: LocalDate): List<RoomBooking> {
-        return roomBookingDao.getRoomBookingsByClass(classes.classId).map { it.toModel() }.filter { it.from.toLocalDate().isEqual(date) }
+    override suspend fun getRoomBookingsByClass(
+        classes: Classes,
+        date: LocalDate
+    ): List<RoomBooking> {
+        return roomBookingDao.getRoomBookingsByClass(classes.classId).map { it.toModel() }
+            .filter { it.from.toLocalDate().isEqual(date) }
     }
 
     override suspend fun getRoomBookingsByRoom(room: Room, date: LocalDate): List<RoomBooking> {
-        return roomBookingDao.getRoomBookingsByRoom(room.roomId).map { it.toModel() }.filter { it.from.toLocalDate().isEqual(date) }
+        return roomBookingDao.getRoomBookingsByRoom(room.roomId).map { it.toModel() }
+            .filter { it.from.toLocalDate().isEqual(date) }
     }
 
     override suspend fun fetchRoomBookings(school: School) {
@@ -118,7 +133,10 @@ class RoomRepositoryImpl(
         )
 
         if (response.response != HttpStatusCode.OK) {
-            Log.e("RoomRepositoryImpl", "Error fetching room bookings: ${response.response}\n\n${response.data}\n\n")
+            Log.e(
+                "RoomRepositoryImpl",
+                "Error fetching room bookings: ${response.response}\n\n${response.data}\n\n"
+            )
             return
         }
 
@@ -129,22 +147,68 @@ class RoomRepositoryImpl(
 
         val classes = classRepository.getClassesBySchool(school)
         val rooms = getRooms(school.schoolId)
-        val vppIds = vppIdRepository.getVppIds().first()
+
+        // cache vpp.IDs if necessary
+        var vppIds = vppIdRepository.getVppIds().first()
+        roomBookings
+            .bookings
+            .map { it.bookedBy }
+            .filter { vppId ->
+                vppIds.none { it.id == vppId }
+            }.forEach { vppId -> vppIdRepository.cacheVppId(vppId, school) }
+        vppIds = vppIdRepository.getVppIds().first()
+
+        // filter out already existing bookings
+
+        // insert new bookings
+        roomBookingDao.deleteAll()
         roomBookingDao.upsertAll(
             roomBookings.bookings.mapNotNull { bookingResponse ->
-                var vppId = vppIds.firstOrNull { it.id == bookingResponse.bookedBy }
-                if (vppId == null) vppId = vppIdRepository.cacheVppId(bookingResponse.bookedBy, school)
-                if (vppId == null) return@mapNotNull null
                 DbRoomBooking(
                     id = bookingResponse.id,
-                    roomId = rooms.first { room -> bookingResponse.roomName == room.name }.roomId,
-                    bookedBy = vppId.id,
+                    roomId = rooms.firstOrNull { room -> bookingResponse.roomName == room.name }?.roomId ?: return@mapNotNull null,
+                    bookedBy = bookingResponse.bookedBy,
                     from = DateUtils.getDateTimeFromTimestamp(bookingResponse.start),
                     to = DateUtils.getDateTimeFromTimestamp(bookingResponse.end),
                     `class` = classes.first { it.name == bookingResponse.`class` }.classId
                 )
             }
         )
+
+        // send notifications for bookings that are relevant to the user
+        val profileClasses = profileRepository
+            .getProfiles().first()
+            .filter { it.type == ProfileType.STUDENT }
+            .mapNotNull { profile -> classes.firstOrNull { it.classId == profile.referenceId }?.name }
+        roomBookings.bookings
+            .filter { booking -> booking.`class` in profileClasses }
+            .filter { booking ->
+                DateUtils.getDateTimeFromTimestamp(booking.end)
+                    .isAfter(LocalDateTime.now())
+            }
+            .filter { booking ->
+                !vppIds.filter { it.isActive() }.map { it.id }.contains(booking.bookedBy)
+            }
+            .forEach { booking ->
+                notificationRepository.sendNotification(
+                    channelId = NotificationRepository.CHANNEL_ID_ROOM_BOOKINGS,
+                    id = 5000 + booking.id.toInt(),
+                    title = stringRepository.getString(R.string.notification_roomBookingTitle),
+                    message = stringRepository.getString(
+                        R.string.notification_roomBookingContent,
+                        vppIds.first { it.id == booking.bookedBy }.name,
+                        booking.roomName,
+                        DateUtils.getDateTimeFromTimestamp(booking.start).toLocalTime().format(
+                            DateTimeFormatter.ofPattern("HH:mm")
+                        ),
+                        DateUtils.getDateTimeFromTimestamp(booking.end).toLocalTime().plusSeconds(1).format(
+                            DateTimeFormatter.ofPattern("HH:mm")
+                        )
+                    ),
+                    icon = R.drawable.vpp,
+                    pendingIntent = null
+                )
+            }
     }
 
     override suspend fun deleteAllRoomBookings() {

@@ -244,7 +244,11 @@ fun ActiveDayContent(
                                     val lessonNumbers =
                                         nextDayLessons.filter { it.displaySubject == subject }
                                             .map { it.lessonNumber.toLocalizedString() }
-                                    SubjectIcon(subject = subject, modifier = Modifier.size(38.dp))
+                                    SubjectIcon(
+                                        subject = subject,
+                                        modifier = Modifier.size(38.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                     Text(
                                         text = subject,
                                         style = MaterialTheme.typography.labelMedium

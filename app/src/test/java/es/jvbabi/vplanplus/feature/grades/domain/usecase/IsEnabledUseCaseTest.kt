@@ -127,7 +127,7 @@ class IsEnabledUseCaseTest {
         runBlocking {
             addVppId()
             keyValueRepository.set(Keys.ACTIVE_PROFILE, profileRepository.getProfiles().first().first().id.toString())
-            vppIdRepository.addVppIdToken(vppIdRepository.getVppIds().first().first(), "vppToken", null)
+            vppIdRepository.addVppIdToken(vppIdRepository.getVppIds().first().first(), "vppToken", null, true)
             val result = isEnabledUseCase().first()
             assertThat(result).isEqualTo(GradeUseState.NOT_ENABLED)
         }
@@ -138,7 +138,7 @@ class IsEnabledUseCaseTest {
         runBlocking {
             addVppId()
             keyValueRepository.set(Keys.ACTIVE_PROFILE, profileRepository.getProfiles().first().first().id.toString())
-            vppIdRepository.addVppIdToken(vppIdRepository.getVppIds().first().first(), "vppToken", "bsToken")
+            vppIdRepository.addVppIdToken(vppIdRepository.getVppIds().first().first(), "vppToken", "bsToken", true)
             val result = isEnabledUseCase().first()
             assertThat(result).isEqualTo(GradeUseState.ENABLED)
         }

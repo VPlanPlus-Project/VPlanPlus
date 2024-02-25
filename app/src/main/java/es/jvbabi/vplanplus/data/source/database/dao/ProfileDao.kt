@@ -14,7 +14,11 @@ import java.util.UUID
 abstract class ProfileDao {
     @Query("SELECT * FROM profile")
     @Transaction
-    abstract fun getProfiles(): Flow<List<CProfile>>
+    abstract fun getProfilesFlow(): Flow<List<CProfile>>
+
+    @Query("SELECT * FROM profile")
+    @Transaction
+    abstract suspend fun getProfiles(): List<CProfile>
 
     @Upsert
     abstract suspend fun insert(profile: DbProfile)
@@ -25,7 +29,11 @@ abstract class ProfileDao {
 
     @Query("SELECT * FROM profile WHERE profileId = :id")
     @Transaction
-    abstract fun getProfileById(id: UUID): Flow<CProfile?>
+    abstract fun getProfileByIdFlow(id: UUID): Flow<CProfile?>
+
+    @Query("SELECT * FROM profile WHERE profileId = :id")
+    @Transaction
+    abstract suspend fun getProfileById(id: UUID): CProfile?
 
     @Query("DELETE FROM profile WHERE profileId = :profileId")
     abstract suspend fun deleteProfile(profileId: UUID)

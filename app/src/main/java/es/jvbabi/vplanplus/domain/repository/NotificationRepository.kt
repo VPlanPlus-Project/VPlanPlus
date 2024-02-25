@@ -22,6 +22,7 @@ interface NotificationRepository {
 
     companion object {
         const val CHANNEL_ID_GRADES = "grades"
+        const val CHANNEL_ID_ROOM_BOOKINGS = "room_bookings"
         const val CHANNEL_ID_NEWS = "news"
         const val CHANNEL_ID_SYNC = "sync"
     }

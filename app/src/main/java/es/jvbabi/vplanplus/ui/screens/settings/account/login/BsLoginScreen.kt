@@ -5,11 +5,9 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.view.View.INVISIBLE
-import android.webkit.CookieManager
+import android.view.ViewGroup.LayoutParams
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
-import android.webkit.WebSettings
-import android.webkit.WebStorage
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -83,6 +81,7 @@ fun BsLoginContent(
         cleanUp()
         onBack()
     }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -109,8 +108,8 @@ fun BsLoginContent(
     ) { paddingValues ->
         Box(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
+                .padding(paddingValues)
         ) {
             var progress by rememberSaveable {
                 mutableIntStateOf(0)
@@ -118,8 +117,11 @@ fun BsLoginContent(
             var bannerVisible by rememberSaveable {
                 mutableStateOf(true)
             }
+            if (progress < 100) LinearProgressIndicator(
+                progress = { progress / 100f },
+                modifier = Modifier.fillMaxWidth()
+            )
             AndroidView(
-                modifier = Modifier.fillMaxSize(),
                 factory = { context ->
                     WebView(context).apply {
                         cleanUp = {
@@ -127,21 +129,22 @@ fun BsLoginContent(
                             this.destroy()
                             this.visibility = INVISIBLE
                         }
-                        settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                        clearCache(true)
-                        clearHistory()
-                        WebStorage.getInstance().deleteAllData()
-                        val cookieManager = CookieManager.getInstance()
-                        cookieManager.removeAllCookies {}
-                        cookieManager.removeSessionCookies {}
+
                         settings.javaScriptEnabled = true
-                        clipToOutline = true
-                        clipToPadding = true
+                        settings.useWideViewPort = true
+                        settings.loadWithOverviewMode = true
+
+                        layoutParams = LayoutParams(
+                            LayoutParams.MATCH_PARENT,
+                            LayoutParams.MATCH_PARENT
+                        )
+
                         loadUrl(
                             "${VppIdServer.url}/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(
                                 Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
                             )
                         )
+
                         webChromeClient = object : WebChromeClient() {
                             override fun onProgressChanged(view: WebView?, newProgress: Int) {
                                 super.onProgressChanged(view, newProgress)
@@ -173,10 +176,6 @@ fun BsLoginContent(
                         }
                     }
                 })
-            if (progress < 100) LinearProgressIndicator(
-                progress = { progress / 100f },
-                modifier = Modifier.fillMaxWidth()
-            )
             if (bannerVisible) InfoCard(
                 modifier = Modifier
                     .padding(8.dp)

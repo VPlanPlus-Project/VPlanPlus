@@ -15,6 +15,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
@@ -33,7 +34,8 @@ class VppIdRepositoryImpl(
     private val vppIdTokenDao: VppIdTokenDao,
     private val classRepository: ClassRepository,
     private val roomBookingDao: RoomBookingDao,
-    private val vppIdNetworkRepository: VppIdNetworkRepository
+    private val vppIdNetworkRepository: VppIdNetworkRepository,
+    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
 ) : VppIdRepository {
     override fun getVppIds(): Flow<List<VppId>> {
         return vppIdDao.getAll().map { list ->
@@ -76,7 +78,7 @@ class VppIdRepositoryImpl(
         )
     }
 
-    override suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?) {
+    override suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?, initialCreation: Boolean) {
         vppIdTokenDao.insert(
             DbVppIdToken(
                 vppId = vppId.id,
@@ -84,6 +86,7 @@ class VppIdRepositoryImpl(
                 bsToken = bsToken
             )
         )
+        if (initialCreation) firebaseCloudMessagingManagerRepository.updateToken(null)
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
     }
 
@@ -136,6 +139,7 @@ class VppIdRepositoryImpl(
         )
         if (response.response != HttpStatusCode.OK) return false
         vppIdDao.delete(vppId.id)
+        firebaseCloudMessagingManagerRepository.updateToken(null)
         return true
     }
 

@@ -12,7 +12,7 @@ class GetVppIdDetailsUseCase(
         val response = vppIdRepository.getVppIdOnline(token)
         if (response.data != null) {
             vppIdRepository.addVppId(response.data.id)
-            vppIdRepository.addVppIdToken(response.data.id, token, response.data.bsToken)
+            vppIdRepository.addVppIdToken(response.data.id, token, response.data.bsToken, true)
         }
         return response
     }
