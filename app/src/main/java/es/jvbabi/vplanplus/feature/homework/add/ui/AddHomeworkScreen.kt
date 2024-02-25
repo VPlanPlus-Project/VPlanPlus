@@ -217,7 +217,7 @@ private fun AddHomeworkContent(
                 state.tasks.forEach { task ->
                     Row(
                         modifier = Modifier
-                            .padding(8.dp)
+                            .padding(vertical = 8.dp, horizontal = 16.dp)
                             .fillMaxWidth()
                     ) {
                         OutlinedTextField(
@@ -243,7 +243,7 @@ private fun AddHomeworkContent(
 
                 Row(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .padding(vertical = 8.dp, horizontal = 16.dp)
                         .fillMaxWidth()
                 ) {
                     OutlinedTextField(
