@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.account.login
+package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login
 
 import android.annotation.SuppressLint
 import android.content.Intent

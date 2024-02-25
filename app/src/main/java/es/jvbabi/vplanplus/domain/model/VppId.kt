@@ -5,6 +5,7 @@ import com.google.gson.annotations.SerializedName
 data class VppId(
     val id: Int,
     val name: String,
+    val email: String?,
     @SerializedName("school_id") val schoolId: Long,
     val school: School?,
     @SerializedName("class_name") val className: String,

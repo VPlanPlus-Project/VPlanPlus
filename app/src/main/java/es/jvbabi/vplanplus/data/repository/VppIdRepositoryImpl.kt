@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
@@ -73,7 +74,8 @@ class VppIdRepositoryImpl(
                     vppId.schoolId,
                     vppId.className
                 )?.classId,
-                state = State.ACTIVE
+                state = State.ACTIVE,
+                email = vppId.email
             )
         )
     }
@@ -198,6 +200,7 @@ class VppIdRepositoryImpl(
                 className = r.className,
                 schoolId = school.schoolId,
                 state = State.CACHE,
+                email = null,
                 classId = classRepository.getClassBySchoolIdAndClassName(
                     school.schoolId,
                     r.className
@@ -225,6 +228,42 @@ class VppIdRepositoryImpl(
         }
 
         return response.response
+    }
+
+    override suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?> {
+        val currentToken = getVppIdToken(vppId) ?: return DataResponse(null, HttpStatusCode.Unauthorized)
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
+
+        val response = vppIdNetworkRepository.doRequest(
+            "/api/${VppIdServer.apiVersion}/session",
+            HttpMethod.Get,
+            null
+        )
+        return if(response.response != HttpStatusCode.OK) {
+            DataResponse(
+                null, response.response
+            )
+        } else DataResponse(
+            Gson().fromJson(
+                response.data,
+                Array<Session>::class.java
+            ).toList(), HttpStatusCode.OK
+        )
+    }
+
+    override suspend fun closeSession(session: Session, vppId: VppId): Boolean {
+        val currentToken = getVppIdToken(vppId) ?: return false
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
+
+        return try {
+            val response = vppIdNetworkRepository.doRequest(
+                "/api/${VppIdServer.apiVersion}/session/${session.id}",
+                HttpMethod.Delete
+            )
+            response.response == HttpStatusCode.OK
+        } catch (e: Exception) {
+            false
+        }
     }
 }
 

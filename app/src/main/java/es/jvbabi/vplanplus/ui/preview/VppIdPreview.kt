@@ -14,7 +14,8 @@ object VppIdPreview {
             classes = classes,
             school = school,
             schoolId = school.schoolId,
-            className = classes.name
+            className = classes.name,
+            email = "john.doe@mail.com"
         )
     }
 }

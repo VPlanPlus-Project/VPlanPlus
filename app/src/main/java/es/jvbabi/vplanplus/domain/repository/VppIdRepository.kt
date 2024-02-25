@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
@@ -33,6 +34,9 @@ interface VppIdRepository {
 
     suspend fun bookRoom(vppId: VppId, room: Room, from: LocalDateTime, to: LocalDateTime): BookResult
     suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode?
+
+    suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?>
+    suspend fun closeSession(session: Session, vppId: VppId): Boolean
 }
 
 data class VppIdOnlineResponse(

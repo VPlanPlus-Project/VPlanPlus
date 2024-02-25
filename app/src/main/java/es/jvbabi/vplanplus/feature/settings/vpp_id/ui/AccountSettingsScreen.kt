@@ -1,6 +1,5 @@
-package es.jvbabi.vplanplus.ui.screens.settings.account
+package es.jvbabi.vplanplus.feature.settings.vpp_id.ui
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,7 +10,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Check
@@ -25,10 +23,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,7 +35,6 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
-import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
@@ -50,28 +45,17 @@ fun AccountSettingsScreen(
     viewModel: AccountSettingsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
-    val context = LocalContext.current
 
     AccountSettingsScreenContent(
         onBack = { navHostController.popBackStack() },
         onLogin = {
             navHostController.navigate(Screen.SettingsVppIdLoginScreen.route)
         },
-        onDeleteVppIdRequested = { viewModel.showDeleteDialog(it) },
-        onDeleteVppId = { viewModel.deleteAccount(it) },
-        onDismissDeleteDialog = { viewModel.dismissDeleteDialog() },
+        onOpenVppIdManagement = { vppIdId ->
+            navHostController.navigate(Screen.SettingsVppIdManageScreen.route + "/$vppIdId")
+        },
         state = state
     )
-
-    val message = stringResource(id = if (state.deletionResult == true) R.string.vppidlink_unlinkVppIdSuccess else R.string.vppidlink_unlinkVppIdError)
-    LaunchedEffect(state.deletionResult) {
-        if (state.deletionResult == null) return@LaunchedEffect
-        Toast.makeText(
-            context,
-            message,
-            Toast.LENGTH_SHORT
-        ).show()
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -79,20 +63,9 @@ fun AccountSettingsScreen(
 private fun AccountSettingsScreenContent(
     onBack: () -> Unit,
     onLogin: () -> Unit = {},
-    onDeleteVppIdRequested: (VppId) -> Unit = {},
-    onDeleteVppId: (VppId) -> Unit = {},
-    onDismissDeleteDialog: () -> Unit = {},
+    onOpenVppIdManagement: (Int) -> Unit = {},
     state: AccountSettingsState
 ) {
-    if (state.deleteVppId != null) {
-        YesNoDialog(
-            icon = Icons.Default.DeleteForever,
-            title = stringResource(id = R.string.vppidlink_unlinkVppIdTitle),
-            message = stringResource(id = R.string.vppidlink_unlinkVppIdMessage, state.deleteVppId.name),
-            onYes = { onDeleteVppId(state.deleteVppId) },
-            onNo = { onDismissDeleteDialog() },
-        )
-    }
     Scaffold(
         topBar = {
             TopAppBar(
@@ -122,7 +95,7 @@ private fun AccountSettingsScreenContent(
                             isLoading = enabled == null,
                             subtitle = account.schoolId.toString() + " / " + account.className,
                             type = SettingsType.FUNCTION,
-                            doAction = { onDeleteVppIdRequested(account) },
+                            doAction = { onOpenVppIdManagement(account.id) },
                         )
                     }
                     if (state.accounts.isNotEmpty()) item { HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp)) }
@@ -183,7 +156,8 @@ private fun AccountSettingsPreview() {
                     schoolId = school.schoolId,
                     school = school,
                     className = classes.name,
-                    classes = classes
+                    classes = classes,
+                    email = "max.mustermann@email.com"
                 ) to false
             )
         )

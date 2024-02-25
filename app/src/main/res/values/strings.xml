@@ -212,10 +212,10 @@
     <string name="vppidSettings_linkId">Link existing</string>
     <string name="vppidlink_welcome">Welcome, %1$s</string>
     <string name="vppidlink_message">You can now use all features of %1$s in class %2$s. Tap an existing one to remove it.</string>
-    <string name="vppidlink_unlinkVppIdTitle">Unlink?</string>
-    <string name="vppidlink_unlinkVppIdMessage">Do you really want to unlink %1$s? You wont be able to use the extended feature set anymore.</string>
-    <string name="vppidlink_unlinkVppIdSuccess">Unlinked account</string>
-    <string name="vppidlink_unlinkVppIdError">Something went wrong. Your account hasn\'t been unlinked.</string>
+    <string name="vppIdSettingsManagement_logoutTitle">Logout?</string>
+    <string name="vppIdSettingsManagement_logoutMessage">Do you really want to logout, %1$s? You wont be able to use the extended feature set anymore.</string>
+    <string name="vppIdSettingsManagement_logoutSuccess">Logged out</string>
+    <string name="vppIdSettingsManagement_logoutFailure">Something went wrong. You\'re not logged out yet.</string>
     <string name="searchAvailableRoom_cannotBookRoomNotVerifiedTitle">Not verified</string>
     <string name="searchAvailableRoom_cannotBookRoomNotVerifiedText">You need to connect your vpp.ID in order to book a room. This is to prevent spam. You can create one using your beste.schule or notenbuch.online account. Visit the settings page to learn more.</string>
     <string name="searchAvailableRoom_cannotBookRoomWrongTypeTitle">Wrong account type</string>
@@ -289,4 +289,12 @@
     <string name="notification_roomBookingContent">%1$s booked room %2$s from %3$s to %4$s</string>
     <string name="notification_gradeUnauthorizedTitle">Couldn\'t load grades</string>
     <string name="notification_gradeUnauthorizedContent">You need to re-link your vpp.ID</string>
+    <string name="vppIdSettingsManagement_missingEmail">Unknown email</string>
+    <string name="vppIdSettingsManagement_logout">Logout</string>
+    <string name="vppIdSettingsManagement_sessionsTitle">Sessions</string>
+    <string name="vppIdSettingsManagement_sessionsError">Failed to load sessions</string>
+    <string name="retry">Retry</string>
+    <string name="vppIdSettingsManagement_sessionsCurrent">This device</string>
+    <string name="vppIdSettingsManagement_sessionsCloseInfo">Tap on a session to close it. This cannot be undone.</string>
+    <string name="vppIdSettingsManagement_sessionsDate">At %1$s</string>
 </resources>

@@ -114,7 +114,8 @@ private fun VppIdLinkScreenPreview() {
                 schoolId = school.schoolId,
                 school = school,
                 className = classes.name,
-                classes = classes
+                classes = classes,
+                email = "maria.musterfrau@email.com"
             ),
             classes = classes
         )

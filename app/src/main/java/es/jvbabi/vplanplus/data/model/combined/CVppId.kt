@@ -28,7 +28,8 @@ data class CVppId(
             school = school,
             className = vppId.className,
             classes = classes.toClassModel(),
-            state = vppId.state
+            state = vppId.state,
+            email = vppId.email
         )
     }
 }
