@@ -25,7 +25,6 @@ class AddHomeworkViewModel @Inject constructor(
                 if (identity?.school == null) return@collect
                 state.value = state.value.copy(
                     defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase(),
-                    daysPerWeek = identity.school.daysPerWeek,
                     username = identity.vppId?.name
                 )
             }
@@ -70,11 +69,12 @@ class AddHomeworkViewModel @Inject constructor(
     fun setNewTask(content: String) {
         state.value = state.value.copy(newTask = content)
     }
+
+    fun save() {}
 }
 
 data class AddHomeworkState(
     val username: String? = null,
-    val daysPerWeek: Int = 5,
 
     val defaultLessons: List<DefaultLesson> = emptyList(),
     val selectedDefaultLesson: DefaultLesson? = null,
@@ -86,5 +86,8 @@ data class AddHomeworkState(
     val isForAll: Boolean = true,
 
     val tasks: List<String> = emptyList(),
-    val newTask: String = ""
-)
+    val newTask: String = "",
+) {
+    val canSubmit: Boolean
+        get() = selectedDefaultLesson != null && until != null && tasks.isNotEmpty()
+}

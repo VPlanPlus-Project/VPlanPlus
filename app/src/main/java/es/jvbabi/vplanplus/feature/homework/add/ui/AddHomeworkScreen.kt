@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -65,6 +66,7 @@ fun AddHomeworkScreen(
         onChangeNewTask = { viewModel.setNewTask(it) },
         onAddTask = { viewModel.addTask() },
         onModifyTask = { before, after -> viewModel.modifyTask(before, after) },
+        onSave = { viewModel.save() },
         state = state
     )
 }
@@ -83,6 +85,7 @@ private fun AddHomeworkContent(
     onChangeNewTask: (String) -> Unit = {},
     onAddTask: () -> Unit = {},
     onModifyTask: (before: String, after: String) -> Unit = { _, _ -> },
+    onSave: () -> Unit = {},
     state: AddHomeworkState
 ) {
     val noTeacher = stringResource(id = R.string.settings_profileDefaultLessonNoTeacher)
@@ -101,7 +104,7 @@ private fun AddHomeworkContent(
         val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
                 val date = DateUtils.getDateFromTimestamp(utcTimeMillis/1000)
-                return date.isAfter(LocalDate.now()) && date.dayOfWeek.value <= 5
+                return date.isAfter(LocalDate.now())
             }
         })
 
@@ -266,6 +269,16 @@ private fun AddHomeworkContent(
                     }
                 }
             }
+
+            Button(
+                onClick = onSave,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth(),
+                enabled = state.canSubmit
+            ) {
+                Text(text = stringResource(id = R.string.addHomework_save))
+            }
         }
     }
 }
@@ -276,7 +289,6 @@ private fun AddHomeworkScreenPreview() {
     AddHomeworkContent(
         state = AddHomeworkState(
             username = "John Doe",
-            daysPerWeek = 5,
             isLessonDialogOpen = false,
             isUntilDialogOpen = false,
             tasks = listOf("Task 1", "Task 2", "Task 3"),

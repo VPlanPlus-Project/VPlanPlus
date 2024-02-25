@@ -313,4 +313,5 @@
     <string name="addHomework_newTask">New task</string>
     <string name="add">Add</string>
     <string name="delete">Delete</string>
+    <string name="addHomework_save">Save homework</string>
 </resources>
