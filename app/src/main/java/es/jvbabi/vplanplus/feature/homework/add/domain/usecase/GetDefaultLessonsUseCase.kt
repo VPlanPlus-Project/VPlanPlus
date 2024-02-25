@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.homework.add.domain
+package es.jvbabi.vplanplus.feature.homework.add.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository

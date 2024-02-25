@@ -6,7 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
-import es.jvbabi.vplanplus.feature.homework.add.domain.AddHomeworkUseCases
+import es.jvbabi.vplanplus.feature.homework.add.domain.usecase.AddHomeworkUseCases
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -25,9 +25,19 @@ class AddHomeworkViewModel @Inject constructor(
                 if (identity?.school == null) return@collect
                 state.value = state.value.copy(
                     defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase(),
-                    username = identity.vppId?.name
+                    username = identity.vppId?.name,
+                    canUseCloud = identity.vppId != null,
+                    isForAll = identity.vppId != null,
+                    canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase()
                 )
             }
+        }
+    }
+
+    fun hideCloudInfoBanner() {
+        viewModelScope.launch {
+            addHomeworkUseCases.hideVppIdBannerUseCase()
+            state.value = state.value.copy(canShowCloudInfoBanner = false)
         }
     }
 
@@ -74,6 +84,8 @@ class AddHomeworkViewModel @Inject constructor(
 }
 
 data class AddHomeworkState(
+    val canUseCloud: Boolean = true,
+    val canShowCloudInfoBanner: Boolean = false,
     val username: String? = null,
 
     val defaultLessons: List<DefaultLesson> = emptyList(),

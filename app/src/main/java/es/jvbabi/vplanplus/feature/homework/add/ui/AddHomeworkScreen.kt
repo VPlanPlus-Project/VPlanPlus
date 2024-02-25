@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Button
@@ -40,10 +41,12 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.homework.add.ui.components.DateChip
 import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SelectDialog
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -66,6 +69,8 @@ fun AddHomeworkScreen(
         onChangeNewTask = { viewModel.setNewTask(it) },
         onAddTask = { viewModel.addTask() },
         onModifyTask = { before, after -> viewModel.modifyTask(before, after) },
+        onHideBannerForever = { viewModel.hideCloudInfoBanner() },
+        onOpenVppIdSettings = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onSave = { viewModel.save() },
         state = state
     )
@@ -85,6 +90,8 @@ private fun AddHomeworkContent(
     onChangeNewTask: (String) -> Unit = {},
     onAddTask: () -> Unit = {},
     onModifyTask: (before: String, after: String) -> Unit = { _, _ -> },
+    onHideBannerForever: () -> Unit = {},
+    onOpenVppIdSettings: () -> Unit = {},
     onSave: () -> Unit = {},
     state: AddHomeworkState
 ) {
@@ -202,17 +209,31 @@ private fun AddHomeworkContent(
                     icon = Icons.Default.People,
                     title = stringResource(id = R.string.addHomework_shareTitle),
                     subtitle =
-                    if (state.selectedDefaultLesson?.teacher != null)
-                        stringResource(id = R.string.addHomework_shareSubtitleWithSubjectAndTeacher, state.selectedDefaultLesson.subject, state.selectedDefaultLesson.teacher.acronym)
-                    else if (state.selectedDefaultLesson != null)
-                        stringResource(id = R.string.addHomework_shareSubtitleWithSubject, state.selectedDefaultLesson.subject)
-                    else
-                        stringResource(id = R.string.addHomework_shareSubtitleWithoutSubject),
+                        if (!state.canUseCloud)
+                            stringResource(id = R.string.addHomework_shareSubtitleOnlyLocal)
+                        else if (state.selectedDefaultLesson?.teacher != null)
+                            stringResource(id = R.string.addHomework_shareSubtitleWithSubjectAndTeacher, state.selectedDefaultLesson.subject, state.selectedDefaultLesson.teacher.acronym)
+                        else if (state.selectedDefaultLesson != null)
+                            stringResource(id = R.string.addHomework_shareSubtitleWithSubject, state.selectedDefaultLesson.subject)
+                        else
+                            stringResource(id = R.string.addHomework_shareSubtitleWithoutSubject),
                     type = SettingsType.CHECKBOX,
-                    checked = state.isForAll,
+                    enabled = state.canUseCloud,
+                    checked = state.isForAll && state.canUseCloud,
                     doAction = onToggleForAll
                 )
             }
+
+            if (!state.canUseCloud && state.canShowCloudInfoBanner) InfoCard(
+                imageVector = Icons.Default.NoAccounts,
+                title = stringResource(id = R.string.addHomework_noVppIdTitle),
+                text = stringResource(id = R.string.addHomework_noVppIdText),
+                modifier = Modifier.padding(16.dp),
+                buttonText1 = stringResource(id = R.string.hideForever),
+                buttonAction1 = onHideBannerForever,
+                buttonText2 = stringResource(id = R.string.addHomework_noVppIdButtonOpenSettings),
+                buttonAction2 = onOpenVppIdSettings
+            )
 
             SettingsCategory(
                 title = stringResource(id = R.string.addHomework_tasks),
@@ -292,6 +313,8 @@ private fun AddHomeworkScreenPreview() {
             isLessonDialogOpen = false,
             isUntilDialogOpen = false,
             tasks = listOf("Task 1", "Task 2", "Task 3"),
+            canUseCloud = false,
+            canShowCloudInfoBanner = true
         )
     )
 }

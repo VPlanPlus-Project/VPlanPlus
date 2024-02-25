@@ -183,8 +183,8 @@ fun BsLoginContent(
                 imageVector = Icons.Outlined.Info,
                 title = stringResource(id = R.string.vppIdLogin_infoTitle),
                 text = stringResource(id = R.string.vppIdLogin_infoText),
-                buttonText = stringResource(id = android.R.string.ok),
-                buttonAction = { bannerVisible = false }
+                buttonText1 = stringResource(id = android.R.string.ok),
+                buttonAction1 = { bannerVisible = false }
             )
         }
     }

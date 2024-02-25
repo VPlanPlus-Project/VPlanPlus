@@ -120,7 +120,7 @@ fun SettingsSetting(
             ) {
                 when (type) {
                     SettingsType.TOGGLE -> {
-                        Switch(checked = checked ?: false, onCheckedChange = { doAction() })
+                        Switch(checked = checked ?: false, onCheckedChange = { doAction() }, enabled = enabled)
                     }
 
                     SettingsType.NUMERIC_INPUT -> {}
@@ -128,7 +128,7 @@ fun SettingsSetting(
                     SettingsType.DISPLAY -> {}
 
                     SettingsType.CHECKBOX -> {
-                        Checkbox(checked = checked ?: false, onCheckedChange = { doAction() })
+                        Checkbox(checked = checked ?: false, onCheckedChange = { doAction() }, enabled = enabled)
                     }
 
                     SettingsType.FUNCTION -> {

@@ -29,4 +29,6 @@ object Keys {
     const val FCM_TOKEN = "FCM_TOKEN"
 
     const val SHOW_BS_BANNER = "SHOW_BS_BANNER"
+
+    const val SHOW_VPPID_BANNER_HOMEWORK = "SHOW_VPPID_BANNER_HOMEWORK"
 }
