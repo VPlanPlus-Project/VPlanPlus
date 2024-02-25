@@ -130,7 +130,12 @@ private fun AddHomeworkContent(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = stringResource(id = R.string.home_addHomeworkLabel)) },
+                title = {
+                    Column {
+                        Text(text = stringResource(id = R.string.home_addHomeworkLabel))
+                        if (state.username != null) Text(text = state.username, style = MaterialTheme.typography.labelSmall)
+                    }
+                        },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -270,6 +275,8 @@ private fun AddHomeworkContent(
 private fun AddHomeworkScreenPreview() {
     AddHomeworkContent(
         state = AddHomeworkState(
+            username = "John Doe",
+            daysPerWeek = 5,
             isLessonDialogOpen = false,
             isUntilDialogOpen = false,
             tasks = listOf("Task 1", "Task 2", "Task 3"),

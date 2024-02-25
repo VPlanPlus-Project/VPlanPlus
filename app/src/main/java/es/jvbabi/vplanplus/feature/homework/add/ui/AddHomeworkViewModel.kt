@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.homework.add.domain.AddHomeworkUseCases
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -12,17 +13,22 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddHomeworkViewModel @Inject constructor(
-    private val addHomeworkUseCases: AddHomeworkUseCases
+    private val addHomeworkUseCases: AddHomeworkUseCases,
+    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase
 ): ViewModel() {
 
     val state = mutableStateOf(AddHomeworkState())
 
     init {
         viewModelScope.launch {
-            state.value = state.value.copy(
-                defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase(),
-                daysPerWeek = addHomeworkUseCases.getDaysPerWeekUseCase()
-            )
+            getCurrentIdentityUseCase().collect { identity ->
+                if (identity?.school == null) return@collect
+                state.value = state.value.copy(
+                    defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase(),
+                    daysPerWeek = identity.school.daysPerWeek,
+                    username = identity.vppId?.name
+                )
+            }
         }
     }
 
@@ -67,6 +73,7 @@ class AddHomeworkViewModel @Inject constructor(
 }
 
 data class AddHomeworkState(
+    val username: String? = null,
     val daysPerWeek: Int = 5,
 
     val defaultLessons: List<DefaultLesson> = emptyList(),

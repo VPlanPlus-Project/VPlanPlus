@@ -8,7 +8,6 @@ import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.homework.add.domain.AddHomeworkUseCases
-import es.jvbabi.vplanplus.feature.homework.add.domain.GetDaysPerWeekUseCase
 import es.jvbabi.vplanplus.feature.homework.add.domain.GetDefaultLessonsUseCase
 import javax.inject.Singleton
 
@@ -29,9 +28,6 @@ object AddHomeworkModule {
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase,
                 getClassByProfileUseCase = getClassByProfileUseCase
             ),
-            getDaysPerWeekUseCase = GetDaysPerWeekUseCase(
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase
-            )
         )
     }
 }
