@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
@@ -50,6 +51,7 @@ fun AddHomeworkScreen(
         onCloseDateDialog = { viewModel.setUntilDialogOpen(false) },
         onSetDefaultLesson = { viewModel.setDefaultLesson(it) },
         onSetDate = { viewModel.setUntil(it) },
+        onToggleForAll = { viewModel.toggleForAll() },
         state = state
     )
 }
@@ -64,6 +66,7 @@ private fun AddHomeworkContent(
     onOpenDateDialog: () -> Unit = {},
     onCloseDateDialog: () -> Unit = {},
     onSetDate: (LocalDate?) -> Unit = {},
+    onToggleForAll: () -> Unit = {},
     state: AddHomeworkState
 ) {
     val noTeacher = stringResource(id = R.string.settings_profileDefaultLessonNoTeacher)
@@ -164,6 +167,20 @@ private fun AddHomeworkContent(
                     }
                 }
             )
+            SettingsSetting(
+                icon = Icons.Default.People,
+                title = stringResource(id = R.string.addHomework_shareTitle),
+                subtitle =
+                    if (state.selectedDefaultLesson?.teacher != null)
+                        stringResource(id = R.string.addHomework_shareSubtitleWithSubjectAndTeacher, state.selectedDefaultLesson.subject, state.selectedDefaultLesson.teacher.acronym)
+                    else if (state.selectedDefaultLesson != null)
+                        stringResource(id = R.string.addHomework_shareSubtitleWithSubject, state.selectedDefaultLesson.subject)
+                    else
+                        stringResource(id = R.string.addHomework_shareSubtitleWithoutSubject),
+                type = SettingsType.CHECKBOX,
+                checked = state.isForAll,
+                doAction = onToggleForAll
+            )
         }
     }
 }
@@ -174,7 +191,7 @@ private fun AddHomeworkScreenPreview() {
     AddHomeworkContent(
         state = AddHomeworkState(
             isLessonDialogOpen = false,
-            isUntilDialogOpen = true,
+            isUntilDialogOpen = false,
         )
     )
 }

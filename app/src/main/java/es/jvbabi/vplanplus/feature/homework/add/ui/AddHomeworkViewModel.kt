@@ -43,6 +43,10 @@ class AddHomeworkViewModel @Inject constructor(
         state.value = state.value.copy(until = until)
         setUntilDialogOpen(false)
     }
+
+    fun toggleForAll() {
+        state.value = state.value.copy(isForAll = !state.value.isForAll)
+    }
 }
 
 data class AddHomeworkState(
@@ -54,4 +58,6 @@ data class AddHomeworkState(
 
     val isUntilDialogOpen: Boolean = false,
     val until: LocalDate? = null,
+
+    val isForAll: Boolean = true
 )

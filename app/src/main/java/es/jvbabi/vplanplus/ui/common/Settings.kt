@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ManageAccounts
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -127,7 +128,7 @@ fun SettingsSetting(
                     SettingsType.DISPLAY -> {}
 
                     SettingsType.CHECKBOX -> {
-                        // TODO
+                        Checkbox(checked = checked ?: false, onCheckedChange = { doAction() })
                     }
 
                     SettingsType.FUNCTION -> {
