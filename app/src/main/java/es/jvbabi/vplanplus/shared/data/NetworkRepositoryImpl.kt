@@ -53,7 +53,7 @@ open class NetworkRepositoryImpl(
         requestBody: String?
     ): DataResponse<String?> {
         try {
-            logRepository?.log("Network", "Requesting $server$path")
+            logRepository?.log("Network", "Requesting ${requestMethod.value} $server$path")
             val response = client.request("$server$path") request@{
                 method = requestMethod
                 headers headers@{
@@ -62,8 +62,9 @@ open class NetworkRepositoryImpl(
                         append(key, value)
                     }
                     globalHeaders.forEach { (key, value) -> append(key, value) }
+                    if (requestMethod != HttpMethod.Get) append("Content-Type", "application/json")
                 }
-                if (requestMethod != HttpMethod.Get) setBody(requestBody)
+                if (requestMethod != HttpMethod.Get) setBody(requestBody ?: "{}")
             }
             return DataResponse(response.bodyAsText(), response.status)
         } catch (e: Exception) {

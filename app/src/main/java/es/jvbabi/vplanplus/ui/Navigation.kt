@@ -39,8 +39,9 @@ import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
 import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
-import es.jvbabi.vplanplus.ui.screens.settings.account.AccountSettingsScreen
-import es.jvbabi.vplanplus.ui.screens.settings.account.login.BsLoginScreen
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login.BsLoginScreen
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
 import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
@@ -149,6 +150,16 @@ fun NavigationGraph(
 
         composable(route = Screen.SettingsVppIdScreen.route) {
             AccountSettingsScreen(navHostController = navController)
+        }
+
+        composable(route = Screen.SettingsVppIdManageScreen.route + "/{vppIdId}",
+            arguments = listOf(
+                navArgument("vppIdId") {
+                    type = NavType.IntType
+                }
+            )
+        ) {
+            VppIdManagementScreen(navHostController = navController, vppId = it.arguments?.getInt("vppIdId")!!)
         }
 
         composable(

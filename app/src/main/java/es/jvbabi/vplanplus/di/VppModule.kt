@@ -93,10 +93,10 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.FixDefaultLe
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.IsInconsistentStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ProfileDefaultLessonsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.shared.GetProfileByIdUseCase
-import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
-import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.DeleteAccountUseCase
-import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.GetAccountsUseCase
-import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.TestAccountUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.AccountSettingsUseCases
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.DeleteAccountUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetAccountsUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.TestAccountUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
@@ -108,6 +108,8 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.CloseSessionUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetSessionsUseCase
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -414,7 +416,9 @@ object VppModule {
         return AccountSettingsUseCases(
             getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository),
             testAccountUseCase = TestAccountUseCase(vppIdRepository = vppIdRepository),
-            deleteAccountUseCase = DeleteAccountUseCase(vppIdRepository = vppIdRepository)
+            deleteAccountUseCase = DeleteAccountUseCase(vppIdRepository = vppIdRepository),
+            getSessionsUseCase = GetSessionsUseCase(vppIdRepository = vppIdRepository),
+            closeSessionUseCase = CloseSessionUseCase(vppIdRepository = vppIdRepository)
         )
     }
 

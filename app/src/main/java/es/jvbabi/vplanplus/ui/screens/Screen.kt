@@ -30,6 +30,7 @@ sealed class Screen(val route: String) {
     data object SettingsGeneralSettingsScreen: Screen("settings/general_settings")
 
     data object SettingsVppIdScreen: Screen("settings/vpp_id")
+    data object SettingsVppIdManageScreen: Screen("settings/vpp_id/manage")
     data object SettingsVppIdLoginScreen: Screen("settings/vpp_id/login")
 
     data object SettingsAdvancedScreen: Screen("settings/advanced")

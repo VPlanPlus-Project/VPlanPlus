@@ -213,10 +213,10 @@
     <string name="vppidSettings_linkId">Existierende verbinden</string>
     <string name="vppidlink_welcome">Willkommen, %1$s</string>
     <string name="vppidlink_message">Du kannst nun alle Features der Schule %1$s in der Klasse %2$s nutzen. Tippe auf eine bestehende vpp.ID um sie zu entfernen.</string>
-    <string name="vppidlink_unlinkVppIdTitle">Verbindung trennen?</string>
-    <string name="vppidlink_unlinkVppIdMessage">Möchtest du wirklich %1$s trennen? Du wirst danach nicht mehr alle Features verwenden können.</string>
-    <string name="vppidlink_unlinkVppIdSuccess">Account getrennt</string>
-    <string name="vppidlink_unlinkVppIdError">Etwas ist schiefgelaufen. Dein Account wurde nicht getrennt.</string>
+    <string name="vppIdSettingsManagement_logoutTitle">Abmelden?</string>
+    <string name="vppIdSettingsManagement_logoutMessage">Möchtest du dich wirklich abmelden, %1$s? Du wirst danach nicht mehr alle Features verwenden können.</string>
+    <string name="vppIdSettingsManagement_logoutSuccess">Erfolgreich abgemeldet</string>
+    <string name="vppIdSettingsManagement_logoutFailure">Etwas ist schiefgelaufen. Du wurdest noch nicht abgemeldet.</string>
     <string name="searchAvailableRoom_cannotBookRoomNotVerifiedTitle">Nicht bestätigt</string>
     <string name="searchAvailableRoom_cannotBookRoomNotVerifiedText">Du musst deine vpp.ID verbinden um einen Raum buchen zu können. Dies ist eine Maßnahme, um Spam vorzubeugen. Du kannst eine vpp.ID mit deinem beste.schule oder notenbuch.online Konto anlegen. Öffne die App-Einstellungen, um mehr zu erfahren.</string>
     <string name="searchAvailableRoom_cannotBookRoomWrongTypeTitle">Falscher Accounttyp</string>
@@ -290,4 +290,12 @@
     <string name="notification_roomBookingContent">%1$s hat den Raum %2$s von %3$s bis %4$s gebucht</string>
     <string name="notification_gradeUnauthorizedTitle">Noten konnten nicht geladen werden</string>
     <string name="notification_gradeUnauthorizedContent">Du musst deine vpp.ID neuverbinden</string>
+    <string name="vppIdSettingsManagement_logout">Abmelden</string>
+    <string name="vppIdSettingsManagement_missingEmail">Unbekannte Email</string>
+    <string name="vppIdSettingsManagement_sessionsTitle">Sitzungen</string>
+    <string name="vppIdSettingsManagement_sessionsError">Sitzungen konnten nicht geladen werden</string>
+    <string name="retry">Erneut versuchen</string>
+    <string name="vppIdSettingsManagement_sessionsCurrent">Dieses Gerät</string>
+    <string name="vppIdSettingsManagement_sessionsCloseInfo">Tippe eine Sitzung an, um sie zu beenden. Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="vppIdSettingsManagement_sessionsDate">Am %1$s</string>
 </resources>

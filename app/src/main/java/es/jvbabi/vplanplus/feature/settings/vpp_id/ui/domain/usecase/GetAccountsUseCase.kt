@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.settings.vpp_id
+package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository

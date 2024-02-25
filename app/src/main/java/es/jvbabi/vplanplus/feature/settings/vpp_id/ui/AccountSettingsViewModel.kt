@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.account
+package es.jvbabi.vplanplus.feature.settings.vpp_id.ui
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -6,9 +6,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.domain.usecase.settings.vpp_id.AccountSettingsUseCases
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.AccountSettingsUseCases
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -24,7 +23,7 @@ class AccountSettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            accountSettingsUseCases.getAccountsUseCase().first().let {
+            accountSettingsUseCases.getAccountsUseCase().collect {
                 _state.value = _state.value.copy(accounts = it.associateWith { null })
                 stateJobs.forEach { job -> job.cancel() }
                 _state.value.accounts?.forEach { (vppId, _) ->
@@ -37,29 +36,8 @@ class AccountSettingsViewModel @Inject constructor(
             }
         }
     }
-
-    fun showDeleteDialog(vppId: VppId) {
-        _state.value = _state.value.copy(deleteVppId = vppId)
-    }
-
-    fun dismissDeleteDialog() {
-        _state.value = _state.value.copy(deleteVppId = null)
-    }
-
-    fun deleteAccount(vppId: VppId) {
-        _state.value = _state.value.copy(deletionResult = null)
-        viewModelScope.launch {
-            _state.value = _state.value.copy(
-                deletionResult = accountSettingsUseCases.deleteAccountUseCase(vppId),
-                deleteVppId = null,
-                accounts = _state.value.accounts?.minus(vppId)
-            )
-        }
-    }
 }
 
 data class AccountSettingsState(
     val accounts: Map<VppId, Boolean?>? = null,
-    val deleteVppId: VppId? = null,
-    val deletionResult: Boolean? = null,
 )

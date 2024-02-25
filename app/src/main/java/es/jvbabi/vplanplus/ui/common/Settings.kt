@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
@@ -53,7 +54,9 @@ fun SettingsSetting(
     enabled: Boolean = true,
     clickable: Boolean = true,
     isLoading: Boolean = false,
-    customContent: @Composable () -> Unit = {}
+    titleOverflow: TextOverflow = TextOverflow.Visible,
+    subtitleOverflow: TextOverflow = TextOverflow.Visible,
+    customContent: @Composable () -> Unit = {},
 ) {
     Column {
         Row(
@@ -95,13 +98,17 @@ fun SettingsSetting(
                     Text(
                         text = title,
                         style = MaterialTheme.typography.titleLarge,
-                        color = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray
+                        color = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
+                        maxLines = if (titleOverflow != TextOverflow.Visible) 1 else Int.MAX_VALUE,
+                        overflow = titleOverflow
                     )
                     if (subtitle != null) {
                         Text(
                             text = subtitle,
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray
+                            color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else Color.Gray,
+                            maxLines = if (subtitleOverflow != TextOverflow.Visible) 1 else Int.MAX_VALUE,
+                            overflow = subtitleOverflow
                         )
                     }
                 }
