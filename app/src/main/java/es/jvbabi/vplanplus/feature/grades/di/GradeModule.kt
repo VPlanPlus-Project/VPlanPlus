@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.grades.data.repository.GradeRepositoryImpl
@@ -33,14 +35,18 @@ object GradeModule {
     fun provideGradeRepository(
         db: VppDatabase,
         logRepository: LogRecordRepository,
-        vppIdRepository: VppIdRepository
+        vppIdRepository: VppIdRepository,
+        notificationRepository: NotificationRepository,
+        stringRepository: StringRepository
     ): GradeRepository {
         return GradeRepositoryImpl(
             teacherDao = db.teacherDao,
             subjectDao = db.subjectDao,
             gradeDao = db.gradeDao,
             vppIdRepository = vppIdRepository,
-            bsNetworkRepository = provideBsNetworkRepository(logRepository)
+            bsNetworkRepository = provideBsNetworkRepository(logRepository),
+            notificationRepository = notificationRepository,
+            stringRepository = stringRepository
         )
     }
 

@@ -44,6 +44,7 @@
 
                 <data android:scheme="https" />
                 <data android:host="id.vpp.jvbabi.es" />
+                <data android:host="vppid-development.test.jvbabi.es" />
                 <data android:pathPrefix="/link_success" />
 
                 <data android:scheme="vpp"/>

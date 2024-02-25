@@ -5,11 +5,8 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import android.view.View.INVISIBLE
-import android.webkit.CookieManager
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
-import android.webkit.WebSettings
-import android.webkit.WebStorage
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.activity.compose.BackHandler
@@ -127,13 +124,6 @@ fun BsLoginContent(
                             this.destroy()
                             this.visibility = INVISIBLE
                         }
-                        settings.cacheMode = WebSettings.LOAD_NO_CACHE
-                        clearCache(true)
-                        clearHistory()
-                        WebStorage.getInstance().deleteAllData()
-                        val cookieManager = CookieManager.getInstance()
-                        cookieManager.removeAllCookies {}
-                        cookieManager.removeSessionCookies {}
                         settings.javaScriptEnabled = true
                         clipToOutline = true
                         clipToPadding = true
