@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.shared.data
 
+import android.util.Log
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.domain.repository.NetworkRepository
@@ -14,6 +15,7 @@ import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
 import java.net.ConnectException
 import java.net.UnknownHostException
 
@@ -24,7 +26,7 @@ open class NetworkRepositoryImpl(
     private val userAgent: String = DEFAULT_USER_AGENT,
     private val logRepository: LogRecordRepository?,
     init: (NetworkRepositoryImpl.() -> Unit) = {}
-): NetworkRepository {
+) : NetworkRepository {
 
     private var server: String
     val globalHeaders: MutableMap<String, String> = mutableMapOf()
@@ -66,11 +68,27 @@ open class NetworkRepositoryImpl(
                 }
                 if (requestMethod != HttpMethod.Get) setBody(requestBody ?: "{}")
             }
+            if (!listOf(
+                    HttpStatusCode.OK,
+                    HttpStatusCode.Created,
+                    HttpStatusCode.NoContent
+                ).contains(response.status)
+            ) {
+                logRepository?.log("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} (see log for details)")
+                Log.w("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} at $server$path\n${response.bodyAsText()}")
+            }
             return DataResponse(response.bodyAsText(), response.status)
         } catch (e: Exception) {
-            logRepository?.log("Network", "error when requesting $server$path (${e.javaClass.name}):\n${e.localizedMessage}")
+            logRepository?.log(
+                "Network",
+                "error when requesting $server$path (${e.javaClass.name}):\n${e.localizedMessage}"
+            )
             return when (e) {
-                is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(null, null)
+                is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(
+                    null,
+                    null
+                )
+
                 is ConnectException, is UnknownHostException -> DataResponse(null, null)
                 else -> DataResponse(null, null)
             }
@@ -88,7 +106,8 @@ class BasicAuthentication(
 ) : Authentication {
     override fun toHeader(): Pair<String, String> {
         val credentials = "$username:$password"
-        val base64Credentials = java.util.Base64.getEncoder().encodeToString(credentials.toByteArray())
+        val base64Credentials =
+            java.util.Base64.getEncoder().encodeToString(credentials.toByteArray())
         return "Authorization" to "Basic $base64Credentials"
     }
 }
@@ -117,7 +136,7 @@ class BsNetworkRepository(
 class NewsNetworkRepository(
     userAgent: String = DEFAULT_USER_AGENT,
     logRepository: LogRecordRepository?
-): NetworkRepositoryImpl(
+) : NetworkRepositoryImpl(
     server = "https://database-00.jvbabi.es",
     userAgent = userAgent,
     logRepository = logRepository
@@ -126,7 +145,7 @@ class NewsNetworkRepository(
 class Sp24NetworkRepository(
     userAgent: String = DEFAULT_USER_AGENT,
     logRepository: LogRecordRepository?
-): NetworkRepositoryImpl(
+) : NetworkRepositoryImpl(
     server = "https://www.stundenplan24.de",
     userAgent = userAgent,
     logRepository = logRepository
@@ -135,7 +154,7 @@ class Sp24NetworkRepository(
 class VppIdNetworkRepository(
     userAgent: String = DEFAULT_USER_AGENT,
     logRepository: LogRecordRepository?
-): NetworkRepositoryImpl(
+) : NetworkRepositoryImpl(
     server = VppIdServer.url,
     userAgent = userAgent,
     logRepository = logRepository

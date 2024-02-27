@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -34,9 +35,14 @@ class FakeVppIdRepository : VppIdRepository {
         vppIds.add(vppId)
     }
 
-    override suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?) {
+    override suspend fun addVppIdToken(
+        vppId: VppId,
+        token: String,
+        bsToken: String?,
+        initialCreation: Boolean
+    ) {
         tokens.removeIf { it.vppId == vppId.id }
-        tokens.add(
+        if (initialCreation) tokens.add(
             DbVppIdToken(
                 vppId = vppId.id,
                 token = token,
@@ -72,6 +78,14 @@ class FakeVppIdRepository : VppIdRepository {
     }
 
     override suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode? {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun closeSession(session: Session, vppId: VppId): Boolean {
         TODO("Not yet implemented")
     }
 }

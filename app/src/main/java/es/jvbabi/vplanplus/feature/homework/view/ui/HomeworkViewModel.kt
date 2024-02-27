@@ -4,26 +4,36 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeworkViewModel @Inject constructor(
-    private val homeworkUseCases: HomeworkUseCases
+    private val homeworkUseCases: HomeworkUseCases,
+    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase
 ): ViewModel() {
 
     val state = mutableStateOf(HomeworkState())
 
     init {
         viewModelScope.launch {
-            homeworkUseCases.getHomeworkUseCase().collect {
-                state.value = state.value.copy(
-                    homework = it.homework,
-                    wrongProfile = it.wrongProfile
+            combine(
+                homeworkUseCases.getHomeworkUseCase(),
+                getCurrentIdentityUseCase()
+            ) { homework, identity ->
+                state.value.copy(
+                    homework = homework.homework,
+                    wrongProfile = homework.wrongProfile,
+                    identity = identity ?: Identity()
                 )
+            }.collect {
+                state.value = it
             }
         }
     }
@@ -43,5 +53,6 @@ class HomeworkViewModel @Inject constructor(
 
 data class HomeworkState(
     val homework: List<Homework> = emptyList(),
-    val wrongProfile: Boolean = false
+    val wrongProfile: Boolean = false,
+    val identity: Identity = Identity()
 )

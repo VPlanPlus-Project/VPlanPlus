@@ -87,6 +87,7 @@ private fun HomeworkScreenContent(
             LazyColumn {
                 items(state.homework.sortedBy { it.until }) { homework ->
                     HomeworkCard(
+                        currentUser = state.identity.vppId,
                         homework = homework,
                         allDone = { onMarkAllDone(homework, it) },
                         singleDone = { task, done -> onMarkSingleDone(task, done) }

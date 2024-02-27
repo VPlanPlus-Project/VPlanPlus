@@ -6,7 +6,6 @@ import es.jvbabi.vplanplus.data.model.DbHomework
 import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
-import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -18,6 +17,7 @@ import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.util.DateUtils
+import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -42,9 +42,15 @@ class HomeworkRepositoryImpl(
                 val vppId = vppIds
                     .firstOrNull { it.classes?.classId == profile.referenceId && it.isActive() }
 
+                val `class` = classRepository.getClassById(profile.referenceId) ?: return@forEach
+                val school = `class`.school
+
                 if (vppId != null) {
                     val token = vppIdRepository.getVppIdToken(vppId) ?: return@forEach
                     vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
+                } else {
+                    vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
+                    vppIdNetworkRepository.globalHeaders["Class"] = `class`.name
                 }
 
                 val response = vppIdNetworkRepository.doRequest(
@@ -53,11 +59,9 @@ class HomeworkRepositoryImpl(
 
                 if (response.response != HttpStatusCode.OK || response.data == null) return@forEach
                 val homework = Gson().fromJson(response.data, HomeworkResponse::class.java).homework
-                val `class` = classRepository.getClassById(profile.referenceId) ?: return@forEach
-                val school = `class`.school
 
                 homework.forEach homework@{
-                    val existing = getHomeworkById(it.id)?.first()
+                    val existing = getHomeworkById(it.id).first()
                     val createdBy = vppIds.firstOrNull { user ->
                         user.id == it.createdBy
                     } ?: run {
@@ -128,8 +132,8 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun getHomeworkById(homeworkId: Int): Flow<Homework>? {
-        return homeworkDao.getById(homeworkId)?.map { it.toModel() }
+    override suspend fun getHomeworkById(homeworkId: Int): Flow<Homework?> {
+        return homeworkDao.getById(homeworkId).map { it?.toModel() }
     }
 
     override suspend fun insertHomeworkLocally(homework: Homework) {
@@ -155,11 +159,33 @@ class HomeworkRepositoryImpl(
     }
 
     override suspend fun updateTask(task: HomeworkTask) {
-        val homework = homeworkDao.getHomeworkTaskById(task.id).first().copy(
+        val homeworkTask = homeworkDao.getHomeworkTaskById(task.id).first().copy(
             done = task.done,
             content = task.content
         )
-        homeworkDao.insertTask(homework)
+        val homework = homeworkDao.getById(homeworkTask.homeworkId).first() ?: return
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.classes?.classId == homework.classes.schoolEntity.id && it.isActive() }
+        if (vppId != null) {
+            val token = vppIdRepository.getVppIdToken(vppId) ?: return
+            vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
+
+            val response = vppIdNetworkRepository.doRequest(
+                path = "/api/${VppIdServer.apiVersion}/homework/",
+                requestBody = Gson().toJson(
+                    MarkDoneRequest(
+                        taskId = task.id,
+                        done = task.done
+                    )
+                ),
+                requestMethod = HttpMethod.Put
+            )
+
+            if (response.response != HttpStatusCode.OK) return
+        }
+        homeworkDao.insertTask(homeworkTask)
+
     }
 
     override suspend fun findLocalId(): Long {
@@ -193,4 +219,9 @@ private data class HomeRecordTas @JvmOverloads constructor(
     @SerializedName("individual_id") val individualId: Int? = null,
     @SerializedName("content") val content: String,
     @SerializedName("done") val done: Boolean? = null
+)
+
+private data class MarkDoneRequest(
+    @SerializedName("task_id") val taskId: Int,
+    val done: Boolean
 )

@@ -9,7 +9,7 @@ interface HomeworkRepository {
 
     suspend fun getHomeworkByClassId(classId: UUID): Flow<List<Homework>>
 
-    suspend fun getHomeworkById(homeworkId: Int): Flow<Homework>?
+    suspend fun getHomeworkById(homeworkId: Int): Flow<Homework?>
 
     suspend fun getAll(): Flow<List<Homework>>
 

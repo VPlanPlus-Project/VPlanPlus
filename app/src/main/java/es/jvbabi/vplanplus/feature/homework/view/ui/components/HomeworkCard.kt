@@ -22,12 +22,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeworkCard(
+    currentUser: VppId?,
     homework: Homework,
     allDone: (Boolean) -> Unit,
     singleDone: (HomeworkTask, Boolean) -> Unit
@@ -55,7 +57,7 @@ fun HomeworkCard(
                         ),
                         style = MaterialTheme.typography.titleMedium
                     )
-                    Text(text = createSubtext(homework), style = MaterialTheme.typography.labelMedium)
+                    Text(text = createSubtext(homework, currentUser), style = MaterialTheme.typography.labelMedium)
                 }
             }
 
@@ -97,13 +99,19 @@ fun HomeworkCard(
 }
 
 @Composable
-private fun createSubtext(homework: Homework): String {
+private fun createSubtext(homework: Homework, currentUser: VppId?): String {
     val builder = StringBuilder()
     if (homework.createdBy != null) {
-        builder.append(
+        if (currentUser == homework.createdBy) builder.append(
+            stringResource(
+                id = R.string.homework_homeworkSubtitleCreatedByYou,
+                homework.createdAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                )
+            )
+        ) else builder.append(
             stringResource(
                 id = R.string.homework_homeworkSubtitleCreatedBy,
-                homework.createdBy,
+                homework.createdBy.name,
                 homework.createdAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")
                 )
             )
