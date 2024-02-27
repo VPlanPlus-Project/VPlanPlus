@@ -167,7 +167,7 @@ class HomeworkRepositoryImpl(
         val vppId = vppIdRepository
             .getVppIds().first()
             .firstOrNull { it.classes?.classId == homework.classes.schoolEntity.id && it.isActive() }
-        if (vppId != null) {
+        if (vppId != null && homework.homework.id >= 0) {
             val token = vppIdRepository.getVppIdToken(vppId) ?: return
             vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
 
@@ -182,7 +182,9 @@ class HomeworkRepositoryImpl(
                 requestMethod = HttpMethod.Put
             )
 
+            println()
             if (response.response != HttpStatusCode.OK) return
+            response.data ?: return
         }
         homeworkDao.insertTask(homeworkTask)
 
@@ -223,5 +225,5 @@ private data class HomeRecordTas @JvmOverloads constructor(
 
 private data class MarkDoneRequest(
     @SerializedName("task_id") val taskId: Int,
-    val done: Boolean
+    @SerializedName("state") val done: Boolean
 )
