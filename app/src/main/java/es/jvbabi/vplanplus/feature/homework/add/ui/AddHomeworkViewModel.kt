@@ -85,10 +85,10 @@ class AddHomeworkViewModel @Inject constructor(
             val state = state.value
             if (!state.canSubmit) return@launch
             addHomeworkUseCases.saveHomeworkUseCase(
-                offline = !state.canUseCloud,
                 until = state.until!!,
                 defaultLesson = state.selectedDefaultLesson!!,
-                tasks = state.tasks
+                tasks = state.tasks,
+                shareWithClass = state.isForAll
             )
         }
     }

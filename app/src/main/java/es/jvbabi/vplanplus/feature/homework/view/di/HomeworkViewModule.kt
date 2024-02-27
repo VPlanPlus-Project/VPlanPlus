@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.AddTaskUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.MarkAllDoneUseCase
@@ -31,6 +32,9 @@ object HomeworkViewModule {
                 homeworkRepository = homeworkRepository
             ),
             markSingleDoneUseCase = MarkSingleDoneUseCase(
+                homeworkRepository = homeworkRepository
+            ),
+            addTaskUseCase = AddTaskUseCase(
                 homeworkRepository = homeworkRepository
             )
         )

@@ -7,6 +7,6 @@ class MarkSingleDoneUseCase(
     private val homeworkRepository: HomeworkRepository
 ) {
     suspend operator fun invoke(task: HomeworkTask, done: Boolean) {
-        homeworkRepository.updateTask(task.copy(done = done))
+        homeworkRepository.upsertTask(task.copy(done = done))
     }
 }

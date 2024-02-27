@@ -7,7 +7,6 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.di.VppModule
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
-import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.homework.shared.data.repository.HomeworkRepositoryImpl
@@ -26,7 +25,6 @@ object HomeworkModule {
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
         classRepository: ClassRepository,
-        defaultLessonRepository: DefaultLessonRepository,
         logRecordRepository: LogRecordRepository
     ): HomeworkRepository {
         return HomeworkRepositoryImpl(
@@ -34,7 +32,6 @@ object HomeworkModule {
             vppIdRepository = vppIdRepository,
             profileRepository = profileRepository,
             classRepository = classRepository,
-            defaultLessonRepository = defaultLessonRepository,
             vppIdNetworkRepository = VppModule.provideVppIdNetworkRepository(logRecordRepository)
         )
     }

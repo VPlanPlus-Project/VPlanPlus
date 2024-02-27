@@ -49,6 +49,12 @@ class HomeworkViewModel @Inject constructor(
             homeworkUseCases.markSingleDoneUseCase(homeworkTask, done)
         }
     }
+
+    fun onAddTask(homework: Homework, task: String) {
+        viewModelScope.launch {
+            homeworkUseCases.addTaskUseCase(homework, task)
+        }
+    }
 }
 
 data class HomeworkState(

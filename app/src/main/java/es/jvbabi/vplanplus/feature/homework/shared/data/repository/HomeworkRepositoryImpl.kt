@@ -6,22 +6,26 @@ import es.jvbabi.vplanplus.data.model.DbHomework
 import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
+import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
-import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
-import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 class HomeworkRepositoryImpl(
@@ -29,11 +33,11 @@ class HomeworkRepositoryImpl(
     private val classRepository: ClassRepository,
     private val vppIdRepository: VppIdRepository,
     private val profileRepository: ProfileRepository,
-    private val defaultLessonRepository: DefaultLessonRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository
 ): HomeworkRepository {
+    @Deprecated("Doesn't work")
     override suspend fun fetchData() {
-        var vppIds = vppIdRepository.getVppIds().first()
+        val vppIds = vppIdRepository.getVppIds().first()
         profileRepository
             .getProfiles()
             .first()
@@ -58,65 +62,7 @@ class HomeworkRepositoryImpl(
                 )
 
                 if (response.response != HttpStatusCode.OK || response.data == null) return@forEach
-                val homework = Gson().fromJson(response.data, HomeworkResponse::class.java).homework
-
-                homework.forEach homework@{
-                    val existing = getHomeworkById(it.id).first()
-                    val createdBy = vppIds.firstOrNull { user ->
-                        user.id == it.createdBy
-                    } ?: run {
-                        vppIdRepository.cacheVppId(it.createdBy, school)
-                        vppIds = vppIdRepository.getVppIds().first()
-                        vppIds.firstOrNull { user ->
-                            user.id == it.createdBy
-                        } ?: return@homework
-                    }
-                    val until = DateUtils.getDateFromTimestamp(it.until)
-
-                    if (existing == null) {
-                        insertHomeworkLocally(
-                            Homework(
-                                id = it.id,
-                                createdBy = createdBy,
-                                createdAt = DateUtils.getDateFromTimestamp(it.createdAt),
-                                defaultLesson = defaultLessonRepository.getDefaultLessonByVpId(it.vpId.toLong()) ?: return@homework,
-                                until = until,
-                                classes = `class`,
-                                tasks = it.tasks.map { task ->
-                                    HomeworkTask(
-                                        id = task.id,
-                                        content = task.content,
-                                        done = task.done ?: false
-                                    )
-                                }
-                            )
-                        )
-                    } else {
-                        insertHomeworkLocally(
-                            existing.copy(
-                                until = until,
-                                tasks = existing.tasks.mapNotNull { task ->
-                                    val newTask = it.tasks.firstOrNull { newTask -> newTask.id == task.id } ?: return@mapNotNull null
-                                    task.copy(
-                                        content = newTask.content,
-                                        done = newTask.done ?: task.done
-                                    )
-                                }.plus(
-                                    it
-                                        .tasks
-                                        .filter { existing.tasks.none { task -> task.id == it.id } }
-                                        .map { task ->
-                                            HomeworkTask(
-                                                id = task.id,
-                                                content = task.content,
-                                                done = task.done ?: false
-                                            )
-                                        }
-                                )
-                            )
-                        )
-                    }
-                }
+                Gson().fromJson(response.data, HomeworkResponse::class.java).homework
         }
     }
 
@@ -136,34 +82,133 @@ class HomeworkRepositoryImpl(
         return homeworkDao.getById(homeworkId).map { it?.toModel() }
     }
 
-    override suspend fun insertHomeworkLocally(homework: Homework) {
+    override suspend fun insertHomework(
+        createdBy: VppId?,
+        createdAt: LocalDateTime,
+        `class`: Classes,
+        defaultLessonVpId: Long,
+        shareWithClass: Boolean,
+        until: LocalDate,
+        tasks: List<String>,
+        allowCloudUpdate: Boolean
+    ): HomeworkModificationResult {
+        if (!allowCloudUpdate || createdBy == null) {
+            val dbHomework = DbHomework(
+                id = findLocalId()-1,
+                classes = `class`.classId,
+                createdAt = createdAt,
+                until = until,
+                defaultLessonVpId = defaultLessonVpId,
+                createdBy = createdBy?.id
+            )
+            homeworkDao.insert(dbHomework)
+            tasks.forEach {
+                val dbHomeworkTask = DbHomeworkTask(
+                    id = findLocalTaskId()-1,
+                    homeworkId = dbHomework.id,
+                    content = it,
+                    done = false,
+                    individualId = null
+                )
+                homeworkDao.insertTask(dbHomeworkTask)
+            }
+            return HomeworkModificationResult.SUCCESS_OFFLINE
+        }
+
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.classes?.classId == `class`.classId && it.isActive() } ?: return HomeworkModificationResult.FAILED
+
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        val result = vppIdNetworkRepository.doRequest(
+            path = "/api/${VppIdServer.apiVersion}/homework/",
+            requestBody = Gson().toJson(
+                AddHomeworkRequest(
+                    vpId = vppId.id.toLong(),
+                    shareWithClass = shareWithClass,
+                    until = until.toLocalUnixTimestamp(),
+                    tasks = tasks
+                )
+            ),
+            requestMethod = HttpMethod.Post
+        )
+        if (result.response != HttpStatusCode.Created || result.data == null) return HomeworkModificationResult.FAILED
+        val response = Gson().fromJson(result.data, AddHomeworkResponse::class.java)
+
         val dbHomework = DbHomework(
-            id = homework.id,
-            createdBy = homework.createdBy?.id,
-            createdAt = homework.createdAt,
-            defaultLessonVpId = homework.defaultLesson.vpId,
-            until = homework.until,
-            classes = homework.classes.classId
+            id = response.id.toLong(),
+            classes = `class`.classId,
+            createdAt = createdAt,
+            until = until,
+            defaultLessonVpId = defaultLessonVpId,
+            createdBy = createdBy.id
         )
         homeworkDao.insert(dbHomework)
-        homework.tasks.forEach { task ->
-            homeworkDao.insertTask(
-                DbHomeworkTask(
-                    id = task.id,
-                    content = task.content,
-                    done = task.done,
-                    homeworkId = homework.id
-                )
+        response.tasks.forEach {
+            val dbHomeworkTask = DbHomeworkTask(
+                id = it.id,
+                homeworkId = dbHomework.id,
+                content = it.content,
+                done = false,
+                individualId = it.individualId
             )
+            homeworkDao.insertTask(dbHomeworkTask)
         }
+        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
     }
 
-    override suspend fun updateTask(task: HomeworkTask) {
-        val homeworkTask = homeworkDao.getHomeworkTaskById(task.id).first().copy(
+    override suspend fun addNewTask(
+        homework: Homework,
+        content: String
+    ): HomeworkModificationResult {
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
+
+        if (vppId == null) {
+            val dbHomeworkTask = DbHomeworkTask(
+                id = findLocalTaskId()-1,
+                homeworkId = homework.id,
+                content = content,
+                done = false,
+                individualId = null
+            )
+            homeworkDao.insertTask(dbHomeworkTask)
+            return HomeworkModificationResult.SUCCESS_OFFLINE
+        }
+
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        val result = vppIdNetworkRepository.doRequest(
+            path = "/api/${VppIdServer.apiVersion}/homework/",
+            requestBody = Gson().toJson(
+                AddTaskRequest(
+                    homeworkId = homework.id,
+                    content = content
+                )
+            ),
+            requestMethod = HttpMethod.Put
+        )
+
+        if (result.response != HttpStatusCode.Created || result.data == null) return HomeworkModificationResult.FAILED
+        val response = Gson().fromJson(result.data, AddHomeworkResponseTask::class.java)
+        val dbHomeworkTask = DbHomeworkTask(
+            id = response.id,
+            homeworkId = homework.id,
+            content = response.content,
+            done = false,
+            individualId = response.individualId
+        )
+        homeworkDao.insertTask(dbHomeworkTask)
+        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+    }
+
+    @Deprecated("Use other instead")
+    override suspend fun upsertTask(task: HomeworkTask) {
+        val homeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(
             done = task.done,
             content = task.content
         )
-        val homework = homeworkDao.getById(homeworkTask.homeworkId).first() ?: return
+        val homework = homeworkDao.getById(homeworkTask.homeworkId.toInt()).first() ?: return
         val vppId = vppIdRepository
             .getVppIds().first()
             .firstOrNull { it.classes?.classId == homework.classes.schoolEntity.id && it.isActive() }
@@ -190,14 +235,16 @@ class HomeworkRepositoryImpl(
 
     }
 
+    @Deprecated("Don't use this")
     override suspend fun findLocalId(): Long {
         val homework = homeworkDao.getAll().first().minByOrNull { it.homework.id }
-        return (homework?.homework?.id?.toLong() ?: 0) - 1
+        return (homework?.homework?.id ?: 0) - 1
     }
 
+    @Deprecated("Don't use this")
     override suspend fun findLocalTaskId(): Long {
         val task = homeworkDao.getAll().first().flatMap { it.tasks }.minByOrNull { it.id }
-        return (task?.id?.toLong() ?: 0) - 1
+        return (task?.id ?: 0) - 1
     }
 }
 
@@ -213,10 +260,10 @@ private data class HomeworkResponseRecord(
     @SerializedName("vp_id") val vpId: Int,
     @SerializedName("due_at") val until: Long,
     val classes: Int,
-    val tasks: List<HomeRecordTas>
+    val tasks: List<HomeRecordTask>
 )
 
-private data class HomeRecordTas @JvmOverloads constructor(
+private data class HomeRecordTask @JvmOverloads constructor(
     @SerializedName("id") val id: Int,
     @SerializedName("individual_id") val individualId: Int? = null,
     @SerializedName("content") val content: String,
@@ -224,6 +271,31 @@ private data class HomeRecordTas @JvmOverloads constructor(
 )
 
 private data class MarkDoneRequest(
-    @SerializedName("task_id") val taskId: Int,
-    @SerializedName("state") val done: Boolean
+    @SerializedName("change") val change: String = "state",
+    @SerializedName("individual_id") val taskId: Long,
+    @SerializedName("to") val done: Boolean
+)
+
+private data class AddTaskRequest(
+    @SerializedName("change") val change: String = "add_task",
+    @SerializedName("homework_id") val homeworkId: Long,
+    @SerializedName("to") val content: String
+)
+
+private data class AddHomeworkRequest(
+    @SerializedName("vp_id") val vpId: Long,
+    @SerializedName("share_with_class") val shareWithClass: Boolean,
+    @SerializedName("until") val until: Long,
+    @SerializedName("tasks") val tasks: List<String>
+)
+
+private data class AddHomeworkResponse(
+    @SerializedName("id") val id: Int,
+    @SerializedName("tasks") val tasks: List<AddHomeworkResponseTask>,
+)
+
+private data class AddHomeworkResponseTask(
+    @SerializedName("id") val id: Long,
+    @SerializedName("individual_id") val individualId: Long,
+    @SerializedName("content") val content: String
 )

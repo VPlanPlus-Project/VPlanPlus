@@ -68,6 +68,10 @@ object DateUtils {
         return this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()/1000
     }
 
+    fun LocalDate.toLocalUnixTimestamp(): Long {
+        return this.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()/1000
+    }
+
     fun localizedRelativeDate(context: Context, localDate: LocalDate): String {
         return when (localDate) {
             LocalDate.now() -> {
