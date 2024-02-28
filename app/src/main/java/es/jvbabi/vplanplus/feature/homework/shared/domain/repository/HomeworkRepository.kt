@@ -33,16 +33,19 @@ interface HomeworkRepository {
         content: String,
     ): HomeworkModificationResult
 
-    @Deprecated("Use other instead")
-    suspend fun upsertTask(task: HomeworkTask)
+    suspend fun setTaskState(
+        homework: Homework,
+        task: HomeworkTask,
+        done: Boolean
+    ): HomeworkModificationResult
 
-    @Deprecated("Don't use this")
     suspend fun findLocalId(): Long
-    @Deprecated("Don't use this")
     suspend fun findLocalTaskId(): Long
 
     @Deprecated("Doesn't work")
     suspend fun fetchData()
+
+    suspend fun getHomeworkByTask(task: HomeworkTask): Homework
 }
 
 enum class HomeworkModificationResult {

@@ -161,11 +161,7 @@ class HomeworkRepositoryImpl(
         homework: Homework,
         content: String
     ): HomeworkModificationResult {
-        val vppId = vppIdRepository
-            .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
-
-        if (vppId == null) {
+        if (homework.id < 0) {
             val dbHomeworkTask = DbHomeworkTask(
                 id = findLocalTaskId()-1,
                 homeworkId = homework.id,
@@ -176,6 +172,10 @@ class HomeworkRepositoryImpl(
             homeworkDao.insertTask(dbHomeworkTask)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
+
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id } ?: return HomeworkModificationResult.FAILED
 
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
         val result = vppIdNetworkRepository.doRequest(
@@ -202,49 +202,54 @@ class HomeworkRepositoryImpl(
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
     }
 
-    @Deprecated("Use other instead")
-    override suspend fun upsertTask(task: HomeworkTask) {
-        val homeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(
-            done = task.done,
-            content = task.content
-        )
-        val homework = homeworkDao.getById(homeworkTask.homeworkId.toInt()).first() ?: return
+    override suspend fun setTaskState(
+        homework: Homework,
+        task: HomeworkTask,
+        done: Boolean
+    ): HomeworkModificationResult {
+        if (homework.id < 0) {
+            val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
+            homeworkDao.insertTask(dbHomeworkTask)
+            return HomeworkModificationResult.SUCCESS_OFFLINE
+        }
+
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.classes?.classId == homework.classes.schoolEntity.id && it.isActive() }
-        if (vppId != null && homework.homework.id >= 0) {
-            val token = vppIdRepository.getVppIdToken(vppId) ?: return
-            vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
+            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id } ?: return HomeworkModificationResult.FAILED
 
-            val response = vppIdNetworkRepository.doRequest(
-                path = "/api/${VppIdServer.apiVersion}/homework/",
-                requestBody = Gson().toJson(
-                    MarkDoneRequest(
-                        taskId = task.id,
-                        done = task.done
-                    )
-                ),
-                requestMethod = HttpMethod.Put
-            )
-
-            println()
-            if (response.response != HttpStatusCode.OK) return
-            response.data ?: return
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        val result = vppIdNetworkRepository.doRequest(
+            path = "/api/${VppIdServer.apiVersion}/homework/",
+            requestBody = Gson().toJson(
+                MarkDoneRequest(
+                    taskId = task.individualId!!,
+                    done = done
+                )
+            ),
+            requestMethod = HttpMethod.Put
+        )
+        return if (result.response == HttpStatusCode.OK) {
+            val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
+            homeworkDao.insertTask(dbHomeworkTask)
+            HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+        } else {
+            HomeworkModificationResult.FAILED
         }
-        homeworkDao.insertTask(homeworkTask)
-
     }
 
-    @Deprecated("Don't use this")
     override suspend fun findLocalId(): Long {
         val homework = homeworkDao.getAll().first().minByOrNull { it.homework.id }
         return (homework?.homework?.id ?: 0) - 1
     }
 
-    @Deprecated("Don't use this")
     override suspend fun findLocalTaskId(): Long {
         val task = homeworkDao.getAll().first().flatMap { it.tasks }.minByOrNull { it.id }
         return (task?.id ?: 0) - 1
+    }
+
+    override suspend fun getHomeworkByTask(task: HomeworkTask): Homework {
+        val homeworkId = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().homeworkId
+        return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel()
     }
 }
 

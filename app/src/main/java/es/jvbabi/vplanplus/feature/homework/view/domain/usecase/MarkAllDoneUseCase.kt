@@ -10,7 +10,7 @@ class MarkAllDoneUseCase(
         homework.tasks.map { task ->
             task.copy(done = done)
         }.forEach { task ->
-            homeworkRepository.upsertTask(task)
+            homeworkRepository.setTaskState(homework, task, done)
         }
     }
 }

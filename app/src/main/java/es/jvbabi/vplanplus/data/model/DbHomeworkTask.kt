@@ -28,7 +28,7 @@ data class DbHomeworkTask(
             id = id,
             content = content,
             done = done,
-            individualId = individualId
+            individualId = individualId,
         )
     }
 }
