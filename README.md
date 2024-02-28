@@ -7,7 +7,7 @@
 Falls du die App ausprobieren und mir dabei helfen möchtest, die App im Google-Play Store verfügbar zu machen, registriere dich mit deiner G-Mail Adresse auf der [Website](https://vplanplus.jvbabi.es).
 Vielen Dank!
 
-*Stand 21.2.2024 werden noch 9 Personen benötigt.*
+*Stand 28.2.2024 werden noch 8 Personen benötigt.*
 
 #### vpp.ID
 Mit der v0.9-beta wird die vpp.ID eingeführt. Dies ist eine Vorschau auf die kommenden Cloudfunktionen wie die Raumbuchung. Du kannst [hier](https://id.vpp.jvbabi.es) prüfen, ob deine Schule bereits verfügbar ist. Die vpp.ID wird verwendet, um deine Zugehörigkeit einer Klasse nachzuweisen. Dafür authentifizierst du dich mit [beste.schule](https://beste.schule).
