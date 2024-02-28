@@ -61,4 +61,7 @@ class FakeDefaultLessonRepository(
         )
     }
 
+    override suspend fun deleteDefaultLesson(id: UUID) {
+        defaultLessons.removeIf { it.defaultLessonId == id }
+    }
 }
