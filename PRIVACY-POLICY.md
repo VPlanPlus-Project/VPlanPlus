@@ -48,3 +48,13 @@ Hier finden Sie die Datenschutzerklärung für
 Die Registrierung erfolgt mittels eines Single-Sign-On [Bundesamt für Sicherheit in der Informationstechnik]([SSO](https://www.bsi.bund.de/DE/Themen/Verbraucherinnen-und-Verbraucher/Informationen-und-Empfehlungen/Cyber-Sicherheitsempfehlungen/Accountschutz/Single-Sign-On/single-sign-on_node.html)https://www.bsi.bund.de/DE/Themen/Verbraucherinnen-und-Verbraucher/Informationen-und-Empfehlungen/Cyber-Sicherheitsempfehlungen/Accountschutz/Single-Sign-On/single-sign-on_node.html) von beste.schule. Dabei wird ein Token an die Server von vpp.ID übermittelt, womit die Bestätigung der Angehörigkeit einer Klasse und einer Schule durchgeführt wird. Auch die E-Mail-Adresse des Nutzers wird zwecks Anmeldekennung und Kontaktmöglichkeit durch die Administration von vpp.ID erfasst. Das Token und die E-Mail-Adresse wird auf den Servern von beste.schule und vpp.ID gespeichert, und bei einer Anmeldung innerhalb von VPlanPlus an das Endgerät mitgesendet.
 
 Das Token wird dabei lokal verwendet, um Noten aus beste.schule abzufragen. Die Server von vpp.ID haben zu keiner Zeit Kenntnis von den Noten.
+
+## Anmeldung bei vpp.ID
+Die Registrierung erfolgt via SSO bei beste.schule. Anschließend setzt der Benutzer ein Passwort, mit welchem er sich künftig anmeldet.
+
+Ist die Schule nicht bei vpp.ID registriert, so werden alle Nutzerdaten sowie das Token direkt gelöscht.
+
+### Rücksetzung/Änderung des Passwortes
+> [!CAUTION]
+> Dies ist aktuell nicht möglich, wir arbeiten jedoch bereits an dieser Funktion
+
