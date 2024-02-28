@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ProfileDefaultLessonsUseCases
@@ -26,7 +27,8 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
                 if (profile == null) return@collect
                 _state.value = _state.value.copy(
                     profile = profile,
-                    differentDefaultLessons = defaultLessonsUseCases.isInconsistentStateUseCase(profile)
+                    differentDefaultLessons = defaultLessonsUseCases.isInconsistentStateUseCase(profile),
+                    isDebug = BuildConfig.DEBUG
                 )
             }
         }
@@ -51,5 +53,6 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
 
 data class ProfileSettingsDefaultLessonsState(
     val profile: Profile? = null,
-    val differentDefaultLessons: Boolean = false
+    val differentDefaultLessons: Boolean = false,
+    val isDebug: Boolean = false
 )

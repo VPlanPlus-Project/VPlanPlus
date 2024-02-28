@@ -2,22 +2,16 @@ package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -34,6 +28,8 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.preview.Profile
@@ -95,43 +91,22 @@ fun ProfileSettingsDefaultLessonContent(
                 return@Scaffold
             }
             if (state.differentDefaultLessons) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .weight(0.1f, false)
-                    )
-                    Text(
-                        modifier = Modifier
-                            .weight(0.7f, false)
-                            .padding(start = 8.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        text = stringResource(id = R.string.settings_profileDefaultLessonDifferentDefaultLessons),
-                    )
-                    Button(
-                        onClick = { onFixLessons() },
-                        modifier = Modifier.weight(0.3f, true)
-                    ) {
-                        Text(text = stringResource(id = R.string.fix))
-                    }
-                }
-                HorizontalDivider(
-                    modifier = Modifier.padding(8.dp)
+                InfoCard(
+                    modifier = Modifier.padding(8.dp),
+                    imageVector = Icons.Default.Warning,
+                    title = stringResource(id = R.string.settings_profileDefaultLessonDifferentDefaultLessonsTitle),
+                    text = stringResource(id = R.string.settings_profileDefaultLessonDifferentDefaultLessonsText),
+                    buttonAction1 = { onFixLessons() },
+                    buttonText1 = stringResource(id = R.string.fix)
                 )
             }
             LazyColumn {
-                items(items = state.profile.defaultLessons.entries.sortedBy { it.key.subject }) {
+                items(items = state.profile.defaultLessons.entries.sortedBy { it.key.subject + (it.key.teacher?.acronym ?: "A") }) {
                     SettingsSetting(
                         icon = null,
                         title = it.key.subject,
-                        subtitle = it.key.teacher?.acronym
-                            ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher),
+                        subtitle = (it.key.teacher?.acronym
+                            ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher)) + if (state.isDebug) " $DOT ${it.key.vpId}" else "",
                         type = SettingsType.TOGGLE,
                         enabled = true,
                         checked = it.value,

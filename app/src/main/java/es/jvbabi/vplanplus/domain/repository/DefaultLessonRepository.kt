@@ -9,4 +9,5 @@ interface DefaultLessonRepository {
     suspend fun getDefaultLessonByVpId(vpId: Long): DefaultLesson?
     suspend fun getDefaultLessonByClassId(classId: UUID): List<DefaultLesson>
     suspend fun updateTeacherId(classId: UUID, vpId: Long, teacherId: UUID)
+    suspend fun deleteDefaultLesson(id: UUID)
 }

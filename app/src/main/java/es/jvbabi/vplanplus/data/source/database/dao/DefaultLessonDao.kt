@@ -25,4 +25,7 @@ abstract class DefaultLessonDao {
 
     @Query("UPDATE default_lesson SET teacherId = :teacherId WHERE classId = :classId AND vpId = :vpId")
     abstract suspend fun updateTeacherId(classId: UUID, vpId: Long, teacherId: UUID)
+
+    @Query("DELETE FROM default_lesson WHERE defaultLessonId = :id")
+    abstract suspend fun deleteById(id: UUID)
 }

@@ -234,6 +234,18 @@ class DoSyncUseCase(
         var rooms = roomRepository.getRoomsBySchool(school)
         var teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
 
+        // clean default lessons
+        classRepository.getClassesBySchool(school).forEach { dlClass ->
+            defaultLessonRepository
+                .getDefaultLessonByClassId(dlClass.classId)
+                .groupBy { it.vpId }
+                .map { it.value.dropLast(1).map { item -> item.defaultLessonId } }
+                .flatten()
+                .forEach { id ->
+                    defaultLessonRepository.deleteDefaultLesson(id)
+                }
+        }
+
         vPlanData.wPlanDataObject.classes!!.forEach {
 
             val `class` = classRepository.getClassBySchoolIdAndClassName(
@@ -388,6 +400,17 @@ class DoSyncUseCase(
                     }
                 )
             }
+
+            // clean up default lessons 2
+            val planDefaultLessons = it
+                .defaultLessons
+                ?.mapNotNull { dl -> dl.defaultLesson?.lessonId } ?: emptyList()
+            defaultLessons
+                .filter { dl -> !planDefaultLessons.contains(dl.vpId.toInt()) }
+                .forEach { dl ->
+                    profileRepository.deleteDefaultLessonFromProfile(dl.vpId)
+                    defaultLessonRepository.deleteDefaultLesson(dl.defaultLessonId)
+                }
         }
 
         lessonRepository.insertLessons(insertLessons)
