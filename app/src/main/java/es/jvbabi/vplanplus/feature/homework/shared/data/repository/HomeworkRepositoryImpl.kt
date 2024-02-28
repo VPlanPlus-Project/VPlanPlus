@@ -90,15 +90,15 @@ class HomeworkRepositoryImpl(
                         (homeworkDao
                             .getById(id.toInt()).first()
                             ?.tasks ?: emptyList())
-                            .filter { task -> responseHomework.tasks.none { it.id.toLong() == task.id } }
-                            .map { dbTask ->
-                                val new = responseHomework.tasks.firstOrNull { it.id.toLong() == dbTask.id }
-                                if (new != null) ignoredTaskIds.add(dbTask.id)
+                            .mapNotNull { dbTask ->
+                                val new = responseHomework.tasks.firstOrNull { task -> task.id.toLong() == dbTask.id }
+                                    ?: return@mapNotNull null
+                                ignoredTaskIds.add(new.id.toLong())
                                 NewTaskRecord(
                                     id = dbTask.id,
-                                    content = new?.content ?: dbTask.content,
-                                    done = new?.done ?: dbTask.done,
-                                    individualId = new?.individualId?.toLong() ?: dbTask.individualId
+                                    content = new.content,
+                                    done = new.done ?: dbTask.done,
+                                    individualId = new.individualId?.toLong()
                                 )
                             }
                             .plus(
