@@ -117,8 +117,8 @@ private fun GradesScreenContent(
                         text = stringResource(
                             id = R.string.grades_warningCardText
                         ),
-                        buttonText = stringResource(id = R.string.hideForever),
-                        buttonAction = onHideBanner,
+                        buttonText1 = stringResource(id = R.string.hideForever),
+                        buttonAction1 = onHideBanner,
                         modifier = Modifier.padding(8.dp)
                     )
                 }
