@@ -33,17 +33,19 @@ Website: [VPlanPlus.JVBabi.es](https://vplanplus.jvbabi.es)
 <hr />
 
 ### Ist meine Schule kompatibel?
-| Symbol | Bedeutung                         |
-|--------|-----------------------------------|
-| ✅      | Alle Features sind verfügbar.     |
-| ⚠️️    | Eingeschränkter Funktionsumfang.  |
-| ❌      | Nicht kompatibel                  |
+| Symbol | Bedeutung                             |
+|--------|---------------------------------------|
+| ✅      | Alle App-Features sind verfügbar.     |
+| ⚠️️    | Eingeschränkter Funktionsumfang.*     |
+| ❌      | Nicht kompatibel                      |
 
-| Schule                                       | Schul-ID | Kompatibel |
-|----------------------------------------------|----------|------------|
-| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ⚠️         |
-| Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          |
-| Testschule                                   | 10000000 | ✅️         |
+*\* Zu beginn sind Lehrer oder Räume nicht unbedingt vollständig, dieses Problem behebt sich bei Nutzung der App über einige Wochen*
+
+| Schule                                       | Schul-ID | Kompatibel | Unterstützt vpp.ID |
+|----------------------------------------------|----------|------------|--------------------|
+| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ⚠️         | ❌                   |
+| Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          | ✅                   |
+| Testschule                                   | 10000000 | ✅️         | ❌                   |
 
 Deine Schule steht nicht auf der Liste? Wenn deine Schule **alle** Punkte erfüllt, dann ist sie kompatibel.
 - Die Pläne deiner Schule sind auf [stundenplan24.de](https://stundenplan24.de) verfügbar.
