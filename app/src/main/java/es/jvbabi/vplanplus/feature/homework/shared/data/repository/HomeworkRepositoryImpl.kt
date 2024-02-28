@@ -77,12 +77,12 @@ class HomeworkRepositoryImpl(
 
                 data.forEach forEachHomework@{ responseHomework ->
                     val id = responseHomework.id
-                    val createdBy = vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy } ?: run {
-                        vppIdRepository.cacheVppId(responseHomework.createdBy.toInt(), school)
-                        vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy }
-                    } ?: run {
-                        Log.e("HomeworkRepositoryImpl", "Failed to find VppId for homework $id (vpp.ID: ${responseHomework.createdBy})")
-                        return@forEachHomework
+                    var createdBy = vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy }
+                    if (createdBy == null) {
+                        createdBy = vppIdRepository.cacheVppId(responseHomework.createdBy.toInt(), school) ?: run {
+                            Log.e("HomeworkRepositoryImpl", "Failed to find VppId for homework $id (vpp.ID: ${responseHomework.createdBy})")
+                            return@forEachHomework
+                        }
                     }
 
                     val ignoredTaskIds = mutableListOf<Long>()
@@ -380,7 +380,8 @@ class HomeworkRepositoryImpl(
         task: HomeworkTask,
         done: Boolean
     ): HomeworkModificationResult {
-        if (homework.id < 0) {
+        val activeVppIds = vppIdRepository.getVppIds().first().filter { it.isActive() }
+        if (!activeVppIds.any { it.id == homework.createdBy?.id }) {
             val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
             homeworkDao.insertTask(dbHomeworkTask)
             return HomeworkModificationResult.SUCCESS_OFFLINE
