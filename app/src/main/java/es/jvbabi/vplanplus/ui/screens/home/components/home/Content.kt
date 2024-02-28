@@ -208,9 +208,9 @@ fun ActiveDayContent(
                         text = stringResource(
                             id = R.string.home_nextDayStartingAt,
                             nextDay.date.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
-                            nextDayLessons.first().start.format(
+                            nextDayLessons.firstOrNull()?.start?.format(
                                 DateTimeFormatter.ofPattern("HH:mm")
-                            )
+                            ) ?: "-"
                         ), style = MaterialTheme.typography.bodySmall
                     )
                     if (nextDay.info != null) {

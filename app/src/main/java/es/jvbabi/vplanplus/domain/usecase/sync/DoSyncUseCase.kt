@@ -394,6 +394,17 @@ class DoSyncUseCase(
                     }
                 )
             }
+
+            // clean up default lessons 2
+            val planDefaultLessons = it
+                .defaultLessons
+                ?.mapNotNull { dl -> dl.defaultLesson?.lessonId } ?: emptyList()
+            defaultLessons
+                .filter { dl -> !planDefaultLessons.contains(dl.vpId.toInt()) }
+                .forEach { dl ->
+                    profileRepository.deleteDefaultLessonFromProfile(dl.vpId)
+                    defaultLessonRepository.deleteDefaultLesson(dl.defaultLessonId)
+                }
         }
 
         lessonRepository.insertLessons(insertLessons)
