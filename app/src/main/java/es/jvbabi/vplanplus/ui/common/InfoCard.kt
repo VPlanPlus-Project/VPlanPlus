@@ -33,8 +33,10 @@ fun InfoCard(
     imageVector: ImageVector,
     title: String,
     text: String,
-    buttonText: String? = null,
-    buttonAction: () -> Unit = {},
+    buttonText1: String? = null,
+    buttonAction1: () -> Unit = {},
+    buttonText2: String? = null,
+    buttonAction2: () -> Unit = {},
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Column(
@@ -68,13 +70,19 @@ fun InfoCard(
                 Text(text = text)
             }
         }
-        if (buttonText != null) Row(
+        if (buttonText1 != null) Row(
             modifier = Modifier
                 .padding(end = 8.dp)
                 .align(Alignment.End),
         ) {
-            TextButton(onClick = { buttonAction() }) {
-                Text(text = buttonText)
+            TextButton(onClick = { buttonAction1() }) {
+                Text(text = buttonText1)
+            }
+            if (buttonText2 != null) {
+                Spacer(modifier = Modifier.size(8.dp))
+                TextButton(onClick = { buttonAction2() }) {
+                    Text(text = buttonText2)
+                }
             }
         } else {
             Spacer(modifier = Modifier.size(16.dp))
@@ -89,6 +97,7 @@ private fun InfoCardPreview() {
         imageVector = Icons.Default.Info,
         title = "Title",
         text = "Text\nA very big one",
-        buttonText = "null",
+        buttonText1 = "null",
+        buttonText2 = "null"
     )
 }
