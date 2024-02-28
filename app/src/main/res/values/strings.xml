@@ -343,4 +343,6 @@
     <string name="homework_editTaskPlaceholder">New task content</string>
     <string name="homework_editTaskTitle">Edit task</string>
     <string name="homework_editTaskText">Change the content of this task. If this homework is shared, it\'ll be updated on your classmates devices too.</string>
+    <string name="notification_homeworkName">Homework</string>
+    <string name="notification_homeworkDescription">When someone shared or changed a homework in your class you\'ll get a notification.</string>
 </resources>

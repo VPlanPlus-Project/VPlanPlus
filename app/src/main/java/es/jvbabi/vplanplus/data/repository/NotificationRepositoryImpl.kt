@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_NEWS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ROOM_BOOKINGS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYNC
@@ -94,6 +95,12 @@ class NotificationRepositoryImpl(
             context.getString(R.string.notification_roomBookingsName),
             context.getString(R.string.notification_roomBookingsDescription),
             NotificationManager.IMPORTANCE_DEFAULT
+        )
+        createChannel(
+            CHANNEL_ID_HOMEWORK,
+            context.getString(R.string.notification_homeworkName),
+            context.getString(R.string.notification_homeworkDescription),
+            NotificationManager.IMPORTANCE_HIGH
         )
     }
 

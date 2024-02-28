@@ -344,4 +344,6 @@
     <string name="homework_editTaskPlaceholder">Neue Aufgabenstellung</string>
     <string name="homework_editTaskTitle">Aufgabe bearbeiten</string>
     <string name="homework_editTaskText">Ändere die Aufgabenstellung. Wenn diese Hausaufgabe geteilt ist, wird sie auf den Geräten deiner Klassenkameraden ebenfalls aktualisiert.</string>
+    <string name="notification_homeworkName">Hausaufgaben</string>
+    <string name="notification_homeworkDescription">Wenn jemand in deiner Klasse eine Hausaufgabe teilt oder bearbeitet, erhälst du eine Benachrichtigung.</string>
 </resources>
