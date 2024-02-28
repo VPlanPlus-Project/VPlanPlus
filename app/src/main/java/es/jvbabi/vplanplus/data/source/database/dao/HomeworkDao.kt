@@ -33,4 +33,10 @@ abstract class HomeworkDao {
 
     @Upsert
     abstract suspend fun insertTask(task: DbHomeworkTask)
+
+    @Query("DELETE FROM homework WHERE id = :homeworkId")
+    abstract suspend fun deleteHomework(homeworkId: Long)
+
+    @Query("UPDATE homework SET isPublic = :isPublic WHERE id = :homeworkId")
+    abstract suspend fun changeVisibility(homeworkId: Long, isPublic: Boolean)
 }

@@ -141,7 +141,8 @@ class HomeworkRepositoryImpl(
             createdAt = createdAt,
             until = until,
             defaultLessonVpId = defaultLessonVpId,
-            createdBy = createdBy.id
+            createdBy = createdBy.id,
+            isPublic = shareWithClass
         )
         homeworkDao.insert(dbHomework)
         response.tasks.forEach {
@@ -155,6 +156,38 @@ class HomeworkRepositoryImpl(
             homeworkDao.insertTask(dbHomeworkTask)
         }
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+    }
+
+    override suspend fun deleteOrHideHomework(
+        homework: Homework,
+        onlyHide: Boolean
+    ): HomeworkModificationResult {
+        if (homework.id < 0) {
+            homeworkDao.deleteHomework(homework.id)
+            return HomeworkModificationResult.SUCCESS_OFFLINE
+        }
+
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id } ?: return HomeworkModificationResult.FAILED
+
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        val result = vppIdNetworkRepository.doRequest(
+            path = "/api/${VppIdServer.apiVersion}/homework/",
+            requestBody = Gson().toJson(
+                DeleteHomeworkRequest(
+                    id = homework.id,
+                    onlyHide = false
+                )
+            ),
+            requestMethod = HttpMethod.Delete
+        )
+        return if (result.response == HttpStatusCode.OK) {
+            homeworkDao.deleteHomework(homework.id)
+            HomeworkModificationResult.SUCCESS_OFFLINE
+        } else {
+            HomeworkModificationResult.FAILED
+        }
     }
 
     override suspend fun addNewTask(
@@ -251,6 +284,29 @@ class HomeworkRepositoryImpl(
         val homeworkId = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().homeworkId
         return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel()
     }
+
+    override suspend fun changeVisibility(homework: Homework): HomeworkModificationResult {
+        if (homework.id < 0) throw UnsupportedOperationException("Cannot change visibility of local homework")
+        val vppId = homework.createdBy ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        val result = vppIdNetworkRepository.doRequest(
+            path = "/api/${VppIdServer.apiVersion}/homework/",
+            requestBody = Gson().toJson(
+                ChangeVisibilityRequest(
+                    id = homework.id,
+                    visibility = !homework.isPublic
+                )
+            ),
+            requestMethod = HttpMethod.Put
+        )
+
+        return if (result.response == HttpStatusCode.OK) {
+            homeworkDao.changeVisibility(homework.id, !homework.isPublic)
+            HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+        } else {
+            HomeworkModificationResult.FAILED
+        }
+    }
 }
 
 
@@ -303,4 +359,15 @@ private data class AddHomeworkResponseTask(
     @SerializedName("id") val id: Long,
     @SerializedName("individual_id") val individualId: Long,
     @SerializedName("content") val content: String
+)
+
+private data class DeleteHomeworkRequest(
+    @SerializedName("homework_id") val id: Long,
+    @SerializedName("only_hide") val onlyHide: Boolean
+)
+
+private data class ChangeVisibilityRequest(
+    @SerializedName("change") val change: String = "visibility",
+    @SerializedName("id") val id: Long,
+    @SerializedName("to") val visibility: Boolean
 )

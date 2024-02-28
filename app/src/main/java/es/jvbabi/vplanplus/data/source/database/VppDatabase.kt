@@ -87,7 +87,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 17,
+    version = 18,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -97,6 +97,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         AutoMigration(from = 14, to = 15), // vpp.ID Email
         AutoMigration(from = 15, to = 16), // add homework
         AutoMigration(from = 16, to = 17), // add homework_task.individualId
+        AutoMigration(from = 17, to = 18), // add homework.isPublic
     ],
 )
 @TypeConverters(

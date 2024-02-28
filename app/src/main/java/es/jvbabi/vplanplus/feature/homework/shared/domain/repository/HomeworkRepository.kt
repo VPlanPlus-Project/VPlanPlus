@@ -39,6 +39,11 @@ interface HomeworkRepository {
         done: Boolean
     ): HomeworkModificationResult
 
+    suspend fun deleteOrHideHomework(
+        homework: Homework,
+        onlyHide: Boolean = false
+    ): HomeworkModificationResult
+
     suspend fun findLocalId(): Long
     suspend fun findLocalTaskId(): Long
 
@@ -46,6 +51,8 @@ interface HomeworkRepository {
     suspend fun fetchData()
 
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
+
+    suspend fun changeVisibility(homework: Homework): HomeworkModificationResult
 }
 
 enum class HomeworkModificationResult {

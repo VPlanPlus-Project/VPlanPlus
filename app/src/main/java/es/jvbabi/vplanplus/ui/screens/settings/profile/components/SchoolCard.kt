@@ -77,7 +77,10 @@ fun SchoolCard(
                     modifier = Modifier
                 ) {
                     IconButton(onClick = { menuExpanded = !menuExpanded }) {
-                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(id = R.string.menu)
+                        )
                     }
                     DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
                         DropdownMenuItem(

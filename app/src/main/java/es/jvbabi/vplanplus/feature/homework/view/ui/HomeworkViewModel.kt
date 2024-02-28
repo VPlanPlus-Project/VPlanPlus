@@ -28,7 +28,7 @@ class HomeworkViewModel @Inject constructor(
                 getCurrentIdentityUseCase()
             ) { homework, identity ->
                 state.value.copy(
-                    homework = homework.homework,
+                    homework = homework.homework.map { HomeworkViewModelRecord(it, it.createdBy?.id == identity?.vppId?.id || it.createdBy == null) },
                     wrongProfile = homework.wrongProfile,
                     identity = identity ?: Identity()
                 )
@@ -55,10 +55,43 @@ class HomeworkViewModel @Inject constructor(
             homeworkUseCases.addTaskUseCase(homework, task)
         }
     }
+
+    fun onHomeworkDeleteRequest(homework: Homework?) {
+        state.value = state.value.copy(homeworkDeletionRequest = homework)
+    }
+
+    fun onHomeworkChangeVisibilityRequest(homework: Homework?) {
+        state.value = state.value.copy(homeworkChangeVisibilityRequest = homework)
+    }
+
+    fun onConfirmHomeworkDeleteRequest() {
+        state.value.homeworkDeletionRequest?.let {
+            viewModelScope.launch {
+                homeworkUseCases.deleteHomeworkUseCase(it)
+                onHomeworkDeleteRequest(null)
+            }
+        }
+    }
+
+    fun onConfirmHomeworkChangeVisibilityRequest() {
+        state.value.homeworkChangeVisibilityRequest?.let {
+            viewModelScope.launch {
+                homeworkUseCases.changeVisibilityUseCase(it)
+                onHomeworkChangeVisibilityRequest(null)
+            }
+        }
+    }
 }
 
 data class HomeworkState(
-    val homework: List<Homework> = emptyList(),
+    val homework: List<HomeworkViewModelRecord> = emptyList(),
     val wrongProfile: Boolean = false,
-    val identity: Identity = Identity()
+    val identity: Identity = Identity(),
+    val homeworkDeletionRequest: Homework? = null,
+    val homeworkChangeVisibilityRequest: Homework? = null
+)
+
+data class HomeworkViewModelRecord(
+    val homework: Homework,
+    val isOwner: Boolean
 )

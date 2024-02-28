@@ -12,6 +12,7 @@ data class Homework(
     val classes: Classes,
     val createdAt: LocalDateTime,
     val defaultLesson: DefaultLesson,
+    val isPublic: Boolean,
     val until: LocalDate,
     val tasks: List<HomeworkTask>,
 )

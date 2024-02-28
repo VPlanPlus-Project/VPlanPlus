@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
@@ -29,6 +30,7 @@ data class DbHomework(
     val id: Long,
     val createdBy: Int?,
     val classes: UUID,
+    @ColumnInfo(defaultValue = "false") val isPublic: Boolean = false,
     val createdAt: LocalDateTime,
     val defaultLessonVpId: Long,
     val until: LocalDate

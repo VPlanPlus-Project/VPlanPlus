@@ -327,4 +327,15 @@
     <string name="homework_homeworkSubtitleLocally">Dieses Gerät, am %1$s</string>
     <string name="homework_homeworkSubtitleCreatedByYou">Du hast dies am %1$s geteilt</string>
     <string name="homework_addTask">Aufgabe hinzufügen</string>
+    <string name="menu">Menu</string>
+    <string name="homework_deleteHomeworkTitle">Hausaufgabe löschen?</string>
+    <string name="homework_deleteHomeworkTextLocal">Möchtest du diese Hausaufgabe wirklich löschen? Alle ihre Aufgaben werden ebenfalls gelöscht.</string>
+    <string name="homework_deleteHomeworkTextPublic">Möchtest du diese Hausaufgabe wirklick löschen? Sie wird dann von den Geräten deiner Mitschüler gelöscht.</string>
+    <string name="homework_deleteHomeworkTextPrivate">Möchtest du diese Hausaufgabe wirklick löschen?</string>
+    <string name="homework_shared">Geteilt</string>
+    <string name="homework_share">Teilen</string>
+    <string name="homework_changeVisibilityTitleToPublic">Hausaufgabe mit Klasse teilen?</string>
+    <string name="homework_changeVisibilityTextToPublic">Dies wird eine Benachrichtigung an deine Klassenkameraden senden, und sie über die neue Hausaufgabe zu informieren. Dein Fortschritt wird nicht geteilt.</string>
+    <string name="homework_changeVisibilityTitleToPrivate">Mit Klassenkameraden teilen rückgängig machen?</string>
+    <string name="homework_changeVisibilityTextToPrivate">Wir empfehlen dies nicht. Tu dies nur, wenn du diese Hausaufgabe versehentlich geteilt hast. Diese Hausaufgabe wird für deine Klassenkameraden nicht mehr sichtbar sein.</string>
 </resources>

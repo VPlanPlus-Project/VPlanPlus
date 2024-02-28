@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,10 +19,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -32,6 +39,7 @@ import androidx.compose.material3.TriStateCheckbox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -58,10 +66,14 @@ import java.util.UUID
 fun HomeworkCard(
     currentUser: VppId?,
     homework: Homework,
+    isOwner: Boolean,
     allDone: (Boolean) -> Unit,
     singleDone: (HomeworkTask, Boolean) -> Unit,
-    onAddTask: (String) -> Unit
+    onAddTask: (String) -> Unit,
+    onDeleteRequest: () -> Unit,
+    onChangePublicVisibility: () -> Unit
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
     var isAdding by rememberSaveable {
         mutableStateOf(false)
     }
@@ -78,24 +90,64 @@ fun HomeworkCard(
             modifier = Modifier.padding(8.dp)
         ) {
             Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                val state =
-                    if (homework.tasks.all { it.done }) ToggleableState.On
-                    else if (homework.tasks.all { !it.done }) ToggleableState.Off
-                    else ToggleableState.Indeterminate
-                TriStateCheckbox(state = state, onClick = { allDone(state != ToggleableState.On ) })
-                Column {
-                    Text(
-                        text = stringResource(
-                            id = R.string.homework_homeworkHead,
-                            homework.defaultLesson.subject,
-                            homework.until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) titleHost@{
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) titleContainer@{
+                    val state =
+                        if (homework.tasks.all { it.done }) ToggleableState.On
+                        else if (homework.tasks.all { !it.done }) ToggleableState.Off
+                        else ToggleableState.Indeterminate
+                    TriStateCheckbox(state = state, onClick = { allDone(state != ToggleableState.On ) })
+                    Column {
+                        Text(
+                            text = stringResource(
+                                id = R.string.homework_homeworkHead,
+                                homework.defaultLesson.subject,
+                                homework.until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
+                                )
+                            ),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(text = createSubtext(homework, currentUser), style = MaterialTheme.typography.labelMedium)
+                    }
+                }
+                Box {
+                    IconButton(onClick = { menuExpanded = !menuExpanded }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = stringResource(id = R.string.menu)
+                        )
+                    }
+
+                    DropdownMenu(expanded = menuExpanded, onDismissRequest = { menuExpanded = false }) {
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.delete)) },
+                            onClick = { menuExpanded = false; onDeleteRequest() },
+                            leadingIcon = {
+                                Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                            },
+                            enabled = isOwner
+                        )
+                        if (isOwner && homework.id > 0) {
+                            DropdownMenuItem(
+                                text = {
+                                    if (homework.isPublic) Text(text = stringResource(id = R.string.homework_shared))
+                                    else Text(text = stringResource(id = R.string.homework_share))
+                                },
+                                onClick = { menuExpanded = false; onChangePublicVisibility() },
+                                leadingIcon = {
+                                    if (homework.isPublic)
+                                        Icon(imageVector = Icons.Default.CheckBox, contentDescription = null)
+                                    else
+                                        Icon(imageVector = Icons.Default.Share, contentDescription = null)
+                                }
                             )
-                        ),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(text = createSubtext(homework, currentUser), style = MaterialTheme.typography.labelMedium)
+                        }
+                    }
                 }
             }
 
@@ -202,7 +254,7 @@ private fun createSubtext(homework: Homework, currentUser: VppId?): String {
                 homework.createdAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")
                 )
             )
-        ) else builder.append(
+        ) else builder.append( // TODO: Add private option
             stringResource(
                 id = R.string.homework_homeworkSubtitleCreatedBy,
                 homework.createdBy.name,
@@ -258,10 +310,14 @@ private fun HomeworkCardPreview() {
                     individualId = null
                 )
             ),
-            classes = `class`
+            classes = `class`,
+            isPublic = false
         ),
+        isOwner = true,
         allDone = {},
         singleDone = { _, _ -> },
-        onAddTask = {}
+        onAddTask = {},
+        onDeleteRequest = {},
+        onChangePublicVisibility = {}
     )
 }

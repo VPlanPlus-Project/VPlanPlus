@@ -25,6 +25,8 @@ import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.HomeworkCard
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.WrongProfile
+import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.ChangeVisibilityDialog
+import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.DeleteHomeworkDialog
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 
@@ -42,6 +44,10 @@ fun HomeworkScreen(
         onMarkAllDone = viewModel::markAllDone,
         onMarkSingleDone = viewModel::markSingleDone,
         onAddTask = viewModel::onAddTask,
+        onHomeworkDeleteRequest = viewModel::onHomeworkDeleteRequest,
+        onHomeworkDeleteRequestConfirm = viewModel::onConfirmHomeworkDeleteRequest,
+        onHomeworkChangeVisibilityRequest = viewModel::onHomeworkChangeVisibilityRequest,
+        onHomeworkChangeVisibilityRequestConfirm = viewModel::onConfirmHomeworkChangeVisibilityRequest,
         state = state,
         navBar = navBar,
     )
@@ -55,9 +61,28 @@ private fun HomeworkScreenContent(
     onMarkAllDone: (homework: Homework, done: Boolean) -> Unit = { _, _ -> },
     onMarkSingleDone: (homeworkTask: HomeworkTask, done: Boolean) -> Unit = { _, _ -> },
     onAddTask: (homework: Homework, task: String) -> Unit = { _, _ -> },
+    onHomeworkDeleteRequest: (homework: Homework?) -> Unit = {},
+    onHomeworkDeleteRequestConfirm: () -> Unit = {},
+    onHomeworkChangeVisibilityRequest: (homework: Homework?) -> Unit = {},
+    onHomeworkChangeVisibilityRequestConfirm: () -> Unit = {},
     state: HomeworkState,
     navBar: @Composable () -> Unit = {},
 ) {
+    if (state.homeworkDeletionRequest != null) {
+        DeleteHomeworkDialog(
+            homework = state.homeworkDeletionRequest,
+            onConfirm = { onHomeworkDeleteRequestConfirm() },
+            onDismiss = { onHomeworkDeleteRequest(null) }
+        )
+    }
+    if (state.homeworkChangeVisibilityRequest != null) {
+        ChangeVisibilityDialog(
+            homework = state.homeworkChangeVisibilityRequest,
+            onConfirm = { onHomeworkChangeVisibilityRequestConfirm() },
+            onDismiss = { onHomeworkChangeVisibilityRequest(null) }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -87,13 +112,16 @@ private fun HomeworkScreenContent(
             }
 
             LazyColumn {
-                items(state.homework.sortedBy { it.until }) { homework ->
+                items(state.homework.sortedBy { it.homework.until }) { homework ->
                     HomeworkCard(
                         currentUser = state.identity.vppId,
-                        homework = homework,
-                        allDone = { onMarkAllDone(homework, it) },
+                        homework = homework.homework,
+                        isOwner = homework.isOwner,
+                        allDone = { onMarkAllDone(homework.homework, it) },
                         singleDone = { task, done -> onMarkSingleDone(task, done) },
-                        onAddTask = { onAddTask(homework, it) }
+                        onAddTask = { onAddTask(homework.homework, it) },
+                        onDeleteRequest = { onHomeworkDeleteRequest(homework.homework) },
+                        onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework.homework) }
                     )
                 }
             }
