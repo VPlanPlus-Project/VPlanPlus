@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,7 +28,9 @@ import es.jvbabi.vplanplus.feature.homework.view.ui.components.HomeworkCard
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.WrongProfile
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.ChangeVisibilityDialog
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.DeleteHomeworkDialog
+import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.DeleteHomeworkTaskDialog
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
@@ -48,6 +51,10 @@ fun HomeworkScreen(
         onHomeworkDeleteRequestConfirm = viewModel::onConfirmHomeworkDeleteRequest,
         onHomeworkChangeVisibilityRequest = viewModel::onHomeworkChangeVisibilityRequest,
         onHomeworkChangeVisibilityRequestConfirm = viewModel::onConfirmHomeworkChangeVisibilityRequest,
+        onHomeworkTaskDeleteRequest = viewModel::onHomeworkTaskDeleteRequest,
+        onHomeworkTaskDeleteRequestConfirm = viewModel::onHomeworkTaskDeleteRequestConfirm,
+        onHomeworkTaskEditRequest = viewModel::onHomeworkTaskEditRequest,
+        onHomeworkTaskEditRequestConfirm = viewModel::onHomeworkTaskEditRequestConfirm,
         state = state,
         navBar = navBar,
     )
@@ -65,6 +72,10 @@ private fun HomeworkScreenContent(
     onHomeworkDeleteRequestConfirm: () -> Unit = {},
     onHomeworkChangeVisibilityRequest: (homework: Homework?) -> Unit = {},
     onHomeworkChangeVisibilityRequestConfirm: () -> Unit = {},
+    onHomeworkTaskDeleteRequest: (homeworkTask: HomeworkTask?) -> Unit = {},
+    onHomeworkTaskDeleteRequestConfirm: () -> Unit = {},
+    onHomeworkTaskEditRequest: (homeworkTask: HomeworkTask?) -> Unit = {},
+    onHomeworkTaskEditRequestConfirm: (newContent: String?) -> Unit = {},
     state: HomeworkState,
     navBar: @Composable () -> Unit = {},
 ) {
@@ -80,6 +91,23 @@ private fun HomeworkScreenContent(
             homework = state.homeworkChangeVisibilityRequest,
             onConfirm = { onHomeworkChangeVisibilityRequestConfirm() },
             onDismiss = { onHomeworkChangeVisibilityRequest(null) }
+        )
+    }
+    if (state.homeworkTaskDeletionRequest != null) {
+        DeleteHomeworkTaskDialog(
+            task = state.homeworkTaskDeletionRequest,
+            onConfirm = { onHomeworkTaskDeleteRequestConfirm() },
+            onDismiss = { onHomeworkTaskDeleteRequest(null) }
+        )
+    }
+    if (state.editHomeworkTask != null) {
+        InputDialog(
+            icon = Icons.Default.Edit,
+            placeholder = stringResource(id = R.string.homework_editTaskPlaceholder),
+            value = state.editHomeworkTask.content,
+            title = stringResource(id = R.string.homework_editTaskTitle),
+            message = stringResource(id = R.string.homework_editTaskText),
+            onOk = { onHomeworkTaskEditRequestConfirm(it) },
         )
     }
 
@@ -121,7 +149,9 @@ private fun HomeworkScreenContent(
                         singleDone = { task, done -> onMarkSingleDone(task, done) },
                         onAddTask = { onAddTask(homework.homework, it) },
                         onDeleteRequest = { onHomeworkDeleteRequest(homework.homework) },
-                        onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework.homework) }
+                        onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework.homework) },
+                        onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
+                        onEditTaskRequest = { onHomeworkTaskEditRequest(it) }
                     )
                 }
             }

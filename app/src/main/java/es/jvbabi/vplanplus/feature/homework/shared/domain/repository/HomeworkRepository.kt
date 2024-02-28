@@ -39,9 +39,18 @@ interface HomeworkRepository {
         done: Boolean
     ): HomeworkModificationResult
 
+    suspend fun editTaskContent(
+        task: HomeworkTask,
+        newContent: String
+    ): HomeworkModificationResult
+
     suspend fun deleteOrHideHomework(
         homework: Homework,
         onlyHide: Boolean = false
+    ): HomeworkModificationResult
+
+    suspend fun deleteTask(
+        task: HomeworkTask
     ): HomeworkModificationResult
 
     suspend fun findLocalId(): Long

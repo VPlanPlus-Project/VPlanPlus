@@ -6,5 +6,7 @@ data class HomeworkUseCases(
     val markSingleDoneUseCase: MarkSingleDoneUseCase,
     val addTaskUseCase: AddTaskUseCase,
     val deleteHomeworkUseCase: DeleteHomeworkUseCase,
-    val changeVisibilityUseCase: ChangeVisibilityUseCase
+    val changeVisibilityUseCase: ChangeVisibilityUseCase,
+    val deleteHomeworkTaskUseCase: DeleteHomeworkTaskUseCase,
+    val editTaskUseCase: EditTaskUseCase
 )

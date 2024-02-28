@@ -337,4 +337,10 @@
     <string name="homework_changeVisibilityTextToPublic">This will notify your classmates about the new homework. Your progress won\'t be shared.</string>
     <string name="homework_changeVisibilityTitleToPrivate">Undo sharing this homework with your classmates?</string>
     <string name="homework_changeVisibilityTextToPrivate">This is generally not advised. Only do this when you shared the homework by accident. This homework won\'t be visible for your classmates anymore.</string>
+    <string name="homework_edit">Edit</string>
+    <string name="homework_deleteHomeworkTaskTitle">Delete task?</string>
+    <string name="homework_deleteHomeworkTaskMessage">Do you really want to delete the task %1$s? If this homework is shared, it\'ll get updated for all your classmates.</string>
+    <string name="homework_editTaskPlaceholder">New task content</string>
+    <string name="homework_editTaskTitle">Edit task</string>
+    <string name="homework_editTaskText">Change the content of this task. If this homework is shared, it\'ll be updated on your classmates devices too.</string>
 </resources>

@@ -5,8 +5,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,6 +24,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
@@ -62,6 +65,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeworkCard(
     currentUser: VppId?,
@@ -71,7 +75,9 @@ fun HomeworkCard(
     singleDone: (HomeworkTask, Boolean) -> Unit,
     onAddTask: (String) -> Unit,
     onDeleteRequest: () -> Unit,
-    onChangePublicVisibility: () -> Unit
+    onChangePublicVisibility: () -> Unit,
+    onDeleteTaskRequest: (HomeworkTask) -> Unit,
+    onEditTaskRequest: (HomeworkTask) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     var isAdding by rememberSaveable {
@@ -153,15 +159,49 @@ fun HomeworkCard(
 
             HorizontalDivider()
             homework.tasks.sortedBy { it.done.toString() + it.content }.forEach { task ->
+                var isMenuOpened by remember {
+                    mutableStateOf(false)
+                }
                 Row(
                     modifier = Modifier.padding(start = 32.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Checkbox(checked = task.done, onCheckedChange = { singleDone(task, it) })
-                    Text(
-                        text = task.content,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
+                    Box(
+                        contentAlignment = Alignment.CenterStart,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(48.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .combinedClickable(
+                                onLongClick = { isMenuOpened = true },
+                                onClick = { singleDone(task, !task.done) }
+                            )
+                    ) {
+                        Text(
+                            text = task.content,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                        DropdownMenu(expanded = isMenuOpened, onDismissRequest = { isMenuOpened = false }) {
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(id = R.string.delete)) },
+                                onClick = { isMenuOpened = false; onDeleteTaskRequest(task) },
+                                leadingIcon = {
+                                    Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                                },
+                                enabled = isOwner
+                            )
+                            DropdownMenuItem(
+                                text = { Text(text = stringResource(id = R.string.homework_edit)) },
+                                onClick = { isMenuOpened = false; onEditTaskRequest(task) },
+                                leadingIcon = {
+                                    Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                                },
+                                enabled = isOwner
+                            )
+                        }
+                    }
                 }
                 Spacer(modifier = Modifier.size(8.dp))
             }
@@ -318,6 +358,8 @@ private fun HomeworkCardPreview() {
         singleDone = { _, _ -> },
         onAddTask = {},
         onDeleteRequest = {},
-        onChangePublicVisibility = {}
+        onChangePublicVisibility = {},
+        onDeleteTaskRequest = {},
+        onEditTaskRequest = {}
     )
 }

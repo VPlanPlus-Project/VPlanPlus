@@ -81,6 +81,38 @@ class HomeworkViewModel @Inject constructor(
             }
         }
     }
+
+    fun onHomeworkTaskDeleteRequest(homeworkTask: HomeworkTask?) {
+        state.value = state.value.copy(homeworkTaskDeletionRequest = homeworkTask)
+    }
+
+    fun onHomeworkTaskDeleteRequestConfirm() {
+        state.value.homeworkTaskDeletionRequest?.let {
+            viewModelScope.launch {
+                homeworkUseCases.deleteHomeworkTaskUseCase(it)
+                onHomeworkTaskDeleteRequest(null)
+            }
+        }
+    }
+
+    fun onHomeworkTaskEditRequest(homeworkTask: HomeworkTask?) {
+        state.value = state.value.copy(editHomeworkTask = homeworkTask)
+    }
+
+    fun onHomeworkTaskEditRequestConfirm(newContent: String?) {
+        if (newContent == null) {
+            onHomeworkTaskEditRequest(null)
+            return
+        }
+        state.value.editHomeworkTask?.let {
+            if (newContent == it.content) return@let
+            if (newContent.isBlank()) return@let
+            viewModelScope.launch {
+                homeworkUseCases.editTaskUseCase(it, newContent)
+                onHomeworkTaskEditRequest(null)
+            }
+        }
+    }
 }
 
 data class HomeworkState(
@@ -88,7 +120,9 @@ data class HomeworkState(
     val wrongProfile: Boolean = false,
     val identity: Identity = Identity(),
     val homeworkDeletionRequest: Homework? = null,
-    val homeworkChangeVisibilityRequest: Homework? = null
+    val homeworkChangeVisibilityRequest: Homework? = null,
+    val homeworkTaskDeletionRequest: HomeworkTask? = null,
+    val editHomeworkTask: HomeworkTask? = null,
 )
 
 data class HomeworkViewModelRecord(

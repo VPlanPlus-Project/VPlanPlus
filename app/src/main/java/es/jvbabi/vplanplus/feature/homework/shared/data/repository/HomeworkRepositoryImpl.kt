@@ -235,6 +235,80 @@ class HomeworkRepositoryImpl(
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
     }
 
+    override suspend fun deleteTask(task: HomeworkTask): HomeworkModificationResult {
+        val parent = getHomeworkByTask(task)
+
+        if (task.id < 0) {
+            homeworkDao.deleteTask(task.id)
+            if (getHomeworkById(parent.id.toInt()).first()?.tasks?.isEmpty() == true) {
+                homeworkDao.deleteHomework(parent.id)
+            }
+            return HomeworkModificationResult.SUCCESS_OFFLINE
+        }
+
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.isActive() && it.id == parent.createdBy?.id } ?: return HomeworkModificationResult.FAILED
+        if (task.individualId == null) return HomeworkModificationResult.FAILED
+
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        val result = vppIdNetworkRepository.doRequest(
+            path = "/api/${VppIdServer.apiVersion}/homework/",
+            requestBody = Gson().toJson(
+                DeleteHomeworkTaskRequest(
+                    taskId = task.id,
+                )
+            ),
+            requestMethod = HttpMethod.Delete
+        )
+
+        return if (result.response == HttpStatusCode.OK || result.response == HttpStatusCode.NotFound) {
+            homeworkDao.deleteTask(task.id)
+            if (getHomeworkById(parent.id.toInt()).first()?.tasks?.isEmpty() == true) {
+                homeworkDao.deleteHomework(parent.id)
+            }
+            HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+        } else {
+            HomeworkModificationResult.FAILED
+        }
+    }
+
+    override suspend fun editTaskContent(
+        task: HomeworkTask,
+        newContent: String
+    ): HomeworkModificationResult {
+        if (task.id < 0) {
+            val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(content = newContent)
+            homeworkDao.insertTask(dbHomeworkTask)
+            return HomeworkModificationResult.SUCCESS_OFFLINE
+        }
+
+        val parent = getHomeworkByTask(task)
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.isActive() && it.id == parent.createdBy?.id } ?: return HomeworkModificationResult.FAILED
+
+        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        val result = vppIdNetworkRepository.doRequest(
+            path = "/api/${VppIdServer.apiVersion}/homework/",
+            requestBody = Gson().toJson(
+                ChangeTaskRequest(
+                    taskId = task.id,
+                    content = newContent
+                )
+            ),
+            requestMethod = HttpMethod.Put
+        )
+
+        return if (result.response == HttpStatusCode.OK) {
+            val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(content = newContent)
+            homeworkDao.insertTask(dbHomeworkTask)
+            HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+        } else {
+            HomeworkModificationResult.FAILED
+        }
+    }
+
     override suspend fun setTaskState(
         homework: Homework,
         task: HomeworkTask,
@@ -343,6 +417,13 @@ private data class AddTaskRequest(
     @SerializedName("to") val content: String
 )
 
+private data class ChangeTaskRequest(
+    @SerializedName("change") val change: String = "task_content",
+    @SerializedName("task_id") val taskId: Long,
+    @SerializedName("to") val content: String
+
+)
+
 private data class AddHomeworkRequest(
     @SerializedName("vp_id") val vpId: Long,
     @SerializedName("share_with_class") val shareWithClass: Boolean,
@@ -366,8 +447,12 @@ private data class DeleteHomeworkRequest(
     @SerializedName("only_hide") val onlyHide: Boolean
 )
 
+private data class DeleteHomeworkTaskRequest(
+    @SerializedName("task_id") val taskId: Long
+)
+
 private data class ChangeVisibilityRequest(
     @SerializedName("change") val change: String = "visibility",
-    @SerializedName("id") val id: Long,
+    @SerializedName("homework_id") val id: Long,
     @SerializedName("to") val visibility: Boolean
 )
