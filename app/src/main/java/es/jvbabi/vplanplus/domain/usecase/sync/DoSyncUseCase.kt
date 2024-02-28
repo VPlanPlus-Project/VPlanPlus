@@ -228,6 +228,18 @@ class DoSyncUseCase(
         var rooms = roomRepository.getRoomsBySchool(school)
         var teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
 
+        // clean default lessons
+        classRepository.getClassesBySchool(school).forEach { dlClass ->
+            defaultLessonRepository
+                .getDefaultLessonByClassId(dlClass.classId)
+                .groupBy { it.vpId }
+                .map { it.value.dropLast(1).map { item -> item.defaultLessonId } }
+                .flatten()
+                .forEach { id ->
+                    defaultLessonRepository.deleteDefaultLesson(id)
+                }
+        }
+
         vPlanData.wPlanDataObject.classes!!.forEach {
 
             val `class` = classRepository.getClassBySchoolIdAndClassName(

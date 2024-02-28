@@ -108,7 +108,8 @@
     <string name="settings_profileDefaultLessonNoTeacher">Kein Lehrer</string>
     <string name="profileManagement_defaultLessonsTitle">Standard-Unterrichtseinheiten</string>
     <string name="home_lessonsHidden">%1$d Stunden ausgeblendet</string>
-    <string name="settings_profileDefaultLessonDifferentDefaultLessons">Es gibt Abweichungen bei den Standartstunden des Profils und seiner Klasse. Das Beheben des Problemes erfordert einen Reset deiner Einstellungen unterhalb.</string>
+    <string name="settings_profileDefaultLessonDifferentDefaultLessonsTitle">Inkonsistenter Datenstand</string>
+    <string name="settings_profileDefaultLessonDifferentDefaultLessonsText">Es gibt Abweichungen bei den Standartstunden des Profils und seiner Klasse. Das Beheben des Problemes erfordert einen Reset deiner Einstellungen unterhalb.</string>
     <string name="fix">Beheben</string>
     <string name="home_noData">Keine Daten</string>
     <string name="home_noDataText">Für dieses Datum sind noch keine Daten verfügbar. Entweder, es gibt noch keinen Vertretungsplan für dich, oder das Datum liegt zu weit in  der Zukunft. Du kannst die Anzahl der Tage, die nach dem heutigen Tag synchronisiert werden in den Einstellungen ändern.</string>

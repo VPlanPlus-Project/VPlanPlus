@@ -25,4 +25,8 @@ class DefaultLessonRepositoryImpl(
     override suspend fun updateTeacherId(classId: UUID, vpId: Long, teacherId: UUID) {
         defaultLessonDao.updateTeacherId(classId, vpId, teacherId)
     }
+
+    override suspend fun deleteDefaultLesson(id: UUID) {
+        defaultLessonDao.deleteById(id)
+    }
 }
