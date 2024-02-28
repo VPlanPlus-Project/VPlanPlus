@@ -27,7 +27,7 @@ class FakeVppIdRepository : VppIdRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun cacheVppId(id: Int, school: School): VppId? {
+    override suspend fun cacheVppId(id: Long, school: School): VppId? {
         TODO("Not yet implemented")
     }
 

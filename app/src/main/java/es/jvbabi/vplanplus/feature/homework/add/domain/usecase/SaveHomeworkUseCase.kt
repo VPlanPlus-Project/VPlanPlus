@@ -4,6 +4,7 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.NewTaskRecord
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,7 +28,9 @@ class SaveHomeworkUseCase(
             `class` = `class`,
             until = until,
             defaultLessonVpId = defaultLesson.vpId,
-            tasks = tasks,
+            tasks = tasks.map { NewTaskRecord(
+                it.trim()
+            ) },
             allowCloudUpdate = true,
             shareWithClass = shareWithClass,
             createdAt = LocalDateTime.now()

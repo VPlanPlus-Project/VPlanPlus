@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.homework.shared.data.repository
 
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.model.DbHomework
@@ -15,9 +16,11 @@ import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.NewTaskRecord
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
+import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -35,7 +38,6 @@ class HomeworkRepositoryImpl(
     private val profileRepository: ProfileRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository
 ): HomeworkRepository {
-    @Deprecated("Doesn't work")
     override suspend fun fetchData() {
         val vppIds = vppIdRepository.getVppIds().first()
         profileRepository
@@ -62,7 +64,70 @@ class HomeworkRepositoryImpl(
                 )
 
                 if (response.response != HttpStatusCode.OK || response.data == null) return@forEach
-                Gson().fromJson(response.data, HomeworkResponse::class.java).homework
+                val data = Gson().fromJson(response.data, HomeworkResponse::class.java).homework
+
+                homeworkDao
+                    .getAll()
+                    .first()
+                    .filter { data.none { nd -> nd.id == it.homework.id } }
+                    .map { it.homework.id }
+                    .forEach {
+                        homeworkDao.deleteHomework(it)
+                    }
+
+                data.forEach forEachHomework@{ responseHomework ->
+                    val id = responseHomework.id
+                    val createdBy = vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy } ?: run {
+                        vppIdRepository.cacheVppId(responseHomework.createdBy.toInt(), school)
+                        vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy }
+                    } ?: run {
+                        Log.e("HomeworkRepositoryImpl", "Failed to find VppId for homework $id (vpp.ID: ${responseHomework.createdBy})")
+                        return@forEachHomework
+                    }
+
+                    val ignoredTaskIds = mutableListOf<Long>()
+                    val replacementTasks =
+                        (homeworkDao
+                            .getById(id.toInt()).first()
+                            ?.tasks ?: emptyList())
+                            .filter { task -> responseHomework.tasks.none { it.id.toLong() == task.id } }
+                            .map { dbTask ->
+                                val new = responseHomework.tasks.firstOrNull { it.id.toLong() == dbTask.id }
+                                if (new != null) ignoredTaskIds.add(dbTask.id)
+                                NewTaskRecord(
+                                    id = dbTask.id,
+                                    content = new?.content ?: dbTask.content,
+                                    done = new?.done ?: dbTask.done,
+                                    individualId = new?.individualId?.toLong() ?: dbTask.individualId
+                                )
+                            }
+                            .plus(
+                                responseHomework.tasks
+                                    .filter { !ignoredTaskIds.contains(it.id.toLong()) }
+                                    .map { task ->
+                                        NewTaskRecord(
+                                            id = task.id.toLong(),
+                                            content = task.content,
+                                            done = task.done ?: false,
+                                            individualId = task.individualId?.toLong()
+                                        )
+                                    }
+                            )
+
+                    homeworkDao.deleteTasksForHomework(responseHomework.id)
+
+                    insertHomework(
+                        id = id,
+                        createdBy = createdBy,
+                        shareWithClass = responseHomework.shareWithClass,
+                        until = DateUtils.getDateFromTimestamp(responseHomework.until),
+                        `class` = `class`,
+                        defaultLessonVpId = responseHomework.vpId.toLong(),
+                        createdAt = DateUtils.getDateTimeFromTimestamp(responseHomework.createdAt),
+                        allowCloudUpdate = false,
+                        tasks = replacementTasks
+                    )
+                }
         }
     }
 
@@ -83,18 +148,19 @@ class HomeworkRepositoryImpl(
     }
 
     override suspend fun insertHomework(
+        id: Long?,
         createdBy: VppId?,
         createdAt: LocalDateTime,
         `class`: Classes,
         defaultLessonVpId: Long,
         shareWithClass: Boolean,
         until: LocalDate,
-        tasks: List<String>,
+        tasks: List<NewTaskRecord>,
         allowCloudUpdate: Boolean
     ): HomeworkModificationResult {
         if (!allowCloudUpdate || createdBy == null) {
             val dbHomework = DbHomework(
-                id = findLocalId()-1,
+                id = id ?: (findLocalId()-1),
                 classes = `class`.classId,
                 createdAt = createdAt,
                 until = until,
@@ -102,13 +168,13 @@ class HomeworkRepositoryImpl(
                 createdBy = createdBy?.id
             )
             homeworkDao.insert(dbHomework)
-            tasks.forEach {
+            tasks.forEach { newTask ->
                 val dbHomeworkTask = DbHomeworkTask(
-                    id = findLocalTaskId()-1,
+                    id = newTask.id ?: (findLocalTaskId()-1),
                     homeworkId = dbHomework.id,
-                    content = it,
-                    done = false,
-                    individualId = null
+                    content = newTask.content,
+                    done = newTask.done,
+                    individualId = newTask.individualId
                 )
                 homeworkDao.insertTask(dbHomeworkTask)
             }
@@ -127,7 +193,7 @@ class HomeworkRepositoryImpl(
                     vpId = vppId.id.toLong(),
                     shareWithClass = shareWithClass,
                     until = until.toLocalUnixTimestamp(),
-                    tasks = tasks
+                    tasks = tasks.map { it.content }
                 )
             ),
             requestMethod = HttpMethod.Post
@@ -389,11 +455,12 @@ private data class HomeworkResponse(
 )
 
 private data class HomeworkResponseRecord(
-    val id: Int,
-    @SerializedName("created_by") val createdBy: Int,
+    val id: Long,
+    @SerializedName("created_by") val createdBy: Long,
     @SerializedName("created_at") val createdAt: Long,
     @SerializedName("vp_id") val vpId: Int,
     @SerializedName("due_at") val until: Long,
+    @SerializedName("public") val shareWithClass: Boolean,
     val classes: Int,
     val tasks: List<HomeRecordTask>
 )

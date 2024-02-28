@@ -42,4 +42,7 @@ abstract class HomeworkDao {
 
     @Query("UPDATE homework SET isPublic = :isPublic WHERE id = :homeworkId")
     abstract suspend fun changeVisibility(homeworkId: Long, isPublic: Boolean)
+
+    @Query("DELETE FROM homework_task WHERE homeworkId = :homeworkId")
+    abstract suspend fun deleteTasksForHomework(homeworkId: Long)
 }

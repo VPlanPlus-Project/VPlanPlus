@@ -18,13 +18,14 @@ interface HomeworkRepository {
     suspend fun getAll(): Flow<List<Homework>>
 
     suspend fun insertHomework(
+        id: Long? = null,
         createdBy: VppId?,
         createdAt: LocalDateTime = LocalDateTime.now(),
         `class`: Classes,
         defaultLessonVpId: Long,
         shareWithClass: Boolean,
         until: LocalDate,
-        tasks: List<String>,
+        tasks: List<NewTaskRecord>,
         allowCloudUpdate: Boolean
     ): HomeworkModificationResult
 
@@ -56,7 +57,6 @@ interface HomeworkRepository {
     suspend fun findLocalId(): Long
     suspend fun findLocalTaskId(): Long
 
-    @Deprecated("Doesn't work")
     suspend fun fetchData()
 
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
@@ -69,3 +69,10 @@ enum class HomeworkModificationResult {
     SUCCESS_OFFLINE,
     FAILED
 }
+
+data class NewTaskRecord(
+    val content: String,
+    val done: Boolean = false,
+    val id: Long? = null,
+    val individualId: Long? = null
+)
