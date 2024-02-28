@@ -322,6 +322,8 @@
     <string name="homework_title">Homework</string>
     <string name="homework_wrongProfile">Please select a class profile to use this feature.</string>
     <string name="homework_homeworkHead">%1$s until %2$s</string>
-    <string name="homework_homeworkSubtitleCreatedBy">%1$s, at %2$s</string>
+    <string name="homework_homeworkSubtitleCreatedBy">%1$s shared at %2$s</string>
     <string name="homework_homeworkSubtitleLocally">On this device, at %1$s</string>
+    <string name="homework_homeworkSubtitleCreatedByYou">You shared this at %1$s</string>
+    <string name="homework_addTask">Add task</string>
 </resources>

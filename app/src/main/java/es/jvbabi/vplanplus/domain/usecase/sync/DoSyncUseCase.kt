@@ -35,6 +35,7 @@ import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools
@@ -62,6 +63,7 @@ class DoSyncUseCase(
     private val lessonTimesRepository: LessonTimeRepository,
     private val profileRepository: ProfileRepository,
     private val lessonRepository: LessonRepository,
+    private val homeworkRepository: HomeworkRepository,
     private val vPlanRepository: VPlanRepository,
     private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val planRepository: PlanRepository,
@@ -75,6 +77,10 @@ class DoSyncUseCase(
         if (profileRepository.getProfiles().first().isEmpty()) return true
         val daysAhead = keyValueRepository.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toIntOrNull()
             ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
+
+        logRecordRepository.log("Sync.Homework", "Syncing homework")
+        homeworkRepository.fetchData()
+
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
         val currentVersion =

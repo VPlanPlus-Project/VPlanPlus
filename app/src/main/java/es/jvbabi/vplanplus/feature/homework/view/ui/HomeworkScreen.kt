@@ -41,6 +41,7 @@ fun HomeworkScreen(
         onAddHomework = { navHostController.navigate(Screen.AddHomeworkScreen.route) },
         onMarkAllDone = viewModel::markAllDone,
         onMarkSingleDone = viewModel::markSingleDone,
+        onAddTask = viewModel::onAddTask,
         state = state,
         navBar = navBar,
     )
@@ -53,6 +54,7 @@ private fun HomeworkScreenContent(
     onAddHomework: () -> Unit = {},
     onMarkAllDone: (homework: Homework, done: Boolean) -> Unit = { _, _ -> },
     onMarkSingleDone: (homeworkTask: HomeworkTask, done: Boolean) -> Unit = { _, _ -> },
+    onAddTask: (homework: Homework, task: String) -> Unit = { _, _ -> },
     state: HomeworkState,
     navBar: @Composable () -> Unit = {},
 ) {
@@ -87,9 +89,11 @@ private fun HomeworkScreenContent(
             LazyColumn {
                 items(state.homework.sortedBy { it.until }) { homework ->
                     HomeworkCard(
+                        currentUser = state.identity.vppId,
                         homework = homework,
                         allDone = { onMarkAllDone(homework, it) },
-                        singleDone = { task, done -> onMarkSingleDone(task, done) }
+                        singleDone = { task, done -> onMarkSingleDone(task, done) },
+                        onAddTask = { onAddTask(homework, it) }
                     )
                 }
             }

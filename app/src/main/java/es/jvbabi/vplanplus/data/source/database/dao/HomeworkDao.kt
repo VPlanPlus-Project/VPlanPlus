@@ -23,7 +23,7 @@ abstract class HomeworkDao {
 
     @Query("SELECT * FROM homework WHERE id = :homeworkId")
     @Transaction
-    abstract fun getById(homeworkId: Int): Flow<CHomework>
+    abstract fun getById(homeworkId: Int): Flow<CHomework?>
 
     @Query("SELECT * FROM homework_task WHERE id = :taskId")
     abstract fun getHomeworkTaskById(taskId: Int): Flow<DbHomeworkTask>

@@ -107,6 +107,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.CloseSessionUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetSessionsUseCase
@@ -589,7 +590,8 @@ object VppModule {
         calendarRepository: CalendarRepository,
         getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
         notificationRepository: NotificationRepository,
-        gradeRepository: GradeRepository
+        gradeRepository: GradeRepository,
+        homeworkRepository: HomeworkRepository
     ): SyncUseCases {
         val isSyncRunningUseCase = IsSyncRunningUseCase(context)
         return SyncUseCases(
@@ -615,7 +617,8 @@ object VppModule {
                 calendarRepository = calendarRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase,
                 notificationRepository = notificationRepository,
-                gradeRepository = gradeRepository
+                gradeRepository = gradeRepository,
+                homeworkRepository = homeworkRepository
             )
         )
     }

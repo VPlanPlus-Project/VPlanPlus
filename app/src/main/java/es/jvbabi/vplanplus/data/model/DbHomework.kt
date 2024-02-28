@@ -4,6 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Entity(
@@ -25,10 +26,10 @@ import java.util.UUID
     ]
 )
 data class DbHomework(
-    val id: Int,
+    val id: Long,
     val createdBy: Int?,
     val classes: UUID,
-    val createdAt: LocalDate,
+    val createdAt: LocalDateTime,
     val defaultLessonVpId: Long,
     val until: LocalDate
 )
