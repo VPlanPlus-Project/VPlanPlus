@@ -40,9 +40,9 @@ Für die Verwendung der Dienste von vpp.ID wird ein Token benötigt. Dieses Toke
 ### Externe Anbieter
 Hier finden Sie die Datenschutzerklärung für
 - [Indiware](https://indiware.de/index.php?page=datenschutz)
-- [Stundenplan24.de](https://stundenplan24.de/datenschutzapp.html#datenschutzsp24)
+  - [Stundenplan24.de](https://stundenplan24.de/datenschutzapp.html#datenschutzsp24)
 - [Schulverwalter](https://schulverwalter.de/privacy/)
-- [beste.schule](https://beste.schule/privacy)
+  - [beste.schule](https://beste.schule/privacy)
 
 ### Schulverwalter
 Die Registrierung erfolgt mittels eines Single-Sign-On [Bundesamt für Sicherheit in der Informationstechnik]([SSO](https://www.bsi.bund.de/DE/Themen/Verbraucherinnen-und-Verbraucher/Informationen-und-Empfehlungen/Cyber-Sicherheitsempfehlungen/Accountschutz/Single-Sign-On/single-sign-on_node.html)https://www.bsi.bund.de/DE/Themen/Verbraucherinnen-und-Verbraucher/Informationen-und-Empfehlungen/Cyber-Sicherheitsempfehlungen/Accountschutz/Single-Sign-On/single-sign-on_node.html) von beste.schule. Dabei wird ein Token an die Server von vpp.ID übermittelt, womit die Bestätigung der Angehörigkeit einer Klasse und einer Schule durchgeführt wird. Auch die E-Mail-Adresse des Nutzers wird zwecks Anmeldekennung und Kontaktmöglichkeit durch die Administration von vpp.ID erfasst. Das Token und die E-Mail-Adresse wird auf den Servern von beste.schule und vpp.ID gespeichert, und bei einer Anmeldung innerhalb von VPlanPlus an das Endgerät mitgesendet.
