@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
@@ -273,9 +274,13 @@ fun HomeworkCard(
                             value = newTask,
                             onValueChange = { newTask = it },
                             modifier = Modifier.weight(1f),
-                            placeholder = { Text(stringResource(id = R.string.homework_addTask)) }
+                            placeholder = { Text(stringResource(id = R.string.homework_addTask)) },
+                            enabled = !homework.isLoadingNewTask,
                         )
-                        IconButton(onClick = { isAdding = false }) {
+                        IconButton(
+                            onClick = { isAdding = false },
+                            enabled = !homework.isLoadingNewTask
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = stringResource(id = R.string.close)
@@ -287,9 +292,16 @@ fun HomeworkCard(
                                 newTask = ""
                                 isAdding = false
                             },
-                            modifier = Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
+                            enabled = !homework.isLoadingNewTask,
+                            modifier =
+                                if (!homework.isLoadingNewTask) Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
+                                else Modifier.background(Color.Gray, RoundedCornerShape(50))
                         ) {
-                            Icon(
+                            if (homework.isLoading) CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            else Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = stringResource(id = R.string.add),
                                 tint = MaterialTheme.colorScheme.onPrimary
@@ -372,7 +384,8 @@ private fun HomeworkCardPreview() {
             classes = `class`,
             isPublic = false,
             isOwner = true,
-            isLoading = true
+            isLoading = true,
+            isLoadingNewTask = true
         ),
         isOwner = true,
         allDone = {},
