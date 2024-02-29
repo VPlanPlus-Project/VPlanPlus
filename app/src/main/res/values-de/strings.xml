@@ -372,4 +372,8 @@
     <string name="homework_errorMarkHomeworkUndone">Hausaufgabe konnten nicht als unerledigt markiert werden.</string>
     <string name="homework_emptyTask">Aufgabe kann nicht leer sein.</string>
     <string name="homework_noHomework">Es gibt aktuell keine Hausaufgaben für dich. Genieße den Moment.</string>
+    <string name="advancedSettings_systemTitle">System</string>
+    <string name="advancedSettings_userTitle">Benutzer</string>
+    <string name="advancedSettings_timeTitle">Zeit</string>
+    <string name="advancedSettings_timezoneTitle">Aktuelle Zeitzone</string>
 </resources>

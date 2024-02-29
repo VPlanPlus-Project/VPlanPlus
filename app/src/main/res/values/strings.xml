@@ -370,4 +370,8 @@
     <string name="homework_errorMarkHomeworkUndone">Couldn\'t mark homework as undone.</string>
     <string name="homework_emptyTask">Task can\'t be empty</string>
     <string name="homework_noHomework">There is no homework available for you. Enjoy the moment!</string>
+    <string name="advancedSettings_systemTitle">System</string>
+    <string name="advancedSettings_userTitle">User</string>
+    <string name="advancedSettings_timeTitle">Time</string>
+    <string name="advancedSettings_timezoneTitle">Current Timezone</string>
 </resources>
