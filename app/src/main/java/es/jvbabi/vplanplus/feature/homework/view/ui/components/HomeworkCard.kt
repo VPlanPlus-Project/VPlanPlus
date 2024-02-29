@@ -50,15 +50,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkViewModelHomework
 import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkViewModelTask
+import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
@@ -69,7 +70,6 @@ import java.util.UUID
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeworkCard(
-    currentUser: VppId?,
     homework: HomeworkViewModelHomework,
     isOwner: Boolean,
     allDone: (Boolean) -> Unit,
@@ -87,6 +87,10 @@ fun HomeworkCard(
     var newTask by rememberSaveable {
         mutableStateOf("")
     }
+    var isEmpty by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,7 +134,23 @@ fun HomeworkCard(
                             ),
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Text(text = createSubtext(homework, currentUser), style = MaterialTheme.typography.labelMedium)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (homework.isPublic) {
+                                Icon(
+                                    imageVector = Icons.Default.Share,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Text(
+                                    text = DOT,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                            }
+                            Text(text = createSubtext(homework), style = MaterialTheme.typography.labelMedium)
+                        }
                     }
                 }
                 Box {
@@ -225,7 +245,7 @@ fun HomeworkCard(
             }
 
             val height = animateFloatAsState(
-                targetValue = if (isAdding) 56f else 48f,
+                targetValue = if (isAdding) 86f else 48f,
                 label = "addTaskHeightAnimation"
             ).value.dp
             Column(
@@ -267,15 +287,28 @@ fun HomeworkCard(
                     exit = shrinkVertically(tween(250))
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.Top
                     ) {
                         OutlinedTextField(
                             value = newTask,
-                            onValueChange = { newTask = it },
+                            onValueChange = { isEmpty = it.isBlank(); newTask = it },
                             modifier = Modifier.weight(1f),
-                            placeholder = { Text(stringResource(id = R.string.homework_addTask)) }
+                            placeholder = { Text(stringResource(id = R.string.homework_addTask)) },
+                            enabled = !homework.isLoadingNewTask,
+                            supportingText = {
+                                if (isEmpty) {
+                                    Text(
+                                        text = stringResource(id = R.string.homework_emptyTask),
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
                         )
-                        IconButton(onClick = { isAdding = false }) {
+                        IconButton(
+                            onClick = { isAdding = false },
+                            enabled = !homework.isLoadingNewTask,
+                            modifier = Modifier.padding(top = 4.dp)
+                        ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = stringResource(id = R.string.close)
@@ -283,13 +316,30 @@ fun HomeworkCard(
                         }
                         IconButton(
                             onClick = {
+                                if (newTask.isBlank()) {
+                                    isEmpty = true
+                                    return@IconButton
+                                }
                                 onAddTask(newTask)
                                 newTask = ""
                                 isAdding = false
                             },
-                            modifier = Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
+                            enabled = !homework.isLoadingNewTask,
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .then(
+                                    if (!homework.isLoadingNewTask) Modifier.background(
+                                        MaterialTheme.colorScheme.primary,
+                                        RoundedCornerShape(50)
+                                    )
+                                    else Modifier.background(Color.Gray, RoundedCornerShape(50))
+                                )
                         ) {
-                            Icon(
+                            if (homework.isLoading) CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = MaterialTheme.colorScheme.onPrimary
+                            )
+                            else Icon(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = stringResource(id = R.string.add),
                                 tint = MaterialTheme.colorScheme.onPrimary
@@ -303,16 +353,16 @@ fun HomeworkCard(
 }
 
 @Composable
-private fun createSubtext(homework: HomeworkViewModelHomework, currentUser: VppId?): String {
+private fun createSubtext(homework: HomeworkViewModelHomework): String {
     val builder = StringBuilder()
     if (homework.createdBy != null) {
-        if (currentUser == homework.createdBy) builder.append(
+        if (homework.isOwner) builder.append(
             stringResource(
                 id = R.string.homework_homeworkSubtitleCreatedByYou,
                 homework.createdAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")
                 )
             )
-        ) else builder.append( // TODO: Add private option
+        ) else builder.append(
             stringResource(
                 id = R.string.homework_homeworkSubtitleCreatedBy,
                 homework.createdBy.name,
@@ -337,7 +387,6 @@ private fun createSubtext(homework: HomeworkViewModelHomework, currentUser: VppI
 private fun HomeworkCardPreview() {
     val school = School.generateRandomSchools(1).first()
     val `class` = ClassesPreview.generateClass(school)
-    val currentVppId = null
     val creator = VppIdPreview.generateVppId(`class`)
     val defaultLesson = DefaultLesson(
         teacher = null,
@@ -347,7 +396,6 @@ private fun HomeworkCardPreview() {
         vpId = 42
     )
     HomeworkCard(
-        currentUser = currentVppId,
         homework = HomeworkViewModelHomework(
             id = 1,
             createdBy = creator,
@@ -370,9 +418,10 @@ private fun HomeworkCardPreview() {
                 )
             ),
             classes = `class`,
-            isPublic = false,
+            isPublic = true,
             isOwner = true,
-            isLoading = true
+            isLoading = true,
+            isLoadingNewTask = true
         ),
         isOwner = true,
         allDone = {},

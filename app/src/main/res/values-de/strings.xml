@@ -326,7 +326,7 @@
     <string name="homework_homeworkHead">%1$s bis %2$s</string>
     <string name="homework_homeworkSubtitleCreatedBy">%1$s hat am %2$s geteilt</string>
     <string name="homework_homeworkSubtitleLocally">Dieses Gerät, am %1$s</string>
-    <string name="homework_homeworkSubtitleCreatedByYou">Du hast dies am %1$s geteilt</string>
+    <string name="homework_homeworkSubtitleCreatedByYou">Deine vpp.ID, am %1$s</string>
     <string name="homework_addTask">Aufgabe hinzufügen</string>
     <string name="menu">Menu</string>
     <string name="homework_deleteHomeworkTitle">Hausaufgabe löschen?</string>
@@ -370,4 +370,5 @@
     <string name="homework_errorMarkTaskUndone">Aufgabe konnte nicht als unerledigt markiert werden.</string>
     <string name="homework_errorMarkHomeworkDone">Hausaufgabe konnte nicht als erledigt markiert werden.</string>
     <string name="homework_errorMarkHomeworkUndone">Hausaufgabe konnten nicht als unerledigt markiert werden.</string>
+    <string name="homework_emptyTask">Aufgabe kann nicht leer sein.</string>
 </resources>

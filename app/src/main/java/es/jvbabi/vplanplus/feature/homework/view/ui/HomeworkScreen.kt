@@ -228,7 +228,6 @@ private fun HomeworkScreenContent(
                     LazyColumn(Modifier.fillMaxSize()) {
                         items(state.homework.sortedBy { it.until }) { homework ->
                             HomeworkCard(
-                                currentUser = state.identity.vppId,
                                 homework = homework,
                                 isOwner = homework.isOwner,
                                 allDone = { onMarkAllDone(homework, it) },

@@ -56,7 +56,6 @@ class HomeworkViewModel @Inject constructor(
                     errorVisible = true
                 )
             }
-            setHomeworkLoading(homework.id, false)
         }
     }
 
@@ -69,18 +68,29 @@ class HomeworkViewModel @Inject constructor(
                     errorVisible = true
                 )
             }
-            setTaskLoading(homeworkTask.id, false)
         }
     }
 
     fun onAddTask(homework: HomeworkViewModelHomework, task: String) {
         viewModelScope.launch {
+            state.value = state.value.copy(
+                homework = state.value.homework.map {
+                    if (it.id == homework.id) it.copy(isLoadingNewTask = true)
+                    else it
+                }
+            )
             if (homeworkUseCases.addTaskUseCase(homework.toHomework(), task) == HomeworkModificationResult.FAILED) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.ADD_TASK to task,
                     errorVisible = true
                 )
             }
+            state.value = state.value.copy(
+                homework = state.value.homework.map {
+                    if (it.id == homework.id) it.copy(isLoadingNewTask = false)
+                    else it
+                }
+            )
         }
     }
 
@@ -102,8 +112,8 @@ class HomeworkViewModel @Inject constructor(
                         errorResponse = ErrorOnUpdate.DELETE_HOMEWORK to null,
                         errorVisible = true
                     )
+                    setHomeworkLoading(it.id, false)
                 }
-                setHomeworkLoading(it.id, false)
             }
         }
     }
@@ -118,8 +128,8 @@ class HomeworkViewModel @Inject constructor(
                         errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_VISIBILITY to null,
                         errorVisible = true
                     )
+                    setHomeworkLoading(it.id, false)
                 }
-                setHomeworkLoading(it.id, false)
             }
         }
     }
@@ -170,7 +180,7 @@ class HomeworkViewModel @Inject constructor(
     }
 
     fun onHomeworkTaskEditRequestConfirm(newContent: String?) {
-        if (newContent == null) {
+        if (newContent.isNullOrBlank()) {
             onHomeworkTaskEditRequest(null)
             return
         }
@@ -185,8 +195,8 @@ class HomeworkViewModel @Inject constructor(
                         errorResponse = ErrorOnUpdate.EDIT_TASK to newContent,
                         errorVisible = true
                     )
+                    setTaskLoading(it.id, false)
                 }
-                setTaskLoading(it.id, false)
             }
         }
     }
@@ -226,7 +236,8 @@ data class HomeworkViewModelHomework(
     val until: ZonedDateTime,
     val tasks: List<HomeworkViewModelTask>,
     val isOwner: Boolean,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isLoadingNewTask: Boolean = false
 ) {
     fun toHomework() = Homework(
         id = id,

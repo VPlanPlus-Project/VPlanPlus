@@ -324,7 +324,7 @@
     <string name="homework_homeworkHead">%1$s until %2$s</string>
     <string name="homework_homeworkSubtitleCreatedBy">%1$s shared at %2$s</string>
     <string name="homework_homeworkSubtitleLocally">On this device, at %1$s</string>
-    <string name="homework_homeworkSubtitleCreatedByYou">You shared this at %1$s</string>
+    <string name="homework_homeworkSubtitleCreatedByYou">Your vpp.ID, at %1$s</string>
     <string name="homework_addTask">Add task</string>
     <string name="menu">Menu</string>
     <string name="homework_deleteHomeworkTitle">Delete homework?</string>
@@ -368,4 +368,5 @@
     <string name="homework_errorMarkTaskUndone">Couldn\'t mark task as undone.</string>
     <string name="homework_errorMarkHomeworkDone">Couldn\'t mark homework as done.</string>
     <string name="homework_errorMarkHomeworkUndone">Couldn\'t mark homework as undone.</string>
+    <string name="homework_emptyTask">Task can\'t be empty</string>
 </resources>
