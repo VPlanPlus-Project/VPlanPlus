@@ -88,6 +88,10 @@ fun HomeworkCard(
     var newTask by rememberSaveable {
         mutableStateOf("")
     }
+    var isEmpty by rememberSaveable {
+        mutableStateOf(false)
+    }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -226,7 +230,7 @@ fun HomeworkCard(
             }
 
             val height = animateFloatAsState(
-                targetValue = if (isAdding) 56f else 48f,
+                targetValue = if (isAdding) 86f else 48f,
                 label = "addTaskHeightAnimation"
             ).value.dp
             Column(
@@ -268,18 +272,27 @@ fun HomeworkCard(
                     exit = shrinkVertically(tween(250))
                 ) {
                     Row(
-                        verticalAlignment = Alignment.CenterVertically
+                        verticalAlignment = Alignment.Top
                     ) {
                         OutlinedTextField(
                             value = newTask,
-                            onValueChange = { newTask = it },
+                            onValueChange = { isEmpty = it.isBlank(); newTask = it },
                             modifier = Modifier.weight(1f),
                             placeholder = { Text(stringResource(id = R.string.homework_addTask)) },
                             enabled = !homework.isLoadingNewTask,
+                            supportingText = {
+                                if (isEmpty) {
+                                    Text(
+                                        text = stringResource(id = R.string.homework_emptyTask),
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                }
+                            }
                         )
                         IconButton(
                             onClick = { isAdding = false },
-                            enabled = !homework.isLoadingNewTask
+                            enabled = !homework.isLoadingNewTask,
+                            modifier = Modifier.padding(top = 4.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
@@ -288,14 +301,21 @@ fun HomeworkCard(
                         }
                         IconButton(
                             onClick = {
+                                if (newTask.isBlank()) {
+                                    isEmpty = true
+                                    return@IconButton
+                                }
                                 onAddTask(newTask)
                                 newTask = ""
                                 isAdding = false
                             },
                             enabled = !homework.isLoadingNewTask,
-                            modifier =
-                                if (!homework.isLoadingNewTask) Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
-                                else Modifier.background(Color.Gray, RoundedCornerShape(50))
+                            modifier = Modifier
+                                .padding(top = 4.dp)
+                                .then(
+                                    if (!homework.isLoadingNewTask) Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
+                                    else Modifier.background(Color.Gray, RoundedCornerShape(50))
+                                )
                         ) {
                             if (homework.isLoading) CircularProgressIndicator(
                                 modifier = Modifier.size(24.dp),

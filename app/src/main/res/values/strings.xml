@@ -368,4 +368,5 @@
     <string name="homework_errorMarkTaskUndone">Couldn\'t mark task as undone.</string>
     <string name="homework_errorMarkHomeworkDone">Couldn\'t mark homework as done.</string>
     <string name="homework_errorMarkHomeworkUndone">Couldn\'t mark homework as undone.</string>
+    <string name="homework_emptyTask">Task can\'t be empty</string>
 </resources>

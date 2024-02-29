@@ -370,4 +370,5 @@
     <string name="homework_errorMarkTaskUndone">Aufgabe konnte nicht als unerledigt markiert werden.</string>
     <string name="homework_errorMarkHomeworkDone">Hausaufgabe konnte nicht als erledigt markiert werden.</string>
     <string name="homework_errorMarkHomeworkUndone">Hausaufgabe konnten nicht als unerledigt markiert werden.</string>
+    <string name="homework_emptyTask">Aufgabe kann nicht leer sein.</string>
 </resources>
