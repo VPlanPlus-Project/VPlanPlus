@@ -31,14 +31,16 @@ class HomeworkViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 homeworkUseCases.getHomeworkUseCase(),
-                getCurrentIdentityUseCase()
-            ) { homework, identity ->
+                homeworkUseCases.isUpdateRunningUseCase(),
+                getCurrentIdentityUseCase(),
+            ) { homework, isUpdateRunning, identity ->
                 state.value.copy(
                     homework = homework
                         .homework
                         .map { it.toViewModel(it.createdBy?.id == identity?.vppId?.id) },
                     wrongProfile = homework.wrongProfile,
-                    identity = identity ?: Identity()
+                    identity = identity ?: Identity(),
+                    isUpdating = isUpdateRunning
                 )
             }.collect {
                 state.value = it
@@ -193,6 +195,13 @@ class HomeworkViewModel @Inject constructor(
     fun onResetError() {
         state.value = state.value.copy(errorVisible = false)
     }
+
+    fun refresh() {
+        if (state.value.isUpdating) return
+        viewModelScope.launch {
+            homeworkUseCases.updateUseCase()
+        }
+    }
 }
 
 data class HomeworkState(
@@ -204,7 +213,8 @@ data class HomeworkState(
     val homeworkTaskDeletionRequest: HomeworkTask? = null,
     val editHomeworkTask: HomeworkTask? = null,
     val errorResponse: Pair<ErrorOnUpdate, Any?>? = null,
-    val errorVisible: Boolean = false
+    val errorVisible: Boolean = false,
+    val isUpdating: Boolean = false
 )
 
 data class HomeworkViewModelHomework(

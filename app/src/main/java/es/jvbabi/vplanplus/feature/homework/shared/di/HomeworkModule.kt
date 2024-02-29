@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.di.VppModule
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
@@ -31,7 +32,8 @@ object HomeworkModule {
         logRecordRepository: LogRecordRepository,
         notificationRepository: NotificationRepository,
         stringRepository: StringRepository,
-        defaultLessonRepository: DefaultLessonRepository
+        defaultLessonRepository: DefaultLessonRepository,
+        keyValueRepository: KeyValueRepository
     ): HomeworkRepository {
         return HomeworkRepositoryImpl(
             homeworkDao = db.homeworkDao,
@@ -41,7 +43,8 @@ object HomeworkModule {
             vppIdNetworkRepository = VppModule.provideVppIdNetworkRepository(logRecordRepository),
             notificationRepository = notificationRepository,
             stringRepository = stringRepository,
-            defaultLessonRepository = defaultLessonRepository
+            defaultLessonRepository = defaultLessonRepository,
+            keyValueRepository = keyValueRepository
         )
     }
 }

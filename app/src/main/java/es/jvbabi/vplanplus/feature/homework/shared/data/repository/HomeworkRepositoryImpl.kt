@@ -12,6 +12,8 @@ import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
@@ -48,9 +50,16 @@ class HomeworkRepositoryImpl(
     private val vppIdNetworkRepository: VppIdNetworkRepository,
     private val notificationRepository: NotificationRepository,
     private val stringRepository: StringRepository,
-    private val defaultLessonRepository: DefaultLessonRepository
+    private val defaultLessonRepository: DefaultLessonRepository,
+    private val keyValueRepository: KeyValueRepository
 ) : HomeworkRepository {
+
+    private var isUpdateRunning = false
+
     override suspend fun fetchData() {
+        if (isUpdateRunning) return
+        isUpdateRunning = true
+        keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "true")
         val vppIds = vppIdRepository.getVppIds().first()
         profileRepository
             .getProfiles()
@@ -217,6 +226,9 @@ class HomeworkRepositoryImpl(
                     )
                 }
             }
+
+        keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "false")
+        isUpdateRunning = false
     }
 
     override suspend fun getHomeworkByClassId(classId: UUID): Flow<List<Homework>> {

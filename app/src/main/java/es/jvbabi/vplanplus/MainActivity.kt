@@ -207,7 +207,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(key1 = true, block = {
                 notificationRepository.createSystemChannels(applicationContext)
                 notificationRepository.createProfileChannels(applicationContext, homeUseCases.getProfilesUseCase().first().map { it.value }.flatten())
-                homeUseCases.refreshFirebaseToken()
+                homeUseCases.setUpUseCase()
             })
         }
 

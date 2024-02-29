@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -20,8 +21,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -65,6 +71,7 @@ fun HomeworkScreen(
         onHomeworkTaskEditRequestConfirm = viewModel::onHomeworkTaskEditRequestConfirm,
         onResetError = viewModel::onResetError,
         onCopyToClipboard = { clipboardManager.setText(buildAnnotatedString { append(it) }) },
+        refresh = viewModel::refresh,
         state = state,
         navBar = navBar,
     )
@@ -88,6 +95,7 @@ private fun HomeworkScreenContent(
     onHomeworkTaskEditRequestConfirm: (newContent: String?) -> Unit = {},
     onResetError: () -> Unit = {},
     onCopyToClipboard: (String) -> Unit = {},
+    refresh: () -> Unit = {},
     state: HomeworkState,
     navBar: @Composable () -> Unit = {},
 ) {
@@ -144,80 +152,97 @@ private fun HomeworkScreenContent(
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             if (state.wrongProfile) {
                 WrongProfile()
                 return@Column
             }
 
-            AnimatedVisibility(
-                visible = state.errorVisible,
-                enter = expandVertically(tween(250)),
-                exit = shrinkVertically(tween(250))
-            ) {
-                InfoCard(
-                    modifier = Modifier.padding(16.dp),
-                    imageVector = Icons.Default.Error,
-                    title = stringResource(id = R.string.something_went_wrong),
-                    text = when (state.errorResponse!!.first) {
-                        ErrorOnUpdate.DELETE_TASK -> stringResource(id = R.string.homework_errorDeleteTask)
-                        ErrorOnUpdate.CHANGE_HOMEWORK_VISIBILITY -> stringResource(id = R.string.homework_errorChangeVisibility)
-                        ErrorOnUpdate.DELETE_HOMEWORK -> stringResource(id = R.string.homework_errorDeleteHomework)
-                        ErrorOnUpdate.ADD_TASK -> stringResource(id = R.string.homework_errorAddTask)
-                        ErrorOnUpdate.EDIT_TASK -> stringResource(id = R.string.homework_errorEditTask)
-                        ErrorOnUpdate.CHANGE_TASK_STATE -> {
-                            if (state.errorResponse.second == true) {
-                                stringResource(id = R.string.homework_errorMarkTaskDone)
-                            } else {
-                                stringResource(id = R.string.homework_errorMarkTaskUndone)
-                            }
-                        }
-                        ErrorOnUpdate.CHANGE_HOMEWORK_STATE -> {
-                            if (state.errorResponse.second == true) {
-                                stringResource(id = R.string.homework_errorMarkHomeworkDone)
-                            } else {
-                                stringResource(id = R.string.homework_errorMarkHomeworkUndone)
-                            }
-                        }
-                    } + " " + stringResource(id = R.string.homework_errorInternetTryAgain),
-                    buttonText1 = stringResource(id = R.string.close),
-                    buttonAction1 = onResetError,
-                    buttonText2 = when (state.errorResponse.first) {
-                        ErrorOnUpdate.ADD_TASK, ErrorOnUpdate.EDIT_TASK -> stringResource(id = R.string.copy)
-                        else -> null
-                    },
-                    buttonAction2 = when (state.errorResponse.first) {
-                        ErrorOnUpdate.ADD_TASK, ErrorOnUpdate.EDIT_TASK -> {
-                            { onCopyToClipboard(state.errorResponse.second.toString().trim()) }
-                        }
-
-                        else -> {
-                            {}
-                        }
-                    }
-                )
+            val pullRefreshState = rememberPullToRefreshState()
+            LaunchedEffect(key1 = state.isUpdating) {
+                if (state.isUpdating) pullRefreshState.startRefresh()
+                else pullRefreshState.endRefresh()
+            }
+            if (pullRefreshState.isRefreshing) {
+                LaunchedEffect(key1 = Unit, block = {
+                    refresh()
+                })
             }
 
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .nestedScroll(pullRefreshState.nestedScrollConnection)
+            ) pullToRefresh@{
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) content@{
+                    AnimatedVisibility(
+                        visible = state.errorVisible,
+                        enter = expandVertically(tween(250)),
+                        exit = shrinkVertically(tween(250))
+                    ) {
+                        InfoCard(
+                            modifier = Modifier.padding(16.dp),
+                            imageVector = Icons.Default.Error,
+                            title = stringResource(id = R.string.something_went_wrong),
+                            text = when (state.errorResponse!!.first) {
+                                ErrorOnUpdate.DELETE_TASK -> stringResource(id = R.string.homework_errorDeleteTask)
+                                ErrorOnUpdate.CHANGE_HOMEWORK_VISIBILITY -> stringResource(id = R.string.homework_errorChangeVisibility)
+                                ErrorOnUpdate.DELETE_HOMEWORK -> stringResource(id = R.string.homework_errorDeleteHomework)
+                                ErrorOnUpdate.ADD_TASK -> stringResource(id = R.string.homework_errorAddTask)
+                                ErrorOnUpdate.EDIT_TASK -> stringResource(id = R.string.homework_errorEditTask)
+                                ErrorOnUpdate.CHANGE_TASK_STATE -> {
+                                    if (state.errorResponse.second == true) {
+                                        stringResource(id = R.string.homework_errorMarkTaskDone)
+                                    } else {
+                                        stringResource(id = R.string.homework_errorMarkTaskUndone)
+                                    }
+                                }
+                                ErrorOnUpdate.CHANGE_HOMEWORK_STATE -> {
+                                    if (state.errorResponse.second == true) {
+                                        stringResource(id = R.string.homework_errorMarkHomeworkDone)
+                                    } else {
+                                        stringResource(id = R.string.homework_errorMarkHomeworkUndone)
+                                    }
+                                }
+                            } + " " + stringResource(id = R.string.homework_errorInternetTryAgain),
+                            buttonText1 = stringResource(id = R.string.close),
+                            buttonAction1 = onResetError,
+                            buttonText2 = when (state.errorResponse.first) {
+                                ErrorOnUpdate.ADD_TASK, ErrorOnUpdate.EDIT_TASK -> stringResource(id = R.string.copy)
+                                else -> null
+                            },
+                            buttonAction2 = when (state.errorResponse.first) {
+                                ErrorOnUpdate.ADD_TASK, ErrorOnUpdate.EDIT_TASK -> {
+                                    { onCopyToClipboard(state.errorResponse.second.toString().trim()) }
+                                }
 
-            LazyColumn {
-                items(state.homework.sortedBy { it.until }) { homework ->
-                    HomeworkCard(
-                        currentUser = state.identity.vppId,
-                        homework = homework,
-                        isOwner = homework.isOwner,
-                        allDone = { onMarkAllDone(homework, it) },
-                        singleDone = { task, done -> onMarkSingleDone(task, done) },
-                        onAddTask = { onAddTask(homework, it) },
-                        onDeleteRequest = { onHomeworkDeleteRequest(homework) },
-                        onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework) },
-                        onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
-                        onEditTaskRequest = { onHomeworkTaskEditRequest(it) }
-                    )
+                                else -> {
+                                    {}
+                                }
+                            }
+                        )
+                    }
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        items(state.homework.sortedBy { it.until }) { homework ->
+                            HomeworkCard(
+                                currentUser = state.identity.vppId,
+                                homework = homework,
+                                isOwner = homework.isOwner,
+                                allDone = { onMarkAllDone(homework, it) },
+                                singleDone = { task, done -> onMarkSingleDone(task, done) },
+                                onAddTask = { onAddTask(homework, it) },
+                                onDeleteRequest = { onHomeworkDeleteRequest(homework) },
+                                onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework) },
+                                onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
+                                onEditTaskRequest = { onHomeworkTaskEditRequest(it) }
+                            )
+                        }
+                    }
                 }
+                PullToRefreshContainer(state = pullRefreshState, modifier = Modifier.align(alignment = Alignment.TopCenter))
             }
         }
     }

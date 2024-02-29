@@ -69,7 +69,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
-import es.jvbabi.vplanplus.domain.usecase.home.RefreshFirebaseTokenUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
@@ -743,7 +743,7 @@ object VppModule {
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
             ),
             getProfilesUseCase = getProfilesUseCase,
-            refreshFirebaseToken = RefreshFirebaseTokenUseCase(
+            setUpUseCase = SetUpUseCase(
                 keyValueRepository = keyValueRepository,
                 firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
             )

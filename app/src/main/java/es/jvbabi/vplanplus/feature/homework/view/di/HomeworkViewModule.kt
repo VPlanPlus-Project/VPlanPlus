@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.AddTaskUseCase
@@ -13,8 +14,10 @@ import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.DeleteHomeworkUs
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.EditTaskUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
+import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.IsUpdateRunningUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.MarkAllDoneUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.MarkSingleDoneUseCase
+import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.UpdateUseCase
 import javax.inject.Singleton
 
 @Module
@@ -25,6 +28,7 @@ object HomeworkViewModule {
     @Singleton
     fun provideHomeworkUseCases(
         homeworkRepository: HomeworkRepository,
+        keyValueRepository: KeyValueRepository,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): HomeworkUseCases {
         return HomeworkUseCases(
@@ -51,6 +55,12 @@ object HomeworkViewModule {
                 homeworkRepository = homeworkRepository
             ),
             editTaskUseCase = EditTaskUseCase(
+                homeworkRepository = homeworkRepository
+            ),
+            isUpdateRunningUseCase = IsUpdateRunningUseCase(
+                keyValueRepository = keyValueRepository
+            ),
+            updateUseCase = UpdateUseCase(
                 homeworkRepository = homeworkRepository
             )
         )
