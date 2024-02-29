@@ -7,7 +7,7 @@ import es.jvbabi.vplanplus.util.sha256
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-data class Homework(
+open class Homework(
     val id: Long,
     val createdBy: VppId?,
     val classes: Classes,

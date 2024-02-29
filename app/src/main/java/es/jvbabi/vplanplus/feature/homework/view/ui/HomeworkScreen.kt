@@ -8,12 +8,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,8 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.HomeworkCard
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.WrongProfile
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.ChangeVisibilityDialog
@@ -77,16 +75,16 @@ fun HomeworkScreen(
 private fun HomeworkScreenContent(
     onBack: () -> Unit = {},
     onAddHomework: () -> Unit = {},
-    onMarkAllDone: (homework: Homework, done: Boolean) -> Unit = { _, _ -> },
-    onMarkSingleDone: (homeworkTask: HomeworkTask, done: Boolean) -> Unit = { _, _ -> },
-    onAddTask: (homework: Homework, task: String) -> Unit = { _, _ -> },
-    onHomeworkDeleteRequest: (homework: Homework?) -> Unit = {},
+    onMarkAllDone: (homework: HomeworkViewModelHomework, done: Boolean) -> Unit = { _, _ -> },
+    onMarkSingleDone: (homeworkTask: HomeworkViewModelTask, done: Boolean) -> Unit = { _, _ -> },
+    onAddTask: (homework: HomeworkViewModelHomework, task: String) -> Unit = { _, _ -> },
+    onHomeworkDeleteRequest: (homework: HomeworkViewModelHomework?) -> Unit = {},
     onHomeworkDeleteRequestConfirm: () -> Unit = {},
-    onHomeworkChangeVisibilityRequest: (homework: Homework?) -> Unit = {},
+    onHomeworkChangeVisibilityRequest: (homework: HomeworkViewModelHomework?) -> Unit = {},
     onHomeworkChangeVisibilityRequestConfirm: () -> Unit = {},
-    onHomeworkTaskDeleteRequest: (homeworkTask: HomeworkTask?) -> Unit = {},
+    onHomeworkTaskDeleteRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
     onHomeworkTaskDeleteRequestConfirm: () -> Unit = {},
-    onHomeworkTaskEditRequest: (homeworkTask: HomeworkTask?) -> Unit = {},
+    onHomeworkTaskEditRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
     onHomeworkTaskEditRequestConfirm: (newContent: String?) -> Unit = {},
     onResetError: () -> Unit = {},
     onCopyToClipboard: (String) -> Unit = {},
@@ -206,16 +204,16 @@ private fun HomeworkScreenContent(
 
 
             LazyColumn {
-                items(state.homework.sortedBy { it.homework.until }) { homework ->
+                items(state.homework.sortedBy { it.until }) { homework ->
                     HomeworkCard(
                         currentUser = state.identity.vppId,
-                        homework = homework.homework,
+                        homework = homework,
                         isOwner = homework.isOwner,
-                        allDone = { onMarkAllDone(homework.homework, it) },
+                        allDone = { onMarkAllDone(homework, it) },
                         singleDone = { task, done -> onMarkSingleDone(task, done) },
-                        onAddTask = { onAddTask(homework.homework, it) },
-                        onDeleteRequest = { onHomeworkDeleteRequest(homework.homework) },
-                        onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework.homework) },
+                        onAddTask = { onAddTask(homework, it) },
+                        onDeleteRequest = { onHomeworkDeleteRequest(homework) },
+                        onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework) },
                         onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
                         onEditTaskRequest = { onHomeworkTaskEditRequest(it) }
                     )
