@@ -79,12 +79,13 @@ object DateUtils {
         }.replace(";DATE", localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)))
     }
 
-    fun String.toZonedDateTime(): ZonedDateTime {
-        return try {
-            ZonedDateTime.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+    fun String.toZonedDateTime(zoneId: ZoneId = ZoneId.systemDefault()): ZonedDateTime {
+        val localDateTime = try {
+            LocalDateTime.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         } catch (e: DateTimeParseException) {
-            ZonedDateTime.parse("1970-01-01 $this", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
+            LocalDateTime.parse("1970-01-01 $this", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         }
+        return localDateTime.atZone(zoneId)
     }
 
 

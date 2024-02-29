@@ -238,7 +238,7 @@ class DoSyncUseCase(
         var rooms = roomRepository.getRoomsBySchool(school)
         var teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
 
-        // clean default lessons
+        // update stuff
         classRepository.getClassesBySchool(school).forEach { dlClass ->
             defaultLessonRepository
                 .getDefaultLessonByClassId(dlClass.classId)

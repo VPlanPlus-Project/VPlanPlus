@@ -88,7 +88,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 20,
+    version = 19,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -207,13 +207,6 @@ abstract class VppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE grade ADD COLUMN type TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE grade ADD COLUMN comment TEXT NOT NULL DEFAULT ''")
-            }
-        }
-
-        val migration_19_20 = object : Migration(19, 20) {
-            override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("UPDATE lesson_time SET start = start - (60*60)")
-                db.execSQL("UPDATE lesson_time SET end = end - (60*60)")
             }
         }
     }
