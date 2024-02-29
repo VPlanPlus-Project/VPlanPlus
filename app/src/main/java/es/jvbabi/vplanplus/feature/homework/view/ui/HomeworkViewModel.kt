@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -40,19 +41,34 @@ class HomeworkViewModel @Inject constructor(
 
     fun markAllDone(homework: Homework, done: Boolean) {
         viewModelScope.launch {
-            homeworkUseCases.markAllDoneUseCase(homework, done)
+            if (homeworkUseCases.markAllDoneUseCase(homework, done) == HomeworkModificationResult.FAILED) {
+                state.value = state.value.copy(
+                    errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_STATE to done,
+                    errorVisible = true
+                )
+            }
         }
     }
 
     fun markSingleDone(homeworkTask: HomeworkTask, done: Boolean) {
         viewModelScope.launch {
-            homeworkUseCases.markSingleDoneUseCase(homeworkTask, done)
+            if (homeworkUseCases.markSingleDoneUseCase(homeworkTask, done) == HomeworkModificationResult.FAILED) {
+                state.value = state.value.copy(
+                    errorResponse = ErrorOnUpdate.CHANGE_TASK_STATE to done,
+                    errorVisible = true
+                )
+            }
         }
     }
 
     fun onAddTask(homework: Homework, task: String) {
         viewModelScope.launch {
-            homeworkUseCases.addTaskUseCase(homework, task)
+            if (homeworkUseCases.addTaskUseCase(homework, task) == HomeworkModificationResult.FAILED) {
+                state.value = state.value.copy(
+                    errorResponse = ErrorOnUpdate.ADD_TASK to task,
+                    errorVisible = true
+                )
+            }
         }
     }
 
@@ -67,7 +83,12 @@ class HomeworkViewModel @Inject constructor(
     fun onConfirmHomeworkDeleteRequest() {
         state.value.homeworkDeletionRequest?.let {
             viewModelScope.launch {
-                homeworkUseCases.deleteHomeworkUseCase(it)
+                if (homeworkUseCases.deleteHomeworkUseCase(it) == HomeworkModificationResult.FAILED) {
+                    state.value = state.value.copy(
+                        errorResponse = ErrorOnUpdate.DELETE_HOMEWORK to null,
+                        errorVisible = true
+                    )
+                }
                 onHomeworkDeleteRequest(null)
             }
         }
@@ -76,7 +97,12 @@ class HomeworkViewModel @Inject constructor(
     fun onConfirmHomeworkChangeVisibilityRequest() {
         state.value.homeworkChangeVisibilityRequest?.let {
             viewModelScope.launch {
-                homeworkUseCases.changeVisibilityUseCase(it)
+                if (homeworkUseCases.changeVisibilityUseCase(it) == HomeworkModificationResult.FAILED) {
+                    state.value = state.value.copy(
+                        errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_VISIBILITY to null,
+                        errorVisible = true
+                    )
+                }
                 onHomeworkChangeVisibilityRequest(null)
             }
         }
@@ -89,7 +115,12 @@ class HomeworkViewModel @Inject constructor(
     fun onHomeworkTaskDeleteRequestConfirm() {
         state.value.homeworkTaskDeletionRequest?.let {
             viewModelScope.launch {
-                homeworkUseCases.deleteHomeworkTaskUseCase(it)
+                if (homeworkUseCases.deleteHomeworkTaskUseCase(it) == HomeworkModificationResult.FAILED) {
+                    state.value = state.value.copy(
+                        errorResponse = ErrorOnUpdate.DELETE_TASK to null,
+                        errorVisible = true
+                    )
+                }
                 onHomeworkTaskDeleteRequest(null)
             }
         }
@@ -108,10 +139,19 @@ class HomeworkViewModel @Inject constructor(
             if (newContent == it.content) return@let
             if (newContent.isBlank()) return@let
             viewModelScope.launch {
-                homeworkUseCases.editTaskUseCase(it, newContent)
+                if (homeworkUseCases.editTaskUseCase(it, newContent) == HomeworkModificationResult.FAILED) {
+                    state.value = state.value.copy(
+                        errorResponse = ErrorOnUpdate.EDIT_TASK to newContent,
+                        errorVisible = true
+                    )
+                }
                 onHomeworkTaskEditRequest(null)
             }
         }
+    }
+
+    fun onResetError() {
+        state.value = state.value.copy(errorVisible = false)
     }
 }
 
@@ -123,9 +163,21 @@ data class HomeworkState(
     val homeworkChangeVisibilityRequest: Homework? = null,
     val homeworkTaskDeletionRequest: HomeworkTask? = null,
     val editHomeworkTask: HomeworkTask? = null,
+    val errorResponse: Pair<ErrorOnUpdate, Any?>? = null,
+    val errorVisible: Boolean = false
 )
 
 data class HomeworkViewModelRecord(
     val homework: Homework,
     val isOwner: Boolean
 )
+
+enum class ErrorOnUpdate {
+    DELETE_TASK,
+    EDIT_TASK,
+    CHANGE_TASK_STATE,
+    CHANGE_HOMEWORK_STATE,
+    CHANGE_HOMEWORK_VISIBILITY,
+    DELETE_HOMEWORK,
+    ADD_TASK
+}

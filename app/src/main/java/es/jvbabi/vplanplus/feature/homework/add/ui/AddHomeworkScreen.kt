@@ -337,8 +337,9 @@ private fun AddHomeworkContent(
 
             if (state.result == HomeworkModificationResult.FAILED) {
                 InfoCard(
+                    modifier = Modifier.padding(16.dp),
                     imageVector = Icons.Default.Error,
-                    title = stringResource(id = R.string.addHomework_saveFailedTitle),
+                    title = stringResource(id = R.string.something_went_wrong),
                     text =
                     stringResource(id = R.string.addHomework_saveFailedText) +
                             if (state.canUseCloud) " " + stringResource(id = R.string.addHomework_saveFailedOnlineText)

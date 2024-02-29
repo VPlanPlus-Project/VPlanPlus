@@ -65,9 +65,9 @@ interface HomeworkRepository {
 }
 
 enum class HomeworkModificationResult {
-    SUCCESS_ONLINE_AND_OFFLINE,
+    FAILED,
     SUCCESS_OFFLINE,
-    FAILED
+    SUCCESS_ONLINE_AND_OFFLINE
 }
 
 data class NewTaskRecord(
