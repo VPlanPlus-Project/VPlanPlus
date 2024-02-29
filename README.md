@@ -24,6 +24,14 @@ Diese App ist eine Alternative zu VpMobil und VpMobil24.
 
 Website: [VPlanPlus.JVBabi.es](https://vplanplus.jvbabi.es)
 
+### vpp.ID
+Mit der vpp.ID hast du noch mehr Möglichkeiten, deinen Schulalltag digital zu gestalten. Mit diesem Account kannst du Räume buchen, Hausaufgaben erstellen und in der Klasse teilen - selbst, wenn deine Klassenkameraden selbst keine vpp.ID haben.
+
+Eine vpp.ID erstellst du mit deinem beste.schule Account.
+
+> [!IMPORTANT]
+> Der beste.schule Account benötigt eine E-Mail-Adresse.
+
 [^1]: Aktuell nur für Tester (registrierung per Mail unter [vpp.jvbabi.es](https://vpp.jvbabi.es))
 [^2]: Variiert zwischen Schulen, siehe Kompatibilitätstabelle weiter unten
 <hr />
