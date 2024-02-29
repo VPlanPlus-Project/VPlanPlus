@@ -26,5 +26,7 @@ interface NotificationRepository {
         const val CHANNEL_ID_NEWS = "news"
         const val CHANNEL_ID_SYNC = "sync"
         const val CHANNEL_ID_HOMEWORK = "homework"
+
+        const val CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK = 7000
     }
 }

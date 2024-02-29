@@ -347,4 +347,13 @@
     <string name="homework_editTaskText">Ändere die Aufgabenstellung. Wenn diese Hausaufgabe geteilt ist, wird sie auf den Geräten deiner Klassenkameraden ebenfalls aktualisiert.</string>
     <string name="notification_homeworkName">Hausaufgaben</string>
     <string name="notification_homeworkDescription">Wenn jemand in deiner Klasse eine Hausaufgabe teilt oder bearbeitet, erhälst du eine Benachrichtigung.</string>
+    <string name="notification_homeworkNewHomeworkOneTitle">Neue Hausaufgabe</string>
+    <string name="notification_homeworkNewHomeworkOneContent">%1$s hat eine Hausaufgabe in %2$s mit %3$d Aufgaben, welche bis zum %4$s zu erledigen sind, erstellt.</string>
+    <string name="notification_homeworkNewHomeworkMultipleTitle">Neue Hausaufgaben</string>
+    <string name="notification_homeworkNewHomeworkMultipleContent">Es gibt %1$d neue Hausaufgaben</string>
+    <string name="notification_homeworkChangedHomeworkTitle">Hausaufgaben</string>
+    <plurals name="notification_homeworkChangedHomeworkContent">
+        <item quantity="one">Eine Hausaufgabe wurde geändert.</item>
+        <item quantity="other">%1$d Hausaufgaben wurden geändert.</item>
+    </plurals>
 </resources>

@@ -103,6 +103,37 @@ object DateUtils {
         }
     }
 
+    fun LocalDateTime.getRelativeStringResource(
+        contextDate: LocalDate = LocalDate.now()
+    ): Int? {
+        return this.toLocalDate().getRelativeStringResource(contextDate)
+    }
+
+    fun LocalDate.getRelativeStringResource(
+        contextDate: LocalDate = LocalDate.now()
+    ): Int? {
+        return when (this) {
+            contextDate -> {
+                R.string.today
+            }
+            contextDate.plusDays(1) -> {
+                R.string.tomorrow
+            }
+            contextDate.plusDays(2) -> {
+                R.string.day_after_tomorrow
+            }
+            contextDate.minusDays(1) -> {
+                R.string.yesterday
+            }
+            contextDate.minusDays(2) -> {
+                R.string.day_before_yesterday
+            }
+            else -> {
+                null
+            }
+        }
+    }
+
     fun LocalDateTime.atBeginningOfTheWorld(): LocalDateTime {
         return LocalDateTime.of(1970, 1, 1, this.hour, this.minute)
     }

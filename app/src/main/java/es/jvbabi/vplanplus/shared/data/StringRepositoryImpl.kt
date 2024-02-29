@@ -13,4 +13,13 @@ class StringRepositoryImpl(
     override fun getString(key: Int, vararg formatArgs: Any): String {
         return context.getString(key, *formatArgs)
     }
+
+    override fun getPlural(key: Int, quantity: Int): String {
+        return context.resources.getQuantityString(key, quantity)
+    }
+
+    override fun getPlural(key: Int, quantity: Int, vararg formatArgs: Any): String {
+        return context.resources.getQuantityString(key, quantity, *formatArgs)
+    }
+
 }

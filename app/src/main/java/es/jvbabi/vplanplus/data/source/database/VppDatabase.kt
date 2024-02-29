@@ -160,7 +160,11 @@ abstract class VppDatabase : RoomDatabase() {
 
         val migration_10_11 = object : Migration(10, 11) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE vpp_id_token ADD COLUMN bsToken TEXT DEFAULT NULL")
+                try {
+                    db.execSQL("ALTER TABLE vpp_id_token ADD COLUMN bsToken TEXT DEFAULT NULL")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
 
                 db.execSQL("CREATE TABLE IF NOT EXISTS grade_teacher (" +
                         "id INTEGER PRIMARY KEY NOT NULL," +

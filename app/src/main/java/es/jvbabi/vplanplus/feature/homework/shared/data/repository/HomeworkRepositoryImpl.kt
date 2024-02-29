@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.homework.shared.data.repository
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbHomework
 import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.ProfileType
@@ -10,7 +11,12 @@ import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
@@ -21,7 +27,9 @@ import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
 import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
+import es.jvbabi.vplanplus.util.sha256
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +37,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class HomeworkRepositoryImpl(
@@ -36,8 +45,11 @@ class HomeworkRepositoryImpl(
     private val classRepository: ClassRepository,
     private val vppIdRepository: VppIdRepository,
     private val profileRepository: ProfileRepository,
-    private val vppIdNetworkRepository: VppIdNetworkRepository
-): HomeworkRepository {
+    private val vppIdNetworkRepository: VppIdNetworkRepository,
+    private val notificationRepository: NotificationRepository,
+    private val stringRepository: StringRepository,
+    private val defaultLessonRepository: DefaultLessonRepository
+) : HomeworkRepository {
     override suspend fun fetchData() {
         val vppIds = vppIdRepository.getVppIds().first()
         profileRepository
@@ -55,7 +67,8 @@ class HomeworkRepositoryImpl(
                     val token = vppIdRepository.getVppIdToken(vppId) ?: return@forEach
                     vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
                 } else {
-                    vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
+                    vppIdNetworkRepository.authentication =
+                        TokenAuthentication("sp24.", school.buildToken())
                     vppIdNetworkRepository.globalHeaders["Class"] = `class`.name
                 }
 
@@ -75,14 +88,29 @@ class HomeworkRepositoryImpl(
                         homeworkDao.deleteHomework(it)
                     }
 
+                val existingHomework = getAll().first().filter { it.classes == `class` }
+                val newHomework = data.filter {
+                    profile.isDefaultLessonEnabled(it.vpId.toLong()) && !existingHomework.any { eh -> eh.id == it.id }
+                }
+
+                val changedHomework = data.filter {
+                    it.buildHash() != existingHomework.firstOrNull { eh -> eh.id == it.id }?.buildHash()
+                }
+
                 data.forEach forEachHomework@{ responseHomework ->
                     val id = responseHomework.id
-                    var createdBy = vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy }
+                    var createdBy =
+                        vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy }
                     if (createdBy == null) {
-                        createdBy = vppIdRepository.cacheVppId(responseHomework.createdBy.toInt(), school) ?: run {
-                            Log.e("HomeworkRepositoryImpl", "Failed to find VppId for homework $id (vpp.ID: ${responseHomework.createdBy})")
-                            return@forEachHomework
-                        }
+                        createdBy =
+                            vppIdRepository.cacheVppId(responseHomework.createdBy.toInt(), school)
+                                ?: run {
+                                    Log.e(
+                                        "HomeworkRepositoryImpl",
+                                        "Failed to find VppId for homework $id (vpp.ID: ${responseHomework.createdBy})"
+                                    )
+                                    return@forEachHomework
+                                }
                     }
 
                     val ignoredTaskIds = mutableListOf<Long>()
@@ -91,8 +119,9 @@ class HomeworkRepositoryImpl(
                             .getById(id.toInt()).first()
                             ?.tasks ?: emptyList())
                             .mapNotNull { dbTask ->
-                                val new = responseHomework.tasks.firstOrNull { task -> task.id.toLong() == dbTask.id }
-                                    ?: return@mapNotNull null
+                                val new =
+                                    responseHomework.tasks.firstOrNull { task -> task.id.toLong() == dbTask.id }
+                                        ?: return@mapNotNull null
                                 ignoredTaskIds.add(new.id.toLong())
                                 NewTaskRecord(
                                     id = dbTask.id,
@@ -105,12 +134,13 @@ class HomeworkRepositoryImpl(
                                 responseHomework.tasks
                                     .filter { !ignoredTaskIds.contains(it.id.toLong()) }
                                     .map { task ->
-                                        NewTaskRecord(
+                                        val record = NewTaskRecord(
                                             id = task.id.toLong(),
                                             content = task.content,
                                             done = task.done ?: false,
                                             individualId = task.individualId?.toLong()
                                         )
+                                        record
                                     }
                             )
 
@@ -128,7 +158,64 @@ class HomeworkRepositoryImpl(
                         tasks = replacementTasks
                     )
                 }
-        }
+
+                if (newHomework.size == 1) {
+                    val defaultLessons =
+                        defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
+                    val vpIds = vppIdRepository.getVppIds().first()
+
+                    val dateResourceId = DateUtils
+                        .getDateFromTimestamp(newHomework.first().until)
+                        .getRelativeStringResource()
+
+                    val dateString =
+                        if (dateResourceId != null) stringRepository.getString(dateResourceId)
+                        else DateUtils.getDateFromTimestamp(newHomework.first().until).format(
+                            DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
+                        )
+
+                    notificationRepository.sendNotification(
+                        CHANNEL_ID_HOMEWORK,
+                        newHomework.first().id.toInt(),
+                        stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
+                        stringRepository.getString(
+                            R.string.notification_homeworkNewHomeworkOneContent,
+                            vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
+                                ?: "Unknown",
+                            defaultLessons.first { it.vpId == newHomework.first().vpId.toLong() }.subject,
+                            newHomework.first().tasks.size,
+                            dateString
+                        ),
+                        R.drawable.vpp,
+                        null,
+                    )
+                } else if (newHomework.isNotEmpty()) {
+                    notificationRepository.sendNotification(
+                        CHANNEL_ID_HOMEWORK,
+                        CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
+                        stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
+                        stringRepository.getString(
+                            R.string.notification_homeworkNewHomeworkMultipleContent,
+                            newHomework.size
+                        ),
+                        R.drawable.vpp,
+                        null,
+                    )
+                } else if (changedHomework.isNotEmpty()) {
+                    notificationRepository.sendNotification(
+                        CHANNEL_ID_HOMEWORK,
+                        CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
+                        stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
+                        stringRepository.getPlural(
+                            R.plurals.notification_homeworkChangedHomeworkContent,
+                            changedHomework.size,
+                            changedHomework.size
+                        ),
+                        R.drawable.vpp,
+                        null,
+                    )
+                }
+            }
     }
 
     override suspend fun getHomeworkByClassId(classId: UUID): Flow<List<Homework>> {
@@ -160,7 +247,7 @@ class HomeworkRepositoryImpl(
     ): HomeworkModificationResult {
         if (!allowCloudUpdate || createdBy == null) {
             val dbHomework = DbHomework(
-                id = id ?: (findLocalId()-1),
+                id = id ?: (findLocalId() - 1),
                 classes = `class`.classId,
                 createdAt = createdAt,
                 until = until,
@@ -170,7 +257,7 @@ class HomeworkRepositoryImpl(
             homeworkDao.insert(dbHomework)
             tasks.forEach { newTask ->
                 val dbHomeworkTask = DbHomeworkTask(
-                    id = newTask.id ?: (findLocalTaskId()-1),
+                    id = newTask.id ?: (findLocalTaskId() - 1),
                     homeworkId = dbHomework.id,
                     content = newTask.content,
                     done = newTask.done,
@@ -183,9 +270,13 @@ class HomeworkRepositoryImpl(
 
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.classes?.classId == `class`.classId && it.isActive() } ?: return HomeworkModificationResult.FAILED
+            .firstOrNull { it.classes?.classId == `class`.classId && it.isActive() }
+            ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        vppIdNetworkRepository.authentication = TokenAuthentication(
+            "vpp.",
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        )
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/${VppIdServer.apiVersion}/homework/",
             requestBody = Gson().toJson(
@@ -235,9 +326,13 @@ class HomeworkRepositoryImpl(
 
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id } ?: return HomeworkModificationResult.FAILED
+            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
+            ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        vppIdNetworkRepository.authentication = TokenAuthentication(
+            "vpp.",
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        )
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/${VppIdServer.apiVersion}/homework/",
             requestBody = Gson().toJson(
@@ -262,7 +357,7 @@ class HomeworkRepositoryImpl(
     ): HomeworkModificationResult {
         if (homework.id < 0) {
             val dbHomeworkTask = DbHomeworkTask(
-                id = findLocalTaskId()-1,
+                id = findLocalTaskId() - 1,
                 homeworkId = homework.id,
                 content = content,
                 done = false,
@@ -274,9 +369,13 @@ class HomeworkRepositoryImpl(
 
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id } ?: return HomeworkModificationResult.FAILED
+            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
+            ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        vppIdNetworkRepository.authentication = TokenAuthentication(
+            "vpp.",
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        )
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/${VppIdServer.apiVersion}/homework/",
             requestBody = Gson().toJson(
@@ -314,10 +413,14 @@ class HomeworkRepositoryImpl(
 
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == parent.createdBy?.id } ?: return HomeworkModificationResult.FAILED
+            .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
+            ?: return HomeworkModificationResult.FAILED
         if (task.individualId == null) return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        vppIdNetworkRepository.authentication = TokenAuthentication(
+            "vpp.",
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        )
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/${VppIdServer.apiVersion}/homework/",
             requestBody = Gson().toJson(
@@ -344,7 +447,8 @@ class HomeworkRepositoryImpl(
         newContent: String
     ): HomeworkModificationResult {
         if (task.id < 0) {
-            val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(content = newContent)
+            val dbHomeworkTask =
+                homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(content = newContent)
             homeworkDao.insertTask(dbHomeworkTask)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
@@ -352,9 +456,13 @@ class HomeworkRepositoryImpl(
         val parent = getHomeworkByTask(task)
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == parent.createdBy?.id } ?: return HomeworkModificationResult.FAILED
+            .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
+            ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        vppIdNetworkRepository.authentication = TokenAuthentication(
+            "vpp.",
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        )
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/${VppIdServer.apiVersion}/homework/",
             requestBody = Gson().toJson(
@@ -367,7 +475,8 @@ class HomeworkRepositoryImpl(
         )
 
         return if (result.response == HttpStatusCode.OK) {
-            val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(content = newContent)
+            val dbHomeworkTask =
+                homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(content = newContent)
             homeworkDao.insertTask(dbHomeworkTask)
             HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
         } else {
@@ -382,16 +491,21 @@ class HomeworkRepositoryImpl(
     ): HomeworkModificationResult {
         val activeVppIds = vppIdRepository.getVppIds().first().filter { it.isActive() }
         if (!activeVppIds.any { it.id == homework.createdBy?.id }) {
-            val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
+            val dbHomeworkTask =
+                homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
             homeworkDao.insertTask(dbHomeworkTask)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id } ?: return HomeworkModificationResult.FAILED
+            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
+            ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        vppIdNetworkRepository.authentication = TokenAuthentication(
+            "vpp.",
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        )
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/${VppIdServer.apiVersion}/homework/",
             requestBody = Gson().toJson(
@@ -403,7 +517,8 @@ class HomeworkRepositoryImpl(
             requestMethod = HttpMethod.Put
         )
         return if (result.response == HttpStatusCode.OK) {
-            val dbHomeworkTask = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
+            val dbHomeworkTask =
+                homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
             homeworkDao.insertTask(dbHomeworkTask)
             HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
         } else {
@@ -428,8 +543,12 @@ class HomeworkRepositoryImpl(
 
     override suspend fun changeVisibility(homework: Homework): HomeworkModificationResult {
         if (homework.id < 0) throw UnsupportedOperationException("Cannot change visibility of local homework")
-        val vppId = homework.createdBy ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED)
+        val vppId = homework.createdBy
+            ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
+        vppIdNetworkRepository.authentication = TokenAuthentication(
+            "vpp.",
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        )
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/${VppIdServer.apiVersion}/homework/",
             requestBody = Gson().toJson(
@@ -464,7 +583,11 @@ private data class HomeworkResponseRecord(
     @SerializedName("public") val shareWithClass: Boolean,
     val classes: Int,
     val tasks: List<HomeRecordTask>
-)
+) {
+    fun buildHash(): String {
+        return "$id$createdBy$createdAt$vpId$until$shareWithClass$classes${tasks.joinToString { it.content }}".sha256()
+    }
+}
 
 private data class HomeRecordTask @JvmOverloads constructor(
     @SerializedName("id") val id: Int,
