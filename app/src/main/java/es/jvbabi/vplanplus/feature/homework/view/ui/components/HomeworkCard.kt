@@ -172,7 +172,7 @@ fun HomeworkCard(
             }
 
             HorizontalDivider()
-            homework.tasks.sortedBy { it.done.toString() + it.content }.forEach { task ->
+            homework.tasks.sortedBy { it.content }.forEach { task ->
                 var isMenuOpened by remember {
                     mutableStateOf(false)
                 }
