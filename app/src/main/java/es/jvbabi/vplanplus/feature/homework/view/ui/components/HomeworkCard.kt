@@ -57,9 +57,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkViewModelHomework
 import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkViewModelTask
+import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
@@ -70,7 +70,6 @@ import java.util.UUID
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeworkCard(
-    currentUser: VppId?,
     homework: HomeworkViewModelHomework,
     isOwner: Boolean,
     allDone: (Boolean) -> Unit,
@@ -135,7 +134,23 @@ fun HomeworkCard(
                             ),
                             style = MaterialTheme.typography.titleMedium
                         )
-                        Text(text = createSubtext(homework, currentUser), style = MaterialTheme.typography.labelMedium)
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            if (homework.isPublic) {
+                                Icon(
+                                    imageVector = Icons.Default.Share,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Text(
+                                    text = DOT,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    modifier = Modifier.padding(horizontal = 4.dp)
+                                )
+                            }
+                            Text(text = createSubtext(homework), style = MaterialTheme.typography.labelMedium)
+                        }
                     }
                 }
                 Box {
@@ -313,7 +328,10 @@ fun HomeworkCard(
                             modifier = Modifier
                                 .padding(top = 4.dp)
                                 .then(
-                                    if (!homework.isLoadingNewTask) Modifier.background(MaterialTheme.colorScheme.primary, RoundedCornerShape(50))
+                                    if (!homework.isLoadingNewTask) Modifier.background(
+                                        MaterialTheme.colorScheme.primary,
+                                        RoundedCornerShape(50)
+                                    )
                                     else Modifier.background(Color.Gray, RoundedCornerShape(50))
                                 )
                         ) {
@@ -335,16 +353,16 @@ fun HomeworkCard(
 }
 
 @Composable
-private fun createSubtext(homework: HomeworkViewModelHomework, currentUser: VppId?): String {
+private fun createSubtext(homework: HomeworkViewModelHomework): String {
     val builder = StringBuilder()
     if (homework.createdBy != null) {
-        if (currentUser == homework.createdBy) builder.append(
+        if (homework.isOwner) builder.append(
             stringResource(
                 id = R.string.homework_homeworkSubtitleCreatedByYou,
                 homework.createdAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")
                 )
             )
-        ) else builder.append( // TODO: Add private option
+        ) else builder.append(
             stringResource(
                 id = R.string.homework_homeworkSubtitleCreatedBy,
                 homework.createdBy.name,
@@ -369,7 +387,6 @@ private fun createSubtext(homework: HomeworkViewModelHomework, currentUser: VppI
 private fun HomeworkCardPreview() {
     val school = School.generateRandomSchools(1).first()
     val `class` = ClassesPreview.generateClass(school)
-    val currentVppId = null
     val creator = VppIdPreview.generateVppId(`class`)
     val defaultLesson = DefaultLesson(
         teacher = null,
@@ -379,7 +396,6 @@ private fun HomeworkCardPreview() {
         vpId = 42
     )
     HomeworkCard(
-        currentUser = currentVppId,
         homework = HomeworkViewModelHomework(
             id = 1,
             createdBy = creator,
@@ -402,7 +418,7 @@ private fun HomeworkCardPreview() {
                 )
             ),
             classes = `class`,
-            isPublic = false,
+            isPublic = true,
             isOwner = true,
             isLoading = true,
             isLoadingNewTask = true
