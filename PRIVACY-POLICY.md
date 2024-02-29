@@ -1,10 +1,10 @@
-# Datenschutzerklärung VPlanPlus und vpp.ID Stand 28.02.2024
+# Datenschutzerklärung VPlanPlus und vpp.ID Stand 29.02.2024
 > [!NOTE]
 > Die App teilt sich in die Dienste VPlanPlus und vpp.ID auf.
 
 
 ## Generelles
-VPlanPlus umfasst lediglich die App. vpp.ID ist ein optinales Angebot, welches in die App integriert ist, jedoch bis zur Aktivierung durch den Nutzer untätig bleibt.
+VPlanPlus umfasst lediglich die App. vpp.ID ist ein optinales Angebot, welches in die App integriert ist, jedoch bis zur Aktivierung durch den Nutzer keine personenbezogenen Daten erzeugt.
 
 ### Abkürzungen
 - Datenschutzgrundverordnung: DSGVO
@@ -12,6 +12,8 @@ VPlanPlus umfasst lediglich die App. vpp.ID ist ein optinales Angebot, welches i
 - beste.schule: Schulverwalter
 - stundenplan24.de und beste.schule: externe Anbieter
 - VPlanPlus und vpp.ID: Services
+- App: VPlanPlus
+
 ### Definition personenbezogenes Datum
 Jegliche Daten, welche auf eine reale Person zugeordnet sind oder mittels weiterer Informationen Rückschlüsse auf eine reale Person ermöglichen, werden nach DSGVO als personenbezogen bezeichnet.
 
