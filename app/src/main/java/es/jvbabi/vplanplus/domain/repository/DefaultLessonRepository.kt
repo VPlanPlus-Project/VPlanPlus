@@ -6,6 +6,8 @@ import java.util.UUID
 
 interface DefaultLessonRepository {
     suspend fun insert(defaultLesson: DbDefaultLesson): UUID
+
+    @Deprecated("Insecure")
     suspend fun getDefaultLessonByVpId(vpId: Long): DefaultLesson?
     suspend fun getDefaultLessonByClassId(classId: UUID): List<DefaultLesson>
     suspend fun updateTeacherId(classId: UUID, vpId: Long, teacherId: UUID)

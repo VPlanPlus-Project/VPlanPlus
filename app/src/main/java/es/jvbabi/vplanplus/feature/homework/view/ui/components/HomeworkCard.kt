@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -30,6 +31,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -55,8 +57,8 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkViewModelHomework
+import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkViewModelTask
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
@@ -69,15 +71,15 @@ import java.util.UUID
 @Composable
 fun HomeworkCard(
     currentUser: VppId?,
-    homework: Homework,
+    homework: HomeworkViewModelHomework,
     isOwner: Boolean,
     allDone: (Boolean) -> Unit,
-    singleDone: (HomeworkTask, Boolean) -> Unit,
+    singleDone: (HomeworkViewModelTask, Boolean) -> Unit,
     onAddTask: (String) -> Unit,
     onDeleteRequest: () -> Unit,
     onChangePublicVisibility: () -> Unit,
-    onDeleteTaskRequest: (HomeworkTask) -> Unit,
-    onEditTaskRequest: (HomeworkTask) -> Unit
+    onDeleteTaskRequest: (HomeworkViewModelTask) -> Unit,
+    onEditTaskRequest: (HomeworkViewModelTask) -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     var isAdding by rememberSaveable {
@@ -103,11 +105,22 @@ fun HomeworkCard(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) titleContainer@{
-                    val state =
-                        if (homework.tasks.all { it.done }) ToggleableState.On
-                        else if (homework.tasks.all { !it.done }) ToggleableState.Off
-                        else ToggleableState.Indeterminate
-                    TriStateCheckbox(state = state, onClick = { allDone(state != ToggleableState.On ) })
+                    if(!homework.isLoading) {
+                        val state =
+                            if (homework.tasks.all { it.done }) ToggleableState.On
+                            else if (homework.tasks.all { !it.done }) ToggleableState.Off
+                            else ToggleableState.Indeterminate
+                        TriStateCheckbox(state = state, onClick = { allDone(state != ToggleableState.On ) })
+                    } else {
+                        Box(
+                            modifier = Modifier.width(48.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                            )
+                        }
+                    }
                     Column {
                         Text(
                             text = stringResource(
@@ -136,7 +149,7 @@ fun HomeworkCard(
                             leadingIcon = {
                                 Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                             },
-                            enabled = isOwner
+                            enabled = isOwner && !homework.isLoading && homework.tasks.all { !it.isLoading }
                         )
                         if (isOwner && homework.id > 0) {
                             DropdownMenuItem(
@@ -145,6 +158,7 @@ fun HomeworkCard(
                                     else Text(text = stringResource(id = R.string.homework_share))
                                 },
                                 onClick = { menuExpanded = false; onChangePublicVisibility() },
+                                enabled = !homework.isLoading && homework.tasks.all { !it.isLoading },
                                 leadingIcon = {
                                     if (homework.isPublic)
                                         Icon(imageVector = Icons.Default.CheckBox, contentDescription = null)
@@ -158,7 +172,7 @@ fun HomeworkCard(
             }
 
             HorizontalDivider()
-            homework.tasks.sortedBy { it.done.toString() + it.content }.forEach { task ->
+            homework.tasks.sortedBy { it.content }.forEach { task ->
                 var isMenuOpened by remember {
                     mutableStateOf(false)
                 }
@@ -166,7 +180,12 @@ fun HomeworkCard(
                     modifier = Modifier.padding(start = 32.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Checkbox(checked = task.done, onCheckedChange = { singleDone(task, it) })
+                    if (task.isLoading || homework.isLoading) {
+                        Box(modifier = Modifier.size(48.dp), contentAlignment = Alignment.Center) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                        }
+                    }
+                    else Checkbox(checked = task.done, onCheckedChange = { singleDone(task, it) })
                     Box(
                         contentAlignment = Alignment.CenterStart,
                         modifier = Modifier
@@ -190,7 +209,7 @@ fun HomeworkCard(
                                 leadingIcon = {
                                     Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                                 },
-                                enabled = isOwner
+                                enabled = isOwner && !task.isLoading && !homework.isLoading
                             )
                             DropdownMenuItem(
                                 text = { Text(text = stringResource(id = R.string.homework_edit)) },
@@ -198,7 +217,7 @@ fun HomeworkCard(
                                 leadingIcon = {
                                     Icon(imageVector = Icons.Default.Edit, contentDescription = null)
                                 },
-                                enabled = isOwner
+                                enabled = isOwner && !task.isLoading && !homework.isLoading
                             )
                         }
                     }
@@ -285,7 +304,7 @@ fun HomeworkCard(
 }
 
 @Composable
-private fun createSubtext(homework: Homework, currentUser: VppId?): String {
+private fun createSubtext(homework: HomeworkViewModelHomework, currentUser: VppId?): String {
     val builder = StringBuilder()
     if (homework.createdBy != null) {
         if (currentUser == homework.createdBy) builder.append(
@@ -330,28 +349,31 @@ private fun HomeworkCardPreview() {
     )
     HomeworkCard(
         currentUser = currentVppId,
-        homework = Homework(
+        homework = HomeworkViewModelHomework(
             id = 1,
             createdBy = creator,
             createdAt = LocalDateTime.now(),
             defaultLesson = defaultLesson,
             until = LocalDate.now(),
             tasks = listOf(
-                HomeworkTask(
+                HomeworkViewModelTask(
                     id = 1,
                     content = "Test 1",
                     done = false,
                     individualId = null
                 ),
-                HomeworkTask(
+                HomeworkViewModelTask(
                     id = 1,
                     content = "Test 2",
                     done = true,
-                    individualId = null
+                    individualId = null,
+                    isLoading = true
                 )
             ),
             classes = `class`,
-            isPublic = false
+            isPublic = false,
+            isOwner = true,
+            isLoading = true
         ),
         isOwner = true,
         allDone = {},
@@ -360,6 +382,6 @@ private fun HomeworkCardPreview() {
         onDeleteRequest = {},
         onChangePublicVisibility = {},
         onDeleteTaskRequest = {},
-        onEditTaskRequest = {}
+        onEditTaskRequest = {},
     )
 }

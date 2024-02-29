@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.homework.add.domain.usecase
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.NewTaskRecord
 import kotlinx.coroutines.flow.first
@@ -19,11 +20,11 @@ class SaveHomeworkUseCase(
         shareWithClass: Boolean,
         defaultLesson: DefaultLesson,
         tasks: List<String>,
-    ) {
-        val identity = getCurrentIdentityUseCase().first() ?: return
+    ): HomeworkModificationResult {
+        val identity = getCurrentIdentityUseCase().first() ?: return HomeworkModificationResult.FAILED
         val `class` = getClassByProfileUseCase(identity.profile!!)!!
 
-        homeworkRepository.insertHomework(
+        return homeworkRepository.insertHomework(
             createdBy = identity.vppId,
             `class` = `class`,
             until = until,

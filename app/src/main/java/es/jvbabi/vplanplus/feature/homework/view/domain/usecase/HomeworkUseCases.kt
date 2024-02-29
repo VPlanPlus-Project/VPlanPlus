@@ -8,5 +8,7 @@ data class HomeworkUseCases(
     val deleteHomeworkUseCase: DeleteHomeworkUseCase,
     val changeVisibilityUseCase: ChangeVisibilityUseCase,
     val deleteHomeworkTaskUseCase: DeleteHomeworkTaskUseCase,
-    val editTaskUseCase: EditTaskUseCase
+    val editTaskUseCase: EditTaskUseCase,
+    val isUpdateRunningUseCase: IsUpdateRunningUseCase,
+    val updateUseCase: UpdateUseCase
 )

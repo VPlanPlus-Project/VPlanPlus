@@ -345,4 +345,27 @@
     <string name="homework_editTaskText">Change the content of this task. If this homework is shared, it\'ll be updated on your classmates devices too.</string>
     <string name="notification_homeworkName">Homework</string>
     <string name="notification_homeworkDescription">When someone shared or changed a homework in your class you\'ll get a notification.</string>
+    <string name="notification_homeworkNewHomeworkOneTitle">New homework</string>
+    <string name="notification_homeworkNewHomeworkOneContent">%1$s created a homework in %2$s with %3$s tasks due to %4$s</string>
+    <string name="notification_homeworkNewHomeworkMultipleTitle">New homework</string>
+    <string name="notification_homeworkNewHomeworkMultipleContent">There are %1$d new homework</string>
+    <string name="notification_homeworkChangedHomeworkTitle">Homework</string>
+    <plurals name="notification_homeworkChangedHomeworkContent">
+        <item quantity="one">A homework was changed.</item>
+        <item quantity="other">%1$d homework were changed.</item>
+    </plurals>
+    <string name="something_went_wrong">Something went wrong</string>
+    <string name="addHomework_saveFailedText">Your homework wasn\'t saved. Please try again.</string>
+    <string name="addHomework_saveFailedOnlineText">An internet connection is required to save this homework to your vpp.ID.</string>
+    <string name="homework_errorDeleteTask">The task couldn\'t be deleted.</string>
+    <string name="homework_errorInternetTryAgain">Make sure you\'re connected to the internet and try again.</string>
+    <string name="homework_errorChangeVisibility">The visibility of this homework couldn\'t be changed.</string>
+    <string name="homework_errorDeleteHomework">This homework couldn\'t be deleted.</string>
+    <string name="homework_errorAddTask">The task couldn\'t be added to the homework. You can copy it to your clipboard though.</string>
+    <string name="copy">Copy</string>
+    <string name="homework_errorEditTask">Couldn\'t change task. You can still copy its values to the clipboard.</string>
+    <string name="homework_errorMarkTaskDone">Couldn\'t mark task as done.</string>
+    <string name="homework_errorMarkTaskUndone">Couldn\'t mark task as undone.</string>
+    <string name="homework_errorMarkHomeworkDone">Couldn\'t mark homework as done.</string>
+    <string name="homework_errorMarkHomeworkUndone">Couldn\'t mark homework as undone.</string>
 </resources>

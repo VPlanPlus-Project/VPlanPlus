@@ -1,35 +1,48 @@
 package es.jvbabi.vplanplus.feature.homework.view.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.HomeworkCard
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.WrongProfile
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.ChangeVisibilityDialog
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.DeleteHomeworkDialog
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.DeleteHomeworkTaskDialog
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 
@@ -40,6 +53,7 @@ fun HomeworkScreen(
     viewModel: HomeworkViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+    val clipboardManager = LocalClipboardManager.current
 
     HomeworkScreenContent(
         onBack = { navHostController.popBackStack() },
@@ -55,6 +69,9 @@ fun HomeworkScreen(
         onHomeworkTaskDeleteRequestConfirm = viewModel::onHomeworkTaskDeleteRequestConfirm,
         onHomeworkTaskEditRequest = viewModel::onHomeworkTaskEditRequest,
         onHomeworkTaskEditRequestConfirm = viewModel::onHomeworkTaskEditRequestConfirm,
+        onResetError = viewModel::onResetError,
+        onCopyToClipboard = { clipboardManager.setText(buildAnnotatedString { append(it) }) },
+        refresh = viewModel::refresh,
         state = state,
         navBar = navBar,
     )
@@ -65,17 +82,20 @@ fun HomeworkScreen(
 private fun HomeworkScreenContent(
     onBack: () -> Unit = {},
     onAddHomework: () -> Unit = {},
-    onMarkAllDone: (homework: Homework, done: Boolean) -> Unit = { _, _ -> },
-    onMarkSingleDone: (homeworkTask: HomeworkTask, done: Boolean) -> Unit = { _, _ -> },
-    onAddTask: (homework: Homework, task: String) -> Unit = { _, _ -> },
-    onHomeworkDeleteRequest: (homework: Homework?) -> Unit = {},
+    onMarkAllDone: (homework: HomeworkViewModelHomework, done: Boolean) -> Unit = { _, _ -> },
+    onMarkSingleDone: (homeworkTask: HomeworkViewModelTask, done: Boolean) -> Unit = { _, _ -> },
+    onAddTask: (homework: HomeworkViewModelHomework, task: String) -> Unit = { _, _ -> },
+    onHomeworkDeleteRequest: (homework: HomeworkViewModelHomework?) -> Unit = {},
     onHomeworkDeleteRequestConfirm: () -> Unit = {},
-    onHomeworkChangeVisibilityRequest: (homework: Homework?) -> Unit = {},
+    onHomeworkChangeVisibilityRequest: (homework: HomeworkViewModelHomework?) -> Unit = {},
     onHomeworkChangeVisibilityRequestConfirm: () -> Unit = {},
-    onHomeworkTaskDeleteRequest: (homeworkTask: HomeworkTask?) -> Unit = {},
+    onHomeworkTaskDeleteRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
     onHomeworkTaskDeleteRequestConfirm: () -> Unit = {},
-    onHomeworkTaskEditRequest: (homeworkTask: HomeworkTask?) -> Unit = {},
+    onHomeworkTaskEditRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
     onHomeworkTaskEditRequestConfirm: (newContent: String?) -> Unit = {},
+    onResetError: () -> Unit = {},
+    onCopyToClipboard: (String) -> Unit = {},
+    refresh: () -> Unit = {},
     state: HomeworkState,
     navBar: @Composable () -> Unit = {},
 ) {
@@ -125,35 +145,104 @@ private fun HomeworkScreenContent(
         bottomBar = navBar,
         floatingActionButton = {
             if (!state.wrongProfile) FloatingActionButton(onClick = onAddHomework) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(id = R.string.add))
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(id = R.string.add)
+                )
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
+        Column(modifier = Modifier.fillMaxSize()) {
             if (state.wrongProfile) {
                 WrongProfile()
                 return@Column
             }
 
-            LazyColumn {
-                items(state.homework.sortedBy { it.homework.until }) { homework ->
-                    HomeworkCard(
-                        currentUser = state.identity.vppId,
-                        homework = homework.homework,
-                        isOwner = homework.isOwner,
-                        allDone = { onMarkAllDone(homework.homework, it) },
-                        singleDone = { task, done -> onMarkSingleDone(task, done) },
-                        onAddTask = { onAddTask(homework.homework, it) },
-                        onDeleteRequest = { onHomeworkDeleteRequest(homework.homework) },
-                        onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework.homework) },
-                        onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
-                        onEditTaskRequest = { onHomeworkTaskEditRequest(it) }
-                    )
+            val pullRefreshState = rememberPullToRefreshState()
+            LaunchedEffect(key1 = state.isUpdating) {
+                if (state.isUpdating) pullRefreshState.startRefresh()
+                else pullRefreshState.endRefresh()
+            }
+            if (pullRefreshState.isRefreshing) {
+                LaunchedEffect(key1 = Unit, block = {
+                    refresh()
+                })
+            }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .nestedScroll(pullRefreshState.nestedScrollConnection)
+            ) pullToRefresh@{
+                Column(
+                    modifier = Modifier.fillMaxSize()
+                ) content@{
+                    AnimatedVisibility(
+                        visible = state.errorVisible,
+                        enter = expandVertically(tween(250)),
+                        exit = shrinkVertically(tween(250))
+                    ) {
+                        InfoCard(
+                            modifier = Modifier.padding(16.dp),
+                            imageVector = Icons.Default.Error,
+                            title = stringResource(id = R.string.something_went_wrong),
+                            text = when (state.errorResponse!!.first) {
+                                ErrorOnUpdate.DELETE_TASK -> stringResource(id = R.string.homework_errorDeleteTask)
+                                ErrorOnUpdate.CHANGE_HOMEWORK_VISIBILITY -> stringResource(id = R.string.homework_errorChangeVisibility)
+                                ErrorOnUpdate.DELETE_HOMEWORK -> stringResource(id = R.string.homework_errorDeleteHomework)
+                                ErrorOnUpdate.ADD_TASK -> stringResource(id = R.string.homework_errorAddTask)
+                                ErrorOnUpdate.EDIT_TASK -> stringResource(id = R.string.homework_errorEditTask)
+                                ErrorOnUpdate.CHANGE_TASK_STATE -> {
+                                    if (state.errorResponse.second == true) {
+                                        stringResource(id = R.string.homework_errorMarkTaskDone)
+                                    } else {
+                                        stringResource(id = R.string.homework_errorMarkTaskUndone)
+                                    }
+                                }
+                                ErrorOnUpdate.CHANGE_HOMEWORK_STATE -> {
+                                    if (state.errorResponse.second == true) {
+                                        stringResource(id = R.string.homework_errorMarkHomeworkDone)
+                                    } else {
+                                        stringResource(id = R.string.homework_errorMarkHomeworkUndone)
+                                    }
+                                }
+                            } + " " + stringResource(id = R.string.homework_errorInternetTryAgain),
+                            buttonText1 = stringResource(id = R.string.close),
+                            buttonAction1 = onResetError,
+                            buttonText2 = when (state.errorResponse.first) {
+                                ErrorOnUpdate.ADD_TASK, ErrorOnUpdate.EDIT_TASK -> stringResource(id = R.string.copy)
+                                else -> null
+                            },
+                            buttonAction2 = when (state.errorResponse.first) {
+                                ErrorOnUpdate.ADD_TASK, ErrorOnUpdate.EDIT_TASK -> {
+                                    { onCopyToClipboard(state.errorResponse.second.toString().trim()) }
+                                }
+
+                                else -> {
+                                    {}
+                                }
+                            }
+                        )
+                    }
+                    LazyColumn(Modifier.fillMaxSize()) {
+                        items(state.homework.sortedBy { it.until }) { homework ->
+                            HomeworkCard(
+                                currentUser = state.identity.vppId,
+                                homework = homework,
+                                isOwner = homework.isOwner,
+                                allDone = { onMarkAllDone(homework, it) },
+                                singleDone = { task, done -> onMarkSingleDone(task, done) },
+                                onAddTask = { onAddTask(homework, it) },
+                                onDeleteRequest = { onHomeworkDeleteRequest(homework) },
+                                onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework) },
+                                onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
+                                onEditTaskRequest = { onHomeworkTaskEditRequest(it) }
+                            )
+                        }
+                    }
                 }
+                PullToRefreshContainer(state = pullRefreshState, modifier = Modifier.align(alignment = Alignment.TopCenter))
             }
         }
     }
