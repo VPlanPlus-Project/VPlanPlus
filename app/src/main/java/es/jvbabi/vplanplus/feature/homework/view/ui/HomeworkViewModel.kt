@@ -180,7 +180,7 @@ class HomeworkViewModel @Inject constructor(
     }
 
     fun onHomeworkTaskEditRequestConfirm(newContent: String?) {
-        if (newContent == null) {
+        if (newContent.isNullOrBlank()) {
             onHomeworkTaskEditRequest(null)
             return
         }
