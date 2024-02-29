@@ -37,6 +37,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.HomeworkCard
+import es.jvbabi.vplanplus.feature.homework.view.ui.components.NoHomework
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.WrongProfile
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.ChangeVisibilityDialog
 import es.jvbabi.vplanplus.feature.homework.view.ui.components.dialogs.DeleteHomeworkDialog
@@ -225,7 +226,7 @@ private fun HomeworkScreenContent(
                             }
                         )
                     }
-                    LazyColumn(Modifier.fillMaxSize()) {
+                    if (state.homework.isNotEmpty()) LazyColumn(Modifier.fillMaxSize()) {
                         items(state.homework.sortedBy { it.until }) { homework ->
                             HomeworkCard(
                                 homework = homework,
@@ -239,6 +240,8 @@ private fun HomeworkScreenContent(
                                 onEditTaskRequest = { onHomeworkTaskEditRequest(it) }
                             )
                         }
+                    } else {
+                        NoHomework()
                     }
                 }
                 PullToRefreshContainer(state = pullRefreshState, modifier = Modifier.align(alignment = Alignment.TopCenter))

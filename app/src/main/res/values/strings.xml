@@ -369,4 +369,5 @@
     <string name="homework_errorMarkHomeworkDone">Couldn\'t mark homework as done.</string>
     <string name="homework_errorMarkHomeworkUndone">Couldn\'t mark homework as undone.</string>
     <string name="homework_emptyTask">Task can\'t be empty</string>
+    <string name="homework_noHomework">There is no homework available for you. Enjoy the moment!</string>
 </resources>
