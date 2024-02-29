@@ -372,6 +372,7 @@ private fun DetailedLessonCard(
                         }
                     }
                     SubjectIcon(
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         subject = lesson.displaySubject,
                         modifier = Modifier
                             .padding(start = 8.dp)
