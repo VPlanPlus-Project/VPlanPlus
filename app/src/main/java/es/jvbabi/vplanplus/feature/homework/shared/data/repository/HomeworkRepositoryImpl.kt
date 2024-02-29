@@ -99,7 +99,9 @@ class HomeworkRepositoryImpl(
 
                 val existingHomework = getAll().first().filter { it.classes == `class` }
                 val newHomework = data.filter {
-                    profile.isDefaultLessonEnabled(it.vpId.toLong()) && !existingHomework.any { eh -> eh.id == it.id }
+                    profile.isDefaultLessonEnabled(it.vpId.toLong()) &&
+                            !existingHomework.any { eh -> eh.id == it.id } &&
+                            it.createdBy != vppId?.id?.toLong()
                 }
 
                 val changedHomework = data.filter {
