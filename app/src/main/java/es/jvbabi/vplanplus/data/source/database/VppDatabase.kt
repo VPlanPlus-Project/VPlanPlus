@@ -25,6 +25,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeCon
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
@@ -87,7 +88,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 18,
+    version = 20,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -98,6 +99,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         AutoMigration(from = 15, to = 16), // add homework
         AutoMigration(from = 16, to = 17), // add homework_task.individualId
         AutoMigration(from = 17, to = 18), // add homework.isPublic
+        AutoMigration(from = 18, to = 19), // add zoned date time
     ],
 )
 @TypeConverters(
@@ -108,7 +110,8 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
     DayDataTypeConverter::class,
     LocalDateTimeConverter::class,
     VppIdStateConverter::class,
-    GradeModifierConverter::class
+    GradeModifierConverter::class,
+    ZonedDateTimeConverter::class
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
@@ -204,6 +207,13 @@ abstract class VppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE grade ADD COLUMN type TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE grade ADD COLUMN comment TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
+        val migration_19_20 = object : Migration(19, 20) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("UPDATE lesson_time SET start = start - (60*60)")
+                db.execSQL("UPDATE lesson_time SET end = end - (60*60)")
             }
         }
     }

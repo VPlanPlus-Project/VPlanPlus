@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.domain.model.Classes
@@ -168,8 +169,8 @@ class RoomRepositoryImpl(
                     id = bookingResponse.id,
                     roomId = rooms.firstOrNull { room -> bookingResponse.roomName == room.name }?.roomId ?: return@mapNotNull null,
                     bookedBy = bookingResponse.bookedBy,
-                    from = DateUtils.getDateTimeFromTimestamp(bookingResponse.start),
-                    to = DateUtils.getDateTimeFromTimestamp(bookingResponse.end),
+                    from = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.start),
+                    to = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.end),
                     `class` = classes.first { it.name == bookingResponse.`class` }.classId
                 )
             }

@@ -33,7 +33,7 @@ import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchResult
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.util.DateUtils
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -41,7 +41,7 @@ import java.util.UUID
 @Composable
 fun DetailedResult(
     result: SearchResult,
-    time: LocalDateTime,
+    time: ZonedDateTime,
 ) {
     Box(
         modifier = Modifier
@@ -149,6 +149,6 @@ private fun DetailedSearchPreview() {
             SchoolEntityType.ROOM,
             Lessons.generateLessons(5, true)
         ),
-        time = LocalDateTime.now()
+        time = ZonedDateTime.now()
     )
 }

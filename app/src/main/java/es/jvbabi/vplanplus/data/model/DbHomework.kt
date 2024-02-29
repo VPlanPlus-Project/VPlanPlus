@@ -4,8 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity(
@@ -31,7 +30,7 @@ data class DbHomework(
     val createdBy: Int?,
     val classes: UUID,
     @ColumnInfo(defaultValue = "false") val isPublic: Boolean = false,
-    val createdAt: LocalDateTime,
+    val createdAt: ZonedDateTime,
     val defaultLessonVpId: Long,
-    val until: LocalDate
+    val until: ZonedDateTime
 )

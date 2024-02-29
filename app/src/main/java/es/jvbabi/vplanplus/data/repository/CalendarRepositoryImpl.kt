@@ -6,6 +6,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.provider.CalendarContract
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
@@ -14,7 +15,6 @@ import es.jvbabi.vplanplus.domain.model.DbCalendarEvent
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
-import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
@@ -113,18 +113,20 @@ class CalendarRepositoryImpl(
                         title = "Schultag " + profile.displayName,
                         calendarId = calendar.id,
                         location = school.name,
-                        startTimeStamp = day.lessons.filter {
-                            profile.isDefaultLessonEnabled(
-                                it.vpId
-                            )
-                        }.sortedBy { it.lessonNumber }
-                            .first { it.displaySubject != "-" }.start.toLocalUnixTimestamp(),
-                        endTimeStamp = day.lessons.filter {
-                            profile.isDefaultLessonEnabled(
-                                it.vpId
-                            )
-                        }.sortedBy { it.lessonNumber }
-                            .last { it.displaySubject != "-" }.end.toLocalUnixTimestamp(),
+                        startTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
+                            day
+                                .lessons
+                                .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                                .sortedBy { it.lessonNumber }
+                                .first { it.displaySubject != "-" }.start
+                        ),
+                        endTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
+                            day
+                                .lessons
+                                .filter { profile.isDefaultLessonEnabled(it.vpId) }.
+                                sortedBy { it.lessonNumber }
+                                .last { it.displaySubject != "-" }.end
+                        ),
                         date = day.date,
                         info = day.info
                     ),
@@ -141,8 +143,10 @@ class CalendarRepositoryImpl(
                                     title = lesson.displaySubject,
                                     calendarId = calendar.id,
                                     location = school.name + " Raum " + lesson.rooms.joinToString(", "),
-                                    startTimeStamp = lesson.start.toLocalUnixTimestamp(),
-                                    endTimeStamp = lesson.end.toLocalUnixTimestamp(),
+                                    startTimeStamp = ZonedDateTimeConverter()
+                                        .zonedDateTimeToTimestamp(lesson.start),
+                                    endTimeStamp = ZonedDateTimeConverter()
+                                        .zonedDateTimeToTimestamp(lesson.end),
                                     date = day.date
                                 ),
                                 school = school

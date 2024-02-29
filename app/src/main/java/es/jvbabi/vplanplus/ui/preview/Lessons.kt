@@ -12,23 +12,6 @@ import kotlin.random.Random
 
 object Lessons {
 
-    fun generateCanceledLesson(): Lesson {
-        return Lesson(
-            rooms = randomRoom().map { it.name },
-            teacherIsChanged = Random.nextBoolean(),
-            teachers = randomTeacher().map { it.acronym },
-            start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:00", LocalDate.now()),
-            end = DateUtils.getLocalDateTimeFromLocalDateAndTimeString("08:45", LocalDate.now()),
-            info = "Stunde fällt aus",
-            lessonNumber = 1,
-            roomIsChanged = Random.nextBoolean(),
-            `class` = randomClass(),
-            originalSubject = randomSubject(),
-            changedSubject = "-",
-            vpId = null
-        )
-    }
-
     fun generateLessons(count: Int = 4, isCurrentLesson: Boolean = false): List<Lesson> {
         val result = mutableListOf<Lesson>()
         val start = if (isCurrentLesson) "${LocalDateTime.now().hour}:15" else "08:00"
@@ -40,8 +23,8 @@ object Lessons {
                     rooms = randomRoom().map { it.name },
                     teacherIsChanged = Random.nextBoolean(),
                     teachers = randomTeacher().map { it.acronym },
-                    start = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(start, LocalDate.now()),
-                    end = DateUtils.getLocalDateTimeFromLocalDateAndTimeString(end, LocalDate.now()),
+                    start = DateUtils.zonedDateFromTimeStringAndDate(start, LocalDate.now()),
+                    end = DateUtils.zonedDateFromTimeStringAndDate(end, LocalDate.now()),
                     info = "Info",
                     lessonNumber = index+1,
                     roomIsChanged = Random.nextBoolean(),

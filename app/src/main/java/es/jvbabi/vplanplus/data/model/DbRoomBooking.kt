@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.data.model
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity(
@@ -31,7 +31,7 @@ data class DbRoomBooking(
     val id: Long,
     val roomId: UUID,
     val bookedBy: Int,
-    val from: LocalDateTime,
-    val to: LocalDateTime,
+    val from: ZonedDateTime,
+    val to: ZonedDateTime,
     val `class`: UUID
 )

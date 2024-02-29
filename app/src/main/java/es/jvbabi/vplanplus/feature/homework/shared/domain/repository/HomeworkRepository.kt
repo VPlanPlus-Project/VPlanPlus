@@ -5,8 +5,7 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 interface HomeworkRepository {
@@ -20,11 +19,11 @@ interface HomeworkRepository {
     suspend fun insertHomework(
         id: Long? = null,
         createdBy: VppId?,
-        createdAt: LocalDateTime = LocalDateTime.now(),
+        createdAt: ZonedDateTime = ZonedDateTime.now(),
         `class`: Classes,
         defaultLessonVpId: Long,
         shareWithClass: Boolean,
-        until: LocalDate,
+        until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
         allowCloudUpdate: Boolean
     ): HomeworkModificationResult

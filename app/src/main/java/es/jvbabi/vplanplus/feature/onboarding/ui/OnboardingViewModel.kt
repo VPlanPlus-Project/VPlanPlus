@@ -8,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
+import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.DefaultLesson
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.OnboardingUseCases
@@ -21,7 +21,7 @@ import es.jvbabi.vplanplus.ui.common.Permission
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -372,7 +372,7 @@ data class OnboardingState(
     val stage: Stage = Stage.WELCOME,
     val creationStatus: ProfileCreationStatus = ProfileCreationStatus(ProfileCreationStage.NONE, null),
 
-    val time: LocalDateTime = LocalDateTime.now(),
+    val time: ZonedDateTime = ZonedDateTime.now(),
 
     val currentPermissionIndex: Int = 0,
 

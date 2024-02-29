@@ -26,7 +26,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import javax.inject.Inject
 import kotlin.math.floor
 
@@ -61,12 +61,12 @@ class RoomSearchViewModel @Inject constructor(
                 }
                 val roomMap = findRoomUseCases.getRoomMapUseCase(identity.school)
 
-                var profileStart: LocalDateTime? = null
+                var profileStart: ZonedDateTime? = null
                 var currentClass: Classes? = null
                 var showFilterChips = false
                 var showNowFilter = false
-                var nowTimespan: Pair<LocalDateTime, LocalDateTime>? = null
-                var nextTimespan: Pair<LocalDateTime, LocalDateTime>? = null
+                var nowTimespan: Pair<ZonedDateTime, ZonedDateTime>? = null
+                var nextTimespan: Pair<ZonedDateTime, ZonedDateTime>? = null
 
                 var lessonTimes: Map<Int, LessonTime>? = null
 
@@ -205,7 +205,7 @@ class RoomSearchViewModel @Inject constructor(
         _state.value = _state.value.copy(detailLesson = null, detailBooking = null)
     }
 
-    fun openBookRoomDialog(room: Room, from: LocalDateTime, to: LocalDateTime) {
+    fun openBookRoomDialog(room: Room, from: ZonedDateTime, to: ZonedDateTime) {
         _state.value = _state.value.copy(
             currentRoomBooking = RoomBooking(
                 room,
@@ -226,8 +226,8 @@ class RoomSearchViewModel @Inject constructor(
                 _state.value = _state.value.copy(roomBookingResult = null)
                 val result = findRoomUseCases.bookRoomUseCase(
                     state.value.currentRoomBooking!!.room,
-                    state.value.currentRoomBooking!!.start.withDayOfYear(today.dayOfYear).withYear(today.year),
-                    state.value.currentRoomBooking!!.end.withDayOfYear(today.dayOfYear).withYear(today.year)
+                    state.value.currentRoomBooking!!.start.withYear(today.year).withDayOfYear(today.dayOfYear),
+                    state.value.currentRoomBooking!!.end.withYear(today.year).withDayOfYear(today.dayOfYear)
                 )
                 _state.value = _state.value.copy(
                     currentRoomBooking = null,
@@ -263,10 +263,10 @@ data class RoomSearchState(
     val detailLesson: Lesson? = null,
     val detailBooking: es.jvbabi.vplanplus.domain.model.RoomBooking? = null,
     val showFilterChips: Boolean = false,
-    val profileStart: LocalDateTime? = null,
+    val profileStart: ZonedDateTime? = null,
     val showLesson0: Boolean = true,
-    val filterNowTimespan: Pair<LocalDateTime, LocalDateTime>? = null,
-    val filterNextTimespan: Pair<LocalDateTime, LocalDateTime>? = null,
+    val filterNowTimespan: Pair<ZonedDateTime, ZonedDateTime>? = null,
+    val filterNextTimespan: Pair<ZonedDateTime, ZonedDateTime>? = null,
     val showNowFilter: Boolean = true,
     val lessonTimes: Map<Int, LessonTime>? = null,
 
@@ -278,7 +278,7 @@ data class RoomSearchState(
 
 data class RoomBooking(
     val room: Room,
-    val start: LocalDateTime,
-    val end: LocalDateTime
+    val start: ZonedDateTime,
+    val end: ZonedDateTime
 )
 

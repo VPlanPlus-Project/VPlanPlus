@@ -13,8 +13,7 @@ import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Composable
@@ -61,9 +60,9 @@ private fun DeleteHomeworkDialogPreview() {
         homework = Homework(
             id = 1,
             createdBy = createdBy,
-            createdAt = LocalDateTime.now(),
+            createdAt = ZonedDateTime.now(),
             defaultLesson = defaultLesson,
-            until = LocalDate.now(),
+            until = ZonedDateTime.now(),
             tasks = listOf(
                 HomeworkTask(
                     id = 1,

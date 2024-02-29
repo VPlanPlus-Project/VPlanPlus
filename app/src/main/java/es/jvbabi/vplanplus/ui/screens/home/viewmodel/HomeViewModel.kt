@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.inject.Inject
 
@@ -234,7 +235,7 @@ class HomeViewModel @Inject constructor(
 }
 
 data class HomeState(
-    val time: LocalDateTime = LocalDateTime.now(),
+    val time: ZonedDateTime = ZonedDateTime.now(),
     val nextDayDate: LocalDate = LocalDate.now().plusDays(1),
     val day: Day? = null,
     val nextDay: Day? = null,

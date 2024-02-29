@@ -10,7 +10,7 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 interface VppIdRepository {
     fun getVppIds(): Flow<List<VppId>>
@@ -32,7 +32,7 @@ interface VppIdRepository {
     suspend fun testVppId(vppId: VppId): DataResponse<Boolean?>
     suspend fun unlinkVppId(vppId: VppId): Boolean
 
-    suspend fun bookRoom(vppId: VppId, room: Room, from: LocalDateTime, to: LocalDateTime): BookResult
+    suspend fun bookRoom(vppId: VppId, room: Room, from: ZonedDateTime, to: ZonedDateTime): BookResult
     suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode?
 
     suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?>
