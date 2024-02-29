@@ -7,6 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.homework.add.domain.usecase.AddHomeworkUseCases
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -15,7 +16,7 @@ import javax.inject.Inject
 class AddHomeworkViewModel @Inject constructor(
     private val addHomeworkUseCases: AddHomeworkUseCases,
     private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase
-): ViewModel() {
+) : ViewModel() {
 
     val state = mutableStateOf(AddHomeworkState())
 
@@ -82,13 +83,16 @@ class AddHomeworkViewModel @Inject constructor(
 
     fun save() {
         viewModelScope.launch {
-            val state = state.value
-            if (!state.canSubmit) return@launch
-            addHomeworkUseCases.saveHomeworkUseCase(
-                until = state.until!!,
-                defaultLesson = state.selectedDefaultLesson!!,
-                tasks = state.tasks,
-                shareWithClass = state.isForAll
+            if (!state.value.canSubmit) return@launch
+            state.value = state.value.copy(isLoading = true)
+            state.value = state.value.copy(
+                result = addHomeworkUseCases.saveHomeworkUseCase(
+                    until = state.value.until!!,
+                    defaultLesson = state.value.selectedDefaultLesson!!,
+                    tasks = state.value.tasks,
+                    shareWithClass = state.value.isForAll
+                ),
+                isLoading = false
             )
         }
     }
@@ -110,6 +114,9 @@ data class AddHomeworkState(
 
     val tasks: List<String> = emptyList(),
     val newTask: String = "",
+
+    val result: HomeworkModificationResult? = null,
+    val isLoading: Boolean = false,
 ) {
     val canSubmit: Boolean
         get() = selectedDefaultLesson != null && until != null && tasks.isNotEmpty()

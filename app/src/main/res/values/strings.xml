@@ -354,4 +354,7 @@
         <item quantity="one">A homework was changed.</item>
         <item quantity="other">%1$d homework were changed.</item>
     </plurals>
+    <string name="addHomework_saveFailedTitle">Something went wrong</string>
+    <string name="addHomework_saveFailedText">Your homework wasn\'t saved. Please try again.</string>
+    <string name="addHomework_saveFailedOnlineText">An internet connection is required to save this homework to your vpp.ID.</string>
 </resources>

@@ -356,4 +356,7 @@
         <item quantity="one">Eine Hausaufgabe wurde geändert.</item>
         <item quantity="other">%1$d Hausaufgaben wurden geändert.</item>
     </plurals>
+    <string name="addHomework_saveFailedTitle">Etwas ist schiefgelaufen</string>
+    <string name="addHomework_saveFailedText">Deine Hausaufgabe wurde nicht gespeichert. Bitte versuche es erneut.</string>
+    <string name="addHomework_saveFailedOnlineText">Um die Hausaufgabe auf deiner vpp.ID zu speichern ist eine Internetverbindung notwendig.</string>
 </resources>

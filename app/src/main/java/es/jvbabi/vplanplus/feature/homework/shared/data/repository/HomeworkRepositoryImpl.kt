@@ -94,7 +94,8 @@ class HomeworkRepositoryImpl(
                 }
 
                 val changedHomework = data.filter {
-                    it.buildHash() != existingHomework.firstOrNull { eh -> eh.id == it.id }?.buildHash()
+                    it.buildHash() != existingHomework.firstOrNull { eh -> eh.id == it.id }?.buildHash() &&
+                            it.createdBy != vppId?.id?.toLong()
                 }
 
                 data.forEach forEachHomework@{ responseHomework ->
@@ -182,7 +183,7 @@ class HomeworkRepositoryImpl(
                             R.string.notification_homeworkNewHomeworkOneContent,
                             vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
                                 ?: "Unknown",
-                            defaultLessons.first { it.vpId == newHomework.first().vpId.toLong() }.subject,
+                            defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject ?: "Unknown",
                             newHomework.first().tasks.size,
                             dateString
                         ),
@@ -281,7 +282,7 @@ class HomeworkRepositoryImpl(
             path = "/api/${VppIdServer.apiVersion}/homework/",
             requestBody = Gson().toJson(
                 AddHomeworkRequest(
-                    vpId = vppId.id.toLong(),
+                    vpId = defaultLessonVpId,
                     shareWithClass = shareWithClass,
                     until = until.toLocalUnixTimestamp(),
                     tasks = tasks.map { it.content }

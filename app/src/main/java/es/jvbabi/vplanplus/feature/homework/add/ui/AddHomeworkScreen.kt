@@ -5,7 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,10 +15,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -31,6 +35,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +45,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.homework.add.ui.components.DateChip
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SelectDialog
@@ -74,6 +80,15 @@ fun AddHomeworkScreen(
         onSave = { viewModel.save() },
         state = state
     )
+
+    LaunchedEffect(key1 = state.result) {
+        if (
+            state.result == HomeworkModificationResult.SUCCESS_OFFLINE ||
+            state.result == HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+        ) {
+            navHostController.popBackStack()
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -110,7 +125,7 @@ private fun AddHomeworkContent(
     if (state.isUntilDialogOpen) {
         val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
             override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                val date = DateUtils.getDateFromTimestamp(utcTimeMillis/1000)
+                val date = DateUtils.getDateFromTimestamp(utcTimeMillis / 1000)
                 return date.isAfter(LocalDate.now())
             }
         })
@@ -143,9 +158,12 @@ private fun AddHomeworkContent(
                 title = {
                     Column {
                         Text(text = stringResource(id = R.string.home_addHomeworkLabel))
-                        if (state.username != null) Text(text = state.username, style = MaterialTheme.typography.labelSmall)
+                        if (state.username != null) Text(
+                            text = state.username,
+                            style = MaterialTheme.typography.labelSmall
+                        )
                     }
-                        },
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(
@@ -163,7 +181,10 @@ private fun AddHomeworkContent(
                 .verticalScroll(rememberScrollState())
                 .padding(paddingValues)
         ) {
-            val withoutTeacher = stringResource(id = R.string.addHomework_lessonSubtitleNoTeacher, state.selectedDefaultLesson?.subject ?: "")
+            val withoutTeacher = stringResource(
+                id = R.string.addHomework_lessonSubtitleNoTeacher,
+                state.selectedDefaultLesson?.subject ?: ""
+            )
             SettingsCategory(
                 title = stringResource(id = R.string.addHomework_general),
             ) {
@@ -209,14 +230,21 @@ private fun AddHomeworkContent(
                     icon = Icons.Default.People,
                     title = stringResource(id = R.string.addHomework_shareTitle),
                     subtitle =
-                        if (!state.canUseCloud)
-                            stringResource(id = R.string.addHomework_shareSubtitleOnlyLocal)
-                        else if (state.selectedDefaultLesson?.teacher != null)
-                            stringResource(id = R.string.addHomework_shareSubtitleWithSubjectAndTeacher, state.selectedDefaultLesson.subject, state.selectedDefaultLesson.teacher.acronym)
-                        else if (state.selectedDefaultLesson != null)
-                            stringResource(id = R.string.addHomework_shareSubtitleWithSubject, state.selectedDefaultLesson.subject)
-                        else
-                            stringResource(id = R.string.addHomework_shareSubtitleWithoutSubject),
+                    if (!state.canUseCloud)
+                        stringResource(id = R.string.addHomework_shareSubtitleOnlyLocal)
+                    else if (state.selectedDefaultLesson?.teacher != null)
+                        stringResource(
+                            id = R.string.addHomework_shareSubtitleWithSubjectAndTeacher,
+                            state.selectedDefaultLesson.subject,
+                            state.selectedDefaultLesson.teacher.acronym
+                        )
+                    else if (state.selectedDefaultLesson != null)
+                        stringResource(
+                            id = R.string.addHomework_shareSubtitleWithSubject,
+                            state.selectedDefaultLesson.subject
+                        )
+                    else
+                        stringResource(id = R.string.addHomework_shareSubtitleWithoutSubject),
                     type = SettingsType.CHECKBOX,
                     enabled = state.canUseCloud,
                     checked = state.isForAll && state.canUseCloud,
@@ -296,9 +324,26 @@ private fun AddHomeworkContent(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth(),
-                enabled = state.canSubmit
+                enabled = state.canSubmit && !state.isLoading
             ) {
-                Text(text = stringResource(id = R.string.addHomework_save))
+                if (state.isLoading) CircularProgressIndicator(
+                    strokeWidth = 2.dp,
+                    modifier = Modifier
+                        .width(24.dp)
+                        .height(24.dp)
+                        .padding(6.dp)
+                ) else Text(text = stringResource(id = R.string.addHomework_save))
+            }
+
+            if (state.result == HomeworkModificationResult.FAILED) {
+                InfoCard(
+                    imageVector = Icons.Default.Error,
+                    title = stringResource(id = R.string.addHomework_saveFailedTitle),
+                    text =
+                    stringResource(id = R.string.addHomework_saveFailedText) +
+                            if (state.canUseCloud) " " + stringResource(id = R.string.addHomework_saveFailedOnlineText)
+                            else "",
+                )
             }
         }
     }
