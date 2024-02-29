@@ -34,6 +34,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeCon
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -138,6 +139,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_10_11)
             .addMigrations(VppDatabase.migration_11_12)
             .addMigrations(VppDatabase.migration_12_13)
+            .addMigrations(VppDatabase.migration_19_20)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())
@@ -145,6 +147,7 @@ object VppModule {
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())
             .addTypeConverter(GradeModifierConverter())
+            .addTypeConverter(ZonedDateTimeConverter())
             .allowMainThreadQueries()
             //.fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)

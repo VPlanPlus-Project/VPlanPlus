@@ -71,7 +71,9 @@ import es.jvbabi.vplanplus.ui.screens.home.search.room.components.Guide
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.LessonDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.SearchField
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
-import java.time.LocalDateTime
+import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.random.Random
@@ -144,7 +146,7 @@ fun FindAvailableRoomScreenContent(
     onOpenLessonDetailDialog: (Lesson) -> Unit = {},
     onOpenBookingDetailDialog: (es.jvbabi.vplanplus.domain.model.RoomBooking) -> Unit = {},
     onCloseLessonDetailDialog: () -> Unit = {},
-    onBookRoomClicked: (Room, LocalDateTime, LocalDateTime) -> Unit = { _, _, _ -> },
+    onBookRoomClicked: (Room, ZonedDateTime, ZonedDateTime) -> Unit = { _, _, _ -> },
     onCancelCurrentBooking: () -> Unit = {},
     onConfirmBooking: () -> Unit = {},
     onCloseBookRoomDialog: () -> Unit = {}
@@ -192,10 +194,10 @@ fun FindAvailableRoomScreenContent(
                         Text(
                             text = stringResource(
                                 id = R.string.searchAvailableRoom_bookText,
-                                state.currentRoomBooking.start.format(
+                                state.currentRoomBooking.start.toZonedLocalDateTime().format(
                                     DateTimeFormatter.ofPattern("HH:mm")
                                 ),
-                                state.currentRoomBooking.end.format(
+                                state.currentRoomBooking.end.toZonedLocalDateTime().format(
                                     DateTimeFormatter.ofPattern("HH:mm")
                                 ),
                                 state.`class`!!.name
@@ -263,7 +265,7 @@ fun FindAvailableRoomScreenContent(
                 ?.until(last?.end?.atBeginningOfTheWorld(), ChronoUnit.MINUTES) ?: 0) * scaling
             val currentOffset =
                 ((state.profileStart ?: first?.start?.atBeginningOfTheWorld())?.until(
-                    LocalDateTime.now().atBeginningOfTheWorld(),
+                    ZonedDateTime.now().atBeginningOfTheWorld(),
                     ChronoUnit.MINUTES
                 ) ?: 0) * scaling
             var scrollWidth = 0
@@ -434,8 +436,8 @@ fun FindAvailableRoomScreenPreview() {
             detailLesson = null,
             currentRoomBooking = RoomBooking(
                 PreviewRoom.generateRoom(school),
-                LocalDateTime.now(),
-                LocalDateTime.now().plusHours(1)
+                ZonedDateTime.now(),
+                ZonedDateTime.now().plusHours(1)
             ),
         ),
         onBackClicked = {}
@@ -444,13 +446,13 @@ fun FindAvailableRoomScreenPreview() {
 
 @Composable
 private fun RoomListRecord(
-    start: LocalDateTime,
+    start: ZonedDateTime,
     lessons: List<Lesson?>,
     bookings: List<es.jvbabi.vplanplus.domain.model.RoomBooking>,
     displayed: Boolean,
     onLessonClicked: (Lesson) -> Unit = {},
     onBookingClicked: (es.jvbabi.vplanplus.domain.model.RoomBooking) -> Unit = {},
-    onBookRoomClicked: (start: LocalDateTime, end: LocalDateTime) -> Unit = { _, _ -> },
+    onBookRoomClicked: (start: ZonedDateTime, end: ZonedDateTime) -> Unit = { _, _ -> },
     scaling: Float = 1f,
     width: Dp,
     currentClassName: String?,
@@ -579,7 +581,7 @@ private fun RoomListRecord(
             }
         }
         val current = start.atBeginningOfTheWorld().until(
-            LocalDateTime.now().atBeginningOfTheWorld(),
+            ZonedDateTime.now().atBeginningOfTheWorld(),
             ChronoUnit.MINUTES
         ) * scaling
         if (current >= 0) Box(
@@ -596,7 +598,7 @@ private fun RoomListRecord(
 @Composable
 private fun RoomListRecordPreview() {
     RoomListRecord(
-        start = LocalDateTime.of(1970, 1, 1, 7, 30, 0),
+        start = ZonedDateTime.of(1970, 1, 1, 7, 30, 0, 0, ZoneId.of("Europe/Berlin")),
         lessons = Array(12) {
             if (Random.nextBoolean()) Lessons.generateLessons(1).first() else null
         }.toList(),

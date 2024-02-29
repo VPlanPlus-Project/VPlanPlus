@@ -65,7 +65,7 @@ data class CLesson(
                         `class`.schoolEntity.id,
                         lesson.lessonNumber
                     )
-                }.start.withDayOfYear(lesson.day.dayOfYear).withYear(lesson.day.year),
+                }.start.withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             end =
                 lessonTimes.getOrElse(
                     lesson.lessonNumber
@@ -74,7 +74,7 @@ data class CLesson(
                         `class`.schoolEntity.id,
                         lesson.lessonNumber
                     )
-                }.end.withDayOfYear(lesson.day.dayOfYear).withYear(lesson.day.year),
+                }.end.withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             vpId = defaultLesson?.defaultLesson?.vpId,
             roomBooking = roomBooking?.toModel()
         )

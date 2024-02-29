@@ -8,7 +8,9 @@ import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRep
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.NewTaskRecord
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class SaveHomeworkUseCase(
     private val homeworkRepository: HomeworkRepository,
@@ -24,17 +26,19 @@ class SaveHomeworkUseCase(
         val identity = getCurrentIdentityUseCase().first() ?: return HomeworkModificationResult.FAILED
         val `class` = getClassByProfileUseCase(identity.profile!!)!!
 
+        val dueTo = ZonedDateTime.of(until, LocalTime.of(0, 0, 0), ZoneId.of("UTC"))
+
         return homeworkRepository.insertHomework(
             createdBy = identity.vppId,
             `class` = `class`,
-            until = until,
+            until = dueTo,
             defaultLessonVpId = defaultLesson.vpId,
             tasks = tasks.map { NewTaskRecord(
                 it.trim()
             ) },
             allowCloudUpdate = true,
             shareWithClass = shareWithClass,
-            createdAt = LocalDateTime.now()
+            createdAt = ZonedDateTime.now()
         )
     }
 }

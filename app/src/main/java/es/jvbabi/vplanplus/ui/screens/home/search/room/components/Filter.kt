@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -53,8 +53,8 @@ fun FilterChips(
     filterNextActive: Boolean,
     filterNowToggled: () -> Unit,
     filterNextToggled: () -> Unit,
-    filterNowTimespan: Pair<LocalDateTime, LocalDateTime>?,
-    filterNextTimespan: Pair<LocalDateTime, LocalDateTime>?,
+    filterNowTimespan: Pair<ZonedDateTime, ZonedDateTime>?,
+    filterNextTimespan: Pair<ZonedDateTime, ZonedDateTime>?,
     showNowFilter: Boolean
 ) {
     Row(

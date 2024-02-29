@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoDialog
+import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -25,8 +26,8 @@ fun LessonDialog(
             lesson.teachers.joinToString(", "),
             lesson.rooms.joinToString(", "),
             info,
-            lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")),
-            lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")),
+            lesson.start.toZonedLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm")),
+            lesson.end.toZonedLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm")),
         ),
         onOk = { onCloseLessonDetailDialog() }
     )

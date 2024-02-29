@@ -5,6 +5,7 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
@@ -26,9 +27,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.ZonedDateTime
 
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
@@ -148,15 +147,10 @@ class VppIdRepositoryImpl(
     override suspend fun bookRoom(
         vppId: VppId,
         room: Room,
-        from: LocalDateTime,
-        to: LocalDateTime
+        from: ZonedDateTime,
+        to: ZonedDateTime
     ): BookResult {
         val currentToken = getVppIdToken(vppId) ?: return BookResult.OTHER
-        val zoneOffset = ZoneId
-            .systemDefault().rules
-            .getOffset(
-                Instant.now()
-            )
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
         val url = "/api/${VppIdServer.apiVersion}/vpp_id/booking/book_room"
         val response = vppIdNetworkRepository.doRequest(
@@ -166,8 +160,8 @@ class VppIdRepositoryImpl(
                 BookRoomRequest(
                     schoolId = room.school.schoolId,
                     roomName = room.name,
-                    from = from.toEpochSecond(zoneOffset),
-                    to = to.toEpochSecond(zoneOffset)
+                    from = ZonedDateTimeConverter().zonedDateTimeToTimestamp(from),
+                    to = ZonedDateTimeConverter().zonedDateTimeToTimestamp(to)
                 )
             )
         )

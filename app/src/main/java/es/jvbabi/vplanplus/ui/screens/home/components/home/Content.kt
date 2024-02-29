@@ -54,14 +54,16 @@ import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.home.components.home.components.FullLoading
 import es.jvbabi.vplanplus.ui.screens.home.components.home.screens.Weekend
 import es.jvbabi.vplanplus.ui.screens.home.components.home.text.LastSyncText
+import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import es.jvbabi.vplanplus.ui.preview.Room as PreviewRoom
 
 @Composable
 fun ActiveDayContent(
-    currentTime: LocalDateTime,
+    currentTime: ZonedDateTime,
     day: Day,
     nextDay: Day?,
     profile: Profile,
@@ -208,7 +210,7 @@ fun ActiveDayContent(
                         text = stringResource(
                             id = R.string.home_nextDayStartingAt,
                             nextDay.date.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
-                            nextDayLessons.firstOrNull()?.start?.format(
+                            nextDayLessons.firstOrNull()?.start?.toZonedLocalDateTime()?.format(
                                 DateTimeFormatter.ofPattern("HH:mm")
                             ) ?: "-"
                         ), style = MaterialTheme.typography.bodySmall
@@ -289,7 +291,7 @@ private fun DetailedLessonCard(
                     size = Size(
                         size.width * lessons
                             .first()
-                            .progress(LocalDateTime.now()), size.height
+                            .progress(ZonedDateTime.now()), size.height
                     )
                 )
                 drawContent()
@@ -348,7 +350,7 @@ private fun DetailedLessonCard(
                         // show booking information if available
                         if (lesson.displaySubject == "-") {
                             if (lesson.roomBooking == null) {
-                                if (lesson.progress(LocalDateTime.now()) < 1f) AssistChip(
+                                if (lesson.progress(ZonedDateTime.now()) < 1f) AssistChip(
                                     onClick = { onFindRoomClicked() },
                                     label = { Text(text = stringResource(id = R.string.home_activeBookRoom)) },
                                     leadingIcon = {
@@ -498,7 +500,7 @@ private fun RoomBookingCard(roomBooking: RoomBooking) {
 @Composable
 private fun ContentPreview() {
     ActiveDayContent(
-        currentTime = LocalDateTime.now(),
+        currentTime = ZonedDateTime.now(),
         day = Day(
             lessons = Lessons.generateLessons(2, false),
             type = DayType.NORMAL,
@@ -529,8 +531,8 @@ private fun RoomBookingPreview() {
     RoomBookingCard(
         roomBooking = RoomBooking(
             1,
-            from = LocalDateTime.now(),
-            to = LocalDateTime.now().plusHours(1),
+            from = ZonedDateTime.now(),
+            to = ZonedDateTime.now().plusHours(1),
             bookedBy = VppIdPreview.generateVppId(null),
             room = room,
             `class` = classes

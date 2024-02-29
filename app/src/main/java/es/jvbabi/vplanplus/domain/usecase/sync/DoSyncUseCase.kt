@@ -43,6 +43,8 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
@@ -213,12 +215,14 @@ class DoSyncUseCase(
     private suspend fun processVPlanData(vPlanData: VPlanData) {
 
         val planDateFormatter = DateTimeFormatter.ofPattern("EEEE, d. MMMM yyyy", Locale.GERMAN)
-        val planDate = LocalDate.parse(vPlanData.wPlanDataObject.head!!.date!!, planDateFormatter)
+        val planDate = LocalDate.parse(vPlanData.wPlanDataObject.head!!.date!!, planDateFormatter).atTime(0, 0, 0).atZone(ZoneId.of("UTC"))
 
         val createDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
-        val lastPlanUpdate = LocalDateTime.parse(
-            vPlanData.wPlanDataObject.head!!.timestampString!!,
-            createDateFormatter
+        val lastPlanUpdate = ZonedDateTime.of(
+            LocalDateTime.parse(
+                vPlanData.wPlanDataObject.head!!.timestampString!!,
+                createDateFormatter
+            ), ZoneId.of("Europe/Berlin")
         )
 
         val school = schoolRepository.getSchoolFromId(vPlanData.schoolId)!!
@@ -378,7 +382,7 @@ class DoSyncUseCase(
                         classLessonRefId = `class`.classId,
                         version = version,
                         roomBookingId = bookings.firstOrNull { booking ->
-                            booking.from.toLocalDate()
+                            booking.from
                                 .isEqual(planDate) && booking.from.toLocalTime().isBefore(
                                 times[lesson.lesson]?.end?.toLocalTime()
                             ) && booking.to.toLocalTime().isAfter(

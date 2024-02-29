@@ -1,8 +1,8 @@
 package es.jvbabi.vplanplus.domain.repository
 
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 interface TimeRepository {
-    fun getTime(): Flow<LocalDateTime>
+    fun getTime(): Flow<ZonedDateTime>
 }

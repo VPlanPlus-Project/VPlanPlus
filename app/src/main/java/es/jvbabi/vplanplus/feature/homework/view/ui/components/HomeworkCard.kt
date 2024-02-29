@@ -62,8 +62,7 @@ import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkViewModelTask
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -352,9 +351,9 @@ private fun HomeworkCardPreview() {
         homework = HomeworkViewModelHomework(
             id = 1,
             createdBy = creator,
-            createdAt = LocalDateTime.now(),
+            createdAt = ZonedDateTime.now(),
             defaultLesson = defaultLesson,
-            until = LocalDate.now(),
+            until = ZonedDateTime.now(),
             tasks = listOf(
                 HomeworkViewModelTask(
                     id = 1,

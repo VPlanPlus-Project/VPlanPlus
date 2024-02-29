@@ -4,8 +4,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import es.jvbabi.vplanplus.domain.model.School
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity(
@@ -26,9 +25,9 @@ import java.util.UUID
 )
 data class DbPlanData(
     val id: UUID = UUID.randomUUID(),
-    val createDate: LocalDateTime,
+    val createDate: ZonedDateTime,
     val schoolId: Long,
-    val planDate: LocalDate,
+    val planDate: ZonedDateTime,
     val info: String?,
     val version: Long,
 )

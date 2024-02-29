@@ -15,8 +15,7 @@ import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkMod
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -221,10 +220,10 @@ data class HomeworkViewModelHomework(
     val id: Long,
     val createdBy: VppId?,
     val classes: Classes,
-    val createdAt: LocalDateTime,
+    val createdAt: ZonedDateTime,
     val defaultLesson: DefaultLesson,
     val isPublic: Boolean,
-    val until: LocalDate,
+    val until: ZonedDateTime,
     val tasks: List<HomeworkViewModelTask>,
     val isOwner: Boolean,
     val isLoading: Boolean = false

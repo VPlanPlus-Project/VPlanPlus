@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbHomework
 import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.VppId
@@ -30,15 +31,13 @@ import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
-import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import es.jvbabi.vplanplus.util.sha256
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
@@ -162,10 +161,10 @@ class HomeworkRepositoryImpl(
                         id = id,
                         createdBy = createdBy,
                         shareWithClass = responseHomework.shareWithClass,
-                        until = DateUtils.getDateFromTimestamp(responseHomework.until),
+                        until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until),
                         `class` = `class`,
                         defaultLessonVpId = responseHomework.vpId.toLong(),
-                        createdAt = DateUtils.getDateTimeFromTimestamp(responseHomework.createdAt),
+                        createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.createdAt),
                         allowCloudUpdate = false,
                         tasks = replacementTasks
                     )
@@ -252,11 +251,11 @@ class HomeworkRepositoryImpl(
     override suspend fun insertHomework(
         id: Long?,
         createdBy: VppId?,
-        createdAt: LocalDateTime,
+        createdAt: ZonedDateTime,
         `class`: Classes,
         defaultLessonVpId: Long,
         shareWithClass: Boolean,
-        until: LocalDate,
+        until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
         allowCloudUpdate: Boolean
     ): HomeworkModificationResult {
@@ -298,7 +297,7 @@ class HomeworkRepositoryImpl(
                 AddHomeworkRequest(
                     vpId = defaultLessonVpId,
                     shareWithClass = shareWithClass,
-                    until = until.toLocalUnixTimestamp(),
+                    until = ZonedDateTimeConverter().zonedDateTimeToTimestamp(until),
                     tasks = tasks.map { it.content }
                 )
             ),

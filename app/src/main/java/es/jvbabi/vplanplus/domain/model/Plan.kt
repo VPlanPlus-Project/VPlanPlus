@@ -1,12 +1,11 @@
 package es.jvbabi.vplanplus.domain.model
 
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 data class Plan(
     val school: School,
-    val date: LocalDate,
-    val createAt: LocalDateTime,
+    val date: ZonedDateTime,
+    val createAt: ZonedDateTime,
     val info: String?,
     val version: Long
 )
