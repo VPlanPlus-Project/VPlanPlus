@@ -379,4 +379,5 @@
     <string name="homework_hide">Ausblenden</string>
     <string name="homework_filterShowHidden">Versteckte • %1$d</string>
     <string name="homework_show">Einblenden</string>
+    <string name="addHomework_defaultLessonFilteredMessage">Einige Fächer sind nicht verfügbar, da du sie in deinen Profileinstellungen deaktiviert hast. Solange sie deaktiviert sind, kannst du keine Hausaufgaben in diesen Fächern erstellen.</string>
 </resources>

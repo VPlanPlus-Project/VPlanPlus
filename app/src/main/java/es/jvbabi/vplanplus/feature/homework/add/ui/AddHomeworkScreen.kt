@@ -114,6 +114,9 @@ private fun AddHomeworkContent(
     if (state.isLessonDialogOpen) {
         SelectDialog(
             icon = Icons.Default.School,
+            message =
+                if (state.defaultLessonsFiltered) stringResource(id = R.string.addHomework_defaultLessonFilteredMessage)
+                else null,
             title = stringResource(id = R.string.addHomework_defaultLessonTitle),
             items = state.defaultLessons.sortedBy { it.subject },
             value = state.selectedDefaultLesson,
