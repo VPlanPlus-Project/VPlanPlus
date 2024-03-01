@@ -253,6 +253,10 @@ class HomeworkViewModel @Inject constructor(
     fun onToggleShowDisabled() {
         state.value = state.value.copy(showDisabled = !state.value.showDisabled)
     }
+
+    fun onToggleShowDone() {
+        state.value = state.value.copy(showDone = !state.value.showDone)
+    }
 }
 
 data class HomeworkState(
@@ -267,7 +271,8 @@ data class HomeworkState(
     val errorVisible: Boolean = false,
     val isUpdating: Boolean = false,
     val showHidden: Boolean = false,
-    val showDisabled: Boolean = false
+    val showDisabled: Boolean = false,
+    val showDone: Boolean = false
 )
 
 data class HomeworkViewModelHomework(

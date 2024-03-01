@@ -76,6 +76,7 @@ fun HomeworkCard(
     isOwner: Boolean,
     showHidden: Boolean,
     showDisabled: Boolean,
+    showDone: Boolean,
     allDone: (Boolean) -> Unit,
     singleDone: (HomeworkViewModelTask, Boolean) -> Unit,
     onAddTask: (String) -> Unit,
@@ -97,7 +98,7 @@ fun HomeworkCard(
     }
 
     AnimatedVisibility(
-        visible = (showHidden || !homework.isHidden) && (showDisabled || homework.isEnabled),
+        visible = (showHidden || !homework.isHidden) && (showDisabled || homework.isEnabled) && (showDone || homework.tasks.any { !it.done }),
         enter = expandVertically(tween(250)),
         exit = shrinkVertically(tween(250))
     ) {
@@ -479,7 +480,7 @@ private fun HomeworkCardPreview() {
                 HomeworkViewModelTask(
                     id = 1,
                     content = "Test 1",
-                    done = false,
+                    done = true,
                     individualId = null
                 ),
                 HomeworkViewModelTask(
@@ -487,13 +488,13 @@ private fun HomeworkCardPreview() {
                     content = "Test 2",
                     done = true,
                     individualId = null,
-                    isLoading = true
+                    isLoading = false
                 )
             ),
             classes = `class`,
             isPublic = true,
             isOwner = true,
-            isLoading = true,
+            isLoading = false,
             isLoadingNewTask = true,
             isHidden = true,
             isEnabled = false
@@ -508,6 +509,7 @@ private fun HomeworkCardPreview() {
         onEditTaskRequest = {},
         onHomeworkHide = {},
         showHidden = true,
-        showDisabled = true
+        showDisabled = true,
+        showDone = true
     )
 }

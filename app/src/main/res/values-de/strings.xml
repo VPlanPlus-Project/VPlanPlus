@@ -381,4 +381,5 @@
     <string name="homework_show">Einblenden</string>
     <string name="addHomework_defaultLessonFilteredMessage">Einige Fächer sind nicht verfügbar, da du sie in deinen Profileinstellungen deaktiviert hast. Solange sie deaktiviert sind, kannst du keine Hausaufgaben in diesen Fächern erstellen.</string>
     <string name="homework_filterShowOnlyMy">Meine Fächer</string>
+    <string name="homework_filterShowDone">Erledigte</string>
 </resources>

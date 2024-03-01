@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Person
@@ -81,6 +82,7 @@ fun HomeworkScreen(
         onHomeworkHide = viewModel::onHomeworkHideToggle,
         onToggleShowHidden = viewModel::onToggleShowHidden,
         onToggleShowDisabled = viewModel::onToggleShowDisabled,
+        onToggleShowDone = viewModel::onToggleShowDone,
         refresh = viewModel::refresh,
         state = state,
         navBar = navBar,
@@ -107,6 +109,7 @@ private fun HomeworkScreenContent(
     onResetError: () -> Unit = {},
     onToggleShowHidden: () -> Unit = {},
     onToggleShowDisabled: () -> Unit = {},
+    onToggleShowDone: () -> Unit = {},
     onCopyToClipboard: (String) -> Unit = {},
     refresh: () -> Unit = {},
     state: HomeworkState,
@@ -211,6 +214,20 @@ private fun HomeworkScreenContent(
                         }
                         item {
                             FilterChip(
+                                selected = state.showDone,
+                                onClick = onToggleShowDone,
+                                label = { Text(text = stringResource(id = R.string.homework_filterShowDone)) },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+                        item {
+                            FilterChip(
                                 selected = state.showHidden,
                                 onClick = onToggleShowHidden,
                                 label = { Text(text = stringResource(id = R.string.homework_filterShowHidden, state.homework.count { it.isHidden })) },
@@ -282,6 +299,7 @@ private fun HomeworkScreenContent(
                                 isOwner = homework.isOwner,
                                 showHidden = state.showHidden,
                                 showDisabled = state.showDisabled,
+                                showDone = state.showDone,
                                 allDone = { onMarkAllDone(homework, it) },
                                 singleDone = { task, done -> onMarkSingleDone(task, done) },
                                 onAddTask = { onAddTask(homework, it) },
@@ -296,7 +314,11 @@ private fun HomeworkScreenContent(
                                 onHomeworkHide = { onHomeworkHide(homework) }
                             )
                         }
-                        if (state.homework.none { (it.isEnabled || state.showDisabled) && (!it.isHidden || state.showHidden) }) {
+                        if (state.homework.none {
+                            (it.isEnabled || state.showDisabled) &&
+                                    (!it.isHidden || state.showHidden) &&
+                                    (it.tasks.any { !it.done } || state.showDone)
+                        }) {
                             item { NoHomework() }
                         }
                     }
