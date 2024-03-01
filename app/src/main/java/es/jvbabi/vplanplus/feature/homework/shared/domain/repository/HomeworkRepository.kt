@@ -25,7 +25,8 @@ interface HomeworkRepository {
         shareWithClass: Boolean,
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
-        allowCloudUpdate: Boolean
+        allowCloudUpdate: Boolean,
+        isHidden: Boolean
     ): HomeworkModificationResult
 
     suspend fun addNewTask(

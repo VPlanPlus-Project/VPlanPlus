@@ -38,7 +38,8 @@ class SaveHomeworkUseCase(
             ) },
             allowCloudUpdate = true,
             shareWithClass = shareWithClass,
-            createdAt = ZonedDateTime.now()
+            createdAt = ZonedDateTime.now(),
+            isHidden = false
         )
     }
 }

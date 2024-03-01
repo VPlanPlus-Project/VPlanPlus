@@ -155,6 +155,9 @@ class HomeworkRepositoryImpl(
                                     }
                             )
 
+                    val existingRecord = homeworkDao
+                        .getById(responseHomework.id.toInt()).first()
+                        ?.toModel()
                     homeworkDao.deleteTasksForHomework(responseHomework.id)
 
                     insertHomework(
@@ -166,7 +169,8 @@ class HomeworkRepositoryImpl(
                         defaultLessonVpId = responseHomework.vpId.toLong(),
                         createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.createdAt),
                         allowCloudUpdate = false,
-                        tasks = replacementTasks
+                        tasks = replacementTasks,
+                        isHidden = existingRecord?.isHidden ?: false
                     )
                 }
 
@@ -257,7 +261,8 @@ class HomeworkRepositoryImpl(
         shareWithClass: Boolean,
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
-        allowCloudUpdate: Boolean
+        allowCloudUpdate: Boolean,
+        isHidden: Boolean
     ): HomeworkModificationResult {
         if (!allowCloudUpdate || createdBy == null) {
             val dbHomework = DbHomework(
@@ -266,7 +271,8 @@ class HomeworkRepositoryImpl(
                 createdAt = createdAt,
                 until = until,
                 defaultLessonVpId = defaultLessonVpId,
-                createdBy = createdBy?.id
+                createdBy = createdBy?.id,
+                hidden = isHidden,
             )
             homeworkDao.insert(dbHomework)
             tasks.forEach { newTask ->
@@ -313,7 +319,8 @@ class HomeworkRepositoryImpl(
             until = until,
             defaultLessonVpId = defaultLessonVpId,
             createdBy = createdBy.id,
-            isPublic = shareWithClass
+            isPublic = shareWithClass,
+            hidden = isHidden
         )
         homeworkDao.insert(dbHomework)
         response.tasks.forEach {
