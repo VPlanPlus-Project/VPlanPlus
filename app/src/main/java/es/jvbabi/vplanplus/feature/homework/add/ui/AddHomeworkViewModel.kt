@@ -96,11 +96,19 @@ class AddHomeworkViewModel @Inject constructor(
                     until = state.value.until!!,
                     defaultLesson = state.value.selectedDefaultLesson!!,
                     tasks = state.value.tasks,
-                    shareWithClass = state.value.isForAll
+                    shareWithClass = state.value.isForAll,
+                    storeInCloud = state.value.storeInCloud
                 ),
                 isLoading = false
             )
         }
+    }
+
+    fun onToggleCloud() {
+        state.value = state.value.copy(
+            storeInCloud = !state.value.storeInCloud,
+            isForAll = !state.value.storeInCloud
+        )
     }
 }
 
@@ -118,6 +126,7 @@ data class AddHomeworkState(
     val until: LocalDate? = null,
 
     val isForAll: Boolean = true,
+    val storeInCloud: Boolean = true,
 
     val tasks: List<String> = emptyList(),
     val newTask: String = "",

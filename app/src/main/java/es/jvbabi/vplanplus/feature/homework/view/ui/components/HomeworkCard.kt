@@ -202,7 +202,7 @@ fun HomeworkCard(
                                         contentDescription = null
                                     )
                                 },
-                                enabled = isOwner && !homework.isLoading && homework.tasks.all { !it.isLoading }
+                                enabled = (isOwner || homework.createdBy == null) && !homework.isLoading && homework.tasks.all { !it.isLoading }
                             )
                             if (isOwner && homework.id > 0) {
                                 DropdownMenuItem(
@@ -225,7 +225,7 @@ fun HomeworkCard(
                                             )
                                     }
                                 )
-                            } else if (!isOwner) {
+                            } else if (!isOwner && homework.createdBy != null) {
                                 DropdownMenuItem(
                                     text = {
                                         if (homework.isHidden) Text(text = stringResource(id = R.string.homework_show))
@@ -293,7 +293,7 @@ fun HomeworkCard(
                                             contentDescription = null
                                         )
                                     },
-                                    enabled = isOwner && !task.isLoading && !homework.isLoading
+                                    enabled = (isOwner || homework.createdBy == null) && !task.isLoading && !homework.isLoading
                                 )
                                 DropdownMenuItem(
                                     text = { Text(text = stringResource(id = R.string.homework_edit)) },
@@ -304,7 +304,7 @@ fun HomeworkCard(
                                             contentDescription = null
                                         )
                                     },
-                                    enabled = isOwner && !task.isLoading && !homework.isLoading
+                                    enabled = (isOwner || homework.createdBy == null) && !task.isLoading && !homework.isLoading
                                 )
                             }
                         }
@@ -316,7 +316,7 @@ fun HomeworkCard(
                     targetValue = if (isAdding) 86f else 48f,
                     label = "addTaskHeightAnimation"
                 ).value.dp
-                Column(
+                if (isOwner || homework.createdBy == null) Column(
                     modifier = Modifier
                         .padding(start = 32.dp)
                         .height(height)
