@@ -83,7 +83,8 @@ private fun ChangeVisibilityDialogPreview() {
                 )
             ),
             classes = `class`,
-            isPublic = true
+            isPublic = true,
+            isHidden = false
         ),
         onConfirm = {},
         onDismiss = {}

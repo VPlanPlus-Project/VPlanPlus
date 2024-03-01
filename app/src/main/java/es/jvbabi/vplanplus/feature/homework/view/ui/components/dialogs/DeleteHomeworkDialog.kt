@@ -78,7 +78,8 @@ private fun DeleteHomeworkDialogPreview() {
                 )
             ),
             classes = `class`,
-            isPublic = true
+            isPublic = true,
+            isHidden = false
         ),
         onConfirm = {},
         onDismiss = {}

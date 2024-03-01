@@ -421,7 +421,8 @@ private fun HomeworkCardPreview() {
             isPublic = true,
             isOwner = true,
             isLoading = true,
-            isLoadingNewTask = true
+            isLoadingNewTask = true,
+            isHidden = false
         ),
         isOwner = true,
         allDone = {},

@@ -42,7 +42,8 @@ data class CHomework(
             until = homework.until,
             tasks = tasks.map { it.toModel() },
             classes = classes.toClassModel(),
-            isPublic = homework.isPublic
+            isPublic = homework.isPublic,
+            isHidden = homework.hidden
         )
     }
 }

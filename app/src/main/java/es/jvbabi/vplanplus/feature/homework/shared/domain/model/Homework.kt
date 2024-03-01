@@ -15,6 +15,7 @@ open class Homework(
     val isPublic: Boolean,
     val until: ZonedDateTime,
     val tasks: List<HomeworkTask>,
+    val isHidden: Boolean
 ) {
     fun buildHash(): String {
         return "$id$createdBy$createdAt${defaultLesson.vpId}$until$isPublic$classes${tasks.joinToString { it.content }}".sha256()

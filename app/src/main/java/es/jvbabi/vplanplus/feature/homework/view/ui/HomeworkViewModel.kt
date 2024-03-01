@@ -236,6 +236,7 @@ data class HomeworkViewModelHomework(
     val until: ZonedDateTime,
     val tasks: List<HomeworkViewModelTask>,
     val isOwner: Boolean,
+    val isHidden: Boolean,
     val isLoading: Boolean = false,
     val isLoadingNewTask: Boolean = false
 ) {
@@ -247,7 +248,8 @@ data class HomeworkViewModelHomework(
         defaultLesson = defaultLesson,
         isPublic = isPublic,
         until = until,
-        tasks = tasks.map { it.toTask() }
+        tasks = tasks.map { it.toTask() },
+        isHidden = isHidden
     )
 
 }
@@ -271,7 +273,8 @@ private fun Homework.toViewModel(isOwner: Boolean) = HomeworkViewModelHomework(
     isPublic = isPublic,
     until = until,
     tasks = tasks.map { it.toViewModel() },
-    isOwner = isOwner
+    isOwner = isOwner,
+    isHidden = isHidden
 )
 
 private fun HomeworkTask.toViewModel() = HomeworkViewModelTask(
