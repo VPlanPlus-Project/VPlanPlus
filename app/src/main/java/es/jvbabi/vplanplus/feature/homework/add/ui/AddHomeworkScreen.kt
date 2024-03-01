@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material.icons.filled.People
@@ -81,6 +82,7 @@ fun AddHomeworkScreen(
         onModifyTask = { before, after -> viewModel.modifyTask(before, after) },
         onHideBannerForever = { viewModel.hideCloudInfoBanner() },
         onOpenVppIdSettings = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
+        onToggleStoreInCloud = viewModel::onToggleCloud,
         onSave = { viewModel.save() },
         state = state
     )
@@ -111,6 +113,7 @@ private fun AddHomeworkContent(
     onModifyTask: (before: String, after: String) -> Unit = { _, _ -> },
     onHideBannerForever: () -> Unit = {},
     onOpenVppIdSettings: () -> Unit = {},
+    onToggleStoreInCloud: () -> Unit = {},
     onSave: () -> Unit = {},
     state: AddHomeworkState
 ) {
@@ -233,6 +236,16 @@ private fun AddHomeworkContent(
                         }
                     }
                 )
+
+                if (state.canUseCloud) SettingsSetting(
+                    icon = Icons.Default.CloudQueue,
+                    title = stringResource(id = R.string.addHomework_storeInCloudTitle),
+                    subtitle = stringResource(id = R.string.addHomework_storeInCloudText),
+                    checked = state.storeInCloud,
+                    type = SettingsType.TOGGLE,
+                    doAction = onToggleStoreInCloud
+                )
+
                 SettingsSetting(
                     icon = Icons.Default.People,
                     title = stringResource(id = R.string.addHomework_shareTitle),
@@ -253,7 +266,7 @@ private fun AddHomeworkContent(
                     else
                         stringResource(id = R.string.addHomework_shareSubtitleWithoutSubject),
                     type = SettingsType.CHECKBOX,
-                    enabled = state.canUseCloud,
+                    enabled = state.canUseCloud && state.storeInCloud,
                     checked = state.isForAll && state.canUseCloud,
                     doAction = onToggleForAll
                 )
@@ -376,7 +389,7 @@ private fun AddHomeworkScreenPreview() {
             isLessonDialogOpen = false,
             isUntilDialogOpen = false,
             tasks = listOf("Task 1", "Task 2", "Task 3"),
-            canUseCloud = false,
+            canUseCloud = true,
             canShowCloudInfoBanner = true
         )
     )

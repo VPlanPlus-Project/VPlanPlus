@@ -20,6 +20,7 @@ class SaveHomeworkUseCase(
     suspend operator fun invoke(
         until: LocalDate,
         shareWithClass: Boolean,
+        storeInCloud: Boolean,
         defaultLesson: DefaultLesson,
         tasks: List<String>,
     ): HomeworkModificationResult {
@@ -29,7 +30,7 @@ class SaveHomeworkUseCase(
         val dueTo = ZonedDateTime.of(until, LocalTime.of(0, 0, 0), ZoneId.of("UTC"))
 
         return homeworkRepository.insertHomework(
-            createdBy = identity.vppId,
+            createdBy = if (storeInCloud) identity.vppId else null,
             `class` = `class`,
             until = dueTo,
             defaultLessonVpId = defaultLesson.vpId,

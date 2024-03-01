@@ -380,4 +380,6 @@
     <string name="addHomework_defaultLessonFilteredMessage">Some subjects aren\'t available because you disabled them in your Profile. You cannot create a homework in those subjects unless you enable them in profile settings.</string>
     <string name="homework_filterShowOnlyMy">My subjects</string>
     <string name="homework_filterShowDone">Finished</string>
+    <string name="addHomework_storeInCloudTitle">Store in vpp.ID cloud</string>
+    <string name="addHomework_storeInCloudText">If disabled, this homework will only be saved locally. There is now way to move it to the cloud later on.</string>
 </resources>

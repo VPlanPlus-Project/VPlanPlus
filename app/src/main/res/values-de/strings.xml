@@ -382,4 +382,6 @@
     <string name="addHomework_defaultLessonFilteredMessage">Einige Fächer sind nicht verfügbar, da du sie in deinen Profileinstellungen deaktiviert hast. Solange sie deaktiviert sind, kannst du keine Hausaufgaben in diesen Fächern erstellen.</string>
     <string name="homework_filterShowOnlyMy">Meine Fächer</string>
     <string name="homework_filterShowDone">Erledigte</string>
+    <string name="addHomework_storeInCloudTitle">In vpp.ID Cloud speichern</string>
+    <string name="addHomework_storeInCloudText">Wenn diese Funktion deaktiviert ist, werden diese Hausaufgaben nur lokal gespeichert. Es gibt keine Möglichkeit, sie später in die Cloud zu verschieben.</string>
 </resources>
