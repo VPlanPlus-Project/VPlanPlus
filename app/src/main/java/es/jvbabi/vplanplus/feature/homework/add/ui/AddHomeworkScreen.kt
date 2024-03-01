@@ -1,5 +1,9 @@
 package es.jvbabi.vplanplus.feature.homework.add.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -255,16 +259,22 @@ private fun AddHomeworkContent(
                 )
             }
 
-            if (!state.canUseCloud && state.canShowCloudInfoBanner) InfoCard(
-                imageVector = Icons.Default.NoAccounts,
-                title = stringResource(id = R.string.addHomework_noVppIdTitle),
-                text = stringResource(id = R.string.addHomework_noVppIdText),
-                modifier = Modifier.padding(16.dp),
-                buttonText1 = stringResource(id = R.string.hideForever),
-                buttonAction1 = onHideBannerForever,
-                buttonText2 = stringResource(id = R.string.addHomework_noVppIdButtonOpenSettings),
-                buttonAction2 = onOpenVppIdSettings
-            )
+            AnimatedVisibility(
+                visible = !state.canUseCloud && state.canShowCloudInfoBanner,
+                enter = expandVertically(tween(200)),
+                exit = shrinkVertically(tween(200))
+            ) {
+                InfoCard(
+                    imageVector = Icons.Default.NoAccounts,
+                    title = stringResource(id = R.string.addHomework_noVppIdTitle),
+                    text = stringResource(id = R.string.addHomework_noVppIdText),
+                    modifier = Modifier.padding(16.dp),
+                    buttonText1 = stringResource(id = R.string.hideForever),
+                    buttonAction1 = onHideBannerForever,
+                    buttonText2 = stringResource(id = R.string.addHomework_noVppIdButtonOpenSettings),
+                    buttonAction2 = onOpenVppIdSettings
+                )
+            }
 
             SettingsCategory(
                 title = stringResource(id = R.string.addHomework_tasks),
@@ -338,7 +348,11 @@ private fun AddHomeworkContent(
                 ) else Text(text = stringResource(id = R.string.addHomework_save))
             }
 
-            if (state.result == HomeworkModificationResult.FAILED) {
+            AnimatedVisibility(
+                visible = state.result == HomeworkModificationResult.FAILED,
+                enter = expandVertically(tween(200)),
+                exit = shrinkVertically(tween(200))
+            ) {
                 InfoCard(
                     modifier = Modifier.padding(16.dp),
                     imageVector = Icons.Default.Error,
