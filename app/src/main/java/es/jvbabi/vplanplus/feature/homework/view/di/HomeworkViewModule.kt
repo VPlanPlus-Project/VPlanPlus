@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.DeleteHomeworkTa
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.DeleteHomeworkUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.EditTaskUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.GetHomeworkUseCase
+import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HideHomeworkUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.IsUpdateRunningUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.MarkAllDoneUseCase
@@ -61,6 +62,9 @@ object HomeworkViewModule {
                 keyValueRepository = keyValueRepository
             ),
             updateUseCase = UpdateUseCase(
+                homeworkRepository = homeworkRepository
+            ),
+            hideHomeworkUseCase = HideHomeworkUseCase(
                 homeworkRepository = homeworkRepository
             )
         )

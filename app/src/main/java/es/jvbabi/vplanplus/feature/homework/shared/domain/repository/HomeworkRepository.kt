@@ -25,7 +25,8 @@ interface HomeworkRepository {
         shareWithClass: Boolean,
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
-        allowCloudUpdate: Boolean
+        allowCloudUpdate: Boolean,
+        isHidden: Boolean
     ): HomeworkModificationResult
 
     suspend fun addNewTask(
@@ -60,7 +61,10 @@ interface HomeworkRepository {
 
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
 
+    suspend fun changeShareStatus(homework: Homework): HomeworkModificationResult
     suspend fun changeVisibility(homework: Homework): HomeworkModificationResult
+
+    suspend fun clearCache()
 }
 
 enum class HomeworkModificationResult {

@@ -91,22 +91,25 @@ class HomeworkRepositoryImpl(
                     .getAll()
                     .first()
                     .filter { data.none { nd -> nd.id == it.homework.id } }
+                    .filter { it.homework.id > 0 }
                     .map { it.homework.id }
                     .forEach {
                         homeworkDao.deleteHomework(it)
                     }
 
                 val existingHomework = getAll().first().filter { it.classes == `class` }
-                val newHomework = data.filter {
-                    profile.isDefaultLessonEnabled(it.vpId.toLong()) &&
-                            !existingHomework.any { eh -> eh.id == it.id } &&
-                            it.createdBy != vppId?.id?.toLong()
-                }
+                val newHomework = data
+                    .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
+                    .filter { !existingHomework.any { eh -> eh.id == it.id } }
+                    .filter { it.createdBy != vppId?.id?.toLong() }
 
-                val changedHomework = data.filter {
-                    it.buildHash() != existingHomework.firstOrNull { eh -> eh.id == it.id }?.buildHash() &&
-                            it.createdBy != vppId?.id?.toLong()
-                }
+                val changedHomework = data
+                    .filter {profile.isDefaultLessonEnabled(it.vpId.toLong()) }
+                    .filter {
+                        it.buildHash(`class`.name) != existingHomework.firstOrNull { eh -> eh.id == it.id && !eh.isHidden }
+                            ?.buildHash()
+                    }
+                    .filter { it.createdBy != vppId?.id?.toLong() }
 
                 data.forEach forEachHomework@{ responseHomework ->
                     val id = responseHomework.id
@@ -155,6 +158,9 @@ class HomeworkRepositoryImpl(
                                     }
                             )
 
+                    val existingRecord = homeworkDao
+                        .getById(responseHomework.id.toInt()).first()
+                        ?.toModel()
                     homeworkDao.deleteTasksForHomework(responseHomework.id)
 
                     insertHomework(
@@ -164,9 +170,12 @@ class HomeworkRepositoryImpl(
                         until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until),
                         `class` = `class`,
                         defaultLessonVpId = responseHomework.vpId.toLong(),
-                        createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.createdAt),
+                        createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(
+                            responseHomework.createdAt
+                        ),
                         allowCloudUpdate = false,
-                        tasks = replacementTasks
+                        tasks = replacementTasks,
+                        isHidden = existingRecord?.isHidden ?: false,
                     )
                 }
 
@@ -193,7 +202,8 @@ class HomeworkRepositoryImpl(
                             R.string.notification_homeworkNewHomeworkOneContent,
                             vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
                                 ?: "Unknown",
-                            defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject ?: "Unknown",
+                            defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject
+                                ?: "Unknown",
                             newHomework.first().tasks.size,
                             dateString
                         ),
@@ -257,7 +267,8 @@ class HomeworkRepositoryImpl(
         shareWithClass: Boolean,
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
-        allowCloudUpdate: Boolean
+        allowCloudUpdate: Boolean,
+        isHidden: Boolean
     ): HomeworkModificationResult {
         if (!allowCloudUpdate || createdBy == null) {
             val dbHomework = DbHomework(
@@ -266,7 +277,9 @@ class HomeworkRepositoryImpl(
                 createdAt = createdAt,
                 until = until,
                 defaultLessonVpId = defaultLessonVpId,
-                createdBy = createdBy?.id
+                createdBy = createdBy?.id,
+                hidden = isHidden,
+                isPublic = shareWithClass
             )
             homeworkDao.insert(dbHomework)
             tasks.forEach { newTask ->
@@ -313,7 +326,8 @@ class HomeworkRepositoryImpl(
             until = until,
             defaultLessonVpId = defaultLessonVpId,
             createdBy = createdBy.id,
-            isPublic = shareWithClass
+            isPublic = shareWithClass,
+            hidden = isHidden
         )
         homeworkDao.insert(dbHomework)
         response.tasks.forEach {
@@ -503,18 +517,16 @@ class HomeworkRepositoryImpl(
         task: HomeworkTask,
         done: Boolean
     ): HomeworkModificationResult {
-        val activeVppIds = vppIdRepository.getVppIds().first().filter { it.isActive() }
-        if (!activeVppIds.any { it.id == homework.createdBy?.id }) {
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.isActive() && it.classes == homework.classes }
+
+        if (task.id < 0 || vppId == null) {
             val dbHomeworkTask =
                 homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
             homeworkDao.insertTask(dbHomeworkTask)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
-
-        val vppId = vppIdRepository
-            .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
-            ?: return HomeworkModificationResult.FAILED
 
         vppIdNetworkRepository.authentication = TokenAuthentication(
             "vpp.",
@@ -542,12 +554,12 @@ class HomeworkRepositoryImpl(
 
     override suspend fun findLocalId(): Long {
         val homework = homeworkDao.getAll().first().minByOrNull { it.homework.id }
-        return (homework?.homework?.id ?: 0) - 1
+        return minOf(homework?.homework?.id ?: 0, 0) - 1
     }
 
     override suspend fun findLocalTaskId(): Long {
         val task = homeworkDao.getAll().first().flatMap { it.tasks }.minByOrNull { it.id }
-        return (task?.id ?: 0) - 1
+        return minOf(task?.id ?: 0, 0) - 1
     }
 
     override suspend fun getHomeworkByTask(task: HomeworkTask): Homework {
@@ -555,7 +567,7 @@ class HomeworkRepositoryImpl(
         return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel()
     }
 
-    override suspend fun changeVisibility(homework: Homework): HomeworkModificationResult {
+    override suspend fun changeShareStatus(homework: Homework): HomeworkModificationResult {
         if (homework.id < 0) throw UnsupportedOperationException("Cannot change visibility of local homework")
         val vppId = homework.createdBy
             ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
@@ -575,11 +587,20 @@ class HomeworkRepositoryImpl(
         )
 
         return if (result.response == HttpStatusCode.OK) {
-            homeworkDao.changeVisibility(homework.id, !homework.isPublic)
+            homeworkDao.changePublic(homework.id, !homework.isPublic)
             HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
         } else {
             HomeworkModificationResult.FAILED
         }
+    }
+
+    override suspend fun changeVisibility(homework: Homework): HomeworkModificationResult {
+        homeworkDao.changeHidden(homework.id, !homework.isHidden)
+        return HomeworkModificationResult.SUCCESS_OFFLINE
+    }
+
+    override suspend fun clearCache() {
+        homeworkDao.deleteAllCloud()
     }
 }
 
@@ -595,11 +616,10 @@ private data class HomeworkResponseRecord(
     @SerializedName("vp_id") val vpId: Int,
     @SerializedName("due_at") val until: Long,
     @SerializedName("public") val shareWithClass: Boolean,
-    val classes: Int,
     val tasks: List<HomeRecordTask>
 ) {
-    fun buildHash(): String {
-        return "$id$createdBy$createdAt$vpId$until$shareWithClass$classes${tasks.joinToString { it.content }}".sha256()
+    fun buildHash(className: String): String {
+        return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256().lowercase()
     }
 }
 

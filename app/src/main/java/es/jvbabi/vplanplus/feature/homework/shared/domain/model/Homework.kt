@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.homework.shared.domain.model
 
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.VppId
@@ -15,9 +16,11 @@ open class Homework(
     val isPublic: Boolean,
     val until: ZonedDateTime,
     val tasks: List<HomeworkTask>,
+    val isHidden: Boolean
 ) {
     fun buildHash(): String {
-        return "$id$createdBy$createdAt${defaultLesson.vpId}$until$isPublic$classes${tasks.joinToString { it.content }}".sha256()
+        val converter = ZonedDateTimeConverter()
+        return "$id${createdBy?.id}${converter.zonedDateTimeToTimestamp(createdAt)}${defaultLesson.vpId}${converter.zonedDateTimeToTimestamp(until)}$isPublic${classes.name}${tasks.joinToString { it.content }}".sha256().lowercase()
     }
 }
 

@@ -6,15 +6,22 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -72,6 +79,10 @@ fun HomeworkScreen(
         onHomeworkTaskEditRequestConfirm = viewModel::onHomeworkTaskEditRequestConfirm,
         onResetError = viewModel::onResetError,
         onCopyToClipboard = { clipboardManager.setText(buildAnnotatedString { append(it) }) },
+        onHomeworkHide = viewModel::onHomeworkHideToggle,
+        onToggleShowHidden = viewModel::onToggleShowHidden,
+        onToggleShowDisabled = viewModel::onToggleShowDisabled,
+        onToggleShowDone = viewModel::onToggleShowDone,
         refresh = viewModel::refresh,
         state = state,
         navBar = navBar,
@@ -94,7 +105,11 @@ private fun HomeworkScreenContent(
     onHomeworkTaskDeleteRequestConfirm: () -> Unit = {},
     onHomeworkTaskEditRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
     onHomeworkTaskEditRequestConfirm: (newContent: String?) -> Unit = {},
+    onHomeworkHide: (homework: HomeworkViewModelHomework) -> Unit = {},
     onResetError: () -> Unit = {},
+    onToggleShowHidden: () -> Unit = {},
+    onToggleShowDisabled: () -> Unit = {},
+    onToggleShowDone: () -> Unit = {},
     onCopyToClipboard: (String) -> Unit = {},
     refresh: () -> Unit = {},
     state: HomeworkState,
@@ -179,6 +194,53 @@ private fun HomeworkScreenContent(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) content@{
+                    LazyRow {
+                        item {
+                            Spacer(modifier = Modifier.width(16.dp))
+                        }
+                        item {
+                            FilterChip(
+                                selected = !state.showDisabled,
+                                onClick = onToggleShowDisabled,
+                                label = { Text(text = stringResource(id = R.string.homework_filterShowOnlyMy)) },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = null
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+                        item {
+                            FilterChip(
+                                selected = state.showDone,
+                                onClick = onToggleShowDone,
+                                label = { Text(text = stringResource(id = R.string.homework_filterShowDone)) },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+                        item {
+                            FilterChip(
+                                selected = state.showHidden,
+                                onClick = onToggleShowHidden,
+                                label = { Text(text = stringResource(id = R.string.homework_filterShowHidden, state.homework.count { it.isHidden })) },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.VisibilityOff,
+                                        contentDescription = null
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+                    }
                     AnimatedVisibility(
                         visible = state.errorVisible,
                         enter = expandVertically(tween(250)),
@@ -217,7 +279,11 @@ private fun HomeworkScreenContent(
                             },
                             buttonAction2 = when (state.errorResponse.first) {
                                 ErrorOnUpdate.ADD_TASK, ErrorOnUpdate.EDIT_TASK -> {
-                                    { onCopyToClipboard(state.errorResponse.second.toString().trim()) }
+                                    {
+                                        onCopyToClipboard(
+                                            state.errorResponse.second.toString().trim()
+                                        )
+                                    }
                                 }
 
                                 else -> {
@@ -226,25 +292,41 @@ private fun HomeworkScreenContent(
                             }
                         )
                     }
-                    if (state.homework.isNotEmpty()) LazyColumn(Modifier.fillMaxSize()) {
+                    LazyColumn(Modifier.fillMaxSize()) {
                         items(state.homework.sortedBy { it.until }) { homework ->
                             HomeworkCard(
                                 homework = homework,
                                 isOwner = homework.isOwner,
+                                showHidden = state.showHidden,
+                                showDisabled = state.showDisabled,
+                                showDone = state.showDone,
                                 allDone = { onMarkAllDone(homework, it) },
                                 singleDone = { task, done -> onMarkSingleDone(task, done) },
                                 onAddTask = { onAddTask(homework, it) },
                                 onDeleteRequest = { onHomeworkDeleteRequest(homework) },
-                                onChangePublicVisibility = { onHomeworkChangeVisibilityRequest(homework) },
+                                onChangePublicVisibility = {
+                                    onHomeworkChangeVisibilityRequest(
+                                        homework
+                                    )
+                                },
                                 onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
-                                onEditTaskRequest = { onHomeworkTaskEditRequest(it) }
+                                onEditTaskRequest = { onHomeworkTaskEditRequest(it) },
+                                onHomeworkHide = { onHomeworkHide(homework) }
                             )
                         }
-                    } else {
-                        NoHomework()
+                        if (state.homework.none {
+                            (it.isEnabled || state.showDisabled) &&
+                                    (!it.isHidden || state.showHidden) &&
+                                    (it.tasks.any { !it.done } || state.showDone)
+                        }) {
+                            item { NoHomework() }
+                        }
                     }
                 }
-                PullToRefreshContainer(state = pullRefreshState, modifier = Modifier.align(alignment = Alignment.TopCenter))
+                PullToRefreshContainer(
+                    state = pullRefreshState,
+                    modifier = Modifier.align(alignment = Alignment.TopCenter)
+                )
             }
         }
     }

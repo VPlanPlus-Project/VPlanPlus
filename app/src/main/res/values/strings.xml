@@ -374,4 +374,10 @@
     <string name="advancedSettings_userTitle">User</string>
     <string name="advancedSettings_timeTitle">Time</string>
     <string name="advancedSettings_timezoneTitle">Current Timezone</string>
+    <string name="homework_hide">Hide</string>
+    <string name="homework_filterShowHidden">Hidden • %1$d</string>
+    <string name="homework_show">Show</string>
+    <string name="addHomework_defaultLessonFilteredMessage">Some subjects aren\'t available because you disabled them in your Profile. You cannot create a homework in those subjects unless you enable them in profile settings.</string>
+    <string name="homework_filterShowOnlyMy">My subjects</string>
+    <string name="homework_filterShowDone">Finished</string>
 </resources>

@@ -24,12 +24,18 @@ class AddHomeworkViewModel @Inject constructor(
         viewModelScope.launch {
             getCurrentIdentityUseCase().collect { identity ->
                 if (identity?.school == null) return@collect
+                if (identity.profile == null) return@collect
+
+                val defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase()
+                val defaultLessonsFiltered = defaultLessons.any { identity.profile.isDefaultLessonEnabled(it.vpId) }
+
                 state.value = state.value.copy(
-                    defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase(),
+                    defaultLessons = defaultLessons.filter { identity.profile.isDefaultLessonEnabled(it.vpId) },
                     username = identity.vppId?.name,
                     canUseCloud = identity.vppId != null,
                     isForAll = identity.vppId != null,
-                    canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase()
+                    canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase(),
+                    defaultLessonsFiltered = defaultLessonsFiltered
                 )
             }
         }
@@ -103,6 +109,7 @@ data class AddHomeworkState(
     val canShowCloudInfoBanner: Boolean = false,
     val username: String? = null,
 
+    val defaultLessonsFiltered: Boolean = false,
     val defaultLessons: List<DefaultLesson> = emptyList(),
     val selectedDefaultLesson: DefaultLesson? = null,
     val isLessonDialogOpen: Boolean = false,
