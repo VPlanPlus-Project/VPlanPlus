@@ -510,17 +510,16 @@ class HomeworkRepositoryImpl(
         task: HomeworkTask,
         done: Boolean
     ): HomeworkModificationResult {
-        if (task.id < 0) {
+        val vppId = vppIdRepository
+            .getVppIds().first()
+            .firstOrNull { it.isActive() && it.classes == homework.classes }
+
+        if (task.id < 0 || vppId == null) {
             val dbHomeworkTask =
                 homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
             homeworkDao.insertTask(dbHomeworkTask)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
-
-        val vppId = vppIdRepository
-            .getVppIds().first()
-            .firstOrNull { it.isActive() && it.classes == homework.classes }
-            ?: return HomeworkModificationResult.FAILED
 
         vppIdNetworkRepository.authentication = TokenAuthentication(
             "vpp.",
