@@ -374,4 +374,7 @@
     <string name="advancedSettings_userTitle">User</string>
     <string name="advancedSettings_timeTitle">Time</string>
     <string name="advancedSettings_timezoneTitle">Current Timezone</string>
+    <string name="homework_hide">Hide</string>
+    <string name="homework_filterShowHidden">Hidden • %1$d</string>
+    <string name="homework_show">Show</string>
 </resources>

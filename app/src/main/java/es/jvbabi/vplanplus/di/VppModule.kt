@@ -636,13 +636,15 @@ object VppModule {
     fun provideAdvancedSettingsUseCases(
         lessonRepository: LessonRepository,
         roomRepository: RoomRepository,
-        gradeRepository: GradeRepository
+        gradeRepository: GradeRepository,
+        homeworkRepository: HomeworkRepository
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deleteCacheUseCase = DeleteCacheUseCase(
                 lessonRepository,
                 roomRepository,
-                gradeRepository
+                gradeRepository,
+                homeworkRepository
             )
         )
     }

@@ -60,7 +60,10 @@ interface HomeworkRepository {
 
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
 
+    suspend fun changeShareStatus(homework: Homework): HomeworkModificationResult
     suspend fun changeVisibility(homework: Homework): HomeworkModificationResult
+
+    suspend fun clearCache()
 }
 
 enum class HomeworkModificationResult {

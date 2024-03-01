@@ -555,7 +555,7 @@ class HomeworkRepositoryImpl(
         return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel()
     }
 
-    override suspend fun changeVisibility(homework: Homework): HomeworkModificationResult {
+    override suspend fun changeShareStatus(homework: Homework): HomeworkModificationResult {
         if (homework.id < 0) throw UnsupportedOperationException("Cannot change visibility of local homework")
         val vppId = homework.createdBy
             ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
@@ -575,11 +575,20 @@ class HomeworkRepositoryImpl(
         )
 
         return if (result.response == HttpStatusCode.OK) {
-            homeworkDao.changeVisibility(homework.id, !homework.isPublic)
+            homeworkDao.changePublic(homework.id, !homework.isPublic)
             HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
         } else {
             HomeworkModificationResult.FAILED
         }
+    }
+
+    override suspend fun changeVisibility(homework: Homework): HomeworkModificationResult {
+        homeworkDao.changeHidden(homework.id, !homework.isHidden)
+        return HomeworkModificationResult.SUCCESS_OFFLINE
+    }
+
+    override suspend fun clearCache() {
+        homeworkDao.deleteAllCloud()
     }
 }
 

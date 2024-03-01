@@ -211,6 +211,22 @@ class HomeworkViewModel @Inject constructor(
             homeworkUseCases.updateUseCase()
         }
     }
+
+    fun onHomeworkHideToggle(homework: HomeworkViewModelHomework) {
+        viewModelScope.launch {
+            state.value = state.value.copy(
+                homework = state.value.homework.map {
+                    if (it.id == homework.id) it.copy(isHidden = true)
+                    else it
+                }
+            )
+            homeworkUseCases.hideHomeworkUseCase(homework.toHomework())
+        }
+    }
+
+    fun onToggleShowHidden() {
+        state.value = state.value.copy(showHidden = !state.value.showHidden)
+    }
 }
 
 data class HomeworkState(
@@ -223,7 +239,8 @@ data class HomeworkState(
     val editHomeworkTask: HomeworkTask? = null,
     val errorResponse: Pair<ErrorOnUpdate, Any?>? = null,
     val errorVisible: Boolean = false,
-    val isUpdating: Boolean = false
+    val isUpdating: Boolean = false,
+    val showHidden: Boolean = false
 )
 
 data class HomeworkViewModelHomework(
