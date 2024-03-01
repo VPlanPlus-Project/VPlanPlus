@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -79,6 +80,7 @@ fun HomeworkScreen(
         onCopyToClipboard = { clipboardManager.setText(buildAnnotatedString { append(it) }) },
         onHomeworkHide = viewModel::onHomeworkHideToggle,
         onToggleShowHidden = viewModel::onToggleShowHidden,
+        onToggleShowDisabled = viewModel::onToggleShowDisabled,
         refresh = viewModel::refresh,
         state = state,
         navBar = navBar,
@@ -104,6 +106,7 @@ private fun HomeworkScreenContent(
     onHomeworkHide: (homework: HomeworkViewModelHomework) -> Unit = {},
     onResetError: () -> Unit = {},
     onToggleShowHidden: () -> Unit = {},
+    onToggleShowDisabled: () -> Unit = {},
     onCopyToClipboard: (String) -> Unit = {},
     refresh: () -> Unit = {},
     state: HomeworkState,
@@ -194,6 +197,20 @@ private fun HomeworkScreenContent(
                         }
                         item {
                             FilterChip(
+                                selected = !state.showDisabled,
+                                onClick = onToggleShowDisabled,
+                                label = { Text(text = stringResource(id = R.string.homework_filterShowOnlyMy)) },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Person,
+                                        contentDescription = null
+                                    )
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
+                            )
+                        }
+                        item {
+                            FilterChip(
                                 selected = state.showHidden,
                                 onClick = onToggleShowHidden,
                                 label = { Text(text = stringResource(id = R.string.homework_filterShowHidden, state.homework.count { it.isHidden })) },
@@ -202,7 +219,8 @@ private fun HomeworkScreenContent(
                                         imageVector = Icons.Default.VisibilityOff,
                                         contentDescription = null
                                     )
-                                }
+                                },
+                                modifier = Modifier.padding(end = 8.dp)
                             )
                         }
                     }
@@ -263,6 +281,7 @@ private fun HomeworkScreenContent(
                                 homework = homework,
                                 isOwner = homework.isOwner,
                                 showHidden = state.showHidden,
+                                showDisabled = state.showDisabled,
                                 allDone = { onMarkAllDone(homework, it) },
                                 singleDone = { task, done -> onMarkSingleDone(task, done) },
                                 onAddTask = { onAddTask(homework, it) },
@@ -277,7 +296,7 @@ private fun HomeworkScreenContent(
                                 onHomeworkHide = { onHomeworkHide(homework) }
                             )
                         }
-                        if (state.homework.isEmpty() || (!state.showHidden && state.homework.none { !it.isHidden })) {
+                        if (state.homework.none { (it.isEnabled || state.showDisabled) && (!it.isHidden || state.showHidden) }) {
                             item { NoHomework() }
                         }
                     }

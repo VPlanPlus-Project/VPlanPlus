@@ -91,22 +91,25 @@ class HomeworkRepositoryImpl(
                     .getAll()
                     .first()
                     .filter { data.none { nd -> nd.id == it.homework.id } }
+                    .filter { it.homework.id > 0 }
                     .map { it.homework.id }
                     .forEach {
                         homeworkDao.deleteHomework(it)
                     }
 
                 val existingHomework = getAll().first().filter { it.classes == `class` }
-                val newHomework = data.filter {
-                    profile.isDefaultLessonEnabled(it.vpId.toLong()) &&
-                            !existingHomework.any { eh -> eh.id == it.id } &&
-                            it.createdBy != vppId?.id?.toLong()
-                }
+                val newHomework = data
+                    .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
+                    .filter { !existingHomework.any { eh -> eh.id == it.id } }
+                    .filter { it.createdBy != vppId?.id?.toLong() }
 
-                val changedHomework = data.filter {
-                    it.buildHash() != existingHomework.firstOrNull { eh -> eh.id == it.id }?.buildHash() &&
-                            it.createdBy != vppId?.id?.toLong()
-                }
+                val changedHomework = data
+                    .filter {profile.isDefaultLessonEnabled(it.vpId.toLong()) }
+                    .filter {
+                        it.buildHash(`class`.name) != existingHomework.firstOrNull { eh -> eh.id == it.id && !eh.isHidden }
+                            ?.buildHash()
+                    }
+                    .filter { it.createdBy != vppId?.id?.toLong() }
 
                 data.forEach forEachHomework@{ responseHomework ->
                     val id = responseHomework.id
@@ -167,10 +170,12 @@ class HomeworkRepositoryImpl(
                         until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until),
                         `class` = `class`,
                         defaultLessonVpId = responseHomework.vpId.toLong(),
-                        createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.createdAt),
+                        createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(
+                            responseHomework.createdAt
+                        ),
                         allowCloudUpdate = false,
                         tasks = replacementTasks,
-                        isHidden = existingRecord?.isHidden ?: false
+                        isHidden = existingRecord?.isHidden ?: false,
                     )
                 }
 
@@ -197,7 +202,8 @@ class HomeworkRepositoryImpl(
                             R.string.notification_homeworkNewHomeworkOneContent,
                             vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
                                 ?: "Unknown",
-                            defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject ?: "Unknown",
+                            defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject
+                                ?: "Unknown",
                             newHomework.first().tasks.size,
                             dateString
                         ),
@@ -273,6 +279,7 @@ class HomeworkRepositoryImpl(
                 defaultLessonVpId = defaultLessonVpId,
                 createdBy = createdBy?.id,
                 hidden = isHidden,
+                isPublic = shareWithClass
             )
             homeworkDao.insert(dbHomework)
             tasks.forEach { newTask ->
@@ -547,12 +554,12 @@ class HomeworkRepositoryImpl(
 
     override suspend fun findLocalId(): Long {
         val homework = homeworkDao.getAll().first().minByOrNull { it.homework.id }
-        return (homework?.homework?.id ?: 0) - 1
+        return minOf(homework?.homework?.id ?: 0, 0) - 1
     }
 
     override suspend fun findLocalTaskId(): Long {
         val task = homeworkDao.getAll().first().flatMap { it.tasks }.minByOrNull { it.id }
-        return (task?.id ?: 0) - 1
+        return minOf(task?.id ?: 0, 0) - 1
     }
 
     override suspend fun getHomeworkByTask(task: HomeworkTask): Homework {
@@ -609,11 +616,10 @@ private data class HomeworkResponseRecord(
     @SerializedName("vp_id") val vpId: Int,
     @SerializedName("due_at") val until: Long,
     @SerializedName("public") val shareWithClass: Boolean,
-    val classes: Int,
     val tasks: List<HomeRecordTask>
 ) {
-    fun buildHash(): String {
-        return "$id$createdBy$createdAt$vpId$until$shareWithClass$classes${tasks.joinToString { it.content }}".sha256()
+    fun buildHash(className: String): String {
+        return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256().lowercase()
     }
 }
 

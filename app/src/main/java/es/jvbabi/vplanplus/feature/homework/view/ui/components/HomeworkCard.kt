@@ -75,6 +75,7 @@ fun HomeworkCard(
     homework: HomeworkViewModelHomework,
     isOwner: Boolean,
     showHidden: Boolean,
+    showDisabled: Boolean,
     allDone: (Boolean) -> Unit,
     singleDone: (HomeworkViewModelTask, Boolean) -> Unit,
     onAddTask: (String) -> Unit,
@@ -96,7 +97,7 @@ fun HomeworkCard(
     }
 
     AnimatedVisibility(
-        visible = showHidden || !homework.isHidden,
+        visible = (showHidden || !homework.isHidden) && (showDisabled || homework.isEnabled),
         enter = expandVertically(tween(250)),
         exit = shrinkVertically(tween(250))
     ) {
@@ -161,7 +162,7 @@ fun HomeworkCard(
                                         modifier = Modifier.padding(horizontal = 4.dp)
                                     )
                                 }
-                                if (homework.isHidden) {
+                                if (homework.isHidden || !homework.isEnabled) {
                                     Icon(
                                         imageVector = Icons.Default.VisibilityOff,
                                         contentDescription = null,
@@ -494,7 +495,8 @@ private fun HomeworkCardPreview() {
             isOwner = true,
             isLoading = true,
             isLoadingNewTask = true,
-            isHidden = true
+            isHidden = true,
+            isEnabled = false
         ),
         isOwner = true,
         allDone = {},
@@ -505,6 +507,7 @@ private fun HomeworkCardPreview() {
         onDeleteTaskRequest = {},
         onEditTaskRequest = {},
         onHomeworkHide = {},
-        showHidden = true
+        showHidden = true,
+        showDisabled = true
     )
 }
