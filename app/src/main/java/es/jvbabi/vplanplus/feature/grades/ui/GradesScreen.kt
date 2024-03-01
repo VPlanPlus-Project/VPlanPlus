@@ -2,6 +2,10 @@ package es.jvbabi.vplanplus.feature.grades.ui
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -109,19 +113,23 @@ private fun GradesScreenContent(
                 return@Scaffold
             }
             val grades = state.grades.entries.sortedBy { it.key.name }
+            AnimatedVisibility(
+                visible = state.showBanner,
+                enter = expandVertically(tween(200)),
+                exit = shrinkVertically(tween(200))
+            ) {
+                InfoCard(
+                    imageVector = Icons.Default.Warning,
+                    title = stringResource(id = R.string.grades_warningCardTitle),
+                    text = stringResource(
+                        id = R.string.grades_warningCardText
+                    ),
+                    buttonText1 = stringResource(id = R.string.hideForever),
+                    buttonAction1 = onHideBanner,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
             LazyColumn {
-                if (state.showBanner) item {
-                    InfoCard(
-                        imageVector = Icons.Default.Warning,
-                        title = stringResource(id = R.string.grades_warningCardTitle),
-                        text = stringResource(
-                            id = R.string.grades_warningCardText
-                        ),
-                        buttonText1 = stringResource(id = R.string.hideForever),
-                        buttonAction1 = onHideBanner,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                }
                 if (state.avg != 0.0) item {
                     val colorScheme = MaterialTheme.colorScheme
                     Box(
