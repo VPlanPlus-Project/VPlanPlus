@@ -35,6 +35,7 @@ import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools
@@ -42,6 +43,8 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
@@ -62,6 +65,7 @@ class DoSyncUseCase(
     private val lessonTimesRepository: LessonTimeRepository,
     private val profileRepository: ProfileRepository,
     private val lessonRepository: LessonRepository,
+    private val homeworkRepository: HomeworkRepository,
     private val vPlanRepository: VPlanRepository,
     private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val planRepository: PlanRepository,
@@ -75,6 +79,10 @@ class DoSyncUseCase(
         if (profileRepository.getProfiles().first().isEmpty()) return true
         val daysAhead = keyValueRepository.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toIntOrNull()
             ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
+
+        logRecordRepository.log("Sync.Homework", "Syncing homework")
+        homeworkRepository.fetchData()
+
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
         val currentVersion =
@@ -207,12 +215,14 @@ class DoSyncUseCase(
     private suspend fun processVPlanData(vPlanData: VPlanData) {
 
         val planDateFormatter = DateTimeFormatter.ofPattern("EEEE, d. MMMM yyyy", Locale.GERMAN)
-        val planDate = LocalDate.parse(vPlanData.wPlanDataObject.head!!.date!!, planDateFormatter)
+        val planDate = LocalDate.parse(vPlanData.wPlanDataObject.head!!.date!!, planDateFormatter).atTime(0, 0, 0).atZone(ZoneId.of("UTC"))
 
         val createDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
-        val lastPlanUpdate = LocalDateTime.parse(
-            vPlanData.wPlanDataObject.head!!.timestampString!!,
-            createDateFormatter
+        val lastPlanUpdate = ZonedDateTime.of(
+            LocalDateTime.parse(
+                vPlanData.wPlanDataObject.head!!.timestampString!!,
+                createDateFormatter
+            ), ZoneId.of("Europe/Berlin")
         )
 
         val school = schoolRepository.getSchoolFromId(vPlanData.schoolId)!!
@@ -228,7 +238,7 @@ class DoSyncUseCase(
         var rooms = roomRepository.getRoomsBySchool(school)
         var teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
 
-        // clean default lessons
+        // update stuff
         classRepository.getClassesBySchool(school).forEach { dlClass ->
             defaultLessonRepository
                 .getDefaultLessonByClassId(dlClass.classId)
@@ -372,7 +382,7 @@ class DoSyncUseCase(
                         classLessonRefId = `class`.classId,
                         version = version,
                         roomBookingId = bookings.firstOrNull { booking ->
-                            booking.from.toLocalDate()
+                            booking.from
                                 .isEqual(planDate) && booking.from.toLocalTime().isBefore(
                                 times[lesson.lesson]?.end?.toLocalTime()
                             ) && booking.to.toLocalTime().isAfter(

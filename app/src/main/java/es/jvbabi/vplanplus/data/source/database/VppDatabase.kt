@@ -7,6 +7,8 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
+import es.jvbabi.vplanplus.data.model.DbHomework
+import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.DbProfile
@@ -23,10 +25,12 @@ import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeCon
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
+import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
@@ -77,12 +81,14 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbProfileDefaultLesson::class,
         LogRecord::class,
         DbCalendarEvent::class,
+        DbHomework::class,
+        DbHomeworkTask::class,
 
         DbSubject::class,
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 15,
+    version = 20,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -90,6 +96,11 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         AutoMigration(from = 9, to = 10), // add vppId
         AutoMigration(from = 13, to = 14), // indices changed for DbGrade
         AutoMigration(from = 14, to = 15), // vpp.ID Email
+        AutoMigration(from = 15, to = 16), // add homework
+        AutoMigration(from = 16, to = 17), // add homework_task.individualId
+        AutoMigration(from = 17, to = 18), // add homework.isPublic
+        AutoMigration(from = 18, to = 19), // add zoned date time
+        AutoMigration(from = 19, to = 20) // add homework can hide
     ],
 )
 @TypeConverters(
@@ -100,7 +111,8 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
     DayDataTypeConverter::class,
     LocalDateTimeConverter::class,
     VppIdStateConverter::class,
-    GradeModifierConverter::class
+    GradeModifierConverter::class,
+    ZonedDateTimeConverter::class
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
@@ -121,6 +133,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val vppIdDao: VppIdDao
     abstract val vppIdTokenDao: VppIdTokenDao
     abstract val roomBookingDao: RoomBookingDao
+    abstract val homeworkDao: HomeworkDao
 
     // grades
     abstract val subjectDao: SubjectDao
@@ -151,7 +164,11 @@ abstract class VppDatabase : RoomDatabase() {
 
         val migration_10_11 = object : Migration(10, 11) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE vpp_id_token ADD COLUMN bsToken TEXT DEFAULT NULL")
+                try {
+                    db.execSQL("ALTER TABLE vpp_id_token ADD COLUMN bsToken TEXT DEFAULT NULL")
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
 
                 db.execSQL("CREATE TABLE IF NOT EXISTS grade_teacher (" +
                         "id INTEGER PRIMARY KEY NOT NULL," +

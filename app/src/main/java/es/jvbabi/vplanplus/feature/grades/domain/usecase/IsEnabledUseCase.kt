@@ -17,7 +17,8 @@ class IsEnabledUseCase(
                 emit(GradeUseState.NO_VPP_ID)
                 return@identity
             }
-            vppIdRepository.getVppIds().collect vppId@{ vppIds ->
+            vppIdRepository.getVppIds().collect vppId@{ rawVppIds ->
+                val vppIds = rawVppIds.filter { it.isActive() }
                 if (vppIds.isEmpty()) {
                     emit(GradeUseState.NO_VPP_ID)
                     return@vppId

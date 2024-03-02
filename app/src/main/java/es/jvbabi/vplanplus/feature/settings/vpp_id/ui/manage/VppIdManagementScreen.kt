@@ -41,7 +41,7 @@ import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 @Composable
 fun VppIdManagementScreen(
@@ -186,7 +186,7 @@ fun VppIdManagementScreenPreview() {
                     name = "VPlanPlus on Google Pixel 7a",
                     id = 2,
                     isCurrent = true,
-                    createAt = LocalDateTime.now()
+                    createAt = ZonedDateTime.now()
                 )
             )
         )

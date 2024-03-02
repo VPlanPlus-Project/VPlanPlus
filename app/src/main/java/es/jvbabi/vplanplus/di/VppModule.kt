@@ -34,6 +34,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeCon
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -69,7 +70,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
-import es.jvbabi.vplanplus.domain.usecase.home.RefreshFirebaseTokenUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
@@ -107,6 +108,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.CloseSessionUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetSessionsUseCase
@@ -144,6 +146,7 @@ object VppModule {
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())
             .addTypeConverter(GradeModifierConverter())
+            .addTypeConverter(ZonedDateTimeConverter())
             .allowMainThreadQueries()
             //.fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
@@ -589,7 +592,8 @@ object VppModule {
         calendarRepository: CalendarRepository,
         getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
         notificationRepository: NotificationRepository,
-        gradeRepository: GradeRepository
+        gradeRepository: GradeRepository,
+        homeworkRepository: HomeworkRepository
     ): SyncUseCases {
         val isSyncRunningUseCase = IsSyncRunningUseCase(context)
         return SyncUseCases(
@@ -615,7 +619,8 @@ object VppModule {
                 calendarRepository = calendarRepository,
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase,
                 notificationRepository = notificationRepository,
-                gradeRepository = gradeRepository
+                gradeRepository = gradeRepository,
+                homeworkRepository = homeworkRepository
             )
         )
     }
@@ -631,13 +636,15 @@ object VppModule {
     fun provideAdvancedSettingsUseCases(
         lessonRepository: LessonRepository,
         roomRepository: RoomRepository,
-        gradeRepository: GradeRepository
+        gradeRepository: GradeRepository,
+        homeworkRepository: HomeworkRepository
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deleteCacheUseCase = DeleteCacheUseCase(
                 lessonRepository,
                 roomRepository,
-                gradeRepository
+                gradeRepository,
+                homeworkRepository
             )
         )
     }
@@ -740,7 +747,7 @@ object VppModule {
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
             ),
             getProfilesUseCase = getProfilesUseCase,
-            refreshFirebaseToken = RefreshFirebaseTokenUseCase(
+            setUpUseCase = SetUpUseCase(
                 keyValueRepository = keyValueRepository,
                 firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
             )

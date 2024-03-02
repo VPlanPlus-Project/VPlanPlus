@@ -19,8 +19,9 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
-import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
+import es.jvbabi.vplanplus.util.DateUtils.toZonedDateTime
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.UUID
 
 class SaveProfileUseCase(
@@ -133,8 +134,8 @@ class SaveProfileUseCase(
                             false
                         )!!.classId,
                         lessonNumber = it.lessonNumber,
-                        start = "${it.startTime}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                        end = "${it.endTime}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                        start = "${it.startTime}:00".toZonedDateTime(ZoneId.of("Europe/Berlin")).atBeginningOfTheWorld(),
+                        end = "${it.endTime}:00".toZonedDateTime(ZoneId.of("Europe/Berlin")).atBeginningOfTheWorld(),
                     )
                 }
             )

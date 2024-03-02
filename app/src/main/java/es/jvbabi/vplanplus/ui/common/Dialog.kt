@@ -180,6 +180,11 @@ fun InputDialog(
                     Text(text = stringResource(id = android.R.string.ok))
                 }
             },
+            dismissButton = {
+                TextButton(onClick = { onOk(null) }) {
+                    Text(text = stringResource(id = android.R.string.cancel))
+                }
+            },
         )
     }
 }

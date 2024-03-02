@@ -1,9 +1,10 @@
 package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model
 
 import com.google.gson.annotations.SerializedName
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.util.DateUtils
-import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 data class Session(
     @SerializedName("type") val typeParam: String,
@@ -16,7 +17,7 @@ data class Session(
         type: SessionType,
         name: String,
         id: Int,
-        createAt: LocalDateTime,
+        createAt: ZonedDateTime,
         isCurrent: Boolean
     ) : this(
         when (type) {
@@ -25,7 +26,7 @@ data class Session(
         },
         name,
         id,
-        createAt.toLocalUnixTimestamp(),
+        ZonedDateTimeConverter().zonedDateTimeToTimestamp(createAt),
         isCurrent
     )
 

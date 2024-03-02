@@ -16,7 +16,8 @@ import es.jvbabi.vplanplus.ui.common.ComposableDialog
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Room
 import es.jvbabi.vplanplus.ui.preview.School
-import java.time.LocalDateTime
+import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 /**
@@ -32,8 +33,8 @@ fun BookingDetailDialog(
     onCloseBookingDetailDialog: () -> Unit,
     onCancelBooking: () -> Unit,
 ) {
-    val from = DateTimeFormatter.ofPattern("HH:mm").format(booking.from)
-    val to = DateTimeFormatter.ofPattern("HH:mm").format(booking.to.plusMinutes(1))
+    val from = DateTimeFormatter.ofPattern("HH:mm").format(booking.from.toZonedLocalDateTime())
+    val to = DateTimeFormatter.ofPattern("HH:mm").format(booking.to.plusMinutes(1).toZonedLocalDateTime())
     ComposableDialog(
         icon = Icons.Default.MeetingRoom,
         title = stringResource(
@@ -84,8 +85,8 @@ private fun BookingDetailDialogPreview() {
             bookedBy = null,
             `class` = ClassesPreview.generateClass(school),
             room = Room.generateRoom(school),
-            from = LocalDateTime.now(),
-            to = LocalDateTime.now().plusHours(1),
+            from = ZonedDateTime.now(),
+            to = ZonedDateTime.now().plusHours(1),
         ),
         true,
         onCloseBookingDetailDialog = {},

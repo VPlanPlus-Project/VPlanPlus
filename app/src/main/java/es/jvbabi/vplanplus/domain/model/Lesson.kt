@@ -1,9 +1,7 @@
 package es.jvbabi.vplanplus.domain.model
 
-import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.sha256
-import java.time.LocalDate
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 data class Lesson(
     val `class`: Classes,
@@ -15,8 +13,8 @@ data class Lesson(
     val rooms: List<String>,
     val roomIsChanged: Boolean,
     val info: String?,
-    val start: LocalDateTime,
-    val end: LocalDateTime,
+    val start: ZonedDateTime,
+    val end: ZonedDateTime,
     val vpId: Long?,
     val roomBooking: RoomBooking? = null
 ) {
@@ -39,15 +37,11 @@ data class Lesson(
      * @param date the date to calculate the progress for
      * @return the progress of the lesson, a value between 0.0 and 1.0
      */
-    fun progress(date: LocalDateTime): Float {
-        var progress = 0.0
-        if (date.toLocalDate().isBefore(LocalDate.now())) progress = 1.0
-        if (date.toLocalDate().isAfter(LocalDate.now())) progress = 0.0
-        if (date.toLocalDate() == LocalDate.now()) progress = DateUtils.calculateProgress(
-            DateUtils.localDateTimeToTimeString(this.start),
-            "${date.hour}:${date.minute}",
-            DateUtils.localDateTimeToTimeString(this.end)
-        ) ?: 0.0
-        return progress.toFloat()
+    fun progress(date: ZonedDateTime): Float {
+        val from = start.toInstant().epochSecond
+        val now = date.toInstant().epochSecond
+        val to = end.toInstant().epochSecond
+
+        return (now - from) / (to - from).toFloat()
     }
 }

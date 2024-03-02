@@ -9,9 +9,11 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.format.FormatStyle
+
 
 object DateUtils {
 
@@ -50,22 +52,8 @@ object DateUtils {
         }
     }
 
-    fun getLocalDateTimeFromLocalDateAndTimeString(
-        timeString: String,
-        localDate: LocalDate
-    ): LocalDateTime {
-        val time = timeString.split(":")
-        val hour = time[0].toInt()
-        val minute = time[1].toInt()
-        return LocalDateTime.of(localDate.year, localDate.month, localDate.dayOfMonth, hour, minute)
-    }
-
-    fun localDateTimeToTimeString(localDateTime: LocalDateTime): String {
-        return "${localDateTime.hour}:${localDateTime.minute}"
-    }
-
-    fun LocalDateTime.toLocalUnixTimestamp(): Long {
-        return this.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()/1000
+    fun ZonedDateTime.atBeginningOfTheWorld(): ZonedDateTime {
+        return ZonedDateTime.of(1970, 1, 1, this.hour, this.minute, this.second, this.nano, this.zone)
     }
 
     fun localizedRelativeDate(context: Context, localDate: LocalDate): String {
@@ -91,19 +79,54 @@ object DateUtils {
         }.replace(";DATE", localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)))
     }
 
-    fun String.toLocalDateTime(): LocalDateTime {
-        return try {
+    fun String.toZonedDateTime(zoneId: ZoneId = ZoneId.systemDefault()): ZonedDateTime {
+        val localDateTime = try {
             LocalDateTime.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         } catch (e: DateTimeParseException) {
             LocalDateTime.parse("1970-01-01 $this", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
         }
+        return localDateTime.atZone(zoneId)
     }
 
-    fun LocalDateTime.atBeginningOfTheWorld(): LocalDateTime {
-        return LocalDateTime.of(1970, 1, 1, this.hour, this.minute)
+
+    fun LocalDate.getRelativeStringResource(
+        contextDate: LocalDate = LocalDate.now()
+    ): Int? {
+        return when (this) {
+            contextDate -> {
+                R.string.today
+            }
+            contextDate.plusDays(1) -> {
+                R.string.tomorrow
+            }
+            contextDate.plusDays(2) -> {
+                R.string.day_after_tomorrow
+            }
+            contextDate.minusDays(1) -> {
+                R.string.yesterday
+            }
+            contextDate.minusDays(2) -> {
+                R.string.day_before_yesterday
+            }
+            else -> {
+                null
+            }
+        }
     }
 
-    fun LocalDateTime.between(start: LocalDateTime, end: LocalDateTime): Boolean {
+    fun ZonedDateTime.between(start: ZonedDateTime, end: ZonedDateTime): Boolean {
         return (this.isAfter(start) || this.isEqual(start)) && this.isBefore(end)
+    }
+
+    fun zonedDateFromTimeStringAndDate(timeString: String, date: LocalDate): ZonedDateTime {
+        val time = timeString.split(":")
+        val hour = time[0].toInt()
+        val minute = time[1].toInt()
+        return ZonedDateTime.of(date.year, date.monthValue, date.dayOfMonth, hour, minute, 0, 0, ZoneId.systemDefault())
+    }
+
+    fun ZonedDateTime.toZonedLocalDateTime(): LocalDateTime {
+        val zoned = this.withZoneSameInstant(ZoneId.systemDefault())
+        return zoned.toLocalDateTime()
     }
 }
