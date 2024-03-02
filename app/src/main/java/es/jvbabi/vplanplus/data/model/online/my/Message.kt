@@ -4,26 +4,26 @@ import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.domain.model.Importance
 
 data class MessageResponse(
-    val items: List<Message>
+    @SerializedName("items") val items: List<Message>
 )
 
 data class Message(
-    val id: String,
-    val title: String,
-    val content: String,
+    @SerializedName("id") val id: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("content") val content: String,
     @SerializedName("not_before_version") val notBeforeVersion: Int,
     @SerializedName("not_after_version") val notAfterVersion: Int,
-    val created: String,
+    @SerializedName("created")  val created: String,
     @SerializedName("school_id") val schoolId: Number,
-    val expand: Expand
+    @SerializedName("expand")  val expand: Expand
 )
 
 data class Expand(
-    val importance: RawImportance
+    @SerializedName("importance")  val importance: RawImportance
 )
 
 data class RawImportance(
-    val value: String
+    @SerializedName("value") val value: String
 ) {
     fun toImportance(): Importance {
         return when (value) {

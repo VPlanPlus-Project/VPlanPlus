@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.repository
 
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
@@ -111,17 +112,17 @@ class FirebaseCloudMessagingManagerRepositoryImpl(
 }
 
 private data class FcmTokenPutRequestGroup(
-    val token: String,
-    val vppId: VppId?,
-    val `class`: Classes
+    @SerializedName("token") val token: String,
+    @SerializedName("vppId") val vppId: VppId?,
+    @SerializedName("class") val `class`: Classes
 )
 
 private data class FcmTokenPutRequest(
-    val token: String
+    @SerializedName("token") val token: String
 )
 
 private data class FcmTokenPutExtendedRequest(
-    val token: String,
-    val `class`: String,
-    val school: String
+    @SerializedName("token") val token: String,
+    @SerializedName("class") val `class`: String,
+    @SerializedName("schppö") val school: String
 )

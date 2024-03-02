@@ -3,14 +3,14 @@ package es.jvbabi.vplanplus.domain.model
 import com.google.gson.annotations.SerializedName
 
 data class VppId(
-    val id: Int,
-    val name: String,
-    val email: String?,
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("email") val email: String?,
     @SerializedName("school_id") val schoolId: Long,
-    val school: School?,
+    @SerializedName("school") val school: School?,
     @SerializedName("class_name") val className: String,
-    val classes: Classes?,
-    val state: State = State.ACTIVE
+    @SerializedName("classes") val classes: Classes?,
+    @SerializedName("state") val state: State = State.ACTIVE
 ) {
     fun isActive() = state == State.ACTIVE
 }

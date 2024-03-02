@@ -16,11 +16,13 @@ class VPlanData(val xml: String, val schoolId: Long) {
         // Angry checkpoint: There are things in the XML data that you'd never expect to be there.
         var modified = xml.replace("<Kurse/>", "")
         modified = modified.replace("+</Nr>", "</Nr>") // HOW DID THIS + EVEN GET HERE
+        modified = modified.drop(1)
 
         val reader = modified.reader()
         wPlanDataObject = serializer.read(VpMobilVpXml::class.java, reader, false)
     }
 }
+
 
 @Root(name = "VpMobil", strict = false)
 class VpMobilVpXml {

@@ -267,7 +267,7 @@ private data class TestRequest(
 )
 
 private data class TestResponse(
-    val result: Boolean
+    @SerializedName("result") val result: Boolean
 )
 
 private data class BookRoomRequest(

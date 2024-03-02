@@ -40,6 +40,6 @@ interface VppIdRepository {
 }
 
 data class VppIdOnlineResponse(
-    val id: VppId,
+    @SerializedName("id") val id: VppId,
     @SerializedName("bs_token") val bsToken: String?
 )
