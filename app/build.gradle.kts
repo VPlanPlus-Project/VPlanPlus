@@ -15,8 +15,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 80
-        versionName = "0.9.4-beta-dev-13"
+        versionCode = 82
+        versionName = "1.0-dev-2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -74,6 +74,9 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:32.7.3"))
     implementation("com.google.firebase:firebase-messaging")
+
+    // splash screen
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // camera
     implementation("androidx.camera:camera-lifecycle:1.3.1")

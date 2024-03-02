@@ -127,8 +127,13 @@ class HomeViewModel @Inject constructor(
                         _state.value.copy(day = day, isLoading = false, bookings = bookings)
                     else _state.value =
                         _state.value.copy(nextDay = day, isLoading = false, bookings = bookings)
+                    _state.value = _state.value.copy(isReady = true)
                 }
         }
+    }
+
+    fun isReady(): Boolean {
+        return _state.value.isReady
     }
 
     fun getVPlanData(context: Context) {
@@ -249,6 +254,8 @@ data class HomeState(
     val syncing: Boolean = false,
     val fullyCompatible: Boolean = true,
     val unreadMessages: List<Message> = emptyList(),
+
+    val isReady: Boolean = false,
 
     // search
     val searchOpen: Boolean = false,

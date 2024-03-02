@@ -1,9 +1,12 @@
 package es.jvbabi.vplanplus
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
+import android.view.animation.AccelerateInterpolator
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -31,7 +34,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.core.animation.doOnEnd
 import androidx.core.content.IntentSanitizer
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -78,7 +83,36 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
+        if (!homeViewModel.isReady()) installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                homeViewModel.isReady()
+            }
+            setOnExitAnimationListener { screen ->
+                Log.d("MainActivity", "Exiting splash screen")
+                val moveIconAnimator = ObjectAnimator.ofFloat(
+                    screen.iconView,
+                    View.TRANSLATION_X,
+                    screen.iconView.paddingStart.toFloat(),
+                    0f
+                )
+                val fadeScreenAnimator = ObjectAnimator.ofFloat(
+                    screen.view,
+                    View.ALPHA,
+                    1f,
+                    0f
+                )
+
+                fadeScreenAnimator.interpolator = AccelerateInterpolator()
+                fadeScreenAnimator.duration = 500L
+                moveIconAnimator.interpolator = AccelerateInterpolator()
+                moveIconAnimator.duration = 500L
+                moveIconAnimator.start()
+                fadeScreenAnimator.start()
+                moveIconAnimator.doOnEnd { screen.remove() }
+                doInit(true)
+            }
+        } else doInit(false)
+
 
         processIntent(intent)
 
@@ -283,6 +317,11 @@ class MainActivity : ComponentActivity() {
             .sanitizeByFiltering(intent)
         startActivity(sanitized)
         processIntent(intent)
+    }
+
+    private fun doInit(calledBySplashScreen: Boolean) {
+        if (!calledBySplashScreen) setTheme(R.style.Theme_VPlanPlus)
+        enableEdgeToEdge()
     }
 }
 
