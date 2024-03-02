@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Delete
@@ -48,7 +49,9 @@ import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
+import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Profile
+import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.util.UUID
 
@@ -97,6 +100,10 @@ fun ProfileSettingsScreen(
             },
             onSetDialogVisible = { viewModel.setDialogOpen(it) },
             onSetDialogCall = { viewModel.setDialogCall(it) },
+            onOpenVppIdSettings = {
+                if (state.linkedVppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
+                else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.linkedVppId.id}")
+            },
             onDismissedPermissionDialog = { viewModel.dismissPermissionDialog() }
         )
     }
@@ -114,7 +121,8 @@ private fun ProfileSettingsScreenContent(
     onSetDialogVisible: (Boolean) -> Unit = {},
     onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
     onDefaultLessonsClicked: () -> Unit = {},
-    onDismissedPermissionDialog: () -> Unit = {}
+    onDismissedPermissionDialog: () -> Unit = {},
+    onOpenVppIdSettings: () -> Unit = {}
 ) {
     if (state.profile == null) return
 
@@ -273,6 +281,25 @@ private fun ProfileSettingsScreenContent(
                         onDefaultLessonsClicked()
                     })
             }
+            if (state.profile.type == ProfileType.STUDENT) SettingsCategory(title = stringResource(id = R.string.profileManagement_vppIDCategoryTitle)) {
+                if (state.linkedVppId == null) {
+                    SettingsSetting(
+                        icon = Icons.Default.Link,
+                        title = stringResource(id = R.string.profileManagement_vppIDTitle),
+                        subtitle = stringResource(id = R.string.profileManagement_vppIDNotLinked),
+                        type = SettingsType.FUNCTION,
+                        doAction = onOpenVppIdSettings
+                    )
+                } else {
+                    SettingsSetting(
+                        icon = Icons.Default.Link,
+                        title = stringResource(id = R.string.profileManagement_vppIDTitle),
+                        subtitle = state.linkedVppId.name,
+                        type = SettingsType.FUNCTION,
+                        doAction = onOpenVppIdSettings
+                    )
+                }
+            }
         }
     }
 
@@ -289,9 +316,11 @@ private fun ProfileSettingsScreenContent(
 @Composable
 @Preview(showBackground = true)
 private fun ProfileSettingsScreenPreview() {
+    val classes = ClassesPreview.generateClass(null)
     ProfileSettingsScreenContent(
         state = ProfileSettingsState(
-            profile = Profile.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY)
+            profile = Profile.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY),
+            linkedVppId = VppIdPreview.generateVppId(classes)
         ),
         onBackClicked = {}
     )

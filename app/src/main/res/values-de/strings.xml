@@ -396,4 +396,7 @@
     <string name="settingsAbout_privacyPolicyTitle">Datenschutzerklärung</string>
     <string name="settingsAbout_privacyPolicySubtitle">für VPlanPlus und vpp.ID</string>
     <string name="settingsAbout_socialMedia">Soziale Medien</string>
+    <string name="profileManagement_vppIDCategoryTitle">vpp.ID</string>
+    <string name="profileManagement_vppIDTitle">Verbundene vpp.ID</string>
+    <string name="profileManagement_vppIDNotLinked">Keine vpp.ID mit dieser Klasse verbunden. Tippe hier, um dich anzumelden.</string>
 </resources>

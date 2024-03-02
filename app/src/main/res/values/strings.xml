@@ -399,4 +399,7 @@
     <string name="settingsAbout_socialMediaInstagramTitle" translatable="false">Instagram</string>
     <string name="settingsAbout_socialMediaThreadsTitle" translatable="false">Threads</string>
     <string name="settingsAbout_socialMediaMastodonTitle" translatable="false">Mastodon</string>
+    <string name="profileManagement_vppIDCategoryTitle">vpp.ID</string>
+    <string name="profileManagement_vppIDTitle">Connected vpp.ID</string>
+    <string name="profileManagement_vppIDNotLinked">No vpp.ID linked to this class. Click here to login.</string>
 </resources>
