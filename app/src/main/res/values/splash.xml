@@ -2,9 +2,7 @@
 <resources>
     <style name="Theme.VPlanPlus.Splash" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#ffffff</item>
-        <item name="windowSplashScreenAnimatedIcon">@drawable/avd_anim</item>
-        <item name="windowSplashScreenAnimationDuration">1200</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/vpp_logo_dark_splash</item>
         <item name="postSplashScreenTheme">@style/Theme.VPlanPlus</item>
-        <item name="android:windowSplashScreenBehavior">icon_preferred</item>
     </style>
 </resources>
