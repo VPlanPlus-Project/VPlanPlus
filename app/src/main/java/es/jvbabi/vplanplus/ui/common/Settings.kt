@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ManageAccounts
@@ -23,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,7 +45,7 @@ fun SettingsCategory(title: String, content: @Composable () -> Unit = {}) {
 
 @Composable
 fun SettingsSetting(
-    icon: ImageVector?,
+    painter: Painter? = null,
     iconTint: Color? = MaterialTheme.colorScheme.onSurface,
     title: String,
     subtitle: String? = null,
@@ -58,6 +58,50 @@ fun SettingsSetting(
     titleOverflow: TextOverflow = TextOverflow.Visible,
     subtitleOverflow: TextOverflow = TextOverflow.Visible,
     customContent: @Composable () -> Unit = {},
+) {
+    Settings(
+        title = title,
+        subtitle = subtitle,
+        type = type,
+        checked = checked,
+        doAction = doAction,
+        enabled = enabled,
+        clickable = clickable,
+        isLoading = isLoading,
+        titleOverflow = titleOverflow,
+        subtitleOverflow = subtitleOverflow,
+        customContent = customContent,
+        imageDrawer = {
+            if (painter != null) {
+                Icon(
+                    painter = painter,
+                    contentDescription = null,
+                    tint = iconTint ?: MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(start = 12.dp, end = 16.dp)
+                )
+            } else {
+                Box(modifier = Modifier.size(56.dp))
+            }
+        }
+    )
+}
+
+@Composable
+private fun Settings(
+    title: String,
+    subtitle: String? = null,
+    type: SettingsType,
+    checked: Boolean? = null,
+    doAction: () -> Unit,
+    enabled: Boolean = true,
+    clickable: Boolean = true,
+    isLoading: Boolean = false,
+    titleOverflow: TextOverflow = TextOverflow.Visible,
+    subtitleOverflow: TextOverflow = TextOverflow.Visible,
+    customContent: @Composable () -> Unit = {},
+    imageDrawer: @Composable () -> Unit = {},
 ) {
     Column {
         Row(
@@ -82,18 +126,7 @@ fun SettingsSetting(
                                 .size(48.dp)
                                 .padding(4.dp)
                         )
-                    } else if (icon != null) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
-                            tint = if (!enabled) Color.Gray else iconTint?: MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .padding(start = 12.dp, end = 16.dp)
-                        )
-                    } else {
-                        Box(modifier = Modifier.width(52.dp))
-                    }
+                    } else imageDrawer()
                 }
                 Column {
                     Text(
@@ -141,6 +174,51 @@ fun SettingsSetting(
     }
 }
 
+@Composable
+fun SettingsSetting(
+    icon: ImageVector?,
+    iconTint: Color? = MaterialTheme.colorScheme.onSurface,
+    title: String,
+    subtitle: String? = null,
+    type: SettingsType,
+    checked: Boolean? = null,
+    doAction: () -> Unit,
+    enabled: Boolean = true,
+    clickable: Boolean = true,
+    isLoading: Boolean = false,
+    titleOverflow: TextOverflow = TextOverflow.Visible,
+    subtitleOverflow: TextOverflow = TextOverflow.Visible,
+    customContent: @Composable () -> Unit = {},
+) {
+    Settings(
+        title = title,
+        subtitle = subtitle,
+        type = type,
+        checked = checked,
+        doAction = doAction,
+        enabled = enabled,
+        clickable = clickable,
+        isLoading = isLoading,
+        titleOverflow = titleOverflow,
+        subtitleOverflow = subtitleOverflow,
+        customContent = customContent,
+        imageDrawer = {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = iconTint ?: MaterialTheme.colorScheme.onSurface,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .padding(start = 12.dp, end = 16.dp)
+                )
+            } else {
+                Box(modifier = Modifier.size(56.dp))
+            }
+        }
+    )
+}
+
 enum class SettingsType {
     TOGGLE,
     CHECKBOX,
@@ -169,7 +247,7 @@ fun SettingsOptionPreview() {
 fun SettingsOptionNoIconPreview() {
     SettingsSetting(
         icon = null,
-        isLoading = true,
+        isLoading = false,
         title = "Test",
         subtitle = "Test",
         type = SettingsType.NUMERIC_INPUT,

@@ -11,6 +11,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.DataObject
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -92,6 +93,14 @@ fun SettingsScreen(navController: NavHostController) {
                     subtitle = stringResource(id = R.string.settings_advancedSubtitle),
                     onClick = {
                         navController.navigate(Screen.SettingsAdvancedScreen.route)
+                    }
+                ),
+                SettingEntry(
+                    icon = Icons.Outlined.Info,
+                    title = stringResource(id = R.string.settings_aboutTitle),
+                    subtitle = stringResource(id = R.string.settings_aboutSubtitle),
+                    onClick = {
+                        navController.navigate(Screen.SettingsAboutScreen.route)
                     }
                 )
             )

@@ -382,4 +382,21 @@
     <string name="homework_filterShowDone">Finished</string>
     <string name="addHomework_storeInCloudTitle">Store in vpp.ID cloud</string>
     <string name="addHomework_storeInCloudText">If disabled, this homework will only be saved locally. There is now way to move it to the cloud later on.</string>
+    <string name="settingsAbout_title">About</string>
+    <string name="settings_aboutTitle">About VPlanPlus</string>
+    <string name="settings_aboutSubtitle">App version, support and bug reporting</string>
+    <string name="app_name_full">VPlanPlus for Android</string>
+    <string name="settingsAbout_version">Version %1$s (%2$d)</string>
+    <string name="settingsAbout_subtitle">Made with ❤️ by Julius Babies</string>
+    <string name="settingsAbout_links">Links</string>
+    <string name="settingsAbout_websiteTitle">Website</string>
+    <string name="settingsAbout_playStoreTitle" translatable="false">Google Play Store</string>
+    <string name="settingsAbout_playStoreSubtitle">VPlanPlus for stundenplan24.de</string>
+    <string name="settingsAbout_repositoryTitle" translatable="false">GitHub-Repository</string>
+    <string name="settingsAbout_privacyPolicyTitle">Privacy policy</string>
+    <string name="settingsAbout_privacyPolicySubtitle">for VPlanPlus and vpp.ID</string>
+    <string name="settingsAbout_socialMedia">Social media</string>
+    <string name="settingsAbout_socialMediaInstagramTitle" translatable="false">Instagram</string>
+    <string name="settingsAbout_socialMediaThreadsTitle" translatable="false">Threads</string>
+    <string name="settingsAbout_socialMediaMastodonTitle" translatable="false">Mastodon</string>
 </resources>

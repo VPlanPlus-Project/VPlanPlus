@@ -92,6 +92,7 @@ dependencies {
     implementation("com.lightspark:compose-qr-code:1.0.1")
 
     implementation("com.google.dagger:hilt-android:2.49")
+    implementation("androidx.compose.animation:animation-graphics:1.6.2")
     testImplementation("junit:junit:4.13.2")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
