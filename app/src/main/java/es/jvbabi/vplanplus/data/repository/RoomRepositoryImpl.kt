@@ -218,14 +218,14 @@ class RoomRepositoryImpl(
 }
 
 private data class RoomBookingResponse(
-    val bookings: List<RoomBookingResponseItem>
+    @SerializedName("bookings") val bookings: List<RoomBookingResponseItem>
 )
 
 private data class RoomBookingResponseItem(
-    val id: Long,
+    @SerializedName("id") val id: Long,
     @SerializedName("room_name") val roomName: String,
     @SerializedName("booked_by") val bookedBy: Int,
-    val start: Long,
-    val end: Long,
-    val `class`: String
+    @SerializedName("start") val start: Long,
+    @SerializedName("end") val end: Long,
+    @SerializedName("class") val `class`: String
 )

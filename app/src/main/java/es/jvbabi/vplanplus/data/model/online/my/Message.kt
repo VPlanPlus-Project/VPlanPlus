@@ -23,7 +23,7 @@ data class Expand(
 )
 
 data class RawImportance(
-    @SerializedName("calvalue") val value: String
+    @SerializedName("value") val value: String
 ) {
     fun toImportance(): Importance {
         return when (value) {

@@ -134,7 +134,7 @@ class GradeRepositoryImpl(
 }
 
 private data class BsGradesResponse(
-    val data: List<BsGrade>
+    @SerializedName("data") val data: List<BsGrade>
 )
 
 private data class BsGrade(
