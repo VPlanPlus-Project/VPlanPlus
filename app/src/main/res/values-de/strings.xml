@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">VPlanPlus</string>
     <string name="onboarding_welcomeText">Willkommen bei VPlanPlus. Der Onboarding-Prozess wird dir beim Verbinden zur Stundenplan24 Instanz deiner Schule helfen!</string>
     <string name="lets_go">Start</string>
@@ -384,4 +384,16 @@
     <string name="homework_filterShowDone">Erledigte</string>
     <string name="addHomework_storeInCloudTitle">In vpp.ID Cloud speichern</string>
     <string name="addHomework_storeInCloudText">Wenn diese Funktion deaktiviert ist, werden diese Hausaufgaben nur lokal gespeichert. Es gibt keine Möglichkeit, sie später in die Cloud zu verschieben.</string>
+    <string name="settingsAbout_title">Über die App</string>
+    <string name="settings_aboutTitle">Über VPlanPlus</string>
+    <string name="settings_aboutSubtitle">App-Version, Support und Fehlermeldungen</string>
+    <string name="app_name_full">VPlanPlus für Android</string>
+    <string name="settingsAbout_version">Version %1$s (%2$d)</string>
+    <string name="settingsAbout_subtitle" tools:ignore="Typos">Made with ❤️ by Julius Babies</string>
+    <string name="settingsAbout_links">Links</string>
+    <string name="settingsAbout_websiteTitle">Internetseite</string>
+    <string name="settingsAbout_playStoreSubtitle">VPlanPlus für stundenplan24.de</string>
+    <string name="settingsAbout_privacyPolicyTitle">Datenschutzerklärung</string>
+    <string name="settingsAbout_privacyPolicySubtitle">für VPlanPlus und vpp.ID</string>
+    <string name="settingsAbout_socialMedia">Soziale Medien</string>
 </resources>

@@ -1,0 +1,205 @@
+package es.jvbabi.vplanplus.feature.settings.about.ui
+
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.PrivacyTip
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.BuildConfig
+import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.SettingsCategory
+import es.jvbabi.vplanplus.ui.common.SettingsSetting
+import es.jvbabi.vplanplus.ui.common.SettingsType
+
+@Composable
+fun AboutScreen(
+    navHostController: NavHostController
+) {
+    val context = LocalContext.current
+
+    AboutContent(
+        onBack = { navHostController.popBackStack() },
+        onOpenWebsite = {
+            openLink(context, "https://vplanplus.jvbabi.es")
+        },
+        onOpenPlayStore = {
+            openLink(context, "https://play.google.com/store/apps/details?id=es.jvbabi.vplanplus")
+        },
+        onOpenRepository = {
+            openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus")
+        },
+        onOpenPrivacyPolicy = {
+            openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md")
+        },
+        onOpenInstagram = {
+            openLink(context, "https://instagram.com/vplanplus")
+        },
+        onOpenThreads = {
+            openLink(context, "https://www.threads.net/@vplanplus")
+        },
+        onOpenMastodon = {
+            openLink(context, "https://mastodon.social/@vpp_app")
+        }
+    )
+}
+
+private fun openLink(context: Context, url: String) {
+    val browserIntent = Intent(
+        Intent.ACTION_VIEW,
+        Uri.parse(url)
+    )
+    ContextCompat.startActivity(context, browserIntent, null)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun AboutContent(
+    onBack: () -> Unit = {},
+    onOpenWebsite: () -> Unit = {},
+    onOpenPlayStore: () -> Unit = {},
+    onOpenRepository: () -> Unit = {},
+    onOpenPrivacyPolicy: () -> Unit = {},
+    onOpenInstagram: () -> Unit = {},
+    onOpenThreads: () -> Unit = {},
+    onOpenMastodon: () -> Unit = {}
+) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = stringResource(id = R.string.settingsAbout_title)) },
+                navigationIcon = { IconButton(onClick = onBack) { BackIcon() } }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .padding(paddingValues)
+        ) {
+            Spacer(modifier = Modifier.padding(16.dp))
+            Image(
+                painter = getAppIcon(),
+                contentDescription = null,
+                modifier = Modifier
+                    .size(150.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+            Text(
+                text = stringResource(id = R.string.app_name_full),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 8.dp),
+                style = MaterialTheme.typography.headlineMedium
+            )
+            Text(
+                text = stringResource(
+                    id = R.string.settingsAbout_version,
+                    BuildConfig.VERSION_NAME,
+                    BuildConfig.VERSION_CODE
+                ),
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                style = MaterialTheme.typography.labelMedium
+            )
+            SettingsCategory(title = stringResource(id = R.string.settingsAbout_links)) {
+                SettingsSetting(
+                    icon = Icons.Default.Language,
+                    title = stringResource(id = R.string.settingsAbout_websiteTitle),
+                    subtitle = "vpp.jvbabi.es",
+                    doAction = onOpenWebsite,
+                    type = SettingsType.FUNCTION
+                )
+                SettingsSetting(
+                    painter = painterResource(id = R.drawable.play_store),
+                    title = stringResource(id = R.string.settingsAbout_playStoreTitle),
+                    subtitle = stringResource(id = R.string.settingsAbout_playStoreSubtitle),
+                    doAction = onOpenPlayStore,
+                    type = SettingsType.FUNCTION
+                )
+                SettingsSetting(
+                    painter = painterResource(id = R.drawable.github_logo),
+                    title = stringResource(id = R.string.settingsAbout_repositoryTitle),
+                    subtitle = "VPlanPlus-Project/VPlanPlus",
+                    doAction = onOpenRepository,
+                    type = SettingsType.FUNCTION
+                )
+                SettingsSetting(
+                    icon = Icons.Default.PrivacyTip,
+                    title = stringResource(id = R.string.settingsAbout_privacyPolicyTitle),
+                    subtitle = stringResource(id = R.string.settingsAbout_privacyPolicySubtitle),
+                    type = SettingsType.FUNCTION,
+                    doAction = onOpenPrivacyPolicy,
+                )
+            }
+            SettingsCategory(title = stringResource(id = R.string.settingsAbout_socialMedia)) {
+                SettingsSetting(
+                    painter = painterResource(id = R.drawable.instagram_logo),
+                    title = stringResource(id = R.string.settingsAbout_socialMediaInstagramTitle),
+                    subtitle = "@vplanplus",
+                    type = SettingsType.FUNCTION,
+                    doAction = onOpenInstagram
+                )
+                SettingsSetting(
+                    painter = painterResource(id = R.drawable.threads_logo),
+                    title = stringResource(id = R.string.settingsAbout_socialMediaThreadsTitle),
+                    subtitle = "@vplanplus",
+                    type = SettingsType.FUNCTION,
+                    doAction = onOpenThreads
+                )
+                SettingsSetting(
+                    painter = painterResource(id = R.drawable.mastodon_logo),
+                    title = stringResource(id = R.string.settingsAbout_socialMediaMastodonTitle),
+                    subtitle = "@vpp_app@mastodon.social",
+                    type = SettingsType.FUNCTION,
+                    doAction = onOpenMastodon
+                )
+            }
+
+            Text(
+                text = stringResource(id = R.string.settingsAbout_subtitle),
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.labelSmall
+            )
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun AboutScreenPreview() {
+    AboutContent()
+}
+
+@Composable
+private fun getAppIcon(): Painter {
+    return if (isSystemInDarkTheme()) painterResource(id = R.drawable.vpp_logo_light)
+    else painterResource(id = R.drawable.vpp_logo_dark)
+}

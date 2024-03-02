@@ -28,6 +28,7 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkScreen
+import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login.BsLoginScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
@@ -244,6 +245,10 @@ fun NavigationGraph(
 
         composable(route = Screen.SettingsGeneralSettingsScreen.route) {
             GeneralSettingsScreen(navController)
+        }
+
+        composable(route = Screen.SettingsAboutScreen.route) {
+            AboutScreen(navController)
         }
 
         navigation(
