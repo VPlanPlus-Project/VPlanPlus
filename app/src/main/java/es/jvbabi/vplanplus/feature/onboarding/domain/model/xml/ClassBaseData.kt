@@ -87,14 +87,16 @@ private class Splan {
     var baseData: BaseData? = null
 }
 
-private class SPlanHead {
+@Root(name = "Kopf", strict = false)
+private data class SPlanHead @JvmOverloads constructor(
     @field:Element(name = "schulname")
     var schoolName: String = ""
-}
+)
 
-private class BaseData {
+@Root(name = "Basisdaten", strict = false)
+private data class BaseData @JvmOverloads constructor(
     @field:Element(name = "BaTageProWoche") var daysPerWeek: Int = 0
-}
+)
 
 private class SchoolClass {
     @field:Element(name = "Kurz")
