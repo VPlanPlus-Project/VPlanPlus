@@ -95,10 +95,19 @@ class MainActivity : ComponentActivity() {
                     screen.iconView.paddingStart.toFloat(),
                     0f
                 )
+                val fadeScreenAnimator = ObjectAnimator.ofFloat(
+                    screen.view,
+                    View.ALPHA,
+                    1f,
+                    0f
+                )
 
+                fadeScreenAnimator.interpolator = AccelerateInterpolator()
+                fadeScreenAnimator.duration = 500L
                 moveIconAnimator.interpolator = AccelerateInterpolator()
                 moveIconAnimator.duration = 500L
                 moveIconAnimator.start()
+                fadeScreenAnimator.start()
                 moveIconAnimator.doOnEnd { screen.remove() }
                 doInit(true)
             }
