@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.annotations.SerializedName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
@@ -403,7 +404,7 @@ enum class Stage {
 }
 
 data class QrResult(
-    val schoolId: String,
-    val username: String,
-    val password: String
+    @SerializedName("schoolId") val schoolId: String,
+    @SerializedName("username") val username: String,
+    @SerializedName("password") val password: String
 )

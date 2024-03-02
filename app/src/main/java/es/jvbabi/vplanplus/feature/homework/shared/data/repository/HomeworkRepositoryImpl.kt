@@ -606,17 +606,17 @@ class HomeworkRepositoryImpl(
 
 
 private data class HomeworkResponse(
-    val homework: List<HomeworkResponseRecord>
+    @SerializedName("homework") val homework: List<HomeworkResponseRecord>
 )
 
 private data class HomeworkResponseRecord(
-    val id: Long,
+    @SerializedName("id") val id: Long,
     @SerializedName("created_by") val createdBy: Long,
     @SerializedName("created_at") val createdAt: Long,
     @SerializedName("vp_id") val vpId: Int,
     @SerializedName("due_at") val until: Long,
     @SerializedName("public") val shareWithClass: Boolean,
-    val tasks: List<HomeRecordTask>
+    @SerializedName("tasks") val tasks: List<HomeRecordTask>
 ) {
     fun buildHash(className: String): String {
         return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256().lowercase()

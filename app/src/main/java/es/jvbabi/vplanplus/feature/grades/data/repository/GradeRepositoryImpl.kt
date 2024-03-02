@@ -133,33 +133,33 @@ class GradeRepositoryImpl(
     }
 }
 
-data class BsGradesResponse(
+private data class BsGradesResponse(
     val data: List<BsGrade>
 )
 
-data class BsGrade(
-    val id: Long,
-    val value: String,
+private data class BsGrade(
+    @SerializedName("id") val id: Long,
+    @SerializedName("value") val value: String,
     @SerializedName("given_at") val givenAt: String,
-    val subject: BsSubject,
-    val teacher: BsTeacher,
-    val collection: BsCollection
+    @SerializedName("subject") val subject: BsSubject,
+    @SerializedName("teacher") val teacher: BsTeacher,
+    @SerializedName("collection") val collection: BsCollection
 )
 
-data class BsSubject(
-    val id: Long,
+private data class BsSubject(
+    @SerializedName("id") val id: Long,
     @SerializedName("local_id") val short: String,
-    val name: String,
+    @SerializedName("name") val name: String,
 )
 
-data class BsTeacher(
-    val id: Long,
+private data class BsTeacher(
+    @SerializedName("id") val id: Long,
     @SerializedName("local_id") val short: String,
     @SerializedName("forename") val firstname: String,
     @SerializedName("name") val lastname: String
 )
 
-data class BsCollection(
-    val type: String,
-    val name: String
+private data class BsCollection(
+    @SerializedName("type") val type: String,
+    @SerializedName("name") val name: String
 )

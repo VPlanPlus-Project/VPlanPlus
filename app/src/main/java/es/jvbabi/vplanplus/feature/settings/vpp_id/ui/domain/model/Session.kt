@@ -8,8 +8,8 @@ import java.time.ZonedDateTime
 
 data class Session(
     @SerializedName("type") val typeParam: String,
-    val name: String,
-    val id: Int,
+    @SerializedName("name") val name: String,
+    @SerializedName("id") val id: Int,
     @SerializedName("created_at") private val createAtParam: Long,
     @SerializedName("is_current") val isCurrent: Boolean
 ) {

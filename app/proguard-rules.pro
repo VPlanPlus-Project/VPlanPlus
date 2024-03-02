@@ -44,3 +44,7 @@
 
 # Ignore our XML Serialization classes
 -keep public class es.jvbabi.vplanplus.domain.model.xml.**{ *; }
+
+-keepclassmembers,allowobfuscation class * {
+    @com.google.gson.annotations.SerializedName <fields>;
+}
