@@ -83,15 +83,10 @@ fun ActiveDayContent(
             FullLoading()
             return
         }
-        if (day.type == DayType.WEEKEND) {
-            LastSyncText(lastSync, modifier = Modifier.padding(start = 16.dp))
-            Weekend()
-            return
-        }
         Row(
             modifier = Modifier.padding(start = 8.dp)
         ) {
-            if (hiddenLessons > 0) {
+            if (hiddenLessons > 0 && day.type == DayType.NORMAL) {
                 Text(
                     text = stringResource(
                         id = R.string.home_lessonsHidden,
@@ -102,6 +97,7 @@ fun ActiveDayContent(
             }
             LastSyncText(lastSync)
         }
+        if (day.type == DayType.WEEKEND) Weekend()
         if (day.info != null) {
             Box(
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -162,7 +158,7 @@ fun ActiveDayContent(
                 }
             HorizontalDivider(modifier = Modifier.padding(8.dp))
         }
-        Column(
+        if (day.type == DayType.NORMAL) Column(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
@@ -504,7 +500,7 @@ private fun ContentPreview() {
         currentTime = ZonedDateTime.now(),
         day = Day(
             lessons = Lessons.generateLessons(2, false),
-            type = DayType.NORMAL,
+            type = DayType.WEEKEND,
             date = LocalDateTime.now().toLocalDate(),
             info = null,
             state = DayDataState.DATA
