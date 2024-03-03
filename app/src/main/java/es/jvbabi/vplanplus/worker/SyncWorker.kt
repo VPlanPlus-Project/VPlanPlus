@@ -8,6 +8,7 @@ import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 
 class SyncWorker @AssistedInject constructor(
@@ -19,7 +20,7 @@ class SyncWorker @AssistedInject constructor(
     override suspend fun getForegroundInfo(): ForegroundInfo {
         return ForegroundInfo(
             1,
-            NotificationCompat.Builder(context, "SYNC")
+            NotificationCompat.Builder(context, NotificationRepository.CHANNEL_ID_SYNC)
                 .setContentTitle("VPlanPlus")
                 .setContentText("Synchronisiere...")
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
