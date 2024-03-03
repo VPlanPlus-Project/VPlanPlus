@@ -92,6 +92,7 @@ class HomeworkRepositoryImpl(
                     .first()
                     .filter { data.none { nd -> nd.id == it.homework.id } }
                     .filter { it.homework.id > 0 }
+                    .filter { it.classes.schoolEntity.name == `class`.name }
                     .map { it.homework.id }
                     .forEach {
                         homeworkDao.deleteHomework(it)
