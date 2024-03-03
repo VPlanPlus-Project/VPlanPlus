@@ -15,8 +15,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 91
-        versionName = "v1.0-dev-10"
+        versionCode = 93
+        versionName = "v1.0-dev-11"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -64,8 +64,7 @@ android {
 
 
 dependencies {
-    implementation("io.coil-kt:coil-compose:2.1.0")
-    implementation("io.coil-kt:coil-gif:2.1.0")
+    implementation("androidx.compose.animation:animation-graphics:1.6.2")
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")

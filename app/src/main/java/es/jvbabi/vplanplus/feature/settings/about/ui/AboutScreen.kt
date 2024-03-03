@@ -3,7 +3,10 @@ package es.jvbabi.vplanplus.feature.settings.about.ui
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build.VERSION.SDK_INT
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
@@ -23,6 +26,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,13 +40,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
-import coil.ImageLoader
-import coil.compose.rememberAsyncImagePainter
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
-import coil.request.ImageRequest
-import coil.request.repeatCount
-import coil.size.Size
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.BackIcon
@@ -86,7 +87,7 @@ private fun openLink(context: Context, url: String) {
     ContextCompat.startActivity(context, browserIntent, null)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationGraphicsApi::class)
 @Composable
 private fun AboutContent(
     onBack: () -> Unit = {},
@@ -113,9 +114,17 @@ private fun AboutContent(
                 .padding(paddingValues)
         ) {
             Spacer(modifier = Modifier.padding(16.dp))
-            GifImage(
+            val drawable = AnimatedImageVector.animatedVectorResource(
+                if (isSystemInDarkTheme()) R.drawable.avd_anim_dark
+                else R.drawable.avd_anim
+            )
+            var atEnd by remember { mutableStateOf(false) }
+            LaunchedEffect(drawable) { atEnd = true }
+            Image(
+                painter = rememberAnimatedVectorPainter(animatedImageVector = drawable, atEnd = atEnd),
+                contentDescription = null,
                 modifier = Modifier
-                    .size(150.dp)
+                    .size(200.dp)
                     .align(Alignment.CenterHorizontally)
             )
             Text(
@@ -201,33 +210,4 @@ private fun AboutContent(
 @Preview(showBackground = true)
 private fun AboutScreenPreview() {
     AboutContent()
-}
-
-@Composable
-private fun GifImage(
-    modifier: Modifier = Modifier,
-) {
-    val context = LocalContext.current
-    val imageLoader = ImageLoader.Builder(context)
-        .components {
-            if (SDK_INT >= 28) {
-                add(ImageDecoderDecoder.Factory())
-            } else {
-                add(GifDecoder.Factory())
-            }
-        }
-        .build()
-    val drawable =
-        if (isSystemInDarkTheme()) R.drawable.app_icon_anim_dark
-        else R.drawable.app_icon_anim_light
-    Image(
-        painter = rememberAsyncImagePainter(
-            ImageRequest.Builder(context).data(data = drawable).apply(block = {
-                size(Size.ORIGINAL)
-                repeatCount(0)
-            }).build(), imageLoader = imageLoader
-        ),
-        contentDescription = null,
-        modifier = modifier,
-    )
 }

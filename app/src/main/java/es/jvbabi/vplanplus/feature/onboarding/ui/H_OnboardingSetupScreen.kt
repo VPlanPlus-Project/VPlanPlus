@@ -8,7 +8,12 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
+import androidx.compose.animation.graphics.res.animatedVectorResource
+import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
+import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,10 +34,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,8 +49,8 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.ProfileCreationStage
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.ProfileCreationStatus
-import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
 fun OnboardingSetupScreen(
@@ -71,6 +79,7 @@ fun OnboardingSetupScreen(
     }
 }
 
+@OptIn(ExperimentalAnimationGraphicsApi::class)
 @Composable
 private fun StartAppScreen(
     onClick: () -> Unit,
@@ -88,12 +97,18 @@ private fun StartAppScreen(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Center
     ) {
+        val drawable = AnimatedImageVector.animatedVectorResource(
+            if (isSystemInDarkTheme()) R.drawable.avd_anim_dark
+            else R.drawable.avd_anim
+        )
+        var atEnd by remember { mutableStateOf(false) }
+        LaunchedEffect(drawable) { atEnd = true }
         Image(
-            painter = painterResource(
-                id = if (isSystemInDarkTheme()) R.drawable.vpp_logo_light else R.drawable.vpp_logo_dark
-            ),
+            painter = rememberAnimatedVectorPainter(animatedImageVector = drawable, atEnd = atEnd),
             contentDescription = null,
-            modifier = Modifier.size(150.dp)
+            modifier = Modifier
+                .size(300.dp)
+                .background(MaterialTheme.colorScheme.surface)
         )
     }
 }
