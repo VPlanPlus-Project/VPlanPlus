@@ -229,7 +229,6 @@ class MainActivity : ComponentActivity() {
                             onNavigationChanged = { route ->
                                 val item =
                                     navBarItems.firstOrNull { route?.startsWith(it.route) == true }
-                                Log.d("Navigation", "Changed to $route")
                                 if (item != null && navBarItems.indexOf(item) != selectedIndex) {
                                     selectedIndex = navBarItems.indexOf(item)
                                     Log.d("Navigation", "Selected index: $selectedIndex")

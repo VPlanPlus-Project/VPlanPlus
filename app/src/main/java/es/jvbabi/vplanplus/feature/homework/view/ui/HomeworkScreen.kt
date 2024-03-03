@@ -317,7 +317,7 @@ private fun HomeworkScreenContent(
                         if (state.homework.none {
                             (it.isEnabled || state.showDisabled) &&
                                     (!it.isHidden || state.showHidden) &&
-                                    (it.tasks.any { !it.done } || state.showDone)
+                                    (it.tasks.any { task -> !task.done } || state.showDone)
                         }) {
                             item { NoHomework() }
                         }
