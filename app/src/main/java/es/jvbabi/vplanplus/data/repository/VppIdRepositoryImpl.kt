@@ -17,6 +17,7 @@ import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
+import es.jvbabi.vplanplus.domain.repository.UsersPerClassResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
@@ -257,6 +258,22 @@ class VppIdRepositoryImpl(
             response.response == HttpStatusCode.OK
         } catch (e: Exception) {
             false
+        }
+    }
+
+    override suspend fun fetchUsersPerClass(schoolId: Long): DataResponse<UsersPerClassResponse?> {
+        return vppIdNetworkRepository.doRequest(
+            "/api/${VppIdServer.apiVersion}/school/$schoolId/vpp_ids/",
+        ).let {
+            if(it.response != HttpStatusCode.OK) {
+                DataResponse(null, it.response)
+            } else DataResponse(
+                Gson().fromJson(
+                    it.data,
+                    UsersPerClassResponse::class.java
+                ), it.response
+            )
+
         }
     }
 }
