@@ -25,7 +25,7 @@ class LoginUseCase(
 
         val baseDataResponse = baseDataRepository.getFullBaseData(schoolId.toLong(), username, password)
         if (baseDataResponse.response != HttpStatusCode.OK) return when (baseDataResponse.response) {
-            HttpStatusCode.Forbidden -> LoginResult.WRONG_CREDENTIALS
+            HttpStatusCode.Forbidden, HttpStatusCode.Unauthorized -> LoginResult.WRONG_CREDENTIALS
             null -> LoginResult.NO_INTERNET
             else -> LoginResult.PARTIAL_SUCCESS
         }
