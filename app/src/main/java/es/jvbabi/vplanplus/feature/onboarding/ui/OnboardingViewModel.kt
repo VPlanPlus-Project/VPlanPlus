@@ -223,7 +223,10 @@ class OnboardingViewModel @Inject constructor(
                         _state.value = _state.value.copy(allDone = true)
                     }
                 }
-            } else isLoading(false)
+            } else {
+                isLoading(false)
+                _state.value = _state.value.copy(allDone = true)
+            }
         }
     }
 
