@@ -11,5 +11,5 @@ data class CProfileDefaultLesson(
         parentColumn = "defaultLessonVpId",
         entityColumn = "vpId",
         entity = DbDefaultLesson::class
-    ) val defaultLesson: CDefaultLesson
+    ) val defaultLessons: List<CDefaultLesson>
 )

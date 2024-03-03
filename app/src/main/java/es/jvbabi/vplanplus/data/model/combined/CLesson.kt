@@ -21,7 +21,7 @@ data class CLesson(
         parentColumn = "defaultLessonId",
         entityColumn = "defaultLessonId",
         entity = DbDefaultLesson::class
-    ) val defaultLesson: CDefaultLesson?,
+    ) val defaultLessons: List<CDefaultLesson?>,
     @Relation(
         parentColumn = "lessonId",
         entityColumn = "id",
@@ -45,6 +45,9 @@ data class CLesson(
     ) val roomBooking: CRoomBooking?
 ) {
     fun toModel(): Lesson {
+        val defaultLesson = defaultLessons.firstOrNull {
+            it?.`class`?.schoolEntity?.id == `class`.schoolEntity.id
+        }
         return Lesson(
             `class` = `class`.toClassModel(),
             lessonNumber = lesson.lessonNumber,

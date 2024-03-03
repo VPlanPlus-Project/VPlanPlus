@@ -21,7 +21,7 @@ data class CHomework(
         parentColumn = "defaultLessonVpId",
         entityColumn = "vpId",
         entity = DbDefaultLesson::class
-    ) val defaultLesson: CDefaultLesson,
+    ) val defaultLessons: List<CDefaultLesson>,
     @Relation(
         parentColumn = "createdBy",
         entityColumn = "id",
@@ -38,7 +38,7 @@ data class CHomework(
             id = homework.id,
             createdBy = createdBy?.toModel(),
             createdAt = homework.createdAt,
-            defaultLesson = defaultLesson.toModel(),
+            defaultLesson = defaultLessons.first { it.`class`.schoolEntity.id == classes.schoolEntity.id }.toModel(),
             until = homework.until,
             tasks = tasks.map { it.toModel() },
             classes = classes.toClassModel(),
