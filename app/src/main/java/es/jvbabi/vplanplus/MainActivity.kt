@@ -46,6 +46,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
@@ -137,7 +138,7 @@ class MainActivity : ComponentActivity() {
                 var selectedIndex by rememberSaveable {
                     mutableIntStateOf(0)
                 }
-                val navBarItems = listOf(
+                val navBarItems = listOfNotNull(
                     NavigationBarItem(
                         onClick = {
                             if (selectedIndex == 0) return@NavigationBarItem
@@ -157,7 +158,7 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             if (selectedIndex == 1) return@NavigationBarItem
                             selectedIndex = 1
-                            navController.navigate(Screen.TimetableScreen.route){ popUpTo(Screen.HomeScreen.route) }
+                            navController.navigate(Screen.TimetableScreen.route) { popUpTo(Screen.HomeScreen.route) }
                         },
                         icon = {
                             Icon(
@@ -168,7 +169,7 @@ class MainActivity : ComponentActivity() {
                         label = { Text(text = stringResource(id = R.string.main_timetable)) },
                         route = Screen.TimetableScreen.route
                     ),
-                    NavigationBarItem(
+                    if (homeViewModel.state.value.activeProfile?.type == ProfileType.STUDENT) NavigationBarItem(
                         onClick = {
                             if (selectedIndex == 2) return@NavigationBarItem
                             selectedIndex = 2
@@ -182,8 +183,8 @@ class MainActivity : ComponentActivity() {
                         },
                         label = { Text(text = stringResource(id = R.string.main_homework)) },
                         route = Screen.HomeworkScreen.route
-                    ),
-                    NavigationBarItem(
+                    ) else null,
+                    if (homeViewModel.state.value.activeProfile?.type == ProfileType.STUDENT) NavigationBarItem(
                         onClick = {
                             if (selectedIndex == 3) return@NavigationBarItem
                             selectedIndex = 3
@@ -197,7 +198,7 @@ class MainActivity : ComponentActivity() {
                         },
                         label = { Text(text = stringResource(id = R.string.main_grades)) },
                         route = Screen.GradesScreen.route
-                    )
+                    ) else null
                 )
 
                 val navBar = @Composable {
@@ -229,7 +230,7 @@ class MainActivity : ComponentActivity() {
                                 val item =
                                     navBarItems.firstOrNull { route?.startsWith(it.route) == true }
                                 Log.d("Navigation", "Changed to $route")
-                                if (item != null) {
+                                if (item != null && navBarItems.indexOf(item) != selectedIndex) {
                                     selectedIndex = navBarItems.indexOf(item)
                                     Log.d("Navigation", "Selected index: $selectedIndex")
                                 }
