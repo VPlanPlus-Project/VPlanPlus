@@ -402,4 +402,5 @@
     <string name="profileManagement_vppIDCategoryTitle">vpp.ID</string>
     <string name="profileManagement_vppIDTitle">Connected vpp.ID</string>
     <string name="profileManagement_vppIDNotLinked">No vpp.ID linked to this class. Click here to login.</string>
+    <string name="onboarding_studentChooseClassPeopleLabel">Number of registered classmates</string>
 </resources>

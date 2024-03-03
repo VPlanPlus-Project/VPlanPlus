@@ -17,6 +17,7 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.CheckSchoolIdSyntax
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.DefaultLessonUseCase
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.GetSchoolByIdUseCase
@@ -46,13 +47,21 @@ object OnboardingModule {
         holidayRepository: HolidayRepository,
         lessonTimeRepository: LessonTimeRepository,
         stringRepository: StringRepository,
-        notificationRepository: NotificationRepository
+        notificationRepository: NotificationRepository,
+        vppIdRepository: VppIdRepository
     ): OnboardingUseCases {
         return OnboardingUseCases(
             checkSchoolIdSyntax = CheckSchoolIdSyntax(schoolRepository),
             testSchoolExistence = TestSchoolExistence(schoolRepository),
             loginUseCase = LoginUseCase(schoolRepository, keyValueRepository, baseDataRepository),
-            profileOptionsUseCase = ProfileOptionsUseCase(schoolRepository, classRepository, teacherRepository, roomRepository, keyValueRepository),
+            profileOptionsUseCase = ProfileOptionsUseCase(
+                schoolRepository = schoolRepository,
+                classRepository = classRepository,
+                teacherRepository = teacherRepository,
+                roomRepository = roomRepository,
+                vppIdRepository = vppIdRepository,
+                kv = keyValueRepository
+            ),
             defaultLessonUseCase = DefaultLessonUseCase(vPlanRepository, keyValueRepository),
             saveProfileUseCase = SaveProfileUseCase(
                 schoolRepository = schoolRepository,

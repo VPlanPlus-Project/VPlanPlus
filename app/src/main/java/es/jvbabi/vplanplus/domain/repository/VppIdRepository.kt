@@ -37,9 +37,20 @@ interface VppIdRepository {
 
     suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?>
     suspend fun closeSession(session: Session, vppId: VppId): Boolean
+
+    suspend fun fetchUsersPerClass(schoolId: Long): DataResponse<UsersPerClassResponse?>
 }
 
 data class VppIdOnlineResponse(
     @SerializedName("id") val id: VppId,
     @SerializedName("bs_token") val bsToken: String?
+)
+
+data class UsersPerClassResponse(
+    @SerializedName("classes") val classes: List<UsersPerClassResponseRecord>
+)
+
+data class UsersPerClassResponseRecord(
+    @SerializedName("name") val className: String,
+    @SerializedName("count") val users: Int
 )

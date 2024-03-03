@@ -361,7 +361,7 @@ data class OnboardingState(
     val profileType: ProfileType? = null,
     val task: Task = Task.CREATE_SCHOOL,
 
-    val profileOptions: List<String> = listOf(),
+    val profileOptions: List<Pair<String, Int>> = listOf(),
     val selectedProfileOption: String? = null,
 
     val showTeacherDialog: Boolean = false,
