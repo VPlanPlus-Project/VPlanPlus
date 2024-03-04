@@ -169,7 +169,7 @@ fun HomeworkCard(
                         .size(62.dp)
                         .padding(start = 20.dp)
                         .alpha(minOf(maxOf(offsetX / (width / 3), 0f), 1f)),
-                    imageVector = if (isOwner) Icons.Outlined.Delete else Icons.Outlined.VisibilityOff,
+                    imageVector = if (isOwner || homework.createdBy == null) Icons.Outlined.Delete else Icons.Outlined.VisibilityOff,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onError
                 )
@@ -198,7 +198,7 @@ fun HomeworkCard(
                             onDragStopped = {
                                 isDragging = false
                                 if (offsetX in width / 3..width) {
-                                    if (isOwner) onDeleteRequest()
+                                    if (isOwner || homework.createdBy == null) onDeleteRequest()
                                     else onHomeworkHide()
                                 }
                                 if (offsetX in -width..-width / 3) {
