@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -314,7 +314,7 @@ private fun HomeworkScreenContent(
                     LazyColumn(Modifier.fillMaxSize()) {
                         val list =
                             state.homework.sortedBy { it.until }.groupBy { it.until }.toList()
-                        itemsIndexed(list) { i, (until, todo) ->
+                        items(list) { (until, todo) ->
                             Row(Modifier.fillMaxWidth()) {
                                 val colorScheme = MaterialTheme.colorScheme
                                 val textMeasurer = rememberTextMeasurer()
