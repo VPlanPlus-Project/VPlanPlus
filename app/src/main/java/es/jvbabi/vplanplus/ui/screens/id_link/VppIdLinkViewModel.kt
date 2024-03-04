@@ -43,7 +43,7 @@ class VppIdLinkViewModel @Inject constructor(
                 )
             } else {
                 Log.d("vpp.ID Link", "Something went wrong: ${response.response}")
-                _state.value = _state.value.copy(error = true)
+                _state.value = _state.value.copy(error = true, isLoading = false)
             }
         }
     }
