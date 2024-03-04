@@ -6,13 +6,15 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
@@ -25,6 +27,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -32,12 +35,17 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,6 +61,10 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun HomeworkScreen(
@@ -230,7 +242,13 @@ private fun HomeworkScreenContent(
                             FilterChip(
                                 selected = state.showHidden,
                                 onClick = onToggleShowHidden,
-                                label = { Text(text = stringResource(id = R.string.homework_filterShowHidden, state.homework.count { it.isHidden })) },
+                                label = {
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.homework_filterShowHidden,
+                                            state.homework.count { it.isHidden })
+                                    )
+                                },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.VisibilityOff,
@@ -263,6 +281,7 @@ private fun HomeworkScreenContent(
                                         stringResource(id = R.string.homework_errorMarkTaskUndone)
                                     }
                                 }
+
                                 ErrorOnUpdate.CHANGE_HOMEWORK_STATE -> {
                                     if (state.errorResponse.second == true) {
                                         stringResource(id = R.string.homework_errorMarkHomeworkDone)
@@ -293,32 +312,90 @@ private fun HomeworkScreenContent(
                         )
                     }
                     LazyColumn(Modifier.fillMaxSize()) {
-                        items(state.homework.sortedBy { it.until }) { homework ->
-                            HomeworkCard(
-                                homework = homework,
-                                isOwner = homework.isOwner,
-                                showHidden = state.showHidden,
-                                showDisabled = state.showDisabled,
-                                showDone = state.showDone,
-                                allDone = { onMarkAllDone(homework, it) },
-                                singleDone = { task, done -> onMarkSingleDone(task, done) },
-                                onAddTask = { onAddTask(homework, it) },
-                                onDeleteRequest = { onHomeworkDeleteRequest(homework) },
-                                onChangePublicVisibility = {
-                                    onHomeworkChangeVisibilityRequest(
-                                        homework
-                                    )
-                                },
-                                onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
-                                onEditTaskRequest = { onHomeworkTaskEditRequest(it) },
-                                onHomeworkHide = { onHomeworkHide(homework) }
-                            )
+                        val list =
+                            state.homework.sortedBy { it.until }.groupBy { it.until }.toList()
+                        itemsIndexed(list) { i, (until, todo) ->
+                            Row(Modifier.fillMaxWidth()) {
+                                val colorScheme = MaterialTheme.colorScheme
+                                val textMeasurer = rememberTextMeasurer()
+                                val style = MaterialTheme.typography.labelSmall
+                                val difference = LocalDateTime.now()
+                                    .until(until.toZonedLocalDateTime(), ChronoUnit.DAYS)
+
+                                val text =
+                                    if (difference < 6) until.format(DateTimeFormatter.ofPattern("E"))
+                                    else until.format(DateTimeFormatter.ofPattern("d.M."))
+                                val textLayoutResult = remember(text, style) {
+                                    textMeasurer.measure(text, style)
+                                }
+                                Column(
+                                    modifier = Modifier
+                                        .drawWithContent {
+                                            drawContent()
+                                            if (todo.none { hw ->
+                                                    (hw.isEnabled || state.showDisabled) &&
+                                                            (!hw.isHidden || state.showHidden) &&
+                                                            (hw.tasks.any { task -> !task.done } || state.showDone)
+                                                }) return@drawWithContent
+                                            drawCircle(
+                                                color = colorScheme.tertiary,
+                                                center = Offset(90f, 105f),
+                                                radius = 50f
+                                            )
+                                            drawCircle(
+                                                color = colorScheme.surface,
+                                                center = Offset(90f, 105f),
+                                                radius = 40f
+                                            )
+                                            try {
+                                                drawText(
+                                                    textMeasurer = textMeasurer,
+
+                                                    text = text,
+                                                    style = style,
+                                                    topLeft = Offset(
+                                                        90f - (textLayoutResult.size.width / 2),
+                                                        105f - textLayoutResult.size.height / 2,
+                                                    )
+                                                )
+                                            } catch (_: IllegalArgumentException) {}
+                                        }
+                                ) {
+                                    todo.forEach { homework ->
+                                        HomeworkCard(
+                                            modifier = Modifier.padding(start = 60.dp),
+                                            homework = homework,
+                                            isOwner = homework.isOwner,
+                                            showHidden = state.showHidden,
+                                            showDisabled = state.showDisabled,
+                                            showDone = state.showDone,
+                                            allDone = { onMarkAllDone(homework, it) },
+                                            singleDone = { task, done ->
+                                                onMarkSingleDone(
+                                                    task,
+                                                    done
+                                                )
+                                            },
+                                            onAddTask = { onAddTask(homework, it) },
+                                            onDeleteRequest = { onHomeworkDeleteRequest(homework) },
+                                            onChangePublicVisibility = {
+                                                onHomeworkChangeVisibilityRequest(
+                                                    homework
+                                                )
+                                            },
+                                            onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
+                                            onEditTaskRequest = { onHomeworkTaskEditRequest(it) },
+                                            onHomeworkHide = { onHomeworkHide(homework) }
+                                        )
+                                    }
+                                }
+                            }
                         }
                         if (state.homework.none {
-                            (it.isEnabled || state.showDisabled) &&
-                                    (!it.isHidden || state.showHidden) &&
-                                    (it.tasks.any { task -> !task.done } || state.showDone)
-                        }) {
+                                (it.isEnabled || state.showDisabled) &&
+                                        (!it.isHidden || state.showHidden) &&
+                                        (it.tasks.any { task -> !task.done } || state.showDone)
+                            }) {
                             item { NoHomework() }
                         }
                     }
@@ -338,6 +415,7 @@ fun HomeworkScreenPreview() {
     HomeworkScreenContent(
         state = HomeworkState(
             wrongProfile = false,
+            homework = listOf()
         )
     )
 }
