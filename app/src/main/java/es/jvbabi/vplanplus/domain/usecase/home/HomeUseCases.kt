@@ -8,4 +8,6 @@ data class HomeUseCases(
     val getProfilesUseCase: GetProfilesUseCase,
     val getCurrentIdentity: GetCurrentIdentityUseCase,
     val setUpUseCase: SetUpUseCase,
+    val isInfoExpandedUseCase: IsInfoExpandedUseCase,
+    val setInfoExpandedUseCase: SetInfoExpandedUseCase,
 )

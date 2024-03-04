@@ -104,7 +104,7 @@ fun ProfileOptionsScreen(
                         }
                 }
             )
-            if (state.profileType == ProfileType.STUDENT) {
+            if (state.profileType == ProfileType.STUDENT && state.profileOptions.any { it.second > 0 }) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {

@@ -7,6 +7,7 @@ import org.simpleframework.xml.Root
 import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
+import javax.xml.stream.XMLStreamException
 
 class VPlanData(val xml: String, val schoolId: Long) {
     val wPlanDataObject: VpMobilVpXml
@@ -16,10 +17,17 @@ class VPlanData(val xml: String, val schoolId: Long) {
         // Angry checkpoint: There are things in the XML data that you'd never expect to be there.
         var modified = xml.replace("<Kurse/>", "")
         modified = modified.replace("+</Nr>", "</Nr>") // HOW DID THIS + EVEN GET HERE
-        modified = modified.drop(1)
 
-        val reader = modified.reader()
-        wPlanDataObject = serializer.read(VpMobilVpXml::class.java, reader, false)
+        var result: VpMobilVpXml
+        try {
+            val reader = modified.reader()
+            result = serializer.read(VpMobilVpXml::class.java, reader, false)
+        } catch (e: XMLStreamException) {
+            modified = modified.drop(1)
+            val reader = modified.reader()
+            result = serializer.read(VpMobilVpXml::class.java, reader, false)
+        }
+        wPlanDataObject = result
     }
 }
 

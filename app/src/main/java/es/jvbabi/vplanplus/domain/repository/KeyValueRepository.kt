@@ -9,6 +9,7 @@ interface KeyValueRepository {
     suspend fun getOrDefault(key: String, defaultValue: String): String
     suspend fun delete(key: String)
     fun getFlow(key: String): Flow<String?>
+    fun getFlowOrDefault(key: String, defaultValue: String): Flow<String>
 }
 
 object Keys {
@@ -33,4 +34,6 @@ object Keys {
     const val SHOW_VPPID_BANNER_HOMEWORK = "SHOW_VPPID_BANNER_HOMEWORK"
 
     const val IS_HOMEWORK_UPDATE_RUNNING = "IS_HOMEWORK_UPDATE_RUNNING"
+
+    const val INFO_CLOSED_FOR_DATE = "INFO_CLOSED_FOR_DATE"
 }
