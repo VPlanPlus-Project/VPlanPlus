@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.grades.ui.components.grades
+package es.jvbabi.vplanplus.feature.grades.ui.view.components.grades
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,7 +24,7 @@ import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.grades.domain.model.Subject
 import es.jvbabi.vplanplus.feature.grades.domain.model.Teacher
-import es.jvbabi.vplanplus.feature.grades.ui.SubjectGradeCollection
+import es.jvbabi.vplanplus.feature.grades.ui.view.SubjectGradeCollection
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview

@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.grades.ui.components.grades
+package es.jvbabi.vplanplus.feature.grades.ui.view.components.grades
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.MaterialTheme
