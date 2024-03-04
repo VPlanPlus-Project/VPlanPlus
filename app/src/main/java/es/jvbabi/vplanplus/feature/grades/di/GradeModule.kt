@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.feature.grades.domain.usecase.CalculateAverageUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GetGradesUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.HideBannerUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.IsBiometricEnabledUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.IsEnabledUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.ShowBannerUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
@@ -71,7 +72,8 @@ object GradeModule {
             ),
             showBannerUseCase = ShowBannerUseCase(keyValueRepository),
             hideBannerUseCase = HideBannerUseCase(keyValueRepository),
-            calculateAverageUseCase = CalculateAverageUseCase()
+            calculateAverageUseCase = CalculateAverageUseCase(),
+            isBiometricEnabled = IsBiometricEnabledUseCase(keyValueRepository)
         )
     }
 }
