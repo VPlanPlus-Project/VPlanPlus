@@ -7,13 +7,14 @@ import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.repository.UsersPerClassResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 class FakeVppIdRepository : VppIdRepository {
 
@@ -27,7 +28,7 @@ class FakeVppIdRepository : VppIdRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun cacheVppId(id: Long, school: School): VppId? {
+    override suspend fun cacheVppId(id: Int, school: School): VppId? {
         TODO("Not yet implemented")
     }
 
@@ -71,8 +72,8 @@ class FakeVppIdRepository : VppIdRepository {
     override suspend fun bookRoom(
         vppId: VppId,
         room: Room,
-        from: LocalDateTime,
-        to: LocalDateTime
+        from: ZonedDateTime,
+        to: ZonedDateTime
     ): BookResult {
         TODO("Not yet implemented")
     }
@@ -86,6 +87,10 @@ class FakeVppIdRepository : VppIdRepository {
     }
 
     override suspend fun closeSession(session: Session, vppId: VppId): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun fetchUsersPerClass(schoolId: Long): DataResponse<UsersPerClassResponse?> {
         TODO("Not yet implemented")
     }
 }

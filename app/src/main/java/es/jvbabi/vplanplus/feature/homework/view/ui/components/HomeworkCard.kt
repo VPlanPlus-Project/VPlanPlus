@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.homework.view.ui.components
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -211,7 +210,6 @@ fun HomeworkCard(
                             }
                         )
                         .drawWithContent {
-                            Log.d("HomeworkCard", "Progress: $progress")
                             drawRect(
                                 color = colorScheme.tertiaryContainer,
                                 topLeft = Offset(0f, 0f),

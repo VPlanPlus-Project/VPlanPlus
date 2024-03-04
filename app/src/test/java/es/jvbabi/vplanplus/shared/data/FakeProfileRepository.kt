@@ -73,4 +73,8 @@ class FakeProfileRepository : ProfileRepository {
     override suspend fun deleteDefaultLessonsFromProfile(profileId: UUID) {
         TODO("Not yet implemented")
     }
+
+    override suspend fun deleteDefaultLessonFromProfile(vpId: Long) {
+        TODO("Not yet implemented")
+    }
 }
