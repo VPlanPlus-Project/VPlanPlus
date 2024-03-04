@@ -20,6 +20,7 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 
 const val DEFAULT_USER_AGENT = "VPlanPlus"
+const val LOG_CONTENT_ON_ERROR = false
 
 open class NetworkRepositoryImpl(
     server: String,
@@ -75,7 +76,8 @@ open class NetworkRepositoryImpl(
                 ).contains(response.status)
             ) {
                 logRepository?.log("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} (see log for details)")
-                Log.w("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} at $server$path\n${response.bodyAsText()}")
+                if (LOG_CONTENT_ON_ERROR) Log.w("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} at $server$path\n${response.bodyAsText()}")
+                else Log.w("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} at $server$path")
             }
             return DataResponse(response.bodyAsText(), response.status)
         } catch (e: Exception) {
