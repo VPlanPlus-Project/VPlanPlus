@@ -49,6 +49,9 @@ fun VppIdLinkScreen(
             navHostController.navigate(Screen.HomeScreen.route) {
                 popUpTo(0)
             }
+        },
+        onRetry = {
+            vppIdLinkViewModel.init(token)
         }
     )
 }
@@ -56,6 +59,7 @@ fun VppIdLinkScreen(
 @Composable
 private fun VppIdLinkScreenContent(
     onBack: () -> Unit = {},
+    onRetry: () -> Unit = {},
     state: VppIdLinkState
 ) {
     Box(
@@ -65,6 +69,14 @@ private fun VppIdLinkScreenContent(
         contentAlignment = Alignment.Center
     ) {
         if (state.isLoading || state.classes == null) CircularProgressIndicator()
+        else if (state.error) {
+            Column {
+                Text(text = "Error")
+                Button(onClick = onRetry) {
+                    Text(text = "Retry/Erneut versuchen")
+                }
+            }
+        }
         else if (state.response == HttpStatusCode.OK) {
             Column(
                 modifier = Modifier

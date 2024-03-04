@@ -30,6 +30,7 @@ class VppIdLinkViewModel @Inject constructor(
         }
         this.token = token
         viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = false)
             val response = vppIdLinkUseCases.getVppIdDetailsUseCase(token)
             _state.value = _state.value.copy(
                 isLoading = false,
@@ -42,6 +43,7 @@ class VppIdLinkViewModel @Inject constructor(
                 )
             } else {
                 Log.d("vpp.ID Link", "Something went wrong: ${response.response}")
+                _state.value = _state.value.copy(error = true)
             }
         }
     }
@@ -52,4 +54,5 @@ data class VppIdLinkState(
     val response: HttpStatusCode? = null,
     val classes: Classes? = null,
     val isLoading: Boolean = true,
+    val error: Boolean = false
 )
