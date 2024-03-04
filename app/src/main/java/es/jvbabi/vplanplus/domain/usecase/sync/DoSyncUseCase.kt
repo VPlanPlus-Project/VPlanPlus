@@ -219,7 +219,12 @@ class DoSyncUseCase(
     private suspend fun processVPlanData(vPlanData: VPlanData) {
 
         val planDateFormatter = DateTimeFormatter.ofPattern("EEEE, d. MMMM yyyy", Locale.GERMAN)
-        val planDate = LocalDate.parse(vPlanData.wPlanDataObject.head!!.date!!, planDateFormatter).atTime(0, 0, 0).atZone(ZoneId.of("UTC"))
+        val planDate = ZonedDateTime.of(
+            LocalDate
+                .parse(vPlanData.wPlanDataObject.head!!.date!!, planDateFormatter)
+                .atTime(0, 0, 0),
+            ZoneId.of("UTC")
+        )
 
         val createDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
         val lastPlanUpdate = ZonedDateTime.of(
@@ -439,7 +444,7 @@ class DoSyncUseCase(
                 createAt = lastPlanUpdate,
                 date = planDate,
                 info = vPlanData.wPlanDataObject.info?.joinToString("\n") { it ?: "" },
-                version = currentVersion
+                version = currentVersion + 1
             )
         )
     }
