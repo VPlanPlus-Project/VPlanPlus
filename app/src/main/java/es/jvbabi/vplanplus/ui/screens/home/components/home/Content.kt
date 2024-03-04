@@ -42,9 +42,9 @@ import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
+import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.Grid
-import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
@@ -70,6 +70,8 @@ fun ActiveDayContent(
     hiddenLessons: Int,
     lastSync: LocalDateTime?,
     isLoading: Boolean,
+    isInfoExpanded: Boolean,
+    onInfoExpandChange: (Boolean) -> Unit = {},
     onFindRoomClicked: () -> Unit = {}
 ) {
     val lessons = day.lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
@@ -102,10 +104,12 @@ fun ActiveDayContent(
             Box(
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
             ) {
-                InfoCard(
+                CollapsableInfoCard(
                     imageVector = Icons.Default.Info,
                     title = stringResource(id = R.string.home_activeDaySchoolInformation),
-                    text = day.info
+                    text = day.info,
+                    isExpanded = isInfoExpanded,
+                    onChangeState = { onInfoExpandChange(it) },
                 )
             }
         }
@@ -515,7 +519,8 @@ private fun ContentPreview() {
         profile = es.jvbabi.vplanplus.ui.preview.Profile.generateClassProfile(),
         hiddenLessons = 2,
         lastSync = LocalDateTime.now(),
-        isLoading = false
+        isLoading = false,
+        isInfoExpanded = false
     )
 }
 

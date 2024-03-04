@@ -79,6 +79,7 @@ fun HomeScreen(
         onAddHomeworkClicked = {
             navHostController.navigate(Screen.AddHomeworkScreen.route)
         },
+        onInfoExpandChange = viewModel::onInfoExpandChange,
         navBar = navBar
     )
 
@@ -148,7 +149,8 @@ fun HomeScreenContent(
     onMenuOpened: () -> Unit = {},
     onFindAvailableRoomClicked: () -> Unit = {},
     onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit = { _, _ -> },
-    onAddHomeworkClicked: () -> Unit = {}
+    onAddHomeworkClicked: () -> Unit = {},
+    onInfoExpandChange: (Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -212,7 +214,9 @@ fun HomeScreenContent(
                             isLoading = state.isLoading,
                             onFindRoomClicked = {
                                 onFindAvailableRoomClicked()
-                            }
+                            },
+                            isInfoExpanded = state.isInfoExpanded,
+                            onInfoExpandChange = onInfoExpandChange
                         )
                     }
                 }

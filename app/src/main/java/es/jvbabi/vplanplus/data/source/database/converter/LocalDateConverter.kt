@@ -2,19 +2,20 @@ package es.jvbabi.vplanplus.data.source.database.converter
 
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @ProvidedTypeConverter
 class LocalDateConverter {
 
     @TypeConverter
     fun timestampToLocalDate(ts: Long): LocalDate {
-        return DateUtils.getDateFromTimestamp(ts)
+        return ZonedDateTimeConverter().timestampToZonedDateTime(ts).toLocalDate()
     }
 
     @TypeConverter
     fun localDateToTimestamp(localDate: LocalDate): Long {
-        return DateUtils.getDayTimestamp(localDate)
+        return ZonedDateTimeConverter().zonedDateTimeToTimestamp(ZonedDateTime.of(localDate.atTime(0, 0, 0), ZoneId.of("UTC")))
     }
 }

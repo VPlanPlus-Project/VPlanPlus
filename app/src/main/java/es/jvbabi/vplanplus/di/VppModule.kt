@@ -70,6 +70,8 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.IsInfoExpandedUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -755,7 +757,9 @@ object VppModule {
             setUpUseCase = SetUpUseCase(
                 keyValueRepository = keyValueRepository,
                 firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
-            )
+            ),
+            isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
+            setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository)
         )
     }
 
