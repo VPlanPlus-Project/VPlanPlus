@@ -68,8 +68,8 @@ private fun VppIdLinkScreenContent(
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
-        if (state.isLoading || state.classes == null) CircularProgressIndicator()
-        else if (state.error) {
+        if (state.isLoading) CircularProgressIndicator()
+        else if (state.error || state.classes == null) {
             Column {
                 Text(text = "Error")
                 Button(onClick = onRetry) {
