@@ -40,6 +40,19 @@ android {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
         }
+
+        create("stage") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
+        }
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
