@@ -473,10 +473,10 @@ private fun NavGraphBuilder.settingsScreens(navController: NavHostController, on
 private fun NavGraphBuilder.gradesScreens(navController: NavHostController) {
     composable(
         route = Screen.GradesCalculatorScreen.route + "/{grades}",
-        enterTransition = { fadeIn(tween(300)) },
+        enterTransition = enterSlideTransitionLeft,
         exitTransition = { fadeOut(tween(300)) },
         popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = { fadeOut(tween(300)) },
+        popExitTransition = exitSlideTransitionRight,
         arguments = listOf(
             navArgument("grades") {
                 type = NavType.StringType
