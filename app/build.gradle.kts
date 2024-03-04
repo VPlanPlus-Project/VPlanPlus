@@ -1,10 +1,10 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    kotlin("kapt")
 }
 
 android {
@@ -41,7 +41,7 @@ android {
             }
         }
 
-        create("stage") {
+        create("stage-minify") {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -52,6 +52,12 @@ android {
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
+        }
+
+        create("stage") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {

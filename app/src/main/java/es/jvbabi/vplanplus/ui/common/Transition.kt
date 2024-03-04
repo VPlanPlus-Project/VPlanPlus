@@ -35,6 +35,14 @@ object Transition {
             ) + fadeIn(animationSpec = tween(300))
         }
 
+    val enterSlideTransitionLeft: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?) =
+        {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(300)
+            ) + fadeIn(animationSpec = tween(300))
+        }
+
     val exitSlideTransitionRight: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?) =
         {
             slideOutOfContainer(

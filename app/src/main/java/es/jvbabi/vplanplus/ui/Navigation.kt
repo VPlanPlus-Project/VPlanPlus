@@ -1,7 +1,11 @@
 package es.jvbabi.vplanplus.ui
 
 import android.content.Intent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -11,6 +15,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import es.jvbabi.vplanplus.feature.grades.ui.GradesScreen
 import es.jvbabi.vplanplus.feature.homework.add.ui.AddHomeworkScreen
+import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
@@ -26,12 +31,12 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSetupScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
-import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login.BsLoginScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
+import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionLeft
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
@@ -65,300 +70,395 @@ fun NavigationGraph(
         navController = navController,
         startDestination = if (goToOnboarding) Screen.Onboarding.route else Screen.HomeScreen.route
     ) {
-
         navController.addOnDestinationChangedListener { _, destination, _ ->
             onNavigationChanged(destination.route)
         }
 
-        composable(
-            route = Screen.AccountAddedScreen.route + "/{token}",
-            deepLinks = listOf(
-                navDeepLink {
-                    uriPattern = "https://id.vpp.jvbabi.es/link_success/{token}"
-                    action = Intent.ACTION_VIEW
-                },
-                navDeepLink {
-                    uriPattern = "vpp://id/link_success/{token}"
-                    action = Intent.ACTION_VIEW
-                }
-            ),
-            arguments = listOf(
-                navArgument("token") {
-                    type = NavType.StringType
-                }
-            ),
-            content = {
-                VppIdLinkScreen(navHostController = navController, token = it.arguments?.getString("token"))
-            }
-        )
-
-        composable(route = Screen.HomeScreen.route) {
-            HomeScreen(
-                navHostController = navController,
-                viewModel = homeViewModel,
-                navBar = navBar
-            )
-        }
-
-        composable(
-            route = Screen.AddHomeworkScreen.route,
-            enterTransition = slideInFromBottom,
-            exitTransition = slideOutFromBottom,
-            popEnterTransition = slideInFromBottom,
-            popExitTransition = slideOutFromBottom
-        ) {
-            AddHomeworkScreen(navHostController = navController)
-        }
-
-        composable(route = Screen.TimetableScreen.route) {
-            TimetableScreen(
-                navHostController = navController,
-                navBar = navBar
-            )
-        }
-
-        composable(route = Screen.HomeworkScreen.route) {
-            HomeworkScreen(
-                navHostController = navController,
-                navBar = navBar
-            )
-        }
-
-        composable(Screen.GradesScreen.route) {
-            GradesScreen(navHostController = navController, navBar = navBar)
-        }
-
-        composable(route = Screen.TimetableScreen.route + "/{startDate}",
-            arguments = listOf(
-                navArgument("startDate") {
-                    type = NavType.StringType
-                }
-            )
-        ) {
-            TimetableScreen(
-                navHostController = navController,
-                startDate = it.arguments?.getString("startDate")?.let { date ->
-                    LocalDate.parse(date)
-                } ?: LocalDate.now(),
-                navBar = navBar
-            )
-        }
-
-        composable(route = Screen.NewsScreen.route) {
-            NewsScreen(navController)
-        }
-
-        composable(route = Screen.NewsDetailScreen.route + "/{messageId}",
-            arguments = listOf(
-                navArgument("messageId") {
-                    type = NavType.StringType
-                }
-            )
-        ) {
-            NewsDetailScreen(navController, it.arguments?.getString("messageId")!!)
-        }
+        deepLinks(navController)
+        onboarding(navController, onboardingViewModel)
+        mainScreens(navController, homeViewModel, navBar)
+        newsScreens(navController)
+        settingsScreens(navController, onboardingViewModel)
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {
             FindAvailableRoomScreen(navController)
         }
+    }
+}
 
-        composable(route = Screen.SettingsScreen.route) {
-            SettingsScreen(navController)
+
+private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
+    composable(
+        route = Screen.AccountAddedScreen.route + "/{token}",
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "https://id.vpp.jvbabi.es/link_success/{token}"
+                action = Intent.ACTION_VIEW
+            },
+            navDeepLink {
+                uriPattern = "vpp://id/link_success/{token}"
+                action = Intent.ACTION_VIEW
+            }
+        ),
+        arguments = listOf(
+            navArgument("token") {
+                type = NavType.StringType
+            }
+        ),
+        content = {
+            VppIdLinkScreen(navHostController = navController, token = it.arguments?.getString("token"))
         }
+    )
+}
 
-        composable(route = Screen.SettingsVppIdScreen.route) {
-            AccountSettingsScreen(navHostController = navController)
-        }
+private fun NavGraphBuilder.onboarding(navController: NavHostController, viewModel: OnboardingViewModel) {
+    navigation(
+        route = Screen.Onboarding.route,
+        startDestination = Screen.OnboardingWelcomeScreen.route
+    ) {
 
-        composable(route = Screen.SettingsVppIdManageScreen.route + "/{vppIdId}",
-            arguments = listOf(
-                navArgument("vppIdId") {
-                    type = NavType.IntType
-                }
-            )
+        composable(
+            route = Screen.OnboardingWelcomeScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
         ) {
-            VppIdManagementScreen(navHostController = navController, vppId = it.arguments?.getInt("vppIdId")!!)
+            OnboardingWelcomeScreen(navController, viewModel)
         }
 
         composable(
-            route = Screen.SettingsVppIdLoginScreen.route,
-            enterTransition = slideInFromBottom,
-            exitTransition = slideOutFromBottom,
-            popEnterTransition = slideInFromBottom,
-            popExitTransition = slideOutFromBottom
+            route = Screen.OnboardingQrScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
         ) {
-            BsLoginScreen(navHostController = navController)
+            OnboardingQrScreen(navController, viewModel)
         }
 
         composable(
-            route = Screen.SettingsProfileScreen.route + "{profileId}",
-            arguments = listOf(
-                navArgument("profileId") {
-                    type = NavType.StringType
-                }
-            )
+            route = Screen.OnboardingSchoolIdScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
         ) {
-            ProfileSettingsScreen(
+            OnboardingSchoolIdScreen(navController, viewModel)
+        }
+
+        composable(
+            route = Screen.OnboardingLoginScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
+        ) {
+            OnboardingLoginScreen(navController, viewModel)
+        }
+
+        composable(
+            route = Screen.OnboardingFirstProfileScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
+        ) {
+            OnboardingAddProfileScreen(navController, viewModel)
+        }
+
+        composable(
+            route = Screen.OnboardingNewProfileScreen.route + "/{schoolId}",
+            arguments = listOf(
+                navArgument("schoolId") {
+                    type = NavType.LongType
+                }
+            ),
+        ) {
+            OnboardingAddProfileScreen(navController, viewModel)
+        }
+
+        composable(
+            route = Screen.OnboardingProfileSelectScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
+        ) {
+            OnboardingProfileOptionListScreen(navController, viewModel)
+        }
+
+        composable(
+            route = Screen.OnboardingDefaultLessonScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
+        ) {
+            OnboardingDefaultLessonScreen(navController, viewModel)
+        }
+
+        composable(
+            route = Screen.OnboardingPermissionsScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
+        ) {
+            OnboardingPermissionScreen(
                 navController = navController,
-                profileId = UUID.fromString(it.arguments?.getString("profileId")!!)
+                viewModel = viewModel,
             )
         }
 
         composable(
-            route = Screen.SettingsProfileDefaultLessonsScreen.route,
-            arguments = listOf(
-                navArgument("profileId") {
-                    type = NavType.StringType
-                }
-            )
+            route = Screen.OnboardingSetupScreen.route,
+            enterTransition = enterSlideTransition,
+            exitTransition = exitSlideTransition,
+            popEnterTransition = enterSlideTransitionRight,
+            popExitTransition = exitSlideTransitionRight
         ) {
-            ProfileSettingsDefaultLessonScreen(
-                profileId = UUID.fromString(it.arguments?.getString("profileId")!!),
-                navController = navController
-            )
+            OnboardingSetupScreen(navController, viewModel)
         }
+    }
+}
 
-        composable(route = Screen.SettingsProfileScreen.route) {
-            ProfileManagementScreen(
-                navController = navController,
-                onNewProfileClicked = {
-                    onboardingViewModel.reset()
-                    onboardingViewModel.setTask(Task.CREATE_PROFILE)
-                    onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
-                    onboardingViewModel.onAutomaticSchoolIdInput(it.schoolId)
-                },
-                onNewSchoolClicked = {
-                    onboardingViewModel.reset()
-                    onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
-                    onboardingViewModel.setTask(Task.CREATE_SCHOOL)
-                }
-            )
-        }
+private fun NavGraphBuilder.mainScreens(navController: NavHostController, viewModel: HomeViewModel, navBar: @Composable () -> Unit) {
+    composable(
+        route = Screen.HomeScreen.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        HomeScreen(
+            navHostController = navController,
+            viewModel = viewModel,
+            navBar = navBar
+        )
+    }
 
-        composable(route = Screen.SettingsAdvancedScreen.route) {
-            AdvancedSettingsScreen(navHostController = navController)
-        }
+    composable(
+        route = Screen.AddHomeworkScreen.route,
+        enterTransition = slideInFromBottom,
+        exitTransition = slideOutFromBottom,
+        popEnterTransition = slideInFromBottom,
+        popExitTransition = slideOutFromBottom
+    ) {
+        AddHomeworkScreen(navHostController = navController)
+    }
 
-        composable(route = Screen.SettingsAdvancedLogScreen.route) {
-            LogsScreen(navController)
-        }
+    composable(
+        route = Screen.TimetableScreen.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        TimetableScreen(
+            navHostController = navController,
+            navBar = navBar
+        )
+    }
 
-        composable(route = Screen.SettingsGeneralSettingsScreen.route) {
-            GeneralSettingsScreen(navController)
-        }
+    composable(
+        route = Screen.HomeworkScreen.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        HomeworkScreen(
+            navHostController = navController,
+            navBar = navBar
+        )
+    }
 
-        composable(route = Screen.SettingsAboutScreen.route) {
-            AboutScreen(navController)
-        }
+    composable(
+        Screen.GradesScreen.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        GradesScreen(navHostController = navController, navBar = navBar)
+    }
 
-        navigation(
-            route = Screen.Onboarding.route,
-            startDestination = Screen.OnboardingWelcomeScreen.route
-        ) {
-
-            composable(
-                route = Screen.OnboardingWelcomeScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingWelcomeScreen(navController, onboardingViewModel)
+    composable(route = Screen.TimetableScreen.route + "/{startDate}",
+        arguments = listOf(
+            navArgument("startDate") {
+                type = NavType.StringType
             }
+        )
+    ) {
+        TimetableScreen(
+            navHostController = navController,
+            startDate = it.arguments?.getString("startDate")?.let { date ->
+                LocalDate.parse(date)
+            } ?: LocalDate.now(),
+            navBar = navBar
+        )
+    }
+}
 
-            composable(
-                route = Screen.OnboardingQrScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingQrScreen(navController, onboardingViewModel)
-            }
+private fun NavGraphBuilder.newsScreens(navController: NavHostController) {
+    composable(route = Screen.NewsScreen.route) {
+        NewsScreen(navController)
+    }
 
-            composable(
-                route = Screen.OnboardingSchoolIdScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingSchoolIdScreen(navController, onboardingViewModel)
+    composable(route = Screen.NewsDetailScreen.route + "/{messageId}",
+        arguments = listOf(
+            navArgument("messageId") {
+                type = NavType.StringType
             }
+        )
+    ) {
+        NewsDetailScreen(navController, it.arguments?.getString("messageId")!!)
+    }
+}
 
-            composable(
-                route = Screen.OnboardingLoginScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingLoginScreen(navController, onboardingViewModel)
-            }
+private fun NavGraphBuilder.settingsScreens(navController: NavHostController, onboardingViewModel: OnboardingViewModel) {
+    composable(
+        route = Screen.SettingsScreen.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        SettingsScreen(navController)
+    }
 
-            composable(
-                route = Screen.OnboardingFirstProfileScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingAddProfileScreen(navController, onboardingViewModel)
-            }
+    composable(
+        route = Screen.SettingsVppIdScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        AccountSettingsScreen(navHostController = navController)
+    }
 
-            composable(
-                route = Screen.OnboardingNewProfileScreen.route + "/{schoolId}",
-                arguments = listOf(
-                    navArgument("schoolId") {
-                        type = NavType.LongType
-                    }
-                ),
-            ) {
-                OnboardingAddProfileScreen(navController, onboardingViewModel)
+    composable(
+        route = Screen.SettingsVppIdManageScreen.route + "/{vppIdId}",
+        arguments = listOf(
+            navArgument("vppIdId") {
+                type = NavType.IntType
             }
+        ),
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        VppIdManagementScreen(navHostController = navController, vppId = it.arguments?.getInt("vppIdId")!!)
+    }
 
-            composable(
-                route = Screen.OnboardingProfileSelectScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingProfileOptionListScreen(navController, onboardingViewModel)
-            }
+    composable(
+        route = Screen.SettingsVppIdLoginScreen.route,
+        enterTransition = slideInFromBottom,
+        exitTransition = slideOutFromBottom,
+        popEnterTransition = slideInFromBottom,
+        popExitTransition = slideOutFromBottom
+    ) {
+        BsLoginScreen(navHostController = navController)
+    }
 
-            composable(
-                route = Screen.OnboardingDefaultLessonScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingDefaultLessonScreen(navController, onboardingViewModel)
+    composable(
+        route = Screen.SettingsProfileScreen.route + "{profileId}",
+        arguments = listOf(
+            navArgument("profileId") {
+                type = NavType.StringType
             }
+        ),
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        ProfileSettingsScreen(
+            navController = navController,
+            profileId = UUID.fromString(it.arguments?.getString("profileId")!!)
+        )
+    }
 
-            composable(
-                route = Screen.OnboardingPermissionsScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingPermissionScreen(
-                    navController = navController,
-                    viewModel = onboardingViewModel,
-                )
+    composable(
+        route = Screen.SettingsProfileDefaultLessonsScreen.route,
+        arguments = listOf(
+            navArgument("profileId") {
+                type = NavType.StringType
             }
+        ),
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        ProfileSettingsDefaultLessonScreen(
+            profileId = UUID.fromString(it.arguments?.getString("profileId")!!),
+            navController = navController
+        )
+    }
 
-            composable(
-                route = Screen.OnboardingSetupScreen.route,
-                enterTransition = enterSlideTransition,
-                exitTransition = exitSlideTransition,
-                popEnterTransition = enterSlideTransitionRight,
-                popExitTransition = exitSlideTransitionRight
-            ) {
-                OnboardingSetupScreen(navController, onboardingViewModel)
+    composable(
+        route = Screen.SettingsProfileScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        ProfileManagementScreen(
+            navController = navController,
+            onNewProfileClicked = {
+                onboardingViewModel.reset()
+                onboardingViewModel.setTask(Task.CREATE_PROFILE)
+                onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
+                onboardingViewModel.onAutomaticSchoolIdInput(it.schoolId)
+            },
+            onNewSchoolClicked = {
+                onboardingViewModel.reset()
+                onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
+                onboardingViewModel.setTask(Task.CREATE_SCHOOL)
             }
-        }
+        )
+    }
+
+    composable(
+        route = Screen.SettingsAdvancedScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        AdvancedSettingsScreen(navHostController = navController)
+    }
+
+    composable(
+        route = Screen.SettingsAdvancedLogScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        LogsScreen(navController)
+    }
+
+    composable(
+        route = Screen.SettingsGeneralSettingsScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        GeneralSettingsScreen(navController)
+    }
+
+    composable(
+        route = Screen.SettingsAboutScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        AboutScreen(navController)
     }
 }
