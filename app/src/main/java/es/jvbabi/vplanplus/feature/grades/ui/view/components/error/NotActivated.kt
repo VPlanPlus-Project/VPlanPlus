@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.grades.ui.components.error
+package es.jvbabi.vplanplus.feature.grades.ui.view.components.error
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

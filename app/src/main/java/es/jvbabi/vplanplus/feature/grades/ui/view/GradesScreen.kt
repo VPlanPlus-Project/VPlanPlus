@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.grades.ui
+package es.jvbabi.vplanplus.feature.grades.ui.view
 
 import android.content.Intent
 import android.net.Uri
@@ -11,27 +11,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,20 +31,27 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.gson.Gson
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
-import es.jvbabi.vplanplus.feature.grades.ui.components.error.NoGrades
-import es.jvbabi.vplanplus.feature.grades.ui.components.error.NoVppId
-import es.jvbabi.vplanplus.feature.grades.ui.components.error.NotActivated
-import es.jvbabi.vplanplus.feature.grades.ui.components.error.WrongProfile
-import es.jvbabi.vplanplus.feature.grades.ui.components.grades.GradeSubjectGroup
-import es.jvbabi.vplanplus.feature.grades.ui.components.grades.LatestGrades
+import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
+import es.jvbabi.vplanplus.feature.grades.ui.components.Average
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.error.NoGrades
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.error.NoVppId
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.error.NotActivated
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.error.WrongProfile
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.grades.GradeSubjectGroup
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.grades.LatestGrades
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.screens.Screen
-import java.math.RoundingMode
+import java.nio.charset.StandardCharsets
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
+@OptIn(ExperimentalEncodingApi::class)
 @Composable
 fun GradesScreen(
     navHostController: NavHostController,
@@ -73,6 +72,16 @@ fun GradesScreen(
             ContextCompat.startActivity(context, browserIntent, null)
         },
         onHideBanner = { gradesViewModel.onHideBanner() },
+        onStartCalculator = { grades ->
+            val data = grades.groupBy { it.type }.map {
+                GradeCollection(
+                    name = it.key,
+                    grades = it.value.map { grade -> grade.value to grade.modifier }
+                )
+            }
+            val encodedString: String = Base64.encode(Gson().toJson(data).toByteArray(StandardCharsets.UTF_8))
+            navHostController.navigate("${Screen.GradesCalculatorScreen.route}/$encodedString")
+        },
         state = state,
         navBar = navBar
     )
@@ -85,6 +94,7 @@ private fun GradesScreenContent(
     onLinkVppId: () -> Unit,
     onFixOnline: () -> Unit,
     onHideBanner: () -> Unit,
+    onStartCalculator: (List<Grade>) -> Unit,
     state: GradesState,
     navBar: @Composable () -> Unit
 ) {
@@ -131,48 +141,11 @@ private fun GradesScreenContent(
             }
             LazyColumn {
                 if (state.avg != 0.0) item {
-                    val colorScheme = MaterialTheme.colorScheme
                     Box(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .padding(16.dp)
-                                .size(128.dp)
-                                .clip(RoundedCornerShape(50))
-                                .drawWithContent {
-                                    val percentage = (6 - state.avg) / 5f
-                                    drawRect(
-                                        color = colorScheme.secondary,
-                                        topLeft = Offset(0f, 0f),
-                                        size = Size(size.width, size.height)
-                                    )
-                                    drawRect(
-                                        brush = Brush.verticalGradient(
-                                            listOf(
-                                                colorScheme.primary,
-                                                colorScheme.tertiary
-                                            )
-                                        ),
-                                        topLeft = Offset(
-                                            0f,
-                                            size.height * (1 - percentage.toFloat())
-                                        ),
-                                        size = Size(size.width, size.height * percentage.toFloat())
-                                    )
-                                    drawContent()
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "Ø ${
-                                    state.avg.toBigDecimal().setScale(2, RoundingMode.HALF_EVEN)
-                                }",
-                                style = MaterialTheme.typography.headlineLarge,
-                                color = MaterialTheme.colorScheme.onSecondary
-                            )
-                        }
+                        Average(avg = state.avg)
                     }
                 }
                 item {
@@ -187,7 +160,10 @@ private fun GradesScreenContent(
                     Box(
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                     ) {
-                        GradeSubjectGroup(grades = grades)
+                        GradeSubjectGroup(
+                            grades = grades,
+                            onStartCalculator = { onStartCalculator(grades.grades) }
+                        )
                     }
                 }
             }
@@ -203,6 +179,7 @@ fun GradesScreenPreview() {
         onLinkVppId = {},
         onFixOnline = {},
         onHideBanner = {},
+        onStartCalculator = {},
         navBar = {},
         state = GradesState(
             enabled = GradeUseState.WRONG_PROFILE_SELECTED

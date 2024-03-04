@@ -8,11 +8,13 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.shared.data.FakeClassRepository
 import es.jvbabi.vplanplus.shared.data.FakeKeyValueRepository
 import es.jvbabi.vplanplus.shared.data.FakeRoomRepository
 import es.jvbabi.vplanplus.shared.data.FakeSchoolRepository
 import es.jvbabi.vplanplus.shared.data.FakeTeacherRepository
+import es.jvbabi.vplanplus.shared.data.FakeVppIdRepository
 import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Test
@@ -27,6 +29,7 @@ class ProfileOptionsUseCaseTest {
     private lateinit var teacherRepository: TeacherRepository
     private lateinit var roomRepository: RoomRepository
     private lateinit var keyValueRepository: KeyValueRepository
+    private lateinit var vppIdRepository: VppIdRepository
 
     private lateinit var school: School
     private lateinit var newSchool: School
@@ -38,6 +41,7 @@ class ProfileOptionsUseCaseTest {
         teacherRepository = FakeTeacherRepository(schoolRepository as FakeSchoolRepository)
         roomRepository = FakeRoomRepository(schoolRepository as FakeSchoolRepository)
         keyValueRepository = FakeKeyValueRepository()
+        vppIdRepository = FakeVppIdRepository()
 
         runBlocking {
             (schoolRepository as FakeSchoolRepository).createExampleData()
@@ -50,7 +54,8 @@ class ProfileOptionsUseCaseTest {
             classRepository = classRepository,
             teacherRepository = teacherRepository,
             roomRepository = roomRepository,
-            kv = keyValueRepository
+            kv = keyValueRepository,
+            vppIdRepository = vppIdRepository
         )
 
         runBlocking {

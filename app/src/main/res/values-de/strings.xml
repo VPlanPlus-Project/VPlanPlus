@@ -400,4 +400,9 @@
     <string name="profileManagement_vppIDTitle">Verbundene vpp.ID</string>
     <string name="profileManagement_vppIDNotLinked">Keine vpp.ID mit dieser Klasse verbunden. Tippe hier, um dich anzumelden.</string>
     <string name="onboarding_studentChooseClassPeopleLabel">Anzahl registrierter Klassenkameraden</string>
+    <string name="gradesCalculator_title">Notenrechner</string>
+    <string name="gradesCalculator_addGradeTitle">Note hinzufügen</string>
+    <string name="gradesCalculator_addGradeContent">Diese Note wird zu %1$s hinzugefügt werden. Nach dem Schließen des Bildschirmes wird sie entfernt.</string>
+    <string name="gradesCalculator_text">Hier kannst du schnell den Durchschnitt deiner Noten berechnen, indem du Noten zu den Kategorien zufügst oder sie entfernst. Die Endnote ist der Durchschnitt aller Durchschnitte pro Kategorie. Entferne eine Note, in dem du sie antippst.</string>
+    <string name="gradesCalculator_restore">Originale Noten wiederherstellen</string>
 </resources>

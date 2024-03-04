@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.grades.ui
+package es.jvbabi.vplanplus.feature.grades.ui.view
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf

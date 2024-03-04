@@ -24,6 +24,7 @@ sealed class Screen(val route: String) {
     data object HomeworkScreen: Screen("homework_screen")
 
     data object GradesScreen: Screen("grades")
+    data object GradesCalculatorScreen: Screen("grades/calculator")
 
     // SETTINGS
     data object SettingsScreen: Screen("settings/main")

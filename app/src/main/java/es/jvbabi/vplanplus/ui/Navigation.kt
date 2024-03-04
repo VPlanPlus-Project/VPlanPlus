@@ -13,7 +13,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
-import es.jvbabi.vplanplus.feature.grades.ui.GradesScreen
+import com.google.gson.Gson
+import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCalculatorScreen
+import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
+import es.jvbabi.vplanplus.feature.grades.ui.view.GradesScreen
 import es.jvbabi.vplanplus.feature.homework.add.ui.AddHomeworkScreen
 import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
@@ -56,6 +59,8 @@ import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsS
 import es.jvbabi.vplanplus.ui.screens.timetable.TimetableScreen
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.io.encoding.Base64
+import kotlin.io.encoding.ExperimentalEncodingApi
 
 @Composable
 fun NavigationGraph(
@@ -79,6 +84,7 @@ fun NavigationGraph(
         mainScreens(navController, homeViewModel, navBar)
         newsScreens(navController)
         settingsScreens(navController, onboardingViewModel)
+        gradesScreens(navController)
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {
             FindAvailableRoomScreen(navController)
@@ -460,5 +466,25 @@ private fun NavGraphBuilder.settingsScreens(navController: NavHostController, on
         popExitTransition = exitSlideTransitionRight
     ) {
         AboutScreen(navController)
+    }
+}
+
+@OptIn(ExperimentalEncodingApi::class)
+private fun NavGraphBuilder.gradesScreens(navController: NavHostController) {
+    composable(
+        route = Screen.GradesCalculatorScreen.route + "/{grades}",
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight,
+        arguments = listOf(
+            navArgument("grades") {
+                type = NavType.StringType
+            }
+        ),
+    ) {
+        val decodedString = String(Base64.decode(it.arguments?.getString("grades")!!))
+        val grades = Gson().fromJson(decodedString, Array<GradeCollection>::class.java)
+        GradeCalculatorScreen(navHostController = navController, grades = grades.toList())
     }
 }

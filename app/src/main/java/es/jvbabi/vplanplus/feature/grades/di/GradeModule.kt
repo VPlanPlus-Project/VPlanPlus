@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.grades.data.repository.GradeRepositoryImpl
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.CalculateAverageUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GetGradesUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.HideBannerUseCase
@@ -65,10 +66,12 @@ object GradeModule {
             ),
             getGradesUseCase = GetGradesUseCase(
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-                gradeRepository = gradeRepository
+                gradeRepository = gradeRepository,
+                calculateAverageUseCase = CalculateAverageUseCase()
             ),
             showBannerUseCase = ShowBannerUseCase(keyValueRepository),
-            hideBannerUseCase = HideBannerUseCase(keyValueRepository)
+            hideBannerUseCase = HideBannerUseCase(keyValueRepository),
+            calculateAverageUseCase = CalculateAverageUseCase()
         )
     }
 }

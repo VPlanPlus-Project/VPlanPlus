@@ -403,4 +403,9 @@
     <string name="profileManagement_vppIDTitle">Connected vpp.ID</string>
     <string name="profileManagement_vppIDNotLinked">No vpp.ID linked to this class. Click here to login.</string>
     <string name="onboarding_studentChooseClassPeopleLabel">Number of registered classmates</string>
+    <string name="gradesCalculator_title">Grade calculator</string>
+    <string name="gradesCalculator_addGradeTitle">Add grade</string>
+    <string name="gradesCalculator_addGradeContent">This grade will be added to %1$s locally. It\'ll be deleted, once you close this screen.</string>
+    <string name="gradesCalculator_text">Here you can quickly caclulate your average grade by adding or removing grades to each category. The final grade is the average of all averages per category. You can remove a grade by tapping on it,</string>
+    <string name="gradesCalculator_restore">Restore original grades</string>
 </resources>

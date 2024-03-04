@@ -152,7 +152,8 @@ class IsEnabledUseCaseTest {
             schoolId = school.schoolId,
             classes = `class`,
             className = `class`.name,
-            state = State.ACTIVE
+            state = State.ACTIVE,
+            email = "uwe.test@web.de"
         ))
     }
 }
