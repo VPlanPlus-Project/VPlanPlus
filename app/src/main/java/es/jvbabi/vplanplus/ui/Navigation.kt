@@ -1,6 +1,9 @@
 package es.jvbabi.vplanplus.ui
 
 import android.content.Intent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -92,7 +95,13 @@ fun NavigationGraph(
             }
         )
 
-        composable(route = Screen.HomeScreen.route) {
+        composable(
+            route = Screen.HomeScreen.route,
+            enterTransition = { fadeIn(tween(150)) },
+            exitTransition = { fadeOut(tween(150)) },
+            popEnterTransition = { fadeIn(tween(150)) },
+            popExitTransition = { fadeOut(tween(150)) }
+        ) {
             HomeScreen(
                 navHostController = navController,
                 viewModel = homeViewModel,
@@ -110,21 +119,39 @@ fun NavigationGraph(
             AddHomeworkScreen(navHostController = navController)
         }
 
-        composable(route = Screen.TimetableScreen.route) {
+        composable(
+            route = Screen.TimetableScreen.route,
+            enterTransition = { fadeIn(tween(150)) },
+            exitTransition = { fadeOut(tween(150)) },
+            popEnterTransition = { fadeIn(tween(150)) },
+            popExitTransition = { fadeOut(tween(150)) }
+        ) {
             TimetableScreen(
                 navHostController = navController,
                 navBar = navBar
             )
         }
 
-        composable(route = Screen.HomeworkScreen.route) {
+        composable(
+            route = Screen.HomeworkScreen.route,
+            enterTransition = { fadeIn(tween(150)) },
+            exitTransition = { fadeOut(tween(150)) },
+            popEnterTransition = { fadeIn(tween(150)) },
+            popExitTransition = { fadeOut(tween(150)) }
+        ) {
             HomeworkScreen(
                 navHostController = navController,
                 navBar = navBar
             )
         }
 
-        composable(Screen.GradesScreen.route) {
+        composable(
+            Screen.GradesScreen.route,
+            enterTransition = { fadeIn(tween(150)) },
+            exitTransition = { fadeOut(tween(150)) },
+            popEnterTransition = { fadeIn(tween(150)) },
+            popExitTransition = { fadeOut(tween(150)) }
+        ) {
             GradesScreen(navHostController = navController, navBar = navBar)
         }
 

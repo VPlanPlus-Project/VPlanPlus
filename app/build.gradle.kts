@@ -41,7 +41,7 @@ android {
             }
         }
 
-        create("stage") {
+        create("stage-minify") {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -52,6 +52,12 @@ android {
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
+        }
+
+        create("stage") {
+            isMinifyEnabled = false
+            isShrinkResources = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
