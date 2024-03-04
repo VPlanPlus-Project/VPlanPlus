@@ -34,7 +34,7 @@ class QueryUseCase(
         val query = rawQuery.lowercase()
         val currentSchool = getCurrentIdentityUseCase().first()?.school?: return emptyList()
         val date = LocalDate.now()
-        val version = keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull()?: 0L
+        val version = keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull()?: -1L
         val results = mutableListOf<ResultGroup>()
         schoolRepository.getSchools().forEach {  school ->
             val classes = classRepository.getClassesBySchool(school).filter { it.name.lowercase().contains(query) }

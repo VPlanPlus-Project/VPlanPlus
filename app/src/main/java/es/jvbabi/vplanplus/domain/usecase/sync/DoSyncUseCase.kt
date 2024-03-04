@@ -85,8 +85,11 @@ class DoSyncUseCase(
 
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
-        val currentVersion =
-            keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: 0L
+        var currentVersion =
+            keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: -1L
+
+        planRepository.deletePlansByVersion(currentVersion + 1)
+        lessonRepository.deleteLessonsByVersion(currentVersion + 1)
 
         logRecordRepository.log("Sync.Messages", "Syncing messages for all app users")
         messageRepository.updateMessages(null)
@@ -193,13 +196,14 @@ class DoSyncUseCase(
             }
         }
 
+        currentVersion += 1
         keyValueRepository.set(
             Keys.LESSON_VERSION_NUMBER,
-            (currentVersion + 1).toString()
+            currentVersion.toString()
         )
         keyValueRepository.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis() / 1000).toString())
-        lessonRepository.deleteLessonsByVersion(currentVersion)
-        planRepository.deletePlansByVersion(currentVersion)
+        lessonRepository.deleteLessonsByVersion(currentVersion - 1)
+        planRepository.deletePlansByVersion(currentVersion - 1)
 
         notifications.forEach { notificationData ->
             sendNewPlanNotification(notificationData)
@@ -227,7 +231,8 @@ class DoSyncUseCase(
 
         val school = schoolRepository.getSchoolFromId(vPlanData.schoolId)!!
 
-        val version = keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "-2").toLong() + 1
+        val currentVersion =
+            keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: -1L
 
         // lists to collect data for bulk insert
         val insertLessons = mutableListOf<DbLesson>()
@@ -380,7 +385,7 @@ class DoSyncUseCase(
                         defaultLessonId = defaultLessonDbId,
                         changedSubject = changedSubject,
                         classLessonRefId = `class`.classId,
-                        version = version,
+                        version = currentVersion+1,
                         roomBookingId = bookings.firstOrNull { booking ->
                             booking.from
                                 .isEqual(planDate) && booking.from.toLocalTime().isBefore(
@@ -434,7 +439,7 @@ class DoSyncUseCase(
                 createAt = lastPlanUpdate,
                 date = planDate,
                 info = vPlanData.wPlanDataObject.info?.joinToString("\n") { it ?: "" },
-                version = version
+                version = currentVersion
             )
         )
     }
