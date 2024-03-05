@@ -71,14 +71,14 @@ fun GradesScreen(
     val state = gradesViewModel.state.value
     val context = LocalContext.current
 
-    LaunchedEffect(
-        state.biometricStatus,
-        state.granted
-    ) {
-        if (state.biometricStatus == BiometricStatus.AVAILABLE && !state.granted && state.isBiometricEnabled) {
-            gradesViewModel.authenticate(activity)
-        }
-    }
+//    LaunchedEffect(
+//        state.biometricStatus,
+//        state.granted
+//    ) {
+//        if (state.biometricStatus == BiometricStatus.AVAILABLE && !state.granted && state.isBiometricEnabled) {
+//            gradesViewModel.authenticate(activity)
+//        }
+//    }
 
     GradesScreenContent(
         onBack = { navHostController.popBackStack() },
@@ -121,6 +121,8 @@ fun GradesScreen(
                 startActivity(context, Intent(Settings.ACTION_SETTINGS), null)
             }
         },
+        onEnableBiometric = { gradesViewModel.onEnableBiometric() },
+        onDismissEnableBiometricBanner = { gradesViewModel.onDismissEnableBiometricBanner() },
         state = state,
         navBar = navBar
     )
@@ -133,6 +135,8 @@ private fun GradesScreenContent(
     onLinkVppId: () -> Unit,
     onFixOnline: () -> Unit,
     onHideBanner: () -> Unit,
+    onDismissEnableBiometricBanner: () -> Unit,
+    onEnableBiometric: () -> Unit,
     onStartAuthenticate: () -> Unit,
     onOpenSecuritySettings: () -> Unit,
     onStartCalculator: (List<Grade>) -> Unit,
@@ -159,35 +163,52 @@ private fun GradesScreenContent(
                 GradeUseState.NOT_ENABLED -> NotActivated(onFixOnline, onLinkVppId)
                 else -> {}
             }
-            if (state.biometricStatus == BiometricStatus.NOT_SUPPORTED && state.isBiometricEnabled) {
+            AnimatedVisibility(
+                visible = state.showEnableBiometricBanner,
+                enter = expandVertically(tween(200)),
+                exit = shrinkVertically(tween(200))
+            ) {
                 InfoCard(
                     imageVector = Icons.Default.Fingerprint,
-                    title = stringResource(id = R.string.grades_biometricNotSupportedTitle),
-                    text = stringResource(id = R.string.grades_biometricNotSupportedText),
+                    title = stringResource(id = R.string.grades_enableBiometricTitle),
+                    text = stringResource(id = R.string.grades_enableBiometricText),
+                    buttonText1 = stringResource(id = R.string.not_now),
+                    buttonAction1 = onDismissEnableBiometricBanner,
+                    buttonText2 = stringResource(id = R.string.enable),
+                    buttonAction2 = onEnableBiometric,
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
-                )
-            } else if (state.biometricStatus == BiometricStatus.NOT_SET_UP && state.isBiometricEnabled) {
-                InfoCard(
-                    imageVector = Icons.Default.Fingerprint,
-                    title = stringResource(id = R.string.grades_biometricNotSetUpTitle),
-                    text = stringResource(id = R.string.grades_biometricNotSetUpText),
-                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-                    buttonText1 = stringResource(id = R.string.grades_openSecuritySettings),
-                    buttonAction1 = onOpenSecuritySettings
                 )
             }
 
-            if (state.biometricStatus == BiometricStatus.AVAILABLE && !state.granted && state.showAuthenticationScreen && state.isBiometricEnabled) {
-                TextButton(onClick = onStartAuthenticate) {
-                    Text(text = stringResource(id = R.string.grades_login))
-                }
-                return@Scaffold
-            }
+//            if (state.isBiometricEnabled) {
+//                InfoCard(
+//                    imageVector = Icons.Default.Fingerprint,
+//                    title = stringResource(id = R.string.grades_biometricNotSupportedTitle),
+//                    text = stringResource(id = R.string.grades_biometricNotSupportedText),
+//                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+//                )
+//            } else if (true) {
+//                InfoCard(
+//                    imageVector = Icons.Default.Fingerprint,
+//                    title = stringResource(id = R.string.grades_biometricNotSetUpTitle),
+//                    text = stringResource(id = R.string.grades_biometricNotSetUpText),
+//                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+//                    buttonText1 = stringResource(id = R.string.grades_openSecuritySettings),
+//                    buttonAction1 = onOpenSecuritySettings
+//                )
+//            }
+
+//            if (state.biometricStatus == BiometricStatus.AVAILABLE && !state.granted && state.showAuthenticationScreen && state.isBiometricEnabled) {
+//                TextButton(onClick = onStartAuthenticate) {
+//                    Text(text = stringResource(id = R.string.grades_login))
+//                }
+//                return@Scaffold
+//            }
             if (state.enabled == GradeUseState.ENABLED && state.grades.isEmpty()) {
                 NoGrades()
                 return@Scaffold
             }
-            if (!state.granted) return@Scaffold
+//            if (!state.granted) return@Scaffold
             val grades = state.grades.entries.sortedBy { it.key.name }
             AnimatedVisibility(
                 visible = state.showBanner,
@@ -249,9 +270,12 @@ fun GradesScreenPreview() {
         navBar = {},
         state = GradesState(
             enabled = GradeUseState.ENABLED,
-            biometricStatus = BiometricStatus.NOT_SET_UP
+            showEnableBiometricBanner = true
+//            biometricStatus = BiometricStatus.NOT_SET_UP
         ),
         onStartAuthenticate = {},
-        onOpenSecuritySettings = {}
+        onOpenSecuritySettings = {},
+        onDismissEnableBiometricBanner = {},
+        onEnableBiometric = {}
     )
 }

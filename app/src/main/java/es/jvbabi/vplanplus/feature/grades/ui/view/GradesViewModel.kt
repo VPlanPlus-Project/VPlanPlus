@@ -11,6 +11,8 @@ import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.domain.repository.BiometricStatus
 import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.model.Subject
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.CanShowEnableBiometricBannerUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeState
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
 import kotlinx.coroutines.flow.combine
@@ -29,13 +31,21 @@ class GradesViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                gradeUseCases.isEnabledUseCase(),
-                gradeUseCases.getGradesUseCase(),
-                gradeUseCases.showBannerUseCase(),
-                gradeUseCases.isBiometricEnabled()
-            ) { enabled, grades, showBanner, isBiometricEnabled ->
-                val authenticationStatus = biometricRepository.canAuthenticate()
-                _state.value.copy(enabled = enabled,
+                listOf(
+                    gradeUseCases.isEnabledUseCase(),
+                    gradeUseCases.getGradesUseCase(),
+                    gradeUseCases.showBannerUseCase(),
+                    gradeUseCases.isBiometricEnabled(),
+                    gradeUseCases.canShowEnableBiometricBannerUseCase()
+                )
+            ) { data ->
+                val enabled = data[0] as GradeUseState
+                val grades = data[1] as GradeState
+                val showBanner = data[2] as Boolean
+                val isBiometricEnabled = data[3] as Boolean
+                val canShowEnableBiometricBanner = data[4] as Boolean
+
+                return@combine _state.value.copy(enabled = enabled,
                     grades = grades.grades.groupBy { it.subject }.keys.associateWith { subject ->
                         val gradesForSubject = grades.grades.filter { it.subject == subject }
                         val avg = gradesForSubject.groupBy { it.type }
@@ -50,8 +60,7 @@ class GradesViewModel @Inject constructor(
                     latestGrades = grades.grades.sortedByDescending { it.givenAt }.take(5),
                     avg = grades.avg,
                     showBanner = showBanner,
-                    biometricStatus = authenticationStatus,
-                    granted = authenticationStatus != BiometricStatus.AVAILABLE,
+                    showEnableBiometricBanner = canShowEnableBiometricBanner,
                     isBiometricEnabled = isBiometricEnabled
                 )
             }.collect {
@@ -67,8 +76,8 @@ class GradesViewModel @Inject constructor(
                 subtitle = "this is subtitle",
                 cancelString = "Cancel",
                 onSuccess = {
-                    _state.value =
-                        _state.value.copy(granted = true, showAuthenticationScreen = false)
+//                    _state.value =
+//                        _state.value.copy(granted = true, showAuthenticationScreen = false)
                 },
                 onFailed = {
                     Log.i("GradesViewModel", "onFailed")
@@ -81,7 +90,7 @@ class GradesViewModel @Inject constructor(
                             BiometricRepository.RESULT_CODE_TOO_MANY_ATTEMPTS
                         ).contains(errorCode)
                     ) {
-                        _state.value = _state.value.copy(showAuthenticationScreen = true)
+//                        _state.value = _state.value.copy(showAuthenticationScreen = true)
                     }
                 },
                 activity = fragmentActivity
@@ -94,6 +103,18 @@ class GradesViewModel @Inject constructor(
             gradeUseCases.hideBannerUseCase()
         }
     }
+
+    fun onEnableBiometric() {
+        viewModelScope.launch {
+            gradeUseCases.enableBiometricUseCase()
+        }
+    }
+
+    fun onDismissEnableBiometricBanner() {
+        viewModelScope.launch {
+            gradeUseCases.hideEnableBiometricBannerUseCase()
+        }
+    }
 }
 
 data class GradesState(
@@ -102,10 +123,8 @@ data class GradesState(
     val grades: Map<Subject, SubjectGradeCollection> = emptyMap(),
     val avg: Double = 0.0,
     val showBanner: Boolean = false,
-    val biometricStatus: BiometricStatus = BiometricStatus.NOT_SUPPORTED,
-    val granted: Boolean = false,
-    val showAuthenticationScreen: Boolean = false,
-    val isBiometricEnabled: Boolean = false
+    val isBiometricEnabled: Boolean = false,
+    val showEnableBiometricBanner: Boolean = false,
 )
 
 data class SubjectGradeCollection(
@@ -113,3 +132,8 @@ data class SubjectGradeCollection(
     val grades: List<Grade>,
     val avg: Double
 )
+
+enum class BiometricConfig {
+    SHOW_ENABLE_BANNER,
+    NONE
+}

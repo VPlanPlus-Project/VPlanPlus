@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
+import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
@@ -13,9 +14,12 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.grades.data.repository.GradeRepositoryImpl
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.CalculateAverageUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.CanShowEnableBiometricBannerUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.EnableBiometricUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GetGradesUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.HideBannerUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.HideEnableBiometricBannerUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.IsBiometricEnabledUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.IsEnabledUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.ShowBannerUseCase
@@ -58,7 +62,8 @@ object GradeModule {
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
         vppIdRepository: VppIdRepository,
         gradeRepository: GradeRepository,
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        biometricRepository: BiometricRepository
     ): GradeUseCases {
         return GradeUseCases(
             isEnabledUseCase = IsEnabledUseCase(
@@ -73,7 +78,13 @@ object GradeModule {
             showBannerUseCase = ShowBannerUseCase(keyValueRepository),
             hideBannerUseCase = HideBannerUseCase(keyValueRepository),
             calculateAverageUseCase = CalculateAverageUseCase(),
-            isBiometricEnabled = IsBiometricEnabledUseCase(keyValueRepository)
+            isBiometricEnabled = IsBiometricEnabledUseCase(keyValueRepository),
+            canShowEnableBiometricBannerUseCase = CanShowEnableBiometricBannerUseCase(
+                keyValueRepository = keyValueRepository,
+                biometricRepository = biometricRepository
+            ),
+            hideEnableBiometricBannerUseCase = HideEnableBiometricBannerUseCase(keyValueRepository),
+            enableBiometricUseCase = EnableBiometricUseCase(keyValueRepository)
         )
     }
 }
