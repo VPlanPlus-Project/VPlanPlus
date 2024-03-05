@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Brush
@@ -39,9 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -58,6 +63,7 @@ fun GeneralSettingsScreen(
 ) {
     val state = generalSettingsViewModel.state.value
     val dark = isSystemInDarkTheme()
+    val fragmentActivity = LocalContext.current as FragmentActivity
     LaunchedEffect(key1 = dark, block = {
         generalSettingsViewModel.init(dark)
     })
@@ -75,6 +81,9 @@ fun GeneralSettingsScreen(
         },
         onColorSchemeChanged = {
             generalSettingsViewModel.onColorSchemeChanged(it)
+        },
+        onSetProtectGrades = {
+            generalSettingsViewModel.onToggleGradeProtection(fragmentActivity)
         }
     )
 }
@@ -84,10 +93,10 @@ fun GeneralSettingsScreen(
 fun GeneralSettingsContent(
     onBackClicked: () -> Unit = {},
     state: GeneralSettingsState,
-
     onShowNotificationsOnAppOpenedClicked: () -> Unit = {},
     onSyncDaysAheadSet: (Int) -> Unit = {},
-    onColorSchemeChanged: (Colors) -> Unit = {}
+    onColorSchemeChanged: (Colors) -> Unit = {},
+    onSetProtectGrades: () -> Unit = {}
 ) {
     if (state.settings == null) return
     var dialogCall = remember<@Composable () -> Unit> { {} }
@@ -115,6 +124,7 @@ fun GeneralSettingsContent(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
             SettingsCategory(title = stringResource(id = R.string.settings_generalNotificationsTitle)) {
                 SettingsSetting(
@@ -218,6 +228,16 @@ fun GeneralSettingsContent(
                         }
                         dialogVisible = true
                     }
+                )
+            }
+            SettingsCategory(title = stringResource(id = R.string.settings_generalGrades)) {
+                SettingsSetting(
+                    icon = Icons.Default.Fingerprint,
+                    title = stringResource(id = R.string.settings_generalGradesProtectTitle),
+                    subtitle = stringResource(id = R.string.settings_generalGradesProtectSubtitle),
+                    type = SettingsType.TOGGLE,
+                    doAction = onSetProtectGrades,
+                    checked = state.settings.isBiometricEnabled
                 )
             }
         }

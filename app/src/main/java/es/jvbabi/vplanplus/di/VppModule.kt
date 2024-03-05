@@ -10,6 +10,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.BiometricRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.CalendarRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
@@ -36,6 +37,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
+import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
@@ -82,6 +84,7 @@ import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetSettingsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.general.UpdateGradeProtectionUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.UpdateSettingsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
@@ -766,7 +769,9 @@ object VppModule {
     @Provides
     @Singleton
     fun provideGeneralSettingsUseCases(
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        biometricRepository: BiometricRepository,
+        stringRepository: StringRepository
     ): GeneralSettingsUseCases {
         val getColorsUseCase = GetColorsUseCase(keyValueRepository)
         return GeneralSettingsUseCases(
@@ -775,7 +780,12 @@ object VppModule {
                 keyValueRepository = keyValueRepository,
                 getColorsUseCase = getColorsUseCase
             ),
-            updateSettingsUseCase = UpdateSettingsUseCase(keyValueRepository)
+            updateSettingsUseCase = UpdateSettingsUseCase(keyValueRepository),
+            updateGradeProtectionUseCase = UpdateGradeProtectionUseCase(
+                keyValueRepository = keyValueRepository,
+                biometricRepository = biometricRepository,
+                stringRepository = stringRepository
+            )
         )
     }
 
@@ -805,5 +815,11 @@ object VppModule {
                 getActiveProfileUseCase = getActiveProfileUseCase
             )
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideBiometricRepository(@ApplicationContext context: Context): BiometricRepository {
+        return BiometricRepositoryImpl(context)
     }
 }

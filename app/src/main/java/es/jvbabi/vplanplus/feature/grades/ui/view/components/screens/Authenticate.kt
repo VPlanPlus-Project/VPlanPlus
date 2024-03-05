@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.grades.ui.view.components.error
+package es.jvbabi.vplanplus.feature.grades.ui.view.components.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -6,9 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.Block
+import androidx.compose.material.icons.filled.LockOpen
+import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,9 +22,8 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 
 @Composable
-fun NotActivated(
-    onFixOnline: () -> Unit,
-    onOpenSettings: () -> Unit
+fun Authenticate(
+    onAuthenticate: () -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -33,38 +31,30 @@ fun NotActivated(
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Outlined.Block,
+            imageVector = Icons.Outlined.Fingerprint,
             contentDescription = null,
             modifier = Modifier.size(48.dp),
             tint = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = stringResource(id = R.string.grades_notAllowedText),
+            text = stringResource(id = R.string.authenticate),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(16.dp),
             color = MaterialTheme.colorScheme.onSurface
         )
-        TextButton(onClick = { onFixOnline() }) {
+        TextButton(onClick = onAuthenticate) {
             Icon(
-                imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                imageVector = Icons.Default.LockOpen,
                 contentDescription = null,
                 modifier = Modifier.padding(end = 4.dp)
             )
-            Text(text = stringResource(id = R.string.grades_notAllowedFixOnline))
-        }
-        TextButton(onClick = { onOpenSettings() }) {
-            Icon(
-                imageVector = Icons.Default.Settings,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 4.dp)
-            )
-            Text(text = stringResource(id = R.string.grades_notAllowedReconnect))
+            Text(text = stringResource(id = R.string.unlock))
         }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
-private fun NotActivatedPreview() {
-    NotActivated({}, {})
+fun AuthenticatePreview() {
+    Authenticate {}
 }

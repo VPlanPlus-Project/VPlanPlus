@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.ui.screens.settings.general
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -56,6 +57,12 @@ class GeneralSettingsViewModel @Inject constructor(
             generalSettingsUseCases.updateSettingsUseCase(
                 _state.value.settings!!.copy(daysAheadSync = days)
             )
+        }
+    }
+
+    fun onToggleGradeProtection(fragmentActivity: FragmentActivity) {
+        viewModelScope.launch {
+            generalSettingsUseCases.updateGradeProtectionUseCase(!_state.value.settings!!.isBiometricEnabled, fragmentActivity)
         }
     }
 }

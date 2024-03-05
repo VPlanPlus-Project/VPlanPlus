@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.grades.ui.view.components.error
+package es.jvbabi.vplanplus.feature.grades.ui.view.components.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.FilterListOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -20,20 +20,20 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 
 @Composable
-fun WrongProfile() {
+fun NoGrades() {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Icon(
-            imageVector = Icons.Outlined.AccountCircle,
+            imageVector = Icons.Outlined.FilterListOff,
             contentDescription = null,
             modifier = Modifier.size(48.dp),
             tint = MaterialTheme.colorScheme.onSurface
         )
         Text(
-            text = stringResource(id = R.string.grades_wrongProfile),
+            text = stringResource(id = R.string.grades_noGrades),
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(16.dp),
             color = MaterialTheme.colorScheme.onSurface
@@ -41,8 +41,8 @@ fun WrongProfile() {
     }
 }
 
-@Preview(showBackground = true)
+@Preview(showBackground = false)
 @Composable
-private fun WrongProfilePreview() {
-    WrongProfile()
+private fun NoGradesPreview() {
+    NoGrades()
 }

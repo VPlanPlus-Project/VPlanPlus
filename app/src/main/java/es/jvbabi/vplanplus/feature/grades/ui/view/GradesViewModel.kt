@@ -1,12 +1,16 @@
 package es.jvbabi.vplanplus.feature.grades.ui.view
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.model.Subject
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeState
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
 import kotlinx.coroutines.flow.combine
@@ -15,7 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GradesViewModel @Inject constructor(
-    private val gradeUseCases: GradeUseCases
+    private val gradeUseCases: GradeUseCases,
 ) : ViewModel() {
 
     private val _state = mutableStateOf(GradesState())
@@ -24,11 +28,22 @@ class GradesViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                gradeUseCases.isEnabledUseCase(),
-                gradeUseCases.getGradesUseCase(),
-                gradeUseCases.showBannerUseCase()
-            ) { enabled, grades, showBanner ->
-                _state.value.copy(enabled = enabled,
+                listOf(
+                    gradeUseCases.isEnabledUseCase(),
+                    gradeUseCases.getGradesUseCase(),
+                    gradeUseCases.showBannerUseCase(),
+                    gradeUseCases.isBiometricEnabled(),
+                    gradeUseCases.canShowEnableBiometricBannerUseCase(),
+                )
+            ) { data ->
+                val enabled = data[0] as GradeUseState
+                val grades = data[1] as GradeState
+                val showBanner = data[2] as Boolean
+                val isBiometricEnabled = data[3] as Boolean
+                val canShowEnableBiometricBanner = data[4] as Boolean
+                val isBiometricSetUp = gradeUseCases.isBiometricSetUpUseCase()
+
+                return@combine _state.value.copy(enabled = enabled,
                     grades = grades.grades.groupBy { it.subject }.keys.associateWith { subject ->
                         val gradesForSubject = grades.grades.filter { it.subject == subject }
                         val avg = gradesForSubject.groupBy { it.type }
@@ -42,7 +57,11 @@ class GradesViewModel @Inject constructor(
                     },
                     latestGrades = grades.grades.sortedByDescending { it.givenAt }.take(5),
                     avg = grades.avg,
-                    showBanner = showBanner
+                    showBanner = showBanner,
+                    showEnableBiometricBanner = canShowEnableBiometricBanner,
+                    isBiometricEnabled = isBiometricEnabled,
+                    isBiometricSetUp = isBiometricSetUp,
+                    authenticationState = if (isBiometricSetUp && isBiometricEnabled) AuthenticationState.NONE else AuthenticationState.AUTHENTICATED
                 )
             }.collect {
                 _state.value = it
@@ -50,9 +69,45 @@ class GradesViewModel @Inject constructor(
         }
     }
 
+    fun authenticate(fragmentActivity: FragmentActivity) {
+        _state.value = _state.value.copy(authenticationState = AuthenticationState.AUTHENTICATING)
+        gradeUseCases.requestBiometricUseCase(
+            fragmentActivity = fragmentActivity,
+            onSuccess = {
+                _state.value = _state.value.copy(authenticationState = AuthenticationState.AUTHENTICATED)
+            },
+            onFail = {
+                Log.i("GradesViewModel", "onFailed")
+            },
+            onError = { errorCode, errorString ->
+                Log.e("GradesViewModel", "onError: $errorCode, $errorString")
+                if (listOf(
+                        BiometricRepository.RESULT_CODE_CANCELED,
+                        BiometricRepository.RESULT_CODE_CANCELED_BY_USER,
+                        BiometricRepository.RESULT_CODE_TOO_MANY_ATTEMPTS
+                    ).contains(errorCode)
+                ) {
+                        _state.value = _state.value.copy(authenticationState = AuthenticationState.NONE)
+                }
+            },
+        )
+    }
+
     fun onHideBanner() {
         viewModelScope.launch {
             gradeUseCases.hideBannerUseCase()
+        }
+    }
+
+    fun onSetBiometric(state: Boolean) {
+        viewModelScope.launch {
+            gradeUseCases.setBiometricUseCase(state)
+        }
+    }
+
+    fun onDismissEnableBiometricBanner() {
+        viewModelScope.launch {
+            gradeUseCases.hideEnableBiometricBannerUseCase()
         }
     }
 }
@@ -62,7 +117,11 @@ data class GradesState(
     val latestGrades: List<Grade> = emptyList(),
     val grades: Map<Subject, SubjectGradeCollection> = emptyMap(),
     val avg: Double = 0.0,
-    val showBanner: Boolean = false
+    val showBanner: Boolean = false,
+    val isBiometricEnabled: Boolean = false,
+    val showEnableBiometricBanner: Boolean = false,
+    val isBiometricSetUp: Boolean = false,
+    val authenticationState: AuthenticationState = AuthenticationState.NONE
 )
 
 data class SubjectGradeCollection(
@@ -70,3 +129,7 @@ data class SubjectGradeCollection(
     val grades: List<Grade>,
     val avg: Double
 )
+
+enum class AuthenticationState {
+    NONE, AUTHENTICATING, AUTHENTICATED
+}

@@ -406,6 +406,23 @@
     <string name="gradesCalculator_title">Grade calculator</string>
     <string name="gradesCalculator_addGradeTitle">Add grade</string>
     <string name="gradesCalculator_addGradeContent">This grade will be added to %1$s locally. It\'ll be deleted, once you close this screen.</string>
-    <string name="gradesCalculator_text">Here you can quickly caclulate your average grade by adding or removing grades to each category. The final grade is the average of all averages per category. You can remove a grade by tapping on it,</string>
+    <string name="gradesCalculator_text">Here you can quickly calculate your average grade by adding or removing grades to each category. The final grade is the average of all averages per category. You can remove a grade by tapping on it,</string>
     <string name="gradesCalculator_restore">Restore original grades</string>
+    <string name="grades_login">Authenticate</string>
+    <string name="grades_biometricNotSetUpTitle">Biometric authentication not set up</string>
+    <string name="grades_biometricNotSetUpText">You\'ve activated biometric authentication for your grades, but didn\'t set up any fingerprints or your face</string>
+    <string name="grades_openSecuritySettings">Set up</string>
+    <string name="grades_enableBiometricTitle">Biometric authentication available</string>
+    <string name="grades_enableBiometricText">Your device reported, that it supports biometric authentication. You can protect your grades with your fingerprint or face id.</string>
+    <string name="not_now">Not now</string>
+    <string name="enable">Enable</string>
+    <string name="grades_biometricNextTime">You\'ll be asked next time for biometric authentication.</string>
+    <string name="disable">Disable</string>
+    <string name="authenticate">Authenticate</string>
+    <string name="grades_authenticateSubtitle">Authenticate yourself to see your grades.</string>
+    <string name="unlock">Unlock</string>
+    <string name="settings_generalGrades">Grades</string>
+    <string name="settings_generalGradesProtectTitle">Protect grades</string>
+    <string name="settings_generalGradesProtectSubtitle">Secure your grades with your fingerprint or face.</string>
+    <string name="settings_generalAuthenticateSubtitle">You need to authenticate yourself to disable protection.</string>
 </resources>

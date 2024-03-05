@@ -15,8 +15,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 95
-        versionName = "v1.0-dev-13"
+        versionCode = 96
+        versionName = "v1.0-dev-14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -133,6 +133,8 @@ dependencies {
     implementation("io.ktor:ktor-client-android:2.3.2")
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    implementation("androidx.biometric:biometric:1.1.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
 
