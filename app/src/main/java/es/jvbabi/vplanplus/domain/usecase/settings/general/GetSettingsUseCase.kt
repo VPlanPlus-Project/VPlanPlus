@@ -16,7 +16,7 @@ class GetSettingsUseCase(
             keyValueRepository.getFlow(Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE),
             keyValueRepository.getFlow(Keys.COLOR),
             keyValueRepository.getFlowOrDefault(Keys.GRADES_BIOMETRIC_ENABLED, "false"),
-        ) { syncDayDifference, showNotification, gradesProtected, _ ->
+        ) { syncDayDifference, showNotification, _, gradesProtected ->
             GeneralSettings(
                 daysAheadSync = syncDayDifference?.toInt() ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT,
                 showNotificationsIfAppIsVisible = showNotification?.toBoolean() ?: false,

@@ -421,4 +421,5 @@
     <string name="settings_generalGrades">Noten</string>
     <string name="settings_generalGradesProtectTitle">Noten schützen</string>
     <string name="settings_generalGradesProtectSubtitle">Schütze deine Noten mit deinem Fingerabdruck oder deinem Gesicht.</string>
+    <string name="settings_generalAuthenticateSubtitle">Du musst dich authentifizieren, um Schutzfunktionen zu deaktivieren.</string>
 </resources>

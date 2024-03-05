@@ -42,9 +42,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -61,6 +63,7 @@ fun GeneralSettingsScreen(
 ) {
     val state = generalSettingsViewModel.state.value
     val dark = isSystemInDarkTheme()
+    val fragmentActivity = LocalContext.current as FragmentActivity
     LaunchedEffect(key1 = dark, block = {
         generalSettingsViewModel.init(dark)
     })
@@ -78,6 +81,9 @@ fun GeneralSettingsScreen(
         },
         onColorSchemeChanged = {
             generalSettingsViewModel.onColorSchemeChanged(it)
+        },
+        onSetProtectGrades = {
+            generalSettingsViewModel.onToggleGradeProtection(fragmentActivity)
         }
     )
 }
@@ -230,7 +236,8 @@ fun GeneralSettingsContent(
                     title = stringResource(id = R.string.settings_generalGradesProtectTitle),
                     subtitle = stringResource(id = R.string.settings_generalGradesProtectSubtitle),
                     type = SettingsType.TOGGLE,
-                    doAction = onSetProtectGrades
+                    doAction = onSetProtectGrades,
+                    checked = state.settings.isBiometricEnabled
                 )
             }
         }

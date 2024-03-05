@@ -84,6 +84,7 @@ import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetSettingsUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.general.UpdateGradeProtectionUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.UpdateSettingsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
@@ -768,7 +769,9 @@ object VppModule {
     @Provides
     @Singleton
     fun provideGeneralSettingsUseCases(
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        biometricRepository: BiometricRepository,
+        stringRepository: StringRepository
     ): GeneralSettingsUseCases {
         val getColorsUseCase = GetColorsUseCase(keyValueRepository)
         return GeneralSettingsUseCases(
@@ -777,7 +780,12 @@ object VppModule {
                 keyValueRepository = keyValueRepository,
                 getColorsUseCase = getColorsUseCase
             ),
-            updateSettingsUseCase = UpdateSettingsUseCase(keyValueRepository)
+            updateSettingsUseCase = UpdateSettingsUseCase(keyValueRepository),
+            updateGradeProtectionUseCase = UpdateGradeProtectionUseCase(
+                keyValueRepository = keyValueRepository,
+                biometricRepository = biometricRepository,
+                stringRepository = stringRepository
+            )
         )
     }
 

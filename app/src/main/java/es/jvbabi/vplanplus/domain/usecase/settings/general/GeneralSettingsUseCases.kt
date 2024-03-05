@@ -4,4 +4,5 @@ data class GeneralSettingsUseCases(
     val getColorsUseCase: GetColorsUseCase,
     val getSettingsUseCase: GetSettingsUseCase,
     val updateSettingsUseCase: UpdateSettingsUseCase,
+    val updateGradeProtectionUseCase: UpdateGradeProtectionUseCase,
 )
