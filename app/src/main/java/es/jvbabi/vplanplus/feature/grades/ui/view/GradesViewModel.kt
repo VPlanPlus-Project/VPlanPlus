@@ -61,7 +61,8 @@ class GradesViewModel @Inject constructor(
                     showBanner = showBanner,
                     showEnableBiometricBanner = canShowEnableBiometricBanner,
                     isBiometricEnabled = isBiometricEnabled,
-                    isBiometricSetUp = isBiometricSetUp
+                    isBiometricSetUp = isBiometricSetUp,
+                    authenticationState = if (isBiometricSetUp && isBiometricEnabled) AuthenticationState.NONE else AuthenticationState.AUTHENTICATED
                 )
             }.collect {
                 _state.value = it
@@ -125,7 +126,8 @@ data class GradesState(
     val showBanner: Boolean = false,
     val isBiometricEnabled: Boolean = false,
     val showEnableBiometricBanner: Boolean = false,
-    val isBiometricSetUp: Boolean = false
+    val isBiometricSetUp: Boolean = false,
+    val authenticationState: AuthenticationState = AuthenticationState.NONE
 )
 
 data class SubjectGradeCollection(
@@ -134,7 +136,6 @@ data class SubjectGradeCollection(
     val avg: Double
 )
 
-enum class BiometricConfig {
-    SHOW_ENABLE_BANNER,
-    NONE
+enum class AuthenticationState {
+    NONE, AUTHENTICATING, AUTHENTICATED
 }

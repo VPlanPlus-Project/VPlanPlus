@@ -406,8 +406,6 @@
     <string name="gradesCalculator_text">Hier kannst du schnell den Durchschnitt deiner Noten berechnen, indem du Noten zu den Kategorien zufügst oder sie entfernst. Die Endnote ist der Durchschnitt aller Durchschnitte pro Kategorie. Entferne eine Note, in dem du sie antippst.</string>
     <string name="gradesCalculator_restore">Originale Noten wiederherstellen</string>
     <string name="grades_login">Authentifizieren</string>
-    <string name="grades_biometricNotSupportedTitle">Biometrische Authentifizierung nicht unterstützt</string>
-    <string name="grades_biometricNotSupportedText">Dieses Gerät unterstützt die biometrische Authentifizierung über Gesichtserkennung oder Fingerabdruckerkennung nicht.</string>
     <string name="grades_biometricNotSetUpTitle">Biometrische Authentifizierung nicht eingerichtet</string>
     <string name="grades_biometricNotSetUpText">Du hast die biometrische Authentifizierung für deine Noten zwar eingerichtet, es sind jedoch keine Fingerabdrücke oder dein Gesicht registriert.</string>
     <string name="grades_openSecuritySettings">Einrichten</string>

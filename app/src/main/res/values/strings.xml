@@ -409,8 +409,6 @@
     <string name="gradesCalculator_text">Here you can quickly calculate your average grade by adding or removing grades to each category. The final grade is the average of all averages per category. You can remove a grade by tapping on it,</string>
     <string name="gradesCalculator_restore">Restore original grades</string>
     <string name="grades_login">Authenticate</string>
-    <string name="grades_biometricNotSupportedTitle">Biometric authentication not supported</string>
-    <string name="grades_biometricNotSupportedText">This device does not support biometric authentication via face id or fingerprint scanning.</string>
     <string name="grades_biometricNotSetUpTitle">Biometric authentication not set up</string>
     <string name="grades_biometricNotSetUpText">You\'ve activated biometric authentication for your grades, but didn\'t set up any fingerprints or your face</string>
     <string name="grades_openSecuritySettings">Set up</string>
