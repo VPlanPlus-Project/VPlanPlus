@@ -9,5 +9,6 @@ data class GradeUseCases(
     val isBiometricEnabled: IsBiometricEnabledUseCase,
     val canShowEnableBiometricBannerUseCase: CanShowEnableBiometricBannerUseCase,
     val hideEnableBiometricBannerUseCase: HideEnableBiometricBannerUseCase,
-    val enableBiometricUseCase: EnableBiometricUseCase,
+    val setBiometricUseCase: SetBiometricUseCase,
+    val isBiometricSetUpUseCase: IsBiometricSetUpUseCase,
 )

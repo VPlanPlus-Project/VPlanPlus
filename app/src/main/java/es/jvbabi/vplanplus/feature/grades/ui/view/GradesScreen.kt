@@ -6,6 +6,7 @@ import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -25,10 +26,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -41,7 +40,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.repository.BiometricStatus
 import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
@@ -111,18 +109,27 @@ fun GradesScreen(
                         BiometricManager.Authenticators.BIOMETRIC_WEAK
                     )
                 }
+
                 else -> {
                     Intent(Settings.ACTION_SECURITY_SETTINGS)
                 }
             }
-            if(intent.resolveActivity(context.packageManager) != null){
+            if (intent.resolveActivity(context.packageManager) != null) {
                 startActivity(context, intent, null)
-            }else{
+            } else {
                 startActivity(context, Intent(Settings.ACTION_SETTINGS), null)
             }
         },
-        onEnableBiometric = { gradesViewModel.onEnableBiometric() },
+        onEnableBiometric = {
+            gradesViewModel.onSetBiometric(true)
+            Toast.makeText(
+                context,
+                context.getString(R.string.grades_biometricNextTime),
+                Toast.LENGTH_SHORT
+            ).show()
+        },
         onDismissEnableBiometricBanner = { gradesViewModel.onDismissEnableBiometricBanner() },
+        onDisableBiometric = { gradesViewModel.onSetBiometric(false) },
         state = state,
         navBar = navBar
     )
@@ -139,6 +146,7 @@ private fun GradesScreenContent(
     onEnableBiometric: () -> Unit,
     onStartAuthenticate: () -> Unit,
     onOpenSecuritySettings: () -> Unit,
+    onDisableBiometric: () -> Unit,
     onStartCalculator: (List<Grade>) -> Unit,
     state: GradesState,
     navBar: @Composable () -> Unit
@@ -180,6 +188,19 @@ private fun GradesScreenContent(
                 )
             }
 
+            AnimatedVisibility(visible = state.isBiometricEnabled && !state.isBiometricSetUp) {
+                InfoCard(
+                    imageVector = Icons.Default.Fingerprint,
+                    title = stringResource(id = R.string.grades_biometricNotSetUpTitle),
+                    text = stringResource(id = R.string.grades_biometricNotSetUpText),
+                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
+                    buttonText1 = stringResource(id = R.string.grades_openSecuritySettings),
+                    buttonAction1 = onOpenSecuritySettings,
+                    buttonText2 = stringResource(id = R.string.disable),
+                    buttonAction2 = onDisableBiometric
+                )
+            }
+
 //            if (state.isBiometricEnabled) {
 //                InfoCard(
 //                    imageVector = Icons.Default.Fingerprint,
@@ -188,14 +209,7 @@ private fun GradesScreenContent(
 //                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
 //                )
 //            } else if (true) {
-//                InfoCard(
-//                    imageVector = Icons.Default.Fingerprint,
-//                    title = stringResource(id = R.string.grades_biometricNotSetUpTitle),
-//                    text = stringResource(id = R.string.grades_biometricNotSetUpText),
-//                    modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-//                    buttonText1 = stringResource(id = R.string.grades_openSecuritySettings),
-//                    buttonAction1 = onOpenSecuritySettings
-//                )
+//
 //            }
 
 //            if (state.biometricStatus == BiometricStatus.AVAILABLE && !state.granted && state.showAuthenticationScreen && state.isBiometricEnabled) {
@@ -270,12 +284,14 @@ fun GradesScreenPreview() {
         navBar = {},
         state = GradesState(
             enabled = GradeUseState.ENABLED,
-            showEnableBiometricBanner = true
+            isBiometricEnabled = true,
+            isBiometricSetUp = false
 //            biometricStatus = BiometricStatus.NOT_SET_UP
         ),
         onStartAuthenticate = {},
         onOpenSecuritySettings = {},
         onDismissEnableBiometricBanner = {},
-        onEnableBiometric = {}
+        onEnableBiometric = {},
+        onDisableBiometric = {}
     )
 }

@@ -409,10 +409,12 @@
     <string name="grades_biometricNotSupportedTitle">Biometrische Authentifizierung nicht unterstützt</string>
     <string name="grades_biometricNotSupportedText">Dieses Gerät unterstützt die biometrische Authentifizierung über Gesichtserkennung oder Fingerabdruckerkennung nicht.</string>
     <string name="grades_biometricNotSetUpTitle">Biometrische Authentifizierung nicht eingerichtet</string>
-    <string name="grades_biometricNotSetUpText">Diese Gerät unterstützt zwar die biometrische Authentifizierung, du hast sie jedoch nicht eingerichtet. Füge dein Gesicht oder einen Fingerabdruck hinzu, um diese Funktion nutzen zu können.</string>
+    <string name="grades_biometricNotSetUpText">Du hast die biometrische Authentifizierung für deine Noten zwar eingerichtet, es sind jedoch keine Fingerabdrücke oder dein Gesicht registriert.</string>
     <string name="grades_openSecuritySettings">Einrichten</string>
     <string name="grades_enableBiometricTitle">Biometrische Authentifizierung verfügbar</string>
     <string name="grades_enableBiometricText">Dein Gerät verfügt über biometrische Authentifizierung. Damit kannst du deine Noten mit einem Fingerabdruck oder Gesichtserkennung schützen.</string>
     <string name="not_now">Nicht jetzt</string>
     <string name="enable">Aktivieren</string>
+    <string name="grades_biometricNextTime">Du wirst nächstes mal aufgefordert, dich zu authentifizieren.</string>
+    <string name="disable">Deaktivieren</string>
 </resources>

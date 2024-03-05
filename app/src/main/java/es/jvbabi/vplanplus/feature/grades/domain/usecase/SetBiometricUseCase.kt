@@ -3,10 +3,10 @@ package es.jvbabi.vplanplus.feature.grades.domain.usecase
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 
-class EnableBiometricUseCase(
+class SetBiometricUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
-    suspend operator fun invoke() {
-        keyValueRepository.set(Keys.GRADES_BIOMETRIC_ENABLED, value = "true")
+    suspend operator fun invoke(to: Boolean) {
+        keyValueRepository.set(Keys.GRADES_BIOMETRIC_ENABLED, value = to.toString())
     }
 }

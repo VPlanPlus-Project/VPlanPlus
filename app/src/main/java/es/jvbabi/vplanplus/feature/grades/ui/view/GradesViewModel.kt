@@ -8,10 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.repository.BiometricRepository
-import es.jvbabi.vplanplus.domain.repository.BiometricStatus
 import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.model.Subject
-import es.jvbabi.vplanplus.feature.grades.domain.usecase.CanShowEnableBiometricBannerUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeState
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
@@ -36,7 +34,7 @@ class GradesViewModel @Inject constructor(
                     gradeUseCases.getGradesUseCase(),
                     gradeUseCases.showBannerUseCase(),
                     gradeUseCases.isBiometricEnabled(),
-                    gradeUseCases.canShowEnableBiometricBannerUseCase()
+                    gradeUseCases.canShowEnableBiometricBannerUseCase(),
                 )
             ) { data ->
                 val enabled = data[0] as GradeUseState
@@ -44,6 +42,7 @@ class GradesViewModel @Inject constructor(
                 val showBanner = data[2] as Boolean
                 val isBiometricEnabled = data[3] as Boolean
                 val canShowEnableBiometricBanner = data[4] as Boolean
+                val isBiometricSetUp = gradeUseCases.isBiometricSetUpUseCase()
 
                 return@combine _state.value.copy(enabled = enabled,
                     grades = grades.grades.groupBy { it.subject }.keys.associateWith { subject ->
@@ -61,7 +60,8 @@ class GradesViewModel @Inject constructor(
                     avg = grades.avg,
                     showBanner = showBanner,
                     showEnableBiometricBanner = canShowEnableBiometricBanner,
-                    isBiometricEnabled = isBiometricEnabled
+                    isBiometricEnabled = isBiometricEnabled,
+                    isBiometricSetUp = isBiometricSetUp
                 )
             }.collect {
                 _state.value = it
@@ -104,9 +104,9 @@ class GradesViewModel @Inject constructor(
         }
     }
 
-    fun onEnableBiometric() {
+    fun onSetBiometric(state: Boolean) {
         viewModelScope.launch {
-            gradeUseCases.enableBiometricUseCase()
+            gradeUseCases.setBiometricUseCase(state)
         }
     }
 
@@ -125,6 +125,7 @@ data class GradesState(
     val showBanner: Boolean = false,
     val isBiometricEnabled: Boolean = false,
     val showEnableBiometricBanner: Boolean = false,
+    val isBiometricSetUp: Boolean = false
 )
 
 data class SubjectGradeCollection(
