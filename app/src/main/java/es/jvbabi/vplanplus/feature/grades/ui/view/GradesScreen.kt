@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -70,14 +71,14 @@ fun GradesScreen(
     val state = gradesViewModel.state.value
     val context = LocalContext.current
 
-//    LaunchedEffect(
-//        state.biometricStatus,
-//        state.granted
-//    ) {
-//        if (state.biometricStatus == BiometricStatus.AVAILABLE && !state.granted && state.isBiometricEnabled) {
-//            gradesViewModel.authenticate(activity)
-//        }
-//    }
+    LaunchedEffect(
+        state.authenticationState,
+        state.isBiometricEnabled
+    ) {
+        if (state.authenticationState == AuthenticationState.NONE && state.isBiometricEnabled && state.isBiometricSetUp) {
+            gradesViewModel.authenticate(activity)
+        }
+    }
 
     GradesScreenContent(
         onBack = { navHostController.popBackStack() },
@@ -202,7 +203,7 @@ private fun GradesScreenContent(
                 )
             }
 
-            if (state.isBiometricEnabled && state.authenticationState == AuthenticationState.NONE) {
+            if (state.isBiometricEnabled && state.authenticationState != AuthenticationState.AUTHENTICATED) {
                 TextButton(onClick = onStartAuthenticate) {
                     Text(text = stringResource(id = R.string.grades_login))
                 }

@@ -20,7 +20,6 @@ import javax.inject.Inject
 @HiltViewModel
 class GradesViewModel @Inject constructor(
     private val gradeUseCases: GradeUseCases,
-    private val biometricRepository: BiometricRepository
 ) : ViewModel() {
 
     private val _state = mutableStateOf(GradesState())
@@ -71,32 +70,27 @@ class GradesViewModel @Inject constructor(
     }
 
     fun authenticate(fragmentActivity: FragmentActivity) {
-        viewModelScope.launch {
-            biometricRepository.promptUser(
-                title = "Authenticate",
-                subtitle = "this is subtitle",
-                cancelString = "Cancel",
-                onSuccess = {
-//                    _state.value =
-//                        _state.value.copy(granted = true, showAuthenticationScreen = false)
-                },
-                onFailed = {
-                    Log.i("GradesViewModel", "onFailed")
-                },
-                onError = { errorCode, errorString ->
-                    Log.e("GradesViewModel", "onError: $errorCode, $errorString")
-                    if (listOf(
-                            BiometricRepository.RESULT_CODE_CANCELED,
-                            BiometricRepository.RESULT_CODE_CANCELED_BY_USER,
-                            BiometricRepository.RESULT_CODE_TOO_MANY_ATTEMPTS
-                        ).contains(errorCode)
-                    ) {
-//                        _state.value = _state.value.copy(showAuthenticationScreen = true)
-                    }
-                },
-                activity = fragmentActivity
-            )
-        }
+        _state.value = _state.value.copy(authenticationState = AuthenticationState.AUTHENTICATING)
+        gradeUseCases.requestBiometricUseCase(
+            fragmentActivity = fragmentActivity,
+            onSuccess = {
+                _state.value = _state.value.copy(authenticationState = AuthenticationState.AUTHENTICATED)
+            },
+            onFail = {
+                Log.i("GradesViewModel", "onFailed")
+            },
+            onError = { errorCode, errorString ->
+                Log.e("GradesViewModel", "onError: $errorCode, $errorString")
+                if (listOf(
+                        BiometricRepository.RESULT_CODE_CANCELED,
+                        BiometricRepository.RESULT_CODE_CANCELED_BY_USER,
+                        BiometricRepository.RESULT_CODE_TOO_MANY_ATTEMPTS
+                    ).contains(errorCode)
+                ) {
+                        _state.value = _state.value.copy(authenticationState = AuthenticationState.NONE)
+                }
+            },
+        )
     }
 
     fun onHideBanner() {

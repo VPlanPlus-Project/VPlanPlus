@@ -418,4 +418,6 @@
     <string name="enable">Enable</string>
     <string name="grades_biometricNextTime">You\'ll be asked next time for biometric authentication.</string>
     <string name="disable">Disable</string>
+    <string name="authenticate">Authenticate</string>
+    <string name="grades_authenticateSubtitle">Authenticate yourself to see your grades.</string>
 </resources>

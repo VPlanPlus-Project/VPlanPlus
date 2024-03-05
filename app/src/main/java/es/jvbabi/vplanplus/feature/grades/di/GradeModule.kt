@@ -23,6 +23,7 @@ import es.jvbabi.vplanplus.feature.grades.domain.usecase.HideEnableBiometricBann
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.IsBiometricEnabledUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.IsBiometricSetUpUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.IsEnabledUseCase
+import es.jvbabi.vplanplus.feature.grades.domain.usecase.RequestBiometricUseCase
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.ShowBannerUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
@@ -64,7 +65,8 @@ object GradeModule {
         vppIdRepository: VppIdRepository,
         gradeRepository: GradeRepository,
         keyValueRepository: KeyValueRepository,
-        biometricRepository: BiometricRepository
+        biometricRepository: BiometricRepository,
+        stringRepository: StringRepository
     ): GradeUseCases {
         return GradeUseCases(
             isEnabledUseCase = IsEnabledUseCase(
@@ -86,7 +88,11 @@ object GradeModule {
             ),
             hideEnableBiometricBannerUseCase = HideEnableBiometricBannerUseCase(keyValueRepository),
             setBiometricUseCase = SetBiometricUseCase(keyValueRepository),
-            isBiometricSetUpUseCase = IsBiometricSetUpUseCase(biometricRepository)
+            isBiometricSetUpUseCase = IsBiometricSetUpUseCase(biometricRepository),
+            requestBiometricUseCase = RequestBiometricUseCase(
+                biometricRepository = biometricRepository,
+                stringRepository = stringRepository
+            )
         )
     }
 }

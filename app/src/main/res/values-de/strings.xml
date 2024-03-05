@@ -415,4 +415,6 @@
     <string name="enable">Aktivieren</string>
     <string name="grades_biometricNextTime">Du wirst nächstes mal aufgefordert, dich zu authentifizieren.</string>
     <string name="disable">Deaktivieren</string>
+    <string name="authenticate">Authentifizieren</string>
+    <string name="grades_authenticateSubtitle">Authentifiziere dich, um deine Noten zu entsperren.</string>
 </resources>
