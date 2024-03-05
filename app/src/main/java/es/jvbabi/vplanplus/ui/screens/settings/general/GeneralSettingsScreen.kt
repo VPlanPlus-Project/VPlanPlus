@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Sync
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Brush
@@ -84,10 +87,10 @@ fun GeneralSettingsScreen(
 fun GeneralSettingsContent(
     onBackClicked: () -> Unit = {},
     state: GeneralSettingsState,
-
     onShowNotificationsOnAppOpenedClicked: () -> Unit = {},
     onSyncDaysAheadSet: (Int) -> Unit = {},
-    onColorSchemeChanged: (Colors) -> Unit = {}
+    onColorSchemeChanged: (Colors) -> Unit = {},
+    onSetProtectGrades: () -> Unit = {}
 ) {
     if (state.settings == null) return
     var dialogCall = remember<@Composable () -> Unit> { {} }
@@ -115,6 +118,7 @@ fun GeneralSettingsContent(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .verticalScroll(rememberScrollState())
         ) {
             SettingsCategory(title = stringResource(id = R.string.settings_generalNotificationsTitle)) {
                 SettingsSetting(
@@ -218,6 +222,15 @@ fun GeneralSettingsContent(
                         }
                         dialogVisible = true
                     }
+                )
+            }
+            SettingsCategory(title = stringResource(id = R.string.settings_generalGrades)) {
+                SettingsSetting(
+                    icon = Icons.Default.Fingerprint,
+                    title = stringResource(id = R.string.settings_generalGradesProtectTitle),
+                    subtitle = stringResource(id = R.string.settings_generalGradesProtectSubtitle),
+                    type = SettingsType.TOGGLE,
+                    doAction = onSetProtectGrades
                 )
             }
         }

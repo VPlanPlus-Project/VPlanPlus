@@ -421,4 +421,7 @@
     <string name="authenticate">Authenticate</string>
     <string name="grades_authenticateSubtitle">Authenticate yourself to see your grades.</string>
     <string name="unlock">Unlock</string>
+    <string name="settings_generalGrades">Grades</string>
+    <string name="settings_generalGradesProtectTitle">Protect grades</string>
+    <string name="settings_generalGradesProtectSubtitle">Secure your grades with your fingerprint or face.</string>
 </resources>

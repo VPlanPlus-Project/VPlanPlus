@@ -418,4 +418,7 @@
     <string name="authenticate">Authentifizieren</string>
     <string name="grades_authenticateSubtitle">Authentifiziere dich, um deine Noten zu entsperren.</string>
     <string name="unlock">Entsperren</string>
+    <string name="settings_generalGrades">Noten</string>
+    <string name="settings_generalGradesProtectTitle">Noten schützen</string>
+    <string name="settings_generalGradesProtectSubtitle">Schütze deine Noten mit deinem Fingerabdruck oder deinem Gesicht.</string>
 </resources>
