@@ -1,11 +1,9 @@
 package es.jvbabi.vplanplus.feature.grades.ui.view
 
 import android.content.Intent
-import android.hardware.biometrics.BiometricManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
-import android.provider.Settings.EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -104,23 +102,8 @@ fun GradesScreen(
         },
         onStartAuthenticate = { gradesViewModel.authenticate(activity) },
         onOpenSecuritySettings = {
-            val intent: Intent = when {
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
-                    Intent(Settings.ACTION_BIOMETRIC_ENROLL).putExtra(
-                        EXTRA_BIOMETRIC_AUTHENTICATORS_ALLOWED,
-                        BiometricManager.Authenticators.BIOMETRIC_WEAK
-                    )
-                }
-
-                else -> {
-                    Intent(Settings.ACTION_SECURITY_SETTINGS)
-                }
-            }
-            if (intent.resolveActivity(context.packageManager) != null) {
-                startActivity(context, intent, null)
-            } else {
-                startActivity(context, Intent(Settings.ACTION_SETTINGS), null)
-            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) activity.startActivity(Intent(Settings.ACTION_BIOMETRIC_ENROLL))
+            else activity.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
         },
         onEnableBiometric = {
             gradesViewModel.onSetBiometric(true)
