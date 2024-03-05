@@ -8,7 +8,7 @@ class IsBiometricEnabledUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
     operator fun invoke() = flow {
-        keyValueRepository.getFlowOrDefault(Keys.GRADES_BIOMETRIC_ENABLED, "true").collect {
+        keyValueRepository.getFlowOrDefault(Keys.GRADES_BIOMETRIC_ENABLED, "false").collect {
             emit(it.toBoolean())
         }
     }
