@@ -24,10 +24,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,12 +47,13 @@ import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.grades.ui.components.Average
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.error.NoGrades
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.error.NoVppId
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.error.NotActivated
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.error.WrongProfile
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NoGrades
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NoVppId
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NotActivated
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.WrongProfile
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.grades.GradeSubjectGroup
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.grades.LatestGrades
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.Authenticate
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -68,12 +72,15 @@ fun GradesScreen(
     val activity = LocalContext.current as FragmentActivity
     val state = gradesViewModel.state.value
     val context = LocalContext.current
+    var runAutomatically by rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(
         state.authenticationState,
         state.isBiometricEnabled
     ) {
+        if (!runAutomatically) return@LaunchedEffect
         if (state.authenticationState == AuthenticationState.NONE && state.isBiometricEnabled && state.isBiometricSetUp) {
+            runAutomatically = false
             gradesViewModel.authenticate(activity)
         }
     }
@@ -187,9 +194,7 @@ private fun GradesScreenContent(
             }
 
             if (state.isBiometricEnabled && state.authenticationState != AuthenticationState.AUTHENTICATED) {
-                TextButton(onClick = onStartAuthenticate) {
-                    Text(text = stringResource(id = R.string.grades_login))
-                }
+                Authenticate { onStartAuthenticate() }
                 return@Scaffold
             }
             if (state.enabled == GradeUseState.ENABLED && state.grades.isEmpty()) {

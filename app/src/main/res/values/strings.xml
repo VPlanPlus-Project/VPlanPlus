@@ -420,4 +420,5 @@
     <string name="disable">Disable</string>
     <string name="authenticate">Authenticate</string>
     <string name="grades_authenticateSubtitle">Authenticate yourself to see your grades.</string>
+    <string name="unlock">Unlock</string>
 </resources>
