@@ -350,9 +350,8 @@ private fun HomeworkScreenContent(
                                             try {
                                                 drawText(
                                                     textMeasurer = textMeasurer,
-
                                                     text = text,
-                                                    style = style,
+                                                    style = style.copy(color = colorScheme.onSurface),
                                                     topLeft = Offset(
                                                         90f - (textLayoutResult.size.width / 2),
                                                         105f - textLayoutResult.size.height / 2,
