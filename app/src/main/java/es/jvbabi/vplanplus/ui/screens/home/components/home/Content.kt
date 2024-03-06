@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -42,6 +44,7 @@ import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.Grid
@@ -55,6 +58,7 @@ import es.jvbabi.vplanplus.ui.screens.home.components.home.components.FullLoadin
 import es.jvbabi.vplanplus.ui.screens.home.components.home.screens.Weekend
 import es.jvbabi.vplanplus.ui.screens.home.components.home.text.LastSyncText
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -72,7 +76,8 @@ fun ActiveDayContent(
     isLoading: Boolean,
     isInfoExpanded: Boolean,
     onInfoExpandChange: (Boolean) -> Unit = {},
-    onFindRoomClicked: () -> Unit = {}
+    onFindRoomClicked: () -> Unit = {},
+    homework: List<Homework>
 ) {
     val lessons = day.lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
     val scrollState = rememberScrollState()
@@ -190,7 +195,7 @@ fun ActiveDayContent(
         }
         if (lessons.none { it.progress(currentTime) < 1f }) {
             Column(
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier.padding(8.dp)
             ) nextDay@{
                 Text(
                     text = stringResource(id = R.string.home_nextDayTitle),
@@ -222,8 +227,10 @@ fun ActiveDayContent(
                             fontStyle = FontStyle.Italic
                         )
                     }
-                    val subjects =
-                        nextDayLessons.map { it.displaySubject }.distinct()
+                    val subjects = nextDayLessons
+                        .filter { it.displaySubject != "-" }
+                        .map { it.displaySubject }
+                        .distinct()
                     if (subjects.isEmpty()) return@nextDay
                     Text(
                         text = stringResource(id = R.string.home_nextDayLessons),
@@ -233,36 +240,39 @@ fun ActiveDayContent(
                         columns = 2,
                         modifier = Modifier.padding(top = 8.dp),
                         content = subjects.map { subject ->
-                            {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(2.dp)
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                                        .padding(8.dp),
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    val lessonNumbers =
-                                        nextDayLessons.filter { it.displaySubject == subject }
-                                            .map { it.lessonNumber.toLocalizedString() }
-                                    SubjectIcon(
-                                        subject = subject,
-                                        modifier = Modifier.size(38.dp),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            { _, _, i ->
+                                val lessonsForSubject =
+                                    nextDayLessons.filter { it.displaySubject == subject }
+                                val subjectHomework = homework
+                                    .filter {
+                                        it.until.toLocalDate() == LocalDate.now().plusDays(1)
+                                    }
+                                    .filter { lessonsForSubject.any { lesson -> lesson.vpId == it.defaultLesson.vpId } }
+
+                                val bigRadius = 24.dp
+                                val smallRadius = 4.dp
+                                val borderRadiusTopLeft = if (i == 0) bigRadius else smallRadius
+                                val borderRadiusTopRight = if ((i == 1 && subjects.size > 1) || (i == 0 && subjects.size == 1)) bigRadius else smallRadius
+                                val borderRadiusBottomLeft = if (i == subjects.size - 1) bigRadius else smallRadius
+                                val borderRadiusBottomRight = if ((i == subjects.size - 1 && subjects.size % 2 == 1) || (i == subjects.size - 2 && subjects.size % 2 == 0)) bigRadius else smallRadius
+
+                                val modifier = Modifier
+                                    .padding(1.dp)
+                                    .clip(
+                                        RoundedCornerShape(
+                                            topStart = borderRadiusTopLeft,
+                                            topEnd = borderRadiusTopRight,
+                                            bottomStart = borderRadiusBottomLeft,
+                                            bottomEnd = borderRadiusBottomRight
+                                        )
                                     )
-                                    Text(
-                                        text = subject,
-                                        style = MaterialTheme.typography.labelMedium
-                                    )
-                                    Text(
-                                        text = stringResource(
-                                            id = R.string.home_nextDayLessonDescription,
-                                            lessonNumbers.joinToString(", ")
-                                        ),
-                                        style = MaterialTheme.typography.labelSmall
-                                    )
-                                }
+
+                                NextDaySubjectCard(
+                                    subject = subject,
+                                    lessonNumbers = lessonsForSubject.map { it.lessonNumber },
+                                    homework = subjectHomework.size,
+                                    modifier = modifier
+                                )
                             }
                         }
                     )
@@ -384,6 +394,14 @@ private fun DetailedLessonCard(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DetailedLessonCardPreview() {
+    DetailedLessonCard(
+        lessons = Lessons.generateLessons(1, true)
+    )
 }
 
 @Composable
@@ -520,7 +538,8 @@ private fun ContentPreview() {
         hiddenLessons = 2,
         lastSync = LocalDateTime.now(),
         isLoading = false,
-        isInfoExpanded = false
+        isInfoExpanded = false,
+        homework = emptyList()
     )
 }
 
@@ -547,4 +566,56 @@ fun formatDuration(seconds: Long): String {
     val minutes = (seconds % 3600) / 60
     val remainingSeconds = seconds % 60
     return String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
+}
+
+@Composable
+fun NextDaySubjectCard(
+    modifier: Modifier = Modifier,
+    subject: String,
+    lessonNumbers: List<Int>,
+    homework: Int
+) {
+    Row(
+        modifier
+            .fillMaxWidth()
+            .height(80.dp)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        SubjectIcon(
+            subject = subject,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .padding(end = 8.dp)
+                .size(40.dp)
+        )
+        Column {
+            Text(text = subject, style = MaterialTheme.typography.titleMedium)
+            var subtext = stringResource(
+                id = R.string.home_nextDayLessonDescription,
+                lessonNumbers.joinToString(", ") { it.toLocalizedString() })
+            if (homework > 0) {
+                subtext += "\n" + pluralStringResource(
+                    id = R.plurals.home_nextDayHomework,
+                    homework,
+                    homework
+                )
+            }
+            Text(
+                text = subtext,
+                style = MaterialTheme.typography.bodySmall
+            )
+        }
+    }
+}
+
+@Preview
+@Composable
+private fun NextDaySubjectCardPreview() {
+    NextDaySubjectCard(
+        subject = "Math",
+        lessonNumbers = listOf(2, 3),
+        homework = 3
+    )
 }

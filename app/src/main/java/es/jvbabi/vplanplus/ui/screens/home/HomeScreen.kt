@@ -216,7 +216,8 @@ fun HomeScreenContent(
                                 onFindAvailableRoomClicked()
                             },
                             isInfoExpanded = state.isInfoExpanded,
-                            onInfoExpandChange = onInfoExpandChange
+                            onInfoExpandChange = onInfoExpandChange,
+                            homework = state.homework
                         )
                     }
                 }

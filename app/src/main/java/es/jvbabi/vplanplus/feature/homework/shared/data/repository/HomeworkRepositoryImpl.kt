@@ -605,6 +605,10 @@ class HomeworkRepositoryImpl(
     override suspend fun clearCache() {
         homeworkDao.deleteAllCloud()
     }
+
+    override fun isUpdateRunning(): Boolean {
+        return isUpdateRunning
+    }
 }
 
 
