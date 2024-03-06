@@ -118,7 +118,7 @@ fun ComposableDialog(
     icon: ImageVector,
     title: String?,
     content: @Composable () -> Unit,
-    onOk: () -> Unit = {},
+    onOk: (() -> Unit)? = {},
     okEnabled: Boolean = true,
     onDismiss: (() -> Unit)? = {},
     onCancel: (() -> Unit)? = null,
@@ -131,8 +131,9 @@ fun ComposableDialog(
             title = { if (title != null) Text(text = title) },
             text = { content() },
             icon = { Icon(imageVector = icon, contentDescription = null) },
-            onDismissRequest = { if (onDismiss == null) onOk() else onDismiss() },
+            onDismissRequest = { if (onDismiss == null && onOk != null) onOk() else onDismiss?.invoke() },
             confirmButton = {
+                if (onOk == null) return@AlertDialog
                 TextButton(onClick = { onOk() }, enabled = okEnabled) {
                     Text(text = stringResource(id = android.R.string.ok))
                 }
