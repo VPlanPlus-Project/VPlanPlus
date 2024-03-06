@@ -253,8 +253,8 @@ fun ActiveDayContent(
                                 val smallRadius = 4.dp
                                 val borderRadiusTopLeft = if (i == 0) bigRadius else smallRadius
                                 val borderRadiusTopRight = if ((i == 1 && subjects.size > 1) || (i == 0 && subjects.size == 1)) bigRadius else smallRadius
-                                val borderRadiusBottomLeft = if (i == subjects.size - 1) bigRadius else smallRadius
-                                val borderRadiusBottomRight = if ((i == subjects.size - 1 && subjects.size % 2 == 1) || (i == subjects.size - 2 && subjects.size % 2 == 0)) bigRadius else smallRadius
+                                val borderRadiusBottomLeft = if ((i == subjects.lastIndex && subjects.size % 2 == 1) || (i == subjects.lastIndex-1 && subjects.size % 2 == 0)) bigRadius else smallRadius
+                                val borderRadiusBottomRight = if (i == subjects.lastIndex) bigRadius else smallRadius
 
                                 val modifier = Modifier
                                     .padding(1.dp)
