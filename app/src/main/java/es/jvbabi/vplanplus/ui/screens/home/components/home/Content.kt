@@ -581,7 +581,7 @@ fun NextDaySubjectCard(
     ) {
         SubjectIcon(
             subject = subject,
-            tint = MaterialTheme.colorScheme.secondary,
+            tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(end = 8.dp)
                 .size(40.dp)

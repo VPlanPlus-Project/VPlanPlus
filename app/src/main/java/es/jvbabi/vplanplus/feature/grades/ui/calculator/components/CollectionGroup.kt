@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.grades.ui.calculator.components
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -18,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -26,7 +24,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -55,7 +52,6 @@ fun CollectionGroup(
     onRemoveGrade: (Int) -> Unit
 ) {
     var dialogOpenForCategory by rememberSaveable { mutableStateOf("") }
-    var selectedGrade by rememberSaveable { mutableIntStateOf(-1) }
 
     val colorScheme = MaterialTheme.colorScheme
 
@@ -63,16 +59,9 @@ fun CollectionGroup(
         ComposableDialog(
             icon = Icons.Default.Grade,
             title = stringResource(id = R.string.gradesCalculator_addGradeTitle),
-            okEnabled = selectedGrade in 1..6,
-            onCancel = {
-                dialogOpenForCategory = ""
-                selectedGrade = -1
-            },
-            onOk = {
-                onAddGrade(selectedGrade.toFloat())
-                dialogOpenForCategory = ""
-                selectedGrade = -1
-            },
+            okEnabled = true,
+            onCancel = { dialogOpenForCategory = "" },
+            onOk = null,
             content = {
                 Column {
                     Text(
@@ -87,9 +76,12 @@ fun CollectionGroup(
                         columns = 3,
                         content = List(6) {
                             @Composable { _, _, _ ->
-                                val strokeModifier = animateFloatAsState(
-                                    targetValue = if (it == selectedGrade - 1) 1f else 0f,
-                                    label = "Grade selection animation"
+                                val backgroundColor = Color(
+                                    ColorUtils.blendARGB(
+                                        Color(0xFF25CC25).toArgb(),
+                                        Color.Red.toArgb(),
+                                        (it + 1) / 6f
+                                    )
                                 )
                                 Box(
                                     modifier = Modifier
@@ -97,49 +89,8 @@ fun CollectionGroup(
                                         .fillMaxWidth()
                                         .height(50.dp)
                                         .clip(RoundedCornerShape(8.dp))
-                                        .drawWithContent {
-                                            val inset = 5f * strokeModifier.value
-                                            val backgroundColor = Color(
-                                                ColorUtils.blendARGB(
-                                                    Color(0xFF25CC25).toArgb(),
-                                                    Color.Red.toArgb(),
-                                                    (it + 1) / 6f
-                                                )
-                                            )
-                                            drawRect(
-                                                color = backgroundColor,
-                                                topLeft = Offset(0f, 0f),
-                                                size = size
-                                            )
-                                            if (it == selectedGrade - 1) {
-                                                drawRoundRect(
-                                                    color = Color.White,
-                                                    topLeft = Offset(inset, inset),
-                                                    size = Size(
-                                                        size.width - 2 * inset,
-                                                        size.height - 2 * inset
-                                                    ),
-                                                    cornerRadius = CornerRadius(
-                                                        8.dp.toPx() - inset / 2,
-                                                        8.dp.toPx() - inset / 2
-                                                    )
-                                                )
-                                                drawRoundRect(
-                                                    color = backgroundColor,
-                                                    topLeft = Offset(2 * inset, 2 * inset),
-                                                    size = Size(
-                                                        size.width - 4 * inset,
-                                                        size.height - 4 * inset
-                                                    ),
-                                                    cornerRadius = CornerRadius(
-                                                        8.dp.toPx() - inset / 2,
-                                                        8.dp.toPx() - inset / 2
-                                                    )
-                                                )
-                                            }
-                                            drawContent()
-                                        }
-                                        .clickable { selectedGrade = it + 1 },
+                                        .background(backgroundColor)
+                                        .clickable { onAddGrade(it + 1f); dialogOpenForCategory = "" },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
@@ -162,12 +113,13 @@ fun CollectionGroup(
             .padding(8.dp)
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .padding(8.dp)
     ) {
         Text(
             text = "$group $DOT Ø ${if (avg.isNaN()) "-" else avg.toBigDecimal().setScale(2, RoundingMode.HALF_EVEN)}",
             style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         LazyRow(
             modifier = Modifier.fillMaxWidth()
