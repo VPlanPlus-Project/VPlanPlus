@@ -1,10 +1,7 @@
 package es.jvbabi.vplanplus.util
 
-import android.annotation.SuppressLint
 import android.content.Context
 import es.jvbabi.vplanplus.R
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -17,16 +14,6 @@ import java.time.format.FormatStyle
 
 object DateUtils {
 
-    private fun getDayTimestamp(year: Int, month: Int, day: Int): Long {
-        val localDate = LocalDate.of(year, month, day)
-        val startOfDay = localDate.atStartOfDay(ZoneId.systemDefault())
-        return startOfDay.toInstant().toEpochMilli()/1000
-    }
-
-    fun getDayTimestamp(localDate: LocalDate): Long {
-        return getDayTimestamp(localDate.year, localDate.monthValue, localDate.dayOfMonth)
-    }
-
     fun getDateFromTimestamp(timestamp: Long): LocalDate {
         return Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDate()
     }
@@ -35,21 +22,11 @@ object DateUtils {
         return Instant.ofEpochSecond(timestamp).atZone(ZoneId.systemDefault()).toLocalDateTime()
     }
 
-    @SuppressLint("SimpleDateFormat")
-    fun calculateProgress(start: String, current: String, end: String): Double? {
-        return try {
-            val dateFormat = SimpleDateFormat("HH:mm")
-            val startTime = dateFormat.parse(start)!!
-            val currentTime = dateFormat.parse(current)!!
-            val endTime = dateFormat.parse(end)!!
-
-            val totalTime = (endTime.time - startTime.time).toDouble()
-            val elapsedTime = (currentTime.time - startTime.time).toDouble()
-
-            (elapsedTime / totalTime)
-        } catch (e: ParseException) {
-            null
-        }
+    fun ZonedDateTime.progress(start: ZonedDateTime, end: ZonedDateTime): Float {
+        val from = start.toInstant().epochSecond
+        val now = this.toInstant().epochSecond
+        val to = end.toInstant().epochSecond
+        return (now - from) / (to - from).toFloat()
     }
 
     fun ZonedDateTime.atBeginningOfTheWorld(): ZonedDateTime {
