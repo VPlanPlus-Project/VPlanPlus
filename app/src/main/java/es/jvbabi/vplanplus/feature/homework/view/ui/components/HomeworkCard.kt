@@ -79,6 +79,7 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
+import es.jvbabi.vplanplus.util.toBlackAndWhite
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -221,7 +222,7 @@ fun HomeworkCard(
                     Column(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.primaryContainer)
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
                             .padding(8.dp)
                     ) {
                         Row(
@@ -514,19 +515,19 @@ fun HomeworkCard(
                                         modifier = Modifier
                                             .padding(top = 4.dp)
                                             .then(
-                                                if (!homework.isLoadingNewTask) Modifier.background(
+                                                if (!homework.isLoadingNewTask && newTask.isNotBlank()) Modifier.background(
                                                     MaterialTheme.colorScheme.primary,
                                                     RoundedCornerShape(50)
                                                 )
                                                 else Modifier.background(
-                                                    Color.Gray,
+                                                    MaterialTheme.colorScheme.primary.toBlackAndWhite(),
                                                     RoundedCornerShape(50)
                                                 )
                                             )
                                     ) {
                                         if (homework.isLoading) CircularProgressIndicator(
                                             modifier = Modifier.size(24.dp),
-                                            color = MaterialTheme.colorScheme.onPrimary
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                         else Icon(
                                             imageVector = Icons.Default.Add,
