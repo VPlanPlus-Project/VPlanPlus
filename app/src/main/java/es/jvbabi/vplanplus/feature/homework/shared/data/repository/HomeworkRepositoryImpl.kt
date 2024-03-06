@@ -85,7 +85,9 @@ class HomeworkRepositoryImpl(
                 )
 
                 if (response.response != HttpStatusCode.OK || response.data == null) return@forEach
-                val data = Gson().fromJson(response.data, HomeworkResponse::class.java).homework
+                val data = Gson().fromJson(response.data, HomeworkResponse::class.java)
+                    .homework
+                    .filter { it.until > ZonedDateTime.now().minusDays(2).toEpochSecond() }
 
                 homeworkDao
                     .getAll()
