@@ -30,6 +30,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.search.ResultGroup
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
@@ -66,6 +67,7 @@ class HomeViewModel @Inject constructor(
     private var version = 0L
 
     private var homeUiSyncJob: Job? = null
+    private var homeworkUiSyncJob: Job? = null
 
     init {
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
@@ -248,6 +250,13 @@ class HomeViewModel @Inject constructor(
     private fun restartUiSync() {
         startLessonUiSync(true, _state.value.time.toLocalDate())
         startLessonUiSync(true, _state.value.nextDayDate)
+
+        homeworkUiSyncJob?.cancel()
+        homeworkUiSyncJob = viewModelScope.launch {
+            homeUseCases.getHomeworkUseCase(getActiveProfile()).distinctUntilChanged().collect {
+                _state.value = _state.value.copy(homework = it.filter { hw -> hw.until.toLocalDate().isEqual(LocalDate.now()) || hw.until.toLocalDate().isEqual(LocalDate.now().plusDays(1)) })
+            }
+        }
     }
 
     fun onInfoExpandChange(expanded: Boolean) {
@@ -272,6 +281,7 @@ data class HomeState(
     val syncing: Boolean = false,
     val fullyCompatible: Boolean = true,
     val unreadMessages: List<Message> = emptyList(),
+    val homework: List<Homework> = emptyList(),
 
     val isReady: Boolean = false,
 

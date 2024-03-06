@@ -10,4 +10,5 @@ data class HomeUseCases(
     val setUpUseCase: SetUpUseCase,
     val isInfoExpandedUseCase: IsInfoExpandedUseCase,
     val setInfoExpandedUseCase: SetInfoExpandedUseCase,
+    val getHomeworkUseCase: GetHomeworkUseCase,
 )

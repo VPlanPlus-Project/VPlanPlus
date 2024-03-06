@@ -65,6 +65,8 @@ interface HomeworkRepository {
     suspend fun changeVisibility(homework: Homework): HomeworkModificationResult
 
     suspend fun clearCache()
+
+    fun isUpdateRunning(): Boolean
 }
 
 enum class HomeworkModificationResult {

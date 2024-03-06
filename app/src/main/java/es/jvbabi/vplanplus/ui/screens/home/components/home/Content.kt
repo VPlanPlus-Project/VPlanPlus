@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
@@ -42,11 +43,11 @@ import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.Grid
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
-import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
@@ -55,6 +56,7 @@ import es.jvbabi.vplanplus.ui.screens.home.components.home.components.FullLoadin
 import es.jvbabi.vplanplus.ui.screens.home.components.home.screens.Weekend
 import es.jvbabi.vplanplus.ui.screens.home.components.home.text.LastSyncText
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -72,7 +74,8 @@ fun ActiveDayContent(
     isLoading: Boolean,
     isInfoExpanded: Boolean,
     onInfoExpandChange: (Boolean) -> Unit = {},
-    onFindRoomClicked: () -> Unit = {}
+    onFindRoomClicked: () -> Unit = {},
+    homework: List<Homework>
 ) {
     val lessons = day.lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
     val scrollState = rememberScrollState()
@@ -222,8 +225,10 @@ fun ActiveDayContent(
                             fontStyle = FontStyle.Italic
                         )
                     }
-                    val subjects =
-                        nextDayLessons.map { it.displaySubject }.distinct()
+                    val subjects = nextDayLessons
+                        .filter { it.displaySubject != "-" }
+                        .map { it.displaySubject }
+                        .distinct()
                     if (subjects.isEmpty()) return@nextDay
                     Text(
                         text = stringResource(id = R.string.home_nextDayLessons),
@@ -243,9 +248,11 @@ fun ActiveDayContent(
                                         .padding(8.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    val lessonNumbers =
+                                    val lessonsForSubject =
                                         nextDayLessons.filter { it.displaySubject == subject }
-                                            .map { it.lessonNumber.toLocalizedString() }
+                                    val subjectHomework = homework
+                                        .filter { it.until.toLocalDate() == LocalDate.now().plusDays(1) }
+                                        .filter { lessonsForSubject.any { lesson -> lesson.vpId == it.defaultLesson.vpId } }
                                     SubjectIcon(
                                         subject = subject,
                                         modifier = Modifier.size(38.dp),
@@ -255,11 +262,20 @@ fun ActiveDayContent(
                                         text = subject,
                                         style = MaterialTheme.typography.labelMedium
                                     )
+                                    var subtext = stringResource(
+                                        id = R.string.home_nextDayLessonDescription,
+                                        lessonsForSubject.joinToString(", ") { "${it.lessonNumber}" }
+                                    )
+                                    if (subjectHomework.isNotEmpty()) {
+                                        subtext += "\n" + pluralStringResource(
+                                            id = R.plurals.home_nextDayHomework,
+                                            subjectHomework.size,
+                                            subjectHomework.size
+                                        )
+                                    }
                                     Text(
-                                        text = stringResource(
-                                            id = R.string.home_nextDayLessonDescription,
-                                            lessonNumbers.joinToString(", ")
-                                        ),
+                                        text = subtext,
+                                        textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.labelSmall
                                     )
                                 }
@@ -384,6 +400,14 @@ private fun DetailedLessonCard(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun DetailedLessonCardPreview() {
+    DetailedLessonCard(
+        lessons = Lessons.generateLessons(1, true)
+    )
 }
 
 @Composable
@@ -520,7 +544,8 @@ private fun ContentPreview() {
         hiddenLessons = 2,
         lastSync = LocalDateTime.now(),
         isLoading = false,
-        isInfoExpanded = false
+        isInfoExpanded = false,
+        homework = emptyList()
     )
 }
 

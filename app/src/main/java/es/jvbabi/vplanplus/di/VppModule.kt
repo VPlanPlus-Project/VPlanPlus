@@ -71,6 +71,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetInfoExpandedUseCase
@@ -742,6 +743,7 @@ object VppModule {
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         vppIdRepository: VppIdRepository,
+        homeworkRepository: HomeworkRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
         profileRepository: ProfileRepository,
         getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
@@ -762,7 +764,8 @@ object VppModule {
                 firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
             ),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
-            setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository)
+            setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
+            getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository)
         )
     }
 
