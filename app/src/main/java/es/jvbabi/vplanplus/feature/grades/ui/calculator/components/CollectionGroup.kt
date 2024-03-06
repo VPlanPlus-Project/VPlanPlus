@@ -86,7 +86,7 @@ fun CollectionGroup(
                     Grid(
                         columns = 3,
                         content = List(6) {
-                            @Composable {
+                            @Composable { _, _, _ ->
                                 val strokeModifier = animateFloatAsState(
                                     targetValue = if (it == selectedGrade - 1) 1f else 0f,
                                     label = "Grade selection animation"
