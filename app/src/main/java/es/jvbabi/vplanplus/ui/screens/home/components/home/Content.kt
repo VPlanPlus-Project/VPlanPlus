@@ -33,7 +33,6 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -169,27 +168,23 @@ fun ActiveDayContent(
         }
         if (day.type == DayType.NORMAL) Column(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(8.dp)
                 .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             val end = lessons.lastOrNull { it.displaySubject != "-" }?.end ?: return@Column
             val difference = currentTime.until(end, ChronoUnit.SECONDS)
-            Icon(
-                imageVector = Icons.Default.SportsEsports,
-                contentDescription = null,
-                modifier = Modifier.size(40.dp)
-            )
-            if (difference > 0) Text(
-                text = stringResource(
-                    id = R.string.home_activeDayCountdown,
-                    formatDuration(difference)
+            if (difference > 0) {
+                Icon(
+                    imageVector = Icons.Default.SportsEsports,
+                    contentDescription = null,
+                    modifier = Modifier.size(40.dp)
                 )
-            )
-            else {
                 Text(
-                    text = stringResource(id = R.string.home_activeDayEnd),
-                    textAlign = TextAlign.Center
+                    text = stringResource(
+                        id = R.string.home_activeDayCountdown,
+                        formatDuration(difference)
+                    )
                 )
             }
         }
@@ -522,7 +517,7 @@ private fun ContentPreview() {
         currentTime = ZonedDateTime.now(),
         day = Day(
             lessons = Lessons.generateLessons(2, false),
-            type = DayType.WEEKEND,
+            type = DayType.NORMAL,
             date = LocalDateTime.now().toLocalDate(),
             info = null,
             state = DayDataState.DATA
