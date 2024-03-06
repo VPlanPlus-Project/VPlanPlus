@@ -266,7 +266,7 @@ fun ActiveDayContent(
                                 NextDaySubjectCard(
                                     subject = subject,
                                     lessonNumbers = lessonsForSubject.map { it.lessonNumber },
-                                    homework = subjectHomework.count { homework -> homework.tasks.any { !it.done } },
+                                    homework = subjectHomework.count { homework -> homework.tasks.any { !it.done } && !homework.isHidden },
                                     modifier = modifier
                                 )
                             }
