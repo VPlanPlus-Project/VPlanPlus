@@ -422,7 +422,7 @@
     <string name="settings_generalGradesProtectSubtitle">Schütze deine Noten mit deinem Fingerabdruck oder deinem Gesicht.</string>
     <string name="settings_generalAuthenticateSubtitle">Du musst dich authentifizieren, um Schutzfunktionen zu deaktivieren.</string>
     <plurals name="home_nextDayHomework">
-        <item quantity="one">Eine Hausaufgabe</item>
-        <item quantity="other">%1$d Hausaufgaben</item>
+        <item quantity="one">Eine offene HA</item>
+        <item quantity="other">%1$d offene HA</item>
     </plurals>
 </resources>

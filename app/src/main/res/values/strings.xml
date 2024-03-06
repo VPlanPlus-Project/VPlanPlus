@@ -425,6 +425,6 @@
     <string name="settings_generalGradesProtectSubtitle">Secure your grades with your fingerprint or face.</string>
     <string name="settings_generalAuthenticateSubtitle">You need to authenticate yourself to disable protection.</string>
     <plurals name="home_nextDayHomework">
-        <item quantity="other">%1$d homework</item>
+        <item quantity="other">%1$d undone homework</item>
     </plurals>
 </resources>

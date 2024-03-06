@@ -33,6 +33,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -265,7 +266,7 @@ fun ActiveDayContent(
                                 NextDaySubjectCard(
                                     subject = subject,
                                     lessonNumbers = lessonsForSubject.map { it.lessonNumber },
-                                    homework = subjectHomework.size,
+                                    homework = subjectHomework.count { homework -> homework.tasks.any { !it.done } },
                                     modifier = modifier
                                 )
                             }
@@ -580,7 +581,7 @@ fun NextDaySubjectCard(
     ) {
         SubjectIcon(
             subject = subject,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            tint = MaterialTheme.colorScheme.secondary,
             modifier = Modifier
                 .padding(end = 8.dp)
                 .size(40.dp)
@@ -599,7 +600,9 @@ fun NextDaySubjectCard(
             }
             Text(
                 text = subtext,
-                style = MaterialTheme.typography.bodySmall
+                style = MaterialTheme.typography.labelSmall,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
