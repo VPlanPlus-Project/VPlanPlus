@@ -102,35 +102,20 @@ class VppIdRepositoryImpl(
         return vppIdTokenDao.getTokenByVppId(vppId.id)?.bsToken
     }
 
-    override suspend fun testVppId(vppId: VppId): DataResponse<Boolean?> {
-        val currentToken = getVppIdToken(vppId) ?: return DataResponse(false, HttpStatusCode.OK)
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
-
+    override suspend fun testVppId(vppId: VppId): Boolean? {
+        val currentToken = getVppIdToken(vppId) ?: return null
+        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.API_VERSION}/vpp_id/test_session",
-            HttpMethod.Post,
-            Gson().toJson(
-                TestRequest(
-                    id = vppId.id,
-                    userName = vppId.name
-                )
-            )
+            path = "/api/${VppIdServer.API_VERSION}/session",
+            requestMethod = HttpMethod.Post,
+            requestBody = Gson().toJson(TestSessionRequest(vppId.id))
         )
-        return if(response.response != HttpStatusCode.OK) {
-            DataResponse(
-                null, response.response
-            )
-        } else DataResponse(
-            Gson().fromJson(
-                response.data,
-                TestResponse::class.java
-            ).result, HttpStatusCode.OK
-        )
+        return response.response == HttpStatusCode.Found
     }
 
     override suspend fun unlinkVppId(vppId: VppId): Boolean {
         val currentToken = getVppIdToken(vppId) ?: return false
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
+        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
         val response = vppIdNetworkRepository.doRequest(
             "/api/${VppIdServer.API_VERSION}/vpp_id/unlink_session",
             HttpMethod.Post,
@@ -286,10 +271,6 @@ private data class TestRequest(
     @SerializedName("name") val userName: String
 )
 
-private data class TestResponse(
-    @SerializedName("result") val result: Boolean
-)
-
 private data class BookRoomRequest(
     @SerializedName("school_id") val schoolId: Long,
     @SerializedName("room_name") val roomName: String,
@@ -307,4 +288,8 @@ enum class BookResult {
 private data class UserNameResponse(
     @SerializedName("name") val username: String,
     @SerializedName("class_name") val className: String,
+)
+
+private data class TestSessionRequest(
+    @SerializedName("user_id") val userId: Int
 )

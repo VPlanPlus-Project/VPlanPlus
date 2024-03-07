@@ -168,7 +168,7 @@ class VppIdNetworkRepository(
     userAgent: String = DEFAULT_USER_AGENT,
     logRepository: LogRecordRepository?
 ) : NetworkRepositoryImpl(
-    server = VppIdServer.url,
+    server = "https://${VppIdServer.host}",
     userAgent = userAgent,
     logRepository = logRepository
 )

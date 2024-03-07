@@ -30,7 +30,7 @@ class AccountSettingsViewModel @Inject constructor(
                     stateJobs.add(viewModelScope.launch testAccount@{
                         val response = accountSettingsUseCases.testAccountUseCase(vppId)
                         _state.value =
-                            _state.value.copy(accounts = _state.value.accounts?.plus(vppId to response.data))
+                            _state.value.copy(accounts = _state.value.accounts?.plus(vppId to response))
                     })
                 }
             }
