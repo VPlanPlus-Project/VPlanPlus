@@ -128,7 +128,7 @@ class RoomRepositoryImpl(
         vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.apiVersion}/vpp_id/booking/get_room_bookings",
+            "/api/${VppIdServer.API_VERSION}/vpp_id/booking/get_room_bookings",
             HttpMethod.Get,
             null
         )

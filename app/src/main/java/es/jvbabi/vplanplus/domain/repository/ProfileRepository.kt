@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.domain.repository
 import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.School
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
@@ -20,4 +21,6 @@ interface ProfileRepository {
     suspend fun disableDefaultLesson(profileId: UUID, vpId: Long)
     suspend fun deleteDefaultLessonsFromProfile(profileId: UUID)
     suspend fun deleteDefaultLessonFromProfile(vpId: Long)
+
+    suspend fun getSchoolFromProfile(profile: Profile): School
 }

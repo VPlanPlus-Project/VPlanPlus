@@ -11,6 +11,7 @@ import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
 import io.ktor.client.request.headers
+import io.ktor.client.request.parameter
 import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -53,7 +54,8 @@ open class NetworkRepositoryImpl(
     override suspend fun doRequest(
         path: String,
         requestMethod: HttpMethod,
-        requestBody: String?
+        requestBody: String?,
+        queries: Map<String, String>
     ): DataResponse<String?> {
         try {
             logRepository?.log("Network", "Requesting ${requestMethod.value} $server$path")
@@ -67,6 +69,8 @@ open class NetworkRepositoryImpl(
                     globalHeaders.forEach { (key, value) -> append(key, value) }
                     if (requestMethod != HttpMethod.Get) append("Content-Type", "application/json")
                 }
+                queries.forEach { (key, value) -> parameter(key, value) }
+
                 if (requestMethod != HttpMethod.Get) setBody(requestBody ?: "{}")
             }
             if (!listOf(
@@ -114,6 +118,7 @@ class BasicAuthentication(
     }
 }
 
+@Deprecated("Use BearerAuthentication instead", replaceWith = ReplaceWith("BearerAuthentication(token)"))
 class TokenAuthentication(
     private val prefix: String,
     private val token: String
@@ -121,6 +126,12 @@ class TokenAuthentication(
     override fun toHeader(): Pair<String, String> {
         return "Authorization" to "$prefix$token"
     }
+}
+
+class BearerAuthentication(
+    private val token: String
+) : Authentication {
+    override fun toHeader(): Pair<String, String> = "Authorization" to "Bearer $token"
 }
 
 class BsNetworkRepository(

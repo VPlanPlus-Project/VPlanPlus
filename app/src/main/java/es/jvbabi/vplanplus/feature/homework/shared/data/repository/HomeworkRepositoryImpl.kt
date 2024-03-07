@@ -81,7 +81,7 @@ class HomeworkRepositoryImpl(
                 }
 
                 val response = vppIdNetworkRepository.doRequest(
-                    "/api/${VppIdServer.apiVersion}/homework/",
+                    "/api/${VppIdServer.API_VERSION}/homework/",
                 )
 
                 if (response.response != HttpStatusCode.OK || response.data == null) return@forEach
@@ -308,7 +308,7 @@ class HomeworkRepositoryImpl(
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         )
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.apiVersion}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/homework/",
             requestBody = Gson().toJson(
                 AddHomeworkRequest(
                     vpId = defaultLessonVpId,
@@ -365,7 +365,7 @@ class HomeworkRepositoryImpl(
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         )
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.apiVersion}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/homework/",
             requestBody = Gson().toJson(
                 DeleteHomeworkRequest(
                     id = homework.id,
@@ -408,7 +408,7 @@ class HomeworkRepositoryImpl(
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         )
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.apiVersion}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/homework/",
             requestBody = Gson().toJson(
                 AddTaskRequest(
                     homeworkId = homework.id,
@@ -453,7 +453,7 @@ class HomeworkRepositoryImpl(
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         )
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.apiVersion}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/homework/",
             requestBody = Gson().toJson(
                 DeleteHomeworkTaskRequest(
                     taskId = task.id,
@@ -495,7 +495,7 @@ class HomeworkRepositoryImpl(
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         )
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.apiVersion}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/homework/",
             requestBody = Gson().toJson(
                 ChangeTaskRequest(
                     taskId = task.id,
@@ -536,7 +536,7 @@ class HomeworkRepositoryImpl(
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         )
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.apiVersion}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/homework/",
             requestBody = Gson().toJson(
                 MarkDoneRequest(
                     taskId = task.individualId!!,
@@ -579,7 +579,7 @@ class HomeworkRepositoryImpl(
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         )
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.apiVersion}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/homework/",
             requestBody = Gson().toJson(
                 ChangeVisibilityRequest(
                     id = homework.id,

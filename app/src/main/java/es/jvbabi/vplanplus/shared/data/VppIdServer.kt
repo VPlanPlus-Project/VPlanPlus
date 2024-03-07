@@ -1,10 +1,10 @@
 package es.jvbabi.vplanplus.shared.data
 
 object VppIdServer {
-    private val environment: ServerEnvironment = ServerEnvironment()
+    private val environment: ServerEnvironment = JuliusServerEnvironment()
     private val scheme = environment.scheme
     private val host = environment.host
-    const val apiVersion = "v1.1"
+    const val API_VERSION = "v2"
 
     val url: String
         get() { return "$scheme://$host" }

@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
 import androidx.room.Index
+import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 import java.util.Base64
 
 @Entity(
@@ -43,7 +44,12 @@ data class School(
         return fullyCompatible == other.fullyCompatible
     }
 
+    @Deprecated("Use buildAuthentication instead", replaceWith = ReplaceWith("buildAuthentication()"))
     fun buildToken(): String {
         return Base64.getEncoder().encode("$schoolId+$username+$password".toByteArray()).toString(Charsets.UTF_8)
+    }
+
+    fun buildAuthentication(): BasicAuthentication {
+        return BasicAuthentication("$username@$schoolId", password)
     }
 }

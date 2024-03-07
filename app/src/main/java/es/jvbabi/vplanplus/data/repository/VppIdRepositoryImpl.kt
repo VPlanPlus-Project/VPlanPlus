@@ -21,6 +21,8 @@ import es.jvbabi.vplanplus.domain.repository.UsersPerClassResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
+import es.jvbabi.vplanplus.shared.data.BasicAuthentication
+import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
@@ -45,9 +47,9 @@ class VppIdRepositoryImpl(
     }
 
     override suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?> {
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(token)
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.apiVersion}/vpp_id/user/get_user_details",
+            "/api/${VppIdServer.API_VERSION}/user/me",
             HttpMethod.Get,
             null
         )
@@ -89,7 +91,7 @@ class VppIdRepositoryImpl(
             )
         )
         if (initialCreation) firebaseCloudMessagingManagerRepository.updateToken(null)
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(token)
     }
 
     override suspend fun getVppIdToken(vppId: VppId): String? {
@@ -105,7 +107,7 @@ class VppIdRepositoryImpl(
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.apiVersion}/vpp_id/test_session",
+            "/api/${VppIdServer.API_VERSION}/vpp_id/test_session",
             HttpMethod.Post,
             Gson().toJson(
                 TestRequest(
@@ -130,7 +132,7 @@ class VppIdRepositoryImpl(
         val currentToken = getVppIdToken(vppId) ?: return false
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.apiVersion}/vpp_id/unlink_session",
+            "/api/${VppIdServer.API_VERSION}/vpp_id/unlink_session",
             HttpMethod.Post,
             Gson().toJson(
                 TestRequest(
@@ -153,7 +155,7 @@ class VppIdRepositoryImpl(
     ): BookResult {
         val currentToken = getVppIdToken(vppId) ?: return BookResult.OTHER
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
-        val url = "/api/${VppIdServer.apiVersion}/vpp_id/booking/book_room"
+        val url = "/api/${VppIdServer.API_VERSION}/vpp_id/booking/book_room"
         val response = vppIdNetworkRepository.doRequest(
             url,
             HttpMethod.Post,
@@ -178,7 +180,7 @@ class VppIdRepositoryImpl(
     override suspend fun cacheVppId(id: Int, school: School): VppId? {
         val vppId = vppIdDao.getVppId(id)
         if (vppId != null) return vppId.toModel()
-        val url = "/api/${VppIdServer.apiVersion}/vpp_id/user/get_username/$id"
+        val url = "/api/${VppIdServer.API_VERSION}/vpp_id/user/get_username/$id"
 
         vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
         val response = vppIdNetworkRepository.doRequest(
@@ -206,7 +208,7 @@ class VppIdRepositoryImpl(
     }
 
     override suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode? {
-        val url = "/api/${VppIdServer.apiVersion}/vpp_id/booking/cancel_booking/${roomBooking.id}"
+        val url = "/api/${VppIdServer.API_VERSION}/vpp_id/booking/cancel_booking/${roomBooking.id}"
         val currentToken = getVppIdToken(roomBooking.bookedBy ?: return null) ?: return null
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
 
@@ -230,7 +232,7 @@ class VppIdRepositoryImpl(
         vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.apiVersion}/session",
+            "/api/${VppIdServer.API_VERSION}/session",
             HttpMethod.Get,
             null
         )
@@ -252,7 +254,7 @@ class VppIdRepositoryImpl(
 
         return try {
             val response = vppIdNetworkRepository.doRequest(
-                "/api/${VppIdServer.apiVersion}/session/${session.id}",
+                "/api/${VppIdServer.API_VERSION}/session/${session.id}",
                 HttpMethod.Delete
             )
             response.response == HttpStatusCode.OK
@@ -261,9 +263,10 @@ class VppIdRepositoryImpl(
         }
     }
 
-    override suspend fun fetchUsersPerClass(schoolId: Long): DataResponse<UsersPerClassResponse?> {
+    override suspend fun fetchUsersPerClass(schoolId: Long, username: String, password: String): DataResponse<UsersPerClassResponse?> {
+        vppIdNetworkRepository.authentication = BasicAuthentication("$username@$schoolId", password)
         return vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.apiVersion}/school/$schoolId/vpp_ids/",
+            "/api/${VppIdServer.API_VERSION}/school/$schoolId/classes",
         ).let {
             if(it.response != HttpStatusCode.OK) {
                 DataResponse(null, it.response)

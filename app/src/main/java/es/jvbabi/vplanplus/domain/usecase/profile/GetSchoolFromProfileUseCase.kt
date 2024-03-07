@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 
+@Deprecated("Use ProfileRepository instead")
 class GetSchoolFromProfileUseCase(
     private val classRepository: ClassRepository,
     private val teacherRepository: TeacherRepository,

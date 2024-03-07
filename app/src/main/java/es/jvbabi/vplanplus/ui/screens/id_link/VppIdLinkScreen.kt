@@ -69,7 +69,7 @@ private fun VppIdLinkScreenContent(
         contentAlignment = Alignment.Center
     ) {
         if (state.isLoading) CircularProgressIndicator()
-        else if (state.error || state.classes == null) {
+        else if (state.error || state.vppId!!.classes == null) {
             Column {
                 Text(text = "Error")
                 Button(onClick = onRetry) {
@@ -90,14 +90,14 @@ private fun VppIdLinkScreenContent(
                     modifier = Modifier.size(64.dp)
                 )
                 Text(
-                    text = stringResource(id = R.string.vppidlink_welcome, state.vppId!!.name),
+                    text = stringResource(id = R.string.vppidlink_welcome, state.vppId.name),
                     style = MaterialTheme.typography.headlineMedium,
                 )
                 Text(
                     text = stringResource(
                         id = R.string.vppidlink_message,
-                        state.classes.school.name,
-                        state.classes.name
+                        state.vppId.classes!!.school.name,
+                        state.vppId.classes.name
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -129,7 +129,6 @@ private fun VppIdLinkScreenPreview() {
                 classes = classes,
                 email = "maria.musterfrau@email.com"
             ),
-            classes = classes
         )
     )
 }
