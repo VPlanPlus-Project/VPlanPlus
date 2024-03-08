@@ -323,7 +323,7 @@
     <string name="homework_title">Hausaufgaben</string>
     <string name="homework_wrongProfile">Um diese Funktion zu verwenden, musst du ein Klassenprofil verwenden.</string>
     <string name="homework_homeworkHead">%1$s bis %2$s</string>
-    <string name="homework_homeworkSubtitleCreatedBy">%1$s hat am %2$s geteilt</string>
+    <string name="homework_homeworkSubtitleCreatedBy">%1$s, %2$s</string>
     <string name="homework_homeworkSubtitleLocally">Dieses Gerät, am %1$s</string>
     <string name="homework_homeworkSubtitleCreatedByYou">Deine vpp.ID, am %1$s</string>
     <string name="homework_addTask">Aufgabe hinzufügen</string>

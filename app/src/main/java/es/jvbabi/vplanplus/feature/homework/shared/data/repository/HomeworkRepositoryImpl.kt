@@ -568,19 +568,15 @@ class HomeworkRepositoryImpl(
         if (homework.id < 0) throw UnsupportedOperationException("Cannot change visibility of local homework")
         val vppId = homework.createdBy
             ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
-        vppIdNetworkRepository.authentication = TokenAuthentication(
-            "vpp.",
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        )
+
+        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}",
             requestBody = Gson().toJson(
-                ChangeVisibilityRequest(
-                    id = homework.id,
-                    visibility = !homework.isPublic
-                )
+                ChangeVisibilityRequest(shared = !homework.isPublic)
             ),
-            requestMethod = HttpMethod.Put
+            requestMethod = HttpMethod.Patch
         )
 
         return if (result.response == HttpStatusCode.OK) {
@@ -677,7 +673,5 @@ private data class DeleteHomeworkTaskRequest(
 )
 
 private data class ChangeVisibilityRequest(
-    @SerializedName("change") val change: String = "visibility",
-    @SerializedName("homework_id") val id: Long,
-    @SerializedName("to") val visibility: Boolean
+    @SerializedName("public") var shared: Boolean,
 )

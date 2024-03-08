@@ -231,6 +231,7 @@ fun HomeworkCard(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) titleHost@{
                             Row(
+                                modifier = Modifier.weight(1f, false),
                                 verticalAlignment = Alignment.CenterVertically
                             ) titleContainer@{
                                 if (!homework.isLoading) {
