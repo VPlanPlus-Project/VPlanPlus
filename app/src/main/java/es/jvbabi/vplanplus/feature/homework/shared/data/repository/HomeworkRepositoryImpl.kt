@@ -357,18 +357,10 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication(
-            "vpp.",
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        )
+        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/homework/",
-            requestBody = Gson().toJson(
-                DeleteHomeworkRequest(
-                    id = homework.id,
-                    onlyHide = false
-                )
-            ),
+            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}",
             requestMethod = HttpMethod.Delete
         )
         return if (result.response == HttpStatusCode.OK) {
@@ -621,11 +613,6 @@ private data class AddHomeworkResponse(
 private data class AddHomeworkResponseTask(
     @SerializedName("id") val id: Long,
     @SerializedName("content") val content: String
-)
-
-private data class DeleteHomeworkRequest(
-    @SerializedName("homework_id") val id: Long,
-    @SerializedName("only_hide") val onlyHide: Boolean
 )
 
 private data class ChangeVisibilityRequest(
