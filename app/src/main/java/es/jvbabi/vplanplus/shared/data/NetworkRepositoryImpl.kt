@@ -150,7 +150,7 @@ class NewsNetworkRepository(
     userAgent: String = DEFAULT_USER_AGENT,
     logRepository: LogRecordRepository?
 ) : NetworkRepositoryImpl(
-    server = "https://database-00.jvbabi.es",
+    server = "https://${VppIdServer.host}",
     userAgent = userAgent,
     logRepository = logRepository
 )

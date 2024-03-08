@@ -20,7 +20,6 @@ import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
-import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
@@ -109,7 +108,6 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
     ProfileCalendarTypeConverter::class,
     UuidConverter::class,
     DayDataTypeConverter::class,
-    LocalDateTimeConverter::class,
     VppIdStateConverter::class,
     GradeModifierConverter::class,
     ZonedDateTimeConverter::class

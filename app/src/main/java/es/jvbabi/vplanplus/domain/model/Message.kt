@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.domain.model
 
 import androidx.room.Entity
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 @Entity(
     tableName = "messages",
@@ -11,15 +11,15 @@ data class Message(
     val id: String,
     val title: String,
     val content: String,
-    val date: LocalDateTime,
+    val date: ZonedDateTime,
     val isRead: Boolean,
     val importance: Importance,
     val fromVersion: Int,
     val toVersion: Int,
-    val schoolId: Long,
+    val schoolId: Long?,
     val notificationSent: Boolean = false
 )
 
 enum class Importance {
-    NORMAL, CRITICAL
+    LOW, MEDIUM, HIGH
 }
