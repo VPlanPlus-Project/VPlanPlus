@@ -399,19 +399,12 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication(
-            "vpp.",
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        )
+        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/homework/",
-            requestBody = Gson().toJson(
-                AddTaskRequest(
-                    homeworkId = homework.id,
-                    content = content
-                )
-            ),
-            requestMethod = HttpMethod.Put
+            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}/tasks",
+            requestBody = Gson().toJson(AddTaskRequest(content = content)),
+            requestMethod = HttpMethod.Post
         )
 
         if (result.response != HttpStatusCode.Created || result.data == null) return HomeworkModificationResult.FAILED
@@ -442,17 +435,10 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication(
-            "vpp.",
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        )
+        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/homework/",
-            requestBody = Gson().toJson(
-                DeleteHomeworkTaskRequest(
-                    taskId = task.id,
-                )
-            ),
+            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${parent.id}/tasks/${task.id}",
             requestMethod = HttpMethod.Delete
         )
 
@@ -633,9 +619,7 @@ private data class MarkDoneRequest(
 )
 
 private data class AddTaskRequest(
-    @SerializedName("change") val change: String = "add_task",
-    @SerializedName("homework_id") val homeworkId: Long,
-    @SerializedName("to") val content: String
+    @SerializedName("task") val content: String
 )
 
 private data class ChangeTaskRequest(
@@ -659,17 +643,12 @@ private data class AddHomeworkResponse(
 
 private data class AddHomeworkResponseTask(
     @SerializedName("id") val id: Long,
-    @SerializedName("individual_id") val individualId: Long,
     @SerializedName("content") val content: String
 )
 
 private data class DeleteHomeworkRequest(
     @SerializedName("homework_id") val id: Long,
     @SerializedName("only_hide") val onlyHide: Boolean
-)
-
-private data class DeleteHomeworkTaskRequest(
-    @SerializedName("task_id") val taskId: Long
 )
 
 private data class ChangeVisibilityRequest(
