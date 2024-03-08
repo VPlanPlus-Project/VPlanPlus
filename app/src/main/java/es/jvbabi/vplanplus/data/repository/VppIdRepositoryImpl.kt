@@ -23,7 +23,6 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
-import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import io.ktor.http.HttpMethod
@@ -158,9 +157,9 @@ class VppIdRepositoryImpl(
     override suspend fun cacheVppId(id: Int, school: School): VppId? {
         val vppId = vppIdDao.getVppId(id)
         if (vppId != null) return vppId.toModel()
-        val url = "/api/${VppIdServer.API_VERSION}/vpp_id/user/get_username/$id"
+        val url = "/api/${VppIdServer.API_VERSION}/user/$id"
 
-        vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
+        vppIdNetworkRepository.authentication = school.buildAuthentication()
         val response = vppIdNetworkRepository.doRequest(
             url,
             HttpMethod.Get,
@@ -273,7 +272,7 @@ enum class BookResult {
 
 private data class UserNameResponse(
     @SerializedName("name") val username: String,
-    @SerializedName("class_name") val className: String,
+    @SerializedName("school_class") val className: String,
 )
 
 private data class TestSessionRequest(
