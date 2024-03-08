@@ -27,7 +27,6 @@ import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkMod
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.NewTaskRecord
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
-import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.util.DateUtils
@@ -301,12 +300,10 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.classes?.classId == `class`.classId && it.isActive() }
             ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication(
-            "vpp.",
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        )
+        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/homework/",
+            path = "/api/${VppIdServer.API_VERSION}/user/me/homework",
             requestBody = Gson().toJson(
                 AddHomeworkRequest(
                     vpId = defaultLessonVpId,
