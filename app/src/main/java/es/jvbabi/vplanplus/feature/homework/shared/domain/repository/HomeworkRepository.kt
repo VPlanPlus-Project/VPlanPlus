@@ -57,7 +57,7 @@ interface HomeworkRepository {
     suspend fun findLocalId(): Long
     suspend fun findLocalTaskId(): Long
 
-    suspend fun fetchData()
+    suspend fun fetchHomework()
 
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
 
@@ -78,6 +78,5 @@ enum class HomeworkModificationResult {
 data class NewTaskRecord(
     val content: String,
     val done: Boolean = false,
-    val id: Long? = null,
-    val individualId: Long? = null
+    val id: Long? = null
 )

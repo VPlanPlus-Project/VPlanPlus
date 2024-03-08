@@ -44,7 +44,6 @@ private fun DeleteHomeworkTaskDialogPreview() {
     DeleteHomeworkTaskDialog(
         task = HomeworkTask(
             id = 1,
-            individualId = null,
             done = false,
             content = task
         ),

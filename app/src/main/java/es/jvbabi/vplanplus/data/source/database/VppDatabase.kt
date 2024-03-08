@@ -88,7 +88,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 20,
+    version = 21,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -100,7 +100,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         AutoMigration(from = 16, to = 17), // add homework_task.individualId
         AutoMigration(from = 17, to = 18), // add homework.isPublic
         AutoMigration(from = 18, to = 19), // add zoned date time
-        AutoMigration(from = 19, to = 20) // add homework can hide
+        AutoMigration(from = 19, to = 20), // add homework can hide
     ],
 )
 @TypeConverters(
@@ -208,6 +208,12 @@ abstract class VppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE grade ADD COLUMN type TEXT NOT NULL DEFAULT ''")
                 db.execSQL("ALTER TABLE grade ADD COLUMN comment TEXT NOT NULL DEFAULT ''")
+            }
+        }
+
+        val migration_20_21 = object : Migration(20, 21) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE homework_task DROP COLUMN individualId")
             }
         }
     }

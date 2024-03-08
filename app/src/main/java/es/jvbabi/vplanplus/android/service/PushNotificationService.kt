@@ -65,7 +65,7 @@ class PushNotificationService : FirebaseMessagingService() {
                     }
                 }
                 prefix + PushNotificationType.HOMEWORK_CHANGE -> {
-                    homeworkRepository.fetchData()
+                    homeworkRepository.fetchHomework()
                 }
             }
         }

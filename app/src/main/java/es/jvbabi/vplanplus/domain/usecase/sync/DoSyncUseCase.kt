@@ -81,7 +81,7 @@ class DoSyncUseCase(
             ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
 
         logRecordRepository.log("Sync.Homework", "Syncing homework")
-        homeworkRepository.fetchData()
+        homeworkRepository.fetchHomework()
 
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 

@@ -306,12 +306,11 @@ data class HomeworkViewModelHomework(
 
 data class HomeworkViewModelTask(
     val id: Long,
-    val individualId: Long?,
     val content: String,
     val done: Boolean,
     val isLoading: Boolean = false
 ) {
-    fun toTask() = HomeworkTask(id, individualId, content, done)
+    fun toTask() = HomeworkTask(id, content, done)
 }
 
 private fun Homework.toViewModel(
@@ -333,7 +332,6 @@ private fun Homework.toViewModel(
 
 private fun HomeworkTask.toViewModel() = HomeworkViewModelTask(
     id = id,
-    individualId = individualId,
     content = content,
     done = done
 )
