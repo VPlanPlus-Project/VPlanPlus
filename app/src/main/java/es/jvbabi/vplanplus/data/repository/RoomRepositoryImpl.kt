@@ -21,7 +21,6 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.util.DateUtils
@@ -124,11 +123,10 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun fetchRoomBookings(school: School) {
-
-        vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
+        vppIdNetworkRepository.authentication = school.buildAuthentication()
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.API_VERSION}/vpp_id/booking/get_room_bookings",
+            "/api/${VppIdServer.API_VERSION}/school/${school.schoolId}/booking",
             HttpMethod.Get,
             null
         )
@@ -223,9 +221,9 @@ private data class RoomBookingResponse(
 
 private data class RoomBookingResponseItem(
     @SerializedName("id") val id: Long,
+    @SerializedName("school_class") val `class`: String,
     @SerializedName("room_name") val roomName: String,
     @SerializedName("booked_by") val bookedBy: Int,
-    @SerializedName("start") val start: Long,
-    @SerializedName("end") val end: Long,
-    @SerializedName("class") val `class`: String
+    @SerializedName("from") val start: Long,
+    @SerializedName("to") val end: Long
 )
