@@ -403,7 +403,7 @@ class HomeworkRepositoryImpl(
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}/tasks",
-            requestBody = Gson().toJson(AddTaskRequest(content = content)),
+            requestBody = Gson().toJson(AddOrChangeTaskRequest(content = content)),
             requestMethod = HttpMethod.Post
         )
 
@@ -470,19 +470,12 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        vppIdNetworkRepository.authentication = TokenAuthentication(
-            "vpp.",
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        )
+        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/homework/",
-            requestBody = Gson().toJson(
-                ChangeTaskRequest(
-                    taskId = task.id,
-                    content = newContent
-                )
-            ),
-            requestMethod = HttpMethod.Put
+            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${parent.id}/tasks/${task.id}",
+            requestBody = Gson().toJson(AddOrChangeTaskRequest(newContent)),
+            requestMethod = HttpMethod.Patch
         )
 
         return if (result.response == HttpStatusCode.OK) {
@@ -618,15 +611,8 @@ private data class MarkDoneRequest(
     @SerializedName("to") val done: Boolean
 )
 
-private data class AddTaskRequest(
+private data class AddOrChangeTaskRequest(
     @SerializedName("task") val content: String
-)
-
-private data class ChangeTaskRequest(
-    @SerializedName("change") val change: String = "task_content",
-    @SerializedName("task_id") val taskId: Long,
-    @SerializedName("to") val content: String
-
 )
 
 private data class AddHomeworkRequest(
