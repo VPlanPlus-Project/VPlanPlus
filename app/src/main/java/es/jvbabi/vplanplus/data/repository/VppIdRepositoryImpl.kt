@@ -117,16 +117,10 @@ class VppIdRepositoryImpl(
         val currentToken = getVppIdToken(vppId) ?: return false
         vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.API_VERSION}/vpp_id/unlink_session",
-            HttpMethod.Post,
-            Gson().toJson(
-                TestRequest(
-                    id = vppId.id,
-                    userName = vppId.name
-                )
-            )
+            "/api/${VppIdServer.API_VERSION}/session",
+            HttpMethod.Delete,
         )
-        if (response.response != HttpStatusCode.OK) return false
+        if (response.response != HttpStatusCode.OK && response.response != HttpStatusCode.Unauthorized) return false
         vppIdDao.delete(vppId.id)
         firebaseCloudMessagingManagerRepository.updateToken(null)
         return true
@@ -214,12 +208,11 @@ class VppIdRepositoryImpl(
 
     override suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?> {
         val currentToken = getVppIdToken(vppId) ?: return DataResponse(null, HttpStatusCode.Unauthorized)
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
+        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.API_VERSION}/session",
-            HttpMethod.Get,
-            null
+            "/api/${VppIdServer.API_VERSION}/user/me/sessions",
+            HttpMethod.Get
         )
         return if(response.response != HttpStatusCode.OK) {
             DataResponse(
