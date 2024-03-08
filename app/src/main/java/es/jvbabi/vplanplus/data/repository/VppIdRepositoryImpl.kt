@@ -228,7 +228,7 @@ class VppIdRepositoryImpl(
 
     override suspend fun closeSession(session: Session, vppId: VppId): Boolean {
         val currentToken = getVppIdToken(vppId) ?: return false
-        vppIdNetworkRepository.authentication = TokenAuthentication("vpp.", currentToken)
+        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
 
         return try {
             val response = vppIdNetworkRepository.doRequest(
@@ -258,11 +258,6 @@ class VppIdRepositoryImpl(
         }
     }
 }
-
-private data class TestRequest(
-    @SerializedName("user_id") val id: Int,
-    @SerializedName("name") val userName: String
-)
 
 private data class BookRoomRequest(
     @SerializedName("school_id") val schoolId: Long,
