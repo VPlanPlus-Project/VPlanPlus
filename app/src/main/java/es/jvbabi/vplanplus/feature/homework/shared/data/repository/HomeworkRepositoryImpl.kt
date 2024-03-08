@@ -504,19 +504,12 @@ class HomeworkRepositoryImpl(
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        vppIdNetworkRepository.authentication = TokenAuthentication(
-            "vpp.",
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        )
+        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/homework/",
-            requestBody = Gson().toJson(
-                MarkDoneRequest(
-                    taskId = task.id,
-                    done = done
-                )
-            ),
-            requestMethod = HttpMethod.Put
+            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}/tasks/${task.id}",
+            requestBody = Gson().toJson(MarkDoneRequest(done)),
+            requestMethod = HttpMethod.Patch
         )
         return if (result.response == HttpStatusCode.OK) {
             val dbHomeworkTask =
@@ -606,9 +599,7 @@ private data class HomeRecordTask @JvmOverloads constructor(
 )
 
 private data class MarkDoneRequest(
-    @SerializedName("change") val change: String = "state",
-    @SerializedName("individual_id") val taskId: Long,
-    @SerializedName("to") val done: Boolean
+    @SerializedName("done") val done: Boolean
 )
 
 private data class AddOrChangeTaskRequest(
