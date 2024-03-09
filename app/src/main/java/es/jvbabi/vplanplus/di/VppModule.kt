@@ -155,7 +155,7 @@ object VppModule {
             .addTypeConverter(GradeModifierConverter())
             .addTypeConverter(ZonedDateTimeConverter())
             .allowMainThreadQueries()
-            //.fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .enableMultiInstanceInvalidation()
             .build()
