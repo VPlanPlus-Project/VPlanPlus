@@ -434,4 +434,5 @@
     <string name="grades_filterTitle">Subjects</string>
     <string name="settings_homeworkTitle">Homework</string>
     <string name="settings_subjectsSubtitle">Manage notifications for homework</string>
+    <string name="settingsHomework_title">Homework</string>
 </resources>

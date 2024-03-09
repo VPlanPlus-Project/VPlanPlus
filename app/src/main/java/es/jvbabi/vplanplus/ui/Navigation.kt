@@ -35,6 +35,7 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
+import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login.BsLoginScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
@@ -112,12 +113,18 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
             }
         ),
         content = {
-            VppIdLinkScreen(navHostController = navController, token = it.arguments?.getString("token"))
+            VppIdLinkScreen(
+                navHostController = navController,
+                token = it.arguments?.getString("token")
+            )
         }
     )
 }
 
-private fun NavGraphBuilder.onboarding(navController: NavHostController, viewModel: OnboardingViewModel) {
+private fun NavGraphBuilder.onboarding(
+    navController: NavHostController,
+    viewModel: OnboardingViewModel
+) {
     navigation(
         route = Screen.Onboarding.route,
         startDestination = Screen.OnboardingWelcomeScreen.route
@@ -229,7 +236,11 @@ private fun NavGraphBuilder.onboarding(navController: NavHostController, viewMod
     }
 }
 
-private fun NavGraphBuilder.mainScreens(navController: NavHostController, viewModel: HomeViewModel, navBar: @Composable () -> Unit) {
+private fun NavGraphBuilder.mainScreens(
+    navController: NavHostController,
+    viewModel: HomeViewModel,
+    navBar: @Composable () -> Unit
+) {
     composable(
         route = Screen.HomeScreen.route,
         enterTransition = { fadeIn(tween(300)) },
@@ -323,7 +334,10 @@ private fun NavGraphBuilder.newsScreens(navController: NavHostController) {
     }
 }
 
-private fun NavGraphBuilder.settingsScreens(navController: NavHostController, onboardingViewModel: OnboardingViewModel) {
+private fun NavGraphBuilder.settingsScreens(
+    navController: NavHostController,
+    onboardingViewModel: OnboardingViewModel
+) {
     composable(
         route = Screen.SettingsScreen.route,
         enterTransition = { fadeIn(tween(300)) },
@@ -356,7 +370,10 @@ private fun NavGraphBuilder.settingsScreens(navController: NavHostController, on
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = exitSlideTransitionRight
     ) {
-        VppIdManagementScreen(navHostController = navController, vppId = it.arguments?.getInt("vppIdId")!!)
+        VppIdManagementScreen(
+            navHostController = navController,
+            vppId = it.arguments?.getInt("vppIdId")!!
+        )
     }
 
     composable(
@@ -456,6 +473,16 @@ private fun NavGraphBuilder.settingsScreens(navController: NavHostController, on
         popExitTransition = exitSlideTransitionRight
     ) {
         GeneralSettingsScreen(navController)
+    }
+
+    composable(
+        route = Screen.SettingsHomeworkScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        HomeworkSettingsScreen(navController)
     }
 
     composable(

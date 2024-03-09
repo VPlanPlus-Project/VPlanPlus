@@ -432,4 +432,5 @@
     <string name="grades_filterTitle">Fächer</string>
     <string name="settings_homeworkTitle">Hausaufgaben</string>
     <string name="settings_subjectsSubtitle">Verwalte Benachrichtigungen zu Hausaufgaben</string>
+    <string name="settingsHomework_title">Hausaufgaben</string>
 </resources>
