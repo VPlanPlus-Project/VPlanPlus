@@ -71,9 +71,9 @@ class DoSyncUseCase(
     private val planRepository: PlanRepository,
     private val systemRepository: SystemRepository,
     private val calendarRepository: CalendarRepository,
-    private val getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
     private val notificationRepository: NotificationRepository,
-    private val gradeRepository: GradeRepository
+    private val gradeRepository: GradeRepository,
+    private val getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
 ) {
     suspend operator fun invoke(): Boolean {
         if (profileRepository.getProfiles().first().isEmpty()) return true
