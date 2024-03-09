@@ -37,6 +37,7 @@ object HomeworkModule {
     ): HomeworkRepository {
         return HomeworkRepositoryImpl(
             homeworkDao = db.homeworkDao,
+            homeworkNotificationTimeDao = db.homeworkNotificationTimeDao,
             vppIdRepository = vppIdRepository,
             profileRepository = profileRepository,
             classRepository = classRepository,

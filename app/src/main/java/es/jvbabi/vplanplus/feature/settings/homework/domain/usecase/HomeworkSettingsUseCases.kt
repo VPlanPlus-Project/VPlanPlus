@@ -6,5 +6,8 @@ data class HomeworkSettingsUseCases(
     val isRemindOnUnfinishedHomeworkUseCase: IsRemindOnUnfinishedHomeworkUseCase,
     val setRemindOnUnfinishedHomeworkUseCase: SetRemindOnUnfinishedHomeworkUseCase,
     val getDefaultNotificationTimeUseCase: GetDefaultNotificationTimeUseCase,
-    val setDefaultNotificationTimeUseCase: SetDefaultNotificationTimeUseCase
+    val setDefaultNotificationTimeUseCase: SetDefaultNotificationTimeUseCase,
+    val getPreferredHomeworkNotificationTimeUseCase: GetPreferredHomeworkNotificationTimeUseCase,
+    val setPreferredHomeworkNotificationTimeUseCase: SetPreferredHomeworkNotificationTimeUseCase,
+    val removePreferredHomeworkNotificationTimeUseCase: RemovePreferredHomeworkNotificationTimeUseCase
 )

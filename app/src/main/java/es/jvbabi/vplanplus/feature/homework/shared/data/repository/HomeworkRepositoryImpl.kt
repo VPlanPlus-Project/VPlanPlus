@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
+import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -36,13 +37,16 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class HomeworkRepositoryImpl(
     private val homeworkDao: HomeworkDao,
+    private val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao,
     private val classRepository: ClassRepository,
     private val vppIdRepository: VppIdRepository,
     private val profileRepository: ProfileRepository,
@@ -577,6 +581,29 @@ class HomeworkRepositoryImpl(
 
     override fun isUpdateRunning(): Boolean {
         return isUpdateRunning
+    }
+
+    override suspend fun setPreferredHomeworkNotificationTime(
+        hour: Int,
+        minute: Int,
+        dayOfWeek: DayOfWeek
+    ) {
+        homeworkNotificationTimeDao.insertPreferredHomeworkNotificationTime(
+            dayOfWeek = dayOfWeek.value,
+            hour = hour,
+            minute = minute,
+            overrideDefault = true
+        )
+    }
+
+    override suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek) {
+        homeworkNotificationTimeDao.deletePreferredHomeworkNotificationTime(dayOfWeek.value)
+    }
+
+    override fun getPreferredHomeworkNotificationTimes() = flow {
+        homeworkNotificationTimeDao.getPreferredHomeworkNotificationTime().collect { times ->
+            emit(times.map { it.toModel() })
+        }
     }
 }
 

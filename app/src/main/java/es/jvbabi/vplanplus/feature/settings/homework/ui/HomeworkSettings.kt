@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.settings.homework.ui
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,7 @@ fun HomeworkSettingsScreen(
         onToggleNotificationOnNewHomework = viewModel::onToggleNotificationOnNewHomework,
         onToggleRemindUserOnUnfinishedHomework = viewModel::onToggleRemindUserOnUnfinishedHomework,
         onSetDefaultRemindTime = viewModel::onSetDefaultRemindTime,
+        onToggleException = viewModel::onToggleException,
         state = state
     )
 }
@@ -73,6 +75,7 @@ private fun HomeworkSettingsContent(
     onToggleNotificationOnNewHomework: () -> Unit,
     onToggleRemindUserOnUnfinishedHomework: () -> Unit,
     onSetDefaultRemindTime: (Int, Int) -> Unit,
+    onToggleException: (DayOfWeek) -> Unit,
     state : HomeworkSettingsState
 ) {
     val scrollBehavior =
@@ -145,11 +148,13 @@ private fun HomeworkSettingsContent(
                         LazyRow {
                             item { Spacer(modifier = Modifier.size((16+50).dp)) }
                             items(7) {
+                                val dayOfWeek = DayOfWeek.of(it+1)
                                 DayCard(
                                     modifier = Modifier.padding(end = 8.dp),
-                                    dayOfWeek = DayOfWeek.of(it+1),
-                                    enabled = it % 2 == 0,
-                                    time = state.defaultNotificationTime
+                                    dayOfWeek = dayOfWeek,
+                                    enabled = state.exceptions.any { e -> e.dayOfWeek == dayOfWeek },
+                                    time = state.defaultNotificationTime,
+                                    onToggle = { onToggleException(dayOfWeek) }
                                 )
                             }
                         }
@@ -168,6 +173,7 @@ private fun HomeworkSettingsScreenPreview() {
         onToggleNotificationOnNewHomework = {},
         onToggleRemindUserOnUnfinishedHomework = {},
         onSetDefaultRemindTime = { _, _ -> },
+        onToggleException = {},
         state = HomeworkSettingsState(
             notificationOnNewHomework = true
         )
@@ -180,7 +186,8 @@ private fun DayCardPreview() {
     DayCard(
         dayOfWeek = DayOfWeek.THURSDAY,
         enabled = true,
-        time = LocalDateTime.of(1970, 1, 1, 16, 45, 0)
+        time = LocalDateTime.of(1970, 1, 1, 16, 45, 0),
+        onToggle = {}
     )
 }
 
@@ -189,7 +196,8 @@ private fun DayCard(
     modifier: Modifier = Modifier,
     dayOfWeek: DayOfWeek,
     enabled: Boolean,
-    time: LocalDateTime
+    time: LocalDateTime,
+    onToggle: () -> Unit
 ) {
     Column(
         modifier = modifier
@@ -205,6 +213,7 @@ private fun DayCard(
         Box(
             modifier = Modifier
                 .size(40.dp)
+                .clip(RoundedCornerShape(50))
                 .drawWithContent {
                     drawCircle(
                         color = primaryColor,
@@ -215,7 +224,8 @@ private fun DayCard(
                         radius = 17.dp.toPx()
                     )
                     drawContent()
-                },
+                }
+                .clickable { onToggle() },
             contentAlignment = Alignment.Center
         ) {
             Text(

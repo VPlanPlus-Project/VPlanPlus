@@ -37,6 +37,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
 import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
+import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
@@ -136,6 +137,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val vppIdTokenDao: VppIdTokenDao
     abstract val roomBookingDao: RoomBookingDao
     abstract val homeworkDao: HomeworkDao
+    abstract val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao
 
     // grades
     abstract val subjectDao: SubjectDao
