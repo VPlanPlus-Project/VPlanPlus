@@ -59,6 +59,7 @@ import es.jvbabi.vplanplus.feature.grades.data.model.DbTeacher
 import es.jvbabi.vplanplus.feature.grades.data.source.database.GradeDao
 import es.jvbabi.vplanplus.feature.grades.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
+import es.jvbabi.vplanplus.feature.homework.shared.data.model.DbPreferredNotificationTime
 
 @Database(
     entities = [
@@ -80,14 +81,16 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         DbProfileDefaultLesson::class,
         LogRecord::class,
         DbCalendarEvent::class,
+
         DbHomework::class,
         DbHomeworkTask::class,
+        DbPreferredNotificationTime::class,
 
         DbSubject::class,
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 21,
+    version = 22,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -100,6 +103,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         AutoMigration(from = 17, to = 18), // add homework.isPublic
         AutoMigration(from = 18, to = 19), // add zoned date time
         AutoMigration(from = 19, to = 20), // add homework can hide
+        AutoMigration(from = 21, to = 22) // add preferred notification time
     ],
 )
 @TypeConverters(
