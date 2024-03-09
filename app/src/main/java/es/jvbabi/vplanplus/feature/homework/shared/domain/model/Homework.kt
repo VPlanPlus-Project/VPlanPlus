@@ -26,7 +26,6 @@ open class Homework(
 
 data class HomeworkTask(
     val id: Long,
-    val individualId: Long?,
     val content: String,
     val done: Boolean,
 )

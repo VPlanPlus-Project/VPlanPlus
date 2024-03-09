@@ -231,6 +231,7 @@ fun HomeworkCard(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) titleHost@{
                             Row(
+                                modifier = Modifier.weight(1f, false),
                                 verticalAlignment = Alignment.CenterVertically
                             ) titleContainer@{
                                 if (!homework.isLoading) {
@@ -605,13 +606,11 @@ private fun HomeworkCardPreview() {
                     id = 1,
                     content = "Test 1",
                     done = true,
-                    individualId = null
                 ),
                 HomeworkViewModelTask(
                     id = 1,
                     content = "Test 2",
                     done = true,
-                    individualId = null,
                     isLoading = false
                 )
             ),

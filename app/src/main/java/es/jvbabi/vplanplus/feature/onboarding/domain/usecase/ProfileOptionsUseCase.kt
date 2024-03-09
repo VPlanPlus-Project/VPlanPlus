@@ -18,10 +18,10 @@ class ProfileOptionsUseCase(
     private val kv: KeyValueRepository
 ) {
 
-    suspend operator fun invoke(schoolId: Long, profileType: ProfileType): List<Pair<String, Int>> {
+    suspend operator fun invoke(schoolId: Long, username: String, password: String, profileType: ProfileType): List<Pair<String, Int>> {
         val school = schoolRepository.getSchoolFromId(schoolId)
         val countMapping: Map<String, Int> = if (profileType == ProfileType.STUDENT) {
-            val response = vppIdRepository.fetchUsersPerClass(schoolId)
+            val response = vppIdRepository.fetchUsersPerClass(schoolId, username, password)
             if (response.response != HttpStatusCode.OK || response.data == null) emptyMap()
             else response.data.classes.associate { it.className to it.users }
         } else {

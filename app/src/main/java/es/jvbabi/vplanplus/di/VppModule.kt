@@ -30,7 +30,6 @@ import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
-import es.jvbabi.vplanplus.data.source.database.converter.LocalDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
@@ -111,7 +110,6 @@ import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.sync.TriggerSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.timetable.GetDataUseCase
 import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
-import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
@@ -146,8 +144,8 @@ object VppModule {
             .addMigrations(VppDatabase.migration_10_11)
             .addMigrations(VppDatabase.migration_11_12)
             .addMigrations(VppDatabase.migration_12_13)
+            .addMigrations(VppDatabase.migration_20_21)
             .addTypeConverter(LocalDateConverter())
-            .addTypeConverter(LocalDateTimeConverter())
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
@@ -218,6 +216,7 @@ object VppModule {
     ): ProfileRepository {
         return ProfileRepositoryImpl(
             profileDao = db.profileDao,
+            schoolEntityDao = db.schoolEntityDao,
             profileDefaultLessonsCrossoverDao = db.profileDefaultLessonsCrossoverDao,
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
@@ -350,10 +349,11 @@ object VppModule {
             profileDao = db.profileDao,
             vppIdDao = db.vppIdDao,
             vppIdTokenDao = db.vppIdTokenDao,
+            schoolEntityDao = db.schoolEntityDao,
             classRepository = classRepository,
             vppIdNetworkRepository = provideVppIdNetworkRepository(logRecordRepository),
             logRecordRepository = logRecordRepository,
-            keyValueRepository = keyValueRepository
+            keyValueRepository = keyValueRepository,
         )
     }
 
@@ -799,8 +799,7 @@ object VppModule {
         classRepository: ClassRepository
     ): VppIdLinkUseCases {
         return VppIdLinkUseCases(
-            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository),
-            getClassUseCase = GetClassUseCase(classRepository)
+            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository, classRepository)
         )
     }
 

@@ -7,9 +7,9 @@ import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 data class Session(
-    @SerializedName("type") val typeParam: String,
-    @SerializedName("name") val name: String,
-    @SerializedName("id") val id: Int,
+    @SerializedName("session_type") val typeParam: String,
+    @SerializedName("session_name") val name: String,
+    @SerializedName("session_id") val id: Int,
     @SerializedName("created_at") private val createAtParam: Long,
     @SerializedName("is_current") val isCurrent: Boolean
 ) {
@@ -21,8 +21,8 @@ data class Session(
         isCurrent: Boolean
     ) : this(
         when (type) {
-            SessionType.VPLANPLUS -> "a"
-            SessionType.WEB -> "w"
+            SessionType.VPLANPLUS -> "A"
+            SessionType.WEB -> "W"
         },
         name,
         id,
@@ -35,8 +35,8 @@ data class Session(
 
     val type: SessionType
         get() = when (typeParam) {
-            "a" -> SessionType.VPLANPLUS
-            "w" -> SessionType.WEB
+            "A" -> SessionType.VPLANPLUS
+            "W" -> SessionType.WEB
             else -> throw IllegalArgumentException("Unknown session type: $typeParam")
         }
 }

@@ -9,7 +9,7 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import java.util.UUID
 
 class ClassRepositoryImpl(
-    private val schoolEntityDao: SchoolEntityDao
+    private val schoolEntityDao: SchoolEntityDao,
 ) : ClassRepository {
     override suspend fun createClass(schoolId: Long, className: String) {
         schoolEntityDao.insertSchoolEntity(

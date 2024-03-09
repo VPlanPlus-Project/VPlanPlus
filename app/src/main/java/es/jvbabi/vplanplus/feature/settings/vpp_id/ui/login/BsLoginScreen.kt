@@ -140,7 +140,7 @@ fun BsLoginContent(
                         )
 
                         loadUrl(
-                            "${VppIdServer.url}/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(
+                            "https://${VppIdServer.host}/login/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(
                                 Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
                             )
                         )

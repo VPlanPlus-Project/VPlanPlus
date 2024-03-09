@@ -29,7 +29,7 @@ interface VppIdRepository {
     suspend fun getVppIdToken(vppId: VppId): String?
     suspend fun getBsToken(vppId: VppId): String?
 
-    suspend fun testVppId(vppId: VppId): DataResponse<Boolean?>
+    suspend fun testVppId(vppId: VppId): Boolean?
     suspend fun unlinkVppId(vppId: VppId): Boolean
 
     suspend fun bookRoom(vppId: VppId, room: Room, from: ZonedDateTime, to: ZonedDateTime): BookResult
@@ -38,19 +38,23 @@ interface VppIdRepository {
     suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?>
     suspend fun closeSession(session: Session, vppId: VppId): Boolean
 
-    suspend fun fetchUsersPerClass(schoolId: Long): DataResponse<UsersPerClassResponse?>
+    suspend fun fetchUsersPerClass(schoolId: Long, username: String, password: String): DataResponse<UsersPerClassResponse?>
 }
 
 data class VppIdOnlineResponse(
-    @SerializedName("id") val id: VppId,
+    @SerializedName("id") val id: Int,
+    @SerializedName("username") val username: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("sp24_school_id") val schoolId: Long,
+    @SerializedName("class_name") val className: String,
     @SerializedName("bs_token") val bsToken: String?
 )
 
 data class UsersPerClassResponse(
-    @SerializedName("classes") val classes: List<UsersPerClassResponseRecord>
+    @SerializedName("data") val classes: List<UsersPerClassResponseRecord>
 )
 
 data class UsersPerClassResponseRecord(
-    @SerializedName("name") val className: String,
-    @SerializedName("count") val users: Int
+    @SerializedName("class_name") val className: String,
+    @SerializedName("students_count") val users: Int
 )

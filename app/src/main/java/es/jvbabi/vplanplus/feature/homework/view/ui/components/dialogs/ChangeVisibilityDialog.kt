@@ -73,13 +73,11 @@ private fun ChangeVisibilityDialogPreview() {
                     id = 1,
                     content = "Test 1",
                     done = false,
-                    individualId = null
                 ),
                 HomeworkTask(
                     id = 1,
                     content = "Test 2",
                     done = true,
-                    individualId = null
                 )
             ),
             classes = `class`,

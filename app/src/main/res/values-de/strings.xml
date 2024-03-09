@@ -213,7 +213,7 @@
     <string name="vppidSettings_createId">Neu erstellen</string>
     <string name="vppidSettings_linkId">Existierende verbinden</string>
     <string name="vppidlink_welcome">Willkommen, %1$s</string>
-    <string name="vppidlink_message">Du kannst nun alle Features der Schule %1$s in der Klasse %2$s nutzen. Tippe auf eine bestehende vpp.ID um sie zu entfernen.</string>
+    <string name="vppidlink_message">Du kannst nun alle Features der Schule %1$s in der Klasse %2$s nutzen.</string>
     <string name="vppIdSettingsManagement_logoutTitle">Abmelden?</string>
     <string name="vppIdSettingsManagement_logoutMessage">Möchtest du dich wirklich abmelden, %1$s? Du wirst danach nicht mehr alle Features verwenden können.</string>
     <string name="vppIdSettingsManagement_logoutSuccess">Erfolgreich abgemeldet</string>
@@ -323,7 +323,7 @@
     <string name="homework_title">Hausaufgaben</string>
     <string name="homework_wrongProfile">Um diese Funktion zu verwenden, musst du ein Klassenprofil verwenden.</string>
     <string name="homework_homeworkHead">%1$s bis %2$s</string>
-    <string name="homework_homeworkSubtitleCreatedBy">%1$s hat am %2$s geteilt</string>
+    <string name="homework_homeworkSubtitleCreatedBy">%1$s, %2$s</string>
     <string name="homework_homeworkSubtitleLocally">Dieses Gerät, am %1$s</string>
     <string name="homework_homeworkSubtitleCreatedByYou">Deine vpp.ID, am %1$s</string>
     <string name="homework_addTask">Aufgabe hinzufügen</string>

@@ -91,7 +91,7 @@ fun GradesScreen(
         onFixOnline = {
             val browserIntent = Intent(
                 Intent.ACTION_VIEW,
-                Uri.parse(VppIdServer.url)
+                Uri.parse(VppIdServer.host)
             )
             startActivity(context, browserIntent, null)
         },

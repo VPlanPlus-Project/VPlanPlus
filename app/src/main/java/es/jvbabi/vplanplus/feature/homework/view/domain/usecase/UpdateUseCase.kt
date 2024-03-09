@@ -6,6 +6,6 @@ class UpdateUseCase(
     private val homeworkRepository: HomeworkRepository
 ) {
     suspend operator fun invoke() {
-        homeworkRepository.fetchData()
+        homeworkRepository.fetchHomework()
     }
 }

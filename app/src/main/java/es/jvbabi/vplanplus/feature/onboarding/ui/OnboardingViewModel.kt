@@ -92,7 +92,9 @@ class OnboardingViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     profileOptions = onboardingUseCases.profileOptionsUseCase(
                         schoolId = schoolId.toLong(),
-                        profileType = profileType!!
+                        profileType = profileType!!,
+                        username = username,
+                        password = password
                     ),
                     isLoading = false,
                     stage = Stage.PROFILE
