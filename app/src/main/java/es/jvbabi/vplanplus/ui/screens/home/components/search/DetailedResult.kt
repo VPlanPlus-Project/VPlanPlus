@@ -32,16 +32,15 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchResult
 import es.jvbabi.vplanplus.ui.preview.Lessons
-import es.jvbabi.vplanplus.util.DateUtils
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import es.jvbabi.vplanplus.util.DateUtils.progress
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DetailedResult(
     result: SearchResult,
-    time: LocalDateTime,
+    time: ZonedDateTime,
 ) {
     Box(
         modifier = Modifier
@@ -87,11 +86,10 @@ fun DetailedResult(
                             .clip(RoundedCornerShape(8.dp))
                             .background(CardDefaults.cardColors().containerColor),
                     ) {
-                        val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-                        val progress = DateUtils.calculateProgress(lesson.start.format(timeFormatter), time.format(timeFormatter), lesson.end.format(timeFormatter))?:0.0
+                        val progress = time.progress(lesson.start, lesson.end)
                         if (progress > 0) Box(modifier = Modifier
                             .background(MaterialTheme.colorScheme.tertiaryContainer)
-                            .fillMaxWidth(minOf(progress.toFloat(), 1f))
+                            .fillMaxWidth(minOf(progress, 1f))
                             .fillMaxHeight()
                         ) // Progress bar
                         Box(
@@ -149,6 +147,6 @@ private fun DetailedSearchPreview() {
             SchoolEntityType.ROOM,
             Lessons.generateLessons(5, true)
         ),
-        time = LocalDateTime.now()
+        time = ZonedDateTime.now()
     )
 }

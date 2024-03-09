@@ -74,8 +74,7 @@ import es.jvbabi.vplanplus.ui.preview.News
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import kotlinx.coroutines.delay
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.ZonedDateTime
 
 @Composable
 fun NewsScreen(
@@ -144,7 +143,7 @@ fun NewsScreenContent(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
-                        items(state.news.sortedBy { (!it.isRead).toString()+(it.date.toInstant(ZoneOffset.UTC).epochSecond) }.reversed()) {
+                        items(state.news.sortedBy { (!it.isRead).toString()+(it.date.toInstant().epochSecond) }.reversed()) {
                             if (!unreadDone && it.isRead && state.news.any { n -> !n.isRead }) {
                                 unreadDone = true
                                 Box(
@@ -209,7 +208,7 @@ fun NewsScreenContent(
 private fun NewsCard(
     title: String,
     content: String,
-    date: LocalDateTime,
+    date: ZonedDateTime,
     isRead: Boolean,
     onClick: () -> Unit,
 ) {
@@ -279,7 +278,7 @@ fun NewsScreenPreview() {
 @Composable
 private fun NewsCardPreview() {
     Column {
-        NewsCard(title = "Example with a very, very long title", content = "Example <b>with</b> HTML " + es.jvbabi.vplanplus.ui.preview.Text.LOREM_IPSUM_100, date = LocalDateTime.now(), isRead = false) {}
+        NewsCard(title = "Example with a very, very long title", content = "Example <b>with</b> HTML " + es.jvbabi.vplanplus.ui.preview.Text.LOREM_IPSUM_100, date = ZonedDateTime.now(), isRead = false) {}
     }
 }
 

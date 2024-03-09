@@ -1,12 +1,16 @@
 package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Delete
@@ -26,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,7 +53,9 @@ import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
+import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Profile
+import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.util.UUID
 
@@ -97,6 +104,10 @@ fun ProfileSettingsScreen(
             },
             onSetDialogVisible = { viewModel.setDialogOpen(it) },
             onSetDialogCall = { viewModel.setDialogCall(it) },
+            onOpenVppIdSettings = {
+                if (state.linkedVppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
+                else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.linkedVppId.id}")
+            },
             onDismissedPermissionDialog = { viewModel.dismissPermissionDialog() }
         )
     }
@@ -114,7 +125,8 @@ private fun ProfileSettingsScreenContent(
     onSetDialogVisible: (Boolean) -> Unit = {},
     onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
     onDefaultLessonsClicked: () -> Unit = {},
-    onDismissedPermissionDialog: () -> Unit = {}
+    onDismissedPermissionDialog: () -> Unit = {},
+    onOpenVppIdSettings: () -> Unit = {}
 ) {
     if (state.profile == null) return
 
@@ -149,6 +161,7 @@ private fun ProfileSettingsScreenContent(
                 }
             )
         },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { paddingValues ->
         if (state.dialogOpen) {
             state.dialogCall()
@@ -183,7 +196,12 @@ private fun ProfileSettingsScreenContent(
                 },
             )
         }
-        Column(modifier = Modifier.padding(paddingValues = paddingValues)) {
+        Column(
+            modifier = Modifier
+                .padding(paddingValues = paddingValues)
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+        ) {
             BigButtonGroup(
                 buttons = listOf(
                     BigButton(
@@ -273,6 +291,25 @@ private fun ProfileSettingsScreenContent(
                         onDefaultLessonsClicked()
                     })
             }
+            if (state.profile.type == ProfileType.STUDENT) SettingsCategory(title = stringResource(id = R.string.profileManagement_vppIDCategoryTitle)) {
+                if (state.linkedVppId == null) {
+                    SettingsSetting(
+                        icon = Icons.Default.Link,
+                        title = stringResource(id = R.string.profileManagement_vppIDTitle),
+                        subtitle = stringResource(id = R.string.profileManagement_vppIDNotLinked),
+                        type = SettingsType.FUNCTION,
+                        doAction = onOpenVppIdSettings
+                    )
+                } else {
+                    SettingsSetting(
+                        icon = Icons.Default.Link,
+                        title = stringResource(id = R.string.profileManagement_vppIDTitle),
+                        subtitle = state.linkedVppId.name,
+                        type = SettingsType.FUNCTION,
+                        doAction = onOpenVppIdSettings
+                    )
+                }
+            }
         }
     }
 
@@ -289,9 +326,11 @@ private fun ProfileSettingsScreenContent(
 @Composable
 @Preview(showBackground = true)
 private fun ProfileSettingsScreenPreview() {
+    val classes = ClassesPreview.generateClass(null)
     ProfileSettingsScreenContent(
         state = ProfileSettingsState(
-            profile = Profile.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY)
+            profile = Profile.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY),
+            linkedVppId = VppIdPreview.generateVppId(classes)
         ),
         onBackClicked = {}
     )

@@ -1,14 +1,15 @@
 package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model
 
 import com.google.gson.annotations.SerializedName
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.util.DateUtils
-import es.jvbabi.vplanplus.util.DateUtils.toLocalUnixTimestamp
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 data class Session(
-    @SerializedName("type") val typeParam: String,
-    val name: String,
-    val id: Int,
+    @SerializedName("session_type") val typeParam: String,
+    @SerializedName("session_name") val name: String,
+    @SerializedName("session_id") val id: Int,
     @SerializedName("created_at") private val createAtParam: Long,
     @SerializedName("is_current") val isCurrent: Boolean
 ) {
@@ -16,16 +17,16 @@ data class Session(
         type: SessionType,
         name: String,
         id: Int,
-        createAt: LocalDateTime,
+        createAt: ZonedDateTime,
         isCurrent: Boolean
     ) : this(
         when (type) {
-            SessionType.VPLANPLUS -> "a"
-            SessionType.WEB -> "w"
+            SessionType.VPLANPLUS -> "A"
+            SessionType.WEB -> "W"
         },
         name,
         id,
-        createAt.toLocalUnixTimestamp(),
+        ZonedDateTimeConverter().zonedDateTimeToTimestamp(createAt),
         isCurrent
     )
 
@@ -34,8 +35,8 @@ data class Session(
 
     val type: SessionType
         get() = when (typeParam) {
-            "a" -> SessionType.VPLANPLUS
-            "w" -> SessionType.WEB
+            "A" -> SessionType.VPLANPLUS
+            "W" -> SessionType.WEB
             else -> throw IllegalArgumentException("Unknown session type: $typeParam")
         }
 }

@@ -14,6 +14,7 @@ class DefaultLessonRepositoryImpl(
         return defaultLesson.defaultLessonId
     }
 
+    @Deprecated("Insecure")
     override suspend fun getDefaultLessonByVpId(vpId: Long): DefaultLesson? {
         return defaultLessonDao.getDefaultLessonByVpId(vpId)?.toModel()
     }

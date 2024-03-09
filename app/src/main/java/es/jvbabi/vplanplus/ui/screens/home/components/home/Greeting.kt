@@ -18,12 +18,13 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
-import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Greeting(
-    time: LocalDateTime,
+    time: ZonedDateTime,
     vppId: VppId?
 ) {
 
@@ -81,7 +82,7 @@ fun Greeting(
 @Composable
 private fun MorningWithVppId() {
     Greeting(
-        time = LocalDateTime.of(2022, 1, 1, 8, 0, 0),
+        time = ZonedDateTime.of(2022, 1, 1, 8, 0, 0, 0, ZoneId.of("UTC")),
         vppId = VppIdPreview.generateVppId(ClassesPreview.generateClass(null))
     )
 }

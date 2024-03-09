@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -118,7 +119,7 @@ fun ComposableDialog(
     icon: ImageVector,
     title: String?,
     content: @Composable () -> Unit,
-    onOk: () -> Unit = {},
+    onOk: (() -> Unit)? = {},
     okEnabled: Boolean = true,
     onDismiss: (() -> Unit)? = {},
     onCancel: (() -> Unit)? = null,
@@ -131,8 +132,9 @@ fun ComposableDialog(
             title = { if (title != null) Text(text = title) },
             text = { content() },
             icon = { Icon(imageVector = icon, contentDescription = null) },
-            onDismissRequest = { if (onDismiss == null) onOk() else onDismiss() },
+            onDismissRequest = { if (onDismiss == null && onOk != null) onOk() else onDismiss?.invoke() },
             confirmButton = {
+                if (onOk == null) return@AlertDialog
                 TextButton(onClick = { onOk() }, enabled = okEnabled) {
                     Text(text = stringResource(id = android.R.string.ok))
                 }
@@ -180,13 +182,19 @@ fun InputDialog(
                     Text(text = stringResource(id = android.R.string.ok))
                 }
             },
+            dismissButton = {
+                TextButton(onClick = { onOk(null) }) {
+                    Text(text = stringResource(id = android.R.string.cancel))
+                }
+            },
         )
     }
 }
 
 @Composable
-fun <T: Comparable<T>> SelectDialog(
-    icon: ImageVector,
+fun <T : Comparable<T>> SelectDialog(
+    icon: ImageVector? = null,
+    painter: Painter? = null,
     title: String?,
     message: String? = null,
     value: T? = null,
@@ -201,7 +209,10 @@ fun <T: Comparable<T>> SelectDialog(
     ) {
         var selected by remember { mutableStateOf(value) }
         AlertDialog(
-            icon = { Icon(imageVector = icon, contentDescription = null) },
+            icon = {
+                if (icon != null) Icon(imageVector = icon, contentDescription = null)
+                else if (painter != null) Icon(painter = painter, contentDescription = null)
+            },
             title = { if (title != null) Text(text = title) },
             text = {
                 Column {
@@ -217,8 +228,13 @@ fun <T: Comparable<T>> SelectDialog(
                                     .clickable { selected = item },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                RadioButton(selected = selected == item, onClick = { selected = item })
-                                Text(text = itemToString(item), style = MaterialTheme.typography.bodyLarge)
+                                RadioButton(
+                                    selected = selected == item,
+                                    onClick = { selected = item })
+                                Text(
+                                    text = itemToString(item),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
                             }
                         }
                     }
@@ -273,7 +289,7 @@ fun InputDialogPreview() {
 }
 
 @Composable
-fun <T: Comparable<T>> MultipleSelectDialog(
+fun <T : Comparable<T>> MultipleSelectDialog(
     icon: ImageVector,
     title: String?,
     message: String? = null,
@@ -302,7 +318,7 @@ fun <T: Comparable<T>> MultipleSelectDialog(
                                     .fillMaxWidth()
                                     .padding(vertical = 4.dp)
                                     .clickable {
-                                         onItemChange(item.key, !item.value)
+                                        onItemChange(item.key, !item.value)
                                     },
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
@@ -311,7 +327,10 @@ fun <T: Comparable<T>> MultipleSelectDialog(
                                     onCheckedChange = { isSelected ->
                                         onItemChange(item.key, isSelected)
                                     })
-                                Text(text = toText(item.key), style = MaterialTheme.typography.bodyLarge)
+                                Text(
+                                    text = toText(item.key),
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
                             }
                         }
                     }

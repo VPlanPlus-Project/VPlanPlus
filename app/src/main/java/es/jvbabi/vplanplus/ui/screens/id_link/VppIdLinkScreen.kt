@@ -49,6 +49,9 @@ fun VppIdLinkScreen(
             navHostController.navigate(Screen.HomeScreen.route) {
                 popUpTo(0)
             }
+        },
+        onRetry = {
+            vppIdLinkViewModel.init(token)
         }
     )
 }
@@ -56,6 +59,7 @@ fun VppIdLinkScreen(
 @Composable
 private fun VppIdLinkScreenContent(
     onBack: () -> Unit = {},
+    onRetry: () -> Unit = {},
     state: VppIdLinkState
 ) {
     Box(
@@ -64,7 +68,15 @@ private fun VppIdLinkScreenContent(
             .background(MaterialTheme.colorScheme.surface),
         contentAlignment = Alignment.Center
     ) {
-        if (state.isLoading || state.classes == null) CircularProgressIndicator()
+        if (state.isLoading) CircularProgressIndicator()
+        else if (state.error || state.vppId!!.classes == null) {
+            Column {
+                Text(text = "Error")
+                Button(onClick = onRetry) {
+                    Text(text = "Retry/Erneut versuchen")
+                }
+            }
+        }
         else if (state.response == HttpStatusCode.OK) {
             Column(
                 modifier = Modifier
@@ -78,14 +90,14 @@ private fun VppIdLinkScreenContent(
                     modifier = Modifier.size(64.dp)
                 )
                 Text(
-                    text = stringResource(id = R.string.vppidlink_welcome, state.vppId!!.name),
+                    text = stringResource(id = R.string.vppidlink_welcome, state.vppId.name),
                     style = MaterialTheme.typography.headlineMedium,
                 )
                 Text(
                     text = stringResource(
                         id = R.string.vppidlink_message,
-                        state.classes.school.name,
-                        state.classes.name
+                        state.vppId.classes!!.school.name,
+                        state.vppId.classes.name
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -117,7 +129,6 @@ private fun VppIdLinkScreenPreview() {
                 classes = classes,
                 email = "maria.musterfrau@email.com"
             ),
-            classes = classes
         )
     )
 }

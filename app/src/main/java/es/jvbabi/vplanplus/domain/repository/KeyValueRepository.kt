@@ -9,6 +9,9 @@ interface KeyValueRepository {
     suspend fun getOrDefault(key: String, defaultValue: String): String
     suspend fun delete(key: String)
     fun getFlow(key: String): Flow<String?>
+    fun getFlowOrDefault(key: String, defaultValue: String): Flow<String>
+
+    fun getOnMainThread(key: String): String?
 }
 
 object Keys {
@@ -29,4 +32,16 @@ object Keys {
     const val FCM_TOKEN = "FCM_TOKEN"
 
     const val SHOW_BS_BANNER = "SHOW_BS_BANNER"
+
+    const val SHOW_VPPID_BANNER_HOMEWORK = "SHOW_VPPID_BANNER_HOMEWORK"
+
+    const val IS_HOMEWORK_UPDATE_RUNNING = "IS_HOMEWORK_UPDATE_RUNNING"
+
+    const val INFO_CLOSED_FOR_DATE = "INFO_CLOSED_FOR_DATE"
+
+    const val GRADES_BIOMETRIC_ENABLED = "GRADES_BIOMETRIC_ENABLED"
+    const val SHOW_ENABLE_BIOMETRIC_BANNER = "SHOW_ENABLE_BIOMETRIC_BANNER"
+
+    const val VPPID_SERVER = "VPPID_SERVER"
+    const val VPPID_SERVER_DEFAULT = "https://id.vpp.jvbabi.es"
 }

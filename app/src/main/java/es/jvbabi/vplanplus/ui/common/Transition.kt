@@ -6,6 +6,8 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.navigation.NavBackStackEntry
 
 object Transition {
@@ -33,6 +35,14 @@ object Transition {
             ) + fadeIn(animationSpec = tween(300))
         }
 
+    val enterSlideTransitionLeft: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition?) =
+        {
+            slideIntoContainer(
+                AnimatedContentTransitionScope.SlideDirection.Left,
+                animationSpec = tween(300)
+            ) + fadeIn(animationSpec = tween(300))
+        }
+
     val exitSlideTransitionRight: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?) =
         {
             slideOutOfContainer(
@@ -40,4 +50,19 @@ object Transition {
                 animationSpec = tween(300)
             ) + fadeOut(animationSpec = tween(300))
         }
+
+    val slideInFromBottom: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) = {
+        slideInVertically(
+            initialOffsetY = { it },
+            animationSpec = tween(300)
+        ) + fadeIn(animationSpec = tween(300))
+    }
+
+    val slideOutFromBottom: (AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition) = {
+        slideOutVertically(
+            targetOffsetY = { it },
+            animationSpec = tween(300)
+        ) + fadeOut(animationSpec = tween(300))
+    }
+
 }

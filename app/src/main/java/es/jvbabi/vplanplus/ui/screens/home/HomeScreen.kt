@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,6 +35,7 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
 import es.jvbabi.vplanplus.ui.screens.home.components.home.ActiveDayContent
 import es.jvbabi.vplanplus.ui.screens.home.components.home.Greeting
+import es.jvbabi.vplanplus.ui.screens.home.components.home.components.AddHomeworkChip
 import es.jvbabi.vplanplus.ui.screens.home.search.SearchContent
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
@@ -74,6 +76,10 @@ fun HomeScreen(
         onSelectSearchResult = { type, id ->
             viewModel.selectSearchResult(type, id)
         },
+        onAddHomeworkClicked = {
+            navHostController.navigate(Screen.AddHomeworkScreen.route)
+        },
+        onInfoExpandChange = viewModel::onInfoExpandChange,
         navBar = navBar
     )
 
@@ -142,7 +148,9 @@ fun HomeScreenContent(
     onFilterToggle: (SchoolEntityType) -> Unit = {},
     onMenuOpened: () -> Unit = {},
     onFindAvailableRoomClicked: () -> Unit = {},
-    onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit = { _, _ -> }
+    onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit = { _, _ -> },
+    onAddHomeworkClicked: () -> Unit = {},
+    onInfoExpandChange: (Boolean) -> Unit = {}
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
@@ -186,6 +194,12 @@ fun HomeScreenContent(
 
                     if (state.day == null) return@root
 
+                    LazyRow {
+                        item {
+                            AddHomeworkChip(onAddHomeworkClicked)
+                        }
+                    }
+
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
@@ -200,7 +214,10 @@ fun HomeScreenContent(
                             isLoading = state.isLoading,
                             onFindRoomClicked = {
                                 onFindAvailableRoomClicked()
-                            }
+                            },
+                            isInfoExpanded = state.isInfoExpanded,
+                            onInfoExpandChange = onInfoExpandChange,
+                            homework = state.homework
                         )
                     }
                 }

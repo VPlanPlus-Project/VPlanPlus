@@ -26,9 +26,11 @@ import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
+import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.search.ResultGroup
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.Worker
 import es.jvbabi.vplanplus.worker.SyncWorker
@@ -39,9 +41,11 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 import javax.inject.Inject
 
+@Suppress("UNCHECKED_CAST")
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val app: Application,
@@ -63,19 +67,29 @@ class HomeViewModel @Inject constructor(
     private var version = 0L
 
     private var homeUiSyncJob: Job? = null
+    private var homeworkUiSyncJob: Job? = null
 
     init {
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
-                homeUseCases.getProfilesUseCase().distinctUntilChanged(),
-                keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
-                keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
-                homeUseCases.getCurrentIdentity(),
-                Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
-                    .distinctUntilChanged(),
-            ) { profiles, lastSyncTs, v, identity, isSyncing ->
+                listOf(
+                    homeUseCases.getProfilesUseCase().distinctUntilChanged(),
+                    keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
+                    keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
+                    homeUseCases.isInfoExpandedUseCase(),
+                    homeUseCases.getCurrentIdentity(),
+                    Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
+                        .distinctUntilChanged(),
+                )
+            ) { result ->
+                val profiles = result[0] as Map<School, List<Profile>>
+                val lastSyncTs = result[1] as String?
+                val lessonVersionNumber = result[2] as String?
+                val isInfoExpanded = result[3] as Boolean
+                val identity = result[4] as Identity?
+                val isSyncing = result[5] as Boolean
                 if (identity?.school == null) return@combine _state.value
-                version = v?.toLong() ?: 0
+                version = lessonVersionNumber?.toLong() ?: 0
 
                 var tomorrow = LocalDate.now().plusDays(1)
                 while (tomorrow.dayOfWeek.value > identity.school.daysPerWeek) {
@@ -90,7 +104,8 @@ class HomeViewModel @Inject constructor(
                     activeProfile = identity.profile,
                     activeSchool = identity.school,
                     currentVppId = identity.vppId,
-                    fullyCompatible = identity.school.fullyCompatible
+                    fullyCompatible = identity.school.fullyCompatible,
+                    isInfoExpanded = isInfoExpanded
                 )
             }.collect {
                 _state.value = it
@@ -126,8 +141,13 @@ class HomeViewModel @Inject constructor(
                         _state.value.copy(day = day, isLoading = false, bookings = bookings)
                     else _state.value =
                         _state.value.copy(nextDay = day, isLoading = false, bookings = bookings)
+                    _state.value = _state.value.copy(isReady = true)
                 }
         }
+    }
+
+    fun isReady(): Boolean {
+        return _state.value.isReady
     }
 
     fun getVPlanData(context: Context) {
@@ -230,11 +250,24 @@ class HomeViewModel @Inject constructor(
     private fun restartUiSync() {
         startLessonUiSync(true, _state.value.time.toLocalDate())
         startLessonUiSync(true, _state.value.nextDayDate)
+
+        homeworkUiSyncJob?.cancel()
+        homeworkUiSyncJob = viewModelScope.launch {
+            homeUseCases.getHomeworkUseCase(getActiveProfile()).distinctUntilChanged().collect {
+                _state.value = _state.value.copy(homework = it.filter { hw -> hw.until.toLocalDate().isEqual(LocalDate.now()) || hw.until.toLocalDate().isEqual(LocalDate.now().plusDays(1)) })
+            }
+        }
+    }
+
+    fun onInfoExpandChange(expanded: Boolean) {
+        viewModelScope.launch {
+            homeUseCases.setInfoExpandedUseCase(expanded)
+        }
     }
 }
 
 data class HomeState(
-    val time: LocalDateTime = LocalDateTime.now(),
+    val time: ZonedDateTime = ZonedDateTime.now(),
     val nextDayDate: LocalDate = LocalDate.now().plusDays(1),
     val day: Day? = null,
     val nextDay: Day? = null,
@@ -248,6 +281,11 @@ data class HomeState(
     val syncing: Boolean = false,
     val fullyCompatible: Boolean = true,
     val unreadMessages: List<Message> = emptyList(),
+    val homework: List<Homework> = emptyList(),
+
+    val isReady: Boolean = false,
+
+    val isInfoExpanded: Boolean = false,
 
     // search
     val searchOpen: Boolean = false,

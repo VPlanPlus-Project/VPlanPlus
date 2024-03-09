@@ -3,21 +3,25 @@ package es.jvbabi.vplanplus.feature.onboarding.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.PeopleAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -31,9 +35,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
 
 @Composable
 fun OnboardingProfileOptionListScreen(
@@ -52,13 +57,17 @@ fun OnboardingProfileOptionListScreen(
 
     ProfileOptionsScreen(
         state = state,
-        onClassSelect = { onboardingViewModel.onProfileSelect(it) },
+        onItemSelect = { onboardingViewModel.onProfileSelect(it) },
         onButtonClick = { onboardingViewModel.nextStageDefaultLessonOrPermissions(context) },
         setDialogVisibility = { onboardingViewModel.setTeacherDialogVisibility(it) },
     )
 
     BackHandler {
-        if (state.task == Task.CREATE_PROFILE) navHostController.navigate(Screen.OnboardingNewProfileScreen.route) { popUpTo(0) }
+        if (state.task == Task.CREATE_PROFILE) navHostController.navigate(Screen.OnboardingNewProfileScreen.route) {
+            popUpTo(
+                0
+            )
+        }
         else onboardingViewModel.goBackToProfileType()
     }
 }
@@ -66,7 +75,7 @@ fun OnboardingProfileOptionListScreen(
 @Composable
 fun ProfileOptionsScreen(
     state: OnboardingState,
-    onClassSelect: (String) -> Unit,
+    onItemSelect: (String) -> Unit,
     onButtonClick: () -> Unit,
     setDialogVisibility: (Boolean) -> Unit = {},
 ) {
@@ -82,17 +91,38 @@ fun ProfileOptionsScreen(
             ProfileType.ROOM -> stringResource(id = R.string.onboarding_roomChooseRoomTitle)
         },
         text = {
-            ClickableText(text = when (state.profileType) {
-                ProfileType.STUDENT -> studentText
-                ProfileType.TEACHER -> teacherText
-                ProfileType.ROOM -> roomText
-            },
+            ClickableText(
+                text = when (state.profileType) {
+                    ProfileType.STUDENT -> studentText
+                    ProfileType.TEACHER -> teacherText
+                    ProfileType.ROOM -> roomText
+                },
                 onClick = { offset ->
                     teacherText.getStringAnnotations("CANT_FIND_ACRONYM", offset, offset)
                         .firstOrNull()?.let {
                             setDialogVisibility(true)
                         }
-                })
+                }
+            )
+            if (state.profileType == ProfileType.STUDENT && state.profileOptions.any { it.second > 0 }) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.PeopleAlt,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier
+                            .padding(end = 4.dp)
+                            .size(16.dp)
+                    )
+                    Text(
+                        text = stringResource(id = R.string.onboarding_studentChooseClassPeopleLabel),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                }
+            }
         },
         buttonText = stringResource(id = R.string.next),
         isLoading = state.isLoading,
@@ -112,9 +142,10 @@ fun ProfileOptionsScreen(
             Column {
                 state.profileOptions.forEach {
                     ProfileOptionsItem(
-                        className = it,
-                        isSelected = state.selectedProfileOption == it
-                    ) { onClassSelect(it) }
+                        itemName = it.first,
+                        itemCount = it.second,
+                        isSelected = state.selectedProfileOption == it.first
+                    ) { onItemSelect(it.first) }
                 }
             }
         }
@@ -123,12 +154,50 @@ fun ProfileOptionsScreen(
 
 @Composable
 fun ProfileOptionsItem(
-    className: String,
+    itemName: String,
+    itemCount: Int,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
     val borderAlpha =
         animateFloatAsState(targetValue = if (isSelected) 1f else 0f, label = "BorderAlpha")
+
+    val content = @Composable {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = itemName,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            if (itemCount > 0) {
+                Text(
+                    text = DOT,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+                Icon(
+                    imageVector = Icons.Default.PeopleAlt,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .size(16.dp)
+                )
+                Text(
+                    text = itemCount.toString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    modifier = Modifier.padding(start = 4.dp)
+                )
+            }
+        }
+    }
     if (isSelected) {
         OutlinedCard(
             colors = CardDefaults.cardColors(
@@ -141,22 +210,7 @@ fun ProfileOptionsItem(
             modifier = Modifier
                 .padding(PaddingValues(0.dp, 4.dp))
                 .fillMaxWidth(),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Column {
-                    Text(
-                        text = className,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    )
-                }
-            }
-        }
+        ) { content() }
     } else {
         Card(
             colors = CardDefaults.cardColors(),
@@ -164,22 +218,7 @@ fun ProfileOptionsItem(
                 .padding(PaddingValues(0.dp, 4.dp))
                 .fillMaxWidth(),
             onClick = { onClick() }
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Column {
-                    Text(
-                        text = className,
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.onSecondaryContainer,
-                    )
-                }
-            }
-        }
+        ) { content() }
     }
 }
 
@@ -190,24 +229,24 @@ fun ClassListScreenPreview() {
         state = OnboardingState(
             profileType = ProfileType.STUDENT,
             profileOptions = listOf(
-                "1a",
-                "1b",
-                "1c",
-                "2a",
-                "2b",
-                "2c",
-                "3a",
-                "3b",
-                "3c",
-                "4a",
-                "4b",
-                "4c",
-                "5a",
-                "5b",
-                "5c"
+                "1a" to 1,
+                "1b" to 0,
+                "1c" to 0,
+                "2a" to 0,
+                "2b" to 1,
+                "2c" to 3,
+                "3a" to 2,
+                "3b" to 1,
+                "3c" to 2,
+                "4a" to 6,
+                "4b" to 9,
+                "4c" to 5,
+                "5a" to 11,
+                "5b" to 15,
+                "5c" to 16
             )
         ),
-        onClassSelect = {},
+        onItemSelect = {},
         onButtonClick = {},
     )
 }
@@ -218,9 +257,9 @@ fun TeacherListScreenPreview() {
     ProfileOptionsScreen(
         state = OnboardingState(
             profileType = ProfileType.TEACHER,
-            profileOptions = listOf("Bac", "Mei", "Kra", "Vle")
+            profileOptions = listOf("Bac" to 0, "Mei" to 0, "Kra" to 0, "Vle" to 0)
         ),
-        onClassSelect = {},
+        onItemSelect = {},
         onButtonClick = {},
     )
 }
@@ -231,9 +270,17 @@ fun RoomListScreenPreview() {
     ProfileOptionsScreen(
         state = OnboardingState(
             profileType = ProfileType.ROOM,
-            profileOptions = listOf("108", "109", "TH1", "TH2", "K17", "207", "208")
+            profileOptions = listOf(
+                "108" to 0,
+                "109" to 0,
+                "TH1" to 0,
+                "TH2" to 0,
+                "K17" to 0,
+                "207" to 0,
+                "208" to 0
+            )
         ),
-        onClassSelect = {},
+        onItemSelect = {},
         onButtonClick = {},
     )
 }

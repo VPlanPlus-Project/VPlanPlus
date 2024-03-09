@@ -11,10 +11,11 @@ import androidx.compose.ui.Modifier
 fun Grid(
     modifier: Modifier = Modifier,
     columns: Int = 2,
-    content: List<@Composable () -> Unit>
+    content: List<@Composable (column: Int, row: Int, index: Int) -> Unit>
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         val rows = content.chunked(columns)
+        var i = 0
         for (row in rows) {
             Row(
                 modifier = Modifier.fillMaxWidth()
@@ -23,7 +24,8 @@ fun Grid(
                     Box(
                         modifier = Modifier.weight(1f)
                     ) {
-                        item()
+                        item(i % columns, i / columns, i)
+                        i++
                     }
                 }
             }

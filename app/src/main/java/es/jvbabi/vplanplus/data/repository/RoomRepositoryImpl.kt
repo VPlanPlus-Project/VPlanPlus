@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.domain.model.Classes
@@ -20,9 +21,8 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.shared.data.TokenAuthentication
+import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
-import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.util.DateUtils
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -123,11 +123,10 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun fetchRoomBookings(school: School) {
-
-        vppIdNetworkRepository.authentication = TokenAuthentication("sp24.", school.buildToken())
+        vppIdNetworkRepository.authentication = school.buildAuthentication()
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${VppIdServer.apiVersion}/vpp_id/booking/get_room_bookings",
+            "/api/${API_VERSION}/school/${school.schoolId}/booking",
             HttpMethod.Get,
             null
         )
@@ -168,8 +167,8 @@ class RoomRepositoryImpl(
                     id = bookingResponse.id,
                     roomId = rooms.firstOrNull { room -> bookingResponse.roomName == room.name }?.roomId ?: return@mapNotNull null,
                     bookedBy = bookingResponse.bookedBy,
-                    from = DateUtils.getDateTimeFromTimestamp(bookingResponse.start),
-                    to = DateUtils.getDateTimeFromTimestamp(bookingResponse.end),
+                    from = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.start),
+                    to = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.end),
                     `class` = classes.first { it.name == bookingResponse.`class` }.classId
                 )
             }
@@ -217,14 +216,14 @@ class RoomRepositoryImpl(
 }
 
 private data class RoomBookingResponse(
-    val bookings: List<RoomBookingResponseItem>
+    @SerializedName("bookings") val bookings: List<RoomBookingResponseItem>
 )
 
 private data class RoomBookingResponseItem(
-    val id: Long,
+    @SerializedName("id") val id: Long,
+    @SerializedName("school_class") val `class`: String,
     @SerializedName("room_name") val roomName: String,
     @SerializedName("booked_by") val bookedBy: Int,
-    val start: Long,
-    val end: Long,
-    val `class`: String
+    @SerializedName("from") val start: Long,
+    @SerializedName("to") val end: Long
 )

@@ -17,8 +17,8 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
 import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
-import es.jvbabi.vplanplus.shared.data.TokenAuthentication
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -41,7 +41,7 @@ class GradeRepositoryImpl(
         vppIds.forEach vppId@{ vppId ->
             val bsToken = vppIdRepository.getBsToken(vppId) ?: return@vppId
 
-            bsNetworkRepository.authentication = TokenAuthentication("Bearer ", bsToken)
+            bsNetworkRepository.authentication = BearerAuthentication(bsToken)
             val result = bsNetworkRepository.doRequest(
                 "/api/grades?include=collection"
             )
@@ -133,33 +133,33 @@ class GradeRepositoryImpl(
     }
 }
 
-data class BsGradesResponse(
-    val data: List<BsGrade>
+private data class BsGradesResponse(
+    @SerializedName("data") val data: List<BsGrade>
 )
 
-data class BsGrade(
-    val id: Long,
-    val value: String,
+private data class BsGrade(
+    @SerializedName("id") val id: Long,
+    @SerializedName("value") val value: String,
     @SerializedName("given_at") val givenAt: String,
-    val subject: BsSubject,
-    val teacher: BsTeacher,
-    val collection: BsCollection
+    @SerializedName("subject") val subject: BsSubject,
+    @SerializedName("teacher") val teacher: BsTeacher,
+    @SerializedName("collection") val collection: BsCollection
 )
 
-data class BsSubject(
-    val id: Long,
+private data class BsSubject(
+    @SerializedName("id") val id: Long,
     @SerializedName("local_id") val short: String,
-    val name: String,
+    @SerializedName("name") val name: String,
 )
 
-data class BsTeacher(
-    val id: Long,
+private data class BsTeacher(
+    @SerializedName("id") val id: Long,
     @SerializedName("local_id") val short: String,
     @SerializedName("forename") val firstname: String,
     @SerializedName("name") val lastname: String
 )
 
-data class BsCollection(
-    val type: String,
-    val name: String
+private data class BsCollection(
+    @SerializedName("type") val type: String,
+    @SerializedName("name") val name: String
 )

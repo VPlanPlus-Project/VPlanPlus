@@ -6,10 +6,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.gson.annotations.SerializedName
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
+import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.DefaultLesson
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.OnboardingUseCases
@@ -21,7 +22,7 @@ import es.jvbabi.vplanplus.ui.common.Permission
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -91,7 +92,9 @@ class OnboardingViewModel @Inject constructor(
                 _state.value = _state.value.copy(
                     profileOptions = onboardingUseCases.profileOptionsUseCase(
                         schoolId = schoolId.toLong(),
-                        profileType = profileType!!
+                        profileType = profileType!!,
+                        username = username,
+                        password = password
                     ),
                     isLoading = false,
                     stage = Stage.PROFILE
@@ -223,7 +226,10 @@ class OnboardingViewModel @Inject constructor(
                         _state.value = _state.value.copy(allDone = true)
                     }
                 }
-            } else isLoading(false)
+            } else {
+                isLoading(false)
+                _state.value = _state.value.copy(allDone = true)
+            }
         }
     }
 
@@ -357,7 +363,7 @@ data class OnboardingState(
     val profileType: ProfileType? = null,
     val task: Task = Task.CREATE_SCHOOL,
 
-    val profileOptions: List<String> = listOf(),
+    val profileOptions: List<Pair<String, Int>> = listOf(),
     val selectedProfileOption: String? = null,
 
     val showTeacherDialog: Boolean = false,
@@ -372,7 +378,7 @@ data class OnboardingState(
     val stage: Stage = Stage.WELCOME,
     val creationStatus: ProfileCreationStatus = ProfileCreationStatus(ProfileCreationStage.NONE, null),
 
-    val time: LocalDateTime = LocalDateTime.now(),
+    val time: ZonedDateTime = ZonedDateTime.now(),
 
     val currentPermissionIndex: Int = 0,
 
@@ -403,7 +409,7 @@ enum class Stage {
 }
 
 data class QrResult(
-    val schoolId: String,
-    val username: String,
-    val password: String
+    @SerializedName("schoolId") val schoolId: String,
+    @SerializedName("username") val username: String,
+    @SerializedName("password") val password: String
 )

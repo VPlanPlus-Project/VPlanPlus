@@ -26,4 +26,10 @@ class FakeKeyValueRepository : KeyValueRepository {
         emit(map[key])
     }
 
+    override fun getFlowOrDefault(key: String, defaultValue: String) = flow {
+        getFlow(key).collect {
+            emit(it ?: defaultValue)
+        }
+    }
+
 }

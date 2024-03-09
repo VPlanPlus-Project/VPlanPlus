@@ -13,4 +13,12 @@ class FakeStringRepository(
     override fun getString(key: Int, vararg formatArgs: Any): String {
         return strings[key]?.format(*formatArgs) ?: throw IllegalArgumentException("String $key not found")
     }
+
+    override fun getPlural(key: Int, quantity: Int): String {
+        TODO("Not yet implemented")
+    }
+
+    override fun getPlural(key: Int, quantity: Int, vararg formatArgs: Any): String {
+        TODO("Not yet implemented")
+    }
 }

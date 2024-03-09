@@ -7,7 +7,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import kotlinx.coroutines.flow.first
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 
 class BookRoomUseCase(
     private val vppIdRepository: VppIdRepository,
@@ -18,8 +18,8 @@ class BookRoomUseCase(
 
     suspend operator fun invoke(
         room: Room,
-        start: LocalDateTime,
-        end: LocalDateTime
+        start: ZonedDateTime,
+        end: ZonedDateTime
     ): BookResult {
         val profile = getCurrentProfileUseCase().first() ?: return BookResult.OTHER
         val `class` = classRepository.getClassById(profile.referenceId) ?: return BookResult.OTHER

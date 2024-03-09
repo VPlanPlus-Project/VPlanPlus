@@ -6,7 +6,9 @@ import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
+import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -21,6 +23,7 @@ import java.util.UUID
 
 class ProfileRepositoryImpl(
     private val profileDao: ProfileDao,
+    private val schoolEntityDao: SchoolEntityDao,
     private val profileDefaultLessonsCrossoverDao: ProfileDefaultLessonsCrossoverDao,
     private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
 ) : ProfileRepository {
@@ -115,5 +118,9 @@ class ProfileRepositoryImpl(
 
     override suspend fun deleteDefaultLessonFromProfile(vpId: Long) {
         profileDefaultLessonsCrossoverDao.deleteCrossoversByDefaultLessonVpId(defaultLessonVpId = vpId)
+    }
+
+    override suspend fun getSchoolFromProfile(profile: Profile): School {
+        return schoolEntityDao.getSchoolEntityById(profile.referenceId)!!.school
     }
 }

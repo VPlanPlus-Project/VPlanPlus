@@ -1,10 +1,10 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    kotlin("kapt")
 }
 
 android {
@@ -15,8 +15,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 70
-        versionName = "0.9.3-beta-quick-fix-1"
+        versionCode = 105
+        versionName = "v1.0.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -30,11 +30,33 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
+        }
+
+        create("stage-minify") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = signingConfigs.getByName("debug")
+            ndk {
+                debugSymbolLevel = "SYMBOL_TABLE"
+            }
+        }
+
+        create("stage") {
+            isMinifyEnabled = false
+            isShrinkResources = false
             signingConfig = signingConfigs.getByName("debug")
         }
     }
@@ -61,10 +83,12 @@ android {
 
 
 dependencies {
+    implementation("androidx.compose.animation:animation-graphics:1.6.2")
+
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation(platform("androidx.compose:compose-bom:2024.02.01"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -73,8 +97,11 @@ dependencies {
     implementation("androidx.compose.material3:material3-android:1.2.0")
     implementation("com.google.android.material:material:1.11.0")
 
-    implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
+    implementation(platform("com.google.firebase:firebase-bom:32.7.3"))
     implementation("com.google.firebase:firebase-messaging")
+
+    // splash screen
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     // camera
     implementation("androidx.camera:camera-lifecycle:1.3.1")
@@ -90,6 +117,7 @@ dependencies {
     implementation("com.lightspark:compose-qr-code:1.0.1")
 
     implementation("com.google.dagger:hilt-android:2.49")
+    implementation("androidx.compose.animation:animation-graphics:1.6.2")
     testImplementation("junit:junit:4.13.2")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
@@ -105,6 +133,8 @@ dependencies {
     implementation("io.ktor:ktor-client-android:2.3.2")
 
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    implementation("androidx.biometric:biometric:1.1.0")
 
     debugImplementation("androidx.compose.ui:ui-tooling:1.6.2")
 

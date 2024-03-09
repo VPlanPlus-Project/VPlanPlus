@@ -2,7 +2,8 @@ package es.jvbabi.vplanplus.domain.usecase.general
 
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import java.time.LocalDateTime
+import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
+import java.time.ZonedDateTime
 
 class GetCurrentLessonNumberUseCase(
     private val lessonTimeRepository: LessonTimeRepository
@@ -14,7 +15,7 @@ class GetCurrentLessonNumberUseCase(
     suspend operator fun invoke(`class`: Classes): Double? {
         val lessonTimes = lessonTimeRepository.getLessonTimesByClass(`class`)
         var currentLesson = 0.5
-        val now = LocalDateTime.now().withDayOfYear(1).withYear(1970)
+        val now = ZonedDateTime.now().atBeginningOfTheWorld()
         lessonTimes.forEach { lessonTime ->
             if (now.isAfter(lessonTime.value.start) || now.isEqual(lessonTime.value.start)) currentLesson += 0.5
             if (now.isAfter(lessonTime.value.end) || now.isEqual(lessonTime.value.end)) currentLesson += 0.5

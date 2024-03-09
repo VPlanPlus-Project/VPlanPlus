@@ -7,5 +7,8 @@ data class HomeUseCases(
     val getColorSchemeUseCase: GetColorSchemeUseCase,
     val getProfilesUseCase: GetProfilesUseCase,
     val getCurrentIdentity: GetCurrentIdentityUseCase,
-    val refreshFirebaseToken: RefreshFirebaseTokenUseCase,
+    val setUpUseCase: SetUpUseCase,
+    val isInfoExpandedUseCase: IsInfoExpandedUseCase,
+    val setInfoExpandedUseCase: SetInfoExpandedUseCase,
+    val getHomeworkUseCase: GetHomeworkUseCase,
 )

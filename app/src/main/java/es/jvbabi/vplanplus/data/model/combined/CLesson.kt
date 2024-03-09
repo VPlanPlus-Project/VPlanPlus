@@ -21,7 +21,7 @@ data class CLesson(
         parentColumn = "defaultLessonId",
         entityColumn = "defaultLessonId",
         entity = DbDefaultLesson::class
-    ) val defaultLesson: CDefaultLesson?,
+    ) val defaultLessons: List<CDefaultLesson?>,
     @Relation(
         parentColumn = "lessonId",
         entityColumn = "id",
@@ -45,6 +45,9 @@ data class CLesson(
     ) val roomBooking: CRoomBooking?
 ) {
     fun toModel(): Lesson {
+        val defaultLesson = defaultLessons.firstOrNull {
+            it?.`class`?.schoolEntity?.id == `class`.schoolEntity.id
+        }
         return Lesson(
             `class` = `class`.toClassModel(),
             lessonNumber = lesson.lessonNumber,
@@ -65,7 +68,7 @@ data class CLesson(
                         `class`.schoolEntity.id,
                         lesson.lessonNumber
                     )
-                }.start.withDayOfYear(lesson.day.dayOfYear).withYear(lesson.day.year),
+                }.start.withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             end =
                 lessonTimes.getOrElse(
                     lesson.lessonNumber
@@ -74,7 +77,7 @@ data class CLesson(
                         `class`.schoolEntity.id,
                         lesson.lessonNumber
                     )
-                }.end.withDayOfYear(lesson.day.dayOfYear).withYear(lesson.day.year),
+                }.end.withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             vpId = defaultLesson?.defaultLesson?.vpId,
             roomBooking = roomBooking?.toModel()
         )

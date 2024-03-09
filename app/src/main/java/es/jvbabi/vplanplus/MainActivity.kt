@@ -1,16 +1,19 @@
 package es.jvbabi.vplanplus
 
+import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.ComponentActivity
+import android.view.View
+import android.view.animation.AccelerateInterpolator
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
@@ -30,7 +33,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.core.animation.doOnEnd
 import androidx.core.content.IntentSanitizer
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
@@ -40,6 +46,7 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
@@ -60,7 +67,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : FragmentActivity() {
 
     private val onboardingViewModel: OnboardingViewModel by viewModels()
     private val homeViewModel: HomeViewModel by viewModels()
@@ -72,14 +79,43 @@ class MainActivity : ComponentActivity() {
     lateinit var notificationRepository: NotificationRepository
 
     private lateinit var navController: NavHostController
+    private var showSplashScreen: Boolean = true
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        enableEdgeToEdge()
-
         processIntent(intent)
+
+        if (!homeViewModel.isReady() && showSplashScreen) installSplashScreen().apply {
+            setKeepOnScreenCondition {
+                homeViewModel.isReady()
+            }
+            setOnExitAnimationListener { screen ->
+                Log.d("MainActivity", "Exiting splash screen")
+                val moveIconAnimator = ObjectAnimator.ofFloat(
+                    screen.iconView,
+                    View.TRANSLATION_X,
+                    screen.iconView.paddingStart.toFloat(),
+                    0f
+                )
+                val fadeScreenAnimator = ObjectAnimator.ofFloat(
+                    screen.view,
+                    View.ALPHA,
+                    1f,
+                    0f
+                )
+
+                fadeScreenAnimator.interpolator = AccelerateInterpolator()
+                fadeScreenAnimator.duration = 500L
+                moveIconAnimator.interpolator = AccelerateInterpolator()
+                moveIconAnimator.duration = 500L
+                moveIconAnimator.start()
+                fadeScreenAnimator.start()
+                moveIconAnimator.doOnEnd { screen.remove() }
+                doInit(true)
+            }
+        } else doInit(false)
 
         setContent {
             var colors by remember { mutableStateOf(Colors.DYNAMIC) }
@@ -102,7 +138,7 @@ class MainActivity : ComponentActivity() {
                 var selectedIndex by rememberSaveable {
                     mutableIntStateOf(0)
                 }
-                val navBarItems = listOf(
+                val navBarItems = listOfNotNull(
                     NavigationBarItem(
                         onClick = {
                             if (selectedIndex == 0) return@NavigationBarItem
@@ -122,7 +158,7 @@ class MainActivity : ComponentActivity() {
                         onClick = {
                             if (selectedIndex == 1) return@NavigationBarItem
                             selectedIndex = 1
-                            navController.navigate(Screen.TimetableScreen.route){ popUpTo(Screen.HomeScreen.route) }
+                            navController.navigate(Screen.TimetableScreen.route) { popUpTo(Screen.HomeScreen.route) }
                         },
                         icon = {
                             Icon(
@@ -133,10 +169,25 @@ class MainActivity : ComponentActivity() {
                         label = { Text(text = stringResource(id = R.string.main_timetable)) },
                         route = Screen.TimetableScreen.route
                     ),
-                    NavigationBarItem(
+                    if (homeViewModel.state.value.activeProfile?.type == ProfileType.STUDENT) NavigationBarItem(
                         onClick = {
                             if (selectedIndex == 2) return@NavigationBarItem
                             selectedIndex = 2
+                            navController.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.MenuBook,
+                                contentDescription = null
+                            )
+                        },
+                        label = { Text(text = stringResource(id = R.string.main_homework)) },
+                        route = Screen.HomeworkScreen.route
+                    ) else null,
+                    if (homeViewModel.state.value.activeProfile?.type == ProfileType.STUDENT) NavigationBarItem(
+                        onClick = {
+                            if (selectedIndex == 3) return@NavigationBarItem
+                            selectedIndex = 3
                             navController.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
                         },
                         icon = {
@@ -147,7 +198,7 @@ class MainActivity : ComponentActivity() {
                         },
                         label = { Text(text = stringResource(id = R.string.main_grades)) },
                         route = Screen.GradesScreen.route
-                    )
+                    ) else null
                 )
 
                 val navBar = @Composable {
@@ -178,8 +229,7 @@ class MainActivity : ComponentActivity() {
                             onNavigationChanged = { route ->
                                 val item =
                                     navBarItems.firstOrNull { route?.startsWith(it.route) == true }
-                                Log.d("Navigation", "Changed to $route")
-                                if (item != null) {
+                                if (item != null && navBarItems.indexOf(item) != selectedIndex) {
                                     selectedIndex = navBarItems.indexOf(item)
                                     Log.d("Navigation", "Selected index: $selectedIndex")
                                 }
@@ -191,7 +241,7 @@ class MainActivity : ComponentActivity() {
             LaunchedEffect(key1 = true, block = {
                 notificationRepository.createSystemChannels(applicationContext)
                 notificationRepository.createProfileChannels(applicationContext, homeUseCases.getProfilesUseCase().first().map { it.value }.flatten())
-                homeUseCases.refreshFirebaseToken()
+                homeUseCases.setUpUseCase()
             })
         }
 
@@ -214,6 +264,7 @@ class MainActivity : ComponentActivity() {
         Log.d("MainActivity.Intent", "onNewIntent: $intent")
         Log.d("MainActivity.Intent", "Data: ${intent.data}")
         if (intent.hasExtra("screen")) {
+            showSplashScreen = false
             lifecycleScope.launch {
                 while (homeViewModel.state.value.activeProfile == null) delay(50)
                 when (intent.getStringExtra("screen")) {
@@ -223,6 +274,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         if (intent.hasExtra("profileId")) {
+            showSplashScreen = false
             val profileId = intent.getStringExtra("profileId")
             Log.d("MainActivity.Intent", "profileId: $profileId")
             Log.d("MainActivity.Intent", "dateStr: ${intent.getStringExtra("dateStr")}")
@@ -267,6 +319,11 @@ class MainActivity : ComponentActivity() {
             .sanitizeByFiltering(intent)
         startActivity(sanitized)
         processIntent(intent)
+    }
+
+    private fun doInit(calledBySplashScreen: Boolean) {
+        if (!calledBySplashScreen) setTheme(R.style.Theme_VPlanPlus)
+        enableEdgeToEdge()
     }
 }
 

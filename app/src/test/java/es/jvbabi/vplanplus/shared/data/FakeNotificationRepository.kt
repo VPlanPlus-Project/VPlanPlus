@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.shared.data
 
 import android.app.PendingIntent
+import android.content.Context
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 
 class FakeNotificationRepository : NotificationRepository {
@@ -21,4 +23,11 @@ class FakeNotificationRepository : NotificationRepository {
     ) {}
 
     override fun deleteChannel(channelId: String) {}
+    override fun createSystemChannels(context: Context) {
+        TODO("Not yet implemented")
+    }
+
+    override fun createProfileChannels(context: Context, profiles: List<Profile>) {
+        TODO("Not yet implemented")
+    }
 }

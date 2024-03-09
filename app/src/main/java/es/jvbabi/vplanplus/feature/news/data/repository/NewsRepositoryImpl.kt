@@ -12,12 +12,11 @@ import es.jvbabi.vplanplus.domain.model.Importance
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.NetworkRepositoryImpl
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 class NewsRepositoryImpl(
     private val networkRepository: NetworkRepositoryImpl,
@@ -39,33 +38,22 @@ class NewsRepositoryImpl(
     }
 
     override suspend fun updateMessages(schoolId: Long?) {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS'Z'")
-        val formattedDateTime = LocalDateTime.now().format(formatter)
         val version = getAppVersion(context)?.versionNumber?.toInt()?:0
 
-        val response = networkRepository.doRequest(
-            path = "/api/collections/posts/records?expand=importance&perPage=100&filter=((school_id=${schoolId?:0}) && (not_before_date <= \"$formattedDateTime\") && (not_after_date >= \"$formattedDateTime\") && (not_before_version <= $version) && (not_after_version >= $version))".replace("&&", "%26".repeat(2))
-        )
+        val url = if (schoolId == null) "/api/$API_VERSION/schools/news?version=$version"
+        else "/api/$API_VERSION/school/$schoolId/news?version=$version"
+
+        val response = networkRepository.doRequest(url)
         if (response.response != HttpStatusCode.OK || response.data == null) return
         val messages = Gson().fromJson(response.data, MessageResponse::class.java).items.map {
-            Message(
-                id = it.id,
-                title = it.title,
-                content = it.content,
-                date = LocalDateTime.parse(it.created, formatter),
-                isRead = false,
-                importance = it.expand.importance.toImportance(),
-                fromVersion = it.notBeforeVersion,
-                toVersion = it.notAfterVersion,
-                schoolId = it.schoolId.toLong()
-            )
+            it.toMessage()
         }
         messageDao.insertMessages(messages)
-        val dontSend = getMessages().first().filter { it.isRead || it.notificationSent }
+        val doNotSend = getMessages().first().filter { it.isRead || it.notificationSent }
 
         val criticalNew = messages
-            .filter { it.importance == Importance.CRITICAL }
-            .filter { !dontSend.map { ds -> ds.id }.contains(it.id) }
+            .filter { it.importance == Importance.HIGH }
+            .filter { !doNotSend.map { ds -> ds.id }.contains(it.id) }
 
         if (criticalNew.isNotEmpty()) notificationRepository.sendNotification(
             "NEWS",

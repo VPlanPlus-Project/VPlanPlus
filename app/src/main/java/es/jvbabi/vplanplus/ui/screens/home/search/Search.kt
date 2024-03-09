@@ -45,7 +45,7 @@ import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.home.components.search.DetailedResult
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
-import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Composable
@@ -53,7 +53,7 @@ fun SearchContent(
     state: HomeState,
     onFindAvailableRoomClicked: () -> Unit = {},
     onFilterToggle: (SchoolEntityType) -> Unit = {},
-    time: LocalDateTime = LocalDateTime.now(),
+    time: ZonedDateTime = ZonedDateTime.now(),
     onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit
 ) {
     AssistChip(
@@ -160,7 +160,7 @@ fun SchoolResult(
     name: String,
     searchResults: List<SearchResult>,
     filterMap: Map<SchoolEntityType, Boolean>,
-    time: LocalDateTime,
+    time: ZonedDateTime,
     onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit
 ) {
     Card(
@@ -282,7 +282,7 @@ fun SchoolResultPreview() {
             SchoolEntityType.ROOM to true,
             SchoolEntityType.CLASS to true
         ),
-        time = LocalDateTime.now(),
+        time = ZonedDateTime.now(),
         onSelectSearchResult = { _, _ -> },
     )
 }

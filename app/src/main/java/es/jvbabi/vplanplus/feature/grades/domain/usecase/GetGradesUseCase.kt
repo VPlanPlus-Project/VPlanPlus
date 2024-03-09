@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.flow
 
 class GetGradesUseCase(
     private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-    private val gradeRepository: GradeRepository
+    private val gradeRepository: GradeRepository,
+    private val calculateAverageUseCase: CalculateAverageUseCase
 ) {
 
     operator fun invoke(): Flow<GradeState> = flow {
@@ -19,18 +20,7 @@ class GetGradesUseCase(
             }
 
             gradeRepository.getGradesByUser(identity.vppId).collect grades@{ grades ->
-                val avg = mutableListOf<Double>()
-                grades.groupBy { it.subject }.entries.sortedBy { it.key.name }.forEach { (_, gradesForSubject) ->
-                    avg.add(
-                        gradesForSubject
-                            .groupBy { g -> g.type }
-                            .map { (_, gradesForType) ->
-                                gradesForType.sumOf { grade -> grade.value.toDouble() } / gradesForType.size
-                            }
-                            .sum() / gradesForSubject.groupBy { g -> g.type }.size
-                    )
-                }
-                emit(GradeState(grades, avg.average()))
+                emit(GradeState(grades, calculateAverageUseCase(grades)))
             }
         }
     }

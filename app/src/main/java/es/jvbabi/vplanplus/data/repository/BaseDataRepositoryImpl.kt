@@ -4,10 +4,6 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.ClassBaseData
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.RoomBaseData
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.TeacherBaseData
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.WeekBaseData
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -15,10 +11,14 @@ import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.ClassBaseData
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.RoomBaseData
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.TeacherBaseData
+import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.WeekBaseData
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
-import es.jvbabi.vplanplus.util.DateUtils.toLocalDateTime
+import es.jvbabi.vplanplus.util.DateUtils.toZonedDateTime
 import io.ktor.http.HttpStatusCode
 import java.time.LocalDate
 
@@ -45,8 +45,8 @@ class BaseDataRepositoryImpl(
                     LessonTime(
                         classLessonTimeRefId = `class`.classId,
                         lessonNumber = lessonTime.key,
-                        start = "${lessonTime.value.first}:00".toLocalDateTime().atBeginningOfTheWorld(),
-                        end = "${lessonTime.value.second}:00".toLocalDateTime().atBeginningOfTheWorld(),
+                        start = "${lessonTime.value.first}:00".toZonedDateTime().atBeginningOfTheWorld(),
+                        end = "${lessonTime.value.second}:00".toZonedDateTime().atBeginningOfTheWorld(),
                     )
                 )
             }

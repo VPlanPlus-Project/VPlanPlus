@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.ui.screens
 sealed class Screen(val route: String) {
     data object HomeScreen: Screen("home_screen")
     data object SearchAvailableRoomScreen: Screen("home_screen/available_room")
+    data object AddHomeworkScreen: Screen("home_screen/add_homework")
 
     data object Onboarding: Screen("onboarding")
     data object OnboardingWelcomeScreen: Screen("onboarding/welcome_screen")
@@ -20,7 +21,10 @@ sealed class Screen(val route: String) {
 
     data object TimetableScreen: Screen("timetable_screen")
 
+    data object HomeworkScreen: Screen("homework_screen")
+
     data object GradesScreen: Screen("grades")
+    data object GradesCalculatorScreen: Screen("grades/calculator")
 
     // SETTINGS
     data object SettingsScreen: Screen("settings/main")
@@ -35,6 +39,8 @@ sealed class Screen(val route: String) {
 
     data object SettingsAdvancedScreen: Screen("settings/advanced")
     data object SettingsAdvancedLogScreen: Screen("settings/advanced/logs")
+
+    data object SettingsAboutScreen: Screen("settings/about")
 
     data object NewsScreen: Screen("news_screen")
 
