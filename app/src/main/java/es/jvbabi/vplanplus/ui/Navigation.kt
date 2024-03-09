@@ -50,7 +50,7 @@ import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
-import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
+import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen

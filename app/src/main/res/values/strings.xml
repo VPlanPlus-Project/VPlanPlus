@@ -432,4 +432,6 @@
     <string name="advancedSettings_dialogServerMessage">Only do this for testing purposes. Changing the default server might result in an inconsistent data set. After you set a new server, the app will close itself.</string>
     <string name="advancedSettings_settingsServerDefault">Default server</string>
     <string name="grades_filterTitle">Subjects</string>
+    <string name="settings_homeworkTitle">Homework</string>
+    <string name="settings_subjectsSubtitle">Manage notifications for homework</string>
 </resources>
