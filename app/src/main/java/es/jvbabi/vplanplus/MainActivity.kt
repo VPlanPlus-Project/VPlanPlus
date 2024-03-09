@@ -79,12 +79,15 @@ class MainActivity : FragmentActivity() {
     lateinit var notificationRepository: NotificationRepository
 
     private lateinit var navController: NavHostController
+    private var showSplashScreen: Boolean = true
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (!homeViewModel.isReady()) installSplashScreen().apply {
+        processIntent(intent)
+
+        if (!homeViewModel.isReady() && showSplashScreen) installSplashScreen().apply {
             setKeepOnScreenCondition {
                 homeViewModel.isReady()
             }
@@ -113,9 +116,6 @@ class MainActivity : FragmentActivity() {
                 doInit(true)
             }
         } else doInit(false)
-
-
-        processIntent(intent)
 
         setContent {
             var colors by remember { mutableStateOf(Colors.DYNAMIC) }
@@ -264,6 +264,7 @@ class MainActivity : FragmentActivity() {
         Log.d("MainActivity.Intent", "onNewIntent: $intent")
         Log.d("MainActivity.Intent", "Data: ${intent.data}")
         if (intent.hasExtra("screen")) {
+            showSplashScreen = false
             lifecycleScope.launch {
                 while (homeViewModel.state.value.activeProfile == null) delay(50)
                 when (intent.getStringExtra("screen")) {
@@ -273,6 +274,7 @@ class MainActivity : FragmentActivity() {
             }
         }
         if (intent.hasExtra("profileId")) {
+            showSplashScreen = false
             val profileId = intent.getStringExtra("profileId")
             Log.d("MainActivity.Intent", "profileId: $profileId")
             Log.d("MainActivity.Intent", "dateStr: ${intent.getStringExtra("dateStr")}")

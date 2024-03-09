@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
@@ -36,6 +37,7 @@ class AdvancedSettingsViewModel @Inject constructor(
             ) { data ->
                 val currentProfile = data[0] as Profile?
                 val vppIdServer = data[1] as String
+                val canChangeVppIdServer = BuildConfig.DEBUG
 
                 if (currentProfile == null) return@combine AdvancedSettingsState()
 
@@ -52,7 +54,8 @@ class AdvancedSettingsViewModel @Inject constructor(
                         Name: ${currentProfile.originalName} (${currentProfile.displayName})
                     """.trimIndent(),
                     selectedVppIdServer = vppIdServer,
-                    currentLessonText = currentLessonText
+                    currentLessonText = currentLessonText,
+                    canChangeVppIdServer = canChangeVppIdServer
                 )
             }.collect {
                 _state.value = it
@@ -92,5 +95,6 @@ data class AdvancedSettingsState(
     val currentLessonText: String = "Loading...",
     val showDeleteCacheDialog: Boolean = false,
     val showVppIdServerDialog: Boolean = false,
-    val selectedVppIdServer: String = ""
+    val selectedVppIdServer: String = "",
+    val canChangeVppIdServer: Boolean = false
 )

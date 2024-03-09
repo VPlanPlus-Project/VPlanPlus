@@ -121,7 +121,8 @@ private fun AdvancedSettingsScreenContent(
                         stringResource(id = R.string.advancedSettings_settingsServerDefault)
                     } else state.selectedVppIdServer,
                     type = SettingsType.FUNCTION,
-                    doAction = { onVppIdDialogStateChange(true) }
+                    doAction = { onVppIdDialogStateChange(true) },
+                    enabled = state.canChangeVppIdServer
                 )
             }
             SettingsCategory(
