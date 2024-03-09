@@ -61,7 +61,10 @@ class GradesViewModel @Inject constructor(
                     showEnableBiometricBanner = canShowEnableBiometricBanner,
                     isBiometricEnabled = isBiometricEnabled,
                     isBiometricSetUp = isBiometricSetUp,
-                    authenticationState = if (isBiometricSetUp && isBiometricEnabled) AuthenticationState.NONE else AuthenticationState.AUTHENTICATED
+                    authenticationState =
+                        if (state.value.authenticationState == AuthenticationState.AUTHENTICATED) AuthenticationState.AUTHENTICATED
+                        else if (isBiometricSetUp && isBiometricEnabled) AuthenticationState.NONE
+                        else AuthenticationState.AUTHENTICATED
                 )
             }.collect {
                 _state.value = it
