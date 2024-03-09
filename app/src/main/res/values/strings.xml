@@ -322,7 +322,7 @@
     <string name="homework_wrongProfile">Please select a class profile to use this feature.</string>
     <string name="homework_homeworkHead">%1$s until %2$s</string>
     <string name="homework_homeworkSubtitleCreatedBy">%1$s, %2$s</string>
-    <string name="homework_homeworkSubtitleLocally">On this device, at %1$s</string>
+    <string name="homework_homeworkSubtitleLocally">On this device, %1$s</string>
     <string name="homework_homeworkSubtitleCreatedByYou">Your vpp.ID, at %1$s</string>
     <string name="homework_addTask">Add task</string>
     <string name="menu">Menu</string>
