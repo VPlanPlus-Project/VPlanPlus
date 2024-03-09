@@ -435,4 +435,8 @@
     <string name="settingsHomework_title">Hausaufgaben</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Benachrichtigung, wenn eine neue Hausaufgabe vorliegt</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Wenn dies ausgeschaltet ist, bekommst du dennoch eine Benachrichtigung bei Änderungen von Hausaufgaben, damit du nichts verpasst. Außerdem erhälst du eine Benachrichtigung, wenn eine Hausaufgabe nach deiner bevorzugten Erinnerungszeit erstellt wurde.</string>
+    <string name="settingsHomework_defaultNotificationTimeTitle">Bevorzugte Erinnerungszeit</string>
+    <string name="settingsHomework_defaultNotificationTimeSubtitle">Du erhälst eine Benachrichtigung, wenn es unerledigte Hausaufgaben gibt. Aktuell auf %1$s Uhr gesetzt.</string>
+    <string name="settingsHomework_reminderNotificationEnabledTitle">An unerledigte Hausaufgaben erinnern</string>
+    <string name="settingsHomework_reminderNotificationEnabledSubtitle">Erhalte eine Benachrichtigung, welche dich an unerledigte Hausaufgaben bis morgen erinnert.</string>
 </resources>

@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.NotificationAdd
+import androidx.compose.material.icons.filled.NotificationImportant
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -23,8 +25,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.IconSettingsState
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
+import es.jvbabi.vplanplus.ui.common.TimePicker
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeworkSettingsScreen(
@@ -35,6 +40,8 @@ fun HomeworkSettingsScreen(
     HomeworkSettingsContent(
         onBack = { navHostController.navigateUp() },
         onToggleNotificationOnNewHomework = viewModel::onToggleNotificationOnNewHomework,
+        onToggleRemindUserOnUnfinishedHomework = viewModel::onToggleRemindUserOnUnfinishedHomework,
+        onSetDefaultRemindTime = viewModel::onSetDefaultRemindTime,
         state = state
     )
 }
@@ -44,6 +51,8 @@ fun HomeworkSettingsScreen(
 private fun HomeworkSettingsContent(
     onBack: () -> Unit,
     onToggleNotificationOnNewHomework: () -> Unit,
+    onToggleRemindUserOnUnfinishedHomework: () -> Unit,
+    onSetDefaultRemindTime: (Int, Int) -> Unit,
     state : HomeworkSettingsState
 ) {
     val scrollBehavior =
@@ -79,6 +88,32 @@ private fun HomeworkSettingsContent(
                 checked = state.notificationOnNewHomework,
                 doAction = onToggleNotificationOnNewHomework
             )
+            SettingsSetting(
+                icon = Icons.Default.NotificationImportant,
+                title = stringResource(id = R.string.settingsHomework_reminderNotificationEnabledTitle),
+                subtitle = stringResource(id = R.string.settingsHomework_reminderNotificationEnabledSubtitle),
+                type = SettingsType.TOGGLE,
+                checked = state.remindUserOnUnfinishedHomework,
+                doAction = onToggleRemindUserOnUnfinishedHomework
+            )
+            TimePicker(
+                IconSettingsState(
+                    imageVector = Icons.Default.AccessTime,
+                    title = stringResource(id = R.string.settingsHomework_defaultNotificationTimeTitle),
+                    subtitle = stringResource(
+                        id = R.string.settingsHomework_defaultNotificationTimeSubtitle,
+                        state.defaultNotificationTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+                    ),
+                    type = SettingsType.FUNCTION,
+                    enabled = state.remindUserOnUnfinishedHomework,
+                    doAction = {
+                        val time = (it as String).split(":")
+                        onSetDefaultRemindTime(time[0].toInt(), time[1].toInt())
+                    }
+                ),
+                state.defaultNotificationTime.hour,
+                state.defaultNotificationTime.minute
+            )
         }
     }
 }
@@ -89,6 +124,8 @@ fun HomeworkSettingsScreenPreview() {
     HomeworkSettingsContent(
         onBack = {},
         onToggleNotificationOnNewHomework = {},
+        onToggleRemindUserOnUnfinishedHomework = {},
+        onSetDefaultRemindTime = { _, _ -> },
         state = HomeworkSettingsState(
             notificationOnNewHomework = true
         )

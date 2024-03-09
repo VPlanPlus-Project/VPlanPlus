@@ -437,4 +437,8 @@
     <string name="settingsHomework_title">Homework</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Show notification when someone created a new homework</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">If turned off, you\'ll still receive notification when a homework gets changed so you don\'t miss anything. Also, if the homework was created after your preferred notification time, you\'ll still get a notification.</string>
+    <string name="settingsHomework_defaultNotificationTimeTitle">Preferred reminder time</string>
+    <string name="settingsHomework_defaultNotificationTimeSubtitle">You\'ll get a notification if there are undone tasks until tomorrow. Currently set to  %1$s.</string>
+    <string name="settingsHomework_reminderNotificationEnabledTitle">Reminder of unfinished homework</string>
+    <string name="settingsHomework_reminderNotificationEnabledSubtitle">Get a notification reminding you of undone tasks until tomorrow.</string>
 </resources>
