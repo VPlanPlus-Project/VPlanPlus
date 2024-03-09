@@ -297,7 +297,7 @@ fun Setting(
         is IconSettingsState -> {
             SettingsSetting(
                 icon = state.imageVector,
-                iconTint = state.tint ?: MaterialTheme.colorScheme.onSurface,
+                iconTint = state.tint,
                 title = state.title,
                 subtitle = state.subtitle,
                 type = state.type,
