@@ -212,6 +212,10 @@ abstract class VppDatabase : RoomDatabase() {
         val migration_20_21 = object : Migration(20, 21) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE homework_task DROP COLUMN individualId")
+                db.execSQL("ALTER TABLE messages RENAME COLUMN schoolId TO sid_old")
+                db.execSQL("ALTER TABLE messages ADD COLUMN schoolId INT NULL")
+                db.execSQL("UPDATE messages SET schoolId = sid_old")
+                db.execSQL("ALTER TABLE messages DROP COLUMN sid_old")
             }
         }
     }
