@@ -55,7 +55,7 @@ class HomeworkRepositoryImpl(
 
     private var isUpdateRunning = false
 
-    override suspend fun fetchHomework() {
+    override suspend fun fetchHomework(sendNotification: Boolean) {
         if (isUpdateRunning) return
         isUpdateRunning = true
         keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "true")
@@ -105,6 +105,7 @@ class HomeworkRepositoryImpl(
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter { !existingHomework.any { eh -> eh.id == it.id } }
                     .filter { it.createdBy != vppId?.id?.toLong() }
+                    .filter { ZonedDateTimeConverter().timestampToZonedDateTime(it.until).isAfter(ZonedDateTime.now()) }
 
                 val changedHomework = data
                     .filter {profile.isDefaultLessonEnabled(it.vpId.toLong()) }
@@ -180,62 +181,64 @@ class HomeworkRepositoryImpl(
                     )
                 }
 
-                if (newHomework.size == 1) {
-                    val defaultLessons =
-                        defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
-                    val vpIds = vppIdRepository.getVppIds().first()
+                if (sendNotification) {
+                    if (newHomework.size == 1) {
+                        val defaultLessons =
+                            defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
+                        val vpIds = vppIdRepository.getVppIds().first()
 
-                    val dateResourceId = DateUtils
-                        .getDateFromTimestamp(newHomework.first().until)
-                        .getRelativeStringResource()
+                        val dateResourceId = DateUtils
+                            .getDateFromTimestamp(newHomework.first().until)
+                            .getRelativeStringResource()
 
-                    val dateString =
-                        if (dateResourceId != null) stringRepository.getString(dateResourceId)
-                        else DateUtils.getDateFromTimestamp(newHomework.first().until).format(
-                            DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
+                        val dateString =
+                            if (dateResourceId != null) stringRepository.getString(dateResourceId)
+                            else DateUtils.getDateFromTimestamp(newHomework.first().until).format(
+                                DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
+                            )
+
+                        notificationRepository.sendNotification(
+                            CHANNEL_ID_HOMEWORK,
+                            newHomework.first().id.toInt(),
+                            stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
+                            stringRepository.getString(
+                                R.string.notification_homeworkNewHomeworkOneContent,
+                                vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
+                                    ?: "Unknown",
+                                defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject
+                                    ?: "Unknown",
+                                newHomework.first().tasks.size,
+                                dateString
+                            ),
+                            R.drawable.vpp,
+                            null,
                         )
-
-                    notificationRepository.sendNotification(
-                        CHANNEL_ID_HOMEWORK,
-                        newHomework.first().id.toInt(),
-                        stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
-                        stringRepository.getString(
-                            R.string.notification_homeworkNewHomeworkOneContent,
-                            vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
-                                ?: "Unknown",
-                            defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject
-                                ?: "Unknown",
-                            newHomework.first().tasks.size,
-                            dateString
-                        ),
-                        R.drawable.vpp,
-                        null,
-                    )
-                } else if (newHomework.isNotEmpty()) {
-                    notificationRepository.sendNotification(
-                        CHANNEL_ID_HOMEWORK,
-                        CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
-                        stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
-                        stringRepository.getString(
-                            R.string.notification_homeworkNewHomeworkMultipleContent,
-                            newHomework.size
-                        ),
-                        R.drawable.vpp,
-                        null,
-                    )
-                } else if (changedHomework.isNotEmpty()) {
-                    notificationRepository.sendNotification(
-                        CHANNEL_ID_HOMEWORK,
-                        CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
-                        stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
-                        stringRepository.getPlural(
-                            R.plurals.notification_homeworkChangedHomeworkContent,
-                            changedHomework.size,
-                            changedHomework.size
-                        ),
-                        R.drawable.vpp,
-                        null,
-                    )
+                    } else if (newHomework.isNotEmpty()) {
+                        notificationRepository.sendNotification(
+                            CHANNEL_ID_HOMEWORK,
+                            CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
+                            stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
+                            stringRepository.getString(
+                                R.string.notification_homeworkNewHomeworkMultipleContent,
+                                newHomework.size
+                            ),
+                            R.drawable.vpp,
+                            null,
+                        )
+                    } else if (changedHomework.isNotEmpty()) {
+                        notificationRepository.sendNotification(
+                            CHANNEL_ID_HOMEWORK,
+                            CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
+                            stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
+                            stringRepository.getPlural(
+                                R.plurals.notification_homeworkChangedHomeworkContent,
+                                changedHomework.size,
+                                changedHomework.size
+                            ),
+                            R.drawable.vpp,
+                            null,
+                        )
+                    }
                 }
             }
 
