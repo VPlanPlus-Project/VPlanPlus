@@ -22,8 +22,11 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Warning
@@ -43,7 +46,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.platform.LocalContext
@@ -56,12 +64,12 @@ import androidx.navigation.NavHostController
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
+import es.jvbabi.vplanplus.feature.grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.grades.domain.model.Subject
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.grades.ui.components.Average
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.grades.GradeSubjectGroup
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.grades.LatestGrades
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.Authenticate
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NoGrades
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NoVppId
@@ -286,14 +294,22 @@ private fun GradesScreenContent(
                 }
                 item {
                     Column(
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(start = 8.dp)
                     ) {
-                        LatestGrades(grades = state.latestGrades)
+                        Text(text = stringResource(id = R.string.grades_latest), style = MaterialTheme.typography.headlineSmall)
+                        LazyRow {
+                            items(state.latestGrades) { grade ->
+                                LatestGrade(grade.value.toInt(), grade.modifier, grade.subject.short)
+                            }
+                        }
                         HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
                     }
                 }
                 items(grades) { (_, grades) ->
-                    Box(
+                    AnimatedVisibility(
+                        visible = state.visibleSubjects.contains(grades.subject),
+                        enter = expandVertically(tween(200)),
+                        exit = shrinkVertically(tween(200)),
                         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                     ) {
                         GradeSubjectGroup(
@@ -337,3 +353,46 @@ private val colorMatrix = floatArrayOf(
     0f, 0f, -1f, 0f, 255f,
     0f, 0f, 0f, 1f, 0f
 )
+
+@Composable
+private fun LatestGrade(value: Int, modifier: GradeModifier, subject: String)  {
+    val colorScheme = MaterialTheme.colorScheme
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = Modifier
+            .padding(end = 8.dp)
+            .size(70.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .drawWithContent {
+                drawRect(
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(
+                            colorScheme.primary,
+                            colorScheme.tertiary
+                        )
+                    ),
+                    topLeft = Offset(0f, 0f),
+                    size = Size(size.width, size.height)
+                )
+                drawContent()
+            }
+    ) {
+        Text(
+            text = "$value${modifier.symbol}",
+            style = MaterialTheme.typography.headlineMedium,
+            color = MaterialTheme.colorScheme.onPrimary,
+        )
+        Text(
+            text = subject,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onPrimary,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun LatestGradePreview() {
+    LatestGrade(2, GradeModifier.MINUS, "Math")
+}
