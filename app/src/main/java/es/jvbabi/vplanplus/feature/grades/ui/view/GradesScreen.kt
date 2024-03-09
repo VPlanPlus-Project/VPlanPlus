@@ -299,7 +299,12 @@ private fun GradesScreenContent(
                         Text(text = stringResource(id = R.string.grades_latest), style = MaterialTheme.typography.headlineSmall)
                         LazyRow {
                             items(state.latestGrades) { grade ->
-                                LatestGrade(grade.value.toInt(), grade.modifier, grade.subject.short)
+                                LatestGrade(
+                                    Modifier.padding(end = 8.dp),
+                                    grade.value.toInt(),
+                                    grade.modifier,
+                                    grade.subject.short
+                                )
                             }
                         }
                         HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
@@ -355,13 +360,12 @@ private val colorMatrix = floatArrayOf(
 )
 
 @Composable
-private fun LatestGrade(value: Int, modifier: GradeModifier, subject: String)  {
+private fun LatestGrade(modifier: Modifier = Modifier, value: Int, gradeModifier: GradeModifier, subject: String)  {
     val colorScheme = MaterialTheme.colorScheme
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .padding(end = 8.dp)
+        modifier = modifier
             .size(70.dp)
             .clip(RoundedCornerShape(8.dp))
             .drawWithContent {
@@ -379,7 +383,7 @@ private fun LatestGrade(value: Int, modifier: GradeModifier, subject: String)  {
             }
     ) {
         Text(
-            text = "$value${modifier.symbol}",
+            text = "$value${gradeModifier.symbol}",
             style = MaterialTheme.typography.headlineMedium,
             color = MaterialTheme.colorScheme.onPrimary,
         )
@@ -394,5 +398,9 @@ private fun LatestGrade(value: Int, modifier: GradeModifier, subject: String)  {
 @Preview
 @Composable
 private fun LatestGradePreview() {
-    LatestGrade(2, GradeModifier.MINUS, "Math")
+    LatestGrade(
+        value = 2,
+        gradeModifier = GradeModifier.MINUS,
+        subject = "Math"
+    )
 }
