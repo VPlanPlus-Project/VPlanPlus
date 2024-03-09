@@ -56,6 +56,7 @@ import androidx.navigation.NavHostController
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
+import es.jvbabi.vplanplus.feature.grades.domain.model.Subject
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.grades.ui.components.Average
@@ -126,6 +127,7 @@ fun GradesScreen(
         },
         onDismissEnableBiometricBanner = { gradesViewModel.onDismissEnableBiometricBanner() },
         onDisableBiometric = { gradesViewModel.onSetBiometric(false) },
+        onToggleSubject = gradesViewModel::onToggleSubject,
         state = state,
         navBar = navBar
     )
@@ -145,6 +147,7 @@ private fun GradesScreenContent(
     onOpenSecuritySettings: () -> Unit,
     onDisableBiometric: () -> Unit,
     onStartCalculator: (List<Grade>) -> Unit,
+    onToggleSubject: (Subject) -> Unit,
     state: GradesState,
     navBar: @Composable () -> Unit
 ) {
@@ -189,23 +192,30 @@ private fun GradesScreenContent(
                 enter = expandVertically(tween(200)),
                 exit = shrinkVertically(tween(200))
             ) {
-                FlowRow(
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    state.grades.keys.sortedBy { it.name }.forEach { subject ->
-                        FilterChip(
-                            selected = false,
-                            onClick = { /*TODO*/ },
-                            label = { Text(text = subject.short) },
-                            modifier = Modifier.padding(horizontal = 4.dp),
-                            leadingIcon = {
-                                SubjectIcon(
-                                    subject = subject.name,
-                                    modifier = Modifier,
-                                    tint = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        )
+                Column {
+                    Text(
+                        text = stringResource(id = R.string.grades_filterTitle),
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+                    )
+                    FlowRow(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        state.grades.keys.sortedBy { it.name }.forEach { subject ->
+                            FilterChip(
+                                selected = state.visibleSubjects.contains(subject) && state.visibleSubjects.size != state.grades.size,
+                                onClick = { onToggleSubject(subject) },
+                                label = { Text(text = subject.short) },
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                leadingIcon = {
+                                    SubjectIcon(
+                                        subject = subject.name,
+                                        modifier = Modifier,
+                                        tint = MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -314,6 +324,7 @@ fun GradesScreenPreview() {
         ),
         onStartAuthenticate = {},
         onOpenSecuritySettings = {},
+        onToggleSubject = {},
         onDismissEnableBiometricBanner = {},
         onEnableBiometric = {},
         onDisableBiometric = {}
