@@ -810,10 +810,15 @@ object VppModule {
     @Singleton
     fun provideVppIdLinkUseCases(
         vppIdRepository: VppIdRepository,
-        classRepository: ClassRepository
+        classRepository: ClassRepository,
+        gradeRepository: GradeRepository
     ): VppIdLinkUseCases {
         return VppIdLinkUseCases(
-            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository, classRepository)
+            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(
+                vppIdRepository = vppIdRepository,
+                classRepository = classRepository,
+                gradeRepository = gradeRepository
+            )
         )
     }
 

@@ -5,10 +5,12 @@ import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
 
 class GetVppIdDetailsUseCase(
     private val vppIdRepository: VppIdRepository,
-    private val classRepository: ClassRepository
+    private val classRepository: ClassRepository,
+    private val gradeRepository: GradeRepository
 ) {
 
     suspend operator fun invoke(token: String): DataResponse<VppId?> {
@@ -27,6 +29,8 @@ class GetVppIdDetailsUseCase(
             )
             vppIdRepository.addVppId(vppId)
             vppIdRepository.addVppIdToken(vppId, token, response.data.bsToken, true)
+
+            gradeRepository.updateGrades()
 
             return DataResponse(vppId, response.response)
         }

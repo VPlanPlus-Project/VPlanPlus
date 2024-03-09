@@ -35,6 +35,7 @@ class GradeRepositoryImpl(
     private val notificationRepository: NotificationRepository,
     private val stringRepository: StringRepository
 ) : GradeRepository {
+
     override suspend fun updateGrades(): List<Grade> {
         val vppIds = vppIdRepository.getVppIds().first()
         val newGrades = mutableListOf<Grade>()
