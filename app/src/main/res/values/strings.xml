@@ -435,4 +435,6 @@
     <string name="settings_homeworkTitle">Homework</string>
     <string name="settings_subjectsSubtitle">Manage notifications for homework</string>
     <string name="settingsHomework_title">Homework</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Show notification when someone created a new homework</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">If turned off, you\'ll still receive notification when a homework gets changed so you don\'t miss anything. Also, if the homework was created after your preferred notification time, you\'ll still get a notification.</string>
 </resources>
