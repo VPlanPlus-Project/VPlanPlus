@@ -6,10 +6,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,19 +28,34 @@ class AdvancedSettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getCurrentProfileUseCase().collect { currentProfile ->
-                if (currentProfile == null) return@collect
-                _state.value = _state.value.copy(currentProfileText = """
-                    Type: ${currentProfile.type}
-                    Name: ${currentProfile.originalName} (${currentProfile.displayName})
-                """.trimIndent())
+            combine(
+                listOf(
+                    getCurrentProfileUseCase(),
+                    advancedSettingsUseCases.getVppIdServerUseCase()
+                )
+            ) { data ->
+                val currentProfile = data[0] as Profile?
+                val vppIdServer = data[1] as String
 
-                if (currentProfile.type == ProfileType.STUDENT) {
+                if (currentProfile == null) return@combine AdvancedSettingsState()
+
+                val currentLessonText = if (currentProfile.type == ProfileType.STUDENT) {
                     val `class` = getClassByProfileUseCase(currentProfile)!!
-                    _state.value = _state.value.copy(currentLessonText = getCurrentLessonNumberUseCase(`class`).toString())
+                    getCurrentLessonNumberUseCase(`class`).toString()
                 } else {
-                    _state.value = _state.value.copy(currentLessonText = "N/A")
+                    "N/A"
                 }
+
+                _state.value.copy(
+                    currentProfileText = """
+                        Type: ${currentProfile.type}
+                        Name: ${currentProfile.originalName} (${currentProfile.displayName})
+                    """.trimIndent(),
+                    selectedVppIdServer = vppIdServer,
+                    currentLessonText = currentLessonText
+                )
+            }.collect {
+                _state.value = it
             }
         }
     }
@@ -57,10 +74,23 @@ class AdvancedSettingsViewModel @Inject constructor(
     fun closeDeleteCacheDialog() {
         _state.value = _state.value.copy(showDeleteCacheDialog = false)
     }
+
+    fun showVppIdDialog(show: Boolean) {
+        _state.value = _state.value.copy(showVppIdServerDialog = show)
+    }
+
+    fun setVppIdServer(server: String?) {
+        viewModelScope.launch {
+            advancedSettingsUseCases.setVppIdServerUseCase(server)
+            showVppIdDialog(false)
+        }
+    }
 }
 
 data class AdvancedSettingsState(
     val currentProfileText: String = "Loading...",
     val currentLessonText: String = "Loading...",
-    val showDeleteCacheDialog: Boolean = false
+    val showDeleteCacheDialog: Boolean = false,
+    val showVppIdServerDialog: Boolean = false,
+    val selectedVppIdServer: String = ""
 )

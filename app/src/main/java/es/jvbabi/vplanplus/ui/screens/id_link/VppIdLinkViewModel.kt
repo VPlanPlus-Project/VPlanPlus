@@ -23,6 +23,7 @@ class VppIdLinkViewModel @Inject constructor(
     private var token: String = ""
 
     fun init(token: String?) {
+        Log.i("vpp.ID Link", "Init with $token")
         if (token == null) {
             _state.value = _state.value.copy(isLoading = false)
             return

@@ -40,9 +40,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.net.URLEncoder
@@ -50,15 +50,18 @@ import java.net.URLEncoder
 
 @Composable
 fun BsLoginScreen(
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    viewModel: BsLoginViewModel = hiltViewModel()
 ) {
+    val state = viewModel.state.value
     BsLoginContent(
         onBack = { navHostController.popBackStack() },
         onContinue = {
             navHostController.navigate(Screen.AccountAddedScreen.route + "/$it") {
                 popUpTo(0)
             }
-        }
+        },
+        server = state.server
     )
 }
 
@@ -67,8 +70,10 @@ fun BsLoginScreen(
 @Composable
 fun BsLoginContent(
     onBack: () -> Unit,
-    onContinue: (token: String) -> Unit = {}
+    onContinue: (token: String) -> Unit = {},
+    server: String,
 ) {
+    if (server.isBlank()) return
     var cleanUp by remember {
         mutableStateOf<() -> Unit>({
             Log.d("VppIdLogin", "Cleaning up")
@@ -140,7 +145,7 @@ fun BsLoginContent(
                         )
 
                         loadUrl(
-                            "https://${VppIdServer.host}/login/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(
+                            "$server/login/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(
                                 Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
                             )
                         )
@@ -194,6 +199,7 @@ fun BsLoginContent(
 @Composable
 fun BsLoginScreenPreview() {
     BsLoginContent(
-        onBack = {}
+        onBack = {},
+        server = ""
     )
 }

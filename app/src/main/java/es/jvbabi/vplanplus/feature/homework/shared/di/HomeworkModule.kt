@@ -40,7 +40,7 @@ object HomeworkModule {
             vppIdRepository = vppIdRepository,
             profileRepository = profileRepository,
             classRepository = classRepository,
-            vppIdNetworkRepository = VppModule.provideVppIdNetworkRepository(logRecordRepository),
+            vppIdNetworkRepository = VppModule.provideVppIdNetworkRepository(keyValueRepository, logRecordRepository),
             notificationRepository = notificationRepository,
             stringRepository = stringRepository,
             defaultLessonRepository = defaultLessonRepository,

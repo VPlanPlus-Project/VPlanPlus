@@ -26,9 +26,9 @@ import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.NewTaskRecord
+import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
-import es.jvbabi.vplanplus.shared.data.VppIdServer
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
 import es.jvbabi.vplanplus.util.sha256
@@ -76,10 +76,10 @@ class HomeworkRepositoryImpl(
                     val token = vppIdRepository.getVppIdToken(vppId) ?: return@forEach
                     vppIdNetworkRepository.authentication = BearerAuthentication(token)
 
-                    url = "/api/${VppIdServer.API_VERSION}/user/me/homework"
+                    url = "/api/$API_VERSION/user/me/homework"
                 } else {
                     vppIdNetworkRepository.authentication = school.buildAuthentication()
-                    url = "/api/${VppIdServer.API_VERSION}/school/${school.schoolId}/class/${`class`.name}/homework"
+                    url = "/api/$API_VERSION/school/${school.schoolId}/class/${`class`.name}/homework"
                 }
 
                 val response = vppIdNetworkRepository.doRequest(url)
@@ -303,7 +303,7 @@ class HomeworkRepositoryImpl(
         val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/user/me/homework",
+            path = "/api/$API_VERSION/user/me/homework",
             requestBody = Gson().toJson(
                 AddHomeworkRequest(
                     vpId = defaultLessonVpId,
@@ -357,7 +357,7 @@ class HomeworkRepositoryImpl(
         val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}",
+            path = "/api/$API_VERSION/user/me/homework/${homework.id}",
             requestMethod = HttpMethod.Delete
         )
         return if (result.response == HttpStatusCode.OK) {
@@ -391,7 +391,7 @@ class HomeworkRepositoryImpl(
         val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}/tasks",
+            path = "/api/$API_VERSION/user/me/homework/${homework.id}/tasks",
             requestBody = Gson().toJson(AddOrChangeTaskRequest(content = content)),
             requestMethod = HttpMethod.Post
         )
@@ -427,7 +427,7 @@ class HomeworkRepositoryImpl(
         val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${parent.id}/tasks/${task.id}",
+            path = "/api/$API_VERSION/user/me/homework/${parent.id}/tasks/${task.id}",
             requestMethod = HttpMethod.Delete
         )
 
@@ -462,7 +462,7 @@ class HomeworkRepositoryImpl(
         val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${parent.id}/tasks/${task.id}",
+            path = "/api/$API_VERSION/user/me/homework/${parent.id}/tasks/${task.id}",
             requestBody = Gson().toJson(AddOrChangeTaskRequest(newContent)),
             requestMethod = HttpMethod.Patch
         )
@@ -496,7 +496,7 @@ class HomeworkRepositoryImpl(
         val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}/tasks/${task.id}",
+            path = "/api/$API_VERSION/user/me/homework/${homework.id}/tasks/${task.id}",
             requestBody = Gson().toJson(MarkDoneRequest(done)),
             requestMethod = HttpMethod.Patch
         )
@@ -533,7 +533,7 @@ class HomeworkRepositoryImpl(
         val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
-            path = "/api/${VppIdServer.API_VERSION}/user/me/homework/${homework.id}",
+            path = "/api/$API_VERSION/user/me/homework/${homework.id}",
             requestBody = Gson().toJson(
                 ChangeVisibilityRequest(shared = !homework.isPublic)
             ),

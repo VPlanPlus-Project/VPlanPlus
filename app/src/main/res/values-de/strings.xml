@@ -425,4 +425,8 @@
         <item quantity="one">Eine offene HA</item>
         <item quantity="other">%1$d offene HA</item>
     </plurals>
+    <string name="advancedSettings_settingsServerTitle">vpp.ID Server</string>
+    <string name="advancedSettings_dialogServerTitle">vpp.ID Server ändern</string>
+    <string name="advancedSettings_dialogServerMessage">Tue dies nur zu Testzwecken. Das Wechseln des vpp.ID Servers kann in fehlerhafte Daten resultieren. Nachdem du einen anderen Server ausgewählt hast, wird die App sich schließen.</string>
+    <string name="advancedSettings_settingsServerDefault">Standartserver</string>
 </resources>

@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.feature.grades.ui.view
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.provider.Settings
 import android.widget.Toast
@@ -37,7 +36,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat.startActivity
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -47,14 +45,12 @@ import es.jvbabi.vplanplus.feature.grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.grades.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.grades.ui.components.Average
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NoGrades
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NoVppId
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NotActivated
-import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.WrongProfile
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.grades.GradeSubjectGroup
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.grades.LatestGrades
 import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.Authenticate
-import es.jvbabi.vplanplus.shared.data.VppIdServer
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NoGrades
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.NoVppId
+import es.jvbabi.vplanplus.feature.grades.ui.view.components.screens.WrongProfile
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -88,13 +84,6 @@ fun GradesScreen(
     GradesScreenContent(
         onBack = { navHostController.popBackStack() },
         onLinkVppId = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
-        onFixOnline = {
-            val browserIntent = Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse(VppIdServer.host)
-            )
-            startActivity(context, browserIntent, null)
-        },
         onHideBanner = { gradesViewModel.onHideBanner() },
         onStartCalculator = { grades ->
             val data = grades.groupBy { it.type }.map {
@@ -132,7 +121,6 @@ fun GradesScreen(
 private fun GradesScreenContent(
     onBack: () -> Unit,
     onLinkVppId: () -> Unit,
-    onFixOnline: () -> Unit,
     onHideBanner: () -> Unit,
     onDismissEnableBiometricBanner: () -> Unit,
     onEnableBiometric: () -> Unit,
@@ -160,7 +148,6 @@ private fun GradesScreenContent(
             when (state.enabled) {
                 GradeUseState.NO_VPP_ID -> NoVppId(onLinkVppId)
                 GradeUseState.WRONG_PROFILE_SELECTED -> WrongProfile()
-                GradeUseState.NOT_ENABLED -> NotActivated(onFixOnline, onLinkVppId)
                 else -> {}
             }
             AnimatedVisibility(
@@ -257,7 +244,6 @@ fun GradesScreenPreview() {
     GradesScreenContent(
         onBack = {},
         onLinkVppId = {},
-        onFixOnline = {},
         onHideBanner = {},
         onStartCalculator = {},
         navBar = {},

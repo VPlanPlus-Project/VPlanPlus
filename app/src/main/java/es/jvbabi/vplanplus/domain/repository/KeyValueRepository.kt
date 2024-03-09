@@ -10,6 +10,8 @@ interface KeyValueRepository {
     suspend fun delete(key: String)
     fun getFlow(key: String): Flow<String?>
     fun getFlowOrDefault(key: String, defaultValue: String): Flow<String>
+
+    fun getOnMainThread(key: String): String?
 }
 
 object Keys {
@@ -39,4 +41,7 @@ object Keys {
 
     const val GRADES_BIOMETRIC_ENABLED = "GRADES_BIOMETRIC_ENABLED"
     const val SHOW_ENABLE_BIOMETRIC_BANNER = "SHOW_ENABLE_BIOMETRIC_BANNER"
+
+    const val VPPID_SERVER = "VPPID_SERVER"
+    const val VPPID_SERVER_DEFAULT = "https://id.vpp.jvbabi.es"
 }

@@ -427,4 +427,8 @@
     <plurals name="home_nextDayHomework">
         <item quantity="other">%1$d undone homework</item>
     </plurals>
+    <string name="advancedSettings_settingsServerTitle">vpp.ID Server</string>
+    <string name="advancedSettings_dialogServerTitle">Change vpp.ID server</string>
+    <string name="advancedSettings_dialogServerMessage">Only do this for testing purposes. Changing the default server might result in an inconsistent data set. After you set a new server, the app will close itself.</string>
+    <string name="advancedSettings_settingsServerDefault">Default server</string>
 </resources>

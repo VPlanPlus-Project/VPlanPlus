@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.feature.news.data.repository.NewsRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
@@ -22,8 +23,13 @@ object MessageModule {
 
     @Provides
     @Singleton
-    fun provideNewsNetworkRepository(): NewsNetworkRepository {
-        return NewsNetworkRepository(logRepository = null)
+    fun provideNewsNetworkRepository(
+        keyValueRepository: KeyValueRepository
+    ): NewsNetworkRepository {
+        return NewsNetworkRepository(
+            keyValueRepository = keyValueRepository,
+            logRepository = null
+        )
     }
 
     @Provides

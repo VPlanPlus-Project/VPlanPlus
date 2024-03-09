@@ -81,6 +81,8 @@ import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.domain.usecase.settings.advanced.SetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetSettingsUseCase
@@ -174,8 +176,14 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideVppIdNetworkRepository(logRecordRepository: LogRecordRepository?): VppIdNetworkRepository {
-        return VppIdNetworkRepository(logRepository = logRecordRepository)
+    fun provideVppIdNetworkRepository(
+        keyValueRepository: KeyValueRepository,
+        logRecordRepository: LogRecordRepository?
+    ): VppIdNetworkRepository {
+        return VppIdNetworkRepository(
+            keyValueRepository = keyValueRepository,
+            logRepository = logRecordRepository
+        )
     }
 
     // Repositories
@@ -323,13 +331,14 @@ object VppModule {
         logRecordRepository: LogRecordRepository,
         profileRepository: ProfileRepository,
         notificationRepository: NotificationRepository,
-        stringRepository: StringRepository
+        stringRepository: StringRepository,
+        keyValueRepository: KeyValueRepository
     ): RoomRepository {
         return RoomRepositoryImpl(
             schoolEntityDao = db.schoolEntityDao,
             roomBookingDao = db.roomBookingDao,
             vppIdRepository = vppIdRepository,
-            vppIdNetworkRepository = provideVppIdNetworkRepository(logRecordRepository),
+            vppIdNetworkRepository = provideVppIdNetworkRepository(keyValueRepository, logRecordRepository),
             classRepository = classRepository,
             profileRepository = profileRepository,
             notificationRepository = notificationRepository,
@@ -351,7 +360,7 @@ object VppModule {
             vppIdTokenDao = db.vppIdTokenDao,
             schoolEntityDao = db.schoolEntityDao,
             classRepository = classRepository,
-            vppIdNetworkRepository = provideVppIdNetworkRepository(logRecordRepository),
+            vppIdNetworkRepository = provideVppIdNetworkRepository(keyValueRepository, logRecordRepository),
             logRecordRepository = logRecordRepository,
             keyValueRepository = keyValueRepository,
         )
@@ -375,14 +384,15 @@ object VppModule {
         db: VppDatabase,
         classRepository: ClassRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
-        vppIdNetworkRepository: VppIdNetworkRepository,
+        keyValueRepository: KeyValueRepository,
+        logRecordRepository: LogRecordRepository
     ): VppIdRepository {
         return VppIdRepositoryImpl(
             vppIdDao = db.vppIdDao,
             vppIdTokenDao = db.vppIdTokenDao,
             classRepository = classRepository,
             roomBookingDao = db.roomBookingDao,
-            vppIdNetworkRepository = vppIdNetworkRepository,
+            vppIdNetworkRepository = provideVppIdNetworkRepository(keyValueRepository, logRecordRepository),
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
     }
@@ -644,7 +654,9 @@ object VppModule {
         lessonRepository: LessonRepository,
         roomRepository: RoomRepository,
         gradeRepository: GradeRepository,
-        homeworkRepository: HomeworkRepository
+        homeworkRepository: HomeworkRepository,
+        keyValueRepository: KeyValueRepository,
+        systemRepository: SystemRepository
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deleteCacheUseCase = DeleteCacheUseCase(
@@ -652,7 +664,9 @@ object VppModule {
                 roomRepository,
                 gradeRepository,
                 homeworkRepository
-            )
+            ),
+            getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
+            setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository)
         )
     }
 

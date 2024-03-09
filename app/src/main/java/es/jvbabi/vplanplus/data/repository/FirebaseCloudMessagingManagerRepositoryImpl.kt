@@ -13,9 +13,9 @@ import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerReposi
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
-import es.jvbabi.vplanplus.shared.data.VppIdServer
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
@@ -44,13 +44,13 @@ class FirebaseCloudMessagingManagerRepositoryImpl(
         logRecordRepository.log("FCM", "Unregister token")
         if (t == null) {
             vppIdNetworkRepository.doRequest(
-                path = "/api/${VppIdServer.API_VERSION}/firebase",
+                path = "/api/${API_VERSION}/firebase",
                 requestMethod = HttpMethod.Delete,
                 queries = mapOf("token" to token)
             )
         } else if (keyValueRepository.get(Keys.FCM_TOKEN) != null) {
             vppIdNetworkRepository.doRequest(
-                path = "/api/${VppIdServer.API_VERSION}/firebase",
+                path = "/api/${API_VERSION}/firebase",
                 requestMethod = HttpMethod.Delete,
                 queries = mapOf("token" to keyValueRepository.get(Keys.FCM_TOKEN)!!)
             )
@@ -75,7 +75,7 @@ class FirebaseCloudMessagingManagerRepositoryImpl(
 
             results.add(
                 vppIdNetworkRepository.doRequest(
-                    path = "/api/${VppIdServer.API_VERSION}/firebase",
+                    path = "/api/${API_VERSION}/firebase",
                     requestMethod = HttpMethod.Post,
                     requestBody = Gson().toJson(FcmTokenPutRequest(token, c.name)),
                 ).response == HttpStatusCode.Created

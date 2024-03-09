@@ -12,8 +12,8 @@ import es.jvbabi.vplanplus.domain.model.Importance
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.NetworkRepositoryImpl
-import es.jvbabi.vplanplus.shared.data.VppIdServer
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -40,8 +40,8 @@ class NewsRepositoryImpl(
     override suspend fun updateMessages(schoolId: Long?) {
         val version = getAppVersion(context)?.versionNumber?.toInt()?:0
 
-        val url = if (schoolId == null) "/api/${VppIdServer.API_VERSION}/schools/news?version=$version"
-        else "/api/${VppIdServer.API_VERSION}/school/$schoolId/news?version=$version"
+        val url = if (schoolId == null) "/api/$API_VERSION/schools/news?version=$version"
+        else "/api/$API_VERSION/school/$schoolId/news?version=$version"
 
         val response = networkRepository.doRequest(url)
         if (response.response != HttpStatusCode.OK || response.data == null) return

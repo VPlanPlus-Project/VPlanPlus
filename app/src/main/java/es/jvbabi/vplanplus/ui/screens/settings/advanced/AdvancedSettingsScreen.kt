@@ -17,11 +17,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
@@ -29,6 +31,7 @@ import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.settings.advanced.components.DeletePlanDataDialog
+import es.jvbabi.vplanplus.ui.screens.settings.advanced.components.VppIdServerDialog
 import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
@@ -46,7 +49,9 @@ fun AdvancedSettingsScreen(
         state = state,
         onDeletePlansClicked = { viewModel.showDeleteCacheDialog() },
         onDeletePlansYes = { viewModel.deleteCache() },
-        onDeletePlansNo = { viewModel.closeDeleteCacheDialog() }
+        onDeletePlansNo = { viewModel.closeDeleteCacheDialog() },
+        onVppIdDialogStateChange = viewModel::showVppIdDialog,
+        onSetServer = viewModel::setVppIdServer
     )
 }
 
@@ -58,12 +63,21 @@ private fun AdvancedSettingsScreenContent(
     state: AdvancedSettingsState,
     onDeletePlansClicked: () -> Unit = {},
     onDeletePlansYes: () -> Unit = {},
-    onDeletePlansNo: () -> Unit = {}
+    onDeletePlansNo: () -> Unit = {},
+    onVppIdDialogStateChange: (Boolean) -> Unit = {},
+    onSetServer: (String?) -> Unit = {}
 ) {
     if (state.showDeleteCacheDialog) DeletePlanDataDialog(
         { onDeletePlansYes() },
         { onDeletePlansNo() }
     )
+
+    if (state.showVppIdServerDialog) VppIdServerDialog(
+        selectedServer = state.selectedVppIdServer,
+        onSetServer = onSetServer,
+        onDismiss = { onVppIdDialogStateChange(false) }
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -99,6 +113,16 @@ private fun AdvancedSettingsScreenContent(
                     type = SettingsType.FUNCTION,
                     doAction = { onDeletePlansClicked() }
                 )
+                SettingsSetting(
+                    painter = painterResource(id = R.drawable.database),
+                    title = stringResource(id = R.string.advancedSettings_settingsServerTitle),
+                    subtitle =
+                    if (state.selectedVppIdServer == Keys.VPPID_SERVER_DEFAULT) {
+                        stringResource(id = R.string.advancedSettings_settingsServerDefault)
+                    } else state.selectedVppIdServer,
+                    type = SettingsType.FUNCTION,
+                    doAction = { onVppIdDialogStateChange(true) }
+                )
             }
             SettingsCategory(
                 title = stringResource(id = R.string.advancedSettings_userTitle)
@@ -128,7 +152,8 @@ private fun AdvancedSettingsScreenContent(
                     icon = Icons.Default.MoreTime,
                     title = stringResource(id = R.string.advancedSettings_timezoneTitle),
                     subtitle =
-                    ZoneId.systemDefault().id + " $DOT " + ZoneId.systemDefault().getDisplayName(TextStyle.FULL, Locale.getDefault()),
+                    ZoneId.systemDefault().id + " $DOT " + ZoneId.systemDefault()
+                        .getDisplayName(TextStyle.FULL, Locale.getDefault()),
                     type = SettingsType.DISPLAY,
                     enabled = false,
                     doAction = {}
