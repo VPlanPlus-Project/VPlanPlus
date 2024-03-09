@@ -52,9 +52,9 @@ class SchoolRepositoryImpl(
             val response: HttpResponse =
                 HttpClient {
                     install(HttpTimeout) {
-                        requestTimeoutMillis = 5000
-                        connectTimeoutMillis = 5000
-                        socketTimeoutMillis = 5000
+                        requestTimeoutMillis = 10000
+                        connectTimeoutMillis = 10000
+                        socketTimeoutMillis = 10000
                     }
                 }.request("https://www.stundenplan24.de/$schoolId/wplan") {
                     method = HttpMethod.Get
@@ -100,9 +100,9 @@ class SchoolRepositoryImpl(
         try {
             val response = HttpClient {
                 install(HttpTimeout) {
-                    requestTimeoutMillis = 5000
-                    connectTimeoutMillis = 5000
-                    socketTimeoutMillis = 5000
+                    requestTimeoutMillis = 10000
+                    connectTimeoutMillis = 10000
+                    socketTimeoutMillis = 10000
                 }
             }.request("https://www.stundenplan24.de/$schoolId/wplan/wdatenk/SPlanKl_Basis.xml") {
                 method = HttpMethod.Get

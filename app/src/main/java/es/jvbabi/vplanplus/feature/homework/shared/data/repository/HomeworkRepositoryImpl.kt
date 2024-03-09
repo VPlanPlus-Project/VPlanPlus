@@ -118,6 +118,7 @@ class HomeworkRepositoryImpl(
                             ?.buildHash()
                     }
                     .filter { it.createdBy != vppId?.id?.toLong() }
+                    .filter { newHomework.none { nh -> nh.id == it.id } }
 
                 data.forEach forEachHomework@{ responseHomework ->
                     val id = responseHomework.id
@@ -187,9 +188,9 @@ class HomeworkRepositoryImpl(
 
                 if (sendNotification) {
                     val showNewNotification = keyValueRepository.getOrDefault(
-                        Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE,
+                        Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK,
                         Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT
-                    ) == "true"
+                    ).toBoolean()
                     if (newHomework.size == 1 && showNewNotification) {
                         val defaultLessons =
                             defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
@@ -248,8 +249,8 @@ class HomeworkRepositoryImpl(
                         )
                     }
                 }
+                existingHomework.lastOrNull() // TODO remove this line
             }
-
         keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "false")
         isUpdateRunning = false
     }
