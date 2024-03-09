@@ -57,6 +57,7 @@ class GradesViewModel @Inject constructor(
                     },
                     latestGrades = grades.grades.sortedByDescending { it.givenAt }.take(5),
                     avg = grades.avg,
+                    visibleSubjects = grades.grades.groupBy { it.subject }.keys.toList(),
                     showBanner = showBanner,
                     showEnableBiometricBanner = canShowEnableBiometricBanner,
                     isBiometricEnabled = isBiometricEnabled,
@@ -113,10 +114,27 @@ class GradesViewModel @Inject constructor(
             gradeUseCases.hideEnableBiometricBannerUseCase()
         }
     }
+
+    fun onToggleSubject(subject: Subject) {
+        val visibleSubjects = _state.value.visibleSubjects.toMutableList()
+        if (visibleSubjects.size == state.value.grades.size) {
+            visibleSubjects.clear()
+            visibleSubjects.add(subject)
+        } else if (visibleSubjects.contains(subject)) {
+            visibleSubjects.remove(subject)
+        } else {
+            visibleSubjects.add(subject)
+        }
+        if (visibleSubjects.isEmpty()) {
+            visibleSubjects.addAll(state.value.grades.keys)
+        }
+        _state.value = _state.value.copy(visibleSubjects = visibleSubjects)
+    }
 }
 
 data class GradesState(
     val enabled: GradeUseState? = null,
+    val visibleSubjects: List<Subject> = emptyList(),
     val latestGrades: List<Grade> = emptyList(),
     val grades: Map<Subject, SubjectGradeCollection> = emptyMap(),
     val avg: Double = 0.0,

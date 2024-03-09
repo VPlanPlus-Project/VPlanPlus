@@ -15,6 +15,6 @@ data class Grade(
     val comment: String
 )
 
-enum class GradeModifier {
-    PLUS, NEUTRAL, MINUS
+enum class GradeModifier(val symbol: String) {
+    PLUS("+"), NEUTRAL(""), MINUS("-")
 }
