@@ -249,7 +249,6 @@ class HomeworkRepositoryImpl(
                         )
                     }
                 }
-                existingHomework.lastOrNull() // TODO remove this line
             }
         keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "false")
         isUpdateRunning = false
