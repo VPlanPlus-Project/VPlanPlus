@@ -7,7 +7,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -136,7 +135,7 @@ fun HomeworkCard(
             var width by remember { mutableFloatStateOf(0f) }
             Box(
                 modifier
-                    .padding(8.dp)
+                    .padding(start = 4.dp, top = 4.dp, end = 8.dp, bottom = 4.dp)
                     .clip(RoundedCornerShape(8.dp))
                     .drawWithContent {
                         width = size.width
@@ -249,43 +248,39 @@ fun HomeworkCard(
                                     }
                                 }
                                 Column {
-                                    Text(
-                                        text = stringResource(
-                                            id = R.string.homework_homeworkHead,
-                                            homework.defaultLesson.subject,
-                                            homework.until.format(
-                                                DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
-                                            )
-                                        ),
-                                        style = MaterialTheme.typography.titleMedium
-                                    )
-                                    Row(
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Text(
+                                            text = homework.defaultLesson.subject,
+                                            style = MaterialTheme.typography.titleMedium
+                                        )
                                         if (homework.isPublic) {
+                                            Text(
+                                                text = DOT,
+                                                style = MaterialTheme.typography.labelMedium,
+                                                modifier = Modifier.padding(horizontal = 4.dp)
+                                            )
                                             Icon(
                                                 imageVector = Icons.Default.Share,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(14.dp)
                                             )
+                                        }
+                                        if (homework.isHidden || !homework.isEnabled) {
                                             Text(
                                                 text = DOT,
                                                 style = MaterialTheme.typography.labelMedium,
                                                 modifier = Modifier.padding(horizontal = 4.dp)
                                             )
-                                        }
-                                        if (homework.isHidden || !homework.isEnabled) {
                                             Icon(
                                                 imageVector = Icons.Default.VisibilityOff,
                                                 contentDescription = null,
                                                 modifier = Modifier.size(14.dp)
                                             )
-                                            Text(
-                                                text = DOT,
-                                                style = MaterialTheme.typography.labelMedium,
-                                                modifier = Modifier.padding(horizontal = 4.dp)
-                                            )
                                         }
+                                    }
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
                                         Text(
                                             text = createSubtext(homework),
                                             style = MaterialTheme.typography.labelMedium
@@ -294,11 +289,19 @@ fun HomeworkCard(
                                 }
                             }
                             Box {
-                                IconButton(onClick = { menuExpanded = !menuExpanded }) {
-                                    Icon(
-                                        imageVector = Icons.Default.MoreVert,
-                                        contentDescription = stringResource(id = R.string.menu)
-                                    )
+                                Row {
+                                    if (isOwner || homework.createdBy == null) IconButton(onClick = { isAdding = true }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Add,
+                                            contentDescription = stringResource(id = R.string.homework_addTask)
+                                        )
+                                    }
+                                    IconButton(onClick = { menuExpanded = !menuExpanded }) {
+                                        Icon(
+                                            imageVector = Icons.Default.MoreVert,
+                                            contentDescription = stringResource(id = R.string.menu)
+                                        )
+                                    }
                                 }
 
                                 DropdownMenu(
@@ -431,50 +434,18 @@ fun HomeworkCard(
                             Spacer(modifier = Modifier.size(8.dp))
                         }
 
-                        val height = animateFloatAsState(
-                            targetValue = if (isAdding) 86f else 48f,
-                            label = "addTaskHeightAnimation"
-                        ).value.dp
                         if (isOwner || homework.createdBy == null) Column(
                             modifier = Modifier
                                 .padding(start = 32.dp)
-                                .height(height)
                                 .fillMaxWidth(),
                         ) {
-                            AnimatedVisibility(
-                                visible = !isAdding,
-                                enter = expandVertically(tween(250)),
-                                exit = shrinkVertically(tween(250))
-                            ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(8.dp))
-                                        .clickable { isAdding = true },
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(
-                                        modifier = Modifier.size(48.dp),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(32.dp)
-                                        )
-                                    }
-                                    Text(
-                                        text = stringResource(id = R.string.homework_addTask),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                    )
-                                }
-                            }
                             AnimatedVisibility(
                                 visible = isAdding,
                                 enter = expandVertically(tween(250)),
                                 exit = shrinkVertically(tween(250))
                             ) {
                                 Row(
+                                    modifier = Modifier.height(85.dp),
                                     verticalAlignment = Alignment.Top
                                 ) {
                                     OutlinedTextField(

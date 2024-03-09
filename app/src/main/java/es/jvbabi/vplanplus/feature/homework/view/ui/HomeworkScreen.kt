@@ -352,12 +352,12 @@ private fun HomeworkScreenContent(
                                                 }) return@drawWithContent
                                             drawCircle(
                                                 color = colorScheme.tertiary,
-                                                center = Offset(90f, 105f),
+                                                center = Offset(90f, 95f),
                                                 radius = 50f
                                             )
                                             drawCircle(
                                                 color = colorScheme.surface,
-                                                center = Offset(90f, 105f),
+                                                center = Offset(90f, 95f),
                                                 radius = 40f
                                             )
                                             try {
@@ -367,7 +367,7 @@ private fun HomeworkScreenContent(
                                                     style = style.copy(color = colorScheme.onSurface),
                                                     topLeft = Offset(
                                                         90f - (textLayoutResult.size.width / 2),
-                                                        105f - textLayoutResult.size.height / 2,
+                                                        95f - textLayoutResult.size.height / 2,
                                                     )
                                                 )
                                             } catch (_: IllegalArgumentException) {}
