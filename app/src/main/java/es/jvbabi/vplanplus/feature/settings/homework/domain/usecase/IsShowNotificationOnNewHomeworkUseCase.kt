@@ -8,7 +8,10 @@ class IsShowNotificationOnNewHomeworkUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
     operator fun invoke() = flow {
-        keyValueRepository.getFlowOrDefault(Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK, "false").collect {
+        keyValueRepository.getFlowOrDefault(
+            Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK,
+            Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT
+        ).collect {
             emit(it.toBoolean())
         }
     }

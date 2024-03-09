@@ -46,4 +46,5 @@ object Keys {
     const val VPPID_SERVER_DEFAULT = "https://id.vpp.jvbabi.es"
 
     const val SHOW_NOTIFICATION_ON_NEW_HOMEWORK = "SHOW_NOTIFICATION_ON_NEW_HOMEWORK"
+    const val SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT = "true"
 }

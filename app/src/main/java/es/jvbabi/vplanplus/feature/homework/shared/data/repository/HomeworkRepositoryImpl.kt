@@ -79,7 +79,8 @@ class HomeworkRepositoryImpl(
                     url = "/api/$API_VERSION/user/me/homework"
                 } else {
                     vppIdNetworkRepository.authentication = school.buildAuthentication()
-                    url = "/api/$API_VERSION/school/${school.schoolId}/class/${`class`.name}/homework"
+                    url =
+                        "/api/$API_VERSION/school/${school.schoolId}/class/${`class`.name}/homework"
                 }
 
                 val response = vppIdNetworkRepository.doRequest(url)
@@ -105,10 +106,13 @@ class HomeworkRepositoryImpl(
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter { !existingHomework.any { eh -> eh.id == it.id } }
                     .filter { it.createdBy != vppId?.id?.toLong() }
-                    .filter { ZonedDateTimeConverter().timestampToZonedDateTime(it.until).isAfter(ZonedDateTime.now()) }
+                    .filter {
+                        ZonedDateTimeConverter().timestampToZonedDateTime(it.until)
+                            .isAfter(ZonedDateTime.now())
+                    }
 
                 val changedHomework = data
-                    .filter {profile.isDefaultLessonEnabled(it.vpId.toLong()) }
+                    .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter {
                         it.buildHash(`class`.name) != existingHomework.firstOrNull { eh -> eh.id == it.id && !eh.isHidden }
                             ?.buildHash()
@@ -182,7 +186,11 @@ class HomeworkRepositoryImpl(
                 }
 
                 if (sendNotification) {
-                    if (newHomework.size == 1) {
+                    val showNewNotification = keyValueRepository.getOrDefault(
+                        Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE,
+                        Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT
+                    ) == "true"
+                    if (newHomework.size == 1 && showNewNotification) {
                         val defaultLessons =
                             defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
                         val vpIds = vppIdRepository.getVppIds().first()
@@ -213,7 +221,7 @@ class HomeworkRepositoryImpl(
                             R.drawable.vpp,
                             null,
                         )
-                    } else if (newHomework.isNotEmpty()) {
+                    } else if (newHomework.isNotEmpty() && showNewNotification) {
                         notificationRepository.sendNotification(
                             CHANNEL_ID_HOMEWORK,
                             CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
@@ -303,7 +311,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.classes?.classId == `class`.classId && it.isActive() }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework",
@@ -357,7 +366,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${homework.id}",
@@ -391,7 +401,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${homework.id}/tasks",
@@ -427,7 +438,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${parent.id}/tasks/${task.id}",
@@ -462,7 +474,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${parent.id}/tasks/${task.id}",
@@ -496,7 +509,8 @@ class HomeworkRepositoryImpl(
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${homework.id}/tasks/${task.id}",
@@ -533,7 +547,8 @@ class HomeworkRepositoryImpl(
         val vppId = homework.createdBy
             ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${homework.id}",
@@ -580,7 +595,8 @@ private data class HomeworkResponseRecord(
     @SerializedName("tasks") val tasks: List<HomeRecordTask>
 ) {
     fun buildHash(className: String): String {
-        return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256().lowercase()
+        return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256()
+            .lowercase()
     }
 }
 
