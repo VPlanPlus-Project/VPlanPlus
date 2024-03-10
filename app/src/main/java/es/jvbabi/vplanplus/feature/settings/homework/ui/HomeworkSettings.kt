@@ -54,6 +54,7 @@ import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.TimePicker
 import es.jvbabi.vplanplus.ui.common.TimePickerDialog
+import es.jvbabi.vplanplus.ui.common.grayScale
 import es.jvbabi.vplanplus.util.toBlackAndWhite
 import java.time.DayOfWeek
 import java.time.format.TextStyle
@@ -85,7 +86,7 @@ private fun HomeworkSettingsContent(
     onSetDefaultRemindTime: (Int, Int) -> Unit,
     onToggleException: (DayOfWeek) -> Unit,
     onSetTime: (DayOfWeek, Int, Int) -> Unit,
-    state : HomeworkSettingsState
+    state: HomeworkSettingsState
 ) {
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -157,18 +158,28 @@ private fun HomeworkSettingsContent(
                     subtitle = stringResource(id = R.string.settingsHomework_exceptionsSubtitle),
                     type = SettingsType.DISPLAY,
                     imageVector = Icons.Default.MoreTime,
+                    enabled = state.remindUserOnUnfinishedHomework,
                     customContent = {
-                        LazyRow {
-                            item { Spacer(modifier = Modifier.size((16+50).dp)) }
+                        LazyRow(
+                            modifier = if (!state.remindUserOnUnfinishedHomework) Modifier.grayScale() else Modifier
+                        ) {
+                            item { Spacer(modifier = Modifier.size((16 + 50).dp)) }
                             items(7) {
-                                val dayOfWeek = DayOfWeek.of(it+1)
+                                val dayOfWeek = DayOfWeek.of(it + 1)
                                 DayCard(
                                     modifier = Modifier.padding(end = 8.dp),
                                     dayOfWeek = dayOfWeek,
                                     enabled = state.exceptions.any { e -> e.dayOfWeek == dayOfWeek },
-                                    secondsAfterMidnight = state.exceptions.firstOrNull { e -> e.dayOfWeek == dayOfWeek }?.secondsFromMidnight ?: state.defaultNotificationSecondsAfterMidnight,
+                                    secondsAfterMidnight = state.exceptions.firstOrNull { e -> e.dayOfWeek == dayOfWeek }?.secondsFromMidnight
+                                        ?: state.defaultNotificationSecondsAfterMidnight,
                                     onToggle = { onToggleException(dayOfWeek) },
-                                    onSetTime = { hour, minute -> onSetTime(dayOfWeek, hour, minute) }
+                                    onSetTime = { hour, minute ->
+                                        onSetTime(
+                                            dayOfWeek,
+                                            hour,
+                                            minute
+                                        )
+                                    }
                                 )
                             }
                         }
@@ -230,7 +241,8 @@ private fun DayCard(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         val colorScheme = MaterialTheme.colorScheme
-        val primaryColor = if (enabled) colorScheme.primary else colorScheme.primary.toBlackAndWhite()
+        val primaryColor =
+            if (enabled) colorScheme.primary else colorScheme.primary.toBlackAndWhite()
         Box(
             modifier = Modifier
                 .size(40.dp)
@@ -272,7 +284,10 @@ private fun DayCard(
     }
 
     if (dialogOpen) TimePickerDialog(
-        title = stringResource(id = R.string.settingsHomework_reminderTimeForDay, dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())),
+        title = stringResource(
+            id = R.string.settingsHomework_reminderTimeForDay,
+            dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+        ),
         onDismissRequest = { dialogOpen = false },
         confirmButton = {
             TextButton(onClick = {

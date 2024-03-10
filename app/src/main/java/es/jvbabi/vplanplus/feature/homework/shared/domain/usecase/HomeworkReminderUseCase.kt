@@ -6,6 +6,8 @@ import android.content.Intent
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.android.receiver.HomeworkRemindLaterReceiver
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.NotificationAction
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID
@@ -20,23 +22,32 @@ import java.time.ZonedDateTime
 
 class HomeworkReminderUseCase(
     private val homeworkRepository: HomeworkRepository,
+    private val keyValueRepository: KeyValueRepository,
     private val notificationRepository: NotificationRepository,
     private val stringRepository: StringRepository,
     private val context: Context
 ) {
     suspend operator fun invoke() {
+        if (!keyValueRepository.getOrDefault(
+                Keys.SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK,
+                Keys.SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_DEFAULT
+            ).toBoolean()
+        ) {
+            return
+        }
+
         val homework = homeworkRepository.getAll().first()
         val tomorrow = ZonedDateTime.now().plusDays(1)
         val homeworkForTomorrow = homework.filter {
             it.until.isBefore(tomorrow) &&
-            it.tasks.any { task -> !task.done }
+                    it.tasks.any { task -> !task.done }
         }
 
         if (homeworkForTomorrow.isEmpty()) return
 
         val homeworkForAfterTomorrow = homework.filter {
             it.until.isAfter(tomorrow) &&
-            it.tasks.any { task -> !task.done }
+                    it.tasks.any { task -> !task.done }
         }
 
         val title = stringRepository.getString(R.string.notification_homeworkReminderTitle)
