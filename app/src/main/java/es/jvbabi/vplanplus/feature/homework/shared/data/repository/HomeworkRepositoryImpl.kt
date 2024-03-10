@@ -576,6 +576,33 @@ class HomeworkRepositoryImpl(
         return HomeworkModificationResult.SUCCESS_OFFLINE
     }
 
+    override suspend fun updateDueDate(
+        homework: Homework,
+        newDate: ZonedDateTime
+    ): HomeworkModificationResult {
+        if (homework.id < 0) {
+            homeworkDao.updateDueDate(homework.id, newDate)
+            return HomeworkModificationResult.SUCCESS_OFFLINE
+        }
+        val vppId = homework.createdBy
+            ?: throw UnsupportedOperationException("Cannot change due date of homework without creator")
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
+        val result = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/user/me/homework/${homework.id}",
+            requestBody = Gson().toJson(
+                ChangeDueToDateRequest(
+                    until = ZonedDateTimeConverter().zonedDateTimeToTimestamp(newDate),
+                )
+            ),
+            requestMethod = HttpMethod.Patch
+        )
+        if (result.response != HttpStatusCode.OK) return HomeworkModificationResult.FAILED
+        homeworkDao.updateDueDate(homework.id, newDate)
+        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+    }
+
     override suspend fun clearCache() {
         homeworkDao.deleteAllCloud()
     }
@@ -663,4 +690,8 @@ private data class AddHomeworkResponseTask(
 
 private data class ChangeVisibilityRequest(
     @SerializedName("public") var shared: Boolean,
+)
+
+private data class ChangeDueToDateRequest(
+    @SerializedName("due_to") val until: Long
 )

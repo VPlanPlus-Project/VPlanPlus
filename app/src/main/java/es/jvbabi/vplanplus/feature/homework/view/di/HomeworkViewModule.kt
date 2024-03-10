@@ -20,6 +20,7 @@ import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.IsUpdateRunningU
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.MarkAllDoneUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.MarkSingleDoneUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.ShowHomeworkNotificationBannerUseCase
+import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.UpdateDueDateUseCase
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.UpdateUseCase
 import javax.inject.Singleton
 
@@ -74,6 +75,9 @@ object HomeworkViewModule {
             ),
             hideHomeworkNotificationBannerUseCase = HideHomeworkNotificationBannerUseCase(
                 keyValueRepository = keyValueRepository
+            ),
+            updateDueDateUseCase = UpdateDueDateUseCase(
+                homeworkRepository = homeworkRepository
             )
         )
     }

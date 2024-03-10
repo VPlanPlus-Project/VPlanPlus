@@ -66,6 +66,8 @@ interface HomeworkRepository {
     suspend fun changeShareStatus(homework: Homework): HomeworkModificationResult
     suspend fun changeVisibility(homework: Homework): HomeworkModificationResult
 
+    suspend fun updateDueDate(homework: Homework, newDate: ZonedDateTime): HomeworkModificationResult
+
     suspend fun clearCache()
 
     fun isUpdateRunning(): Boolean

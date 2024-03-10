@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkResult
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -271,6 +272,22 @@ class HomeworkViewModel @Inject constructor(
     fun onHideNotificationBanner() {
         viewModelScope.launch {
             homeworkUseCases.hideHomeworkNotificationBannerUseCase()
+        }
+    }
+
+    fun onUpdateDueDate(homework: HomeworkViewModelHomework, newDate: LocalDate) {
+        viewModelScope.launch {
+            setHomeworkLoading(homework.id, true)
+            if (homeworkUseCases.updateDueDateUseCase(
+                    homework.toHomework(),
+                    newDate
+                ) == HomeworkModificationResult.FAILED
+            ) {
+                state.value = state.value.copy(
+                    errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_STATE to newDate,
+                    errorVisible = true
+                )
+            }
         }
     }
 }
