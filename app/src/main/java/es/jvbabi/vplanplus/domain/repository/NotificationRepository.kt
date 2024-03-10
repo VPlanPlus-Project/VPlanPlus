@@ -28,5 +28,6 @@ interface NotificationRepository {
         const val CHANNEL_ID_HOMEWORK = "homework"
 
         const val CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK = 7000
+        const val CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID = 8000
     }
 }

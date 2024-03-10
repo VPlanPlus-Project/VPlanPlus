@@ -48,6 +48,7 @@ class SetUpUseCase(
                 else dateTime.plusSeconds(defaultTime)
 
             val epochSeconds = dateTime.atZone(ZoneId.systemDefault()).toInstant().epochSecond
+            if (epochSeconds < System.currentTimeMillis() / 1000) return
 
             Log.i("SetUpUseCase", "Creating alarm for $day at $dateTime/$epochSeconds")
 

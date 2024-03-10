@@ -26,7 +26,7 @@ class AlarmManagerRepositoryImpl(
         if (canSendAlarm) service.setExactAndAllowWhileIdle(
             AlarmManager.RTC,
             epochSecond * 1000,
-            PendingIntent.getBroadcast(context, data.hashCode(), intent, PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.getBroadcast(context, data.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         ) else {
             Log.e("AlarmManagerRepositoryImpl", "Can't send alarm")
         }
@@ -35,7 +35,8 @@ class AlarmManagerRepositoryImpl(
     override fun cancelAlarm(data: String) {
         val intent = Intent(context, AlarmReceiver::class.java)
         val pendingIntent = PendingIntent.getBroadcast(context, data.hashCode(), intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
         pendingIntent?.let { service.cancel(it) }
     }
 }

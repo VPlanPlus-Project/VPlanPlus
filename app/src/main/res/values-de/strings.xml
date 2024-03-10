@@ -442,4 +442,16 @@
     <string name="settingsHomework_exceptionsTitle">Ausnahmen</string>
     <string name="settingsHomework_exceptionsSubtitle">Tippe auf den Tag, um eine Ausnahme für ihn hinzuzufügen. Tippe auf die Zeit, um sie zu ändern.</string>
     <string name="settingsHomework_reminderTimeForDay">Erinnerung für %1$s</string>
+    <string name="notification_homeworkReminderTitle">Es gibt noch ein paar Hausaufgaben zu erledigen</string>
+    <plurals name="notification_homeworkReminderTomorrowMessage">
+        <item quantity="one">Es gibt noch eine unerledigte Hausaufgabe in %2$s, welche bis morgen fällig ist</item>
+        <item quantity="other">Es gibt noch %1$d unerledigte Hausaufgaben in den Fächern %2$s, welche bis morgen fällig sind</item>
+    </plurals>
+    <plurals name="notification_homeworkReminderAfterTomorrowMessage">
+        <item quantity="one">und eine längerfristige Aufgabe</item>
+        <item quantity="other">und %1$d längerfristige Aufgaben</item>
+    </plurals>
+    <string name="notification_homeworkReminderMessage">
+        %1$s%2$s.
+    </string>
 </resources>
