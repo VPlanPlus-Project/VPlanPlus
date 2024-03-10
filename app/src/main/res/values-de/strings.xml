@@ -441,4 +441,5 @@
     <string name="settingsHomework_reminderNotificationEnabledSubtitle">Erhalte eine Benachrichtigung, welche dich an unerledigte Hausaufgaben bis morgen erinnert.</string>
     <string name="settingsHomework_exceptionsTitle">Ausnahmen</string>
     <string name="settingsHomework_exceptionsSubtitle">Tippe auf den Tag, um eine Ausnahme für ihn hinzuzufügen. Tippe auf die Zeit, um sie zu ändern.</string>
+    <string name="settingsHomework_reminderTimeForDay">Erinnerung für %1$s</string>
 </resources>

@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.source.database.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Upsert
 import es.jvbabi.vplanplus.feature.homework.shared.data.model.DbPreferredNotificationTime
 import kotlinx.coroutines.flow.Flow
 
@@ -14,6 +15,6 @@ abstract class PreferredHomeworkNotificationTimeDao {
     @Query("DELETE FROM preferred_notification_time WHERE day_of_week = :dayOfWeek")
     abstract suspend fun deletePreferredHomeworkNotificationTime(dayOfWeek: Int)
 
-    @Query("INSERT INTO preferred_notification_time (day_of_week, hour, minute, override_default) VALUES (:dayOfWeek, :hour, :minute, :overrideDefault)")
-    abstract suspend fun insertPreferredHomeworkNotificationTime(dayOfWeek: Int, hour: Int, minute: Int, overrideDefault: Boolean)
+    @Upsert
+    abstract suspend fun insertPreferredHomeworkNotificationTime(data: DbPreferredNotificationTime)
 }

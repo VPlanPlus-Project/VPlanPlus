@@ -73,6 +73,12 @@ class HomeworkSettingsViewModel @Inject constructor(
             }
         }
     }
+
+    fun onSetExceptionTime(dayOfWeek: DayOfWeek, hour: Int, minute: Int) {
+        viewModelScope.launch {
+            homeworkSettingsUseCases.setPreferredHomeworkNotificationTimeUseCase(dayOfWeek, hour, minute)
+        }
+    }
 }
 
 data class HomeworkSettingsState(

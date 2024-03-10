@@ -25,9 +25,16 @@ import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimePickerLayoutType
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +52,7 @@ import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.TimePicker
+import es.jvbabi.vplanplus.ui.common.TimePickerDialog
 import es.jvbabi.vplanplus.util.toBlackAndWhite
 import java.time.DayOfWeek
 import java.time.LocalDateTime
@@ -64,6 +72,7 @@ fun HomeworkSettingsScreen(
         onToggleRemindUserOnUnfinishedHomework = viewModel::onToggleRemindUserOnUnfinishedHomework,
         onSetDefaultRemindTime = viewModel::onSetDefaultRemindTime,
         onToggleException = viewModel::onToggleException,
+        onSetTime = viewModel::onSetExceptionTime,
         state = state
     )
 }
@@ -76,6 +85,7 @@ private fun HomeworkSettingsContent(
     onToggleRemindUserOnUnfinishedHomework: () -> Unit,
     onSetDefaultRemindTime: (Int, Int) -> Unit,
     onToggleException: (DayOfWeek) -> Unit,
+    onSetTime: (DayOfWeek, Int, Int) -> Unit,
     state : HomeworkSettingsState
 ) {
     val scrollBehavior =
@@ -153,8 +163,9 @@ private fun HomeworkSettingsContent(
                                     modifier = Modifier.padding(end = 8.dp),
                                     dayOfWeek = dayOfWeek,
                                     enabled = state.exceptions.any { e -> e.dayOfWeek == dayOfWeek },
-                                    time = state.defaultNotificationTime,
-                                    onToggle = { onToggleException(dayOfWeek) }
+                                    time = state.exceptions.firstOrNull { e -> e.dayOfWeek == dayOfWeek }?.time ?: state.defaultNotificationTime,
+                                    onToggle = { onToggleException(dayOfWeek) },
+                                    onSetTime = { hour, minute -> onSetTime(dayOfWeek, hour, minute) }
                                 )
                             }
                         }
@@ -174,6 +185,7 @@ private fun HomeworkSettingsScreenPreview() {
         onToggleRemindUserOnUnfinishedHomework = {},
         onSetDefaultRemindTime = { _, _ -> },
         onToggleException = {},
+        onSetTime = { _, _, _ -> },
         state = HomeworkSettingsState(
             notificationOnNewHomework = true
         )
@@ -187,18 +199,24 @@ private fun DayCardPreview() {
         dayOfWeek = DayOfWeek.THURSDAY,
         enabled = true,
         time = LocalDateTime.of(1970, 1, 1, 16, 45, 0),
-        onToggle = {}
+        onToggle = {},
+        onSetTime = { _, _ -> }
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DayCard(
     modifier: Modifier = Modifier,
     dayOfWeek: DayOfWeek,
     enabled: Boolean,
     time: LocalDateTime,
-    onToggle: () -> Unit
+    onToggle: () -> Unit,
+    onSetTime: (Int, Int) -> Unit
 ) {
+    var dialogOpen by rememberSaveable { mutableStateOf(false) }
+    val timePickerState = rememberTimePickerState()
+
     Column(
         modifier = modifier
             .width(60.dp)
@@ -244,6 +262,30 @@ private fun DayCard(
                 .clip(RoundedCornerShape(50))
                 .background(MaterialTheme.colorScheme.primaryContainer)
                 .padding(8.dp)
+                .clickable { dialogOpen = true }
+        )
+    }
+
+    if (dialogOpen) TimePickerDialog(
+        title = stringResource(id = R.string.settingsHomework_reminderTimeForDay, dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())),
+        onDismissRequest = { dialogOpen = false },
+        confirmButton = {
+            TextButton(onClick = {
+                dialogOpen = false
+                onSetTime(timePickerState.hour, timePickerState.minute)
+            }) {
+                Text(text = stringResource(id = android.R.string.ok))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = { dialogOpen = false }) {
+                Text(text = stringResource(id = android.R.string.cancel))
+            }
+        },
+    ) {
+        androidx.compose.material3.TimePicker(
+            state = timePickerState,
+            layoutType = TimePickerLayoutType.Vertical
         )
     }
 }

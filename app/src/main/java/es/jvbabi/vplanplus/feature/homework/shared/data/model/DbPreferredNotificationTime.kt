@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.PreferredHomeworkNotificationTime
 import java.time.DayOfWeek
+import java.time.LocalDateTime
 
 @Entity(
     tableName = "preferred_notification_time",
@@ -18,8 +19,7 @@ data class DbPreferredNotificationTime(
     fun toModel(): PreferredHomeworkNotificationTime {
         return PreferredHomeworkNotificationTime(
             dayOfWeek = DayOfWeek.of(dayOfWeek),
-            hour = hour,
-            minute = minute,
+            LocalDateTime.of(1970, 1, 1, hour, minute),
             overrideDefault = overrideDefault
         )
     }

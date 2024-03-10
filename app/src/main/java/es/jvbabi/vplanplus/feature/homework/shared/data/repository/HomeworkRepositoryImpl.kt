@@ -22,6 +22,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.homework.shared.data.model.DbPreferredNotificationTime
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
@@ -589,10 +590,12 @@ class HomeworkRepositoryImpl(
         dayOfWeek: DayOfWeek
     ) {
         homeworkNotificationTimeDao.insertPreferredHomeworkNotificationTime(
-            dayOfWeek = dayOfWeek.value,
-            hour = hour,
-            minute = minute,
-            overrideDefault = true
+            DbPreferredNotificationTime(
+                dayOfWeek = dayOfWeek.value,
+                hour = hour,
+                minute = minute,
+                overrideDefault = true
+            )
         )
     }
 

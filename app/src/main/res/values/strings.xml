@@ -443,4 +443,5 @@
     <string name="settingsHomework_reminderNotificationEnabledSubtitle">Get a notification reminding you of undone tasks until tomorrow.</string>
     <string name="settingsHomework_exceptionsTitle">Exceptions</string>
     <string name="settingsHomework_exceptionsSubtitle">Tap the day to add an exception for this day. Tap the time to change it.</string>
+    <string name="settingsHomework_reminderTimeForDay">Reminder for %1$s</string>
 </resources>
