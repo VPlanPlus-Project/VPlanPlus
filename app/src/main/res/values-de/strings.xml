@@ -463,4 +463,16 @@
     <string name="grant_permission">Berechtigung erteilen</string>
     <string name="settingsHomework_permissionToast">Scrolle nach unten und aktiviere VPlanPlus</string>
     <string name="homework_changeDueDate">Datum ändern</string>
+    <string name="settings_helpFeedbackTitle">Hilfe &amp; Feedback</string>
+    <string name="settings_helpFeedbackSubtitle">Hilfe, Fehler melden und Feedback geben</string>
+    <string name="settingsSupport_title">Hilfe und Support</string>
+    <string name="settingsSupport_fieldPlaceholder">Schreibe deine Nachricht an die Entwickler</string>
+    <string name="settingsSupport_sendAnonymouslyTitle">Anonym senden</string>
+    <string name="settingsSupport_sendAnonymouslySubtitle">Du kannst dieses Feedback an deine vpp.ID binden, um ggf. personalisiertere Antworten zu erhalten.</string>
+    <string name="settingsSupport_send">Senden</string>
+    <string name="settingsSupport_sendAnonymouslyNoVppIdSubtitle">Du kannst dieses Feedback nicht an eine vpp.ID binden, da du nicht eingeloggt bist.</string>
+    <string name="settingsSupport_attachSystemDetailsTitle">Systeminformationen anhängen</string>
+    <string name="settingsSupport_attachSystemDetailsSubtitle">Dies sendet einige Metadaten wie deine Android- und App-Version zusammen mit dem Feedback. Diese Informationen können bei der Identifizierung und Behebung von Fehlern hilfreich sein.</string>
+    <string name="settingsSupport_emailTitle">E-Mail-Adresse</string>
+    <string name="settingsSupport_emailSubtitle">Füge eine E-Mail-Adresse hinzu, um Antworten auf deine Nachricht empfangen zu können.</string>
 </resources>

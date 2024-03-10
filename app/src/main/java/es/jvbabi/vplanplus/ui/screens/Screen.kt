@@ -42,6 +42,7 @@ sealed class Screen(val route: String) {
 
     data object SettingsHomeworkScreen: Screen("settings/homework")
 
+    data object SettingsHelpFeedbackScreen: Screen("settings/help_feedback")
     data object SettingsAboutScreen: Screen("settings/about")
 
     data object NewsScreen: Screen("news_screen")
