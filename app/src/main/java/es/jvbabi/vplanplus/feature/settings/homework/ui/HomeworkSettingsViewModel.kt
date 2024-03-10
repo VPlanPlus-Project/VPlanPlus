@@ -6,12 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.PreferredHomeworkNotificationTime
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.HomeworkSettingsUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
-import java.time.LocalDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,6 +19,7 @@ class HomeworkSettingsViewModel @Inject constructor(
     private val homeworkSettingsUseCases: HomeworkSettingsUseCases
 ) : ViewModel() {
     val state = mutableStateOf(HomeworkSettingsState())
+
     init {
         viewModelScope.launch {
             combine(
@@ -31,13 +32,13 @@ class HomeworkSettingsViewModel @Inject constructor(
             ) { data ->
                 val notificationOnNewHomework = data[0] as Boolean
                 val remindUserOnUnfinishedHomework = data[1] as Boolean
-                val defaultNotificationTime = data[2] as LocalDateTime
+                val defaultNotificationTime = data[2] as Long
                 val exceptions = data[3] as List<PreferredHomeworkNotificationTime>
 
                 state.value.copy(
                     notificationOnNewHomework = notificationOnNewHomework,
                     remindUserOnUnfinishedHomework = remindUserOnUnfinishedHomework,
-                    defaultNotificationTime = defaultNotificationTime,
+                    defaultNotificationSecondsAfterMidnight = defaultNotificationTime,
                     exceptions = exceptions
                 )
             }.collect {
@@ -69,14 +70,22 @@ class HomeworkSettingsViewModel @Inject constructor(
             if (state.value.exceptions.any { it.dayOfWeek == dayOfWeek }) {
                 homeworkSettingsUseCases.removePreferredHomeworkNotificationTimeUseCase(dayOfWeek)
             } else {
-                homeworkSettingsUseCases.setPreferredHomeworkNotificationTimeUseCase(dayOfWeek, state.value.defaultNotificationTime.hour, state.value.defaultNotificationTime.minute)
+                homeworkSettingsUseCases.setPreferredHomeworkNotificationTimeUseCase(
+                    dayOfWeek,
+                    (state.value.defaultNotificationSecondsAfterMidnight / 60 / 60).toInt(),
+                    (state.value.defaultNotificationSecondsAfterMidnight / 60 % 60).toInt()
+                )
             }
         }
     }
 
     fun onSetExceptionTime(dayOfWeek: DayOfWeek, hour: Int, minute: Int) {
         viewModelScope.launch {
-            homeworkSettingsUseCases.setPreferredHomeworkNotificationTimeUseCase(dayOfWeek, hour, minute)
+            homeworkSettingsUseCases.setPreferredHomeworkNotificationTimeUseCase(
+                dayOfWeek,
+                hour,
+                minute
+            )
         }
     }
 }
@@ -84,6 +93,6 @@ class HomeworkSettingsViewModel @Inject constructor(
 data class HomeworkSettingsState(
     val notificationOnNewHomework: Boolean = false,
     val remindUserOnUnfinishedHomework: Boolean = false,
-    val defaultNotificationTime: LocalDateTime = LocalDateTime.now(),
+    val defaultNotificationSecondsAfterMidnight: Long = Keys.SETTINGS_PREFERRED_NOTIFICATION_TIME_DEFAULT,
     val exceptions: List<PreferredHomeworkNotificationTime> = emptyList()
 )

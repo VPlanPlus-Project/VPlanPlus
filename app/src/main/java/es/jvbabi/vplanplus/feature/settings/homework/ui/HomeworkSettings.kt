@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.IconSettingsState
 import es.jvbabi.vplanplus.ui.common.Setting
@@ -55,8 +56,6 @@ import es.jvbabi.vplanplus.ui.common.TimePicker
 import es.jvbabi.vplanplus.ui.common.TimePickerDialog
 import es.jvbabi.vplanplus.util.toBlackAndWhite
 import java.time.DayOfWeek
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
@@ -135,7 +134,11 @@ private fun HomeworkSettingsContent(
                     title = stringResource(id = R.string.settingsHomework_defaultNotificationTimeTitle),
                     subtitle = stringResource(
                         id = R.string.settingsHomework_defaultNotificationTimeSubtitle,
-                        state.defaultNotificationTime.format(DateTimeFormatter.ofPattern("HH:mm"))
+                        state.defaultNotificationSecondsAfterMidnight.let {
+                            val hours = (it / 60 / 60).toString().padStart(2, '0')
+                            val minutes = (it / 60 % 60).toString().padStart(2, '0')
+                            "$hours:$minutes"
+                        }
                     ),
                     type = SettingsType.FUNCTION,
                     enabled = state.remindUserOnUnfinishedHomework,
@@ -144,8 +147,8 @@ private fun HomeworkSettingsContent(
                         onSetDefaultRemindTime(time[0].toInt(), time[1].toInt())
                     }
                 ),
-                state.defaultNotificationTime.hour,
-                state.defaultNotificationTime.minute
+                (state.defaultNotificationSecondsAfterMidnight / 60 / 60).toInt(),
+                (state.defaultNotificationSecondsAfterMidnight / 60 % 60).toInt()
             )
 
             Setting(
@@ -163,7 +166,7 @@ private fun HomeworkSettingsContent(
                                     modifier = Modifier.padding(end = 8.dp),
                                     dayOfWeek = dayOfWeek,
                                     enabled = state.exceptions.any { e -> e.dayOfWeek == dayOfWeek },
-                                    time = state.exceptions.firstOrNull { e -> e.dayOfWeek == dayOfWeek }?.time ?: state.defaultNotificationTime,
+                                    secondsAfterMidnight = state.exceptions.firstOrNull { e -> e.dayOfWeek == dayOfWeek }?.secondsFromMidnight ?: state.defaultNotificationSecondsAfterMidnight,
                                     onToggle = { onToggleException(dayOfWeek) },
                                     onSetTime = { hour, minute -> onSetTime(dayOfWeek, hour, minute) }
                                 )
@@ -198,7 +201,7 @@ private fun DayCardPreview() {
     DayCard(
         dayOfWeek = DayOfWeek.THURSDAY,
         enabled = true,
-        time = LocalDateTime.of(1970, 1, 1, 16, 45, 0),
+        secondsAfterMidnight = Keys.SETTINGS_PREFERRED_NOTIFICATION_TIME_DEFAULT,
         onToggle = {},
         onSetTime = { _, _ -> }
     )
@@ -210,7 +213,7 @@ private fun DayCard(
     modifier: Modifier = Modifier,
     dayOfWeek: DayOfWeek,
     enabled: Boolean,
-    time: LocalDateTime,
+    secondsAfterMidnight: Long,
     onToggle: () -> Unit,
     onSetTime: (Int, Int) -> Unit
 ) {
@@ -253,8 +256,10 @@ private fun DayCard(
             )
         }
 
+        val hours = (secondsAfterMidnight / 60 / 60).toString().padStart(2, '0')
+        val minutes = (secondsAfterMidnight / 60 % 60).toString().padStart(2, '0')
         Text(
-            text = time.format(DateTimeFormatter.ofPattern("HH:mm")),
+            text = "$hours:$minutes",
             style = MaterialTheme.typography.labelSmall,
             color = colorScheme.onPrimaryContainer,
             modifier = Modifier

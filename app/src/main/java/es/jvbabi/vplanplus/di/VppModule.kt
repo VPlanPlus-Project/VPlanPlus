@@ -9,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.data.repository.AlarmManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BiometricRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.CalendarRepositoryImpl
@@ -35,6 +36,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
+import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
@@ -82,6 +84,7 @@ import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.IsAfterUpdateUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.SetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
@@ -759,6 +762,7 @@ object VppModule {
         vppIdRepository: VppIdRepository,
         homeworkRepository: HomeworkRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
+        alarmManagerRepository: AlarmManagerRepository,
         profileRepository: ProfileRepository,
         getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
         getProfilesUseCase: GetProfilesUseCase
@@ -775,11 +779,14 @@ object VppModule {
             getProfilesUseCase = getProfilesUseCase,
             setUpUseCase = SetUpUseCase(
                 keyValueRepository = keyValueRepository,
+                homeworkRepository = homeworkRepository,
+                alarmManagerRepository = alarmManagerRepository,
                 firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
             ),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
-            getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository)
+            getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
+            isAfterUpdateUseCase = IsAfterUpdateUseCase(keyValueRepository)
         )
     }
 
@@ -842,5 +849,11 @@ object VppModule {
     @Singleton
     fun provideBiometricRepository(@ApplicationContext context: Context): BiometricRepository {
         return BiometricRepositoryImpl(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlarmManagerRepository(@ApplicationContext context: Context): AlarmManagerRepository {
+        return AlarmManagerRepositoryImpl(context)
     }
 }
