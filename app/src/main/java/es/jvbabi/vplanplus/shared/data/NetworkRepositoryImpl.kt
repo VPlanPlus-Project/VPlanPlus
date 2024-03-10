@@ -44,9 +44,9 @@ open class NetworkRepositoryImpl(
 
     private val client = HttpClient(Android) {
         install(HttpTimeout) {
-            requestTimeoutMillis = 5000
-            connectTimeoutMillis = 5000
-            socketTimeoutMillis = 5000
+            requestTimeoutMillis = 10000
+            connectTimeoutMillis = 10000
+            socketTimeoutMillis = 10000
         }
         install(UserAgent) {
             agent = userAgent

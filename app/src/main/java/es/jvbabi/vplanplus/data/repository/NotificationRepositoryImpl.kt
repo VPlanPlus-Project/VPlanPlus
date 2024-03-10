@@ -7,6 +7,7 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.repository.NotificationAction
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
@@ -25,7 +26,8 @@ class NotificationRepositoryImpl(
         title: String,
         message: String,
         icon: Int,
-        pendingIntent: PendingIntent?
+        pendingIntent: PendingIntent?,
+        actions: List<NotificationAction>
     ) {
         logRepository.log("Notification", "Sending $id to $channelId: $title")
 
@@ -40,6 +42,10 @@ class NotificationRepositoryImpl(
             .setSmallIcon(icon)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+
+        actions.forEach {
+            builder.addAction(0, it.title, it.intent)
+        }
 
         val notificationManager =
             appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
@@ -113,5 +119,11 @@ class NotificationRepositoryImpl(
                 NotificationManager.IMPORTANCE_HIGH
             )
         }
+    }
+
+    override fun dismissNotification(id: Int) {
+        val notificationManager =
+            appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.cancel(id)
     }
 }

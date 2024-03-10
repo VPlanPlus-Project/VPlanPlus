@@ -430,4 +430,36 @@
     <string name="advancedSettings_dialogServerMessage">Tue dies nur zu Testzwecken. Das Wechseln des vpp.ID Servers kann in fehlerhafte Daten resultieren. Nachdem du einen anderen Server ausgewählt hast, wird die App sich schließen.</string>
     <string name="advancedSettings_settingsServerDefault">Standartserver</string>
     <string name="grades_filterTitle">Fächer</string>
+    <string name="settings_homeworkTitle">Hausaufgaben</string>
+    <string name="settings_subjectsSubtitle">Verwalte Benachrichtigungen zu Hausaufgaben</string>
+    <string name="settingsHomework_title">Hausaufgaben</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Benachrichtigung, wenn eine neue Hausaufgabe vorliegt</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Wenn dies ausgeschaltet ist, bekommst du dennoch eine Benachrichtigung bei Änderungen von Hausaufgaben, damit du nichts verpasst. Außerdem erhälst du eine Benachrichtigung, wenn eine Hausaufgabe nach deiner bevorzugten Erinnerungszeit erstellt wurde.</string>
+    <string name="settingsHomework_defaultNotificationTimeTitle">Bevorzugte Erinnerungszeit</string>
+    <string name="settingsHomework_defaultNotificationTimeSubtitle">Du erhälst eine Benachrichtigung, wenn es unerledigte Hausaufgaben gibt. Aktuell auf %1$s Uhr gesetzt.</string>
+    <string name="settingsHomework_reminderNotificationEnabledTitle">An unerledigte Hausaufgaben erinnern</string>
+    <string name="settingsHomework_reminderNotificationEnabledSubtitle">Erhalte eine Benachrichtigung, welche dich an unerledigte Hausaufgaben bis morgen erinnert.</string>
+    <string name="settingsHomework_exceptionsTitle">Ausnahmen</string>
+    <string name="settingsHomework_exceptionsSubtitle">Tippe auf den Tag, um eine Ausnahme für ihn hinzuzufügen. Tippe auf die Zeit, um sie zu ändern.</string>
+    <string name="settingsHomework_reminderTimeForDay">Erinnerung für %1$s</string>
+    <string name="notification_homeworkReminderTitle">Es gibt noch ein paar Hausaufgaben zu erledigen</string>
+    <plurals name="notification_homeworkReminderTomorrowMessage">
+        <item quantity="one">Es gibt noch eine unerledigte Hausaufgabe in %2$s, welche bis morgen fällig ist</item>
+        <item quantity="other">Es gibt noch %1$d unerledigte Hausaufgaben in den Fächern %2$s, welche bis morgen fällig sind</item>
+    </plurals>
+    <plurals name="notification_homeworkReminderAfterTomorrowMessage">
+        <item quantity="one">, und eine längerfristige Aufgabe</item>
+        <item quantity="other">, und %1$d längerfristige Aufgaben</item>
+    </plurals>
+    <string name="notification_homeworkReminderMessage">
+        %1$s%2$s.
+    </string>
+    <string name="notification_homeworkReminderRemindAgain">In 30 Minuten erneut erinnern</string>
+    <string name="homework_notificationSettingsTitle">Neue Benachrichtigungsoptionen verfügbar</string>
+    <string name="homework_notificationSettingsText">Jetzt kannst du auswählen, ob du benachrichtigt werden möchtest, sobald eine neue Hausaufgabe erstellt wurde. Außerdem kann die App dich zu deiner bevorzugten Zeit an unerledigte Hausaufgaben erinnern.</string>
+    <string name="to_settings">Zu den Einstellungen</string>
+    <string name="settingsHomework_alarmNoPermissionTitle">Fehlende Berechtigung</string>
+    <string name="settingsHomework_alarmNoPermissionGrantedText">Du musst der App die Erlaubnis erteilen, Alarme anzulegen. Diese Alarme wecken die App um ihr das Senden einer Benachrichtigung zu ermöglichen.</string>
+    <string name="grant_permission">Berechtigung erteilen</string>
+    <string name="settingsHomework_permissionToast">Scrolle nach unten und aktiviere VPlanPlus</string>
 </resources>

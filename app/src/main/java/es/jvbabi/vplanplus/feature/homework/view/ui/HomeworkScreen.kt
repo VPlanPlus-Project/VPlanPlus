@@ -23,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.EditNotifications
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -102,6 +103,8 @@ fun HomeworkScreen(
         onToggleShowHidden = viewModel::onToggleShowHidden,
         onToggleShowDisabled = viewModel::onToggleShowDisabled,
         onToggleShowDone = viewModel::onToggleShowDone,
+        onOpenHomeworkSettings = { navHostController.navigate(Screen.SettingsHomeworkScreen.route) },
+        onHideHomeworkNotificationBanner = viewModel::onHideNotificationBanner,
         refresh = viewModel::refresh,
         state = state,
         navBar = navBar,
@@ -125,6 +128,8 @@ private fun HomeworkScreenContent(
     onHomeworkTaskEditRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
     onHomeworkTaskEditRequestConfirm: (newContent: String?) -> Unit = {},
     onHomeworkHide: (homework: HomeworkViewModelHomework) -> Unit = {},
+    onOpenHomeworkSettings: () -> Unit = {},
+    onHideHomeworkNotificationBanner: () -> Unit = {},
     onResetError: () -> Unit = {},
     onToggleShowHidden: () -> Unit = {},
     onToggleShowDisabled: () -> Unit = {},
@@ -324,9 +329,28 @@ private fun HomeworkScreenContent(
                             }
                         )
                     }
+                    val list =
+                        state.homework.sortedBy { it.until }.groupBy { it.until }.toList()
                     LazyColumn(Modifier.fillMaxSize()) {
-                        val list =
-                            state.homework.sortedBy { it.until }.groupBy { it.until }.toList()
+                        item {
+                            AnimatedVisibility(
+                                visible = state.showNotificationBanner,
+                                enter = expandVertically(tween(250)),
+                                exit = shrinkVertically(tween(250))
+                            ) {
+                                InfoCard(
+                                    modifier = Modifier.padding (horizontal = 8.dp, vertical = 4.dp),
+                                    imageVector = Icons.Default.EditNotifications,
+                                    title = stringResource(id = R.string.homework_notificationSettingsTitle),
+                                    text = stringResource(id = R.string.homework_notificationSettingsText),
+                                    buttonText1 = stringResource(id = R.string.not_now),
+                                    buttonAction1 = onHideHomeworkNotificationBanner,
+                                    buttonText2 = stringResource(id = R.string.to_settings),
+                                    buttonAction2 = onOpenHomeworkSettings
+                                )
+                            }
+                        }
+
                         items(list) { (until, todo) ->
                             Row(Modifier.fillMaxWidth()) {
                                 val colorScheme = MaterialTheme.colorScheme

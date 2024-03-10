@@ -12,4 +12,6 @@ data class HomeworkUseCases(
     val isUpdateRunningUseCase: IsUpdateRunningUseCase,
     val updateUseCase: UpdateUseCase,
     val hideHomeworkUseCase: HideHomeworkUseCase,
+    val showHomeworkNotificationBannerUseCase: ShowHomeworkNotificationBannerUseCase,
+    val hideHomeworkNotificationBannerUseCase: HideHomeworkNotificationBannerUseCase,
 )

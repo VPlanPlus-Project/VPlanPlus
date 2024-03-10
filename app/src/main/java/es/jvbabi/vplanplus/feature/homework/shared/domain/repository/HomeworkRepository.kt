@@ -4,7 +4,9 @@ import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.PreferredHomeworkNotificationTime
 import kotlinx.coroutines.flow.Flow
+import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -57,7 +59,7 @@ interface HomeworkRepository {
     suspend fun findLocalId(): Long
     suspend fun findLocalTaskId(): Long
 
-    suspend fun fetchHomework()
+    suspend fun fetchHomework(sendNotification: Boolean)
 
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
 
@@ -67,6 +69,10 @@ interface HomeworkRepository {
     suspend fun clearCache()
 
     fun isUpdateRunning(): Boolean
+
+    suspend fun setPreferredHomeworkNotificationTime(hour: Int, minute: Int, dayOfWeek: DayOfWeek)
+    suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek)
+    fun getPreferredHomeworkNotificationTimes(): Flow<List<PreferredHomeworkNotificationTime>>
 }
 
 enum class HomeworkModificationResult {

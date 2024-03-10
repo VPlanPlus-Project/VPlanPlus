@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
+import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkResult
 import es.jvbabi.vplanplus.feature.homework.view.domain.usecase.HomeworkUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -29,10 +30,18 @@ class HomeworkViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                homeworkUseCases.getHomeworkUseCase(),
-                homeworkUseCases.isUpdateRunningUseCase(),
-                getCurrentIdentityUseCase(),
-            ) { homework, isUpdateRunning, identity ->
+                listOf(
+                    homeworkUseCases.getHomeworkUseCase(),
+                    homeworkUseCases.isUpdateRunningUseCase(),
+                    getCurrentIdentityUseCase(),
+                    homeworkUseCases.showHomeworkNotificationBannerUseCase()
+                )
+            ) { data ->
+                val homework = data[0] as HomeworkResult
+                val isUpdateRunning = data[1] as Boolean
+                val identity = data[2] as Identity?
+                val showNotificationBanner = data[3] as Boolean
+
                 if (identity?.profile == null) return@combine state.value
                 state.value.copy(
                     homework = homework
@@ -45,7 +54,8 @@ class HomeworkViewModel @Inject constructor(
                         },
                     wrongProfile = homework.wrongProfile,
                     identity = identity,
-                    isUpdating = isUpdateRunning
+                    isUpdating = isUpdateRunning,
+                    showNotificationBanner = showNotificationBanner
                 )
             }.collect {
                 state.value = it
@@ -257,6 +267,12 @@ class HomeworkViewModel @Inject constructor(
     fun onToggleShowDone() {
         state.value = state.value.copy(showDone = !state.value.showDone)
     }
+
+    fun onHideNotificationBanner() {
+        viewModelScope.launch {
+            homeworkUseCases.hideHomeworkNotificationBannerUseCase()
+        }
+    }
 }
 
 data class HomeworkState(
@@ -272,7 +288,8 @@ data class HomeworkState(
     val isUpdating: Boolean = false,
     val showHidden: Boolean = false,
     val showDisabled: Boolean = false,
-    val showDone: Boolean = false
+    val showDone: Boolean = false,
+    val showNotificationBanner: Boolean = false
 )
 
 data class HomeworkViewModelHomework(

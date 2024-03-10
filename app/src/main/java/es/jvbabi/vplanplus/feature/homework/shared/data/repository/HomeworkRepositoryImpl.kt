@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
+import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -21,6 +22,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.homework.shared.data.model.DbPreferredNotificationTime
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkModificationResult
@@ -36,13 +38,16 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 class HomeworkRepositoryImpl(
     private val homeworkDao: HomeworkDao,
+    private val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao,
     private val classRepository: ClassRepository,
     private val vppIdRepository: VppIdRepository,
     private val profileRepository: ProfileRepository,
@@ -55,7 +60,7 @@ class HomeworkRepositoryImpl(
 
     private var isUpdateRunning = false
 
-    override suspend fun fetchHomework() {
+    override suspend fun fetchHomework(sendNotification: Boolean) {
         if (isUpdateRunning) return
         isUpdateRunning = true
         keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "true")
@@ -79,7 +84,8 @@ class HomeworkRepositoryImpl(
                     url = "/api/$API_VERSION/user/me/homework"
                 } else {
                     vppIdNetworkRepository.authentication = school.buildAuthentication()
-                    url = "/api/$API_VERSION/school/${school.schoolId}/class/${`class`.name}/homework"
+                    url =
+                        "/api/$API_VERSION/school/${school.schoolId}/class/${`class`.name}/homework"
                 }
 
                 val response = vppIdNetworkRepository.doRequest(url)
@@ -105,14 +111,19 @@ class HomeworkRepositoryImpl(
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter { !existingHomework.any { eh -> eh.id == it.id } }
                     .filter { it.createdBy != vppId?.id?.toLong() }
+                    .filter {
+                        ZonedDateTimeConverter().timestampToZonedDateTime(it.until)
+                            .isAfter(ZonedDateTime.now())
+                    }
 
                 val changedHomework = data
-                    .filter {profile.isDefaultLessonEnabled(it.vpId.toLong()) }
+                    .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter {
                         it.buildHash(`class`.name) != existingHomework.firstOrNull { eh -> eh.id == it.id && !eh.isHidden }
                             ?.buildHash()
                     }
                     .filter { it.createdBy != vppId?.id?.toLong() }
+                    .filter { newHomework.none { nh -> nh.id == it.id } }
 
                 data.forEach forEachHomework@{ responseHomework ->
                     val id = responseHomework.id
@@ -180,65 +191,70 @@ class HomeworkRepositoryImpl(
                     )
                 }
 
-                if (newHomework.size == 1) {
-                    val defaultLessons =
-                        defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
-                    val vpIds = vppIdRepository.getVppIds().first()
+                if (sendNotification) {
+                    val showNewNotification = keyValueRepository.getOrDefault(
+                        Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK,
+                        Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT
+                    ).toBoolean()
+                    if (newHomework.size == 1 && showNewNotification) {
+                        val defaultLessons =
+                            defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
+                        val vpIds = vppIdRepository.getVppIds().first()
 
-                    val dateResourceId = DateUtils
-                        .getDateFromTimestamp(newHomework.first().until)
-                        .getRelativeStringResource()
+                        val dateResourceId = DateUtils
+                            .getDateFromTimestamp(newHomework.first().until)
+                            .getRelativeStringResource()
 
-                    val dateString =
-                        if (dateResourceId != null) stringRepository.getString(dateResourceId)
-                        else DateUtils.getDateFromTimestamp(newHomework.first().until).format(
-                            DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
+                        val dateString =
+                            if (dateResourceId != null) stringRepository.getString(dateResourceId)
+                            else DateUtils.getDateFromTimestamp(newHomework.first().until).format(
+                                DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
+                            )
+
+                        notificationRepository.sendNotification(
+                            CHANNEL_ID_HOMEWORK,
+                            newHomework.first().id.toInt(),
+                            stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
+                            stringRepository.getString(
+                                R.string.notification_homeworkNewHomeworkOneContent,
+                                vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
+                                    ?: "Unknown",
+                                defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject
+                                    ?: "Unknown",
+                                newHomework.first().tasks.size,
+                                dateString
+                            ),
+                            R.drawable.vpp,
+                            null,
                         )
-
-                    notificationRepository.sendNotification(
-                        CHANNEL_ID_HOMEWORK,
-                        newHomework.first().id.toInt(),
-                        stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
-                        stringRepository.getString(
-                            R.string.notification_homeworkNewHomeworkOneContent,
-                            vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
-                                ?: "Unknown",
-                            defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject
-                                ?: "Unknown",
-                            newHomework.first().tasks.size,
-                            dateString
-                        ),
-                        R.drawable.vpp,
-                        null,
-                    )
-                } else if (newHomework.isNotEmpty()) {
-                    notificationRepository.sendNotification(
-                        CHANNEL_ID_HOMEWORK,
-                        CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
-                        stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
-                        stringRepository.getString(
-                            R.string.notification_homeworkNewHomeworkMultipleContent,
-                            newHomework.size
-                        ),
-                        R.drawable.vpp,
-                        null,
-                    )
-                } else if (changedHomework.isNotEmpty()) {
-                    notificationRepository.sendNotification(
-                        CHANNEL_ID_HOMEWORK,
-                        CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
-                        stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
-                        stringRepository.getPlural(
-                            R.plurals.notification_homeworkChangedHomeworkContent,
-                            changedHomework.size,
-                            changedHomework.size
-                        ),
-                        R.drawable.vpp,
-                        null,
-                    )
+                    } else if (newHomework.isNotEmpty() && showNewNotification) {
+                        notificationRepository.sendNotification(
+                            CHANNEL_ID_HOMEWORK,
+                            CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
+                            stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
+                            stringRepository.getString(
+                                R.string.notification_homeworkNewHomeworkMultipleContent,
+                                newHomework.size
+                            ),
+                            R.drawable.vpp,
+                            null,
+                        )
+                    } else if (changedHomework.isNotEmpty()) {
+                        notificationRepository.sendNotification(
+                            CHANNEL_ID_HOMEWORK,
+                            CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
+                            stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
+                            stringRepository.getPlural(
+                                R.plurals.notification_homeworkChangedHomeworkContent,
+                                changedHomework.size,
+                                changedHomework.size
+                            ),
+                            R.drawable.vpp,
+                            null,
+                        )
+                    }
                 }
             }
-
         keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "false")
         isUpdateRunning = false
     }
@@ -300,7 +316,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.classes?.classId == `class`.classId && it.isActive() }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework",
@@ -354,7 +371,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${homework.id}",
@@ -388,7 +406,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${homework.id}/tasks",
@@ -424,7 +443,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${parent.id}/tasks/${task.id}",
@@ -459,7 +479,8 @@ class HomeworkRepositoryImpl(
             .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
             ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${parent.id}/tasks/${task.id}",
@@ -493,7 +514,8 @@ class HomeworkRepositoryImpl(
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${homework.id}/tasks/${task.id}",
@@ -530,7 +552,8 @@ class HomeworkRepositoryImpl(
         val vppId = homework.createdBy
             ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
 
-        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken =
+            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework/${homework.id}",
@@ -560,6 +583,31 @@ class HomeworkRepositoryImpl(
     override fun isUpdateRunning(): Boolean {
         return isUpdateRunning
     }
+
+    override suspend fun setPreferredHomeworkNotificationTime(
+        hour: Int,
+        minute: Int,
+        dayOfWeek: DayOfWeek
+    ) {
+        homeworkNotificationTimeDao.insertPreferredHomeworkNotificationTime(
+            DbPreferredNotificationTime(
+                dayOfWeek = dayOfWeek.value,
+                hour = hour,
+                minute = minute,
+                overrideDefault = true
+            )
+        )
+    }
+
+    override suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek) {
+        homeworkNotificationTimeDao.deletePreferredHomeworkNotificationTime(dayOfWeek.value)
+    }
+
+    override fun getPreferredHomeworkNotificationTimes() = flow {
+        homeworkNotificationTimeDao.getPreferredHomeworkNotificationTime().collect { times ->
+            emit(times.map { it.toModel() })
+        }
+    }
 }
 
 
@@ -577,7 +625,8 @@ private data class HomeworkResponseRecord(
     @SerializedName("tasks") val tasks: List<HomeRecordTask>
 ) {
     fun buildHash(className: String): String {
-        return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256().lowercase()
+        return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256()
+            .lowercase()
     }
 }
 

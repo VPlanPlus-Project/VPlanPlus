@@ -432,4 +432,36 @@
     <string name="advancedSettings_dialogServerMessage">Only do this for testing purposes. Changing the default server might result in an inconsistent data set. After you set a new server, the app will close itself.</string>
     <string name="advancedSettings_settingsServerDefault">Default server</string>
     <string name="grades_filterTitle">Subjects</string>
+    <string name="settings_homeworkTitle">Homework</string>
+    <string name="settings_subjectsSubtitle">Manage notifications for homework</string>
+    <string name="settingsHomework_title">Homework</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Show notification when someone created a new homework</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">If turned off, you\'ll still receive notification when a homework gets changed so you don\'t miss anything. Also, if the homework was created after your preferred notification time, you\'ll still get a notification.</string>
+    <string name="settingsHomework_defaultNotificationTimeTitle">Preferred reminder time</string>
+    <string name="settingsHomework_defaultNotificationTimeSubtitle">You\'ll get a notification if there are undone tasks until tomorrow. Currently set to  %1$s.</string>
+    <string name="settingsHomework_reminderNotificationEnabledTitle">Reminder of unfinished homework</string>
+    <string name="settingsHomework_reminderNotificationEnabledSubtitle">Get a notification reminding you of undone tasks until tomorrow.</string>
+    <string name="settingsHomework_exceptionsTitle">Exceptions</string>
+    <string name="settingsHomework_exceptionsSubtitle">Tap the day to add an exception for this day. Tap the time to change it.</string>
+    <string name="settingsHomework_reminderTimeForDay">Reminder for %1$s</string>
+    <string name="notification_homeworkReminderTitle">There are some unfinished tasks left</string>
+    <plurals name="notification_homeworkReminderTomorrowMessage">
+        <item quantity="one">There is one unfinished homework assignment in %2$s that is due to tomorrow</item>
+        <item quantity="other">There are %1$d unfinished homework assignments in subjects %2$s that are due to tomorrow</item>
+    </plurals>
+    <plurals name="notification_homeworkReminderAfterTomorrowMessage">
+        <item quantity="one"> and one longer-term assignment</item>
+        <item quantity="other"> and %1$d longer-term assignments</item>
+    </plurals>
+    <string name="notification_homeworkReminderMessage">
+        %1$s%2$s.
+    </string>
+    <string name="notification_homeworkReminderRemindAgain">Remind again in 30 min</string>
+    <string name="homework_notificationSettingsTitle">New notification settings available</string>
+    <string name="homework_notificationSettingsText">Now you can choose if you want to get notified the moment a new homework is created. Additionally, the app can remind you at your preferred time about unfinished homework.</string>
+    <string name="to_settings">To settings</string>
+    <string name="settingsHomework_alarmNoPermissionTitle">Required permission not granted</string>
+    <string name="settingsHomework_alarmNoPermissionGrantedText">You need to allow the app to create alarms. They do not wake you up, but they allow the app to build a notification for you. This is required to use this feature.</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="settingsHomework_permissionToast">Scroll down and enable VPlanPlus</string>
 </resources>

@@ -80,13 +80,13 @@ class DoSyncUseCase(
         val daysAhead = keyValueRepository.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toIntOrNull()
             ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
 
-        logRecordRepository.log("Sync.Homework", "Syncing homework")
-        homeworkRepository.fetchHomework()
-
-        logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
-
         var currentVersion =
             keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: -1L
+
+        logRecordRepository.log("Sync.Homework", "Syncing homework")
+        homeworkRepository.fetchHomework(currentVersion != -1L)
+
+        logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
         planRepository.deletePlansByVersion(currentVersion + 1)
         lessonRepository.deleteLessonsByVersion(currentVersion + 1)

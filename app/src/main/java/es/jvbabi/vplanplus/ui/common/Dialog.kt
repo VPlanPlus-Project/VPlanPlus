@@ -269,7 +269,7 @@ fun SelectDialogPreview() {
 
 @Composable
 @Preview
-fun InfoDialogPreview() {
+private fun InfoDialogPreview() {
     InfoDialog(
         icon = Icons.Default.SystemUpdate,
         title = "Update available",
@@ -279,7 +279,7 @@ fun InfoDialogPreview() {
 
 @Composable
 @Preview
-fun InputDialogPreview() {
+private fun InputDialogPreview() {
     InputDialog(
         icon = Icons.Default.Repeat,
         title = "How many times do you want to repeat this?",
