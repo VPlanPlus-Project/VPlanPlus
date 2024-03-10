@@ -59,7 +59,7 @@ class HomeworkReminderUseCase(
         )
 
         val messageAfterTomorrow =
-            if (homeworkForTomorrow.isNotEmpty()) " " + stringRepository.getPlural(
+            if (homeworkForTomorrow.isNotEmpty()) stringRepository.getPlural(
                 R.plurals.notification_homeworkReminderAfterTomorrowMessage,
                 homeworkForAfterTomorrow.size,
                 homeworkForAfterTomorrow.size

@@ -448,8 +448,8 @@
         <item quantity="other">Es gibt noch %1$d unerledigte Hausaufgaben in den Fächern %2$s, welche bis morgen fällig sind</item>
     </plurals>
     <plurals name="notification_homeworkReminderAfterTomorrowMessage">
-        <item quantity="one">und eine längerfristige Aufgabe</item>
-        <item quantity="other">und %1$d längerfristige Aufgaben</item>
+        <item quantity="one">, und eine längerfristige Aufgabe</item>
+        <item quantity="other">, und %1$d längerfristige Aufgaben</item>
     </plurals>
     <string name="notification_homeworkReminderMessage">
         %1$s%2$s.

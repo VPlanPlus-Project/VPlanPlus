@@ -450,8 +450,8 @@
         <item quantity="other">There are %1$d unfinished homework assignments in subjects %2$s that are due to tomorrow</item>
     </plurals>
     <plurals name="notification_homeworkReminderAfterTomorrowMessage">
-        <item quantity="one">and one longer-term assignment</item>
-        <item quantity="other">and %1$d longer-term assignments</item>
+        <item quantity="one"> and one longer-term assignment</item>
+        <item quantity="other"> and %1$d longer-term assignments</item>
     </plurals>
     <string name="notification_homeworkReminderMessage">
         %1$s%2$s.
