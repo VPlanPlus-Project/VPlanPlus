@@ -11,7 +11,8 @@ interface NotificationRepository {
         title: String,
         message: String,
         icon: Int,
-        pendingIntent: PendingIntent?
+        pendingIntent: PendingIntent?,
+        actions: List<NotificationAction> = emptyList()
     )
 
     fun createChannel(channelId: String, name: String, description: String, importance: Int)
@@ -19,6 +20,7 @@ interface NotificationRepository {
     fun deleteChannel(channelId: String)
     fun createSystemChannels(context: Context)
     fun createProfileChannels(context: Context, profiles: List<Profile>)
+    fun dismissNotification(id: Int)
 
     companion object {
         const val CHANNEL_ID_GRADES = "grades"
@@ -31,3 +33,8 @@ interface NotificationRepository {
         const val CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID = 8000
     }
 }
+
+data class NotificationAction(
+    val title: String,
+    val intent: PendingIntent
+)

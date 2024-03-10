@@ -454,4 +454,5 @@
     <string name="notification_homeworkReminderMessage">
         %1$s%2$s.
     </string>
+    <string name="notification_homeworkReminderRemindAgain">In 30 Minuten erneut erinnern</string>
 </resources>

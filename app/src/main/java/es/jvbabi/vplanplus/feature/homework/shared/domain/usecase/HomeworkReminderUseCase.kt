@@ -5,11 +5,15 @@ import android.content.Context
 import android.content.Intent
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.android.receiver.HomeworkRemindLaterReceiver
+import es.jvbabi.vplanplus.domain.repository.NotificationAction
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.shared.data.PendingIntentCodes.HOMEWORK_REMINDER
+import es.jvbabi.vplanplus.shared.data.PendingIntentCodes.HOMEWORK_REMINDER_REMIND_LATER
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.flow.first
 import java.time.ZonedDateTime
@@ -61,9 +65,23 @@ class HomeworkReminderUseCase(
 
         val pendingIntent = PendingIntent.getActivity(
             context,
-            0,
+            HOMEWORK_REMINDER,
             intent,
             PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val remindAgainIntent = Intent(context, HomeworkRemindLaterReceiver::class.java)
+            .putExtra("tag", HomeworkRemindLaterReceiver.TAG)
+        val remindAgainPendingIntent = PendingIntent.getBroadcast(
+            context,
+            HOMEWORK_REMINDER_REMIND_LATER,
+            remindAgainIntent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val remindAgainAction = NotificationAction(
+            stringRepository.getString(R.string.notification_homeworkReminderRemindAgain),
+            remindAgainPendingIntent
         )
 
         notificationRepository.sendNotification(
@@ -73,6 +91,7 @@ class HomeworkReminderUseCase(
             message,
             R.drawable.vpp,
             pendingIntent,
+            listOf(remindAgainAction)
         )
     }
 }

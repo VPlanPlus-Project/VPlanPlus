@@ -74,6 +74,7 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".android.receiver.AlarmReceiver" />
+        <receiver android:name=".android.receiver.HomeworkRemindLaterReceiver" />
     </application>
 
 </manifest>
