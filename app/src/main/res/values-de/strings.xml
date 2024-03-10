@@ -458,4 +458,8 @@
     <string name="homework_notificationSettingsTitle">Neue Benachrichtigungsoptionen verfügbar</string>
     <string name="homework_notificationSettingsText">Jetzt kannst du auswählen, ob du benachrichtigt werden möchtest, sobald eine neue Hausaufgabe erstellt wurde. Außerdem kann die App dich zu deiner bevorzugten Zeit an unerledigte Hausaufgaben erinnern.</string>
     <string name="to_settings">Zu den Einstellungen</string>
+    <string name="settingsHomework_alarmNoPermissionTitle">Fehlende Berechtigung</string>
+    <string name="settingsHomework_alarmNoPermissionGrantedText">Du musst der App die Erlaubnis erteilen, Alarme anzulegen. Diese Alarme wecken die App um ihr das Senden einer Benachrichtigung zu ermöglichen.</string>
+    <string name="grant_permission">Berechtigung erteilen</string>
+    <string name="settingsHomework_permissionToast">Scrolle nach unten und aktiviere VPlanPlus</string>
 </resources>

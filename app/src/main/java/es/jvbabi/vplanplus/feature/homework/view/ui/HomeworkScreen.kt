@@ -332,7 +332,6 @@ private fun HomeworkScreenContent(
                     val list =
                         state.homework.sortedBy { it.until }.groupBy { it.until }.toList()
                     LazyColumn(Modifier.fillMaxSize()) {
-
                         item {
                             AnimatedVisibility(
                                 visible = state.showNotificationBanner,

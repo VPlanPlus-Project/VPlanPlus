@@ -460,4 +460,8 @@
     <string name="homework_notificationSettingsTitle">New notification settings available</string>
     <string name="homework_notificationSettingsText">Now you can choose if you want to get notified the moment a new homework is created. Additionally, the app can remind you at your preferred time about unfinished homework.</string>
     <string name="to_settings">To settings</string>
+    <string name="settingsHomework_alarmNoPermissionTitle">Required permission not granted</string>
+    <string name="settingsHomework_alarmNoPermissionGrantedText">You need to allow the app to create alarms. They do not wake you up, but they allow the app to build a notification for you. This is required to use this feature.</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="settingsHomework_permissionToast">Scroll down and enable VPlanPlus</string>
 </resources>

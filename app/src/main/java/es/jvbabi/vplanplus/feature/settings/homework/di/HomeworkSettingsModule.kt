@@ -4,9 +4,11 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.CanSendNotificationUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.GetDefaultNotificationTimeUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.GetPreferredHomeworkNotificationTimeUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.HomeworkSettingsUseCases
@@ -28,6 +30,7 @@ object HomeworkSettingsModule {
     fun provideHomeworkSettingsUseCases(
         keyValueRepository: KeyValueRepository,
         homeworkRepository: HomeworkRepository,
+        alarmManagerRepository: AlarmManagerRepository,
         setUpUseCase: SetUpUseCase
     ) = HomeworkSettingsUseCases(
         isShowNotificationOnNewHomeworkUseCase = IsShowNotificationOnNewHomeworkUseCase(keyValueRepository),
@@ -47,6 +50,7 @@ object HomeworkSettingsModule {
             homeworkRepository = homeworkRepository,
             setUpUseCase = setUpUseCase
         ),
-        removePreferredHomeworkNotificationTimeUseCase = RemovePreferredHomeworkNotificationTimeUseCase(homeworkRepository)
+        removePreferredHomeworkNotificationTimeUseCase = RemovePreferredHomeworkNotificationTimeUseCase(homeworkRepository),
+        canSendNotificationUseCase = CanSendNotificationUseCase(alarmManagerRepository)
     )
 }

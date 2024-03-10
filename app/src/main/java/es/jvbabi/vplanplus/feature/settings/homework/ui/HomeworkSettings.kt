@@ -1,5 +1,11 @@
 package es.jvbabi.vplanplus.feature.settings.homework.ui
 
+import android.app.AlarmManager
+import android.content.Intent
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
+import android.widget.Toast.LENGTH_LONG
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -19,6 +25,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.NotificationAdd
 import androidx.compose.material.icons.filled.NotificationImportant
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -40,15 +47,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.IconSettingsState
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
@@ -66,6 +76,10 @@ fun HomeworkSettingsScreen(
     viewModel: HomeworkSettingsViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
+    val context = LocalContext.current
+
+    val permissionToastText = stringResource(id = R.string.settingsHomework_permissionToast)
+
     HomeworkSettingsContent(
         onBack = { navHostController.navigateUp() },
         onToggleNotificationOnNewHomework = viewModel::onToggleNotificationOnNewHomework,
@@ -73,6 +87,22 @@ fun HomeworkSettingsScreen(
         onSetDefaultRemindTime = viewModel::onSetDefaultRemindTime,
         onToggleException = viewModel::onToggleException,
         onSetTime = viewModel::onSetExceptionTime,
+        onAskForAlarmPermission = {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                val alarmManager = ContextCompat.getSystemService(context, AlarmManager::class.java)
+                if (alarmManager?.canScheduleExactAlarms() == false) {
+                    Intent().also { intent ->
+                        intent.action = Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM
+                        context.startActivity(intent)
+                        Toast.makeText(
+                            context,
+                            permissionToastText,
+                            LENGTH_LONG
+                        ).show()
+                    }
+                }
+            }
+        },
         state = state
     )
 }
@@ -83,6 +113,7 @@ private fun HomeworkSettingsContent(
     onBack: () -> Unit,
     onToggleNotificationOnNewHomework: () -> Unit,
     onToggleRemindUserOnUnfinishedHomework: () -> Unit,
+    onAskForAlarmPermission: () -> Unit,
     onSetDefaultRemindTime: (Int, Int) -> Unit,
     onToggleException: (DayOfWeek) -> Unit,
     onSetTime: (DayOfWeek, Int, Int) -> Unit,
@@ -127,7 +158,25 @@ private fun HomeworkSettingsContent(
                 subtitle = stringResource(id = R.string.settingsHomework_reminderNotificationEnabledSubtitle),
                 type = SettingsType.TOGGLE,
                 checked = state.remindUserOnUnfinishedHomework,
-                doAction = onToggleRemindUserOnUnfinishedHomework
+                doAction = onToggleRemindUserOnUnfinishedHomework,
+                customContent = {
+                    if (state.canSendReminderNotifications || !state.remindUserOnUnfinishedHomework) return@SettingsSetting
+                    InfoCard(
+                        modifier = Modifier.padding(
+                            start = 64.dp,
+                            end = 8.dp,
+                            top = 4.dp,
+                            bottom = 4.dp
+                        ),
+                        imageVector = Icons.Default.Warning,
+                        title = stringResource(id = R.string.settingsHomework_alarmNoPermissionTitle),
+                        text = stringResource(id = R.string.settingsHomework_alarmNoPermissionGrantedText),
+                        buttonText1 = stringResource(id = R.string.disable),
+                        buttonAction1 = onToggleRemindUserOnUnfinishedHomework,
+                        buttonText2 = stringResource(id = R.string.grant_permission),
+                        buttonAction2 = onAskForAlarmPermission
+                    )
+                }
             )
             TimePicker(
                 IconSettingsState(
@@ -142,7 +191,7 @@ private fun HomeworkSettingsContent(
                         }
                     ),
                     type = SettingsType.FUNCTION,
-                    enabled = state.remindUserOnUnfinishedHomework,
+                    enabled = state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications,
                     doAction = {
                         val time = (it as String).split(":")
                         onSetDefaultRemindTime(time[0].toInt(), time[1].toInt())
@@ -158,10 +207,10 @@ private fun HomeworkSettingsContent(
                     subtitle = stringResource(id = R.string.settingsHomework_exceptionsSubtitle),
                     type = SettingsType.DISPLAY,
                     imageVector = Icons.Default.MoreTime,
-                    enabled = state.remindUserOnUnfinishedHomework,
+                    enabled = state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications,
                     customContent = {
                         LazyRow(
-                            modifier = if (!state.remindUserOnUnfinishedHomework) Modifier.grayScale() else Modifier
+                            modifier = if (state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications) Modifier else Modifier.grayScale()
                         ) {
                             item { Spacer(modifier = Modifier.size((16 + 50).dp)) }
                             items(7) {
@@ -200,8 +249,10 @@ private fun HomeworkSettingsScreenPreview() {
         onSetDefaultRemindTime = { _, _ -> },
         onToggleException = {},
         onSetTime = { _, _, _ -> },
+        onAskForAlarmPermission = {},
         state = HomeworkSettingsState(
-            notificationOnNewHomework = true
+            notificationOnNewHomework = true,
+            remindUserOnUnfinishedHomework = true
         )
     )
 }

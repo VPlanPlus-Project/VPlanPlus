@@ -39,4 +39,8 @@ class AlarmManagerRepositoryImpl(
         )
         pendingIntent?.let { service.cancel(it) }
     }
+
+    override fun canRequestAlarm(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) service.canScheduleExactAlarms() else true
+    }
 }

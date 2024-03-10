@@ -27,19 +27,22 @@ class HomeworkSettingsViewModel @Inject constructor(
                     homeworkSettingsUseCases.isShowNotificationOnNewHomeworkUseCase(),
                     homeworkSettingsUseCases.isRemindOnUnfinishedHomeworkUseCase(),
                     homeworkSettingsUseCases.getDefaultNotificationTimeUseCase(),
-                    homeworkSettingsUseCases.getPreferredHomeworkNotificationTimeUseCase()
+                    homeworkSettingsUseCases.getPreferredHomeworkNotificationTimeUseCase(),
+                    homeworkSettingsUseCases.canSendNotificationUseCase()
                 )
             ) { data ->
                 val notificationOnNewHomework = data[0] as Boolean
                 val remindUserOnUnfinishedHomework = data[1] as Boolean
                 val defaultNotificationTime = data[2] as Long
                 val exceptions = data[3] as List<PreferredHomeworkNotificationTime>
+                val canSendReminderNotifications = data[4] as Boolean
 
                 state.value.copy(
                     notificationOnNewHomework = notificationOnNewHomework,
                     remindUserOnUnfinishedHomework = remindUserOnUnfinishedHomework,
                     defaultNotificationSecondsAfterMidnight = defaultNotificationTime,
-                    exceptions = exceptions
+                    exceptions = exceptions,
+                    canSendReminderNotifications = canSendReminderNotifications
                 )
             }.collect {
                 state.value = it
@@ -94,5 +97,6 @@ data class HomeworkSettingsState(
     val notificationOnNewHomework: Boolean = false,
     val remindUserOnUnfinishedHomework: Boolean = false,
     val defaultNotificationSecondsAfterMidnight: Long = Keys.SETTINGS_PREFERRED_NOTIFICATION_TIME_DEFAULT,
-    val exceptions: List<PreferredHomeworkNotificationTime> = emptyList()
+    val exceptions: List<PreferredHomeworkNotificationTime> = emptyList(),
+    val canSendReminderNotifications: Boolean = true
 )

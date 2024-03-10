@@ -9,5 +9,6 @@ data class HomeworkSettingsUseCases(
     val setDefaultNotificationTimeUseCase: SetDefaultNotificationTimeUseCase,
     val getPreferredHomeworkNotificationTimeUseCase: GetPreferredHomeworkNotificationTimeUseCase,
     val setPreferredHomeworkNotificationTimeUseCase: SetPreferredHomeworkNotificationTimeUseCase,
-    val removePreferredHomeworkNotificationTimeUseCase: RemovePreferredHomeworkNotificationTimeUseCase
+    val removePreferredHomeworkNotificationTimeUseCase: RemovePreferredHomeworkNotificationTimeUseCase,
+    val canSendNotificationUseCase: CanSendNotificationUseCase
 )
