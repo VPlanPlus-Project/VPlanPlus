@@ -457,4 +457,7 @@
         %1$s%2$s.
     </string>
     <string name="notification_homeworkReminderRemindAgain">Remind again in 30 min</string>
+    <string name="homework_notificationSettingsTitle">New notification settings available</string>
+    <string name="homework_notificationSettingsText">Now you can choose if you want to get notified the moment a new homework is created. Additionally, the app can remind you at your preferred time about unfinished homework.</string>
+    <string name="to_settings">To settings</string>
 </resources>

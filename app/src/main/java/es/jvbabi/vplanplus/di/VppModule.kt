@@ -84,7 +84,6 @@ import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.IsAfterUpdateUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.SetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
@@ -780,7 +779,6 @@ object VppModule {
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
-            isAfterUpdateUseCase = IsAfterUpdateUseCase(keyValueRepository)
         )
     }
 
