@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
@@ -39,15 +40,21 @@ import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TriStateCheckbox
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -78,14 +85,16 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
+import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.toBlackAndWhite
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun HomeworkCard(
     modifier: Modifier = Modifier,
@@ -101,6 +110,7 @@ fun HomeworkCard(
     onChangePublicVisibility: () -> Unit,
     onDeleteTaskRequest: (HomeworkViewModelTask) -> Unit,
     onEditTaskRequest: (HomeworkViewModelTask) -> Unit,
+    onUpdateDueDate: (LocalDate) -> Unit,
     onHomeworkHide: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
@@ -121,6 +131,39 @@ fun HomeworkCard(
 
     val progress = animateFloatAsState(targetValue = homework.tasks.count { it.done }
         .toFloat() / homework.tasks.size, label = "progress").value
+
+    var isChangeDateDialogOpen by rememberSaveable { mutableStateOf(false) }
+
+    val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
+        override fun isSelectableDate(utcTimeMillis: Long): Boolean {
+            val date = DateUtils.getDateFromTimestamp(utcTimeMillis / 1000)
+            return date.isAfter(LocalDate.now().minusDays(1L))
+        }
+    })
+
+    if (isChangeDateDialogOpen) {
+        DatePickerDialog(
+            confirmButton = {
+                TextButton(onClick = {
+                    val date =
+                        if (datePickerState.selectedDateMillis == null) null
+                        else DateUtils.getDateFromTimestamp(datePickerState.selectedDateMillis!! / 1000)
+                    if (date != null) onUpdateDueDate(date)
+                    isChangeDateDialogOpen = false
+                }) {
+                    Text(stringResource(id = R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { isChangeDateDialogOpen = false }) {
+                    Text(stringResource(id = android.R.string.cancel))
+                }
+            },
+            onDismissRequest = { isChangeDateDialogOpen = false },
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
 
     val colorScheme = MaterialTheme.colorScheme
     AnimatedVisibility(
@@ -307,7 +350,7 @@ fun HomeworkCard(
                                 DropdownMenu(
                                     expanded = menuExpanded,
                                     onDismissRequest = { menuExpanded = false }) {
-                                    DropdownMenuItem(
+                                    if (isOwner || homework.createdBy == null) DropdownMenuItem(
                                         text = { Text(text = stringResource(id = R.string.delete)) },
                                         onClick = { menuExpanded = false; onDeleteRequest() },
                                         leadingIcon = {
@@ -316,7 +359,15 @@ fun HomeworkCard(
                                                 contentDescription = null
                                             )
                                         },
-                                        enabled = (isOwner || homework.createdBy == null) && !homework.isLoading && homework.tasks.all { !it.isLoading }
+                                        enabled = !homework.isLoading && homework.tasks.all { !it.isLoading }
+                                    )
+                                    if (isOwner || homework.createdBy == null) DropdownMenuItem(
+                                        text = { Text(text = stringResource(id = R.string.homework_changeDueDate)) },
+                                        onClick = { menuExpanded = false; isChangeDateDialogOpen = true },
+                                        enabled = !homework.isLoading && homework.tasks.all { !it.isLoading },
+                                        leadingIcon = {
+                                            Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null)
+                                        }
                                     )
                                     if (isOwner && homework.id > 0) {
                                         DropdownMenuItem(
@@ -602,6 +653,7 @@ private fun HomeworkCardPreview() {
         onDeleteTaskRequest = {},
         onEditTaskRequest = {},
         onHomeworkHide = {},
+        onUpdateDueDate = {},
         showHidden = true,
         showDisabled = true,
         showDone = true,

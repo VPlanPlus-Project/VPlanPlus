@@ -464,4 +464,5 @@
     <string name="settingsHomework_alarmNoPermissionGrantedText">You need to allow the app to create alarms. They do not wake you up, but they allow the app to build a notification for you. This is required to use this feature.</string>
     <string name="grant_permission">Grant permission</string>
     <string name="settingsHomework_permissionToast">Scroll down and enable VPlanPlus</string>
+    <string name="homework_changeDueDate">Change due date</string>
 </resources>

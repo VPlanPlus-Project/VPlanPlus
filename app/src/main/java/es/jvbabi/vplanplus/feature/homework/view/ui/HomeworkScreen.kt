@@ -70,6 +70,7 @@ import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -103,6 +104,7 @@ fun HomeworkScreen(
         onToggleShowHidden = viewModel::onToggleShowHidden,
         onToggleShowDisabled = viewModel::onToggleShowDisabled,
         onToggleShowDone = viewModel::onToggleShowDone,
+        onUpdateDueDate = viewModel::onUpdateDueDate,
         onOpenHomeworkSettings = { navHostController.navigate(Screen.SettingsHomeworkScreen.route) },
         onHideHomeworkNotificationBanner = viewModel::onHideNotificationBanner,
         refresh = viewModel::refresh,
@@ -128,6 +130,7 @@ private fun HomeworkScreenContent(
     onHomeworkTaskEditRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
     onHomeworkTaskEditRequestConfirm: (newContent: String?) -> Unit = {},
     onHomeworkHide: (homework: HomeworkViewModelHomework) -> Unit = {},
+    onUpdateDueDate: (homework: HomeworkViewModelHomework, newDate: LocalDate) -> Unit = { _, _ -> },
     onOpenHomeworkSettings: () -> Unit = {},
     onHideHomeworkNotificationBanner: () -> Unit = {},
     onResetError: () -> Unit = {},
@@ -421,7 +424,8 @@ private fun HomeworkScreenContent(
                                             },
                                             onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
                                             onEditTaskRequest = { onHomeworkTaskEditRequest(it) },
-                                            onHomeworkHide = { onHomeworkHide(homework) }
+                                            onHomeworkHide = { onHomeworkHide(homework) },
+                                            onUpdateDueDate = { onUpdateDueDate(homework, it) }
                                         )
                                     }
                                 }
