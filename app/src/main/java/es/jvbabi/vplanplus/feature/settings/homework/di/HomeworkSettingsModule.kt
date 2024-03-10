@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.GetDefaultNotificationTimeUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.GetPreferredHomeworkNotificationTimeUseCase
@@ -26,16 +27,26 @@ object HomeworkSettingsModule {
     @Singleton
     fun provideHomeworkSettingsUseCases(
         keyValueRepository: KeyValueRepository,
-        homeworkRepository: HomeworkRepository
+        homeworkRepository: HomeworkRepository,
+        setUpUseCase: SetUpUseCase
     ) = HomeworkSettingsUseCases(
         isShowNotificationOnNewHomeworkUseCase = IsShowNotificationOnNewHomeworkUseCase(keyValueRepository),
         setShowNotificationOnNewHomeworkUseCase = SetShowNotificationOnNewHomeworkUseCase(keyValueRepository),
         isRemindOnUnfinishedHomeworkUseCase = IsRemindOnUnfinishedHomeworkUseCase(keyValueRepository),
-        setRemindOnUnfinishedHomeworkUseCase = SetRemindOnUnfinishedHomeworkUseCase(keyValueRepository),
+        setRemindOnUnfinishedHomeworkUseCase = SetRemindOnUnfinishedHomeworkUseCase(
+            keyValueRepository = keyValueRepository,
+            setUpUseCase = setUpUseCase
+        ),
         getDefaultNotificationTimeUseCase = GetDefaultNotificationTimeUseCase(keyValueRepository),
-        setDefaultNotificationTimeUseCase = SetDefaultNotificationTimeUseCase(keyValueRepository),
+        setDefaultNotificationTimeUseCase = SetDefaultNotificationTimeUseCase(
+            keyValueRepository = keyValueRepository,
+            setUpUseCase = setUpUseCase
+        ),
         getPreferredHomeworkNotificationTimeUseCase = GetPreferredHomeworkNotificationTimeUseCase(homeworkRepository),
-        setPreferredHomeworkNotificationTimeUseCase = SetPreferredHomeworkNotificationTimeUseCase(homeworkRepository),
+        setPreferredHomeworkNotificationTimeUseCase = SetPreferredHomeworkNotificationTimeUseCase(
+            homeworkRepository = homeworkRepository,
+            setUpUseCase = setUpUseCase
+        ),
         removePreferredHomeworkNotificationTimeUseCase = RemovePreferredHomeworkNotificationTimeUseCase(homeworkRepository)
     )
 }

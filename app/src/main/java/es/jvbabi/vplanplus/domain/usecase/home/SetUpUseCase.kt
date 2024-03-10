@@ -24,7 +24,7 @@ class SetUpUseCase(
         createHomeworkReminder()
     }
 
-    private suspend fun createHomeworkReminder() {
+    suspend fun createHomeworkReminder() {
         repeat(7) { day ->
             alarmManagerRepository.cancelAlarm("HOMEWORK_REMINDER_${day + 1}")
         }

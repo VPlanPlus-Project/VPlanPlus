@@ -761,8 +761,7 @@ object VppModule {
         classRepository: ClassRepository,
         vppIdRepository: VppIdRepository,
         homeworkRepository: HomeworkRepository,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
-        alarmManagerRepository: AlarmManagerRepository,
+        setUpUseCase: SetUpUseCase,
         profileRepository: ProfileRepository,
         getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
         getProfilesUseCase: GetProfilesUseCase
@@ -777,16 +776,27 @@ object VppModule {
                 getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
             ),
             getProfilesUseCase = getProfilesUseCase,
-            setUpUseCase = SetUpUseCase(
-                keyValueRepository = keyValueRepository,
-                homeworkRepository = homeworkRepository,
-                alarmManagerRepository = alarmManagerRepository,
-                firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
-            ),
+            setUpUseCase = setUpUseCase,
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
             isAfterUpdateUseCase = IsAfterUpdateUseCase(keyValueRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideSetUpUseCase(
+        keyValueRepository: KeyValueRepository,
+        homeworkRepository: HomeworkRepository,
+        alarmManagerRepository: AlarmManagerRepository,
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+    ): SetUpUseCase {
+        return SetUpUseCase(
+            keyValueRepository = keyValueRepository,
+            homeworkRepository = homeworkRepository,
+            alarmManagerRepository = alarmManagerRepository,
+            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
     }
 
