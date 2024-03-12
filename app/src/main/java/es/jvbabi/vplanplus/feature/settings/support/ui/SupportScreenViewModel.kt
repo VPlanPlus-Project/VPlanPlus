@@ -63,7 +63,10 @@ class SupportScreenViewModel @Inject constructor(
     }
 
     fun onUpdateEmail(email: String) {
-        state.value = state.value.copy(email = email)
+        state.value = state.value.copy(
+            email = email,
+            emailValid = supportUseCases.validateEmailUseCase(email)
+        )
     }
 }
 
@@ -71,6 +74,7 @@ data class SupportScreenState(
     val feedback: String = "",
     val sender: SupportMessageSender = SupportMessageSender.ANONYMOUS,
     val email: String? = null,
+    val emailValid: Boolean = true,
     val attachSystemDetails: Boolean = true,
     val isLoading: Boolean = false,
     val feedbackError: FeedbackError? = null,

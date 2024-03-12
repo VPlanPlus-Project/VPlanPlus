@@ -477,4 +477,5 @@
     <string name="settingsSupport_emailSubtitle">Füge eine E-Mail-Adresse hinzu, um Antworten auf deine Nachricht empfangen zu können.</string>
     <string name="settingsSupport_feedbackCantBeEmpty">Dieses Feld knn nicht leer sein.</string>
     <string name="settingsSupport_feedbackTooShort">Das Feedback muss mindestens 10 Zeichen lang sein.</string>
+    <string name="settingsSupport_emailInvalid">Diese E-Mail-Adresse ist ungültig</string>
 </resources>

@@ -161,6 +161,15 @@ private fun SupportScreenContent(
                                 IconButton(onClick = { onEmailChange("") }) {
                                     Icon(imageVector = Icons.Default.Close, null)
                                 }
+                            },
+                            isError = !state.emailValid,
+                            supportingText = {
+                                Text(
+                                    text =
+                                        if (state.emailValid) ""
+                                        else stringResource(id = R.string.settingsSupport_emailInvalid),
+                                    color = MaterialTheme.colorScheme.error
+                                )
                             }
                         )
                     }

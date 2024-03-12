@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.GetEmailForSupportUseCase
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.SupportUseCases
+import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.ValidateEmailUseCase
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.ValidateFeedbackUseCase
 import javax.inject.Singleton
 
@@ -22,6 +23,7 @@ object SupportModule {
         getEmailForSupportUseCase = GetEmailForSupportUseCase(
             getCurrentIdentityUseCase = getCurrentIdentityUseCase,
         ),
-        validateFeedbackUseCase = ValidateFeedbackUseCase()
+        validateFeedbackUseCase = ValidateFeedbackUseCase(),
+        validateEmailUseCase = ValidateEmailUseCase()
     )
 }

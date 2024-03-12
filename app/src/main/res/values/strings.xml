@@ -479,4 +479,5 @@
     <string name="settingsSupport_emailSubtitle">Add an email address to be able to receive responses on your messages.</string>
     <string name="settingsSupport_feedbackCantBeEmpty">Feedback can\'t be empty</string>
     <string name="settingsSupport_feedbackTooShort">The feedback must be at least 10 characters long.</string>
+    <string name="settingsSupport_emailInvalid">This email is not valid</string>
 </resources>
