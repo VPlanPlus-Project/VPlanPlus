@@ -157,7 +157,7 @@ fun HomeScreenContent(
 ) {
 
     if (state.isVersionHintsDialogOpen) VersionHintsInformation(
-        currentVersion = "Test",
+        currentVersion = state.currentVersion,
         hints = state.versionHints,
         onCloseUntilNextTime = { onVersionHintsClosed(false) },
         onCloseUntilNextVersion = { onVersionHintsClosed(true) }

@@ -15,12 +15,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ireward.htmlcompose.HtmlText
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
+import es.jvbabi.vplanplus.ui.common.openLink
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -51,6 +57,8 @@ fun VersionHintsInformation(
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.size(10.dp))
+                val context = LocalContext.current
+
                 hints.forEachIndexed { i, hint ->
                     Text(text = hint.header, style = MaterialTheme.typography.headlineMedium)
                     Text(
@@ -58,11 +66,21 @@ fun VersionHintsInformation(
                             .format(hint.createdAt),
                         style = MaterialTheme.typography.labelMedium,
                     )
-                    Text(
+                    HtmlText(
                         text = hint.content,
-                        style = MaterialTheme.typography.bodySmall,
-                        modifier = Modifier.fillMaxWidth()
+                        linkClicked = { link ->
+                            openLink(context, link)
+                        },
+                        style = TextStyle.Default.copy(
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                        ),
+                        URLSpanStyle = SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            textDecoration = TextDecoration.Underline
+                        )
                     )
+
+
                     if (i != hints.lastIndex) {
                         HorizontalDivider(
                             modifier = Modifier.padding(vertical = 8.dp),

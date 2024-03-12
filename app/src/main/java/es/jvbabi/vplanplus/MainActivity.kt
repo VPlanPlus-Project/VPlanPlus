@@ -59,6 +59,7 @@ import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.lang.NullPointerException
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
@@ -93,26 +94,31 @@ class MainActivity : FragmentActivity() {
             }
             setOnExitAnimationListener { screen ->
                 Log.d("MainActivity", "Exiting splash screen")
-                val moveIconAnimator = ObjectAnimator.ofFloat(
-                    screen.iconView,
-                    View.TRANSLATION_X,
-                    screen.iconView.paddingStart.toFloat(),
-                    0f
-                )
-                val fadeScreenAnimator = ObjectAnimator.ofFloat(
-                    screen.view,
-                    View.ALPHA,
-                    1f,
-                    0f
-                )
+                try {
+                    val moveIconAnimator = ObjectAnimator.ofFloat(
+                        screen.iconView,
+                        View.TRANSLATION_X,
+                        screen.iconView.paddingStart.toFloat(),
+                        0f
+                    )
+                    val fadeScreenAnimator = ObjectAnimator.ofFloat(
+                        screen.view,
+                        View.ALPHA,
+                        1f,
+                        0f
+                    )
 
-                fadeScreenAnimator.interpolator = AccelerateInterpolator()
-                fadeScreenAnimator.duration = 500L
-                moveIconAnimator.interpolator = AccelerateInterpolator()
-                moveIconAnimator.duration = 500L
-                moveIconAnimator.start()
-                fadeScreenAnimator.start()
-                moveIconAnimator.doOnEnd { screen.remove() }
+                    fadeScreenAnimator.interpolator = AccelerateInterpolator()
+                    fadeScreenAnimator.duration = 500L
+                    moveIconAnimator.interpolator = AccelerateInterpolator()
+                    moveIconAnimator.duration = 500L
+                    moveIconAnimator.start()
+                    fadeScreenAnimator.start()
+                    moveIconAnimator.doOnEnd { screen.remove() }
+                } catch (e: NullPointerException) {
+                    screen.remove()
+                }
+
                 doInit(true)
             }
         } else doInit(false)
