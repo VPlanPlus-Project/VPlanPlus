@@ -12,7 +12,6 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeviceUnknown
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -52,7 +51,6 @@ fun SupportScreen(
     SupportScreenContent(
         onBack = { navHostController.navigateUp() },
         onFeedbackChange = viewModel::onUpdateFeedback,
-        onToggleAnonymousSend = viewModel::toggleSender,
         onToggleSystemDetails = viewModel::toggleAttachSystemDetails,
         onEmailChange = viewModel::onUpdateEmail,
         onSend = viewModel::send,
@@ -65,7 +63,6 @@ fun SupportScreen(
 private fun SupportScreenContent(
     onBack: () -> Unit = {},
     onFeedbackChange: (String) -> Unit = {},
-    onToggleAnonymousSend: () -> Unit = {},
     onToggleSystemDetails: () -> Unit = {},
     onEmailChange: (String) -> Unit = {},
     onSend: () -> Unit = {},
@@ -140,19 +137,6 @@ private fun SupportScreenContent(
             )
             Setting(
                 IconSettingsState(
-                    imageVector = Icons.Default.Person,
-                    title = stringResource(id = R.string.settingsSupport_sendAnonymouslyTitle),
-                    subtitle =
-                    if (state.sender == SupportMessageSender.ANONYMOUS) stringResource(id = R.string.settingsSupport_sendAnonymouslyNoVppIdSubtitle)
-                    else stringResource(id = R.string.settingsSupport_sendAnonymouslySubtitle),
-                    type = SettingsType.TOGGLE,
-                    enabled = state.sender != SupportMessageSender.ANONYMOUS,
-                    checked = state.sender != SupportMessageSender.VPPID,
-                    doAction = { onToggleAnonymousSend() }
-                )
-            )
-            Setting(
-                IconSettingsState(
                     imageVector = Icons.Default.DeviceUnknown,
                     title = stringResource(id = R.string.settingsSupport_attachSystemDetailsTitle),
                     subtitle = stringResource(id = R.string.settingsSupport_attachSystemDetailsSubtitle),
@@ -168,7 +152,6 @@ private fun SupportScreenContent(
                     subtitle = stringResource(id = R.string.settingsSupport_emailSubtitle),
                     type = SettingsType.DISPLAY,
                     clickable = false,
-                    enabled = state.sender == SupportMessageSender.ANONYMOUS,
                     doAction = {},
                     customContent = {
                         TextField(
@@ -178,7 +161,6 @@ private fun SupportScreenContent(
                             value = state.email ?: "",
                             placeholder = { Text(text = stringResource(id = R.string.settingsSupport_emailTitle)) },
                             onValueChange = onEmailChange,
-                            enabled = state.sender == SupportMessageSender.ANONYMOUS,
                             singleLine = true,
                             trailingIcon = {
                                 IconButton(onClick = { onEmailChange("") }) {
@@ -207,7 +189,6 @@ private fun SupportScreenContent(
 fun SupportScreenPreview() {
     SupportScreenContent(
         state = SupportScreenState(
-            sender = SupportMessageSender.VPP_ID_ANONYMOUS,
             feedbackError = null,
             isLoading = true
         )

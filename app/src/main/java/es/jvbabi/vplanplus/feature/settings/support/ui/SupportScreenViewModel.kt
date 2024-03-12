@@ -16,7 +16,6 @@ class SupportScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     val state = mutableStateOf(SupportScreenState())
-    private var firstRun = true
 
     init {
         viewModelScope.launch {
@@ -25,16 +24,9 @@ class SupportScreenViewModel @Inject constructor(
                     supportUseCases.getEmailForSupportUseCase()
                 )
             ) { data ->
-                val vppEmail = data[0] as String?
-
-                val sender =
-                    if (firstRun && !vppEmail.isNullOrBlank()) SupportMessageSender.VPPID
-                    else SupportMessageSender.ANONYMOUS
-
-                firstRun = false
+                val vppEmail = data[0]
 
                 state.value.copy(
-                    sender = sender,
                     email = vppEmail
                 )
             }.collect {
@@ -47,16 +39,6 @@ class SupportScreenViewModel @Inject constructor(
         state.value = state.value.copy(
             feedback = feedback,
             feedbackError = supportUseCases.validateFeedbackUseCase(feedback)
-        )
-    }
-
-    fun toggleSender() {
-        state.value = state.value.copy(
-            sender = when (state.value.sender) {
-                SupportMessageSender.VPP_ID_ANONYMOUS -> SupportMessageSender.VPPID
-                SupportMessageSender.VPPID -> SupportMessageSender.VPP_ID_ANONYMOUS
-                else -> SupportMessageSender.ANONYMOUS
-            }
         )
     }
 
@@ -75,21 +57,25 @@ class SupportScreenViewModel @Inject constructor(
         if (state.value.isLoading) return
         if (!state.value.emailValid || state.value.feedbackError != null) return
         state.value = state.value.copy(isLoading = true)
+        viewModelScope.launch {
+            state.value = state.value.copy(
+                sendError = !supportUseCases.sendFeedbackUseCase(
+                    state.value.email,
+                    state.value.feedback,
+                    state.value.attachSystemDetails
+                ),
+                isLoading = false
+            )
+        }
     }
 }
 
 data class SupportScreenState(
     val feedback: String = "",
-    val sender: SupportMessageSender = SupportMessageSender.ANONYMOUS,
     val email: String? = null,
     val emailValid: Boolean = true,
     val attachSystemDetails: Boolean = true,
     val isLoading: Boolean = false,
     val feedbackError: FeedbackError? = null,
+    val sendError: Boolean = false
 )
-
-enum class SupportMessageSender {
-    VPP_ID_ANONYMOUS,
-    VPPID,
-    ANONYMOUS
-}

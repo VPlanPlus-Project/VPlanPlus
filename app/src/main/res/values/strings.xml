@@ -469,10 +469,7 @@
     <string name="settings_helpFeedbackSubtitle">Get help, report a bug or suggest a feature</string>
     <string name="settingsSupport_title">Help and feedback</string>
     <string name="settingsSupport_fieldPlaceholder">Write your message to the developers</string>
-    <string name="settingsSupport_sendAnonymouslyTitle">Send anonymously</string>
-    <string name="settingsSupport_sendAnonymouslySubtitle">You can tie this feedback to your vpp.ID to get a more personalized experience.</string>
     <string name="settingsSupport_send">Send</string>
-    <string name="settingsSupport_sendAnonymouslyNoVppIdSubtitle">You cannot tie this feedback to a vpp.ID since you\'re not logged into one.</string>
     <string name="settingsSupport_attachSystemDetailsTitle">Attach system details</string>
     <string name="settingsSupport_attachSystemDetailsSubtitle">This will send some metadata like your Android an app version along with the message. This data can be very helpful to identify and fix bugs.</string>
     <string name="settingsSupport_emailTitle">E-Mail address</string>

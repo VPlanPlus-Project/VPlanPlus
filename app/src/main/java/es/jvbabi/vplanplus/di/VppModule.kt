@@ -222,11 +222,12 @@ object VppModule {
     @Singleton
     fun provideProfileRepository(
         db: VppDatabase,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
     ): ProfileRepository {
         return ProfileRepositoryImpl(
             profileDao = db.profileDao,
             schoolEntityDao = db.schoolEntityDao,
+            keyValueDao = db.keyValueDao,
             profileDefaultLessonsCrossoverDao = db.profileDefaultLessonsCrossoverDao,
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
