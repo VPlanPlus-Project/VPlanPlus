@@ -475,4 +475,6 @@
     <string name="settingsSupport_attachSystemDetailsSubtitle">Dies sendet einige Metadaten wie deine Android- und App-Version zusammen mit dem Feedback. Diese Informationen können bei der Identifizierung und Behebung von Fehlern hilfreich sein.</string>
     <string name="settingsSupport_emailTitle">E-Mail-Adresse</string>
     <string name="settingsSupport_emailSubtitle">Füge eine E-Mail-Adresse hinzu, um Antworten auf deine Nachricht empfangen zu können.</string>
+    <string name="settingsSupport_feedbackCantBeEmpty">Dieses Feld knn nicht leer sein.</string>
+    <string name="settingsSupport_feedbackTooShort">Das Feedback muss mindestens 10 Zeichen lang sein.</string>
 </resources>

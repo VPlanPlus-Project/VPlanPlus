@@ -16,6 +16,7 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.FeedbackError
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.IconSettingsState
 import es.jvbabi.vplanplus.ui.common.Setting
@@ -44,6 +46,7 @@ fun SupportScreen(
 
     SupportScreenContent(
         onBack = { navHostController.navigateUp() },
+        onFeedbackChange = viewModel::onUpdateFeedback,
         onToggleAnonymousSend = viewModel::toggleSender,
         onToggleSystemDetails = viewModel::toggleAttachSystemDetails,
         onEmailChange = viewModel::onUpdateEmail,
@@ -55,6 +58,7 @@ fun SupportScreen(
 @Composable
 private fun SupportScreenContent(
     onBack: () -> Unit = {},
+    onFeedbackChange: (String) -> Unit = {},
     onToggleAnonymousSend: () -> Unit = {},
     onToggleSystemDetails: () -> Unit = {},
     onEmailChange: (String) -> Unit = {},
@@ -76,7 +80,12 @@ private fun SupportScreenContent(
                 text = {
                     Text(text = stringResource(id = R.string.settingsSupport_send))
                 },
-                icon = { Icon(imageVector = Icons.AutoMirrored.Default.Send, contentDescription = null) }
+                icon = {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.Send,
+                        contentDescription = null
+                    )
+                }
             )
         }
     ) { paddingValues ->
@@ -88,21 +97,33 @@ private fun SupportScreenContent(
                 .verticalScroll(rememberScrollState())
         ) {
             TextField(
-                value = "",
+                value = state.feedback,
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxSize(),
-                minLines = 10,
+                minLines = 5,
                 placeholder = { Text(text = stringResource(id = R.string.settingsSupport_fieldPlaceholder)) },
-                onValueChange = {}
+                onValueChange = onFeedbackChange,
+                isError = state.feedbackError != null,
+                supportingText = {
+                    Text(
+                        text =
+                            when (state.feedbackError) {
+                                FeedbackError.EMPTY -> stringResource(id = R.string.settingsSupport_feedbackCantBeEmpty)
+                                FeedbackError.TOO_SHORT -> stringResource(id = R.string.settingsSupport_feedbackTooShort)
+                                else -> ""
+                            },
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
             )
             Setting(
                 IconSettingsState(
                     imageVector = Icons.Default.Person,
                     title = stringResource(id = R.string.settingsSupport_sendAnonymouslyTitle),
                     subtitle =
-                        if (state.sender == SupportMessageSender.ANONYMOUS) stringResource(id = R.string.settingsSupport_sendAnonymouslyNoVppIdSubtitle)
-                        else stringResource(id = R.string.settingsSupport_sendAnonymouslySubtitle),
+                    if (state.sender == SupportMessageSender.ANONYMOUS) stringResource(id = R.string.settingsSupport_sendAnonymouslyNoVppIdSubtitle)
+                    else stringResource(id = R.string.settingsSupport_sendAnonymouslySubtitle),
                     type = SettingsType.TOGGLE,
                     enabled = state.sender != SupportMessageSender.ANONYMOUS,
                     checked = state.sender != SupportMessageSender.VPPID,
@@ -130,11 +151,12 @@ private fun SupportScreenContent(
                     customContent = {
                         TextField(
                             modifier = Modifier
-                                .padding(8.dp)
+                                .padding(start = 60.dp, top = 8.dp, end = 8.dp, bottom = 8.dp)
                                 .fillMaxSize(),
                             value = state.email ?: "",
                             placeholder = { Text(text = stringResource(id = R.string.settingsSupport_emailTitle)) },
                             onValueChange = onEmailChange,
+                            singleLine = true,
                             trailingIcon = {
                                 IconButton(onClick = { onEmailChange("") }) {
                                     Icon(imageVector = Icons.Default.Close, null)
@@ -153,7 +175,8 @@ private fun SupportScreenContent(
 fun SupportScreenPreview() {
     SupportScreenContent(
         state = SupportScreenState(
-            sender = SupportMessageSender.VPP_ID_ANONYMOUS
+            sender = SupportMessageSender.VPP_ID_ANONYMOUS,
+            feedbackError = null
         )
     )
 }

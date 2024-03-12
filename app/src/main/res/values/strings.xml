@@ -477,4 +477,6 @@
     <string name="settingsSupport_attachSystemDetailsSubtitle">This will send some metadata like your Android an app version along with the message. This data can be very helpful to identify and fix bugs.</string>
     <string name="settingsSupport_emailTitle">E-Mail address</string>
     <string name="settingsSupport_emailSubtitle">Add an email address to be able to receive responses on your messages.</string>
+    <string name="settingsSupport_feedbackCantBeEmpty">Feedback can\'t be empty</string>
+    <string name="settingsSupport_feedbackTooShort">The feedback must be at least 10 characters long.</string>
 </resources>

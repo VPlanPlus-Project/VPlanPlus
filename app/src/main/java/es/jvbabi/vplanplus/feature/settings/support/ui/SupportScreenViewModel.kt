@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.FeedbackError
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.SupportUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -40,6 +41,13 @@ class SupportScreenViewModel @Inject constructor(
         }
     }
 
+    fun onUpdateFeedback(feedback: String) {
+        state.value = state.value.copy(
+            feedback = feedback,
+            feedbackError = supportUseCases.validateFeedbackUseCase(feedback)
+        )
+    }
+
     fun toggleSender() {
         state.value = state.value.copy(
             sender = when (state.value.sender) {
@@ -60,9 +68,12 @@ class SupportScreenViewModel @Inject constructor(
 }
 
 data class SupportScreenState(
+    val feedback: String = "",
     val sender: SupportMessageSender = SupportMessageSender.ANONYMOUS,
     val email: String? = null,
-    val attachSystemDetails: Boolean = true
+    val attachSystemDetails: Boolean = true,
+    val isLoading: Boolean = false,
+    val feedbackError: FeedbackError? = null,
 )
 
 enum class SupportMessageSender {
