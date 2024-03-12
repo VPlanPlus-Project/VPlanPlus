@@ -68,6 +68,12 @@ class SupportScreenViewModel @Inject constructor(
             emailValid = supportUseCases.validateEmailUseCase(email)
         )
     }
+
+    fun send() {
+        if (state.value.isLoading) return
+        if (!state.value.emailValid || state.value.feedbackError != null) return
+        state.value = state.value.copy(isLoading = true)
+    }
 }
 
 data class SupportScreenState(

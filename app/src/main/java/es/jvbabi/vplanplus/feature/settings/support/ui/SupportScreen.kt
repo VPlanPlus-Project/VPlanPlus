@@ -1,5 +1,7 @@
 package es.jvbabi.vplanplus.feature.settings.support.ui
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -23,7 +25,9 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -36,6 +40,7 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.IconSettingsState
 import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsType
+import es.jvbabi.vplanplus.ui.common.SmallProgressIndicator
 
 @Composable
 fun SupportScreen(
@@ -50,6 +55,7 @@ fun SupportScreen(
         onToggleAnonymousSend = viewModel::toggleSender,
         onToggleSystemDetails = viewModel::toggleAttachSystemDetails,
         onEmailChange = viewModel::onUpdateEmail,
+        onSend = viewModel::send,
         state = state
     )
 }
@@ -62,6 +68,7 @@ private fun SupportScreenContent(
     onToggleAnonymousSend: () -> Unit = {},
     onToggleSystemDetails: () -> Unit = {},
     onEmailChange: (String) -> Unit = {},
+    onSend: () -> Unit = {},
     state: SupportScreenState
 ) {
     val scrollBehavior =
@@ -76,16 +83,30 @@ private fun SupportScreenContent(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = {},
+                onClick = onSend,
                 text = {
-                    Text(text = stringResource(id = R.string.settingsSupport_send))
+                    val alpha = animateFloatAsState(
+                        targetValue =
+                            if (state.isLoading) 1f
+                            else 0f,
+                        label = "Send Button Alpha"
+                    ).value
+                    Box(
+                        contentAlignment = Alignment.Center
+                    ) {
+                        SmallProgressIndicator(Modifier.alpha(alpha))
+                        Text(
+                            modifier = Modifier.alpha(1f - alpha),
+                            text = stringResource(id = R.string.settingsSupport_send)
+                        )
+                    }
                 },
                 icon = {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.Send,
                         contentDescription = null
                     )
-                }
+                },
             )
         }
     ) { paddingValues ->
@@ -108,11 +129,11 @@ private fun SupportScreenContent(
                 supportingText = {
                     Text(
                         text =
-                            when (state.feedbackError) {
-                                FeedbackError.EMPTY -> stringResource(id = R.string.settingsSupport_feedbackCantBeEmpty)
-                                FeedbackError.TOO_SHORT -> stringResource(id = R.string.settingsSupport_feedbackTooShort)
-                                else -> ""
-                            },
+                        when (state.feedbackError) {
+                            FeedbackError.EMPTY -> stringResource(id = R.string.settingsSupport_feedbackCantBeEmpty)
+                            FeedbackError.TOO_SHORT -> stringResource(id = R.string.settingsSupport_feedbackTooShort)
+                            else -> ""
+                        },
                         color = MaterialTheme.colorScheme.error
                     )
                 }
@@ -166,8 +187,8 @@ private fun SupportScreenContent(
                             supportingText = {
                                 Text(
                                     text =
-                                        if (state.emailValid) ""
-                                        else stringResource(id = R.string.settingsSupport_emailInvalid),
+                                    if (state.emailValid) ""
+                                    else stringResource(id = R.string.settingsSupport_emailInvalid),
                                     color = MaterialTheme.colorScheme.error
                                 )
                             }
@@ -185,7 +206,8 @@ fun SupportScreenPreview() {
     SupportScreenContent(
         state = SupportScreenState(
             sender = SupportMessageSender.VPP_ID_ANONYMOUS,
-            feedbackError = null
+            feedbackError = null,
+            isLoading = true
         )
     )
 }
