@@ -16,6 +16,7 @@ class SupportScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     val state = mutableStateOf(SupportScreenState())
+    private var firstRun = true
 
     init {
         viewModelScope.launch {
@@ -27,9 +28,10 @@ class SupportScreenViewModel @Inject constructor(
                 val vppEmail = data[0] as String?
 
                 val sender =
-                    if (state.value.sender == SupportMessageSender.VPP_ID_ANONYMOUS && !vppEmail.isNullOrBlank()) SupportMessageSender.VPP_ID_ANONYMOUS
-                    else if (!vppEmail.isNullOrBlank()) SupportMessageSender.VPPID
+                    if (firstRun && !vppEmail.isNullOrBlank()) SupportMessageSender.VPPID
                     else SupportMessageSender.ANONYMOUS
+
+                firstRun = false
 
                 state.value.copy(
                     sender = sender,

@@ -168,6 +168,7 @@ private fun SupportScreenContent(
                     subtitle = stringResource(id = R.string.settingsSupport_emailSubtitle),
                     type = SettingsType.DISPLAY,
                     clickable = false,
+                    enabled = state.sender == SupportMessageSender.ANONYMOUS,
                     doAction = {},
                     customContent = {
                         TextField(
@@ -177,6 +178,7 @@ private fun SupportScreenContent(
                             value = state.email ?: "",
                             placeholder = { Text(text = stringResource(id = R.string.settingsSupport_emailTitle)) },
                             onValueChange = onEmailChange,
+                            enabled = state.sender == SupportMessageSender.ANONYMOUS,
                             singleLine = true,
                             trailingIcon = {
                                 IconButton(onClick = { onEmailChange("") }) {
