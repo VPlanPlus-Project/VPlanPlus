@@ -71,11 +71,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
-import es.jvbabi.vplanplus.domain.usecase.home.IsInfoExpandedUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.SetInfoExpandedUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -83,7 +79,6 @@ import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.advanced.SetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
@@ -104,10 +99,6 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.FixDefaultLe
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.IsInconsistentStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ProfileDefaultLessonsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.shared.GetProfileByIdUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.AccountSettingsUseCases
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.DeleteAccountUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetAccountsUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.TestAccountUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
@@ -119,8 +110,12 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.AccountSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.CloseSessionUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.DeleteAccountUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetAccountsUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetSessionsUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.TestAccountUseCase
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -522,8 +517,6 @@ object VppModule {
     fun provideGetCurrentIdentityUseCase(
         vppIdRepository: VppIdRepository,
         classRepository: ClassRepository,
-        teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository,
         keyValueRepository: KeyValueRepository,
         profileRepository: ProfileRepository
     ): GetCurrentIdentityUseCase {
@@ -532,11 +525,6 @@ object VppModule {
             classRepository = classRepository,
             keyValueRepository = keyValueRepository,
             profileRepository = profileRepository,
-            getSchoolFromProfileUseCase = GetSchoolFromProfileUseCase(
-                classRepository = classRepository,
-                teacherRepository = teacherRepository,
-                roomRepository = roomRepository
-            )
         )
     }
 
@@ -751,35 +739,6 @@ object VppModule {
             classRepository = classRepository,
             teacherRepository = teacherRepository,
             roomRepository = roomRepository
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideHomeUseCases(
-        keyValueRepository: KeyValueRepository,
-        classRepository: ClassRepository,
-        vppIdRepository: VppIdRepository,
-        homeworkRepository: HomeworkRepository,
-        setUpUseCase: SetUpUseCase,
-        profileRepository: ProfileRepository,
-        getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
-        getProfilesUseCase: GetProfilesUseCase
-    ): HomeUseCases {
-        return HomeUseCases(
-            getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
-            getCurrentIdentity = GetCurrentIdentityUseCase(
-                vppIdRepository = vppIdRepository,
-                classRepository = classRepository,
-                keyValueRepository = keyValueRepository,
-                profileRepository = profileRepository,
-                getSchoolFromProfileUseCase = getSchoolFromProfileUseCase
-            ),
-            getProfilesUseCase = getProfilesUseCase,
-            setUpUseCase = setUpUseCase,
-            isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
-            setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
-            getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
         )
     }
 

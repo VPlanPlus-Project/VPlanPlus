@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.State
+import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
@@ -255,6 +256,26 @@ class VppIdRepositoryImpl(
 
         }
     }
+
+    override suspend fun getVersionHints(version: Int, versionBefore: Int): DataResponse<List<VersionHints>> {
+        vppIdNetworkRepository.authentication = null
+        val response = vppIdNetworkRepository.doRequest(
+            "/api/$API_VERSION/app/version_hints/$version",
+            HttpMethod.Get,
+            queries = mapOf("beforeVersion" to versionBefore.toString())
+        )
+        if (response.response != HttpStatusCode.OK) return DataResponse(emptyList(), response.response)
+
+        return DataResponse(
+            Gson().fromJson(
+                response.data,
+                VersionHintResponse::class.java
+            )
+                .data
+                .map { it.toModel() },
+            response.response
+        )
+    }
 }
 
 private data class BookRoomRequest(
@@ -278,3 +299,23 @@ private data class UserNameResponse(
 private data class TestSessionRequest(
     @SerializedName("user_id") val userId: Int
 )
+
+private data class VersionHintResponse(
+    @SerializedName("data") val data: List<VersionHintResponseItem>
+)
+
+private data class VersionHintResponseItem(
+    @SerializedName("version_code") val version: Int,
+    @SerializedName("title") val header: String,
+    @SerializedName("content") val content: String,
+    @SerializedName("created_at") val createdAt: Long
+) {
+    fun toModel(): VersionHints {
+        return VersionHints(
+            header = header,
+            content = content,
+            version = version,
+            createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(createdAt)
+        )
+    }
+}

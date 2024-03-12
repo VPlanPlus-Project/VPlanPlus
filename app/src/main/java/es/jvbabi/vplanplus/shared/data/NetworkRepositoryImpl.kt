@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.shared.data
 
 import android.util.Log
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository

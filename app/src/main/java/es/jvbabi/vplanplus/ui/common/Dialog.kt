@@ -123,6 +123,7 @@ fun ComposableDialog(
     okEnabled: Boolean = true,
     onDismiss: (() -> Unit)? = {},
     onCancel: (() -> Unit)? = null,
+    cancelString: String = stringResource(id = android.R.string.cancel)
 ) {
     Box(
         modifier = Modifier
@@ -141,7 +142,7 @@ fun ComposableDialog(
             },
             dismissButton = {
                 if (onCancel != null) TextButton(onClick = { onCancel() }) {
-                    Text(text = stringResource(id = android.R.string.cancel))
+                    Text(text = cancelString)
                 }
             },
         )

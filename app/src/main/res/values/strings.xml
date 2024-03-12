@@ -477,4 +477,8 @@
     <string name="settingsSupport_feedbackCantBeEmpty">Feedback can\'t be empty</string>
     <string name="settingsSupport_feedbackTooShort">The feedback must be at least 10 characters long.</string>
     <string name="settingsSupport_emailInvalid">This email is not valid</string>
+    <string name="settingsSupport_feedbackSendError">The message couldn\'t been sent. Please try again.</string>
+    <string name="homeVersionHints_title">A new version of VPlanPlus got installed</string>
+    <string name="homeVersionHints_description">You\'re up and running with version %1$s, here is what\'s changed:</string>
+    <string name="homeVersionHints_showLater">Show again later</string>
 </resources>

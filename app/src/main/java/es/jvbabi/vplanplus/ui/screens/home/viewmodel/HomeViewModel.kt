@@ -13,12 +13,14 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -70,6 +72,16 @@ class HomeViewModel @Inject constructor(
     private var homeworkUiSyncJob: Job? = null
 
     init {
+        viewModelScope.launch oneTimeData@{
+            val hints = homeUseCases.getVersionHintsUseCase()
+            val versionName = BuildConfig.VERSION_NAME
+
+            _state.value = state.value.copy(
+                versionHints = hints,
+                isVersionHintsDialogOpen = hints.isNotEmpty(),
+                currentVersion = versionName
+            )
+        }
         if (homeUiSyncJob == null) homeUiSyncJob = viewModelScope.launch {
             combine(
                 listOf(
@@ -264,6 +276,13 @@ class HomeViewModel @Inject constructor(
             homeUseCases.setInfoExpandedUseCase(expanded)
         }
     }
+
+    fun hideVersionHintsDialog(untilNextVersion: Boolean) {
+        _state.value = _state.value.copy(isVersionHintsDialogOpen = false)
+        if (untilNextVersion) viewModelScope.launch {
+            homeUseCases.updateLastVersionHintsVersionUseCase()
+        }
+    }
 }
 
 data class HomeState(
@@ -296,6 +315,10 @@ data class HomeState(
         SchoolEntityType.CLASS to true,
     ),
     val results: List<ResultGroup> = emptyList(),
+
+    val versionHints: List<VersionHints> = emptyList(),
+    val isVersionHintsDialogOpen: Boolean = false,
+    val currentVersion: String = "Loading...",
 
 
     val lastSync: LocalDateTime? = null

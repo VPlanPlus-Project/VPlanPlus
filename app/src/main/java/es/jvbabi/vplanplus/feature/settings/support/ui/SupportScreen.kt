@@ -1,6 +1,10 @@
 package es.jvbabi.vplanplus.feature.settings.support.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,6 +16,7 @@ import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.DeviceUnknown
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -37,6 +42,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.FeedbackError
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.IconSettingsState
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.SmallProgressIndicator
@@ -180,6 +186,18 @@ private fun SupportScreenContent(
                     }
                 )
             )
+            AnimatedVisibility(
+                visible = state.sendError,
+                enter = expandVertically(tween(250)),
+                exit = shrinkVertically(tween(250))
+            ) {
+                InfoCard(
+                    modifier = Modifier.padding(8.dp),
+                    imageVector = Icons.Default.Error,
+                    title = stringResource(id = R.string.something_went_wrong),
+                    text = stringResource(id = R.string.settingsSupport_feedbackSendError)
+                )
+            }
         }
     }
 }
