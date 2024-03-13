@@ -53,8 +53,6 @@ object HomeModule {
             ),
             getProfilesUseCase = getProfilesUseCase,
             setUpUseCase = setUpUseCase,
-            isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
-            setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
             getVersionHintsUseCase = GetVersionHintsUseCase(keyValueRepository, vppIdRepository),
             updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository)
