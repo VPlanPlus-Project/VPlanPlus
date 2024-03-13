@@ -63,7 +63,7 @@ fun LessonCard(
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        Text(
+        if (lessons.any { it.progress(time) in 0.0..<1.0 }) Text(
             text = pluralStringResource(id = R.plurals.homeLesson_current, lessons.size),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.labelMedium,
