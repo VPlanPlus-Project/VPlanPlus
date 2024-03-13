@@ -4,5 +4,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 
 data class HomeUseCases(
     val getProfilesUseCase: GetProfilesUseCase,
-    val getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+    val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+    val getDayForCurrentProfileUseCase: GetDayForCurrentProfileUseCase,
+    val getLastSyncUseCase: GetLastSyncUseCase,
 )

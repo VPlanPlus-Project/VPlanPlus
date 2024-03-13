@@ -149,7 +149,7 @@ class MainActivity : FragmentActivity() {
                         onClick = {
                             if (selectedIndex == 0) return@NavigationBarItem
                             selectedIndex = 0
-                            navController!!.navigate(Screen.HomeScreenLegacy.route) { popUpTo(0) }
+                            navController!!.navigate(Screen.HomeScreen.route) { popUpTo(0) }
                         },
                         icon = {
                             Icon(
@@ -158,7 +158,7 @@ class MainActivity : FragmentActivity() {
                             )
                         },
                         label = { Text(text = stringResource(id = R.string.main_home)) },
-                        route = Screen.HomeScreenLegacy.route
+                        route = Screen.HomeScreen.route
                     ),
                     NavigationBarItem(
                         onClick = {

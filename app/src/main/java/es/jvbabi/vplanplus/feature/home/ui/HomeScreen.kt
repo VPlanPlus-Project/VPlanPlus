@@ -1,12 +1,22 @@
 package es.jvbabi.vplanplus.feature.home.ui
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.Menu
+import es.jvbabi.vplanplus.feature.home.ui.components.Greeting
+import es.jvbabi.vplanplus.feature.home.ui.components.LastSyncText
 
 @Composable
 fun HomeScreen(
@@ -18,17 +28,36 @@ fun HomeScreen(
 
     HomeScreenContent(
         state = state,
+        navBar = navBar,
         onOpenMenu = viewModel::onMenuOpenedChange
     )
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 private fun HomeScreenContent(
     state: HomeState,
+    navBar: @Composable () -> Unit,
     onOpenMenu: (open: Boolean) -> Unit
 ) {
-    Column {
-        SearchView { onOpenMenu(true) }
+    Scaffold(
+        bottomBar = navBar
+    ) { _ ->
+        Column(Modifier.fillMaxSize()) {
+            SearchView { onOpenMenu(true) }
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState())) content@{
+                Greeting(
+                    modifier = Modifier.padding(8.dp),
+                    time = state.time,
+                    name = state.currentIdentity?.vppId?.name?.substringBefore(" ")
+                )
+
+                LastSyncText(Modifier.padding(start = 8.dp), state.lastSync)
+            }
+        }
     }
 
     if (state.currentIdentity != null) Menu(
@@ -45,6 +74,7 @@ private fun HomeScreenContent(
 private fun HomeScreenPreview() {
     HomeScreenContent(
         state = HomeState(),
-        onOpenMenu = {}
+        onOpenMenu = {},
+        navBar = {}
     )
 }

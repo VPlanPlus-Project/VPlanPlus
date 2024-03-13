@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
@@ -17,6 +18,8 @@ import es.jvbabi.vplanplus.domain.usecase.home.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
+import es.jvbabi.vplanplus.feature.home.domain.usecase.GetDayForCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.home.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.UpdateLastVersionHintsVersionUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
@@ -63,6 +66,7 @@ object HomeModule {
         vppIdRepository: VppIdRepository,
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
+        planRepository: PlanRepository
     ): es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases {
         return es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases(
             getProfilesUseCase = GetProfilesUseCase1(
@@ -73,6 +77,14 @@ object HomeModule {
                 vppIdRepository = vppIdRepository,
                 keyValueRepository = keyValueRepository,
                 classRepository = classRepository,
+            ),
+            getDayForCurrentProfileUseCase = GetDayForCurrentProfileUseCase(
+                keyValueRepository = keyValueRepository,
+                profileRepository = profileRepository,
+                planRepository = planRepository
+            ),
+            getLastSyncUseCase = GetLastSyncUseCase(
+                keyValueRepository = keyValueRepository
             )
         )
     }
