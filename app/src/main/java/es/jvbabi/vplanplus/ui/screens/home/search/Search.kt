@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.ui.screens.home.search
-
-import androidx.compose.foundation.background
+// TODO
+/*import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -44,13 +43,11 @@ import es.jvbabi.vplanplus.domain.usecase.home.search.SearchResult
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.home.components.search.DetailedResult
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeState
 import java.time.ZonedDateTime
 import java.util.UUID
 
 @Composable
 fun SearchContent(
-    state: HomeState,
     onFindAvailableRoomClicked: () -> Unit = {},
     onFilterToggle: (SchoolEntityType) -> Unit = {},
     time: ZonedDateTime = ZonedDateTime.now(),
@@ -301,4 +298,4 @@ private fun SearchContentPreview() {
         ),
         onSelectSearchResult = { _, _ -> }
     )
-}
+}*/

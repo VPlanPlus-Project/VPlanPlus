@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.grades.ui.view.GradesScreen
+import es.jvbabi.vplanplus.feature.home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.homework.add.ui.AddHomeworkScreen
 import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
@@ -48,9 +49,7 @@ import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.slideInFromBottom
 import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
 import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
@@ -68,7 +67,6 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 fun NavigationGraph(
     navController: NavHostController,
     onboardingViewModel: OnboardingViewModel,
-    homeViewModel: HomeViewModel,
     goToOnboarding: Boolean,
     navBar: @Composable () -> Unit,
     onNavigationChanged: (String?) -> Unit
@@ -83,7 +81,7 @@ fun NavigationGraph(
 
         deepLinks(navController)
         onboarding(navController, onboardingViewModel)
-        mainScreens(navController, homeViewModel, navBar)
+        mainScreens(navController, navBar)
         newsScreens(navController)
         settingsScreens(navController, onboardingViewModel)
         gradesScreens(navController)
@@ -239,7 +237,6 @@ private fun NavGraphBuilder.onboarding(
 
 private fun NavGraphBuilder.mainScreens(
     navController: NavHostController,
-    viewModel: HomeViewModel,
     navBar: @Composable () -> Unit
 ) {
     composable(
@@ -249,21 +246,8 @@ private fun NavGraphBuilder.mainScreens(
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
-        es.jvbabi.vplanplus.feature.home.ui.HomeScreen(
-            navHostController = navController,
-            navBar = navBar
-        )
-    }
-    composable(
-        route = Screen.HomeScreenLegacy.route,
-        enterTransition = { fadeIn(tween(300)) },
-        exitTransition = { fadeOut(tween(300)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = { fadeOut(tween(300)) }
-    ) {
         HomeScreen(
             navHostController = navController,
-            viewModel = viewModel,
             navBar = navBar
         )
     }

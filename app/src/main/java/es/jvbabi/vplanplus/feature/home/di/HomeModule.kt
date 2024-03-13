@@ -14,7 +14,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetVersionHintsUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.feature.home.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
@@ -42,8 +42,8 @@ object HomeModule {
         setUpUseCase: SetUpUseCase,
         profileRepository: ProfileRepository,
         getProfilesUseCase: GetProfilesUseCase
-    ): HomeUseCases {
-        return HomeUseCases(
+    ): MainUseCases {
+        return MainUseCases(
             getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
             getCurrentIdentity = GetCurrentIdentityUseCase(
                 vppIdRepository = vppIdRepository,

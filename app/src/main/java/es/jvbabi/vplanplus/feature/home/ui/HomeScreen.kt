@@ -42,10 +42,10 @@ import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.home.ui.components.LessonCard
+import es.jvbabi.vplanplus.feature.home.ui.components.NextDaySubjectCard
 import es.jvbabi.vplanplus.feature.home.ui.components.customStickyHeader
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.Grid
-import es.jvbabi.vplanplus.ui.screens.home.components.home.NextDaySubjectCard
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
