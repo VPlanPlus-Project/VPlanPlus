@@ -2,23 +2,17 @@ package es.jvbabi.vplanplus.feature.home.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,6 +24,7 @@ import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.home.ui.components.LessonCard
+import es.jvbabi.vplanplus.feature.home.ui.components.customStickyHeader
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import java.time.format.DateTimeFormatter
 
@@ -78,29 +73,14 @@ private fun HomeScreenContent(
 
                 item { Text(text = state.time.toString()) }
 
-                stickyHeader {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .background(
-                                Brush.verticalGradient(
-                                    listOf(
-                                        MaterialTheme.colorScheme.surface,
-                                        MaterialTheme.colorScheme.surface,
-                                        Color.Transparent
-                                    )
-                                )
-                            )
-                            .padding(8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(
-                                id = R.string.home_planToday,
-                                state.todayDay?.date?.format(DateTimeFormatter.ofPattern("EEE, dd.MM.yyyy"))
-                                    ?: ""
-                            )
+                customStickyHeader {
+                    Text(
+                        text = stringResource(
+                            id = R.string.home_planToday,
+                            state.todayDay?.date?.format(DateTimeFormatter.ofPattern("EEE, dd.MM.yyyy"))
+                                ?: ""
                         )
-                    }
+                    )
                 }
 
                 if (state.todayDay?.info != null) {
@@ -130,11 +110,6 @@ private fun HomeScreenContent(
                         homework = state.userHomework
                     )
                 }
-
-                stickyHeader {
-                    Text(text = "Morgen")
-                }
-                items((1..50).toList()) { Text(text = "Item $it") }
 
                 item { LastSyncText(Modifier.padding(start = 8.dp), state.lastSync) }
             }
