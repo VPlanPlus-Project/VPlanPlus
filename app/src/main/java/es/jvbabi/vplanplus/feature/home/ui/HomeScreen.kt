@@ -84,8 +84,6 @@ private fun HomeScreenContent(
                     )
                 }
 
-                item { Text(text = state.time.toString()) }
-
                 if (state.todayDay != null) customStickyHeader(Modifier.clickable { onToggleTodayLessonExpanded() }) {
                     Row(
                         modifier =  Modifier.fillMaxWidth(),
@@ -99,8 +97,7 @@ private fun HomeScreenContent(
                         Text(
                             text = stringResource(
                                 id = R.string.home_planToday,
-                                state.todayDay?.date?.format(DateTimeFormatter.ofPattern("EEE, dd.MM.yyyy"))
-                                    ?: ""
+                                state.todayDay.date.format(DateTimeFormatter.ofPattern("EEE, dd.MM.yyyy"))
                             )
                         )
                         IconButton(onClick = onToggleTodayLessonExpanded) {
