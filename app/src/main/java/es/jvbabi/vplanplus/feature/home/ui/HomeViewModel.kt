@@ -22,6 +22,8 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     val state = mutableStateOf(HomeState())
 
+    var firstRun = true
+
     init {
         viewModelScope.launch {
             combine(
@@ -45,6 +47,13 @@ class HomeViewModel @Inject constructor(
                 val userHomework = data[6] as List<Homework>
                 val infoExpanded = data[7] as Boolean
 
+                var todayLessonExpanded = state.value.todayLessonExpanded
+                if (firstRun) {
+                    todayLessonExpanded = todayDay?.anyLessonsLeft(time, currentIdentity!!.profile!!) ?: false
+                }
+
+                firstRun = false
+
                 state.value.copy(
                     profiles = profiles,
                     currentIdentity = currentIdentity,
@@ -53,7 +62,8 @@ class HomeViewModel @Inject constructor(
                     lastSync = lastSync,
                     time = time,
                     userHomework = userHomework,
-                    infoExpanded = infoExpanded
+                    infoExpanded = infoExpanded,
+                    todayLessonExpanded = todayLessonExpanded
                 )
             }.collect {
                 state.value = it
@@ -70,6 +80,10 @@ class HomeViewModel @Inject constructor(
             homeUseCases.setInfoExpandedUseCase(expanded)
         }
     }
+
+    fun onTodayLessonExpandedToggle() {
+        state.value = state.value.copy(todayLessonExpanded = !state.value.todayLessonExpanded)
+    }
 }
 
 data class HomeState(
@@ -81,5 +95,6 @@ data class HomeState(
     val lastSync: ZonedDateTime? = null,
     val time: ZonedDateTime = ZonedDateTime.now(),
     val userHomework: List<Homework> = emptyList(),
-    val infoExpanded: Boolean = false
+    val infoExpanded: Boolean = false,
+    val todayLessonExpanded: Boolean = true
 )

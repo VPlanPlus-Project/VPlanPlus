@@ -5,7 +5,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -81,7 +80,7 @@ fun LessonCard(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
-                elevation = (8*activeModifier.value).dp,
+                elevation = (4*activeModifier.value).dp,
                 shape = RoundedCornerShape((8+8*activeModifier.value).dp),
             )
             .padding(top = (4*activeModifier.value).dp, bottom = (4*activeModifier.value).dp)

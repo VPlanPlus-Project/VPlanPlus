@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.domain.model
 
 import java.time.LocalDate
+import java.time.ZonedDateTime
 
 enum class DayDataState {
     DATA,
@@ -22,4 +23,8 @@ data class Day(
 ) {
     fun getFilteredLessons(profile: Profile) =
         lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
+
+    fun anyLessonsLeft(time: ZonedDateTime, profile: Profile): Boolean {
+        return getFilteredLessons(profile).any { it.start.isAfter(time) }
+    }
 }
