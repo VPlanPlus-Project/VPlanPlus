@@ -15,8 +15,8 @@ import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetVersionHintsUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
-import es.jvbabi.vplanplus.domain.usecase.home.IsInfoExpandedUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.SetInfoExpandedUseCase
+import es.jvbabi.vplanplus.feature.home.domain.usecase.IsInfoExpandedUseCase
+import es.jvbabi.vplanplus.feature.home.domain.usecase.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetCurrentTimeUseCase
@@ -95,6 +95,12 @@ object HomeModule {
             ),
             getHomeworkUseCase = es.jvbabi.vplanplus.feature.home.domain.usecase.GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
+                keyValueRepository = keyValueRepository
+            ),
+            isInfoExpandedUseCase = IsInfoExpandedUseCase(
+                keyValueRepository = keyValueRepository
+            ),
+            setInfoExpandedUseCase = SetInfoExpandedUseCase(
                 keyValueRepository = keyValueRepository
             )
         )

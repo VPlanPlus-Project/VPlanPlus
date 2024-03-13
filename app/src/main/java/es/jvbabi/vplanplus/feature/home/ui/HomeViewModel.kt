@@ -32,7 +32,8 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getDayForCurrentProfileUseCase(Date.NEXT),
                     homeUseCases.getLastSyncUseCase(),
                     homeUseCases.getCurrentTimeUseCase(),
-                    homeUseCases.getHomeworkUseCase()
+                    homeUseCases.getHomeworkUseCase(),
+                    homeUseCases.isInfoExpandedUseCase()
                 )
             ) { data ->
                 val profiles = data[0] as List<Profile>
@@ -42,6 +43,7 @@ class HomeViewModel @Inject constructor(
                 val lastSync = data[4] as ZonedDateTime?
                 val time = data[5] as ZonedDateTime
                 val userHomework = data[6] as List<Homework>
+                val infoExpanded = data[7] as Boolean
 
                 state.value.copy(
                     profiles = profiles,
@@ -50,7 +52,8 @@ class HomeViewModel @Inject constructor(
                     tomorrowDay = tomorrowDay,
                     lastSync = lastSync,
                     time = time,
-                    userHomework = userHomework
+                    userHomework = userHomework,
+                    infoExpanded = infoExpanded
                 )
             }.collect {
                 state.value = it
@@ -60,6 +63,12 @@ class HomeViewModel @Inject constructor(
 
     fun onMenuOpenedChange(opened: Boolean) {
         state.value = state.value.copy(menuOpened = opened)
+    }
+
+    fun onInfoExpandChange(expanded: Boolean) {
+        viewModelScope.launch {
+            homeUseCases.setInfoExpandedUseCase(expanded)
+        }
     }
 }
 
@@ -71,5 +80,6 @@ data class HomeState(
     val menuOpened: Boolean = false,
     val lastSync: ZonedDateTime? = null,
     val time: ZonedDateTime = ZonedDateTime.now(),
-    val userHomework: List<Homework> = emptyList()
+    val userHomework: List<Homework> = emptyList(),
+    val infoExpanded: Boolean = false
 )
