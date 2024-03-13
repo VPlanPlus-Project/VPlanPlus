@@ -14,23 +14,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.DayDataState
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.home.ui.components.Greeting
@@ -38,6 +44,10 @@ import es.jvbabi.vplanplus.feature.home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.home.ui.components.LessonCard
 import es.jvbabi.vplanplus.feature.home.ui.components.customStickyHeader
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
+import es.jvbabi.vplanplus.ui.common.Grid
+import es.jvbabi.vplanplus.ui.screens.home.components.home.NextDaySubjectCard
+import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
+import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -86,7 +96,7 @@ private fun HomeScreenContent(
 
                 if (state.todayDay != null) customStickyHeader(Modifier.clickable { onToggleTodayLessonExpanded() }) {
                     Row(
-                        modifier =  Modifier.fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -137,12 +147,106 @@ private fun HomeScreenContent(
                                     LessonCard(
                                         lessons = lessons,
                                         time = state.time,
-                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                        modifier = Modifier.padding(
+                                            horizontal = 8.dp,
+                                            vertical = 4.dp
+                                        ),
                                         homework = state.userHomework
                                     )
                                 }
                         }
                     }
+                }
+
+                if (state.nextDay != null) customStickyHeader {
+                    Column {
+                        Text(
+                            text = stringResource(
+                                id = R.string.home_nextDayTitle,
+                            ),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                    }
+                }
+                if (state.nextDay != null) item {
+                    if (state.nextDay.state == DayDataState.NO_DATA || state.nextDay.type != DayType.NORMAL) {
+                        Text(
+                            text = stringResource(id = R.string.home_nextDayNoData),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                    val nextDayLessons = state.nextDay.lessons
+                        .filter { state.currentIdentity!!.profile!!.isDefaultLessonEnabled(it.vpId) }
+                        .filter { it.displaySubject != "-" }
+                        .sortedBy { it.lessonNumber }
+                    Text(
+                        text = stringResource(
+                            id = R.string.home_nextDayStartingAt,
+                            state.nextDay.date.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
+                            nextDayLessons.firstOrNull()?.start?.toZonedLocalDateTime()?.format(
+                                DateTimeFormatter.ofPattern("HH:mm")
+                            ) ?: "-"
+                        ),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+
+                    if (state.nextDay.info != null) {
+                        Text(
+                            text = state.nextDay.info,
+                            style = MaterialTheme.typography.bodySmall,
+                            fontStyle = FontStyle.Italic,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
+                    }
+
+                    val subjects = nextDayLessons
+                        .filter { it.displaySubject != "-" }
+                        .map { it.displaySubject }
+                        .distinct()
+                    if (subjects.isEmpty()) return@item
+
+                    Grid(
+                        columns = 2,
+                        modifier = Modifier.padding(8.dp),
+                        content = subjects.map { subject ->
+                            { _, _, i ->
+                                val lessonsForSubject =
+                                    nextDayLessons.filter { it.displaySubject == subject }
+                                val subjectHomework = state.userHomework
+                                    .filter {
+                                        it.until.toLocalDate() == LocalDate.now().plusDays(1)
+                                    }
+                                    .filter { lessonsForSubject.any { lesson -> lesson.vpId == it.defaultLesson.vpId } }
+
+                                val bigRadius = 24.dp
+                                val smallRadius = 4.dp
+                                val borderRadiusTopLeft = if (i == 0) bigRadius else smallRadius
+                                val borderRadiusTopRight = if ((i == 1 && subjects.size > 1) || (i == 0 && subjects.size == 1)) bigRadius else smallRadius
+                                val borderRadiusBottomLeft = if ((i == subjects.lastIndex && subjects.size % 2 == 1) || (i == subjects.lastIndex-1 && subjects.size % 2 == 0)) bigRadius else smallRadius
+                                val borderRadiusBottomRight = if (i == subjects.lastIndex) bigRadius else smallRadius
+
+                                val modifier = Modifier
+                                    .padding(1.dp)
+                                    .clip(
+                                        RoundedCornerShape(
+                                            topStart = borderRadiusTopLeft,
+                                            topEnd = borderRadiusTopRight,
+                                            bottomStart = borderRadiusBottomLeft,
+                                            bottomEnd = borderRadiusBottomRight
+                                        )
+                                    )
+
+                                NextDaySubjectCard(
+                                    subject = subject,
+                                    lessonNumbers = lessonsForSubject.map { it.lessonNumber },
+                                    homework = subjectHomework.count { homework -> homework.tasks.any { !it.done } && !homework.isHidden },
+                                    modifier = modifier
+                                )
+                            }
+                        }
+                    )
                 }
             }
         }

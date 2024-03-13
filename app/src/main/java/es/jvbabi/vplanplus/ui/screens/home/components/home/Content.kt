@@ -176,86 +176,19 @@ fun ActiveDayContent(
             Column(
                 modifier = Modifier.padding(8.dp)
             ) nextDay@{
+                val nextDayLessons = nextDay!!.lessons
+                    .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                    .filter { it.displaySubject != "-" }
+                    .sortedBy { it.lessonNumber }
+                val subjects = nextDayLessons
+                    .filter { it.displaySubject != "-" }
+                    .map { it.displaySubject }
+                    .distinct()
+                if (subjects.isEmpty()) return@nextDay
                 Text(
-                    text = stringResource(id = R.string.home_nextDayTitle),
-                    style = MaterialTheme.typography.titleMedium
+                    text = stringResource(id = R.string.home_nextDayLessons),
+                    style = MaterialTheme.typography.titleSmall
                 )
-                if (nextDay == null || nextDay.state == DayDataState.NO_DATA || nextDay.type != DayType.NORMAL) {
-                    Text(
-                        text = stringResource(id = R.string.home_nextDayNoData),
-                        style = MaterialTheme.typography.bodySmall
-                    )
-                } else {
-                    val nextDayLessons = nextDay.lessons
-                        .filter { profile.isDefaultLessonEnabled(it.vpId) }
-                        .filter { it.displaySubject != "-" }
-                        .sortedBy { it.lessonNumber }
-                    Text(
-                        text = stringResource(
-                            id = R.string.home_nextDayStartingAt,
-                            nextDay.date.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
-                            nextDayLessons.firstOrNull()?.start?.toZonedLocalDateTime()?.format(
-                                DateTimeFormatter.ofPattern("HH:mm")
-                            ) ?: "-"
-                        ), style = MaterialTheme.typography.bodySmall
-                    )
-                    if (nextDay.info != null) {
-                        Text(
-                            text = nextDay.info,
-                            style = MaterialTheme.typography.bodySmall,
-                            fontStyle = FontStyle.Italic
-                        )
-                    }
-                    val subjects = nextDayLessons
-                        .filter { it.displaySubject != "-" }
-                        .map { it.displaySubject }
-                        .distinct()
-                    if (subjects.isEmpty()) return@nextDay
-                    Text(
-                        text = stringResource(id = R.string.home_nextDayLessons),
-                        style = MaterialTheme.typography.titleSmall
-                    )
-                    Grid(
-                        columns = 2,
-                        modifier = Modifier.padding(top = 8.dp),
-                        content = subjects.map { subject ->
-                            { _, _, i ->
-                                val lessonsForSubject =
-                                    nextDayLessons.filter { it.displaySubject == subject }
-                                val subjectHomework = homework
-                                    .filter {
-                                        it.until.toLocalDate() == LocalDate.now().plusDays(1)
-                                    }
-                                    .filter { lessonsForSubject.any { lesson -> lesson.vpId == it.defaultLesson.vpId } }
-
-                                val bigRadius = 24.dp
-                                val smallRadius = 4.dp
-                                val borderRadiusTopLeft = if (i == 0) bigRadius else smallRadius
-                                val borderRadiusTopRight = if ((i == 1 && subjects.size > 1) || (i == 0 && subjects.size == 1)) bigRadius else smallRadius
-                                val borderRadiusBottomLeft = if ((i == subjects.lastIndex && subjects.size % 2 == 1) || (i == subjects.lastIndex-1 && subjects.size % 2 == 0)) bigRadius else smallRadius
-                                val borderRadiusBottomRight = if (i == subjects.lastIndex) bigRadius else smallRadius
-
-                                val modifier = Modifier
-                                    .padding(1.dp)
-                                    .clip(
-                                        RoundedCornerShape(
-                                            topStart = borderRadiusTopLeft,
-                                            topEnd = borderRadiusTopRight,
-                                            bottomStart = borderRadiusBottomLeft,
-                                            bottomEnd = borderRadiusBottomRight
-                                        )
-                                    )
-
-                                NextDaySubjectCard(
-                                    subject = subject,
-                                    lessonNumbers = lessonsForSubject.map { it.lessonNumber },
-                                    homework = subjectHomework.count { homework -> homework.tasks.any { !it.done } && !homework.isHidden },
-                                    modifier = modifier
-                                )
-                            }
-                        }
-                    )
-                }
 
             }
         }
