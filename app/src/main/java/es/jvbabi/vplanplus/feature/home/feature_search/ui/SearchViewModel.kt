@@ -51,5 +51,5 @@ data class SearchState(
     val query: String = "",
     val expanded: Boolean = false,
     val identity: Identity? = null,
-    val isSyncRunning: Boolean = false
+    val isSyncRunning: Boolean = false,
 )

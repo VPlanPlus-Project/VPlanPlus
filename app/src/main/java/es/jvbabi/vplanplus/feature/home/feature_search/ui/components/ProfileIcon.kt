@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.home.feature_search.ui
+package es.jvbabi.vplanplus.feature.home.feature_search.ui.components
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -21,56 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchBar(
-    currentProfileName: String,
-    onMenuOpened: () -> Unit,
-    onSearchActiveChange: (Boolean) -> Unit,
-    searchOpen: Boolean,
-    searchValue: String,
-    onSearchTyping: (String) -> Unit,
-    isSyncing: Boolean,
-    showNotificationDot: Boolean,
-    content: @Composable () -> Unit
-) {
-
-}
-
-@Preview
-@Composable
-fun SearchBarPreview() {
-    SearchBar(
-        currentProfileName = "10a",
-        onMenuOpened = {},
-        onSearchActiveChange = {},
-        searchOpen = false,
-        searchValue = "",
-        onSearchTyping = {},
-        isSyncing = true,
-        showNotificationDot = true,
-        content = {}
-    )
-}
-
-@Preview
-@Composable
-fun SearchBarOpenPreview() {
-    SearchBar(
-        currentProfileName = "10a",
-        onMenuOpened = {},
-        onSearchActiveChange = {},
-        searchOpen = true,
-        searchValue = "",
-        onSearchTyping = {},
-        isSyncing = false,
-        showNotificationDot = false,
-        content = {}
-    )
-}
 
 @Composable
 fun ProfileIcon(name: String, isSyncing: Boolean, showNotificationDot: Boolean, onClicked: () -> Unit) {
@@ -111,10 +61,4 @@ fun ProfileIcon(name: String, isSyncing: Boolean, showNotificationDot: Boolean, 
             .background(color = error)
         )
     }
-}
-
-@Preview
-@Composable
-fun ProfileIconPreview() {
-    ProfileIcon(name = "10a", isSyncing = true, showNotificationDot = true) {}
 }

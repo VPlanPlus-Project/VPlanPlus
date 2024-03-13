@@ -46,6 +46,7 @@ import es.jvbabi.vplanplus.feature.home.ui.components.NextDaySubjectCard
 import es.jvbabi.vplanplus.feature.home.ui.components.customStickyHeader
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.Grid
+import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -77,7 +78,15 @@ private fun HomeScreenContent(
     onToggleTodayLessonExpanded: () -> Unit
 ) {
     Scaffold(
-        bottomBar = navBar
+        bottomBar = {
+            AnimatedVisibility(
+                visible = !keyboardAsState().value,
+                enter = expandVertically(tween(250)),
+                exit = shrinkVertically(tween(250))
+            ) {
+                navBar()
+            }
+        }
     ) { paddingValues ->
         Column(
             Modifier

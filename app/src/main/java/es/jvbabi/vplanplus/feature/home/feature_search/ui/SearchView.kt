@@ -14,13 +14,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.ProfileIcon
+import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchPlaceholder
 
 @Composable
 fun SearchView(
@@ -78,6 +77,9 @@ private fun SearchViewContent(
         },
         placeholder = { Text(stringResource(id = R.string.home_search)) },
     ) {
-        //content()
+        if (state.query.isBlank()) {
+            SearchPlaceholder(fullyCompatible = state.identity?.school?.fullyCompatible == true)
+            return@SearchBar
+        }
     }
 }
