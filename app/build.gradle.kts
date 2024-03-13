@@ -159,6 +159,8 @@ dependencies {
     androidTestImplementation("androidx.test:core-ktx:1.5.0")
     androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     androidTestImplementation("androidx.test:runner:1.5.2")
+
+    implementation("com.github.ireward:compose-html:1.0.2")
 }
 
 kapt {

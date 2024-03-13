@@ -465,4 +465,20 @@
     <string name="grant_permission">Grant permission</string>
     <string name="settingsHomework_permissionToast">Scroll down and enable VPlanPlus</string>
     <string name="homework_changeDueDate">Change due date</string>
+    <string name="settings_helpFeedbackTitle">Help &amp; Feedback</string>
+    <string name="settings_helpFeedbackSubtitle">Get help, report a bug or suggest a feature</string>
+    <string name="settingsSupport_title">Help and feedback</string>
+    <string name="settingsSupport_fieldPlaceholder">Write your message to the developers</string>
+    <string name="settingsSupport_send">Send</string>
+    <string name="settingsSupport_attachSystemDetailsTitle">Attach system details</string>
+    <string name="settingsSupport_attachSystemDetailsSubtitle">This will send some metadata like your Android an app version along with the message. This data can be very helpful to identify and fix bugs.</string>
+    <string name="settingsSupport_emailTitle">E-Mail address</string>
+    <string name="settingsSupport_emailSubtitle">Add an email address to be able to receive responses on your messages.</string>
+    <string name="settingsSupport_feedbackCantBeEmpty">Feedback can\'t be empty</string>
+    <string name="settingsSupport_feedbackTooShort">The feedback must be at least 10 characters long.</string>
+    <string name="settingsSupport_emailInvalid">This email is not valid</string>
+    <string name="settingsSupport_feedbackSendError">The message couldn\'t been sent. Please try again.</string>
+    <string name="homeVersionHints_title">A new version of VPlanPlus got installed</string>
+    <string name="homeVersionHints_description">You\'re up and running with version %1$s, here is what\'s changed:</string>
+    <string name="homeVersionHints_showLater">Show again later</string>
 </resources>

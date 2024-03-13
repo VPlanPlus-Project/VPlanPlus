@@ -23,4 +23,5 @@ interface ProfileRepository {
     suspend fun deleteDefaultLessonFromProfile(vpId: Long)
 
     suspend fun getSchoolFromProfile(profile: Profile): School
+    suspend fun getActiveProfile(): Flow<Profile?>
 }

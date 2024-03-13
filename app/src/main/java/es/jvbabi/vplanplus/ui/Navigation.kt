@@ -36,6 +36,7 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.support.ui.SupportScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login.BsLoginScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
@@ -483,6 +484,16 @@ private fun NavGraphBuilder.settingsScreens(
         popExitTransition = exitSlideTransitionRight
     ) {
         HomeworkSettingsScreen(navController)
+    }
+
+    composable(
+        route = Screen.SettingsHelpFeedbackScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        SupportScreen(navController)
     }
 
     composable(

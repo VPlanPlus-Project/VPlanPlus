@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.DataObject
@@ -29,6 +30,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.IconSettingsState
+import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -114,14 +117,27 @@ fun SettingsScreen(navController: NavHostController) {
                     navController.navigate(Screen.SettingsAdvancedScreen.route)
                 }
             )
-            SettingsSetting(
-                icon = Icons.Outlined.Info,
-                title = stringResource(id = R.string.settings_aboutTitle),
-                subtitle = stringResource(id = R.string.settings_aboutSubtitle),
-                doAction = {
-                    navController.navigate(Screen.SettingsAboutScreen.route)
-                },
-                type = SettingsType.FUNCTION
+            Setting(
+                IconSettingsState(
+                    imageVector = Icons.AutoMirrored.Outlined.HelpOutline,
+                    title = stringResource(id = R.string.settings_helpFeedbackTitle),
+                    subtitle = stringResource(id = R.string.settings_helpFeedbackSubtitle),
+                    type = SettingsType.FUNCTION,
+                    doAction = {
+                        navController.navigate(Screen.SettingsHelpFeedbackScreen.route)
+                    }
+                )
+            )
+            Setting(
+                IconSettingsState(
+                    imageVector = Icons.Outlined.Info,
+                    title = stringResource(id = R.string.settings_aboutTitle),
+                    subtitle = stringResource(id = R.string.settings_aboutSubtitle),
+                    type = SettingsType.FUNCTION,
+                    doAction = {
+                        navController.navigate(Screen.SettingsAboutScreen.route)
+                    }
+                )
             )
         }
     }

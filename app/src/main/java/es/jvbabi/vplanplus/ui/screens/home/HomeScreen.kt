@@ -30,6 +30,7 @@ import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
+import es.jvbabi.vplanplus.feature.home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
@@ -80,6 +81,7 @@ fun HomeScreen(
             navHostController.navigate(Screen.AddHomeworkScreen.route)
         },
         onInfoExpandChange = viewModel::onInfoExpandChange,
+        onVersionHintsClosed = viewModel::hideVersionHintsDialog,
         navBar = navBar
     )
 
@@ -150,8 +152,17 @@ fun HomeScreenContent(
     onFindAvailableRoomClicked: () -> Unit = {},
     onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit = { _, _ -> },
     onAddHomeworkClicked: () -> Unit = {},
-    onInfoExpandChange: (Boolean) -> Unit = {}
+    onInfoExpandChange: (Boolean) -> Unit = {},
+    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
+
+    if (state.isVersionHintsDialogOpen) VersionHintsInformation(
+        currentVersion = state.currentVersion,
+        hints = state.versionHints,
+        onCloseUntilNextTime = { onVersionHintsClosed(false) },
+        onCloseUntilNextVersion = { onVersionHintsClosed(true) }
+    )
+
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
