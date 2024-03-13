@@ -94,12 +94,15 @@ private fun HomeScreenContent(
                             targetValue = if (state.todayLessonExpanded) 180f else 0f,
                             label = "Expand Card"
                         )
-                        Text(
-                            text = stringResource(
-                                id = R.string.home_planToday,
-                                state.todayDay.date.format(DateTimeFormatter.ofPattern("EEE, dd.MM.yyyy"))
+                        Column {
+                            Text(
+                                text = stringResource(
+                                    id = R.string.home_planToday,
+                                    state.todayDay.date.format(DateTimeFormatter.ofPattern("EEE, dd.MM.yyyy"))
+                                )
                             )
-                        )
+                            LastSyncText(lastSync = state.lastSync)
+                        }
                         IconButton(onClick = onToggleTodayLessonExpanded) {
                             Icon(
                                 imageVector = Icons.Default.ExpandMore,
@@ -141,8 +144,6 @@ private fun HomeScreenContent(
                         }
                     }
                 }
-
-                item { LastSyncText(Modifier.padding(start = 8.dp), state.lastSync) }
             }
         }
     }

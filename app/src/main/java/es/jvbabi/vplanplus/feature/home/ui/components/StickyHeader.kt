@@ -24,6 +24,7 @@ fun LazyListScope.customStickyHeader(modifier: Modifier = Modifier, text: @Compo
                         listOf(
                             MaterialTheme.colorScheme.surface,
                             MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.surface,
                             Color.Transparent
                         )
                     )
