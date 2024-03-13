@@ -51,8 +51,12 @@ private fun HomeScreenContent(
 ) {
     Scaffold(
         bottomBar = navBar
-    ) { _ ->
-        Column(Modifier.fillMaxSize()) {
+    ) { paddingValues ->
+        Column(
+            Modifier
+                .padding(bottom = paddingValues.calculateBottomPadding())
+                .fillMaxSize()
+        ) {
             SearchView { onOpenMenu(true) }
             Column(
                 Modifier
