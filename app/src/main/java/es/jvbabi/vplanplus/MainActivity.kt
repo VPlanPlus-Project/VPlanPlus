@@ -149,7 +149,7 @@ class MainActivity : FragmentActivity() {
                         onClick = {
                             if (selectedIndex == 0) return@NavigationBarItem
                             selectedIndex = 0
-                            navController!!.navigate(Screen.HomeScreen.route) { popUpTo(0) }
+                            navController!!.navigate(Screen.HomeScreenLegacy.route) { popUpTo(0) }
                         },
                         icon = {
                             Icon(
@@ -158,13 +158,13 @@ class MainActivity : FragmentActivity() {
                             )
                         },
                         label = { Text(text = stringResource(id = R.string.main_home)) },
-                        route = Screen.HomeScreen.route
+                        route = Screen.HomeScreenLegacy.route
                     ),
                     NavigationBarItem(
                         onClick = {
                             if (selectedIndex == 1) return@NavigationBarItem
                             selectedIndex = 1
-                            navController!!.navigate(Screen.TimetableScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                            navController!!.navigate(Screen.TimetableScreen.route) { popUpTo(Screen.HomeScreenLegacy.route) }
                         },
                         icon = {
                             Icon(
@@ -179,7 +179,7 @@ class MainActivity : FragmentActivity() {
                         onClick = {
                             if (selectedIndex == 2) return@NavigationBarItem
                             selectedIndex = 2
-                            navController!!.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                            navController!!.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreenLegacy.route) }
                         },
                         icon = {
                             Icon(
@@ -194,7 +194,7 @@ class MainActivity : FragmentActivity() {
                         onClick = {
                             if (selectedIndex == 3) return@NavigationBarItem
                             selectedIndex = 3
-                            navController!!.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                            navController!!.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreenLegacy.route) }
                         },
                         icon = {
                             Icon(
@@ -275,7 +275,7 @@ class MainActivity : FragmentActivity() {
                 while (homeViewModel.state.value.activeProfile == null || navController == null) delay(50)
                 when (intent.getStringExtra("screen")) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
-                    else -> navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreen.route)
+                    else -> navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreenLegacy.route)
                 }
             }
         }

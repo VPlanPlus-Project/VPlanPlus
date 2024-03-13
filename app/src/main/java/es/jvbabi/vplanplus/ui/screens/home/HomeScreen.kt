@@ -33,7 +33,8 @@ import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.feature.home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.home.components.SearchBar
+import es.jvbabi.vplanplus.feature.home.feature_search.ui.SearchBar
+import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.ui.screens.home.components.home.ActiveDayContent
 import es.jvbabi.vplanplus.ui.screens.home.components.home.Greeting
 import es.jvbabi.vplanplus.ui.screens.home.components.home.components.AddHomeworkChip
@@ -97,13 +98,13 @@ fun HomeScreen(
         exit = fadeOut(animationSpec = TweenSpec(200))
     ) {
         Menu(
-            profiles = state.profiles.map { it.toMenuProfile() },
-            selectedProfile = state.activeProfile!!.toMenuProfile(),
+            profiles = state.profiles,
+            selectedProfile = state.activeProfile!!,
             onProfileClicked = {
                 menuOpened = false
-                viewModel.onProfileSelected(it)
+                viewModel.onProfileSelected(it.id)
             },
-            onCloseClicked = {
+            onCloseMenu = {
                 menuOpened = false
             },
             onRefreshClicked = {
@@ -137,6 +138,7 @@ fun HomeScreen(
                 navHostController.navigate(Screen.SettingsProfileScreen.route + it)
             },
             hasUnreadNews = state.unreadMessages.isNotEmpty(),
+            isVisible = menuOpened
         )
     }
 }

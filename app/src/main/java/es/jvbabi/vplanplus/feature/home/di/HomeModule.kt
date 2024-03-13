@@ -20,6 +20,7 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.UpdateLastVersionHintsVersionUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
+import es.jvbabi.vplanplus.feature.home.domain.usecase.GetProfilesUseCase as GetProfilesUseCase1
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -27,7 +28,8 @@ object HomeModule {
 
     @Provides
     @Singleton
-    fun provideHomeUseCases(
+    @Deprecated("")
+    fun provideLegacyHomeUseCases(
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         vppIdRepository: VppIdRepository,
@@ -51,6 +53,27 @@ object HomeModule {
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
             getVersionHintsUseCase = GetVersionHintsUseCase(keyValueRepository, vppIdRepository),
             updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository)
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideHomeUseCases(
+        profileRepository: ProfileRepository,
+        vppIdRepository: VppIdRepository,
+        keyValueRepository: KeyValueRepository,
+        classRepository: ClassRepository,
+    ): es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases {
+        return es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases(
+            getProfilesUseCase = GetProfilesUseCase1(
+                profileRepository = profileRepository
+            ),
+            getCurrentIdentityUseCase = GetCurrentIdentityUseCase(
+                profileRepository = profileRepository,
+                vppIdRepository = vppIdRepository,
+                keyValueRepository = keyValueRepository,
+                classRepository = classRepository,
+            )
         )
     }
 }

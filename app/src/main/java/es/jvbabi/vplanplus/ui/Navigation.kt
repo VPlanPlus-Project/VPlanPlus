@@ -249,6 +249,18 @@ private fun NavGraphBuilder.mainScreens(
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
+        es.jvbabi.vplanplus.feature.home.ui.HomeScreen(
+            navHostController = navController,
+            navBar = navBar
+        )
+    }
+    composable(
+        route = Screen.HomeScreenLegacy.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
         HomeScreen(
             navHostController = navController,
             viewModel = viewModel,

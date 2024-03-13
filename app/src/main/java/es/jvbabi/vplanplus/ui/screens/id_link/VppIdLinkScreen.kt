@@ -46,7 +46,7 @@ fun VppIdLinkScreen(
     VppIdLinkScreenContent(
         state = state,
         onBack = {
-            navHostController.navigate(Screen.HomeScreen.route) {
+            navHostController.navigate(Screen.HomeScreenLegacy.route) {
                 popUpTo(0)
             }
         },
