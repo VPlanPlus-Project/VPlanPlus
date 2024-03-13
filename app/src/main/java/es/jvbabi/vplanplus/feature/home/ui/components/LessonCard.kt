@@ -7,7 +7,9 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
@@ -68,7 +70,7 @@ fun LessonCard(
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.labelMedium,
             modifier = Modifier.padding(8.dp)
-        )
+        ) else Spacer(modifier = Modifier.height(12.dp))
         Row(
             Modifier
                 .padding(start = 16.dp, bottom = 16.dp),
