@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.home.domain.usecase
 
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 
 data class HomeUseCases(
     val getProfilesUseCase: GetProfilesUseCase,
@@ -12,4 +13,6 @@ data class HomeUseCases(
     val getHomeworkUseCase: GetHomeworkUseCase,
     val isInfoExpandedUseCase: IsInfoExpandedUseCase,
     val setInfoExpandedUseCase: SetInfoExpandedUseCase,
+    val changeProfileUseCase: ChangeProfileUseCase,
+    val isSyncRunningUseCase: IsSyncRunningUseCase
 )

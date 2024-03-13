@@ -28,6 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -37,6 +38,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.home.ui.components.Greeting
@@ -47,6 +49,8 @@ import es.jvbabi.vplanplus.feature.home.ui.components.customStickyHeader
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.Grid
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
+import es.jvbabi.vplanplus.ui.common.openLink
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -58,13 +62,22 @@ fun HomeScreen(
     navBar: @Composable () -> Unit
 ) {
     val state = viewModel.state.value
+    val context = LocalContext.current
 
     HomeScreenContent(
         state = state,
         navBar = navBar,
         onOpenMenu = viewModel::onMenuOpenedChange,
         onChangeInfoExpandState = viewModel::onInfoExpandChange,
-        onToggleTodayLessonExpanded = viewModel::onTodayLessonExpandedToggle
+        onToggleTodayLessonExpanded = viewModel::onTodayLessonExpandedToggle,
+        onProfileClicked = { viewModel.onMenuOpenedChange(false); viewModel.switchProfile(it) },
+        onProfileLongClicked = { viewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.SettingsProfileScreen.route + it.id) },
+        onManageProfilesClicked = { viewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.SettingsProfileScreen.route) },
+        onNewsClicked = { viewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.NewsScreen.route) },
+        onSettingsClicked = { viewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.SettingsScreen.route) },
+        onPrivacyPolicyClicked = { openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md") },
+        onRepositoryClicked = { openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus") },
+        onRefreshClicked = { viewModel.onMenuOpenedChange(false); viewModel.onRefreshClicked(context) }
     )
 }
 
@@ -75,7 +88,15 @@ private fun HomeScreenContent(
     navBar: @Composable () -> Unit,
     onOpenMenu: (open: Boolean) -> Unit,
     onChangeInfoExpandState: (Boolean) -> Unit,
-    onToggleTodayLessonExpanded: () -> Unit
+    onToggleTodayLessonExpanded: () -> Unit,
+    onProfileClicked: (Profile) -> Unit = {},
+    onProfileLongClicked: (Profile) -> Unit = {},
+    onManageProfilesClicked: () -> Unit = {},
+    onNewsClicked: () -> Unit = {},
+    onSettingsClicked: () -> Unit = {},
+    onPrivacyPolicyClicked: () -> Unit = {},
+    onRepositoryClicked: () -> Unit = {},
+    onRefreshClicked: () -> Unit = {}
 ) {
     Scaffold(
         bottomBar = {
@@ -266,7 +287,15 @@ private fun HomeScreenContent(
         profiles = state.profiles,
         hasUnreadNews = false,
         selectedProfile = state.currentIdentity.profile!!,
-        onCloseMenu = { onOpenMenu(false) }
+        onCloseMenu = { onOpenMenu(false) },
+        onProfileClicked = onProfileClicked,
+        onManageProfilesClicked = onManageProfilesClicked,
+        onProfileLongClicked = onProfileLongClicked,
+        onNewsClicked = onNewsClicked,
+        onSettingsClicked = onSettingsClicked,
+        onPrivacyPolicyClicked = onPrivacyPolicyClicked,
+        onRepositoryClicked = onRepositoryClicked,
+        onRefreshClicked = onRefreshClicked
     )
 }
 

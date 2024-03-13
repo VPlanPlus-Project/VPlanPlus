@@ -1,8 +1,10 @@
 package es.jvbabi.vplanplus.feature.home.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -20,6 +22,8 @@ import es.jvbabi.vplanplus.feature.home.domain.usecase.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.feature.home.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetDayForCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.UpdateLastVersionHintsVersionUseCase
@@ -33,8 +37,7 @@ object HomeModule {
 
     @Provides
     @Singleton
-    @Deprecated("")
-    fun provideLegacyHomeUseCases(
+    fun provideMainUseCases(
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         vppIdRepository: VppIdRepository,
@@ -62,6 +65,7 @@ object HomeModule {
     @Provides
     @Singleton
     fun provideHomeUseCases(
+        @ApplicationContext context: Context,
         profileRepository: ProfileRepository,
         vppIdRepository: VppIdRepository,
         keyValueRepository: KeyValueRepository,
@@ -100,7 +104,9 @@ object HomeModule {
             ),
             setInfoExpandedUseCase = SetInfoExpandedUseCase(
                 keyValueRepository = keyValueRepository
-            )
+            ),
+            changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
+            isSyncRunningUseCase = IsSyncRunningUseCase(context)
         )
     }
 }

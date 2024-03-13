@@ -5,6 +5,7 @@ import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Search
@@ -14,14 +15,17 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.ProfileIcon
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchNoResults
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchPlaceholder
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchResult
+import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchSearching
 
 @Composable
 fun SearchView(
@@ -88,10 +92,22 @@ private fun SearchViewContent(
             return@SearchBar
         }
 
+        if (state.isSearchRunning) {
+            SearchSearching()
+        }
+
         state.results.filter { it.lessons != null }.forEach { result ->
             SearchResult(searchResult = result, time = state.time)
         }
-        Text(text = "Search more...")
+        if (state.results.any { it.lessons == null }) {
+            Text(
+                text = stringResource(id = R.string.search_moreResults),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .padding(8.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        }
         state.results.filter { it.lessons == null }.forEach { result ->
             SearchResult(searchResult = result, time = state.time)
         }

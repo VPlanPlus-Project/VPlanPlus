@@ -1,8 +1,15 @@
 package es.jvbabi.vplanplus.feature.home.ui
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -10,6 +17,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home.domain.usecase.Date
 import es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -22,7 +30,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     val state = mutableStateOf(HomeState())
 
-    var firstRun = true
+    private var firstRun = true
 
     init {
         viewModelScope.launch {
@@ -35,7 +43,8 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getLastSyncUseCase(),
                     homeUseCases.getCurrentTimeUseCase(),
                     homeUseCases.getHomeworkUseCase(),
-                    homeUseCases.isInfoExpandedUseCase()
+                    homeUseCases.isInfoExpandedUseCase(),
+                    homeUseCases.isSyncRunningUseCase()
                 )
             ) { data ->
                 val profiles = data[0] as List<Profile>
@@ -46,10 +55,12 @@ class HomeViewModel @Inject constructor(
                 val time = data[5] as ZonedDateTime
                 val userHomework = data[6] as List<Homework>
                 val infoExpanded = data[7] as Boolean
+                val syncing = data[8] as Boolean
 
                 var todayLessonExpanded = state.value.todayLessonExpanded
                 if (firstRun) {
-                    todayLessonExpanded = todayDay?.anyLessonsLeft(time, currentIdentity!!.profile!!) ?: false
+                    todayLessonExpanded =
+                        todayDay?.anyLessonsLeft(time, currentIdentity!!.profile!!) ?: false
                 }
 
                 firstRun = false
@@ -63,7 +74,8 @@ class HomeViewModel @Inject constructor(
                     time = time,
                     userHomework = userHomework,
                     infoExpanded = infoExpanded,
-                    todayLessonExpanded = todayLessonExpanded
+                    todayLessonExpanded = todayLessonExpanded,
+                    syncing = syncing
                 )
             }.collect {
                 state.value = it
@@ -84,6 +96,33 @@ class HomeViewModel @Inject constructor(
     fun onTodayLessonExpandedToggle() {
         state.value = state.value.copy(todayLessonExpanded = !state.value.todayLessonExpanded)
     }
+
+    fun switchProfile(to: Profile) {
+        viewModelScope.launch {
+            homeUseCases.changeProfileUseCase(to.id.toString())
+        }
+    }
+
+    fun onRefreshClicked(context: Context) {
+        viewModelScope.launch {
+            if (state.value.syncing) {
+                Log.d("HomeViewModel", "getVPlanData; already syncing")
+                return@launch
+            }
+
+            val syncWork = OneTimeWorkRequestBuilder<SyncWorker>()
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .addTag("SyncWork")
+                .addTag("ManualSyncWork")
+                .build()
+            WorkManager.getInstance(context).enqueue(syncWork)
+        }
+    }
 }
 
 data class HomeState(
@@ -96,5 +135,6 @@ data class HomeState(
     val time: ZonedDateTime = ZonedDateTime.now(),
     val userHomework: List<Homework> = emptyList(),
     val infoExpanded: Boolean = false,
-    val todayLessonExpanded: Boolean = true
+    val todayLessonExpanded: Boolean = true,
+    val syncing: Boolean = false
 )
