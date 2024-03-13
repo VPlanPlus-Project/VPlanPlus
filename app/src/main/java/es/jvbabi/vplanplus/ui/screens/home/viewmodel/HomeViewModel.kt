@@ -88,7 +88,6 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getProfilesUseCase().distinctUntilChanged(),
                     keyValueRepository.getFlow(Keys.LAST_SYNC_TS).distinctUntilChanged(),
                     keyValueRepository.getFlow(Keys.LESSON_VERSION_NUMBER).distinctUntilChanged(),
-                    homeUseCases.isInfoExpandedUseCase(),
                     homeUseCases.getCurrentIdentity(),
                     Worker.isWorkerRunningFlow("SyncWork", app.applicationContext)
                         .distinctUntilChanged(),
@@ -97,9 +96,8 @@ class HomeViewModel @Inject constructor(
                 val profiles = result[0] as Map<School, List<Profile>>
                 val lastSyncTs = result[1] as String?
                 val lessonVersionNumber = result[2] as String?
-                val isInfoExpanded = result[3] as Boolean
-                val identity = result[4] as Identity?
-                val isSyncing = result[5] as Boolean
+                val identity = result[3] as Identity?
+                val isSyncing = result[4] as Boolean
                 if (identity?.school == null) return@combine _state.value
                 version = lessonVersionNumber?.toLong() ?: 0
 
@@ -117,7 +115,6 @@ class HomeViewModel @Inject constructor(
                     activeSchool = identity.school,
                     currentVppId = identity.vppId,
                     fullyCompatible = identity.school.fullyCompatible,
-                    isInfoExpanded = isInfoExpanded
                 )
             }.collect {
                 _state.value = it
@@ -271,12 +268,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onInfoExpandChange(expanded: Boolean) {
-        viewModelScope.launch {
-            homeUseCases.setInfoExpandedUseCase(expanded)
-        }
-    }
-
     fun hideVersionHintsDialog(untilNextVersion: Boolean) {
         _state.value = _state.value.copy(isVersionHintsDialogOpen = false)
         if (untilNextVersion) viewModelScope.launch {
@@ -303,8 +294,6 @@ data class HomeState(
     val homework: List<Homework> = emptyList(),
 
     val isReady: Boolean = false,
-
-    val isInfoExpanded: Boolean = false,
 
     // search
     val searchOpen: Boolean = false,

@@ -81,7 +81,6 @@ fun HomeScreen(
         onAddHomeworkClicked = {
             navHostController.navigate(Screen.AddHomeworkScreen.route)
         },
-        onInfoExpandChange = viewModel::onInfoExpandChange,
         onVersionHintsClosed = viewModel::hideVersionHintsDialog,
         navBar = navBar
     )
@@ -154,7 +153,6 @@ fun HomeScreenContent(
     onFindAvailableRoomClicked: () -> Unit = {},
     onSelectSearchResult: (type: SchoolEntityType, id: UUID) -> Unit = { _, _ -> },
     onAddHomeworkClicked: () -> Unit = {},
-    onInfoExpandChange: (Boolean) -> Unit = {},
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
 
@@ -228,8 +226,6 @@ fun HomeScreenContent(
                             onFindRoomClicked = {
                                 onFindAvailableRoomClicked()
                             },
-                            isInfoExpanded = state.isInfoExpanded,
-                            onInfoExpandChange = onInfoExpandChange,
                             homework = state.homework
                         )
                     }

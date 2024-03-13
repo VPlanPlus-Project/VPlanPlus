@@ -14,7 +14,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.AssistChip
@@ -45,7 +44,6 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.Grid
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
@@ -74,8 +72,6 @@ fun ActiveDayContent(
     hiddenLessons: Int,
     lastSync: LocalDateTime?,
     isLoading: Boolean,
-    isInfoExpanded: Boolean,
-    onInfoExpandChange: (Boolean) -> Unit = {},
     onFindRoomClicked: () -> Unit = {},
     homework: List<Homework>
 ) {
@@ -105,19 +101,6 @@ fun ActiveDayContent(
             LastSyncText(lastSync)
         }
         if (day.type == DayType.WEEKEND) Weekend()
-        if (day.info != null) {
-            Box(
-                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-            ) {
-                CollapsableInfoCard(
-                    imageVector = Icons.Default.Info,
-                    title = stringResource(id = R.string.home_activeDaySchoolInformation),
-                    text = day.info,
-                    isExpanded = isInfoExpanded,
-                    onChangeState = { onInfoExpandChange(it) },
-                )
-            }
-        }
         val currentLessons = lessons.filter { it.progress(currentTime) in 0.0..<1.0 }
         if (currentLessons.isNotEmpty()) {
             Text(
@@ -534,7 +517,6 @@ private fun ContentPreview() {
         hiddenLessons = 2,
         lastSync = LocalDateTime.now(),
         isLoading = false,
-        isInfoExpanded = false,
         homework = emptyList()
     )
 }
