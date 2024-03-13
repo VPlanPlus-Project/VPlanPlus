@@ -489,4 +489,5 @@
         <item quantity="one">Eine Hausaufgabe</item>
         <item quantity="other">%1$d Hausaufgaben</item>
     </plurals>
+    <string name="home_planToday">Plan für heute (%1$s)</string>
 </resources>

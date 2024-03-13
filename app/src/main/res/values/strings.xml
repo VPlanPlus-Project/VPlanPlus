@@ -491,4 +491,5 @@
         <item quantity="one">One homework</item>
         <item quantity="other">%1$d homework</item>
     </plurals>
+    <string name="home_planToday">Plan for today (%1$s)</string>
 </resources>
