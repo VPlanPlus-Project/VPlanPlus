@@ -86,7 +86,7 @@ private fun HomeScreenContent(
 
                 item { Text(text = state.time.toString()) }
 
-                customStickyHeader(Modifier.clickable { onToggleTodayLessonExpanded() }) {
+                if (state.todayDay != null) customStickyHeader(Modifier.clickable { onToggleTodayLessonExpanded() }) {
                     Row(
                         modifier =  Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
