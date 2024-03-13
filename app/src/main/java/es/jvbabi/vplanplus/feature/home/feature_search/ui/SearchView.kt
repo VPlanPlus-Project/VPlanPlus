@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.ProfileIcon
+import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchNoResults
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchPlaceholder
 
 @Composable
@@ -79,6 +80,10 @@ private fun SearchViewContent(
     ) {
         if (state.query.isBlank()) {
             SearchPlaceholder(fullyCompatible = state.identity?.school?.fullyCompatible == true)
+            return@SearchBar
+        }
+        if (state.query.isNotBlank() && state.results.isEmpty()) {
+            SearchNoResults(state.query)
             return@SearchBar
         }
     }

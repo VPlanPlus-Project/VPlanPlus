@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home.feature_search.domain.usecase.SearchUseCases
 import kotlinx.coroutines.flow.combine
@@ -44,7 +45,6 @@ class SearchViewModel @Inject constructor(
     fun onQueryChange(query: String) {
         state.value = state.value.copy(query = query)
     }
-
 }
 
 data class SearchState(
@@ -52,4 +52,11 @@ data class SearchState(
     val expanded: Boolean = false,
     val identity: Identity? = null,
     val isSyncRunning: Boolean = false,
+    val results: List<SearchResult> = emptyList()
+)
+
+data class SearchResult(
+    val name: String,
+    val school: String,
+    val lessons: List<Lesson>
 )
