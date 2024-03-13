@@ -68,9 +68,8 @@ fun SearchResult(
             )
         }
         Text(text = searchResult.school, style = MaterialTheme.typography.labelMedium)
-        if (searchResult.lessons.isNullOrEmpty()) return
         LazyRow {
-            items(searchResult.lessons) { lesson ->
+            items(searchResult.lessons ?: emptyList()) { lesson ->
                 Box(
                     modifier = Modifier
                         .padding(start = 8.dp, bottom = 8.dp)

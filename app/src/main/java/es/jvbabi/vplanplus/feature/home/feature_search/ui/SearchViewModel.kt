@@ -54,8 +54,8 @@ class SearchViewModel @Inject constructor(
     }
 
     fun onQueryChange(query: String) {
-        state.value = state.value.copy(query = query)
         searchJob?.cancel()
+        state.value = state.value.copy(query = query, results = emptyList(), isSearchRunning = true)
         if (query.isBlank()) {
             state.value = state.value.copy(results = emptyList(), isSearchRunning = false)
             return
