@@ -15,7 +15,7 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.GetVersionHintsUseCase
+import es.jvbabi.vplanplus.feature.home.domain.usecase.GetVersionHintsUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.feature.home.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.SetInfoExpandedUseCase
@@ -57,8 +57,6 @@ object HomeModule {
             getProfilesUseCase = getProfilesUseCase,
             setUpUseCase = setUpUseCase,
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
-            getVersionHintsUseCase = GetVersionHintsUseCase(keyValueRepository, vppIdRepository),
-            updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository)
         )
     }
 
@@ -106,7 +104,9 @@ object HomeModule {
                 keyValueRepository = keyValueRepository
             ),
             changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
-            isSyncRunningUseCase = IsSyncRunningUseCase(context)
+            isSyncRunningUseCase = IsSyncRunningUseCase(context),
+            getVersionHintsUseCase = GetVersionHintsUseCase(keyValueRepository, vppIdRepository),
+            updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository)
         )
     }
 }

@@ -14,5 +14,7 @@ data class HomeUseCases(
     val isInfoExpandedUseCase: IsInfoExpandedUseCase,
     val setInfoExpandedUseCase: SetInfoExpandedUseCase,
     val changeProfileUseCase: ChangeProfileUseCase,
-    val isSyncRunningUseCase: IsSyncRunningUseCase
+    val isSyncRunningUseCase: IsSyncRunningUseCase,
+    val getVersionHintsUseCase: GetVersionHintsUseCase,
+    val updateLastVersionHintsVersionUseCase: UpdateLastVersionHintsVersionUseCase
 )

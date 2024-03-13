@@ -45,6 +45,7 @@ import es.jvbabi.vplanplus.feature.home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.home.ui.components.LessonCard
 import es.jvbabi.vplanplus.feature.home.ui.components.NextDaySubjectCard
+import es.jvbabi.vplanplus.feature.home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.home.ui.components.customStickyHeader
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.Grid
@@ -79,7 +80,8 @@ fun HomeScreen(
         onRepositoryClicked = { openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus") },
         onRefreshClicked = { viewModel.onMenuOpenedChange(false); viewModel.onRefreshClicked(context) },
         onAddHomework = { vpId -> navHostController.navigate(Screen.AddHomeworkScreen.route + "?vpId=$vpId") },
-        onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) }
+        onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) },
+        onVersionHintsClosed = viewModel::hideVersionHintsDialog,
     )
 }
 
@@ -100,8 +102,17 @@ private fun HomeScreenContent(
     onRepositoryClicked: () -> Unit = {},
     onRefreshClicked: () -> Unit = {},
     onAddHomework: (vpId: Long?) -> Unit = {},
-    onBookRoomClicked: () -> Unit = {}
+    onBookRoomClicked: () -> Unit = {},
+    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
+    if (state.isVersionHintsDialogOpen) VersionHintsInformation(
+        currentVersion = state.currentVersion,
+        hints = state.versionHints,
+        onCloseUntilNextTime = { onVersionHintsClosed(false) },
+        onCloseUntilNextVersion = { onVersionHintsClosed(true) }
+    )
+
+
     Scaffold(
         bottomBar = {
             AnimatedVisibility(

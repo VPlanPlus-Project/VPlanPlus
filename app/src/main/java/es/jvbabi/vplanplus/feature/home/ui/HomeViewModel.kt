@@ -11,8 +11,10 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home.domain.usecase.Date
 import es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases
@@ -33,6 +35,16 @@ class HomeViewModel @Inject constructor(
     private var firstRun = true
 
     init {
+        viewModelScope.launch oneTimeData@{
+            val hints = homeUseCases.getVersionHintsUseCase()
+            val versionName = BuildConfig.VERSION_NAME
+
+            state.value = state.value.copy(
+                versionHints = hints,
+                isVersionHintsDialogOpen = hints.isNotEmpty(),
+                currentVersion = versionName
+            )
+        }
         viewModelScope.launch {
             combine(
                 listOf(
@@ -123,6 +135,13 @@ class HomeViewModel @Inject constructor(
             WorkManager.getInstance(context).enqueue(syncWork)
         }
     }
+
+    fun hideVersionHintsDialog(untilNextVersion: Boolean) {
+        state.value = state.value.copy(isVersionHintsDialogOpen = false)
+        if (untilNextVersion) viewModelScope.launch {
+            homeUseCases.updateLastVersionHintsVersionUseCase()
+        }
+    }
 }
 
 data class HomeState(
@@ -136,5 +155,9 @@ data class HomeState(
     val userHomework: List<Homework> = emptyList(),
     val infoExpanded: Boolean = false,
     val todayLessonExpanded: Boolean = true,
-    val syncing: Boolean = false
+    val syncing: Boolean = false,
+
+    val versionHints: List<VersionHints> = emptyList(),
+    val isVersionHintsDialogOpen: Boolean = false,
+    val currentVersion: String = "Loading...",
 )
