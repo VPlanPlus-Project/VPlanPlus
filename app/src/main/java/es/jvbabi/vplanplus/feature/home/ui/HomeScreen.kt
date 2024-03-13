@@ -118,7 +118,10 @@ private fun HomeScreenContent(
                 .padding(bottom = paddingValues.calculateBottomPadding())
                 .fillMaxSize()
         ) {
-            SearchView { onOpenMenu(true) }
+            SearchView(
+                onOpenMenu = { onOpenMenu(true) },
+                onFindAvailableRoomClicked = onBookRoomClicked
+            )
             LazyColumn content@{
                 item {
                     Greeting(

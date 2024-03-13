@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -30,14 +32,16 @@ import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchSearc
 @Composable
 fun SearchView(
     viewModel: SearchViewModel = hiltViewModel(),
-    onOpenMenu: () -> Unit
+    onOpenMenu: () -> Unit,
+    onFindAvailableRoomClicked: () -> Unit
 ) {
     val state = viewModel.state.value
     SearchViewContent(
         state = state,
         onSearchActiveChange = viewModel::onSearchActiveChange,
         onUpdateQuery = viewModel::onQueryChange,
-        onOpenMenu = onOpenMenu
+        onOpenMenu = onOpenMenu,
+        onFindAvailableRoomClicked = onFindAvailableRoomClicked
     )
 }
 
@@ -47,7 +51,8 @@ private fun SearchViewContent(
     state: SearchState,
     onOpenMenu: () -> Unit = {},
     onSearchActiveChange: (expanded: Boolean) -> Unit,
-    onUpdateQuery: (query: String) -> Unit
+    onUpdateQuery: (query: String) -> Unit,
+    onFindAvailableRoomClicked: () -> Unit
 ) {
     androidx.compose.material3.SearchBar(
         query = state.query,
@@ -83,6 +88,14 @@ private fun SearchViewContent(
         },
         placeholder = { Text(stringResource(id = R.string.home_search)) },
     ) {
+        AssistChip(
+            onClick = onFindAvailableRoomClicked,
+            label = { Text(text = stringResource(id = R.string.search_searchAvailableRoom)) },
+            leadingIcon = {
+                Icon(imageVector = Icons.Default.MeetingRoom, contentDescription = null)
+            },
+            modifier = Modifier.padding(start = 8.dp)
+        )
         if (state.query.isBlank()) {
             SearchPlaceholder(fullyCompatible = state.identity?.school?.fullyCompatible == true)
             return@SearchBar
