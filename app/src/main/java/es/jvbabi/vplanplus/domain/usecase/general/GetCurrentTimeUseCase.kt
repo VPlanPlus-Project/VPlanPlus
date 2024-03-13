@@ -1,14 +1,9 @@
 package es.jvbabi.vplanplus.domain.usecase.general
 
-import android.os.SystemClock.sleep
-import kotlinx.coroutines.flow.flow
-import java.time.LocalDateTime
+import es.jvbabi.vplanplus.domain.repository.TimeRepository
 
-class GetCurrentTimeUseCase {
-    operator fun invoke() = flow {
-        while (true) {
-            emit(LocalDateTime.now())
-            sleep(100)
-        }
-    }
+class GetCurrentTimeUseCase(
+    private val timeRepository: TimeRepository
+) {
+    operator fun invoke() = timeRepository.getTime()
 }

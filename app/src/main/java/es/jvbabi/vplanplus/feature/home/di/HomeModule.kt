@@ -19,7 +19,7 @@ import es.jvbabi.vplanplus.feature.home.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
-import es.jvbabi.vplanplus.feature.home.domain.usecase.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetDayForCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.UpdateLastVersionHintsVersionUseCase

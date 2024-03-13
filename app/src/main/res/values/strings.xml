@@ -494,4 +494,5 @@
     <string name="home_planToday">Plan for today (%1$s)</string>
     <string name="search_nothingFound">Nothing found</string>
     <string name="search_nothingFoundText">We tried our best, but \'%1$s\' wasn\'t found anywhere.</string>
+    <string name="search_lessons">%1$s lessons</string>
 </resources>

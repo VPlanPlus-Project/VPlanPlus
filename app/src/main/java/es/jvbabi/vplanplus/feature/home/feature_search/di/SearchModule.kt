@@ -12,8 +12,10 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
+import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.feature.home.feature_search.domain.usecase.SearchUseCase
 import es.jvbabi.vplanplus.feature.home.feature_search.domain.usecase.SearchUseCases
@@ -33,7 +35,8 @@ object SearchModule {
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
-        planRepository: PlanRepository
+        planRepository: PlanRepository,
+        timeRepository: TimeRepository
     ): SearchUseCases {
         return SearchUseCases(
             getCurrentIdentityUseCase = GetCurrentIdentityUseCase(
@@ -49,7 +52,8 @@ object SearchModule {
                 roomRepository = roomRepository,
                 keyValueRepository = keyValueRepository,
                 planRepository = planRepository
-            )
+            ),
+            getCurrentTimeUseCase = GetCurrentTimeUseCase(timeRepository)
         )
     }
 }

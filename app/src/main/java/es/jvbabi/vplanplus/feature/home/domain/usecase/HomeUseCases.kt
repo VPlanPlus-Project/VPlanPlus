@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.home.domain.usecase
 
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 
 data class HomeUseCases(
     val getProfilesUseCase: GetProfilesUseCase,

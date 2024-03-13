@@ -70,7 +70,6 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
@@ -556,12 +555,6 @@ object VppModule {
     @Singleton
     fun provideGetCurrentLessonNumberUseCase(lessonTimeRepository: LessonTimeRepository): GetCurrentLessonNumberUseCase {
         return GetCurrentLessonNumberUseCase(lessonTimeRepository)
-    }
-
-    @Provides
-    @Singleton
-    fun provideGetCurrentTimeUseCase(): GetCurrentTimeUseCase {
-        return GetCurrentTimeUseCase()
     }
 
     @Provides

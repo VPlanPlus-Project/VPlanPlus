@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.home.feature_search.domain.usecase
 
+import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -22,14 +23,17 @@ class SearchUseCase(
         val classes = classRepository
             .getAll()
             .filter { it.name.lowercase().contains(query.lowercase()) }
+            .sortedBy { it.name }
 
         val teachers = teacherRepository
             .getAll()
             .filter { it.acronym.lowercase().contains(query.lowercase()) }
+            .sortedBy { it.acronym }
 
         val rooms = roomRepository
             .getAll()
             .filter { it.name.lowercase().contains(query.lowercase()) }
+            .sortedBy { it.name }
 
         val firstClass = classes.firstOrNull()
         val firstTeacher = teachers.firstOrNull()
@@ -55,28 +59,31 @@ class SearchUseCase(
 
         val firstClassResult = if (firstClass != null) SearchResult(
             firstClass.name,
+            SchoolEntityType.CLASS,
             firstClass.school.name,
             firstClassPlan
         ) else null
 
         val firstTeacherResult = if (firstTeacher != null) SearchResult(
             firstTeacher.acronym,
+            SchoolEntityType.TEACHER,
             firstTeacher.school.name,
             firstTeacherPlan
         ) else null
 
         val firstRoomResult = if (firstRoom != null) SearchResult(
             firstRoom.name,
+            SchoolEntityType.ROOM,
             firstRoom.school.name,
             firstRoomPlan
         ) else null
 
         return listOfNotNull(firstClassResult, firstTeacherResult, firstRoomResult) + classes.drop(1).map {
-            SearchResult(it.name, it.school.name, null)
+            SearchResult(it.name, SchoolEntityType.CLASS, it.school.name, null)
         } + teachers.drop(1).map {
-            SearchResult(it.acronym, it.school.name, null)
+            SearchResult(it.acronym, SchoolEntityType.TEACHER, it.school.name, null)
         } + rooms.drop(1).map {
-            SearchResult(it.name, it.school.name, null)
+            SearchResult(it.name, SchoolEntityType.ROOM, it.school.name, null)
         }
     }
 }

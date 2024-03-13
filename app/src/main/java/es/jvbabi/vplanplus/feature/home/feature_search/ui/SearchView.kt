@@ -21,6 +21,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.ProfileIcon
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchNoResults
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchPlaceholder
+import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.SearchResult
 
 @Composable
 fun SearchView(
@@ -85,6 +86,14 @@ private fun SearchViewContent(
         if (state.query.isNotBlank() && state.results.isEmpty() && !state.isSearchRunning) {
             SearchNoResults(state.query)
             return@SearchBar
+        }
+
+        state.results.filter { it.lessons != null }.forEach { result ->
+            SearchResult(searchResult = result, time = state.time)
+        }
+        Text(text = "Search more...")
+        state.results.filter { it.lessons == null }.forEach { result ->
+            SearchResult(searchResult = result, time = state.time)
         }
     }
 }

@@ -4,12 +4,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home.feature_search.domain.usecase.SearchUseCases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,15 +27,18 @@ class SearchViewModel @Inject constructor(
             combine(
                 listOf(
                     searchUseCases.getCurrentIdentityUseCase(),
-                    searchUseCases.isSyncRunningUseCase()
+                    searchUseCases.isSyncRunningUseCase(),
+                    searchUseCases.getCurrentTimeUseCase()
                 )
             ) { data ->
                 val currentIdentity = data[0] as Identity?
                 val isSyncRunning = data[1] as Boolean
+                val time = data[2] as ZonedDateTime
 
                 state.value.copy(
                     identity = currentIdentity,
-                    isSyncRunning = isSyncRunning
+                    isSyncRunning = isSyncRunning,
+                    time = time
                 )
             }.collect {
                 state.value = it
@@ -52,13 +57,14 @@ class SearchViewModel @Inject constructor(
         state.value = state.value.copy(query = query)
         searchJob?.cancel()
         if (query.isBlank()) {
-            state.value = state.value.copy(results = emptyList())
+            state.value = state.value.copy(results = emptyList(), isSearchRunning = false)
             return
         }
         state.value = state.value.copy(isSearchRunning = true)
         searchJob = viewModelScope.launch {
+            val results = searchUseCases.searchUseCase(query)
             state.value = state.value.copy(
-                results = searchUseCases.searchUseCase(query),
+                results = results,
                 isSearchRunning = false
             )
         }
@@ -71,11 +77,13 @@ data class SearchState(
     val identity: Identity? = null,
     val isSyncRunning: Boolean = false,
     val results: List<SearchResult> = emptyList(),
-    val isSearchRunning: Boolean = false
+    val isSearchRunning: Boolean = false,
+    val time: ZonedDateTime = ZonedDateTime.now()
 )
 
 data class SearchResult(
     val name: String,
+    val type: SchoolEntityType,
     val school: String,
     val lessons: List<Lesson>?
 )
