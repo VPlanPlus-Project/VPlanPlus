@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home.domain.usecase.Date
 import es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -30,7 +31,8 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getDayForCurrentProfileUseCase(Date.TODAY),
                     homeUseCases.getDayForCurrentProfileUseCase(Date.NEXT),
                     homeUseCases.getLastSyncUseCase(),
-                    homeUseCases.getCurrentTimeUseCase()
+                    homeUseCases.getCurrentTimeUseCase(),
+                    homeUseCases.getHomeworkUseCase()
                 )
             ) { data ->
                 val profiles = data[0] as List<Profile>
@@ -39,6 +41,7 @@ class HomeViewModel @Inject constructor(
                 val tomorrowDay = data[3] as Day?
                 val lastSync = data[4] as ZonedDateTime?
                 val time = data[5] as ZonedDateTime
+                val userHomework = data[6] as List<Homework>
 
                 state.value.copy(
                     profiles = profiles,
@@ -46,7 +49,8 @@ class HomeViewModel @Inject constructor(
                     todayDay = todayDay,
                     tomorrowDay = tomorrowDay,
                     lastSync = lastSync,
-                    time = time
+                    time = time,
+                    userHomework = userHomework
                 )
             }.collect {
                 state.value = it
@@ -66,5 +70,6 @@ data class HomeState(
     val tomorrowDay: Day? = null,
     val menuOpened: Boolean = false,
     val lastSync: ZonedDateTime? = null,
-    val time: ZonedDateTime = ZonedDateTime.now()
+    val time: ZonedDateTime = ZonedDateTime.now(),
+    val userHomework: List<Homework> = emptyList()
 )

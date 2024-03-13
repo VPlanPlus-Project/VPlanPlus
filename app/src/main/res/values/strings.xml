@@ -486,4 +486,9 @@
         <item quantity="one">Current lesson</item>
         <item quantity="other">Current lessons</item>
     </plurals>
+
+    <plurals name="home_lessonCardHomework">
+        <item quantity="one">One homework</item>
+        <item quantity="other">%1$d homework</item>
+    </plurals>
 </resources>

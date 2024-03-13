@@ -7,5 +7,6 @@ data class HomeUseCases(
     val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
     val getDayForCurrentProfileUseCase: GetDayForCurrentProfileUseCase,
     val getLastSyncUseCase: GetLastSyncUseCase,
-    val getCurrentTimeUseCase: GetCurrentTimeUseCase
+    val getCurrentTimeUseCase: GetCurrentTimeUseCase,
+    val getHomeworkUseCase: GetHomeworkUseCase
 )

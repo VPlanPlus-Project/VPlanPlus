@@ -33,12 +33,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.ZonedDateTime
@@ -47,6 +51,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun LessonCard(
     modifier: Modifier = Modifier,
+    homework: List<Homework>,
+    onAddHomeworkClicked: () -> Unit = {},
     onBookRoomClicked: () -> Unit = {},
     lessons: List<Lesson>,
     time: ZonedDateTime,
@@ -65,12 +71,17 @@ fun LessonCard(
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
-        if (lessons.any { it.progress(time) in 0.0..<1.0 }) Text(
-            text = pluralStringResource(id = R.plurals.homeLesson_current, lessons.size),
-            color = MaterialTheme.colorScheme.onSurface,
-            style = MaterialTheme.typography.labelMedium,
-            modifier = Modifier.padding(8.dp)
-        ) else Spacer(modifier = Modifier.height(12.dp))
+        Expandable(lessons.any { it.progress(time) in 0.0..<1.0 }) {
+            Text(
+                text = pluralStringResource(id = R.plurals.homeLesson_current, lessons.size),
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+        Expandable(lessons.none { it.progress(time) in 0.0..<1.0 }) {
+            Spacer(modifier = Modifier.height(12.dp))
+        }
         Row(
             Modifier
                 .padding(start = 16.dp, bottom = 16.dp),
@@ -83,87 +94,35 @@ fun LessonCard(
             )
             Column {
                 lessons.forEachIndexed { i, lesson ->
+                    val relevantHomeworkTasks = homework
+                        .filter { hw -> hw.defaultLesson.vpId == lesson.vpId }
+                        .filter { hw -> hw.until.toLocalDate().isEqual(time.toLocalDate()) }
+                        .map { it.tasks }
 
-                    val defaultStyle =
-                        MaterialTheme
-                            .typography
-                            .titleMedium
-                            .toSpanStyle()
-                    val headerText = buildAnnotatedString {
-                        withStyle(
-                            defaultStyle
-                                .copy(
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                        ) {
-                            if (lesson.subjectIsChanged) {
-                                withStyle(
-                                    defaultStyle.copy(
-                                        color = MaterialTheme.colorScheme.error
-                                    )
-                                ) {
-                                    if (lesson.displaySubject == "-") append(
-                                        stringResource(
-                                            id = R.string.home_activeDayNextLessonCanceled,
-                                        )
-                                    )
-                                    else append(lesson.displaySubject)
-                                }
-                            } else {
-                                if (lesson.displaySubject == "-") append(
-                                    stringResource(
-                                        id = R.string.home_activeDayNextLessonCanceled,
-                                    )
-                                )
-                                else append(lesson.displaySubject)
-                            }
+                    Text(text = buildHeaderText(lesson))
 
-                            if (lesson.displaySubject == "-") return@buildAnnotatedString
-
-                            if (lesson.rooms.isNotEmpty()) {
-                                append(" ")
-                                append(DOT)
-                                append(" ")
-                                if (lesson.roomIsChanged) {
-                                    withStyle(
-                                        defaultStyle.copy(
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    ) {
-                                        append(lesson.rooms.joinToString(", "))
-                                    }
-                                } else append(lesson.rooms.joinToString(", "))
-                            }
-
-                            if (lesson.teachers.isNotEmpty()) {
-                                append(" ")
-                                append(DOT)
-                                append(" ")
-                                if (lesson.teacherIsChanged) {
-                                    withStyle(
-                                        defaultStyle.copy(
-                                            color = MaterialTheme.colorScheme.error
-                                        )
-                                    ) {
-                                        append(lesson.teachers.joinToString(", "))
-                                    }
-                                } else append(lesson.teachers.joinToString(", "))
-                            }
-                        }
-                    }
-
-                    Text(text = headerText)
                     if (!lesson.info.isNullOrBlank()) Text(
                         text = lesson.info,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    AnimatedVisibility(
-                        visible = expanded,
-                        enter = expandVertically(tween(300)),
-                        exit = shrinkVertically(tween(300))
-                    ) {
+                    Expandable(expanded && relevantHomeworkTasks.isNotEmpty()) {
+                        relevantHomeworkTasks.forEachIndexed { taskIndex, homeworkTasks ->
+                            val tasksText = buildHomeworkTasksText(homeworkTasks)
+                            Text(text = tasksText, style = MaterialTheme.typography.labelMedium)
+                            if (taskIndex != relevantHomeworkTasks.lastIndex) HorizontalDivider()
+                        }
+                    }
+
+                    Expandable(!expanded && relevantHomeworkTasks.isNotEmpty()) {
+                        Text(
+                            text = pluralStringResource(R.plurals.home_lessonCardHomework, count = relevantHomeworkTasks.size),
+                            style = MaterialTheme.typography.labelMedium,
+                        )
+                    }
+
+                    Expandable(expanded) {
                         LazyRow {
                             if (lesson.rooms.isEmpty()) item {
                                 AssistChip(
@@ -177,7 +136,7 @@ fun LessonCard(
                             }
                             item {
                                 AssistChip(
-                                    onClick = { /*TODO*/ },
+                                    onClick = onAddHomeworkClicked,
                                     label = { Text(text = stringResource(id = R.string.home_addHomeworkLabel)) },
                                     leadingIcon = {
                                         Icon(Icons.AutoMirrored.Default.MenuBook, null)
@@ -224,5 +183,100 @@ private fun LessonNumberAndTime(lessonNumber: Int, start: ZonedDateTime, end: Zo
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.labelSmall,
         )
+    }
+}
+
+@Composable
+private fun Expandable(isExpanded: Boolean, content: @Composable () -> Unit) {
+    AnimatedVisibility(
+        visible = isExpanded,
+        enter = expandVertically(tween(300)),
+        exit = shrinkVertically(tween(300))
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun buildHeaderText(lesson: Lesson) = buildAnnotatedString {
+    val defaultStyle =
+        MaterialTheme
+            .typography
+            .titleMedium
+            .toSpanStyle()
+    withStyle(
+        defaultStyle
+            .copy(
+                color = MaterialTheme.colorScheme.onSurface
+            )
+    ) {
+        if (lesson.subjectIsChanged) {
+            withStyle(
+                defaultStyle.copy(
+                    color = MaterialTheme.colorScheme.error
+                )
+            ) {
+                if (lesson.displaySubject == "-") append(
+                    stringResource(
+                        id = R.string.home_activeDayNextLessonCanceled,
+                    )
+                )
+                else append(lesson.displaySubject)
+            }
+        } else {
+            if (lesson.displaySubject == "-") append(
+                stringResource(
+                    id = R.string.home_activeDayNextLessonCanceled,
+                )
+            )
+            else append(lesson.displaySubject)
+        }
+
+        if (lesson.displaySubject == "-") return@buildAnnotatedString
+
+        if (lesson.rooms.isNotEmpty()) {
+            append(" ")
+            append(DOT)
+            append(" ")
+            if (lesson.roomIsChanged) {
+                withStyle(
+                    defaultStyle.copy(
+                        color = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    append(lesson.rooms.joinToString(", "))
+                }
+            } else append(lesson.rooms.joinToString(", "))
+        }
+
+        if (lesson.teachers.isNotEmpty()) {
+            append(" ")
+            append(DOT)
+            append(" ")
+            if (lesson.teacherIsChanged) {
+                withStyle(
+                    defaultStyle.copy(
+                        color = MaterialTheme.colorScheme.error
+                    )
+                ) {
+                    append(lesson.teachers.joinToString(", "))
+                }
+            } else append(lesson.teachers.joinToString(", "))
+        }
+    }
+}
+
+@Composable
+private fun buildHomeworkTasksText(tasks: List<HomeworkTask>) = buildAnnotatedString {
+    if (tasks.isNotEmpty()) {
+        append(stringResource(id = R.string.homework_title))
+        append("\n")
+    }
+    tasks.forEachIndexed { i, task ->
+        append("   $DOT ")
+        if (task.done) withStyle(style = SpanStyle(textDecoration = TextDecoration.Companion.LineThrough)) {
+            append(task.content)
+        } else append(task.content)
+        if (i != tasks.lastIndex) append("\n")
     }
 }

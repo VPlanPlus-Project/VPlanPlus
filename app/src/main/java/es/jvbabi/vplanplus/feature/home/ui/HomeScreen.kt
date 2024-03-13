@@ -69,7 +69,8 @@ private fun HomeScreenContent(
                         LessonCard(
                             lessons = lessons,
                             time = state.time,
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            homework = state.userHomework
                         )
                 }
 

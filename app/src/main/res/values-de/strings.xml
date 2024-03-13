@@ -484,4 +484,9 @@
         <item quantity="one">Aktuelle Stunde</item>
         <item quantity="other">Aktuelle Stunden</item>
     </plurals>
+
+    <plurals name="home_lessonCardHomework">
+        <item quantity="one">Eine Hausaufgabe</item>
+        <item quantity="other">%1$d Hausaufgaben</item>
+    </plurals>
 </resources>

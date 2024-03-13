@@ -69,7 +69,8 @@ object HomeModule {
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         planRepository: PlanRepository,
-        timeRepository: TimeRepository
+        timeRepository: TimeRepository,
+        homeworkRepository: HomeworkRepository
     ): es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases {
         return es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases(
             getProfilesUseCase = GetProfilesUseCase1(
@@ -91,6 +92,10 @@ object HomeModule {
             ),
             getCurrentTimeUseCase = GetCurrentTimeUseCase(
                 timeRepository = timeRepository
+            ),
+            getHomeworkUseCase = es.jvbabi.vplanplus.feature.home.domain.usecase.GetHomeworkUseCase(
+                homeworkRepository = homeworkRepository,
+                keyValueRepository = keyValueRepository
             )
         )
     }
