@@ -5,5 +5,6 @@ import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 
 data class SearchUseCases(
     val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-    val isSyncRunningUseCase: IsSyncRunningUseCase
+    val isSyncRunningUseCase: IsSyncRunningUseCase,
+    val searchUseCase: SearchUseCase
 )

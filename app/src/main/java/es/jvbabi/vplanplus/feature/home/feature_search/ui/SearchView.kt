@@ -82,7 +82,7 @@ private fun SearchViewContent(
             SearchPlaceholder(fullyCompatible = state.identity?.school?.fullyCompatible == true)
             return@SearchBar
         }
-        if (state.query.isNotBlank() && state.results.isEmpty()) {
+        if (state.query.isNotBlank() && state.results.isEmpty() && !state.isSearchRunning) {
             SearchNoResults(state.query)
             return@SearchBar
         }

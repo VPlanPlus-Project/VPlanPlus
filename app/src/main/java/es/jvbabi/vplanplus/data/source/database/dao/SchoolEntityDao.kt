@@ -37,4 +37,7 @@ abstract class SchoolEntityDao {
 
     @Query("DELETE FROM school_entity WHERE schoolId = :schoolId AND type = :type")
     abstract suspend fun deleteSchoolEntitiesBySchoolId(schoolId: Long, type: SchoolEntityType)
+
+    @Query("SELECT * FROM school_entity WHERE type = :type")
+    abstract suspend fun getSchoolEntitiesByType(type: SchoolEntityType): List<CSchoolEntity>
 }

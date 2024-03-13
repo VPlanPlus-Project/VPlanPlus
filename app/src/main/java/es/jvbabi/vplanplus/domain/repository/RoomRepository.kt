@@ -23,4 +23,6 @@ interface RoomRepository {
     suspend fun deleteAllRoomBookings()
 
     suspend fun fetchRoomBookings(school: School)
+
+    suspend fun getAll(): List<Room>
 }

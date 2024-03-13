@@ -76,4 +76,8 @@ class ClassRepositoryImpl(
             type = SchoolEntityType.CLASS
         ).map { it.toClassModel() }
     }
+
+    override suspend fun getAll(): List<Classes> {
+        return schoolEntityDao.getSchoolEntitiesByType(SchoolEntityType.CLASS).map { it.toClassModel() }
+    }
 }
