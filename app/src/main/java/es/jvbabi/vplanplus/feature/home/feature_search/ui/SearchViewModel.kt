@@ -40,6 +40,9 @@ class SearchViewModel @Inject constructor(
 
     fun onSearchActiveChange(expanded: Boolean) {
         state.value = state.value.copy(expanded = expanded)
+        if (!expanded) {
+            state.value = state.value.copy(results = emptyList(), query = "")
+        }
     }
 
     fun onQueryChange(query: String) {
