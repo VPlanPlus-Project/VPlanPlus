@@ -32,7 +32,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -59,6 +62,7 @@ fun LessonCard(
     lessons: List<Lesson>,
     time: ZonedDateTime,
 ) {
+    val colorScheme = MaterialTheme.colorScheme
     var expanded by rememberSaveable {
         mutableStateOf(lessons.any { it.progress(time) in 0.0..<1.0 })
     }
@@ -82,7 +86,19 @@ fun LessonCard(
             )
             .padding(top = (4*activeModifier.value).dp, bottom = (4*activeModifier.value).dp)
             .clip(RoundedCornerShape((8+8*activeModifier.value).dp))
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .drawWithContent {
+                drawRect(
+                    color = colorScheme.surfaceContainer,
+                    topLeft = Offset(0f, 0f),
+                    size = size
+                )
+                drawRect(
+                    color = colorScheme.tertiaryContainer,
+                    topLeft = Offset(0f, 0f),
+                    size = Size(this.size.width * lessons.first().progress(time), this.size.height)
+                )
+                drawContent()
+            }
     ) {
         Expandable(lessons.any { it.progress(time) in 0.0..<1.0 }) {
             Text(
