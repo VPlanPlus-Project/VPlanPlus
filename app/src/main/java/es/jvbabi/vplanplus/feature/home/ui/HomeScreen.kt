@@ -131,7 +131,7 @@ private fun HomeScreenContent(
                     )
                 }
 
-                if (state.todayDay != null) customStickyHeader(Modifier.clickable { onToggleTodayLessonExpanded() }) {
+                if (state.todayDay != null && state.todayDay.type == DayType.NORMAL) customStickyHeader(Modifier.clickable { onToggleTodayLessonExpanded() }) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -160,14 +160,14 @@ private fun HomeScreenContent(
                     }
                 }
 
-                item {
+                if (state.todayDay?.type == DayType.NORMAL) item {
                     AnimatedVisibility(
                         visible = state.todayLessonExpanded,
                         enter = expandVertically(tween(300)),
                         exit = shrinkVertically(tween(300))
                     ) {
                         Column(Modifier.fillMaxWidth()) {
-                            if (state.todayDay?.info != null) CollapsableInfoCard(
+                            if (state.todayDay.info != null) CollapsableInfoCard(
                                 imageVector = Icons.Default.Info,
                                 title = stringResource(id = R.string.home_activeDaySchoolInformation),
                                 text = state.todayDay.info,
@@ -177,10 +177,10 @@ private fun HomeScreenContent(
                             )
                             state
                                 .todayDay
-                                ?.getFilteredLessons(state.currentIdentity!!.profile!!)
-                                ?.groupBy { it.lessonNumber }
-                                ?.toList()
-                                ?.forEach { (_, lessons) ->
+                                .getFilteredLessons(state.currentIdentity!!.profile!!)
+                                .groupBy { it.lessonNumber }
+                                .toList()
+                                .forEach { (_, lessons) ->
                                     LessonCard(
                                         lessons = lessons,
                                         time = state.time,
@@ -194,6 +194,11 @@ private fun HomeScreenContent(
                                     )
                                 }
                         }
+                    }
+                }
+                else if (state.todayDay?.type == DayType.WEEKEND) {
+                    item {
+                        Text("WE")
                     }
                 }
 
@@ -212,7 +217,8 @@ private fun HomeScreenContent(
                     if (state.nextDay.state == DayDataState.NO_DATA || state.nextDay.type != DayType.NORMAL) {
                         Text(
                             text = stringResource(id = R.string.home_nextDayNoData),
-                            style = MaterialTheme.typography.bodySmall
+                            style = MaterialTheme.typography.bodySmall,
+                            modifier = Modifier.padding(horizontal = 8.dp)
                         )
                     }
                     val nextDayLessons = state.nextDay.lessons
