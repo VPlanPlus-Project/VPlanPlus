@@ -481,4 +481,9 @@
     <string name="homeVersionHints_title">A new version of VPlanPlus got installed</string>
     <string name="homeVersionHints_description">You\'re up and running with version %1$s, here is what\'s changed:</string>
     <string name="homeVersionHints_showLater">Show again later</string>
+
+    <plurals name="homeLesson_current">
+        <item quantity="one">Current lesson</item>
+        <item quantity="other">Current lessons</item>
+    </plurals>
 </resources>

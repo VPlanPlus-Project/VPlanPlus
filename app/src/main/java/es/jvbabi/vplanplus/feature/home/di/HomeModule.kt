@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
@@ -18,6 +19,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
+import es.jvbabi.vplanplus.feature.home.domain.usecase.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetDayForCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.UpdateLastVersionHintsVersionUseCase
@@ -66,7 +68,8 @@ object HomeModule {
         vppIdRepository: VppIdRepository,
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
-        planRepository: PlanRepository
+        planRepository: PlanRepository,
+        timeRepository: TimeRepository
     ): es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases {
         return es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases(
             getProfilesUseCase = GetProfilesUseCase1(
@@ -85,6 +88,9 @@ object HomeModule {
             ),
             getLastSyncUseCase = GetLastSyncUseCase(
                 keyValueRepository = keyValueRepository
+            ),
+            getCurrentTimeUseCase = GetCurrentTimeUseCase(
+                timeRepository = timeRepository
             )
         )
     }

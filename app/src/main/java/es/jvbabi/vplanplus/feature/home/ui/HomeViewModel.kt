@@ -29,7 +29,8 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getCurrentIdentityUseCase(),
                     homeUseCases.getDayForCurrentProfileUseCase(Date.TODAY),
                     homeUseCases.getDayForCurrentProfileUseCase(Date.NEXT),
-                    homeUseCases.getLastSyncUseCase()
+                    homeUseCases.getLastSyncUseCase(),
+                    homeUseCases.getCurrentTimeUseCase()
                 )
             ) { data ->
                 val profiles = data[0] as List<Profile>
@@ -37,13 +38,15 @@ class HomeViewModel @Inject constructor(
                 val todayDay = data[2] as Day?
                 val tomorrowDay = data[3] as Day?
                 val lastSync = data[4] as ZonedDateTime?
+                val time = data[5] as ZonedDateTime
 
                 state.value.copy(
                     profiles = profiles,
                     currentIdentity = currentIdentity,
                     todayDay = todayDay,
                     tomorrowDay = tomorrowDay,
-                    lastSync = lastSync
+                    lastSync = lastSync,
+                    time = time
                 )
             }.collect {
                 state.value = it

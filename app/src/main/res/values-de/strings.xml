@@ -298,7 +298,7 @@
     <string name="vppIdSettingsManagement_sessionsCurrent">Dieses Gerät</string>
     <string name="vppIdSettingsManagement_sessionsCloseInfo">Tippe eine Sitzung an, um sie zu beenden. Dies kann nicht rückgängig gemacht werden.</string>
     <string name="vppIdSettingsManagement_sessionsDate">Am %1$s</string>
-    <string name="home_addHomeworkLabel">Hausaufgabe hinzufügen</string>
+    <string name="home_addHomeworkLabel">Neue HA</string>
     <string name="addHomework_defaultLessonTitle">Wähle eine Stunde aus</string>
     <string name="addHomework_lesson">Fach</string>
     <string name="addHomework_notSelected">Nicht ausgewählt</string>
@@ -479,4 +479,9 @@
     <string name="homeVersionHints_title">Eine neue Version von VPlanPlus wurde installiert</string>
     <string name="homeVersionHints_description">Du bist mit Version %1$s startklar, hier sind die Neuigkeiten dazu:</string>
     <string name="homeVersionHints_showLater">Später anzeigen</string>
+
+    <plurals name="homeLesson_current">
+        <item quantity="one">Aktuelle Stunde</item>
+        <item quantity="other">Aktuelle Stunden</item>
+    </plurals>
 </resources>

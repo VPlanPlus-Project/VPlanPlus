@@ -19,4 +19,7 @@ data class Day(
     val type: DayType,
     val lessons: List<Lesson>,
     val info: String?,
-)
+) {
+    fun getFilteredLessons(profile: Profile) =
+        lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
+}

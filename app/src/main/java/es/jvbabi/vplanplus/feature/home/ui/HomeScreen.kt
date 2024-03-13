@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -17,6 +18,7 @@ import es.jvbabi.vplanplus.feature.home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.home.ui.components.LastSyncText
+import es.jvbabi.vplanplus.feature.home.ui.components.LessonCard
 
 @Composable
 fun HomeScreen(
@@ -54,6 +56,22 @@ private fun HomeScreenContent(
                     time = state.time,
                     name = state.currentIdentity?.vppId?.name?.substringBefore(" ")
                 )
+
+                if (state.todayDay?.lessons?.all { it.progress(state.time) >= 1 } == true) {
+                    Text(text = "That's all for today!")
+                }
+
+                state
+                    .todayDay
+                    ?.getFilteredLessons(state.currentIdentity!!.profile!!)
+                    ?.groupBy { it.lessonNumber }
+                    ?.forEach { (_, lessons) ->
+                        LessonCard(
+                            lessons = lessons,
+                            time = state.time,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        )
+                }
 
                 LastSyncText(Modifier.padding(start = 8.dp), state.lastSync)
             }
