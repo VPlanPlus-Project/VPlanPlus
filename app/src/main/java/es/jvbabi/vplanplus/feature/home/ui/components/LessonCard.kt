@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.home.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -31,6 +32,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
@@ -65,10 +67,21 @@ fun LessonCard(
         expanded = lessons.any { it.progress(time) in 0.0..<1.0 }
     }
 
+    val activeModifier = animateFloatAsState(
+        targetValue = if (lessons.any { it.progress(time) in 0.0..<1.0 }) 1f else 0f,
+        animationSpec = tween(300),
+        label = "activeModifier"
+    )
+
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .shadow(
+                elevation = (8*activeModifier.value).dp,
+                shape = RoundedCornerShape((8+8*activeModifier.value).dp),
+            )
+            .padding(top = (4*activeModifier.value).dp, bottom = (4*activeModifier.value).dp)
+            .clip(RoundedCornerShape((8+8*activeModifier.value).dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
     ) {
         Expandable(lessons.any { it.progress(time) in 0.0..<1.0 }) {

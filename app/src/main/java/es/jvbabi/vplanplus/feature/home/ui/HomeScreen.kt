@@ -57,9 +57,7 @@ private fun HomeScreenContent(
                     name = state.currentIdentity?.vppId?.name?.substringBefore(" ")
                 )
 
-                if (state.todayDay?.lessons?.all { it.progress(state.time) >= 1 } == true) {
-                    Text(text = "That's all for today!")
-                }
+                Text(text = state.time.toString())
 
                 state
                     .todayDay
