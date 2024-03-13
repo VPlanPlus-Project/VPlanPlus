@@ -253,13 +253,20 @@ private fun NavGraphBuilder.mainScreens(
     }
 
     composable(
-        route = Screen.AddHomeworkScreen.route,
+        route = Screen.AddHomeworkScreen.route + "?vpId={vpId}",
         enterTransition = slideInFromBottom,
         exitTransition = slideOutFromBottom,
         popEnterTransition = slideInFromBottom,
-        popExitTransition = slideOutFromBottom
+        popExitTransition = slideOutFromBottom,
+        arguments = listOf(
+            navArgument("vpId") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
     ) {
-        AddHomeworkScreen(navHostController = navController)
+        AddHomeworkScreen(navHostController = navController, vpId = it.arguments?.getString("vpId")?.toLongOrNull())
     }
 
     composable(

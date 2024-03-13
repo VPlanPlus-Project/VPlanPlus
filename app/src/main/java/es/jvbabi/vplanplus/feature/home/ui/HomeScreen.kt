@@ -77,7 +77,8 @@ fun HomeScreen(
         onSettingsClicked = { viewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.SettingsScreen.route) },
         onPrivacyPolicyClicked = { openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md") },
         onRepositoryClicked = { openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus") },
-        onRefreshClicked = { viewModel.onMenuOpenedChange(false); viewModel.onRefreshClicked(context) }
+        onRefreshClicked = { viewModel.onMenuOpenedChange(false); viewModel.onRefreshClicked(context) },
+        onAddHomework = { vpId -> navHostController.navigate(Screen.AddHomeworkScreen.route + "?vpId=$vpId") }
     )
 }
 
@@ -96,7 +97,8 @@ private fun HomeScreenContent(
     onSettingsClicked: () -> Unit = {},
     onPrivacyPolicyClicked: () -> Unit = {},
     onRepositoryClicked: () -> Unit = {},
-    onRefreshClicked: () -> Unit = {}
+    onRefreshClicked: () -> Unit = {},
+    onAddHomework: (vpId: Long?) -> Unit = {}
 ) {
     Scaffold(
         bottomBar = {
@@ -181,7 +183,8 @@ private fun HomeScreenContent(
                                             horizontal = 8.dp,
                                             vertical = 4.dp
                                         ),
-                                        homework = state.userHomework
+                                        homework = state.userHomework,
+                                        onAddHomeworkClicked = { onAddHomework(it) }
                                     )
                                 }
                         }

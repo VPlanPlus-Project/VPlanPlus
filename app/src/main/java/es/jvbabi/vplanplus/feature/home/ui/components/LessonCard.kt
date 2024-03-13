@@ -56,7 +56,7 @@ import java.time.format.DateTimeFormatter
 fun LessonCard(
     modifier: Modifier = Modifier,
     homework: List<Homework>,
-    onAddHomeworkClicked: () -> Unit = {},
+    onAddHomeworkClicked: (vpId: Long?) -> Unit = {},
     onBookRoomClicked: () -> Unit = {},
     lessons: List<Lesson>,
     time: ZonedDateTime,
@@ -80,11 +80,11 @@ fun LessonCard(
         modifier = modifier
             .fillMaxWidth()
             .shadow(
-                elevation = (4*activeModifier.value).dp,
-                shape = RoundedCornerShape((8+8*activeModifier.value).dp),
+                elevation = (4 * activeModifier.value).dp,
+                shape = RoundedCornerShape((8 + 8 * activeModifier.value).dp),
             )
-            .padding(top = (4*activeModifier.value).dp, bottom = (4*activeModifier.value).dp)
-            .clip(RoundedCornerShape((8+8*activeModifier.value).dp))
+            .padding(top = (4 * activeModifier.value).dp, bottom = (4 * activeModifier.value).dp)
+            .clip(RoundedCornerShape((8 + 8 * activeModifier.value).dp))
             .drawWithContent {
                 drawRect(
                     color = colorScheme.surfaceContainer,
@@ -94,7 +94,11 @@ fun LessonCard(
                 drawRect(
                     color = colorScheme.tertiaryContainer,
                     topLeft = Offset(0f, 0f),
-                    size = Size(this.size.width * lessons.first().progress(time), this.size.height)
+                    size = Size(
+                        this.size.width * lessons
+                            .first()
+                            .progress(time), this.size.height
+                    )
                 )
                 drawContent()
             }
@@ -164,7 +168,7 @@ fun LessonCard(
                             }
                             item {
                                 AssistChip(
-                                    onClick = onAddHomeworkClicked,
+                                    onClick = { onAddHomeworkClicked(lesson.vpId) },
                                     label = { Text(text = stringResource(id = R.string.home_addHomeworkLabel)) },
                                     leadingIcon = {
                                         Icon(Icons.AutoMirrored.Default.MenuBook, null)

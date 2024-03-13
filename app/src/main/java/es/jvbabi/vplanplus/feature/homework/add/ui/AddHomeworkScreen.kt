@@ -65,9 +65,15 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AddHomeworkScreen(
     navHostController: NavHostController,
-    viewModel: AddHomeworkViewModel = hiltViewModel()
+    viewModel: AddHomeworkViewModel = hiltViewModel(),
+    vpId: Long? = null
 ) {
+
     val state = viewModel.state.value
+    LaunchedEffect(vpId, state.initDone) {
+        if (vpId == null) return@LaunchedEffect
+        viewModel.setDefaultLesson(state.defaultLessons.firstOrNull { it.vpId == vpId })
+    }
     AddHomeworkContent(
         onBack = { navHostController.popBackStack() },
         onOpenDefaultLessonDialog = { viewModel.setLessonDialogOpen(true) },
