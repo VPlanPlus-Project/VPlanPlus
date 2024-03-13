@@ -14,10 +14,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @OptIn(ExperimentalFoundationApi::class)
-fun LazyListScope.customStickyHeader(text: @Composable () -> Unit) {
+fun LazyListScope.customStickyHeader(modifier: Modifier = Modifier, text: @Composable () -> Unit) {
     stickyHeader {
         Box(
-            Modifier
+            modifier
                 .fillMaxWidth()
                 .background(
                     Brush.verticalGradient(

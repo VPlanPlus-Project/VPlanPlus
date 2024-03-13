@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -85,14 +86,14 @@ private fun HomeScreenContent(
 
                 item { Text(text = state.time.toString()) }
 
-                customStickyHeader {
+                customStickyHeader(Modifier.clickable { onToggleTodayLessonExpanded() }) {
                     Row(
                         modifier =  Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         val rotation = animateFloatAsState(
-                            targetValue = if (state.todayLessonExpanded) -180f else 0f,
+                            targetValue = if (state.todayLessonExpanded) 180f else 0f,
                             label = "Expand Card"
                         )
                         Text(
