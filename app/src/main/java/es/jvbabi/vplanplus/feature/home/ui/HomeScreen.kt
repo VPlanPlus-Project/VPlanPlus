@@ -231,6 +231,7 @@ private fun HomeScreenContent(
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(horizontal = 8.dp)
                         )
+                        return@item
                     }
                     val nextDayLessons = state.nextDay.lessons
                         .filter { state.currentIdentity!!.profile!!.isDefaultLessonEnabled(it.vpId) }
