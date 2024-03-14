@@ -18,8 +18,12 @@ class GetDayForCurrentProfileUseCase(
     operator fun invoke(date: Date) = flow {
         val planDate = when (date) {
             Date.TODAY -> LocalDate.now()
-            Date.NEXT -> LocalDate.now().apply {
-                while (this.dayOfWeek.value > 5) this.plusDays(1)
+            Date.NEXT -> {
+                var date = LocalDate.now().plusDays(1L)
+                while (date.dayOfWeek.value > 5) {
+                    date = date.plusDays(1L)
+                }
+                date
             }
         }
 
