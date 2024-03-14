@@ -13,11 +13,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +33,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,6 +58,7 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 @Composable
 fun HomeScreen(
@@ -171,39 +175,69 @@ private fun HomeScreenContent(
                     }
                 }
 
-                if (state.todayDay?.type == DayType.NORMAL) item {
-                    AnimatedVisibility(
-                        visible = state.todayLessonExpanded,
-                        enter = expandVertically(tween(300)),
-                        exit = shrinkVertically(tween(300))
-                    ) {
-                        Column(Modifier.fillMaxWidth()) {
-                            if (state.todayDay.info != null) CollapsableInfoCard(
-                                imageVector = Icons.Default.Info,
-                                title = stringResource(id = R.string.home_activeDaySchoolInformation),
-                                text = state.todayDay.info,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                isExpanded = state.infoExpanded,
-                                onChangeState = onChangeInfoExpandState
-                            )
-                            state
-                                .todayDay
-                                .getFilteredLessons(state.currentIdentity!!.profile!!)
-                                .groupBy { it.lessonNumber }
-                                .toList()
-                                .forEach { (_, lessons) ->
-                                    LessonCard(
-                                        lessons = lessons,
-                                        time = state.time,
-                                        modifier = Modifier.padding(
-                                            horizontal = 8.dp,
-                                            vertical = 4.dp
+                if (state.todayDay?.type == DayType.NORMAL) {
+                    item {
+                        AnimatedVisibility(
+                            visible = state.todayLessonExpanded,
+                            enter = expandVertically(tween(300)),
+                            exit = shrinkVertically(tween(300))
+                        ) {
+                            Column(Modifier.fillMaxWidth()) {
+                                if (state.todayDay.info != null) CollapsableInfoCard(
+                                    imageVector = Icons.Default.Info,
+                                    title = stringResource(id = R.string.home_activeDaySchoolInformation),
+                                    text = state.todayDay.info,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    isExpanded = state.infoExpanded,
+                                    onChangeState = onChangeInfoExpandState
+                                )
+                                state
+                                    .todayDay
+                                    .getFilteredLessons(state.currentIdentity!!.profile!!)
+                                    .groupBy { it.lessonNumber }
+                                    .toList()
+                                    .forEach { (_, lessons) ->
+                                        LessonCard(
+                                            lessons = lessons.filter {
+                                                state.currentIdentity.profile!!.isDefaultLessonEnabled(it.vpId)
+                                            },
+                                            time = state.time,
+                                            modifier = Modifier.padding(
+                                                horizontal = 8.dp,
+                                                vertical = 4.dp
+                                            ),
+                                            homework = state.userHomework,
+                                            onAddHomeworkClicked = { onAddHomework(it) },
+                                            onBookRoomClicked = onBookRoomClicked
+                                        )
+                                    }
+                                Column(
+                                    Modifier
+                                        .padding(16.dp)
+                                        .fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    val end = state
+                                        .todayDay
+                                        .lessons
+                                        .last { state.currentIdentity.profile!!.isDefaultLessonEnabled(it.vpId) }
+                                        .end
+                                    val difference = state.time.until(end, ChronoUnit.SECONDS)
+                                    Icon(
+                                        imageVector = Icons.Default.SportsEsports,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(30.dp)
+                                    )
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.home_activeDayCountdown,
+                                            formatDuration(difference)
                                         ),
-                                        homework = state.userHomework,
-                                        onAddHomeworkClicked = { onAddHomework(it) },
-                                        onBookRoomClicked = onBookRoomClicked
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(8.dp)
                                     )
                                 }
+                            }
                         }
                     }
                 }
@@ -336,4 +370,11 @@ private fun HomeScreenPreview() {
         onChangeInfoExpandState = {},
         onToggleTodayLessonExpanded = {}
     )
+}
+
+private fun formatDuration(seconds: Long): String {
+    val hours = seconds / 3600
+    val minutes = (seconds % 3600) / 60
+    val remainingSeconds = seconds % 60
+    return String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
 }
