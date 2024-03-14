@@ -494,4 +494,5 @@
     <string name="search_nothingFoundText">Wir haben unser bestes gegeben, aber \'%1$s\' konnten wir nicht finden.</string>
     <string name="search_lessons">%1$s Stunden</string>
     <string name="search_moreResults">Mehr Ergebnisse</string>
+    <string name="home_lessonCardBooking">%1$s (gebucht)</string>
 </resources>

@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
@@ -26,6 +27,7 @@ import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetDayForCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.GetLastSyncUseCase
+import es.jvbabi.vplanplus.feature.home.domain.usecase.GetRoomBookingsForTodayUseCase
 import es.jvbabi.vplanplus.feature.home.domain.usecase.UpdateLastVersionHintsVersionUseCase
 import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
@@ -68,6 +70,7 @@ object HomeModule {
         vppIdRepository: VppIdRepository,
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
+        roomRepository: RoomRepository,
         planRepository: PlanRepository,
         timeRepository: TimeRepository,
         homeworkRepository: HomeworkRepository
@@ -106,7 +109,8 @@ object HomeModule {
             changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
             isSyncRunningUseCase = IsSyncRunningUseCase(context),
             getVersionHintsUseCase = GetVersionHintsUseCase(keyValueRepository, vppIdRepository),
-            updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository)
+            updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository),
+            getRoomBookingsForTodayUseCase = GetRoomBookingsForTodayUseCase(roomRepository)
         )
     }
 }

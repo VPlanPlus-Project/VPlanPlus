@@ -16,5 +16,6 @@ data class HomeUseCases(
     val changeProfileUseCase: ChangeProfileUseCase,
     val isSyncRunningUseCase: IsSyncRunningUseCase,
     val getVersionHintsUseCase: GetVersionHintsUseCase,
-    val updateLastVersionHintsVersionUseCase: UpdateLastVersionHintsVersionUseCase
+    val updateLastVersionHintsVersionUseCase: UpdateLastVersionHintsVersionUseCase,
+    val getRoomBookingsForTodayUseCase: GetRoomBookingsForTodayUseCase,
 )

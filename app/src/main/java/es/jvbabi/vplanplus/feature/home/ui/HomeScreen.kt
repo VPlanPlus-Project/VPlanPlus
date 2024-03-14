@@ -201,6 +201,7 @@ private fun HomeScreenContent(
                                             lessons = lessons.filter {
                                                 state.currentIdentity.profile!!.isDefaultLessonEnabled(it.vpId)
                                             },
+                                            bookings = state.bookings,
                                             time = state.time,
                                             modifier = Modifier.padding(
                                                 horizontal = 8.dp,

@@ -161,7 +161,7 @@ private fun TimetableContent(
                                 Box(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
-                                    LessonCard(lessons = lessons, homework = emptyList(), time = ZonedDateTime.now())
+                                    LessonCard(lessons = lessons, bookings = emptyList(), homework = emptyList(), time = ZonedDateTime.now())
                                 }
                             }
                             item {

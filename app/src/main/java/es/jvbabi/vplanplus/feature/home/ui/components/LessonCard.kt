@@ -45,6 +45,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.ui.common.DOT
@@ -56,6 +57,7 @@ import java.time.format.DateTimeFormatter
 fun LessonCard(
     modifier: Modifier = Modifier,
     homework: List<Homework>,
+    bookings: List<RoomBooking>,
     onAddHomeworkClicked: (vpId: Long?) -> Unit = {},
     onBookRoomClicked: () -> Unit = {},
     lessons: List<Lesson>,
@@ -126,12 +128,16 @@ fun LessonCard(
             )
             Column {
                 lessons.forEachIndexed { i, lesson ->
+                    val booking = bookings
+                        .firstOrNull {
+                            it.from.isEqual(lesson.start) && it.to.isEqual(lesson.end)
+                        }
                     val relevantHomeworkTasks = homework
                         .filter { hw -> hw.defaultLesson.vpId == lesson.vpId }
                         .filter { hw -> hw.until.toLocalDate().isEqual(time.toLocalDate()) }
                         .map { it.tasks }
 
-                    Text(text = buildHeaderText(lesson))
+                    Text(text = buildHeaderText(lesson, booking))
 
                     if (!lesson.info.isNullOrBlank()) Text(
                         text = lesson.info,
@@ -139,7 +145,15 @@ fun LessonCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
-                    Expandable(expanded && relevantHomeworkTasks.isNotEmpty()) {
+                    Expandable(expanded) {
+                        if (booking != null) Text(
+                            text = stringResource(
+                                id = R.string.home_activeBookedBy,
+                                booking.bookedBy?.name ?: "Unknown",
+                                booking.`class`.name
+                            ),
+                            style = MaterialTheme.typography.labelMedium
+                        )
                         relevantHomeworkTasks.forEachIndexed { taskIndex, homeworkTasks ->
                             val tasksText = buildHomeworkTasksText(homeworkTasks)
                             Text(text = tasksText, style = MaterialTheme.typography.labelMedium)
@@ -156,7 +170,7 @@ fun LessonCard(
 
                     Expandable(expanded) {
                         LazyRow {
-                            if (lesson.rooms.isEmpty()) item {
+                            if (lesson.rooms.isEmpty() && booking == null) item {
                                 AssistChip(
                                     onClick = onBookRoomClicked,
                                     label = { Text(text = stringResource(id = R.string.home_activeBookRoom)) },
@@ -230,7 +244,7 @@ private fun Expandable(isExpanded: Boolean, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun buildHeaderText(lesson: Lesson) = buildAnnotatedString {
+private fun buildHeaderText(lesson: Lesson, booking: RoomBooking?) = buildAnnotatedString {
     val defaultStyle =
         MaterialTheme
             .typography
@@ -262,6 +276,22 @@ private fun buildHeaderText(lesson: Lesson) = buildAnnotatedString {
                 )
             )
             else append(lesson.displaySubject)
+        }
+
+        if (lesson.rooms.isEmpty() && booking != null) {
+            append(" ")
+            append(DOT)
+            append(" ")
+            withStyle(
+                defaultStyle.copy(
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            ) {
+                append(
+                    stringResource(id = R.string.home_lessonCardBooking,
+                        booking.room.name)
+                )
+            }
         }
 
         if (lesson.displaySubject == "-") return@buildAnnotatedString

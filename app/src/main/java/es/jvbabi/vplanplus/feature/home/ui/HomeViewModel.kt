@@ -14,6 +14,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home.domain.usecase.Date
@@ -68,6 +69,9 @@ class HomeViewModel @Inject constructor(
                 val userHomework = data[6] as List<Homework>
                 val infoExpanded = data[7] as Boolean
                 val syncing = data[8] as Boolean
+                val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter {
+                    it.`class`.classId == currentIdentity?.profile?.referenceId
+                }
 
                 var todayLessonExpanded = state.value.todayLessonExpanded
                 if (firstRun) {
@@ -87,7 +91,8 @@ class HomeViewModel @Inject constructor(
                     userHomework = userHomework,
                     infoExpanded = infoExpanded,
                     todayLessonExpanded = todayLessonExpanded,
-                    syncing = syncing
+                    syncing = syncing,
+                    bookings = bookings
                 )
             }.collect {
                 state.value = it
@@ -160,4 +165,6 @@ data class HomeState(
     val versionHints: List<VersionHints> = emptyList(),
     val isVersionHintsDialogOpen: Boolean = false,
     val currentVersion: String = "Loading...",
+
+    val bookings: List<RoomBooking> = emptyList()
 )
