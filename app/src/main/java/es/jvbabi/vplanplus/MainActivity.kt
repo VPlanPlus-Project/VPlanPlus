@@ -104,7 +104,7 @@ class MainActivity : FragmentActivity() {
                 )
             ) { data ->
                 colors = data[0] as Colors
-                currentIdentity = data[1] as Identity
+                currentIdentity = data[1] as Identity?
                 initDone = true
             }.collect {
                 Log.d("MainActivity", "Colors: $colors")
