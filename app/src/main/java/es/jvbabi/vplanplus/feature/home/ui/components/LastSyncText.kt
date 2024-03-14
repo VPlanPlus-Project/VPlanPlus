@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -24,7 +25,7 @@ fun LastSyncText(modifier: Modifier = Modifier, lastSync: ZonedDateTime?) {
 
 private fun ZonedDateTime?.toText(): String? {
     return if (this == null) null
-    else if (this.toLocalDate()
+    else if (this.toZonedLocalDateTime().toLocalDate()
             .isEqual(LocalDate.now())
     ) DateTimeFormatter.ofPattern("HH:mm").format(this)
     else DateTimeFormatter.ofPattern("EE, dd.MM.yyyy").format(this)
