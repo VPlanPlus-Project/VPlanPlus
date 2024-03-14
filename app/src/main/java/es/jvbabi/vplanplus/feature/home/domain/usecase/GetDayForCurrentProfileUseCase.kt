@@ -19,11 +19,11 @@ class GetDayForCurrentProfileUseCase(
         val planDate = when (date) {
             Date.TODAY -> LocalDate.now()
             Date.NEXT -> {
-                var date = LocalDate.now().plusDays(1L)
-                while (date.dayOfWeek.value > 5) {
-                    date = date.plusDays(1L)
+                var d = LocalDate.now().plusDays(1L)
+                while (d.dayOfWeek.value > 5) {
+                    d = d.plusDays(1L)
                 }
-                date
+                d
             }
         }
 
