@@ -24,9 +24,10 @@ fun LastSyncText(modifier: Modifier = Modifier, lastSync: ZonedDateTime?) {
 }
 
 private fun ZonedDateTime?.toText(): String? {
-    return if (this == null) null
-    else if (this.toZonedLocalDateTime().toLocalDate()
+    val time = this?.toZonedLocalDateTime()
+    return if (time == null) null
+    else if (time.toLocalDate()
             .isEqual(LocalDate.now())
-    ) DateTimeFormatter.ofPattern("HH:mm").format(this)
-    else DateTimeFormatter.ofPattern("EE, dd.MM.yyyy").format(this)
+    ) DateTimeFormatter.ofPattern("HH:mm").format(time)
+    else DateTimeFormatter.ofPattern("EE, dd.MM.yyyy").format(time)
 }
