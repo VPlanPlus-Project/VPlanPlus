@@ -4,11 +4,8 @@
 ### Aktuelles
 
 > [!NOTE]
-> #### Ich suche Testpersonen für die App!
-> Falls du die App ausprobieren und mir dabei helfen möchtest, die App im Google-Play Store verfügbar zu machen, registriere dich mit deiner G-Mail Adresse auf der [Website](https://vplanplus.jvbabi.es).
-> Vielen Dank!
->
-> *Stand 13.3.2024 werden noch 2 Personen benötigt.*
+> #### BALD VERFÜGBAR
+> Die App ist in wenigen Wochen offen im Play Store. Vielen Dank an alle Teilnehmer.
 
 # <img src="https://raw.githubusercontent.com/Julius-Babies/VPlanPlus/v0.5.1-alpha/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" height="30px"> VPlanPlus für Android
 
