@@ -6,7 +6,9 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -30,7 +33,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -244,7 +249,22 @@ private fun HomeScreenContent(
                 }
                 else if (state.todayDay?.type == DayType.WEEKEND) {
                     item {
-                        Text("WE")
+                        Column(
+                            Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Image(
+                                modifier = Modifier.padding(16.dp),
+                                painter = getWeekendPainter(),
+                                contentDescription = null
+                            )
+                            Text(
+                                text = stringResource(id = R.string.home_activeDayWeekendTitle),
+                                style = MaterialTheme.typography.headlineMedium,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            HorizontalDivider(Modifier.padding(8.dp))
+                        }
                     }
                 }
 
@@ -378,4 +398,10 @@ private fun formatDuration(seconds: Long): String {
     val minutes = (seconds % 3600) / 60
     val remainingSeconds = seconds % 60
     return String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
+}
+
+@Composable
+private fun getWeekendPainter(): Painter {
+    return if (isSystemInDarkTheme()) painterResource(id = R.drawable.weekend_dark)
+        else painterResource(id = R.drawable.weekend)
 }
