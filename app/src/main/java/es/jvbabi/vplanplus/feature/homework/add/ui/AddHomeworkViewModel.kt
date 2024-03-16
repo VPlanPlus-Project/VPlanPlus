@@ -35,7 +35,8 @@ class AddHomeworkViewModel @Inject constructor(
                     canUseCloud = identity.vppId != null,
                     isForAll = identity.vppId != null,
                     canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase(),
-                    defaultLessonsFiltered = defaultLessonsFiltered
+                    defaultLessonsFiltered = defaultLessonsFiltered,
+                    initDone = true
                 )
             }
         }
@@ -113,6 +114,8 @@ class AddHomeworkViewModel @Inject constructor(
 }
 
 data class AddHomeworkState(
+    val initDone: Boolean = false,
+
     val canUseCloud: Boolean = true,
     val canShowCloudInfoBanner: Boolean = false,
     val username: String? = null,

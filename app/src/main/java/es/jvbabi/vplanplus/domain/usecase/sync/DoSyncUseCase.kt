@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Plan
@@ -201,7 +202,8 @@ class DoSyncUseCase(
             Keys.LESSON_VERSION_NUMBER,
             currentVersion.toString()
         )
-        keyValueRepository.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis() / 1000).toString())
+        keyValueRepository.set(Keys.LAST_SYNC_TS, ZonedDateTimeConverter().zonedDateTimeToTimestamp(
+            ZonedDateTime.now()).toString())
         lessonRepository.deleteLessonsByVersion(currentVersion - 1)
         planRepository.deletePlansByVersion(currentVersion - 1)
 

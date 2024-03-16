@@ -11,4 +11,5 @@ interface ClassRepository {
     suspend fun insertClasses(schoolId: Long, classes: List<String>)
     suspend fun deleteClassesBySchoolId(schoolId: Long)
     suspend fun getClassesBySchool(school: School): List<Classes>
+    suspend fun getAll(): List<Classes>
 }

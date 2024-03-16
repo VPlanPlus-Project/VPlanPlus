@@ -258,7 +258,7 @@
     <string name="searchAvailableRoom_cancelSuccess">Deine Raumbuchung wurde erfolgreich zurückgenommen</string>
     <string name="searchAvailableRoom_cancelNotFound">Deine Buchung konnte nicht mehr aufgefunden werden, Möglicherweise ist sie bereits storniert.</string>
     <string name="home_nextDayTitle">Bereite den nächsten Schultag vor</string>
-    <string name="home_nextDayStartingAt">%1$s - ab %2$s</string>
+    <string name="home_nextDayStartingAt">%1$s - ab %2$s Uhr</string>
     <string name="home_nextDayLessonDescription">In %1$s Stunde</string>
     <string name="home_nextDayNoData">Für den nächsten Schultag gibt es noch keine Daten. Keine Sorge, wir benachrichtigen dich, wenn ein neuer Plan verfügbar ist.</string>
     <string name="home_nextDayLessons">Dieses Fächer werden stattfinden</string>
@@ -298,7 +298,7 @@
     <string name="vppIdSettingsManagement_sessionsCurrent">Dieses Gerät</string>
     <string name="vppIdSettingsManagement_sessionsCloseInfo">Tippe eine Sitzung an, um sie zu beenden. Dies kann nicht rückgängig gemacht werden.</string>
     <string name="vppIdSettingsManagement_sessionsDate">Am %1$s</string>
-    <string name="home_addHomeworkLabel">Hausaufgabe hinzufügen</string>
+    <string name="home_addHomeworkLabel">Neue HA</string>
     <string name="addHomework_defaultLessonTitle">Wähle eine Stunde aus</string>
     <string name="addHomework_lesson">Fach</string>
     <string name="addHomework_notSelected">Nicht ausgewählt</string>
@@ -479,4 +479,24 @@
     <string name="homeVersionHints_title">Eine neue Version von VPlanPlus wurde installiert</string>
     <string name="homeVersionHints_description">Du bist mit Version %1$s startklar, hier sind die Neuigkeiten dazu:</string>
     <string name="homeVersionHints_showLater">Später anzeigen</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">"Indem du die App verwendest, aktzeptierst du die "</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicy">Datenschutzerklärung</string>
+
+    <plurals name="homeLesson_current">
+        <item quantity="one">Aktuelle Stunde</item>
+        <item quantity="other">Aktuelle Stunden</item>
+    </plurals>
+
+    <plurals name="home_lessonCardHomework">
+        <item quantity="one">Eine Hausaufgabe</item>
+        <item quantity="other">%1$d Hausaufgaben</item>
+    </plurals>
+    <string name="home_planToday">Plan für heute (%1$s)</string>
+    <string name="search_nothingFound">Nichts gefunden</string>
+    <string name="search_nothingFoundText">Wir haben unser bestes gegeben, aber \'%1$s\' konnten wir nicht finden.</string>
+    <string name="search_lessons">%1$s Stunden</string>
+    <string name="search_moreResults">Mehr Ergebnisse</string>
+    <string name="home_lessonCardBooking">%1$s (gebucht)</string>
+
+
 </resources>

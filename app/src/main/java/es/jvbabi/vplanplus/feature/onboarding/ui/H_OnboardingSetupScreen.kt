@@ -71,7 +71,7 @@ fun OnboardingSetupScreen(
         )
     }
     AnimatedVisibility(
-        visible = state.isLoading,
+        visible = !state.allDone,
         exit = fadeOut(tween(500)),
     ) {
         if (state.task == Task.CREATE_SCHOOL) SetupNewSchoolScreen(state.creationStatus)

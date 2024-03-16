@@ -43,14 +43,15 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DayType
+import es.jvbabi.vplanplus.feature.home.ui.components.LessonCard
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
-import es.jvbabi.vplanplus.ui.screens.home.components.home.LessonCard
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
 import java.time.LocalDate
 import java.time.Period
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.math.floor
@@ -160,7 +161,7 @@ private fun TimetableContent(
                                 Box(
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                 ) {
-                                    LessonCard(lessons = lessons)
+                                    LessonCard(lessons = lessons, bookings = emptyList(), homework = emptyList(), time = ZonedDateTime.now())
                                 }
                             }
                             item {

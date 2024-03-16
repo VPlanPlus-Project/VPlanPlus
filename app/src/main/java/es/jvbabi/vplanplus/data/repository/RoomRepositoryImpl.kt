@@ -210,6 +210,10 @@ class RoomRepositoryImpl(
             }
     }
 
+    override suspend fun getAll(): List<Room> {
+        return schoolEntityDao.getSchoolEntitiesByType(SchoolEntityType.ROOM).map { it.toRoomModel() }
+    }
+
     override suspend fun deleteAllRoomBookings() {
         roomBookingDao.deleteAll()
     }

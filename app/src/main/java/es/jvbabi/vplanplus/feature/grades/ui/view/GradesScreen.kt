@@ -166,7 +166,7 @@ private fun GradesScreenContent(
                 title = { Text(text = stringResource(id = R.string.grades_title)) },
                 navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
                 actions = {
-                    IconButton(onClick = { searchExpanded = !searchExpanded }) {
+                    if (state.enabled == GradeUseState.ENABLED) IconButton(onClick = { searchExpanded = !searchExpanded }) {
                         val painter = rememberAnimatedVectorPainter(
                             animatedImageVector = AnimatedImageVector.animatedVectorResource(R.drawable.anim_search_close),
                             atEnd = searchExpanded
