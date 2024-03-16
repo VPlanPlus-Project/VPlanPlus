@@ -94,7 +94,7 @@ fun LessonCard(
                     size = size
                 )
                 drawRect(
-                    color = colorScheme.tertiaryContainer,
+                    color = colorScheme.surfaceVariant,
                     topLeft = Offset(0f, 0f),
                     size = Size(
                         this.size.width * lessons
