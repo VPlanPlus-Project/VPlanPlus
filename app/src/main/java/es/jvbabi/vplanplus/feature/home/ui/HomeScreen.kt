@@ -61,7 +61,6 @@ import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -327,9 +326,7 @@ private fun HomeScreenContent(
                                 val lessonsForSubject =
                                     nextDayLessons.filter { it.displaySubject == subject }
                                 val subjectHomework = state.userHomework
-                                    .filter {
-                                        it.until.toLocalDate() == LocalDate.now().plusDays(1)
-                                    }
+                                    .filter { it.until.toLocalDate() == state.nextDay.date }
                                     .filter { lessonsForSubject.any { lesson -> lesson.vpId == it.defaultLesson.vpId } }
 
                                 val bigRadius = 24.dp
