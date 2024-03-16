@@ -216,18 +216,18 @@ private fun HomeScreenContent(
                                             onBookRoomClicked = onBookRoomClicked
                                         )
                                     }
-                                Column(
+                                val end = state
+                                    .todayDay
+                                    .lessons
+                                    .last { state.currentIdentity.profile!!.isDefaultLessonEnabled(it.vpId) }
+                                    .end
+                                val difference = state.time.until(end, ChronoUnit.SECONDS)
+                                if (difference > 0) Column(
                                     Modifier
                                         .padding(16.dp)
                                         .fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
-                                    val end = state
-                                        .todayDay
-                                        .lessons
-                                        .last { state.currentIdentity.profile!!.isDefaultLessonEnabled(it.vpId) }
-                                        .end
-                                    val difference = state.time.until(end, ChronoUnit.SECONDS)
                                     Icon(
                                         imageVector = Icons.Default.SportsEsports,
                                         contentDescription = null,
