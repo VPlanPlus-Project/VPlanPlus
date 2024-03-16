@@ -75,16 +75,17 @@ object HomeModule {
         timeRepository: TimeRepository,
         homeworkRepository: HomeworkRepository
     ): es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases {
+        val getCurrentIdentityUseCase = GetCurrentIdentityUseCase(
+            profileRepository = profileRepository,
+            vppIdRepository = vppIdRepository,
+            keyValueRepository = keyValueRepository,
+            classRepository = classRepository,
+        )
         return es.jvbabi.vplanplus.feature.home.domain.usecase.HomeUseCases(
             getProfilesUseCase = GetProfilesUseCase1(
                 profileRepository = profileRepository
             ),
-            getCurrentIdentityUseCase = GetCurrentIdentityUseCase(
-                profileRepository = profileRepository,
-                vppIdRepository = vppIdRepository,
-                keyValueRepository = keyValueRepository,
-                classRepository = classRepository,
-            ),
+            getCurrentIdentityUseCase = getCurrentIdentityUseCase,
             getDayForCurrentProfileUseCase = GetDayForCurrentProfileUseCase(
                 keyValueRepository = keyValueRepository,
                 profileRepository = profileRepository,
@@ -98,7 +99,8 @@ object HomeModule {
             ),
             getHomeworkUseCase = es.jvbabi.vplanplus.feature.home.domain.usecase.GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
-                keyValueRepository = keyValueRepository
+                keyValueRepository = keyValueRepository,
+                getCurrentIdentityUseCase = getCurrentIdentityUseCase
             ),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(
                 keyValueRepository = keyValueRepository

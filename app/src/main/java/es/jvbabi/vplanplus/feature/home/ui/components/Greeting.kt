@@ -57,6 +57,7 @@ fun Greeting(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.secondary,
+                            MaterialTheme.colorScheme.secondary,
                             MaterialTheme.colorScheme.tertiary
                         )
                     )
