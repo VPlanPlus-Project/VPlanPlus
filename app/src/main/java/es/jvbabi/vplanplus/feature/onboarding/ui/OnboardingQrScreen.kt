@@ -53,6 +53,7 @@ fun OnboardingQrScreen(
     Box {
         OnboardingQrScreenContent(
             latestResult = state.qrResult,
+            state = state,
             onOk = {
                 viewModel.useQrResult()
             }
@@ -123,6 +124,7 @@ fun OnboardingQrScreen(
 @Composable
 private fun OnboardingQrScreenContent(
     latestResult: QrResult? = null,
+    state: OnboardingState,
     onOk: () -> Unit = {}
 ) {
     OnboardingScreen(
@@ -132,7 +134,7 @@ private fun OnboardingQrScreenContent(
             id = R.string.onboarding_qrNext,
             latestResult?.schoolId?.toLong() ?: 0L
         ),
-        isLoading = latestResult == null,
+        isLoading = latestResult == null || state.isLoading,
         enabled = latestResult != null,
         onButtonClick = { onOk() },
         footer = {},
@@ -148,6 +150,7 @@ private fun OnboardingQrScreenPreview() {
             schoolId = "12345678",
             username = "username",
             password = "password"
-        )
+        ),
+        state = OnboardingState()
     )
 }

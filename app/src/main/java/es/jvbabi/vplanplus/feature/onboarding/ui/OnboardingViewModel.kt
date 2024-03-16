@@ -270,11 +270,13 @@ class OnboardingViewModel @Inject constructor(
 
     fun useQrResult() {
         viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true)
             _state.value = _state.value.copy(
                 schoolId = _state.value.qrResult!!.schoolId,
                 username = _state.value.qrResult!!.username,
                 password = _state.value.qrResult!!.password,
                 schoolIdState = SchoolIdCheckResult.VALID,
+                isLoading = false
             )
             nextStageProfileType()
         }
