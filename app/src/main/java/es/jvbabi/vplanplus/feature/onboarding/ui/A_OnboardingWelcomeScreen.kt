@@ -2,17 +2,22 @@ package es.jvbabi.vplanplus.feature.onboarding.ui
 
 import android.app.Activity
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.text.ClickableText
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.CloseOnboardingDialog
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import es.jvbabi.vplanplus.ui.common.openLink
 
 @Composable
 fun OnboardingWelcomeScreen(
@@ -44,6 +49,9 @@ fun OnboardingWelcomeScreen(
             } else {
                 navController.navigateUp()
             }
+        },
+        onPrivacyPolicy = {
+            openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md")
         }
     )
 
@@ -56,6 +64,7 @@ fun OnboardingWelcomeScreen(
 fun Welcome(
     onButtonClick: () -> Unit,
     showCloseDialog: Boolean,
+    onPrivacyPolicy: () -> Unit,
     closeOnboarding: () -> Unit,
     hideCloseDialog: () -> Unit
 ) {
@@ -67,7 +76,27 @@ fun Welcome(
         enabled = true,
         onButtonClick = { onButtonClick() },
         content = {},
-        footer = {})
+        footer = {
+            val footerText = buildAnnotatedString {
+                withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(color = MaterialTheme.colorScheme.onSurface)) {
+                    append(stringResource(id = R.string.onboarding_welcomeAcceptPrivacyPolicyStart))
+                    withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(color = MaterialTheme.colorScheme.primary)) {
+                        pushStringAnnotation("PRIVACY_POLICY", "PRIVACY_POLICY")
+                        append(stringResource(id = R.string.onboarding_welcomeAcceptPrivacyPolicy))
+                        pop()
+                    }
+                }
+            }
+            ClickableText(
+                footerText,
+                onClick = { offset ->
+                    footerText.getStringAnnotations(tag = "PRIVACY_POLICY", start = offset, end = offset).firstOrNull()?.let {
+                        onPrivacyPolicy()
+                    }
+                }
+            )
+        }
+    )
 
     if (showCloseDialog) {
         CloseOnboardingDialog(
@@ -82,7 +111,8 @@ fun Welcome(
 private fun OnboardingWelcomeScreenPreview() {
     Welcome(
         onButtonClick = {},
-        showCloseDialog = true,
+        showCloseDialog = false,
+        onPrivacyPolicy = {},
         closeOnboarding = {},
         hideCloseDialog = {}
     )

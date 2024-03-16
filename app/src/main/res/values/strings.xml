@@ -481,7 +481,8 @@
     <string name="homeVersionHints_title">A new version of VPlanPlus got installed</string>
     <string name="homeVersionHints_description">You\'re up and running with version %1$s, here is what\'s changed:</string>
     <string name="homeVersionHints_showLater">Show again later</string>
-
+    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">By using this app, you agree to the</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicy">privacy policy</string>
     <plurals name="homeLesson_current">
         <item quantity="one">Current lesson</item>
         <item quantity="other">Current lessons</item>
@@ -497,4 +498,5 @@
     <string name="search_lessons">%1$s lessons</string>
     <string name="search_moreResults">More results</string>
     <string name="home_lessonCardBooking">%1$S (booked)</string>
+
 </resources>

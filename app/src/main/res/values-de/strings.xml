@@ -479,6 +479,8 @@
     <string name="homeVersionHints_title">Eine neue Version von VPlanPlus wurde installiert</string>
     <string name="homeVersionHints_description">Du bist mit Version %1$s startklar, hier sind die Neuigkeiten dazu:</string>
     <string name="homeVersionHints_showLater">Später anzeigen</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">"Indem du die App verwendest, aktzeptierst du die "</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicy">Datenschutzerklärung</string>
 
     <plurals name="homeLesson_current">
         <item quantity="one">Aktuelle Stunde</item>
@@ -495,4 +497,6 @@
     <string name="search_lessons">%1$s Stunden</string>
     <string name="search_moreResults">Mehr Ergebnisse</string>
     <string name="home_lessonCardBooking">%1$s (gebucht)</string>
+
+
 </resources>
