@@ -54,13 +54,13 @@ import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Week
-import es.jvbabi.vplanplus.feature.grades.data.model.DbGrade
-import es.jvbabi.vplanplus.feature.grades.data.model.DbSubject
-import es.jvbabi.vplanplus.feature.grades.data.model.DbTeacher
-import es.jvbabi.vplanplus.feature.grades.data.source.database.GradeDao
-import es.jvbabi.vplanplus.feature.grades.data.source.database.SubjectDao
-import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
-import es.jvbabi.vplanplus.feature.homework.shared.data.model.DbPreferredNotificationTime
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbGrade
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbSubject
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbTeacher
+import es.jvbabi.vplanplus.feature.main_grades.data.source.database.GradeDao
+import es.jvbabi.vplanplus.feature.main_grades.data.source.database.SubjectDao
+import es.jvbabi.vplanplus.feature.main_grades.data.source.database.TeacherDao
+import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 
 @Database(
     entities = [

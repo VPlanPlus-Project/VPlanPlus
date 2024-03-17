@@ -2,7 +2,6 @@ package es.jvbabi.vplanplus.domain.model
 
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.feature.home.feature_search.ui.components.MenuProfile
 import java.util.UUID
 
 data class Profile(

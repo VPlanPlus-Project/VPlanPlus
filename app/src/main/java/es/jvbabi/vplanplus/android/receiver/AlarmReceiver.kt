@@ -6,7 +6,7 @@ import android.content.Intent
 import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository.Companion.TAG_HOMEWORK_NOTIFICATION
-import es.jvbabi.vplanplus.feature.homework.shared.domain.usecase.HomeworkReminderUseCase
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch

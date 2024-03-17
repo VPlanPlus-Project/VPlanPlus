@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.data.source.database.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import es.jvbabi.vplanplus.feature.homework.shared.data.model.DbPreferredNotificationTime
+import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 import kotlinx.coroutines.flow.Flow
 
 @Dao

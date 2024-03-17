@@ -5,7 +5,7 @@ import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 
 class GetVppIdDetailsUseCase(
     private val vppIdRepository: VppIdRepository,
