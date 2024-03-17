@@ -42,8 +42,10 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LessonCard
+import es.jvbabi.vplanplus.feature.main_timetable.ui.components.NoData
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
@@ -148,12 +150,14 @@ private fun TimetableContent(
                 .padding(top = paddingValues.calculateTopPadding())
         ) {
             HorizontalPager(state = pagerState) {
+                val pageDate = LocalDate.now().plusDays((it - floor(PAGES / 2.0)).toLong())
+                if (state.days[pageDate] == null || state.days[pageDate]?.state == DayDataState.NO_DATA) {
+                    NoData(pageDate)
+                    return@HorizontalPager
+                }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    val pageDate = LocalDate.now().plusDays((it - floor(PAGES / 2.0)).toLong())
-                    if (state.days[pageDate] == null
-                    ) return@LazyColumn
                     when (state.days[pageDate]!!.type) {
                         DayType.NORMAL -> {
                             items(state.days[pageDate]!!.lessons.groupBy { it.lessonNumber }

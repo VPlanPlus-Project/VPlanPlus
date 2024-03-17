@@ -497,6 +497,7 @@
     <string name="search_lessons">%1$s Stunden</string>
     <string name="search_moreResults">Mehr Ergebnisse</string>
     <string name="home_lessonCardBooking">%1$s (gebucht)</string>
+    <string name="timetable_noData">Für den %1$s sind noch keine Daten verfügbar. Wir benachrichtigen dirch, wenn neue Informationen vorliegen.</string>
 
 
 </resources>

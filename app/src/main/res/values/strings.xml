@@ -498,5 +498,6 @@
     <string name="search_lessons">%1$s lessons</string>
     <string name="search_moreResults">More results</string>
     <string name="home_lessonCardBooking">%1$S (booked)</string>
+    <string name="timetable_noData">There\'s no data for %1$s available yet. We\'ll notify you shortly after something changed.</string>
 
 </resources>
