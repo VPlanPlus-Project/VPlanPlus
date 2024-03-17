@@ -45,11 +45,11 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LessonCard
+import es.jvbabi.vplanplus.feature.main_timetable.ui.components.Holiday
 import es.jvbabi.vplanplus.feature.main_timetable.ui.components.NoData
 import es.jvbabi.vplanplus.feature.main_timetable.ui.components.Weekend
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
-import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
@@ -59,6 +59,7 @@ import kotlin.math.floor
 
 const val PAGES = 201
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TimetableScreen(
     navHostController: NavHostController,
@@ -158,27 +159,23 @@ private fun TimetableContent(
                     Weekend(pageDate)
                     return@HorizontalPager
                 }
+                if (state.days[pageDate]?.type == DayType.HOLIDAY) {
+                    Holiday()
+                    return@HorizontalPager
+                }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    when (state.days[pageDate]!!.type) {
-                        DayType.NORMAL -> {
-                            items(state.days[pageDate]!!.lessons.groupBy { it.lessonNumber }
-                                .toList()) { (_, lessons) ->
-                                Box(
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                ) {
-                                    LessonCard(lessons = lessons, bookings = emptyList(), homework = emptyList(), time = ZonedDateTime.now())
-                                }
-                            }
-                            item {
-                                Spacer(modifier = Modifier.height(64.dp))
-                            }
+                    items(state.days[pageDate]!!.lessons.groupBy { l -> l.lessonNumber }
+                        .toList()) { (_, lessons) ->
+                        Box(
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                        ) {
+                            LessonCard(lessons = lessons, bookings = emptyList(), homework = emptyList(), time = ZonedDateTime.now())
                         }
-                        DayType.HOLIDAY -> item {
-                            Holiday(compactMode = false)
-                        }
-                        else -> {}
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(64.dp))
                     }
                 }
             }
