@@ -14,12 +14,12 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.google.gson.Gson
-import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCalculatorScreen
-import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
-import es.jvbabi.vplanplus.feature.grades.ui.view.GradesScreen
-import es.jvbabi.vplanplus.feature.home.ui.HomeScreen
-import es.jvbabi.vplanplus.feature.homework.add.ui.AddHomeworkScreen
-import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkScreen
+import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
+import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
+import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
+import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
@@ -57,7 +57,7 @@ import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
 import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
-import es.jvbabi.vplanplus.ui.screens.timetable.TimetableScreen
+import es.jvbabi.vplanplus.feature.main_timetable.ui.TimetableScreen
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.encoding.Base64

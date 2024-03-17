@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.repository.Keys
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.PreferredHomeworkNotificationTime
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PreferredHomeworkNotificationTime
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.HomeworkSettingsUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch

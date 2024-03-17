@@ -111,8 +111,8 @@
     <string name="fix">Fix</string>
     <string name="home_noData">No data</string>
     <string name="home_noDataText">For this day, there is no data available. Either your school hasn\'t released a substitution plan for this day, or it\'s too far in the future. You can change the number of days to sync after today in the settings.</string>
-    <string name="home_holiday">Holiday</string>
-    <string name="home_holidayText">You don\'t have to go to school today. Feel free to meet friends or tidy up your room.</string>
+    <string name="timetable_holidayTitle">Holiday</string>
+    <string name="timetable_holidayText">You don\'t have to go to school today. Feel free to meet friends or tidy up your room.</string>
     <string name="notification_lesson">%1$s with %2$s in %3$s</string>
     <string name="notification_changedLessons">These lessons were changed:</string>
     <string name="notification_planChangedText">There is a change in plan for %1$s at %2$s for %3$s</string>
@@ -498,5 +498,16 @@
     <string name="search_lessons">%1$s lessons</string>
     <string name="search_moreResults">More results</string>
     <string name="home_lessonCardBooking">%1$S (booked)</string>
+    <string name="timetable_noDataText">There\'s no data for %1$s available yet. We\'ll notify you shortly after something changed.</string>
+    <string name="timetable_weekend">Weekend</string>
+    <string name="timetable_weekendToday">Enjoy your well-deserved weekend!</string>
+    <string name="timetable_weekendPast">Weekend is over, but another one is coming soon.</string>
+    <plurals name="timetable_weekendFutureThisWeek">
+        <item quantity="one">The weekend is coming up. Just one day left.</item>
+        <item quantity="other">The weekend is coming up. Just %1$d days left.</item>
+    </plurals>
+    <string name="timetable_weekendFuture">The weekend is coming. Just keep on going.</string>
+    <string name="timetable_noDataTitle">No data</string>
+    <string name="timetable_noDataPastText">There\'s no data for %1$s anymore. VPlanPlus deletes old data automatically to avoid using up too much of that precious space.</string>
 
 </resources>

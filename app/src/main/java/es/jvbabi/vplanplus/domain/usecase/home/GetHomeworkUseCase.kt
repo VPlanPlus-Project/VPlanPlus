@@ -2,7 +2,7 @@ package es.jvbabi.vplanplus.domain.usecase.home
 
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.flow
 
 class GetHomeworkUseCase(

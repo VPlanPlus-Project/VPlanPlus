@@ -34,9 +34,9 @@ import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
-import es.jvbabi.vplanplus.feature.grades.domain.model.GradeModifier
-import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
-import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
+import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools

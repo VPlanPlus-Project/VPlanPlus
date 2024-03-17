@@ -113,8 +113,8 @@
     <string name="fix">Beheben</string>
     <string name="home_noData">Keine Daten</string>
     <string name="home_noDataText">Für dieses Datum sind noch keine Daten verfügbar. Entweder, es gibt noch keinen Vertretungsplan für dich, oder das Datum liegt zu weit in  der Zukunft. Du kannst die Anzahl der Tage, die nach dem heutigen Tag synchronisiert werden in den Einstellungen ändern.</string>
-    <string name="home_holiday">Feiertag/Ferien</string>
-    <string name="home_holidayText">Heute musst du nicht in die Schule. Fühle dich frei, triff Freunde oder räume dein Zimmer auf.</string>
+    <string name="timetable_holidayTitle">Feiertag/Ferien</string>
+    <string name="timetable_holidayText">Heute musst du nicht in die Schule. Fühle dich frei, triff Freunde oder räume dein Zimmer auf.</string>
     <string name="notification_lesson">%1$s mit %2$s in %3$s</string>
     <string name="notification_changedLessons">Diese Stunden haben sich verändert:</string>
     <string name="notification_planChangedText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
@@ -497,6 +497,16 @@
     <string name="search_lessons">%1$s Stunden</string>
     <string name="search_moreResults">Mehr Ergebnisse</string>
     <string name="home_lessonCardBooking">%1$s (gebucht)</string>
-
+    <string name="timetable_noDataText">Für den %1$s sind noch keine Daten verfügbar. Wir benachrichtigen dirch, wenn neue Informationen vorliegen.</string>
+    <string name="timetable_weekend">Wochenende</string>
+    <string name="timetable_weekendToday">Genieße dein wohlverdientes Wochenende.</string>
+    <string name="timetable_weekendPast">Das Wochenende ist vorbei, aber ein neues kommt bald. Halte durch!</string>
+    <plurals name="timetable_weekendFutureThisWeek">
+        <item quantity="one">Nicht mehr lange bis zum Wochenende. Nur noch ein Tag.</item>
+        <item quantity="other">Das Wochenende kommt bald. Nur noch %1$d Tage.</item>
+    </plurals>
+    <string name="timetable_weekendFuture">Das Wochenende kommt bald. Halte durch!</string>
+    <string name="timetable_noDataTitle">Keine Daten</string>
+    <string name="timetable_noDataPastText">Für den %1$s sind keine Daten mehr verfügbar. VPlanPlus löscht alte Pläne automatisch, um nicht zu viel deines kostbaren Smartphone-Speichers zu belegen.</string>
 
 </resources>

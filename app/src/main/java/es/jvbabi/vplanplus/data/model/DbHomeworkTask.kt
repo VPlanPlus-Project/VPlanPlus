@@ -2,7 +2,7 @@ package es.jvbabi.vplanplus.data.model
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 
 @Entity(
     tableName = "homework_task",
