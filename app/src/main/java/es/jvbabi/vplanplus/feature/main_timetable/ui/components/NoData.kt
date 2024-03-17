@@ -32,14 +32,32 @@ fun NoData(date: LocalDate) {
             imageVector = Icons.Default.HourglassEmpty,
             contentDescription = null,
             modifier = Modifier.size(48.dp),
-            tint = MaterialTheme.colorScheme.onSurface
+            tint = MaterialTheme.colorScheme.onSurface,
         )
         Text(
-            text = stringResource(id = R.string.timetable_noData, date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
-            modifier = Modifier.padding(16.dp),
+            text = stringResource(id = R.string.timetable_noDataTitle),
+            modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
             textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onSurface
+            color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.headlineMedium
         )
+        if (date.isBefore(LocalDate.now())) {
+            Text(
+                text = stringResource(id = R.string.timetable_noDataPastText, date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+                modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        } else {
+            Text(
+                text = stringResource(id = R.string.timetable_noDataText, date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))),
+                modifier = Modifier.padding(top = 8.dp, start = 16.dp, end = 16.dp),
+                textAlign = TextAlign.Center,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium
+            )
+        }
     }
 }
 

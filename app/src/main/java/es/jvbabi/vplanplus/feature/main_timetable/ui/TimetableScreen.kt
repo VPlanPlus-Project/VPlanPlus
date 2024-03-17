@@ -46,11 +46,10 @@ import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LessonCard
 import es.jvbabi.vplanplus.feature.main_timetable.ui.components.NoData
+import es.jvbabi.vplanplus.feature.main_timetable.ui.components.Weekend
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.Holiday
-import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendPlaceholder
-import es.jvbabi.vplanplus.ui.screens.home.components.placeholders.WeekendType
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZonedDateTime
@@ -103,7 +102,7 @@ fun TimetableScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun TimetableContent(
     state: TimetableState,
@@ -155,6 +154,10 @@ private fun TimetableContent(
                     NoData(pageDate)
                     return@HorizontalPager
                 }
+                if (state.days[pageDate]?.type == DayType.WEEKEND) {
+                    Weekend(pageDate)
+                    return@HorizontalPager
+                }
                 LazyColumn(
                     modifier = Modifier.fillMaxSize()
                 ) {
@@ -172,17 +175,10 @@ private fun TimetableContent(
                                 Spacer(modifier = Modifier.height(64.dp))
                             }
                         }
-                        DayType.WEEKEND -> item {
-                            WeekendPlaceholder(
-                                compactMode = false,
-                                type = if (pageDate.isEqual(LocalDate.now())) WeekendType.TODAY else if (LocalDate.now()
-                                        .isBefore(pageDate)
-                                ) WeekendType.COMING_UP else WeekendType.OVER
-                            )
-                        }
                         DayType.HOLIDAY -> item {
                             Holiday(compactMode = false)
                         }
+                        else -> {}
                     }
                 }
             }
