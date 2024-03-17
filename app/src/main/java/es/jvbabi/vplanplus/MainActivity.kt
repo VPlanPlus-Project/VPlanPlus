@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -77,7 +78,7 @@ class MainActivity : FragmentActivity() {
     private var navController: NavHostController? = null
     private var showSplashScreen: Boolean = true
 
-    private var currentIdentity: Identity? = null
+    private var currentIdentity = mutableStateOf<Identity?>(null)
 
     private var initDone = false
 
@@ -90,8 +91,8 @@ class MainActivity : FragmentActivity() {
         var goToOnboarding: Boolean? = null
         var colors = Colors.DYNAMIC
         lifecycleScope.launch {
-            currentIdentity = mainUseCases.getCurrentIdentity.invoke().first()
-            goToOnboarding = currentIdentity?.profile == null
+            currentIdentity.value = mainUseCases.getCurrentIdentity.invoke().first()
+            goToOnboarding = currentIdentity.value?.profile == null
 
             notificationRepository.createSystemChannels(applicationContext)
             notificationRepository.createProfileChannels(applicationContext, mainUseCases.getProfilesUseCase().first().map { it.value }.flatten())
@@ -104,7 +105,7 @@ class MainActivity : FragmentActivity() {
                 )
             ) { data ->
                 colors = data[0] as Colors
-                currentIdentity = data[1] as Identity?
+                currentIdentity.value = data[1] as Identity?
                 initDone = true
             }.collect {
                 Log.d("MainActivity", "Colors: $colors")
@@ -187,7 +188,7 @@ class MainActivity : FragmentActivity() {
                             label = { Text(text = stringResource(id = R.string.main_timetable)) },
                             route = Screen.TimetableScreen.route
                         ),
-                        if (currentIdentity?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
+                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 2) return@NavigationBarItem
                                 selectedIndex = 2
@@ -202,7 +203,7 @@ class MainActivity : FragmentActivity() {
                             label = { Text(text = stringResource(id = R.string.main_homework)) },
                             route = Screen.HomeworkScreen.route
                         ) else null,
-                        if (currentIdentity?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
+                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 3) return@NavigationBarItem
                                 selectedIndex = 3
@@ -280,7 +281,7 @@ class MainActivity : FragmentActivity() {
         if (intent.hasExtra("screen")) {
             showSplashScreen = false
             lifecycleScope.launch {
-                while (currentIdentity == null || navController == null) delay(50)
+                while (currentIdentity.value == null || navController == null) delay(50)
                 when (intent.getStringExtra("screen")) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
                     else -> navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreen.route)
@@ -306,7 +307,7 @@ class MainActivity : FragmentActivity() {
                     })"
                 )
                 lifecycleScope.launch {
-                    while (currentIdentity == null) delay(50)
+                    while (currentIdentity.value == null) delay(50)
                     navController!!.navigate(Screen.TimetableScreen.route + "/$date")
                 }
             }
