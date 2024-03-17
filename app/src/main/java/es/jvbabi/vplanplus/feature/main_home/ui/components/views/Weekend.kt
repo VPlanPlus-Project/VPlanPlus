@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.home.components.home.screens
+package es.jvbabi.vplanplus.feature.main_home.ui.components.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.isSystemInDarkTheme

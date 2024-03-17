@@ -7,7 +7,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.usecase.timetable.TimetableUseCases
+import es.jvbabi.vplanplus.feature.main_timetable.domain.usecase.TimetableUseCases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.time.LocalDate

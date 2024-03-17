@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.timetable
+package es.jvbabi.vplanplus.feature.main_timetable.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Profile

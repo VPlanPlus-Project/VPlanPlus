@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.timetable
+package es.jvbabi.vplanplus.feature.main_timetable.domain.usecase
 
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
