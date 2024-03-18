@@ -146,7 +146,7 @@ private fun HomeScreenContent(
                     Greeting(
                         modifier = Modifier.padding(8.dp),
                         time = state.time,
-                        name = state.currentIdentity?.vppId?.name?.substringBefore(" ")
+                        name = state.currentIdentity?.vppId?.name
                     )
                 }
 

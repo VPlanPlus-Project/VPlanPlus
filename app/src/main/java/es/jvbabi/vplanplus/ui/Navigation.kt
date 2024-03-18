@@ -39,7 +39,6 @@ import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.support.ui.SupportScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login.BsLoginScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionLeft
@@ -98,11 +97,11 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
         route = Screen.AccountAddedScreen.route + "/{token}",
         deepLinks = listOf(
             navDeepLink {
-                uriPattern = "https://id.vpp.jvbabi.es/link_success/{token}"
+                uriPattern = "https://id.vpp.jvbabi.es/android/link_success/{token}"
                 action = Intent.ACTION_VIEW
             },
             navDeepLink {
-                uriPattern = "vpp://id/link_success/{token}"
+                uriPattern = "https://vppid-development.test.jvbabi.es/android/link_success/{token}"
                 action = Intent.ACTION_VIEW
             }
         ),
@@ -378,16 +377,6 @@ private fun NavGraphBuilder.settingsScreens(
             navHostController = navController,
             vppId = it.arguments?.getInt("vppIdId")!!
         )
-    }
-
-    composable(
-        route = Screen.SettingsVppIdLoginScreen.route,
-        enterTransition = slideInFromBottom,
-        exitTransition = slideOutFromBottom,
-        popEnterTransition = slideInFromBottom,
-        popExitTransition = slideOutFromBottom
-    ) {
-        BsLoginScreen(navHostController = navController)
     }
 
     composable(

@@ -15,8 +15,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 109
-        versionName = "v1.1-dev4"
+        versionCode = 111
+        versionName = "v1.1-dev6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -96,6 +96,8 @@ dependencies {
     implementation("androidx.compose.material:material-icons-extended:1.6.3")
     implementation("androidx.compose.material3:material3-android:1.2.1")
     implementation("com.google.android.material:material:1.11.0")
+
+    implementation("androidx.browser:browser:1.8.0")
 
     implementation(platform("com.google.firebase:firebase-bom:32.7.4"))
     implementation("com.google.firebase:firebase-messaging")
