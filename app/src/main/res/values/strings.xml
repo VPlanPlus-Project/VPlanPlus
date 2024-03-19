@@ -91,10 +91,6 @@
     <string name="settings_profileManagementCalendarTitle">Calendar synchronization</string>
     <string name="permission_notificationsTitle">Show Notifications</string>
     <string name="permission_notificationsText">If you want to receive notifications when there is a new plan for you available, grand access to the app.</string>
-    <string name="permission_writeCalendarTitle">Write to calendar</string>
-    <string name="permission_writeCalendarText">If you\'d like to see your lessons in your calendar, you must give permission in order to use this feature. You can select the level of detail on a per profile basis later in settings.</string>
-    <string name="permission_readCalendarTitle">Enable read access to your calendar</string>
-    <string name="permission_readCalendarText">If you allowed the previous one, you\'ll need to allow this one too - it\'s for altering events when there is a change in plan.</string>
     <string name="onboarding_permissionTitle">Permissions (%1$d/%2$d)</string>
     <string name="settings_profileManagementCalendarNameTitle">Calendar</string>
     <string name="settings_profileManagementCalendarNameDisabled">Calendar sync is deactivated</string>

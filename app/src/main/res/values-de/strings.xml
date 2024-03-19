@@ -92,10 +92,6 @@
     <string name="settings_profileManagementCalendarTitle">Kalendersynchronisierung</string>
     <string name="permission_notificationsTitle">Benachrichtigungen senden</string>
     <string name="permission_notificationsText">Wenn du Benachrichtigungen über Planänderungen erhalten möchtest, gib der App die Berechtigung dazu.</string>
-    <string name="permission_writeCalendarTitle">Kalendereinträge erstellen</string>
-    <string name="permission_writeCalendarText">Wenn du deine Stunden in deinem Kalender eingetragen haben möchtest, musst du der App den Zugang geben. Wie detailliert die Einträge angelegt werden sollen, kannst du später für jedes Profil festlegen.</string>
-    <string name="permission_readCalendarTitle">Leseberechtigung für den Kalender</string>
-    <string name="permission_readCalendarText">Wenn du der vorherige Option zugestimmt hast, musst du auch diese Option zulassen - sie dient der Änderung von Kalendereinträgen, wenn sich der Plan ändert.</string>
     <string name="onboarding_permissionTitle">Berechtigungen (%1$d/%2$d)</string>
     <string name="settings_profileManagementCalendarNameTitle">Kalender</string>
     <string name="settings_profileManagementCalendarNameDisabled">Kalendersynchronisierung ist deaktiviert</string>
