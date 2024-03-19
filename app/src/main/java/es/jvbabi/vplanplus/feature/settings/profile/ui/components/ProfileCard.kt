@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.profile.components
+package es.jvbabi.vplanplus.feature.settings.profile.ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
@@ -22,7 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.ui.screens.settings.profile.dashedBorder
+import es.jvbabi.vplanplus.feature.settings.profile.ui.dashedBorder
 
 @Composable
 fun ProfileCard(

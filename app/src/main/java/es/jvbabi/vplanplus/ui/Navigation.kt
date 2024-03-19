@@ -53,9 +53,9 @@ import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
 import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
-import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
-import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
-import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsDefaultLessonScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsScreen
 import es.jvbabi.vplanplus.feature.main_timetable.ui.TimetableScreen
 import java.time.LocalDate
 import java.util.UUID

@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
+package es.jvbabi.vplanplus.feature.settings.profile.ui.settings
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -111,6 +111,12 @@ class ProfileSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             profileSettingsUseCases.updateProfileDisplayNameUseCase(_state.value.profile?:return@launch, name)
         }
+    }
+
+    fun updatePermissionState(granted: Boolean) {
+        _state.value = _state.value.copy(
+            calendarPermissionState = if (granted) CalendarPermissionState.GRANTED else CalendarPermissionState.DENIED
+        )
     }
 }
 

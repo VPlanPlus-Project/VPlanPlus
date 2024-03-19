@@ -1,5 +1,8 @@
-package es.jvbabi.vplanplus.ui.screens.settings.profile.settings
+package es.jvbabi.vplanplus.feature.settings.profile.ui.settings
 
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -44,7 +47,6 @@ import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
-import es.jvbabi.vplanplus.ui.common.InfoDialog
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.RadioCard
 import es.jvbabi.vplanplus.ui.common.RadioCardGroup
@@ -73,6 +75,17 @@ fun ProfileSettingsScreen(
         viewModel.init(profileId = profileId, context = context)
     })
 
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {
+            viewModel.updatePermissionState(it)
+            if (!it) Toast.makeText(
+                context,
+                context.getString(R.string.permission_denied_forever),
+                Toast.LENGTH_LONG
+            ).show()
+        },
+    )
 
     if (state.initDone) {
         if (state.profile == null) {
@@ -86,15 +99,9 @@ fun ProfileSettingsScreen(
                 viewModel.deleteProfile()
                 navController.navigateUp()
             },
-            onProfileRenamed = {
-                viewModel.renameProfile(it)
-            },
-            onCalendarModeSet = {
-                viewModel.setCalendarMode(it)
-            },
-            onCalendarSet = {
-                viewModel.setCalendar(it.id)
-            },
+            onProfileRenamed = viewModel::renameProfile,
+            onCalendarModeSet = viewModel::setCalendarMode,
+            onCalendarSet = { viewModel.setCalendar(it.id) },
             onDefaultLessonsClicked = {
                 navController.navigate(
                     Screen.SettingsProfileDefaultLessonsScreen.route.replace(
@@ -108,6 +115,7 @@ fun ProfileSettingsScreen(
                 if (state.linkedVppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
                 else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.linkedVppId.id}")
             },
+            onLaunchPermissionDialog = { launcher.launch(android.Manifest.permission.WRITE_CALENDAR) },
             onDismissedPermissionDialog = { viewModel.dismissPermissionDialog() }
         )
     }
@@ -125,6 +133,7 @@ private fun ProfileSettingsScreenContent(
     onSetDialogVisible: (Boolean) -> Unit = {},
     onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
     onDefaultLessonsClicked: () -> Unit = {},
+    onLaunchPermissionDialog: () -> Unit = {},
     onDismissedPermissionDialog: () -> Unit = {},
     onOpenVppIdSettings: () -> Unit = {}
 ) {
@@ -291,7 +300,11 @@ private fun ProfileSettingsScreenContent(
                         onDefaultLessonsClicked()
                     })
             }
-            if (state.profile.type == ProfileType.STUDENT) SettingsCategory(title = stringResource(id = R.string.profileManagement_vppIDCategoryTitle)) {
+            if (state.profile.type == ProfileType.STUDENT) SettingsCategory(
+                title = stringResource(
+                    id = R.string.profileManagement_vppIDCategoryTitle
+                )
+            ) {
                 if (state.linkedVppId == null) {
                     SettingsSetting(
                         icon = Icons.Default.Link,
@@ -314,11 +327,12 @@ private fun ProfileSettingsScreenContent(
     }
 
     if (state.calendarPermissionState == CalendarPermissionState.SHOW_DIALOG) {
-        InfoDialog(
+        YesNoDialog(
             icon = Icons.Default.EditCalendar,
             title = stringResource(id = R.string.settings_profileManagementCalendarPermissionDialogTitle),
             message = stringResource(id = R.string.settings_profileManagementCalendarPermissionDialogText),
-            onOk = { onDismissedPermissionDialog() }
+            onNo = onDismissedPermissionDialog,
+            onYes = onLaunchPermissionDialog
         )
     }
 }

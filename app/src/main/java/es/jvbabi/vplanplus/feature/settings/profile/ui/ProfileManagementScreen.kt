@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.profile
+package es.jvbabi.vplanplus.feature.settings.profile.ui
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Box
@@ -54,7 +54,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.settings.profile.components.SchoolCard
+import es.jvbabi.vplanplus.feature.settings.profile.ui.components.SchoolCard
 import kotlinx.coroutines.launch
 
 @Composable
