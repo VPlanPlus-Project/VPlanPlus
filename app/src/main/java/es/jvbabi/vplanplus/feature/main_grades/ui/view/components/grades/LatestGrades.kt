@@ -88,7 +88,7 @@ fun LatestGrades(grades: List<Grade>) {
                     visible = i < limit,
                     enter = expandVertically(tween(200)),
                 ) {
-                    GradeRecord(grade)
+                    GradeRecord(grade, true)
                 }
             }
             TextButton(
