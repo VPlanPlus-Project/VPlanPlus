@@ -508,5 +508,6 @@
     <string name="timetable_weekendFuture">Das Wochenende kommt bald. Halte durch!</string>
     <string name="timetable_noDataTitle">Keine Daten</string>
     <string name="timetable_noDataPastText">Für den %1$s sind keine Daten mehr verfügbar. VPlanPlus löscht alte Pläne automatisch, um nicht zu viel deines kostbaren Smartphone-Speichers zu belegen.</string>
+    <string name="grades_showMore">Mehr anzeigen</string>
 
 </resources>

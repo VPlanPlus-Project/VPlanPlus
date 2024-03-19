@@ -55,7 +55,7 @@ class GradesViewModel @Inject constructor(
                             avg = avg
                         )
                     },
-                    latestGrades = grades.grades.sortedByDescending { it.givenAt }.take(5),
+                    latestGrades = grades.grades.sortedByDescending { it.givenAt },
                     avg = grades.avg,
                     visibleSubjects = grades.grades.groupBy { it.subject }.keys.toList(),
                     showBanner = showBanner,

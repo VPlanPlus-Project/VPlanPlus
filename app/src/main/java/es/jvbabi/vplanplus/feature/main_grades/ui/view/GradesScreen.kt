@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -32,7 +31,6 @@ import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -70,6 +68,7 @@ import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.ui.components.Average
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.components.grades.GradeSubjectGroup
+import es.jvbabi.vplanplus.feature.main_grades.ui.view.components.grades.LatestGrades
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.components.screens.Authenticate
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.components.screens.NoGrades
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.components.screens.NoVppId
@@ -265,7 +264,6 @@ private fun GradesScreenContent(
                 NoGrades()
                 return@Scaffold
             }
-//            if (!state.granted) return@Scaffold
             val grades = state.grades.entries.sortedBy { it.key.name }
             AnimatedVisibility(
                 visible = state.showBanner,
@@ -293,21 +291,13 @@ private fun GradesScreenContent(
                     }
                 }
                 item {
-                    Column(
-                        modifier = Modifier.padding(start = 8.dp)
+                    AnimatedVisibility(
+                        visible = state.visibleSubjects.size == state.grades.size,
+                        enter = expandVertically(tween(200)),
+                        exit = shrinkVertically(tween(200)),
+                        modifier = Modifier.padding(8.dp)
                     ) {
-                        Text(text = stringResource(id = R.string.grades_latest), style = MaterialTheme.typography.headlineSmall)
-                        LazyRow {
-                            items(state.latestGrades) { grade ->
-                                LatestGrade(
-                                    Modifier.padding(end = 8.dp),
-                                    grade.value.toInt(),
-                                    grade.modifier,
-                                    grade.subject.short
-                                )
-                            }
-                        }
-                        HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+                        LatestGrades(state.latestGrades)
                     }
                 }
                 items(grades) { (_, grades) ->
