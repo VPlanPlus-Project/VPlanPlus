@@ -75,7 +75,7 @@ fun ProfileSettingsScreen(
         viewModel.init(profileId = profileId, context = context)
     })
 
-    val launcher = rememberLauncherForActivityResult(
+    val readLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = {
             viewModel.updatePermissionState(it)
@@ -84,6 +84,14 @@ fun ProfileSettingsScreen(
                 context.getString(R.string.permission_denied_forever),
                 Toast.LENGTH_LONG
             ).show()
+        },
+    )
+
+    val writeLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {
+               if (it) readLauncher.launch(android.Manifest.permission.READ_CALENDAR)
+               else viewModel.dismissPermissionDialog()
         },
     )
 
@@ -115,7 +123,7 @@ fun ProfileSettingsScreen(
                 if (state.linkedVppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
                 else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.linkedVppId.id}")
             },
-            onLaunchPermissionDialog = { launcher.launch(android.Manifest.permission.WRITE_CALENDAR) },
+            onLaunchPermissionDialog = { writeLauncher.launch(android.Manifest.permission.WRITE_CALENDAR) },
             onDismissedPermissionDialog = { viewModel.dismissPermissionDialog() }
         )
     }

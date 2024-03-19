@@ -38,6 +38,9 @@ class ProfileSettingsViewModel @Inject constructor(
             calendarPermissionState = if (ContextCompat.checkSelfPermission(
                     context,
                     android.Manifest.permission.WRITE_CALENDAR
+                ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.READ_CALENDAR
                 ) == PackageManager.PERMISSION_GRANTED
             ) CalendarPermissionState.GRANTED else CalendarPermissionState.DENIED
         )
