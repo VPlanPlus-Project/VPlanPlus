@@ -10,6 +10,7 @@ import android.view.animation.AccelerateInterpolator
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
@@ -50,6 +51,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
+import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
@@ -79,6 +81,12 @@ class MainActivity : FragmentActivity() {
     private var showSplashScreen: Boolean = true
 
     private var currentIdentity = mutableStateOf<Identity?>(null)
+    private var colorScheme = mutableStateOf(Colors.DYNAMIC)
+    private var appTheme = mutableStateOf(AppThemeMode.SYSTEM)
+
+    companion object {
+        var isAppInDarkMode = mutableStateOf(true)
+    }
 
     private var initDone = false
 
@@ -89,7 +97,6 @@ class MainActivity : FragmentActivity() {
         processIntent(intent)
 
         var goToOnboarding: Boolean? = null
-        var colors = Colors.DYNAMIC
         lifecycleScope.launch {
             currentIdentity.value = mainUseCases.getCurrentIdentity.invoke().first()
             goToOnboarding = currentIdentity.value?.profile == null
@@ -101,14 +108,16 @@ class MainActivity : FragmentActivity() {
             combine(
                 listOf(
                     mainUseCases.getColorSchemeUseCase(),
-                    mainUseCases.getCurrentIdentity()
+                    mainUseCases.getCurrentIdentity(),
+                    mainUseCases.getAppThemeUseCase()
                 )
             ) { data ->
-                colors = data[0] as Colors
+                colorScheme.value = data[0] as Colors
                 currentIdentity.value = data[1] as Identity?
+                appTheme.value = AppThemeMode.valueOf(data[2] as String)
+
                 initDone = true
             }.collect {
-                Log.d("MainActivity", "Colors: $colors")
                 Log.d("MainActivity", "Identity: $currentIdentity")
             }
         }
@@ -151,7 +160,8 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             while (!initDone) delay(50)
             setContent {
-                VPlanPlusTheme(cs = colors) {
+                isAppInDarkMode.value = appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
+                VPlanPlusTheme(cs = colorScheme.value, darkTheme = isAppInDarkMode.value) {
                     navController = rememberNavController()
 
                     var selectedIndex by rememberSaveable {

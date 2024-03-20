@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_home.ui.components.views
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 
 @Composable
@@ -30,7 +30,7 @@ fun Weekend() {
         verticalArrangement = Arrangement.Center,
     ) {
         Image(
-            painter = if (isSystemInDarkTheme()) painterResource(id = R.drawable.weekend_dark) else painterResource(
+            painter = if (MainActivity.isAppInDarkMode.value) painterResource(id = R.drawable.weekend_dark) else painterResource(
                 id = R.drawable.weekend
             ),
             contentDescription = null,

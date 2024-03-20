@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.feature.settings.general.ui
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -53,6 +52,7 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
@@ -69,7 +69,7 @@ fun GeneralSettingsScreen(
     generalSettingsViewModel: GeneralSettingsViewModel = hiltViewModel()
 ) {
     val state = generalSettingsViewModel.state.value
-    val dark = isSystemInDarkTheme()
+    val dark = MainActivity.isAppInDarkMode.value
     val fragmentActivity = LocalContext.current as FragmentActivity
     LaunchedEffect(key1 = dark, block = {
         generalSettingsViewModel.init(dark)

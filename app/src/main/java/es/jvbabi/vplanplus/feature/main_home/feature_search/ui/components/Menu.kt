@@ -9,7 +9,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -50,6 +49,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.ui.common.DOT
@@ -103,7 +103,7 @@ fun Menu(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Image(
-                                painter = if (isSystemInDarkTheme()) painterResource(id = R.drawable.vpp_logo_light) else painterResource(id = R.drawable.vpp_logo_dark),
+                                painter = if (MainActivity.isAppInDarkMode.value) painterResource(id = R.drawable.vpp_logo_light) else painterResource(id = R.drawable.vpp_logo_dark),
                                 contentDescription = stringResource(id = R.string.app_name),
                                 modifier = Modifier
                                     .size(32.dp),

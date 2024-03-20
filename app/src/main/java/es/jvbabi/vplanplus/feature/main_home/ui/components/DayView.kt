@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_home.ui.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -21,6 +20,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayType
@@ -138,6 +138,6 @@ private fun formatDuration(seconds: Long): String {
 
 @Composable
 private fun getWeekendPainter(): Painter {
-    return if (isSystemInDarkTheme()) painterResource(id = R.drawable.weekend_dark)
+    return if (MainActivity.isAppInDarkMode.value) painterResource(id = R.drawable.weekend_dark)
     else painterResource(id = R.drawable.weekend)
 }

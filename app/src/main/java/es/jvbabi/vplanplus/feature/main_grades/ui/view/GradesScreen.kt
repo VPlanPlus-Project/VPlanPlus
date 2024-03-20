@@ -13,7 +13,6 @@ import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,6 +59,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.gson.Gson
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
@@ -175,7 +175,7 @@ private fun GradesScreenContent(
                             contentDescription = null,
                             modifier = Modifier.scale(.8f),
                             colorFilter =
-                                if (isSystemInDarkTheme()) ColorFilter.colorMatrix(ColorMatrix(colorMatrix))
+                                if (MainActivity.isAppInDarkMode.value) ColorFilter.colorMatrix(ColorMatrix(colorMatrix))
                                 else null
                         )
                     }
