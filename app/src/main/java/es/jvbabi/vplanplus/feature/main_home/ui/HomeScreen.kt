@@ -19,9 +19,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.NextWeek
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -57,6 +59,8 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformati
 import es.jvbabi.vplanplus.feature.main_home.ui.components.customStickyHeader
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.Grid
+import es.jvbabi.vplanplus.ui.common.SegmentedButtonItem
+import es.jvbabi.vplanplus.ui.common.SegmentedButtons
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -141,6 +145,24 @@ private fun HomeScreenContent(
                 onOpenMenu = { onOpenMenu(true) },
                 onFindAvailableRoomClicked = onBookRoomClicked
             )
+
+            SegmentedButtons(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                SegmentedButtonItem(
+                    selected = true,
+                    onClick = {},
+                    label = { Text(text = stringResource(id = R.string.home_planTodayToggle)) },
+                    icon = { Icon(imageVector = Icons.Outlined.Work, contentDescription = null) }
+                )
+                SegmentedButtonItem(
+                    selected = false,
+                    onClick = {},
+                    label = { Text(state.nextDay?.date?.format(DateTimeFormatter.ofPattern("EEEE")) ?: "-") },
+                    icon = { Icon(imageVector = Icons.AutoMirrored.Outlined.NextWeek, contentDescription = null) }
+                )
+            }
+
             LazyColumn content@{
                 item {
                     Greeting(

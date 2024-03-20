@@ -2,6 +2,8 @@ package es.jvbabi.vplanplus.feature.main_home.feature_search.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -54,12 +56,19 @@ private fun SearchViewContent(
     onUpdateQuery: (query: String) -> Unit,
     onFindAvailableRoomClicked: () -> Unit
 ) {
+    val openModifier = animateFloatAsState(
+        targetValue = if (state.expanded) 0f else 1f,
+        animationSpec = tween(250),
+        label = "search expansion"
+    ).value
     androidx.compose.material3.SearchBar(
         query = state.query,
         onQueryChange = onUpdateQuery,
         onSearch = onUpdateQuery,
         active = state.expanded,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = (8*openModifier).dp),
         onActiveChange = { onSearchActiveChange(it) },
         leadingIcon = {
             IconButton(

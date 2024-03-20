@@ -509,5 +509,6 @@
     <string name="calendarRecord_title">%1$s (%2$d. Stunde)</string>
     <string name="calendarRecord_location">Raum %1$s (%2$s)</string>
     <string name="calendarRecord_dayTitle">Schultag (%1$s)</string>
+    <string name="home_planTodayToggle">Heute</string>
 
 </resources>
