@@ -26,7 +26,6 @@ import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
-import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
@@ -46,7 +45,6 @@ import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
-import es.jvbabi.vplanplus.domain.model.DbCalendarEvent
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.LessonTime
@@ -81,7 +79,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         LessonSchoolEntityCrossover::class,
         DbProfileDefaultLesson::class,
         LogRecord::class,
-        DbCalendarEvent::class,
 
         DbHomework::class,
         DbHomeworkTask::class,
@@ -91,7 +88,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 22,
+    version = 23,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -128,7 +125,6 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val schoolEntityDao: SchoolEntityDao
     abstract val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao
     abstract val logRecordDao: LogRecordDao
-    abstract val calendarEventDao: CalendarEventDao
     abstract val defaultLessonDao: DefaultLessonDao
     abstract val profileDefaultLessonsCrossoverDao: ProfileDefaultLessonsCrossoverDao
     abstract val planDao: PlanDao
@@ -222,6 +218,13 @@ abstract class VppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE messages ADD COLUMN schoolId INT NULL")
                 db.execSQL("UPDATE messages SET schoolId = sid_old")
                 db.execSQL("ALTER TABLE messages DROP COLUMN sid_old")
+            }
+        }
+
+        val migration_22_23 = object : Migration(22, 23) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS calendar_events")
+                db.execSQL("ALTER TABLE keyValue RENAME TO key_value")
             }
         }
     }

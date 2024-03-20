@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.profile
+package es.jvbabi.vplanplus.feature.settings.profile.ui
 
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
@@ -50,11 +50,13 @@ class ProfileManagementViewModel @Inject constructor(
     }
 
     fun share(school: School) {
-        _state.value = _state.value.copy(shareSchool = Gson().toJson(ShareSchool(
+        _state.value = _state.value.copy(shareSchool = Gson().toJson(
+            ShareSchool(
             school.schoolId,
             school.username,
             school.password
-        )))
+        )
+        ))
     }
 
     fun closeShareDialog() {

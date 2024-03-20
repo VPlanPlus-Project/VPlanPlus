@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.profile.components
+package es.jvbabi.vplanplus.feature.settings.profile.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
