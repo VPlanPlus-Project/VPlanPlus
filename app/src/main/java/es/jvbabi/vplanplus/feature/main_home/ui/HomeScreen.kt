@@ -7,7 +7,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,10 +21,8 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.NextWeek
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SportsEsports
-import androidx.compose.material.icons.outlined.Work
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -41,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
@@ -64,11 +60,10 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LessonCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.NextDaySubjectCard
+import es.jvbabi.vplanplus.feature.main_home.ui.components.ToggleButtons
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.Grid
-import es.jvbabi.vplanplus.ui.common.SegmentedButtonItem
-import es.jvbabi.vplanplus.ui.common.SegmentedButtons
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -198,47 +193,12 @@ private fun HomeScreenContent(
 
                 stickyHeader {
                     val scope = rememberCoroutineScope()
-                    SegmentedButtons(
-                        modifier = Modifier
-                            .background(
-                                Brush.verticalGradient(
-                                    colors = listOf(
-                                        MaterialTheme.colorScheme.surface,
-                                        MaterialTheme.colorScheme.surface,
-                                        MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                                    )
-                                )
-                            )
-                            .padding(8.dp)
-                    ) {
-                        SegmentedButtonItem(
-                            selected = pagerState.currentPage == 0,
-                            onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
-                            label = { Text(text = stringResource(id = R.string.home_planTodayToggle)) },
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Outlined.Work,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                        SegmentedButtonItem(
-                            selected = pagerState.currentPage == 1,
-                            onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
-                            label = {
-                                Text(
-                                    state.nextDay?.date?.format(DateTimeFormatter.ofPattern("EEEE"))
-                                        ?: "-"
-                                )
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.AutoMirrored.Outlined.NextWeek,
-                                    contentDescription = null
-                                )
-                            }
-                        )
-                    }
+                    ToggleButtons(
+                        isTodaySelected = pagerState.currentPage == 0,
+                        nextDate = state.nextDay?.date,
+                        onTodaySelect = { scope.launch { pagerState.animateScrollToPage(0) } },
+                        onNextDaySelect = { scope.launch { pagerState.animateScrollToPage(1) } }
+                    )
                 }
 
                 item content@{
