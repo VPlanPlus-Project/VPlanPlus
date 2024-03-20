@@ -44,6 +44,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
@@ -62,7 +63,8 @@ fun LessonCard(
     onBookRoomClicked: () -> Unit = {},
     lessons: List<Lesson>,
     time: ZonedDateTime,
-    allowActions: Boolean = true
+    allowActions: Boolean = true,
+    profileType: ProfileType
 ) {
     val colorScheme = MaterialTheme.colorScheme
     var expanded by rememberSaveable {
@@ -138,7 +140,7 @@ fun LessonCard(
                         .filter { hw -> hw.until.toLocalDate().isEqual(time.toLocalDate()) }
                         .map { it.tasks }
 
-                    Text(text = buildHeaderText(lesson, booking))
+                    Text(text = buildHeaderText(lesson, booking, profileType))
 
                     if (!lesson.info.isNullOrBlank()) Text(
                         text = lesson.info,
@@ -245,7 +247,7 @@ private fun Expandable(isExpanded: Boolean, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun buildHeaderText(lesson: Lesson, booking: RoomBooking?) = buildAnnotatedString {
+private fun buildHeaderText(lesson: Lesson, booking: RoomBooking?, profileType: ProfileType) = buildAnnotatedString {
     val defaultStyle =
         MaterialTheme
             .typography
@@ -257,6 +259,10 @@ private fun buildHeaderText(lesson: Lesson, booking: RoomBooking?) = buildAnnota
                 color = MaterialTheme.colorScheme.onSurface
             )
     ) {
+        if (profileType != ProfileType.STUDENT) {
+            append(lesson.`class`.name)
+            append(" $DOT ")
+        }
         if (lesson.subjectIsChanged) {
             withStyle(
                 defaultStyle.copy(

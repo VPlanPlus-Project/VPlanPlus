@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LessonCard
@@ -176,7 +177,8 @@ private fun TimetableContent(
                                 bookings = emptyList(),
                                 homework = emptyList(),
                                 time = ZonedDateTime.now(),
-                                allowActions = false
+                                allowActions = false,
+                                profileType = state.activeProfile?.type ?: ProfileType.STUDENT
                             )
                         }
                     }
