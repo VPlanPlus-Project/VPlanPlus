@@ -45,6 +45,7 @@ fun DayView(
     onBookRoomClicked: () -> Unit
 ) {
     if (day?.type == DayType.NORMAL) {
+        if (day.lessons.isEmpty()) return
         Column {
             if (day.info != null) CollapsableInfoCard(
                 imageVector = Icons.Default.Info,
