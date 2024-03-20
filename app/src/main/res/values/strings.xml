@@ -511,5 +511,10 @@
     <string name="calendarRecord_location">Room %1$s (%2$s)</string>
     <string name="calendarRecord_dayTitle">School day (%1$s)</string>
     <string name="home_planTodayToggle">Today</string>
+    <string name="settingsGeneral_appThemeTitle">App theme</string>
+    <string name="settingsGeneral_appThemeSubtitle">Some older versions of Android don\'t support system-wide darkmode. If you prefer you can force darkmode here.</string>
+    <string name="settingsGeneral_appThemeAuto">System</string>
+    <string name="settingsGeneral_appThemeLight">Light</string>
+    <string name="settingsGeneral_appThemeDark">Dark</string>
 
 </resources>

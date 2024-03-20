@@ -510,5 +510,10 @@
     <string name="calendarRecord_location">Raum %1$s (%2$s)</string>
     <string name="calendarRecord_dayTitle">Schultag (%1$s)</string>
     <string name="home_planTodayToggle">Heute</string>
+    <string name="settingsGeneral_appThemeTitle">App-Farbmodus</string>
+    <string name="settingsGeneral_appThemeSubtitle">Einige ältere Android-Versionen unterstützen noch keinen systemweiten Dunkelmodus. Du kannst VPlanPlus dauerhaft im Dunkelmodus verwenden.</string>
+    <string name="settingsGeneral_appThemeAuto">System</string>
+    <string name="settingsGeneral_appThemeLight">Hell</string>
+    <string name="settingsGeneral_appThemeDark">Dunkel</string>
 
 </resources>

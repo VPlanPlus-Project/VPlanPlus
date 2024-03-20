@@ -57,4 +57,6 @@ object Keys {
 
     const val LAST_VERSION_HINTS_VERSION = "LAST_VERSION_HINTS_VERSION"
 
+    const val APP_THEME_MODE = "APP_THEME_MODE"
+
 }
