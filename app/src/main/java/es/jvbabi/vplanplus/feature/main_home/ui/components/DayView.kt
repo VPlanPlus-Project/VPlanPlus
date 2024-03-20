@@ -75,7 +75,8 @@ fun DayView(
                         ),
                         homework = homework,
                         onAddHomeworkClicked = { onAddHomework(it) },
-                        onBookRoomClicked = onBookRoomClicked
+                        onBookRoomClicked = onBookRoomClicked,
+                        profileType = currentIdentity.profile.type
                     )
                 }
             val end = day
