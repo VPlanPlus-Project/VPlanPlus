@@ -26,6 +26,7 @@ class UpdateCalendarUseCase(
 
         val dates = planRepository.getLocalPlanDates()
         val version = keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
+        calendarRepository.deleteAppEvents()
         profiles.forEach { profile ->
             val calendar = calendarRepository.getCalendarById(profile.calendarId!!) ?: return@forEach
             val school = profileRepository.getSchoolFromProfile(profile)

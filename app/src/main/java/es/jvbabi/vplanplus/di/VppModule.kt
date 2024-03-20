@@ -644,7 +644,8 @@ object VppModule {
         calendarRepository: CalendarRepository,
         vppIdRepository: VppIdRepository,
         notificationRepository: NotificationRepository,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        updateCalendarUseCase: UpdateCalendarUseCase
     ): ProfileSettingsUseCases {
         return ProfileSettingsUseCases(
             getProfilesUseCase = GetProfilesUseCase(
@@ -666,10 +667,12 @@ object VppModule {
                 calendarRepository = calendarRepository
             ),
             updateCalendarTypeUseCase = UpdateCalendarTypeUseCase(
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                updateCalendarUseCase = updateCalendarUseCase
             ),
             updateCalendarIdUseCase = UpdateCalendarIdUseCase(
-                profileRepository = profileRepository
+                profileRepository = profileRepository,
+                updateCalendarUseCase = updateCalendarUseCase
             ),
             updateProfileDisplayNameUseCase = UpdateProfileDisplayNameUseCase(
                 profileRepository = profileRepository
@@ -679,7 +682,8 @@ object VppModule {
                 schoolRepository = schoolRepository,
                 keyValueRepository = keyValueRepository,
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-                notificationRepository = notificationRepository
+                notificationRepository = notificationRepository,
+                updateCalendarUseCase = updateCalendarUseCase
             ),
             getVppIdByClassUseCase = GetVppIdByClassUseCase(
                 vppIdRepository = vppIdRepository
