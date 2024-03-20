@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,9 +32,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -70,9 +73,11 @@ import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
+import kotlinx.coroutines.launch
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     navHostController: NavHostController,
@@ -82,9 +87,17 @@ fun HomeScreen(
     val state = viewModel.state.value
     val context = LocalContext.current
 
+    val pagerState = rememberPagerState { 2 }
+
+    LaunchedEffect(state.goToNextDay) {
+        if (state.goToNextDay == null) return@LaunchedEffect
+        pagerState.animateScrollToPage(if (state.goToNextDay) 0 else 1)
+    }
+
     HomeScreenContent(
         state = state,
         navBar = navBar,
+        pagerState = pagerState,
         onOpenMenu = viewModel::onMenuOpenedChange,
         onChangeInfoExpandState = viewModel::onInfoExpandChange,
         onProfileClicked = { viewModel.onMenuOpenedChange(false); viewModel.switchProfile(it) },
@@ -124,6 +137,7 @@ fun HomeScreen(
 @Composable
 private fun HomeScreenContent(
     state: HomeState,
+    pagerState: PagerState,
     navBar: @Composable () -> Unit,
     onOpenMenu: (open: Boolean) -> Unit,
     onChangeInfoExpandState: (Boolean) -> Unit,
@@ -183,6 +197,7 @@ private fun HomeScreenContent(
                 }
 
                 stickyHeader {
+                    val scope = rememberCoroutineScope()
                     SegmentedButtons(
                         modifier = Modifier
                             .background(
@@ -197,8 +212,8 @@ private fun HomeScreenContent(
                             .padding(8.dp)
                     ) {
                         SegmentedButtonItem(
-                            selected = true,
-                            onClick = {},
+                            selected = pagerState.currentPage == 0,
+                            onClick = { scope.launch { pagerState.animateScrollToPage(0) } },
                             label = { Text(text = stringResource(id = R.string.home_planTodayToggle)) },
                             icon = {
                                 Icon(
@@ -208,8 +223,8 @@ private fun HomeScreenContent(
                             }
                         )
                         SegmentedButtonItem(
-                            selected = false,
-                            onClick = {},
+                            selected = pagerState.currentPage == 1,
+                            onClick = { scope.launch { pagerState.animateScrollToPage(1) } },
                             label = {
                                 Text(
                                     state.nextDay?.date?.format(DateTimeFormatter.ofPattern("EEEE"))
@@ -227,7 +242,6 @@ private fun HomeScreenContent(
                 }
 
                 item content@{
-                    val pagerState = rememberPagerState { 2 }
                     var biggestHeight by remember { mutableStateOf(0.dp) }
                     val density = LocalDensity.current
                     HorizontalPager(
@@ -236,13 +250,15 @@ private fun HomeScreenContent(
                             .wrapContentHeight(),
                         state = pagerState
                     ) { i ->
-                        if (i == 0) Column(Modifier.fillMaxWidth()
-                            .heightIn(min = biggestHeight)
-                            .onSizeChanged {
-                                density.run {
-                                    biggestHeight = maxOf(biggestHeight, it.height.toDp())
-                                }
-                            }) today@{
+                        if (i == 0) Column(
+                            Modifier
+                                .fillMaxWidth()
+                                .heightIn(min = biggestHeight)
+                                .onSizeChanged {
+                                    density.run {
+                                        biggestHeight = maxOf(biggestHeight, it.height.toDp())
+                                    }
+                                }) today@{
                             if (state.todayDay?.type == DayType.NORMAL) {
                                 Column {
                                     if (state.todayDay.info != null) CollapsableInfoCard(
@@ -329,13 +345,14 @@ private fun HomeScreenContent(
                                 }
                             }
                         }
-                        else Column((Modifier.fillMaxWidth()
-                                .heightIn(min = biggestHeight)
-                                .onSizeChanged {
-                                    density.run {
-                                        biggestHeight = maxOf(biggestHeight, it.height.toDp())
-                                    }
-                                })) nextDay@{
+                        else Column((Modifier
+                            .fillMaxWidth()
+                            .heightIn(min = biggestHeight)
+                            .onSizeChanged {
+                                density.run {
+                                    biggestHeight = maxOf(biggestHeight, it.height.toDp())
+                                }
+                            })) nextDay@{
                             if (state.nextDay != null) {
                                 if (state.nextDay.state == DayDataState.NO_DATA || state.nextDay.type != DayType.NORMAL) {
                                     Text(
@@ -448,6 +465,7 @@ private fun HomeScreenContent(
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 @Preview(showBackground = true)
 private fun HomeScreenPreview() {
@@ -456,6 +474,7 @@ private fun HomeScreenPreview() {
         onOpenMenu = {},
         navBar = {},
         onChangeInfoExpandState = {},
+        pagerState = rememberPagerState { 2 }
     )
 }
 

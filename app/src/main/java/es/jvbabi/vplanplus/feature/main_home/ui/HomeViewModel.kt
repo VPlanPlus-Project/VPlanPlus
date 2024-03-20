@@ -73,7 +73,7 @@ class HomeViewModel @Inject constructor(
                     it.`class`.classId == currentIdentity?.profile?.referenceId
                 }
 
-                var todayLessonExpanded = false // fixme
+                var todayLessonExpanded = state.value.goToNextDay
                 if (firstRun) {
                     todayLessonExpanded =
                         todayDay?.anyLessonsLeft(time, currentIdentity!!.profile!!) ?: false
@@ -91,7 +91,8 @@ class HomeViewModel @Inject constructor(
                     userHomework = userHomework,
                     infoExpanded = infoExpanded,
                     syncing = syncing,
-                    bookings = bookings
+                    bookings = bookings,
+                    goToNextDay = todayLessonExpanded
                 )
             }.collect {
                 state.value = it
@@ -155,6 +156,7 @@ data class HomeState(
     val userHomework: List<Homework> = emptyList(),
     val infoExpanded: Boolean = false,
     val syncing: Boolean = false,
+    val goToNextDay: Boolean? = null,
 
     val versionHints: List<VersionHints> = emptyList(),
     val isVersionHintsDialogOpen: Boolean = false,
