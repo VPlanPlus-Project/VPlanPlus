@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import es.jvbabi.vplanplus.R
@@ -68,7 +70,7 @@ private fun SearchViewContent(
         active = state.expanded,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = (8*openModifier).dp),
+            .padding(horizontal = (8 * openModifier).dp),
         onActiveChange = { onSearchActiveChange(it) },
         leadingIcon = {
             IconButton(
@@ -118,20 +120,25 @@ private fun SearchViewContent(
             SearchSearching()
         }
 
-        state.results.filter { it.lessons != null }.forEach { result ->
+        val detailedResults = state.results.filter { it.lessons != null }
+        detailedResults.forEachIndexed { i, result ->
             SearchResult(searchResult = result, time = state.time)
+            if (i != detailedResults.lastIndex) HorizontalDivider(Modifier.padding(vertical = 4.dp))
         }
         if (state.results.any { it.lessons == null }) {
             Text(
                 text = stringResource(id = R.string.search_moreResults),
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.bodyMedium.copy(fontStyle = FontStyle.Italic),
                 modifier = Modifier
                     .padding(8.dp)
                     .align(Alignment.CenterHorizontally)
             )
         }
-        state.results.filter { it.lessons == null }.forEach { result ->
+
+        val otherResults = state.results.filter { it.lessons == null }
+        otherResults.forEachIndexed { i, result ->
             SearchResult(searchResult = result, time = state.time)
+            if (i != otherResults.lastIndex) HorizontalDivider(Modifier.padding(vertical = 4.dp))
         }
     }
 }

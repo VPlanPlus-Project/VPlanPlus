@@ -9,11 +9,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,11 +44,12 @@ fun SearchResult(
 ) {
     Column(
         modifier = Modifier
-            .padding(top = 8.dp, start = 8.dp)
+            .padding(top = 8.dp)
             .fillMaxWidth()
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.padding(start = 8.dp)
         ) {
             Text(text = searchResult.name, style = MaterialTheme.typography.headlineSmall)
             if (searchResult.lessons == null) return@Row
@@ -67,8 +70,15 @@ fun SearchResult(
                 ), style = MaterialTheme.typography.bodyMedium
             )
         }
-        Text(text = searchResult.school, style = MaterialTheme.typography.labelMedium)
-        LazyRow {
+        Text(
+            text = searchResult.school,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(start = 8.dp)
+        )
+        LazyRow(modifier = Modifier.padding(top = 8.dp)) {
+            item {
+                Spacer(modifier = Modifier.width(8.dp))
+            }
             items(searchResult.lessons ?: emptyList()) { lesson ->
                 Box(
                     modifier = Modifier
