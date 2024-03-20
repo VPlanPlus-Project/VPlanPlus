@@ -5,7 +5,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 
 class UpdateCalendarTypeUseCase(
-    private val profileRepository: ProfileRepository
+    private val profileRepository: ProfileRepository,
 ) {
     suspend operator fun invoke(profile: Profile, calendarType: ProfileCalendarType) {
         profileRepository.updateProfile(

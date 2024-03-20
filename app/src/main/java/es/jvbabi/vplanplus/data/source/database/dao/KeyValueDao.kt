@@ -11,15 +11,15 @@ abstract class KeyValueDao {
     @Upsert
     abstract suspend fun set(keyValue: KeyValue)
 
-    @Query("SELECT value FROM keyValue WHERE id = :key")
+    @Query("SELECT value FROM key_value WHERE id = :key")
     abstract suspend fun get(key: String): String?
 
-    @Query("SELECT value FROM keyValue WHERE id = :key")
+    @Query("SELECT value FROM key_value WHERE id = :key")
     abstract fun getFlow(key: String): Flow<String?>
 
-    @Query("DELETE FROM keyValue WHERE id = :key")
+    @Query("DELETE FROM key_value WHERE id = :key")
     abstract suspend fun delete(key: String)
 
-    @Query("SELECT value FROM keyValue WHERE id = :key")
+    @Query("SELECT value FROM key_value WHERE id = :key")
     abstract fun getOnMainThread(key: String): String?
 }

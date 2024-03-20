@@ -507,5 +507,8 @@
     <string name="timetable_noDataPastText">There\'s no data for %1$s anymore. VPlanPlus deletes old data automatically to avoid using up too much of that precious space.</string>
     <string name="grades_showMore">Show more</string>
     <string name="permission_denied_forever">Go to App-Info -> Permissions to allow this.</string>
+    <string name="calendarRecord_title">%1$s (%2$d. lesson)</string>
+    <string name="calendarRecord_location">Room %1$s (%2$s)</string>
+    <string name="calendarRecord_dayTitle">School day (%1$s)</string>
 
 </resources>
