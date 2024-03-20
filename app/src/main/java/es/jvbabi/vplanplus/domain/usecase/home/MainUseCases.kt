@@ -9,4 +9,5 @@ data class MainUseCases(
     val getCurrentIdentity: GetCurrentIdentityUseCase,
     val setUpUseCase: SetUpUseCase,
     val getHomeworkUseCase: GetHomeworkUseCase,
+    val getAppThemeUseCase: GetAppThemeUseCase,
 )

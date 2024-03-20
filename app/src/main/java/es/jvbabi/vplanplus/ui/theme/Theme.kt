@@ -1,12 +1,12 @@
 package es.jvbabi.vplanplus.ui.theme
 
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.ui.theme.color.amber_dark
 import es.jvbabi.vplanplus.ui.theme.color.amber_light
 import es.jvbabi.vplanplus.ui.theme.color.blue_dark
@@ -50,7 +50,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.Colors as CustomColorScheme
 
 @Composable
 fun VPlanPlusTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = MainActivity.isAppInDarkMode.value,
     // Dynamic color is available on Android 12+
     cs: CustomColorScheme,
     content: @Composable () -> Unit

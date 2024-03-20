@@ -1,9 +1,8 @@
-package es.jvbabi.vplanplus.ui.screens.settings.general
+package es.jvbabi.vplanplus.feature.settings.general.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -17,9 +16,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.Notifications
@@ -49,9 +52,13 @@ import androidx.compose.ui.unit.dp
 import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
+import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.common.InputDialog
+import es.jvbabi.vplanplus.ui.common.SegmentedButtonItem
+import es.jvbabi.vplanplus.ui.common.SegmentedButtons
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
@@ -62,7 +69,7 @@ fun GeneralSettingsScreen(
     generalSettingsViewModel: GeneralSettingsViewModel = hiltViewModel()
 ) {
     val state = generalSettingsViewModel.state.value
-    val dark = isSystemInDarkTheme()
+    val dark = MainActivity.isAppInDarkMode.value
     val fragmentActivity = LocalContext.current as FragmentActivity
     LaunchedEffect(key1 = dark, block = {
         generalSettingsViewModel.init(dark)
@@ -71,20 +78,13 @@ fun GeneralSettingsScreen(
     GeneralSettingsContent(
         onBackClicked = { navHostController.navigateUp() },
         state = state,
-
         onShowNotificationsOnAppOpenedClicked = {
             generalSettingsViewModel.onShowNotificationsOnAppOpenedClicked(!state.settings.showNotificationsIfAppIsVisible)
         },
-
-        onSyncDaysAheadSet = {
-            generalSettingsViewModel.onSyncDaysAheadSet(it)
-        },
-        onColorSchemeChanged = {
-            generalSettingsViewModel.onColorSchemeChanged(it)
-        },
-        onSetProtectGrades = {
-            generalSettingsViewModel.onToggleGradeProtection(fragmentActivity)
-        }
+        onSyncDaysAheadSet = generalSettingsViewModel::onSyncDaysAheadSet,
+        onColorSchemeChanged = generalSettingsViewModel::onColorSchemeChanged,
+        onAppThemeModeChanged = generalSettingsViewModel::onAppThemeModeChanged,
+        onSetProtectGrades = { generalSettingsViewModel.onToggleGradeProtection(fragmentActivity) }
     )
 }
 
@@ -96,6 +96,7 @@ fun GeneralSettingsContent(
     onShowNotificationsOnAppOpenedClicked: () -> Unit = {},
     onSyncDaysAheadSet: (Int) -> Unit = {},
     onColorSchemeChanged: (Colors) -> Unit = {},
+    onAppThemeModeChanged: (AppThemeMode) -> Unit = {},
     onSetProtectGrades: () -> Unit = {}
 ) {
     if (state.settings == null) return
@@ -146,7 +147,7 @@ fun GeneralSettingsContent(
                     doAction = {},
                     clickable = false
                 ) {
-                    LazyRow {
+                    LazyRow(Modifier.padding(bottom = 8.dp)) {
                         item {
                             Spacer(modifier = Modifier.size(30.dp))
                         }
@@ -202,6 +203,38 @@ fun GeneralSettingsContent(
                         item {
                             Spacer(modifier = Modifier.size(12.dp))
                         }
+                    }
+                }
+                
+                SettingsSetting(
+                    icon = Icons.Default.BrightnessAuto,
+                    title = stringResource(id = R.string.settingsGeneral_appThemeTitle),
+                    subtitle = stringResource(id = R.string.settingsGeneral_appThemeSubtitle),
+                    type = SettingsType.DISPLAY,
+                    checked = false,
+                    clickable = false,
+                    doAction = {}
+                ) {
+                    SegmentedButtons(Modifier.padding(start = 56.dp, end = 8.dp)) {
+                        SegmentedButtonItem(
+                            icon = { Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = null) },
+                            label = { Text(stringResource(id = R.string.settingsGeneral_appThemeAuto)) },
+                            selected = state.settings.appThemeMode == AppThemeMode.SYSTEM,
+                            onClick = { onAppThemeModeChanged(AppThemeMode.SYSTEM) }
+                        )
+                        SegmentedButtonItem(
+                            icon = { Icon(imageVector = Icons.Default.WbSunny, contentDescription = null) },
+                            label = { Text(stringResource(id = R.string.settingsGeneral_appThemeLight)) },
+                            selected = state.settings.appThemeMode == AppThemeMode.LIGHT,
+                            onClick = { onAppThemeModeChanged(AppThemeMode.LIGHT) }
+                        )
+                        SegmentedButtonItem(
+                            icon = { Icon(imageVector = Icons.Default.DarkMode, contentDescription = null) },
+                            label = { Text(stringResource(id = R.string.settingsGeneral_appThemeDark)) },
+                            selected = state.settings.appThemeMode == AppThemeMode.DARK,
+                            onClick = { onAppThemeModeChanged(AppThemeMode.DARK) }
+                        )
+
                     }
                 }
             }

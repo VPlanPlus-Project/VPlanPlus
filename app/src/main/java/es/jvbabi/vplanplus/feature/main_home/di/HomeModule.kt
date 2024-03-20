@@ -23,6 +23,7 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.SetInfoExpandedUseCa
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.GetAppThemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetDayForCurrentProfileUseCase
@@ -59,6 +60,7 @@ object HomeModule {
             getProfilesUseCase = getProfilesUseCase,
             setUpUseCase = setUpUseCase,
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
+            getAppThemeUseCase = GetAppThemeUseCase(keyValueRepository)
         )
     }
 
