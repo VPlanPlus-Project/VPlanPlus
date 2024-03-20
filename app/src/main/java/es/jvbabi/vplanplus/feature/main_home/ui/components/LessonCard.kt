@@ -62,6 +62,7 @@ fun LessonCard(
     onBookRoomClicked: () -> Unit = {},
     lessons: List<Lesson>,
     time: ZonedDateTime,
+    allowActions: Boolean = true
 ) {
     val colorScheme = MaterialTheme.colorScheme
     var expanded by rememberSaveable {
@@ -168,7 +169,7 @@ fun LessonCard(
                         )
                     }
 
-                    Expandable(expanded) {
+                    Expandable(expanded && allowActions) {
                         LazyRow {
                             if (lesson.rooms.isEmpty() && booking == null) item {
                                 AssistChip(
@@ -196,7 +197,7 @@ fun LessonCard(
                     if (i != lessons.lastIndex) {
                         HorizontalDivider(
                             color = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(end = 8.dp, bottom = 4.dp)
+                            modifier = Modifier.padding(end = 8.dp, bottom = 6.dp, top = 6.dp)
                         )
                     }
                 }

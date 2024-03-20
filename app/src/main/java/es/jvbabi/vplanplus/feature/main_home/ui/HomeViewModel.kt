@@ -73,7 +73,7 @@ class HomeViewModel @Inject constructor(
                     it.`class`.classId == currentIdentity?.profile?.referenceId
                 }
 
-                var todayLessonExpanded = state.value.todayLessonExpanded
+                var todayLessonExpanded = state.value.goToNextDay
                 if (firstRun) {
                     todayLessonExpanded =
                         todayDay?.anyLessonsLeft(time, currentIdentity!!.profile!!) ?: false
@@ -90,9 +90,9 @@ class HomeViewModel @Inject constructor(
                     time = time,
                     userHomework = userHomework,
                     infoExpanded = infoExpanded,
-                    todayLessonExpanded = todayLessonExpanded,
                     syncing = syncing,
-                    bookings = bookings
+                    bookings = bookings,
+                    goToNextDay = todayLessonExpanded
                 )
             }.collect {
                 state.value = it
@@ -108,10 +108,6 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             homeUseCases.setInfoExpandedUseCase(expanded)
         }
-    }
-
-    fun onTodayLessonExpandedToggle() {
-        state.value = state.value.copy(todayLessonExpanded = !state.value.todayLessonExpanded)
     }
 
     fun switchProfile(to: Profile) {
@@ -159,8 +155,8 @@ data class HomeState(
     val time: ZonedDateTime = ZonedDateTime.now(),
     val userHomework: List<Homework> = emptyList(),
     val infoExpanded: Boolean = false,
-    val todayLessonExpanded: Boolean = true,
     val syncing: Boolean = false,
+    val goToNextDay: Boolean? = null,
 
     val versionHints: List<VersionHints> = emptyList(),
     val isVersionHintsDialogOpen: Boolean = false,
