@@ -25,6 +25,6 @@ data class Day(
         lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
 
     fun anyLessonsLeft(time: ZonedDateTime, profile: Profile): Boolean {
-        return getFilteredLessons(profile).any { it.start.isAfter(time) }
+        return getFilteredLessons(profile).any { it.progress(time) < 1.0 }
     }
 }
