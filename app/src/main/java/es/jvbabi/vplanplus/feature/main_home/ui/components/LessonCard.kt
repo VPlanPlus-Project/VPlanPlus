@@ -92,12 +92,12 @@ fun LessonCard(
             .clip(RoundedCornerShape((8 + 8 * activeModifier.value).dp))
             .drawWithContent {
                 drawRect(
-                    color = colorScheme.surfaceContainer,
+                    color = colorScheme.surfaceVariant,
                     topLeft = Offset(0f, 0f),
                     size = size
                 )
                 drawRect(
-                    color = colorScheme.surfaceVariant,
+                    color = colorScheme.surfaceContainer,
                     topLeft = Offset(0f, 0f),
                     size = Size(
                         this.size.width * lessons
