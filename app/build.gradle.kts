@@ -83,18 +83,18 @@ android {
 
 
 dependencies {
-    implementation("androidx.compose.animation:animation-graphics:1.6.3")
+    implementation("androidx.compose.animation:animation-graphics")
 
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
-    implementation(platform("androidx.compose:compose-bom:2024.02.02"))
+    implementation(platform("androidx.compose:compose-bom:2024.03.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.navigation:navigation-compose:2.7.7")
-    implementation("androidx.compose.material:material-icons-extended:1.6.3")
-    implementation("androidx.compose.material3:material3-android:1.2.1")
+    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material3:material3-android")
     implementation("com.google.android.material:material:1.11.0")
 
     implementation("androidx.browser:browser:1.8.0")
@@ -119,7 +119,6 @@ dependencies {
     implementation("com.lightspark:compose-qr-code:1.0.1")
 
     implementation("com.google.dagger:hilt-android:2.49")
-    implementation("androidx.compose.animation:animation-graphics:1.6.3")
     testImplementation("junit:junit:4.13.2")
     kapt("com.google.dagger:hilt-android-compiler:2.48.1")
     kapt("androidx.hilt:hilt-compiler:1.2.0")
@@ -138,7 +137,7 @@ dependencies {
 
     implementation("androidx.biometric:biometric:1.1.0")
 
-    debugImplementation("androidx.compose.ui:ui-tooling:1.6.3")
+    debugImplementation("androidx.compose.ui:ui-tooling")
 
 
     // Local unit tests
@@ -148,7 +147,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
     testImplementation("com.google.truth:truth:1.1.3")
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    debugImplementation("androidx.compose.ui:ui-test-manifest:1.6.3")
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Instrumentation tests
     androidTestImplementation("com.google.dagger:hilt-android-testing:2.37")

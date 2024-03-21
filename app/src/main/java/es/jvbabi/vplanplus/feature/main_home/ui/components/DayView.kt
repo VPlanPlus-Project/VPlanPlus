@@ -87,7 +87,7 @@ fun DayView(
                     )
                 }
                 .end
-            if (!showCountdown) return
+            if (!showCountdown) return@Column
             val difference = currentTime.until(end, ChronoUnit.SECONDS)
             if (difference > 0) Column(
                 Modifier
