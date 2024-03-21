@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.common.BackIcon
@@ -56,7 +57,7 @@ fun AccountSettingsScreen(
     AccountSettingsScreenContent(
         onBack = { navHostController.popBackStack() },
         onLogin = {
-            val url = "${state.server}/login/link/?name=VPlanPlus%20on%20" + URLEncoder.encode(
+            val url = "${state.server}/login/link/?version=${BuildConfig.VERSION_CODE}&name=VPlanPlus%20on%20" + URLEncoder.encode(
                 Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
             )
             val intent = CustomTabsIntent.Builder().build()
