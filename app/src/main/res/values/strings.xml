@@ -516,5 +516,6 @@
     <string name="settingsGeneral_appThemeAuto">System</string>
     <string name="settingsGeneral_appThemeLight">Light</string>
     <string name="settingsGeneral_appThemeDark">Dark</string>
+    <string name="home_noDataNextDayTitle">No data yet</string>
 
 </resources>
