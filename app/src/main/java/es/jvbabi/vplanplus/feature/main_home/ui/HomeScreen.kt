@@ -16,9 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -30,12 +28,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -46,6 +42,7 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.main_home.ui.components.ToggleButtons
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
+import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoDataNextDay
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -213,22 +210,18 @@ private fun HomeScreenContent(
                                 onBookRoomClicked = onBookRoomClicked
                             )
                         }
-                        else Column((Modifier
+                        else Column(Modifier
                             .fillMaxWidth()
                             .heightIn(min = biggestHeight)
                             .onSizeChanged {
                                 density.run {
                                     biggestHeight = maxOf(biggestHeight, it.height.toDp())
                                 }
-                            })
+                            }
                         ) nextDay@{
                             if (state.nextDay != null) {
                                 if (state.nextDay.state == DayDataState.NO_DATA || state.nextDay.type != DayType.NORMAL) {
-                                    Text(
-                                        text = stringResource(id = R.string.home_nextDayNoData),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        modifier = Modifier.padding(horizontal = 8.dp)
-                                    )
+                                    NoDataNextDay(date = state.nextDay.date)
                                     return@nextDay
                                 }
                                 DayView(

@@ -515,5 +515,6 @@
     <string name="settingsGeneral_appThemeAuto">System</string>
     <string name="settingsGeneral_appThemeLight">Hell</string>
     <string name="settingsGeneral_appThemeDark">Dunkel</string>
+    <string name="home_noDataNextDayTitle">Noch keine Daten</string>
 
 </resources>
