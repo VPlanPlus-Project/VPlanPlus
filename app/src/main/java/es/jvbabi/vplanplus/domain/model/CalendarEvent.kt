@@ -20,6 +20,6 @@ data class CalendarEvent(
     val endTimeStamp: Long,
     val timeZone: TimeZone = TimeZone.getTimeZone("UTC"),
     val calendarId: Long,
-    val location: String,
+    val location: String?,
     val info: String? = null,
 )

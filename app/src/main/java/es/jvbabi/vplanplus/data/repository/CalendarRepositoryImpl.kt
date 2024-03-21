@@ -5,10 +5,13 @@ import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
 import android.provider.CalendarContract
+import android.util.Log
+import androidx.core.database.getStringOrNull
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import java.util.TimeZone
@@ -103,7 +106,7 @@ class CalendarRepositoryImpl(
             val start = cursor.getLong(cursor.getColumnIndex(CalendarContract.Events.DTSTART))
             val end = cursor.getLong(cursor.getColumnIndex(CalendarContract.Events.DTEND))
             val timeZone = cursor.getString(cursor.getColumnIndex(CalendarContract.Events.EVENT_TIMEZONE))
-            val location = cursor.getString(cursor.getColumnIndex(CalendarContract.Events.EVENT_LOCATION))
+            val location = cursor.getStringOrNull(cursor.getColumnIndex(CalendarContract.Events.EVENT_LOCATION))
             events.add(
                 CalendarEvent(
                     eventId = id,
@@ -128,8 +131,11 @@ class CalendarRepositoryImpl(
     }
 
     override suspend fun deleteAppEvents(calendar: Calendar?) {
-        val calendars = if (calendar == null) getCalendars().firstOrNull() else listOf(calendar)
-        val eventIds = calendars?.flatMap { getAppEvents(it) }?.map { it.eventId } ?: emptyList()
-        eventIds.filterNotNull().forEach { deleteEvent(it) }
+        Log.d("CalendarRepositoryImpl", "deleteAppEvents: ${calendar?.displayName}")
+        val calendars = if (calendar == null) getCalendars().first() else listOfNotNull(calendar)
+        Log.d("CalendarRepositoryImpl", "deleteAppEvents: ${calendars.joinToString(", ") { it.displayName }}")
+        val eventIds = calendars.flatMap { getAppEvents(it) }.mapNotNull { it.eventId }
+        Log.d("CalendarRepositoryImpl", "deleteAppEvents: ${eventIds.joinToString(", ")}")
+        eventIds.forEach { deleteEvent(it) }
     }
 }
