@@ -166,7 +166,7 @@ fun LessonCard(
 
                     Expandable(!expanded && relevantHomeworkTasks.isNotEmpty()) {
                         Text(
-                            text = pluralStringResource(R.plurals.home_lessonCardHomework, count = relevantHomeworkTasks.size),
+                            text = pluralStringResource(R.plurals.home_lessonCardHomework, relevantHomeworkTasks.size, relevantHomeworkTasks.size),
                             style = MaterialTheme.typography.labelMedium,
                         )
                     }
