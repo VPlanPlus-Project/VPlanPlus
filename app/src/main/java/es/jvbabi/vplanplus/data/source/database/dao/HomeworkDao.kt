@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.data.model.DbHomework
 import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.combined.CHomework
 import kotlinx.coroutines.flow.Flow
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Dao
@@ -45,6 +46,9 @@ abstract class HomeworkDao {
 
     @Query("UPDATE homework SET hidden = :hidden WHERE id = :homeworkId")
     abstract suspend fun changeHidden(homeworkId: Long, hidden: Boolean)
+
+    @Query("UPDATE homework SET until = :newDate WHERE id = :homeworkId")
+    abstract suspend fun updateDueDate(homeworkId: Long, newDate: ZonedDateTime)
 
     @Query("DELETE FROM homework_task WHERE homeworkId = :homeworkId")
     abstract suspend fun deleteTasksForHomework(homeworkId: Long)

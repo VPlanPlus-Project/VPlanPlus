@@ -2,7 +2,6 @@ package es.jvbabi.vplanplus.domain.model
 
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.ui.screens.home.MenuProfile
 import java.util.UUID
 
 data class Profile(
@@ -15,9 +14,6 @@ data class Profile(
     val calendarType: ProfileCalendarType,
     val calendarId: Long?
 ) {
-    fun toMenuProfile(): MenuProfile {
-        return MenuProfile(id, originalName, displayName)
-    }
 
     /**
      * Returns true if the default lesson is enabled for this profile

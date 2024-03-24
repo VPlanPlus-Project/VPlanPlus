@@ -96,6 +96,10 @@ class PlanRepositoryImpl(
             }
     }
 
+    override suspend fun getLocalPlanDates(): List<LocalDate> {
+        return planDao.getLocalPlanDates().distinct()
+    }
+
     private suspend fun build(
         school: School,
         lessons: List<Lesson>?,

@@ -10,6 +10,7 @@ import android.view.animation.AccelerateInterpolator
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
@@ -24,11 +25,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -48,21 +47,22 @@ import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
-import es.jvbabi.vplanplus.domain.usecase.home.HomeUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
+import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.Period
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -70,16 +70,25 @@ import javax.inject.Inject
 class MainActivity : FragmentActivity() {
 
     private val onboardingViewModel: OnboardingViewModel by viewModels()
-    private val homeViewModel: HomeViewModel by viewModels()
 
     @Inject
-    lateinit var homeUseCases: HomeUseCases
+    lateinit var mainUseCases: MainUseCases
 
     @Inject
     lateinit var notificationRepository: NotificationRepository
 
-    private lateinit var navController: NavHostController
+    private var navController: NavHostController? = null
     private var showSplashScreen: Boolean = true
+
+    private var currentIdentity = mutableStateOf<Identity?>(null)
+    private var colorScheme = mutableStateOf(Colors.DYNAMIC)
+    private var appTheme = mutableStateOf(AppThemeMode.SYSTEM)
+
+    companion object {
+        var isAppInDarkMode = mutableStateOf(true)
+    }
+
+    private var initDone = false
 
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,162 +96,178 @@ class MainActivity : FragmentActivity() {
 
         processIntent(intent)
 
-        if (!homeViewModel.isReady() && showSplashScreen) installSplashScreen().apply {
+        var goToOnboarding: Boolean? = null
+        lifecycleScope.launch {
+            currentIdentity.value = mainUseCases.getCurrentIdentity.invoke().first()
+            goToOnboarding = currentIdentity.value?.profile == null
+
+            notificationRepository.createSystemChannels(applicationContext)
+            notificationRepository.createProfileChannels(applicationContext, mainUseCases.getProfilesUseCase().first().map { it.value }.flatten())
+            mainUseCases.setUpUseCase()
+
+            combine(
+                listOf(
+                    mainUseCases.getColorSchemeUseCase(),
+                    mainUseCases.getCurrentIdentity(),
+                    mainUseCases.getAppThemeUseCase()
+                )
+            ) { data ->
+                colorScheme.value = data[0] as Colors
+                currentIdentity.value = data[1] as Identity?
+                appTheme.value = AppThemeMode.valueOf(data[2] as String)
+
+                initDone = true
+            }.collect {
+                Log.d("MainActivity", "Identity: $currentIdentity")
+            }
+        }
+
+        if (showSplashScreen) installSplashScreen().apply {
             setKeepOnScreenCondition {
-                homeViewModel.isReady()
+                !initDone
             }
             setOnExitAnimationListener { screen ->
                 Log.d("MainActivity", "Exiting splash screen")
-                val moveIconAnimator = ObjectAnimator.ofFloat(
-                    screen.iconView,
-                    View.TRANSLATION_X,
-                    screen.iconView.paddingStart.toFloat(),
-                    0f
-                )
-                val fadeScreenAnimator = ObjectAnimator.ofFloat(
-                    screen.view,
-                    View.ALPHA,
-                    1f,
-                    0f
-                )
+                try {
+                    val moveIconAnimator = ObjectAnimator.ofFloat(
+                        screen.iconView,
+                        View.TRANSLATION_X,
+                        screen.iconView.paddingStart.toFloat(),
+                        0f
+                    )
+                    val fadeScreenAnimator = ObjectAnimator.ofFloat(
+                        screen.view,
+                        View.ALPHA,
+                        1f,
+                        0f
+                    )
 
-                fadeScreenAnimator.interpolator = AccelerateInterpolator()
-                fadeScreenAnimator.duration = 500L
-                moveIconAnimator.interpolator = AccelerateInterpolator()
-                moveIconAnimator.duration = 500L
-                moveIconAnimator.start()
-                fadeScreenAnimator.start()
-                moveIconAnimator.doOnEnd { screen.remove() }
+                    fadeScreenAnimator.interpolator = AccelerateInterpolator()
+                    fadeScreenAnimator.duration = 500L
+                    moveIconAnimator.interpolator = AccelerateInterpolator()
+                    moveIconAnimator.duration = 500L
+                    moveIconAnimator.start()
+                    fadeScreenAnimator.start()
+                    moveIconAnimator.doOnEnd { screen.remove() }
+                } catch (e: NullPointerException) {
+                    screen.remove()
+                }
+
                 doInit(true)
             }
         } else doInit(false)
 
-        setContent {
-            var colors by remember { mutableStateOf(Colors.DYNAMIC) }
-            var init by remember { mutableStateOf(false) }
-            var goToOnboarding: Boolean? by remember { mutableStateOf(null) }
-            LaunchedEffect(key1 = "init", block = {
-                Log.d("MainActivity", "colorscheme: ${homeUseCases.getColorSchemeUseCase()}")
-                goToOnboarding = homeUseCases.getCurrentIdentity.invoke().first()?.profile == null
-                init = true
-                homeUseCases.getColorSchemeUseCase().collect {
-                    colors = it
-                }
-            })
-            if (!init) return@setContent
-            VPlanPlusTheme(
-                cs = colors,
-            ) {
-                navController = rememberNavController()
+        lifecycleScope.launch {
+            while (!initDone) delay(50)
+            setContent {
+                isAppInDarkMode.value = appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
+                VPlanPlusTheme(cs = colorScheme.value, darkTheme = isAppInDarkMode.value) {
+                    navController = rememberNavController()
 
-                var selectedIndex by rememberSaveable {
-                    mutableIntStateOf(0)
-                }
-                val navBarItems = listOfNotNull(
-                    NavigationBarItem(
-                        onClick = {
-                            if (selectedIndex == 0) return@NavigationBarItem
-                            selectedIndex = 0
-                            navController.navigate(Screen.HomeScreen.route) { popUpTo(0) }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Home,
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text(text = stringResource(id = R.string.main_home)) },
-                        route = Screen.HomeScreen.route
-                    ),
-                    NavigationBarItem(
-                        onClick = {
-                            if (selectedIndex == 1) return@NavigationBarItem
-                            selectedIndex = 1
-                            navController.navigate(Screen.TimetableScreen.route) { popUpTo(Screen.HomeScreen.route) }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.FormatListNumbered,
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text(text = stringResource(id = R.string.main_timetable)) },
-                        route = Screen.TimetableScreen.route
-                    ),
-                    if (homeViewModel.state.value.activeProfile?.type == ProfileType.STUDENT) NavigationBarItem(
-                        onClick = {
-                            if (selectedIndex == 2) return@NavigationBarItem
-                            selectedIndex = 2
-                            navController.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.MenuBook,
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text(text = stringResource(id = R.string.main_homework)) },
-                        route = Screen.HomeworkScreen.route
-                    ) else null,
-                    if (homeViewModel.state.value.activeProfile?.type == ProfileType.STUDENT) NavigationBarItem(
-                        onClick = {
-                            if (selectedIndex == 3) return@NavigationBarItem
-                            selectedIndex = 3
-                            navController.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = Icons.Default.Grade,
-                                contentDescription = null
-                            )
-                        },
-                        label = { Text(text = stringResource(id = R.string.main_grades)) },
-                        route = Screen.GradesScreen.route
-                    ) else null
-                )
+                    var selectedIndex by rememberSaveable {
+                        mutableIntStateOf(0)
+                    }
+                    val navBarItems = listOfNotNull(
+                        NavigationBarItem(
+                            onClick = {
+                                if (selectedIndex == 0) return@NavigationBarItem
+                                selectedIndex = 0
+                                navController!!.navigate(Screen.HomeScreen.route) { popUpTo(0) }
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.Home,
+                                    contentDescription = null
+                                )
+                            },
+                            label = { Text(text = stringResource(id = R.string.main_home)) },
+                            route = Screen.HomeScreen.route
+                        ),
+                        NavigationBarItem(
+                            onClick = {
+                                if (selectedIndex == 1) return@NavigationBarItem
+                                selectedIndex = 1
+                                navController!!.navigate(Screen.TimetableScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.FormatListNumbered,
+                                    contentDescription = null
+                                )
+                            },
+                            label = { Text(text = stringResource(id = R.string.main_timetable)) },
+                            route = Screen.TimetableScreen.route
+                        ),
+                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
+                            onClick = {
+                                if (selectedIndex == 2) return@NavigationBarItem
+                                selectedIndex = 2
+                                navController!!.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Default.MenuBook,
+                                    contentDescription = null
+                                )
+                            },
+                            label = { Text(text = stringResource(id = R.string.main_homework)) },
+                            route = Screen.HomeworkScreen.route
+                        ) else null,
+                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
+                            onClick = {
+                                if (selectedIndex == 3) return@NavigationBarItem
+                                selectedIndex = 3
+                                navController!!.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = Icons.Default.Grade,
+                                    contentDescription = null
+                                )
+                            },
+                            label = { Text(text = stringResource(id = R.string.main_grades)) },
+                            route = Screen.GradesScreen.route
+                        ) else null
+                    )
 
-                val navBar = @Composable {
-                    NavigationBar {
-                        navBarItems.forEachIndexed { index, item ->
-                            NavigationBarItem(
-                                selected = index == selectedIndex,
-                                onClick = item.onClick,
-                                icon = item.icon,
-                                label = item.label
+                    val navBar = @Composable {
+                        NavigationBar {
+                            navBarItems.forEachIndexed { index, item ->
+                                NavigationBarItem(
+                                    selected = index == selectedIndex,
+                                    onClick = item.onClick,
+                                    icon = item.icon,
+                                    label = item.label
+                                )
+                            }
+                        }
+                    }
+
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .imePadding(),
+                        color = MaterialTheme.colorScheme.surface
+                    ) {
+                        if (goToOnboarding != null) {
+                            NavigationGraph(
+                                navController = navController!!,
+                                onboardingViewModel = onboardingViewModel,
+                                goToOnboarding = goToOnboarding!!,
+                                navBar = navBar,
+                                onNavigationChanged = { route ->
+                                    val item =
+                                        navBarItems.firstOrNull { route?.startsWith(it.route) == true }
+                                    if (item != null && navBarItems.indexOf(item) != selectedIndex) {
+                                        selectedIndex = navBarItems.indexOf(item)
+                                        Log.d("Navigation", "Selected index: $selectedIndex")
+                                    }
+                                }
                             )
                         }
                     }
                 }
-                Surface(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .imePadding(),
-                    color = MaterialTheme.colorScheme.surface
-                ) {
-                    if (goToOnboarding != null) {
-                        NavigationGraph(
-                            navController = navController,
-                            onboardingViewModel = onboardingViewModel,
-                            homeViewModel = homeViewModel,
-                            goToOnboarding = goToOnboarding!!,
-                            navBar = navBar,
-                            onNavigationChanged = { route ->
-                                val item =
-                                    navBarItems.firstOrNull { route?.startsWith(it.route) == true }
-                                if (item != null && navBarItems.indexOf(item) != selectedIndex) {
-                                    selectedIndex = navBarItems.indexOf(item)
-                                    Log.d("Navigation", "Selected index: $selectedIndex")
-                                }
-                            }
-                        )
-                    }
-                }
             }
-            LaunchedEffect(key1 = true, block = {
-                notificationRepository.createSystemChannels(applicationContext)
-                notificationRepository.createProfileChannels(applicationContext, homeUseCases.getProfilesUseCase().first().map { it.value }.flatten())
-                homeUseCases.setUpUseCase()
-            })
         }
 
         val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
@@ -266,10 +291,10 @@ class MainActivity : FragmentActivity() {
         if (intent.hasExtra("screen")) {
             showSplashScreen = false
             lifecycleScope.launch {
-                while (homeViewModel.state.value.activeProfile == null) delay(50)
+                while (currentIdentity.value == null || navController == null) delay(50)
                 when (intent.getStringExtra("screen")) {
-                    "grades" -> navController.navigate(Screen.GradesScreen.route)
-                    else -> {}
+                    "grades" -> navController!!.navigate(Screen.GradesScreen.route)
+                    else -> navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreen.route)
                 }
             }
         }
@@ -279,7 +304,6 @@ class MainActivity : FragmentActivity() {
             Log.d("MainActivity.Intent", "profileId: $profileId")
             Log.d("MainActivity.Intent", "dateStr: ${intent.getStringExtra("dateStr")}")
 
-            homeViewModel.onProfileSelected(UUID.fromString(profileId))
             if (intent.getStringExtra("dateStr") != null) {
                 val dateStr = intent.getStringExtra("dateStr") ?: return
                 val date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
@@ -293,10 +317,9 @@ class MainActivity : FragmentActivity() {
                     })"
                 )
                 lifecycleScope.launch {
-                    while (homeViewModel.state.value.activeProfile == null) delay(50)
-                    navController.navigate(Screen.TimetableScreen.route + "/$date")
+                    while (currentIdentity.value == null) delay(50)
+                    navController!!.navigate(Screen.TimetableScreen.route + "/$date")
                 }
-                // homeViewModel.onPageChanged(date) TODO fix this
             }
         }
     }

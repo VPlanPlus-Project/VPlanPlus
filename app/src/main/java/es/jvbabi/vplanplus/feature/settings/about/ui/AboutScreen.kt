@@ -8,7 +8,6 @@ import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,6 +40,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.BuildConfig
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
@@ -115,7 +115,7 @@ private fun AboutContent(
         ) {
             Spacer(modifier = Modifier.padding(16.dp))
             val drawable = AnimatedImageVector.animatedVectorResource(
-                if (isSystemInDarkTheme()) R.drawable.avd_anim_dark
+                if (MainActivity.isAppInDarkMode.value) R.drawable.avd_anim_dark
                 else R.drawable.avd_anim
             )
             var atEnd by remember { mutableStateOf(false) }

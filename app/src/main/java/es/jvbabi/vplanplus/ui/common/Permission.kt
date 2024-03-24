@@ -27,18 +27,6 @@ data class Permission(
                     description = R.string.permission_notificationsText,
                 )
             else null,
-
-            Permission(
-                type = Manifest.permission.WRITE_CALENDAR,
-                name = R.string.permission_writeCalendarTitle,
-                description = R.string.permission_writeCalendarText
-            ),
-
-            Permission(
-                type = Manifest.permission.READ_CALENDAR,
-                name = R.string.permission_readCalendarTitle,
-                description = R.string.permission_readCalendarText
-            ),
         )
 
         fun isGranted(context: Context, type: String): Boolean {

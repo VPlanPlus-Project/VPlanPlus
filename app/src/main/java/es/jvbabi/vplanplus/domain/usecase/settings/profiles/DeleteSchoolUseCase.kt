@@ -5,7 +5,6 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
-import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import kotlinx.coroutines.flow.first
 import java.util.UUID
 
@@ -14,7 +13,6 @@ class DeleteSchoolUseCase(
     private val profileRepository: ProfileRepository,
     private val keyValueRepository: KeyValueRepository,
     private val notificationRepository: NotificationRepository,
-    private val getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
 ) {
     suspend operator fun invoke(
         schoolId: Long
@@ -22,13 +20,13 @@ class DeleteSchoolUseCase(
         val currentProfile = profileRepository.getProfileById(
             UUID.fromString(keyValueRepository.get(Keys.ACTIVE_PROFILE))
         ).first()!!
-        if (getSchoolFromProfileUseCase(currentProfile).schoolId == schoolId) {
+        if (profileRepository.getSchoolFromProfile(currentProfile).schoolId == schoolId) {
             keyValueRepository.set(Keys.ACTIVE_PROFILE,
                 profileRepository
                     .getProfiles()
                     .first()
                     .firstOrNull {
-                        getSchoolFromProfileUseCase(it).schoolId != schoolId
+                        profileRepository.getSchoolFromProfile(it).schoolId != schoolId
                     }?.id.toString()
             )
         }

@@ -14,11 +14,12 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.google.gson.Gson
-import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCalculatorScreen
-import es.jvbabi.vplanplus.feature.grades.ui.calculator.GradeCollection
-import es.jvbabi.vplanplus.feature.grades.ui.view.GradesScreen
-import es.jvbabi.vplanplus.feature.homework.add.ui.AddHomeworkScreen
-import es.jvbabi.vplanplus.feature.homework.view.ui.HomeworkScreen
+import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
+import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
+import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
+import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
@@ -35,8 +36,9 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
+import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.support.ui.SupportScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.login.BsLoginScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionLeft
@@ -46,17 +48,15 @@ import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.slideInFromBottom
 import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.home.HomeScreen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
-import es.jvbabi.vplanplus.ui.screens.home.viewmodel.HomeViewModel
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
-import es.jvbabi.vplanplus.ui.screens.settings.SettingsScreen
-import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
-import es.jvbabi.vplanplus.ui.screens.settings.general.GeneralSettingsScreen
-import es.jvbabi.vplanplus.ui.screens.settings.profile.ProfileManagementScreen
-import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsDefaultLessonScreen
-import es.jvbabi.vplanplus.ui.screens.settings.profile.settings.ProfileSettingsScreen
-import es.jvbabi.vplanplus.ui.screens.timetable.TimetableScreen
+import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsDefaultLessonScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsScreen
+import es.jvbabi.vplanplus.feature.main_timetable.ui.TimetableScreen
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.encoding.Base64
@@ -66,7 +66,6 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 fun NavigationGraph(
     navController: NavHostController,
     onboardingViewModel: OnboardingViewModel,
-    homeViewModel: HomeViewModel,
     goToOnboarding: Boolean,
     navBar: @Composable () -> Unit,
     onNavigationChanged: (String?) -> Unit
@@ -81,7 +80,7 @@ fun NavigationGraph(
 
         deepLinks(navController)
         onboarding(navController, onboardingViewModel)
-        mainScreens(navController, homeViewModel, navBar)
+        mainScreens(navController, navBar)
         newsScreens(navController)
         settingsScreens(navController, onboardingViewModel)
         gradesScreens(navController)
@@ -98,11 +97,11 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
         route = Screen.AccountAddedScreen.route + "/{token}",
         deepLinks = listOf(
             navDeepLink {
-                uriPattern = "https://id.vpp.jvbabi.es/link_success/{token}"
+                uriPattern = "https://id.vpp.jvbabi.es/android/link_success/{token}"
                 action = Intent.ACTION_VIEW
             },
             navDeepLink {
-                uriPattern = "vpp://id/link_success/{token}"
+                uriPattern = "https://vppid-development.test.jvbabi.es/android/link_success/{token}"
                 action = Intent.ACTION_VIEW
             }
         ),
@@ -112,12 +111,18 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
             }
         ),
         content = {
-            VppIdLinkScreen(navHostController = navController, token = it.arguments?.getString("token"))
+            VppIdLinkScreen(
+                navHostController = navController,
+                token = it.arguments?.getString("token")
+            )
         }
     )
 }
 
-private fun NavGraphBuilder.onboarding(navController: NavHostController, viewModel: OnboardingViewModel) {
+private fun NavGraphBuilder.onboarding(
+    navController: NavHostController,
+    viewModel: OnboardingViewModel
+) {
     navigation(
         route = Screen.Onboarding.route,
         startDestination = Screen.OnboardingWelcomeScreen.route
@@ -229,7 +234,10 @@ private fun NavGraphBuilder.onboarding(navController: NavHostController, viewMod
     }
 }
 
-private fun NavGraphBuilder.mainScreens(navController: NavHostController, viewModel: HomeViewModel, navBar: @Composable () -> Unit) {
+private fun NavGraphBuilder.mainScreens(
+    navController: NavHostController,
+    navBar: @Composable () -> Unit
+) {
     composable(
         route = Screen.HomeScreen.route,
         enterTransition = { fadeIn(tween(300)) },
@@ -239,19 +247,25 @@ private fun NavGraphBuilder.mainScreens(navController: NavHostController, viewMo
     ) {
         HomeScreen(
             navHostController = navController,
-            viewModel = viewModel,
             navBar = navBar
         )
     }
 
     composable(
-        route = Screen.AddHomeworkScreen.route,
+        route = Screen.AddHomeworkScreen.route + "?vpId={vpId}",
         enterTransition = slideInFromBottom,
         exitTransition = slideOutFromBottom,
         popEnterTransition = slideInFromBottom,
-        popExitTransition = slideOutFromBottom
+        popExitTransition = slideOutFromBottom,
+        arguments = listOf(
+            navArgument("vpId") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
     ) {
-        AddHomeworkScreen(navHostController = navController)
+        AddHomeworkScreen(navHostController = navController, vpId = it.arguments?.getString("vpId")?.toLongOrNull())
     }
 
     composable(
@@ -323,7 +337,10 @@ private fun NavGraphBuilder.newsScreens(navController: NavHostController) {
     }
 }
 
-private fun NavGraphBuilder.settingsScreens(navController: NavHostController, onboardingViewModel: OnboardingViewModel) {
+private fun NavGraphBuilder.settingsScreens(
+    navController: NavHostController,
+    onboardingViewModel: OnboardingViewModel
+) {
     composable(
         route = Screen.SettingsScreen.route,
         enterTransition = { fadeIn(tween(300)) },
@@ -356,17 +373,10 @@ private fun NavGraphBuilder.settingsScreens(navController: NavHostController, on
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = exitSlideTransitionRight
     ) {
-        VppIdManagementScreen(navHostController = navController, vppId = it.arguments?.getInt("vppIdId")!!)
-    }
-
-    composable(
-        route = Screen.SettingsVppIdLoginScreen.route,
-        enterTransition = slideInFromBottom,
-        exitTransition = slideOutFromBottom,
-        popEnterTransition = slideInFromBottom,
-        popExitTransition = slideOutFromBottom
-    ) {
-        BsLoginScreen(navHostController = navController)
+        VppIdManagementScreen(
+            navHostController = navController,
+            vppId = it.arguments?.getInt("vppIdId")!!
+        )
     }
 
     composable(
@@ -456,6 +466,26 @@ private fun NavGraphBuilder.settingsScreens(navController: NavHostController, on
         popExitTransition = exitSlideTransitionRight
     ) {
         GeneralSettingsScreen(navController)
+    }
+
+    composable(
+        route = Screen.SettingsHomeworkScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        HomeworkSettingsScreen(navController)
+    }
+
+    composable(
+        route = Screen.SettingsHelpFeedbackScreen.route,
+        enterTransition = enterSlideTransitionLeft,
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = exitSlideTransitionRight
+    ) {
+        SupportScreen(navController)
     }
 
     composable(

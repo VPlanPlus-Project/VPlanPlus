@@ -53,6 +53,8 @@ fun YesNoDialog(
     onYes: () -> Unit = {},
     onNo: () -> Unit = {},
     onDismiss: (() -> Unit)? = null,
+    yes: String? = null,
+    no: String? = null
 ) {
     Box(
         modifier = Modifier
@@ -65,14 +67,14 @@ fun YesNoDialog(
             onDismissRequest = { if (onDismiss == null) onNo() else onDismiss() },
             confirmButton = {
                 TextButton(onClick = { onYes() }) {
-                    Text(text = stringResource(id = R.string.yes))
+                    Text(text = yes ?: stringResource(id = R.string.yes))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
                     onNo()
                 }) {
-                    Text(text = stringResource(id = R.string.no))
+                    Text(text = no ?: stringResource(id = R.string.no))
                 }
             }
         )
@@ -123,6 +125,7 @@ fun ComposableDialog(
     okEnabled: Boolean = true,
     onDismiss: (() -> Unit)? = {},
     onCancel: (() -> Unit)? = null,
+    cancelString: String = stringResource(id = android.R.string.cancel)
 ) {
     Box(
         modifier = Modifier
@@ -141,7 +144,7 @@ fun ComposableDialog(
             },
             dismissButton = {
                 if (onCancel != null) TextButton(onClick = { onCancel() }) {
-                    Text(text = stringResource(id = android.R.string.cancel))
+                    Text(text = cancelString)
                 }
             },
         )
@@ -269,7 +272,7 @@ fun SelectDialogPreview() {
 
 @Composable
 @Preview
-fun InfoDialogPreview() {
+private fun InfoDialogPreview() {
     InfoDialog(
         icon = Icons.Default.SystemUpdate,
         title = "Update available",
@@ -279,7 +282,7 @@ fun InfoDialogPreview() {
 
 @Composable
 @Preview
-fun InputDialogPreview() {
+private fun InputDialogPreview() {
     InputDialog(
         icon = Icons.Default.Repeat,
         title = "How many times do you want to repeat this?",

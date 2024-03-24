@@ -11,4 +11,6 @@ interface TeacherRepository {
     suspend fun getTeacherById(id: UUID): Teacher?
     suspend fun deleteTeachersBySchoolId(schoolId: Long)
     suspend fun insertTeachersByAcronym(schoolId: Long, teachers: List<String>)
+
+    suspend fun getAll(): List<Teacher>
 }

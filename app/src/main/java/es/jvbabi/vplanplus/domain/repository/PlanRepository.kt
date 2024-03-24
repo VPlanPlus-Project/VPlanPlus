@@ -17,4 +17,5 @@ interface PlanRepository {
     suspend fun createPlan(plan: Plan)
     suspend fun deleteAllPlans()
     suspend fun deletePlansByVersion(version: Long)
+    suspend fun getLocalPlanDates(): List<LocalDate>
 }

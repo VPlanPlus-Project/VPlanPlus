@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import kotlinx.coroutines.flow.first
 
@@ -14,7 +15,8 @@ class DeleteProfileUseCase(
     private val schoolRepository: SchoolRepository,
     private val keyValueRepository: KeyValueRepository,
     private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-    private val notificationRepository: NotificationRepository
+    private val notificationRepository: NotificationRepository,
+    private val updateCalendarUseCase: UpdateCalendarUseCase
 ) {
     suspend operator fun invoke(profile: Profile): ProfileManagementDeletionResult {
         val currentIdentity =
@@ -22,6 +24,7 @@ class DeleteProfileUseCase(
 
         if (profile.id != currentIdentity.profile?.id) {
             profileRepository.deleteProfile(profile.id)
+            updateCalendarUseCase()
             return ProfileManagementDeletionResult.SUCCESS
         }
 
@@ -33,6 +36,7 @@ class DeleteProfileUseCase(
         keyValueRepository.set(Keys.ACTIVE_PROFILE, newProfile.id.toString())
         profileRepository.deleteProfile(profile.id)
         notificationRepository.deleteChannel("PROFILE_${profile.id.toString().lowercase()}")
+        updateCalendarUseCase()
         return ProfileManagementDeletionResult.SUCCESS
     }
 }

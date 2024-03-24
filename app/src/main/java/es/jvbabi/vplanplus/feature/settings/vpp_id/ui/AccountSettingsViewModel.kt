@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST")
+
 package es.jvbabi.vplanplus.feature.settings.vpp_id.ui
 
 import androidx.compose.runtime.State
@@ -8,6 +10,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.AccountSettingsUseCases
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -23,8 +26,22 @@ class AccountSettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            accountSettingsUseCases.getAccountsUseCase().collect {
-                _state.value = _state.value.copy(accounts = it.associateWith { null })
+            combine(
+                listOf(
+                    accountSettingsUseCases.getAccountsUseCase(),
+                    accountSettingsUseCases.getVppIdServerUseCase()
+                )
+            ) { data ->
+                val accounts = data[0] as List<VppId>
+                val server = data[1] as String
+
+                _state.value.copy(
+                    accounts = accounts.associateWith { null },
+                    server = server
+                )
+            }.collect {
+                _state.value = it
+
                 stateJobs.forEach { job -> job.cancel() }
                 _state.value.accounts?.forEach { (vppId, _) ->
                     stateJobs.add(viewModelScope.launch testAccount@{
@@ -40,4 +57,5 @@ class AccountSettingsViewModel @Inject constructor(
 
 data class AccountSettingsState(
     val accounts: Map<VppId, Boolean?>? = null,
+    val server: String = ""
 )

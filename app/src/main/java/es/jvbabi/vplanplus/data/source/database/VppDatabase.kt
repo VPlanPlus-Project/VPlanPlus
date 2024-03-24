@@ -26,7 +26,6 @@ import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
-import es.jvbabi.vplanplus.data.source.database.dao.CalendarEventDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
@@ -37,6 +36,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
 import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
+import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
@@ -45,7 +45,6 @@ import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
-import es.jvbabi.vplanplus.domain.model.DbCalendarEvent
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.LessonTime
@@ -53,12 +52,13 @@ import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Week
-import es.jvbabi.vplanplus.feature.grades.data.model.DbGrade
-import es.jvbabi.vplanplus.feature.grades.data.model.DbSubject
-import es.jvbabi.vplanplus.feature.grades.data.model.DbTeacher
-import es.jvbabi.vplanplus.feature.grades.data.source.database.GradeDao
-import es.jvbabi.vplanplus.feature.grades.data.source.database.SubjectDao
-import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbGrade
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbSubject
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbTeacher
+import es.jvbabi.vplanplus.feature.main_grades.data.source.database.GradeDao
+import es.jvbabi.vplanplus.feature.main_grades.data.source.database.SubjectDao
+import es.jvbabi.vplanplus.feature.main_grades.data.source.database.TeacherDao
+import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 
 @Database(
     entities = [
@@ -79,15 +79,16 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         LessonSchoolEntityCrossover::class,
         DbProfileDefaultLesson::class,
         LogRecord::class,
-        DbCalendarEvent::class,
+
         DbHomework::class,
         DbHomeworkTask::class,
+        DbPreferredNotificationTime::class,
 
         DbSubject::class,
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 21,
+    version = 23,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -100,6 +101,7 @@ import es.jvbabi.vplanplus.feature.grades.data.source.database.TeacherDao
         AutoMigration(from = 17, to = 18), // add homework.isPublic
         AutoMigration(from = 18, to = 19), // add zoned date time
         AutoMigration(from = 19, to = 20), // add homework can hide
+        AutoMigration(from = 21, to = 22) // add preferred notification time
     ],
 )
 @TypeConverters(
@@ -123,7 +125,6 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val schoolEntityDao: SchoolEntityDao
     abstract val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao
     abstract val logRecordDao: LogRecordDao
-    abstract val calendarEventDao: CalendarEventDao
     abstract val defaultLessonDao: DefaultLessonDao
     abstract val profileDefaultLessonsCrossoverDao: ProfileDefaultLessonsCrossoverDao
     abstract val planDao: PlanDao
@@ -132,6 +133,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val vppIdTokenDao: VppIdTokenDao
     abstract val roomBookingDao: RoomBookingDao
     abstract val homeworkDao: HomeworkDao
+    abstract val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao
 
     // grades
     abstract val subjectDao: SubjectDao
@@ -216,6 +218,13 @@ abstract class VppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE messages ADD COLUMN schoolId INT NULL")
                 db.execSQL("UPDATE messages SET schoolId = sid_old")
                 db.execSQL("ALTER TABLE messages DROP COLUMN sid_old")
+            }
+        }
+
+        val migration_22_23 = object : Migration(22, 23) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS calendar_events")
+                db.execSQL("ALTER TABLE keyValue RENAME TO key_value")
             }
         }
     }

@@ -5,10 +5,9 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.repository.Keys
-import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -18,8 +17,7 @@ class GetCurrentIdentityUseCase(
     private val vppIdRepository: VppIdRepository,
     private val classRepository: ClassRepository,
     private val keyValueRepository: KeyValueRepository,
-    private val profileRepository: ProfileRepository,
-    private val getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase
+    private val profileRepository: ProfileRepository
 ) {
     suspend operator fun invoke() = flow {
         combine(
@@ -35,7 +33,7 @@ class GetCurrentIdentityUseCase(
                 vppId.classes == classRepository.getClassById(profile.referenceId) && vppId.isActive()
             }
             Identity(
-                school = getSchoolFromProfileUseCase(profile),
+                school = profileRepository.getSchoolFromProfile(profile),
                 profile = profile,
                 vppId = vppId
             )

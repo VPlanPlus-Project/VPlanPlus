@@ -14,7 +14,6 @@ import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,6 +45,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.ProfileCreationStage
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.ProfileCreationStatus
@@ -71,7 +71,7 @@ fun OnboardingSetupScreen(
         )
     }
     AnimatedVisibility(
-        visible = state.isLoading,
+        visible = !state.allDone,
         exit = fadeOut(tween(500)),
     ) {
         if (state.task == Task.CREATE_SCHOOL) SetupNewSchoolScreen(state.creationStatus)
@@ -98,7 +98,7 @@ private fun StartAppScreen(
         contentAlignment = Center
     ) {
         val drawable = AnimatedImageVector.animatedVectorResource(
-            if (isSystemInDarkTheme()) R.drawable.avd_anim_dark
+            if (MainActivity.isAppInDarkMode.value) R.drawable.avd_anim_dark
             else R.drawable.avd_anim
         )
         var atEnd by remember { mutableStateOf(false) }

@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Plan
@@ -15,7 +16,6 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
-import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -32,10 +32,10 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
-import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
-import es.jvbabi.vplanplus.feature.grades.domain.model.GradeModifier
-import es.jvbabi.vplanplus.feature.grades.domain.repository.GradeRepository
-import es.jvbabi.vplanplus.feature.homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
+import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
+import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools
@@ -70,23 +70,23 @@ class DoSyncUseCase(
     private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val planRepository: PlanRepository,
     private val systemRepository: SystemRepository,
-    private val calendarRepository: CalendarRepository,
-    private val getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase,
     private val notificationRepository: NotificationRepository,
-    private val gradeRepository: GradeRepository
+    private val gradeRepository: GradeRepository,
+    private val updateCalendarUseCase: UpdateCalendarUseCase
 ) {
     suspend operator fun invoke(): Boolean {
+
         if (profileRepository.getProfiles().first().isEmpty()) return true
         val daysAhead = keyValueRepository.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toIntOrNull()
             ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
 
-        logRecordRepository.log("Sync.Homework", "Syncing homework")
-        homeworkRepository.fetchHomework()
-
-        logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
-
         var currentVersion =
             keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: -1L
+
+        logRecordRepository.log("Sync.Homework", "Syncing homework")
+        homeworkRepository.fetchHomework(currentVersion != -1L)
+
+        logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
         planRepository.deletePlansByVersion(currentVersion + 1)
         lessonRepository.deleteLessonsByVersion(currentVersion + 1)
@@ -191,7 +191,6 @@ class DoSyncUseCase(
                         NotificationData(profile, changedLessons, day.info, date, type)
                     )
 
-                    calendarRepository.processLessons(profile, day)
                 }
             }
         }
@@ -201,9 +200,12 @@ class DoSyncUseCase(
             Keys.LESSON_VERSION_NUMBER,
             currentVersion.toString()
         )
-        keyValueRepository.set(Keys.LAST_SYNC_TS, (System.currentTimeMillis() / 1000).toString())
+        keyValueRepository.set(Keys.LAST_SYNC_TS, ZonedDateTimeConverter().zonedDateTimeToTimestamp(
+            ZonedDateTime.now()).toString())
         lessonRepository.deleteLessonsByVersion(currentVersion - 1)
         planRepository.deletePlansByVersion(currentVersion - 1)
+
+        updateCalendarUseCase()
 
         notifications.forEach { notificationData ->
             sendNewPlanNotification(notificationData)
@@ -484,7 +486,7 @@ class DoSyncUseCase(
             PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val school = getSchoolFromProfileUseCase(notificationData.profile)
+        val school = profileRepository.getSchoolFromProfile(notificationData.profile)
 
         val message = when (notificationData.notificationType) {
             SyncNotificationType.CHANGED_LESSONS -> context.getString(

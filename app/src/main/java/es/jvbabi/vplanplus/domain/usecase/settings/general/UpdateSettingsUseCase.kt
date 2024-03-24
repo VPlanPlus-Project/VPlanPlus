@@ -10,5 +10,6 @@ class UpdateSettingsUseCase(
         keyValueRepository.set(Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE, settings.showNotificationsIfAppIsVisible.toString())
         keyValueRepository.set(Keys.SETTINGS_SYNC_DAY_DIFFERENCE, settings.daysAheadSync.toString())
         keyValueRepository.set(Keys.COLOR, settings.colorScheme.entries.firstOrNull { it.value.active }?.key?.ordinal.toString())
+        keyValueRepository.set(Keys.APP_THEME_MODE, settings.appThemeMode.name)
     }
 }

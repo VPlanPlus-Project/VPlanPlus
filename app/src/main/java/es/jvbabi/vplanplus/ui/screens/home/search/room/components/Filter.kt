@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -57,6 +58,8 @@ fun FilterChips(
     filterNextTimespan: Pair<ZonedDateTime, ZonedDateTime>?,
     showNowFilter: Boolean
 ) {
+    val start = filterNowTimespan?.first?.toZonedLocalDateTime()
+    val end = filterNowTimespan?.second?.toZonedLocalDateTime()
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
@@ -70,7 +73,7 @@ fun FilterChips(
 
         var labelNow = stringResource(id = R.string.searchAvailableRoom_filterNow)
         if (filterNowTimespan != null) {
-            labelNow += " (${filterNowTimespan.first.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${filterNowTimespan.second.format(DateTimeFormatter.ofPattern("HH:mm"))})"
+            labelNow += " (${start!!.format(DateTimeFormatter.ofPattern("HH:mm"))} - ${end!!.format(DateTimeFormatter.ofPattern("HH:mm"))})"
         }
         if (showNowFilter) FilterChip(
             enabled = true,

@@ -7,7 +7,7 @@ import es.jvbabi.vplanplus.data.model.DbHomework
 import es.jvbabi.vplanplus.data.model.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
-import es.jvbabi.vplanplus.feature.homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 
 
 data class CHomework(

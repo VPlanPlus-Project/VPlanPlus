@@ -92,10 +92,6 @@
     <string name="settings_profileManagementCalendarTitle">Kalendersynchronisierung</string>
     <string name="permission_notificationsTitle">Benachrichtigungen senden</string>
     <string name="permission_notificationsText">Wenn du Benachrichtigungen über Planänderungen erhalten möchtest, gib der App die Berechtigung dazu.</string>
-    <string name="permission_writeCalendarTitle">Kalendereinträge erstellen</string>
-    <string name="permission_writeCalendarText">Wenn du deine Stunden in deinem Kalender eingetragen haben möchtest, musst du der App den Zugang geben. Wie detailliert die Einträge angelegt werden sollen, kannst du später für jedes Profil festlegen.</string>
-    <string name="permission_readCalendarTitle">Leseberechtigung für den Kalender</string>
-    <string name="permission_readCalendarText">Wenn du der vorherige Option zugestimmt hast, musst du auch diese Option zulassen - sie dient der Änderung von Kalendereinträgen, wenn sich der Plan ändert.</string>
     <string name="onboarding_permissionTitle">Berechtigungen (%1$d/%2$d)</string>
     <string name="settings_profileManagementCalendarNameTitle">Kalender</string>
     <string name="settings_profileManagementCalendarNameDisabled">Kalendersynchronisierung ist deaktiviert</string>
@@ -113,8 +109,8 @@
     <string name="fix">Beheben</string>
     <string name="home_noData">Keine Daten</string>
     <string name="home_noDataText">Für dieses Datum sind noch keine Daten verfügbar. Entweder, es gibt noch keinen Vertretungsplan für dich, oder das Datum liegt zu weit in  der Zukunft. Du kannst die Anzahl der Tage, die nach dem heutigen Tag synchronisiert werden in den Einstellungen ändern.</string>
-    <string name="home_holiday">Feiertag/Ferien</string>
-    <string name="home_holidayText">Heute musst du nicht in die Schule. Fühle dich frei, triff Freunde oder räume dein Zimmer auf.</string>
+    <string name="timetable_holidayTitle">Feiertag/Ferien</string>
+    <string name="timetable_holidayText">Heute musst du nicht in die Schule. Fühle dich frei, triff Freunde oder räume dein Zimmer auf.</string>
     <string name="notification_lesson">%1$s mit %2$s in %3$s</string>
     <string name="notification_changedLessons">Diese Stunden haben sich verändert:</string>
     <string name="notification_planChangedText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
@@ -202,7 +198,7 @@
     <string name="searchAvailableRoom_bookText">Möchtest du diesen Raum von %1$s bis %2$s für die Klasse %3$s buchen?\n\nBitte beachte, dass dies an deiner Schule möglicherweise nicht offiziell ist. Buche keine Räume, die du nicht selbst betreten darfst.</string>
     <string name="comingSoon">Bald verfügbar</string>
     <string name="settings_profileManagementCalendarPermissionDialogTitle">Fehlende Berechtigungen</string>
-    <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus hat nicht die notwendigen Android Berechtigungen um auf deine Kalender zuzugreifen. Um dieses Feature nutzen zu können, musst du der App in den Systemeinstellungen Zugriff auf deine Kalender gewähren.</string>
+    <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus hat nicht die notwendigen Android Berechtigungen um auf deine Kalender zuzugreifen. Möchtest du den Zugriff jetzt gewähren?</string>
     <string name="settings_vppIdTitle">vpp.ID</string>
     <string name="settings_vppIdSubtitle">Verwalte deine vpp.ID</string>
     <string name="vppidSettings_title">vpp.ID</string>
@@ -258,7 +254,7 @@
     <string name="searchAvailableRoom_cancelSuccess">Deine Raumbuchung wurde erfolgreich zurückgenommen</string>
     <string name="searchAvailableRoom_cancelNotFound">Deine Buchung konnte nicht mehr aufgefunden werden, Möglicherweise ist sie bereits storniert.</string>
     <string name="home_nextDayTitle">Bereite den nächsten Schultag vor</string>
-    <string name="home_nextDayStartingAt">%1$s - ab %2$s</string>
+    <string name="home_nextDayStartingAt">%1$s - ab %2$s Uhr</string>
     <string name="home_nextDayLessonDescription">In %1$s Stunde</string>
     <string name="home_nextDayNoData">Für den nächsten Schultag gibt es noch keine Daten. Keine Sorge, wir benachrichtigen dich, wenn ein neuer Plan verfügbar ist.</string>
     <string name="home_nextDayLessons">Dieses Fächer werden stattfinden</string>
@@ -298,7 +294,7 @@
     <string name="vppIdSettingsManagement_sessionsCurrent">Dieses Gerät</string>
     <string name="vppIdSettingsManagement_sessionsCloseInfo">Tippe eine Sitzung an, um sie zu beenden. Dies kann nicht rückgängig gemacht werden.</string>
     <string name="vppIdSettingsManagement_sessionsDate">Am %1$s</string>
-    <string name="home_addHomeworkLabel">Hausaufgabe hinzufügen</string>
+    <string name="home_addHomeworkLabel">Neue HA</string>
     <string name="addHomework_defaultLessonTitle">Wähle eine Stunde aus</string>
     <string name="addHomework_lesson">Fach</string>
     <string name="addHomework_notSelected">Nicht ausgewählt</string>
@@ -325,7 +321,7 @@
     <string name="homework_homeworkHead">%1$s bis %2$s</string>
     <string name="homework_homeworkSubtitleCreatedBy">%1$s, %2$s</string>
     <string name="homework_homeworkSubtitleLocally">Dieses Gerät, %1$s</string>
-    <string name="homework_homeworkSubtitleCreatedByYou">Deine vpp.ID, am %1$s</string>
+    <string name="homework_homeworkSubtitleCreatedByYou">Deine vpp.ID, %1$s</string>
     <string name="homework_addTask">Aufgabe hinzufügen</string>
     <string name="menu">Menu</string>
     <string name="homework_deleteHomeworkTitle">Hausaufgabe löschen?</string>
@@ -429,4 +425,102 @@
     <string name="advancedSettings_dialogServerTitle">vpp.ID Server ändern</string>
     <string name="advancedSettings_dialogServerMessage">Tue dies nur zu Testzwecken. Das Wechseln des vpp.ID Servers kann in fehlerhafte Daten resultieren. Nachdem du einen anderen Server ausgewählt hast, wird die App sich schließen.</string>
     <string name="advancedSettings_settingsServerDefault">Standartserver</string>
+    <string name="grades_filterTitle">Fächer</string>
+    <string name="settings_homeworkTitle">Hausaufgaben</string>
+    <string name="settings_subjectsSubtitle">Verwalte Benachrichtigungen zu Hausaufgaben</string>
+    <string name="settingsHomework_title">Hausaufgaben</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Benachrichtigung, wenn eine neue Hausaufgabe vorliegt</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Wenn dies ausgeschaltet ist, bekommst du dennoch eine Benachrichtigung bei Änderungen von Hausaufgaben, damit du nichts verpasst. Außerdem erhälst du eine Benachrichtigung, wenn eine Hausaufgabe nach deiner bevorzugten Erinnerungszeit erstellt wurde.</string>
+    <string name="settingsHomework_defaultNotificationTimeTitle">Bevorzugte Erinnerungszeit</string>
+    <string name="settingsHomework_defaultNotificationTimeSubtitle">Du erhälst eine Benachrichtigung, wenn es unerledigte Hausaufgaben gibt. Aktuell auf %1$s Uhr gesetzt.</string>
+    <string name="settingsHomework_reminderNotificationEnabledTitle">An unerledigte Hausaufgaben erinnern</string>
+    <string name="settingsHomework_reminderNotificationEnabledSubtitle">Erhalte eine Benachrichtigung, welche dich an unerledigte Hausaufgaben bis morgen erinnert.</string>
+    <string name="settingsHomework_exceptionsTitle">Ausnahmen</string>
+    <string name="settingsHomework_exceptionsSubtitle">Tippe auf den Tag, um eine Ausnahme für ihn hinzuzufügen. Tippe auf die Zeit, um sie zu ändern.</string>
+    <string name="settingsHomework_reminderTimeForDay">Erinnerung für %1$s</string>
+    <string name="notification_homeworkReminderTitle">Es gibt noch ein paar Hausaufgaben zu erledigen</string>
+    <plurals name="notification_homeworkReminderTomorrowMessage">
+        <item quantity="one">Es gibt noch eine unerledigte Hausaufgabe in %2$s, welche bis morgen fällig ist</item>
+        <item quantity="other">Es gibt noch %1$d unerledigte Hausaufgaben in den Fächern %2$s, welche bis morgen fällig sind</item>
+    </plurals>
+    <plurals name="notification_homeworkReminderAfterTomorrowMessage">
+        <item quantity="one">, und eine längerfristige Aufgabe</item>
+        <item quantity="other">, und %1$d längerfristige Aufgaben</item>
+    </plurals>
+    <string name="notification_homeworkReminderMessage">
+        %1$s%2$s.
+    </string>
+    <string name="notification_homeworkReminderRemindAgain">In 30 Minuten erneut erinnern</string>
+    <string name="homework_notificationSettingsTitle">Neue Benachrichtigungsoptionen verfügbar</string>
+    <string name="homework_notificationSettingsText">Jetzt kannst du auswählen, ob du benachrichtigt werden möchtest, sobald eine neue Hausaufgabe erstellt wurde. Außerdem kann die App dich zu deiner bevorzugten Zeit an unerledigte Hausaufgaben erinnern.</string>
+    <string name="to_settings">Zu den Einstellungen</string>
+    <string name="settingsHomework_alarmNoPermissionTitle">Fehlende Berechtigung</string>
+    <string name="settingsHomework_alarmNoPermissionGrantedText">Du musst der App die Erlaubnis erteilen, Alarme anzulegen. Diese Alarme wecken die App um ihr das Senden einer Benachrichtigung zu ermöglichen.</string>
+    <string name="grant_permission">Berechtigung erteilen</string>
+    <string name="settingsHomework_permissionToast">Scrolle nach unten und aktiviere VPlanPlus</string>
+    <string name="homework_changeDueDate">Datum ändern</string>
+    <string name="settings_helpFeedbackTitle">Hilfe &amp; Feedback</string>
+    <string name="settings_helpFeedbackSubtitle">Hilfe, Fehler melden und Feedback geben</string>
+    <string name="settingsSupport_title">Hilfe und Support</string>
+    <string name="settingsSupport_fieldPlaceholder">Schreibe deine Nachricht an die Entwickler</string>
+    <string name="settingsSupport_send">Senden</string>
+    <string name="settingsSupport_attachSystemDetailsTitle">Systeminformationen anhängen</string>
+    <string name="settingsSupport_attachSystemDetailsSubtitle">Dies sendet einige Metadaten wie deine Android- und App-Version zusammen mit dem Feedback. Diese Informationen können bei der Identifizierung und Behebung von Fehlern hilfreich sein.</string>
+    <string name="settingsSupport_emailTitle">E-Mail-Adresse</string>
+    <string name="settingsSupport_emailSubtitle">Füge eine E-Mail-Adresse hinzu, um Antworten auf deine Nachricht empfangen zu können.</string>
+    <string name="settingsSupport_feedbackCantBeEmpty">Dieses Feld knn nicht leer sein.</string>
+    <string name="settingsSupport_feedbackTooShort">Das Feedback muss mindestens 10 Zeichen lang sein.</string>
+    <string name="settingsSupport_emailInvalid">Diese E-Mail-Adresse ist ungültig</string>
+    <string name="settingsSupport_feedbackSendError">Das Feedback konnte nicht gesendet werden. Bitte versuche es erneut.</string>
+    <string name="homeVersionHints_title">Eine neue Version von VPlanPlus wurde installiert</string>
+    <string name="homeVersionHints_description">Du bist mit Version %1$s startklar, hier sind die Neuigkeiten dazu:</string>
+    <string name="homeVersionHints_showLater">Später anzeigen</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">"Indem du die App verwendest, aktzeptierst du die "</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicy">Datenschutzerklärung</string>
+
+    <plurals name="homeLesson_current">
+        <item quantity="one">Aktuelle Stunde</item>
+        <item quantity="other">Aktuelle Stunden</item>
+    </plurals>
+
+    <plurals name="home_lessonCardHomework">
+        <item quantity="one">Eine Hausaufgabe</item>
+        <item quantity="other">%1$d Hausaufgaben</item>
+    </plurals>
+    <string name="home_planToday">Plan für heute (%1$s)</string>
+    <string name="search_nothingFound">Nichts gefunden</string>
+    <string name="search_nothingFoundText">Wir haben unser bestes gegeben, aber \'%1$s\' konnten wir nicht finden.</string>
+    <string name="search_lessons">%1$s Stunden</string>
+    <string name="search_moreResults">Mehr Ergebnisse</string>
+    <string name="home_lessonCardBooking">%1$s (gebucht)</string>
+    <string name="timetable_noDataText">Für den %1$s sind noch keine Daten verfügbar. Wir benachrichtigen dirch, wenn neue Informationen vorliegen.</string>
+    <string name="timetable_weekend">Wochenende</string>
+    <string name="timetable_weekendToday">Genieße dein wohlverdientes Wochenende.</string>
+    <string name="timetable_weekendPast">Das Wochenende ist vorbei, aber ein neues kommt bald. Halte durch!</string>
+    <plurals name="timetable_weekendFutureThisWeek">
+        <item quantity="one">Nicht mehr lange bis zum Wochenende. Nur noch ein Tag.</item>
+        <item quantity="other">Das Wochenende kommt bald. Nur noch %1$d Tage.</item>
+    </plurals>
+    <string name="timetable_weekendFuture">Das Wochenende kommt bald. Halte durch!</string>
+    <string name="timetable_noDataTitle">Keine Daten</string>
+    <string name="timetable_noDataPastText">Für den %1$s sind keine Daten mehr verfügbar. VPlanPlus löscht alte Pläne automatisch, um nicht zu viel deines kostbaren Smartphone-Speichers zu belegen.</string>
+    <string name="grades_showMore">Mehr anzeigen</string>
+    <string name="permission_denied_forever">Gehe zu App-Info -> Berechtigungen, um dies zu erlauben</string>
+    <string name="calendarRecord_title">%1$s (%2$d. Stunde)</string>
+    <string name="calendarRecord_location">Raum %1$s (%2$s)</string>
+    <string name="calendarRecord_dayTitle">Schultag (%1$s)</string>
+    <string name="home_planTodayToggle">Heute</string>
+    <string name="settingsGeneral_appThemeTitle">App-Farbmodus</string>
+    <string name="settingsGeneral_appThemeSubtitle">Einige ältere Android-Versionen unterstützen noch keinen systemweiten Dunkelmodus. Du kannst VPlanPlus dauerhaft im Dunkelmodus verwenden.</string>
+    <string name="settingsGeneral_appThemeAuto">System</string>
+    <string name="settingsGeneral_appThemeLight">Hell</string>
+    <string name="settingsGeneral_appThemeDark">Dunkel</string>
+    <string name="home_noDataNextDayTitle">Noch keine Daten</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenTitle">FCM Token neuladen</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenSubtitle">Falls du keine Echtzeitbenachrichtigungen erhälst, kannst du versuchen, deine Geräte-ID neu bei vpp.ID Servern zu authentifizieren.</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenLoading">Aktualisiere FCM Token…</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenSuccess">Das Token wurde erfolgreich aktualisiert. Du solltest nun wieder Echtzeitbenachrichtigungen erhalten.</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenError">Beim Aktualisieren des FCM Tokens ist ein Fehler aufgetreten. Prüfe deine Netzverbindung und versuche es erneut,</string>
+    <string name="settingsSupport_feedbackSent">Vielen Dank für dein Feedback.</string>
+
 </resources>

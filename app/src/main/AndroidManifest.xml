@@ -5,6 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
@@ -43,12 +44,17 @@
 
                 <data android:scheme="https" />
                 <data android:host="id.vpp.jvbabi.es" />
+                <data android:pathPrefix="/android" />
+            </intent-filter>
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="https" />
                 <data android:host="vppid-development.test.jvbabi.es" />
-                <data android:pathPrefix="/link_success" />
-
-                <data android:scheme="vpp"/>
-                <data android:host="id"/>
-
+                <data android:pathPrefix="/android" />
             </intent-filter>
 
         </activity>
@@ -72,6 +78,8 @@
                 <action android:name="android.intent.action.LOCALE_CHANGED" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".android.receiver.AlarmReceiver" />
+        <receiver android:name=".android.receiver.HomeworkRemindLaterReceiver" />
     </application>
 
 </manifest>

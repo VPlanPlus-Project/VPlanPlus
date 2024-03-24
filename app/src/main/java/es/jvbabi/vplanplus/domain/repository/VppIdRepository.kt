@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
 import io.ktor.http.HttpStatusCode
@@ -39,6 +40,8 @@ interface VppIdRepository {
     suspend fun closeSession(session: Session, vppId: VppId): Boolean
 
     suspend fun fetchUsersPerClass(schoolId: Long, username: String, password: String): DataResponse<UsersPerClassResponse?>
+
+    suspend fun getVersionHints(version: Int, versionBefore: Int): DataResponse<List<VersionHints>>
 }
 
 data class VppIdOnlineResponse(

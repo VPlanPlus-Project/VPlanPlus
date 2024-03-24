@@ -63,4 +63,8 @@ class TeacherRepositoryImpl(
             }
         )
     }
+
+    override suspend fun getAll(): List<Teacher> {
+        return schoolEntityDao.getSchoolEntitiesByType(SchoolEntityType.TEACHER).map { it.toTeacherModel() }
+    }
 }

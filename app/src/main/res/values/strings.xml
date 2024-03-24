@@ -91,10 +91,6 @@
     <string name="settings_profileManagementCalendarTitle">Calendar synchronization</string>
     <string name="permission_notificationsTitle">Show Notifications</string>
     <string name="permission_notificationsText">If you want to receive notifications when there is a new plan for you available, grand access to the app.</string>
-    <string name="permission_writeCalendarTitle">Write to calendar</string>
-    <string name="permission_writeCalendarText">If you\'d like to see your lessons in your calendar, you must give permission in order to use this feature. You can select the level of detail on a per profile basis later in settings.</string>
-    <string name="permission_readCalendarTitle">Enable read access to your calendar</string>
-    <string name="permission_readCalendarText">If you allowed the previous one, you\'ll need to allow this one too - it\'s for altering events when there is a change in plan.</string>
     <string name="onboarding_permissionTitle">Permissions (%1$d/%2$d)</string>
     <string name="settings_profileManagementCalendarNameTitle">Calendar</string>
     <string name="settings_profileManagementCalendarNameDisabled">Calendar sync is deactivated</string>
@@ -111,8 +107,8 @@
     <string name="fix">Fix</string>
     <string name="home_noData">No data</string>
     <string name="home_noDataText">For this day, there is no data available. Either your school hasn\'t released a substitution plan for this day, or it\'s too far in the future. You can change the number of days to sync after today in the settings.</string>
-    <string name="home_holiday">Holiday</string>
-    <string name="home_holidayText">You don\'t have to go to school today. Feel free to meet friends or tidy up your room.</string>
+    <string name="timetable_holidayTitle">Holiday</string>
+    <string name="timetable_holidayText">You don\'t have to go to school today. Feel free to meet friends or tidy up your room.</string>
     <string name="notification_lesson">%1$s with %2$s in %3$s</string>
     <string name="notification_changedLessons">These lessons were changed:</string>
     <string name="notification_planChangedText">There is a change in plan for %1$s at %2$s for %3$s</string>
@@ -200,7 +196,7 @@
     <string name="searchAvailableRoom_bookText">"Do you want to book this room from %1$s to %2$s for class %3$s?\n\nPlease note that this might be not official at your school. Make sure that you don't book rooms you're not permitted to enter on your own. "</string>
     <string name="comingSoon">Coming soon</string>
     <string name="settings_profileManagementCalendarPermissionDialogTitle">Missing permission</string>
-    <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus doesn\'t have permission to edit your calendar. To use this feature, you must grant access to your calenar in system settings.</string>
+    <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus doesn\'t have permission to edit your calendar. Do you want to grant this permission now?</string>
     <string name="settings_vppIdTitle">vpp.ID</string>
     <string name="settings_vppIdSubtitle">Manage your vpp.ID</string>
     <string name="vppidSettings_title">vpp.ID</string>
@@ -431,4 +427,101 @@
     <string name="advancedSettings_dialogServerTitle">Change vpp.ID server</string>
     <string name="advancedSettings_dialogServerMessage">Only do this for testing purposes. Changing the default server might result in an inconsistent data set. After you set a new server, the app will close itself.</string>
     <string name="advancedSettings_settingsServerDefault">Default server</string>
+    <string name="grades_filterTitle">Subjects</string>
+    <string name="settings_homeworkTitle">Homework</string>
+    <string name="settings_subjectsSubtitle">Manage notifications for homework</string>
+    <string name="settingsHomework_title">Homework</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Show notification when someone created a new homework</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">If turned off, you\'ll still receive notification when a homework gets changed so you don\'t miss anything. Also, if the homework was created after your preferred notification time, you\'ll still get a notification.</string>
+    <string name="settingsHomework_defaultNotificationTimeTitle">Preferred reminder time</string>
+    <string name="settingsHomework_defaultNotificationTimeSubtitle">You\'ll get a notification if there are undone tasks until tomorrow. Currently set to  %1$s.</string>
+    <string name="settingsHomework_reminderNotificationEnabledTitle">Reminder of unfinished homework</string>
+    <string name="settingsHomework_reminderNotificationEnabledSubtitle">Get a notification reminding you of undone tasks until tomorrow.</string>
+    <string name="settingsHomework_exceptionsTitle">Exceptions</string>
+    <string name="settingsHomework_exceptionsSubtitle">Tap the day to add an exception for this day. Tap the time to change it.</string>
+    <string name="settingsHomework_reminderTimeForDay">Reminder for %1$s</string>
+    <string name="notification_homeworkReminderTitle">There are some unfinished tasks left</string>
+    <plurals name="notification_homeworkReminderTomorrowMessage">
+        <item quantity="one">There is one unfinished homework assignment in %2$s that is due to tomorrow</item>
+        <item quantity="other">There are %1$d unfinished homework assignments in subjects %2$s that are due to tomorrow</item>
+    </plurals>
+    <plurals name="notification_homeworkReminderAfterTomorrowMessage">
+        <item quantity="one"> and one longer-term assignment</item>
+        <item quantity="other"> and %1$d longer-term assignments</item>
+    </plurals>
+    <string name="notification_homeworkReminderMessage">
+        %1$s%2$s.
+    </string>
+    <string name="notification_homeworkReminderRemindAgain">Remind again in 30 min</string>
+    <string name="homework_notificationSettingsTitle">New notification settings available</string>
+    <string name="homework_notificationSettingsText">Now you can choose if you want to get notified the moment a new homework is created. Additionally, the app can remind you at your preferred time about unfinished homework.</string>
+    <string name="to_settings">To settings</string>
+    <string name="settingsHomework_alarmNoPermissionTitle">Required permission not granted</string>
+    <string name="settingsHomework_alarmNoPermissionGrantedText">You need to allow the app to create alarms. They do not wake you up, but they allow the app to build a notification for you. This is required to use this feature.</string>
+    <string name="grant_permission">Grant permission</string>
+    <string name="settingsHomework_permissionToast">Scroll down and enable VPlanPlus</string>
+    <string name="homework_changeDueDate">Change due date</string>
+    <string name="settings_helpFeedbackTitle">Help &amp; Feedback</string>
+    <string name="settings_helpFeedbackSubtitle">Get help, report a bug or suggest a feature</string>
+    <string name="settingsSupport_title">Help and feedback</string>
+    <string name="settingsSupport_fieldPlaceholder">Write your message to the developers</string>
+    <string name="settingsSupport_send">Send</string>
+    <string name="settingsSupport_attachSystemDetailsTitle">Attach system details</string>
+    <string name="settingsSupport_attachSystemDetailsSubtitle">This will send some metadata like your Android an app version along with the message. This data can be very helpful to identify and fix bugs.</string>
+    <string name="settingsSupport_emailTitle">E-Mail address</string>
+    <string name="settingsSupport_emailSubtitle">Add an email address to be able to receive responses on your messages.</string>
+    <string name="settingsSupport_feedbackCantBeEmpty">Feedback can\'t be empty</string>
+    <string name="settingsSupport_feedbackTooShort">The feedback must be at least 10 characters long.</string>
+    <string name="settingsSupport_emailInvalid">This email is not valid</string>
+    <string name="settingsSupport_feedbackSendError">The message couldn\'t been sent. Please try again.</string>
+    <string name="homeVersionHints_title">A new version of VPlanPlus got installed</string>
+    <string name="homeVersionHints_description">You\'re up and running with version %1$s, here is what\'s changed:</string>
+    <string name="homeVersionHints_showLater">Show again later</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">By using this app, you agree to the</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicy">privacy policy</string>
+    <plurals name="homeLesson_current">
+        <item quantity="one">Current lesson</item>
+        <item quantity="other">Current lessons</item>
+    </plurals>
+
+    <plurals name="home_lessonCardHomework">
+        <item quantity="one">One homework</item>
+        <item quantity="other">%1$d homework</item>
+    </plurals>
+    <string name="home_planToday">Plan for today (%1$s)</string>
+    <string name="search_nothingFound">Nothing found</string>
+    <string name="search_nothingFoundText">We tried our best, but \'%1$s\' wasn\'t found anywhere.</string>
+    <string name="search_lessons">%1$s lessons</string>
+    <string name="search_moreResults">More results</string>
+    <string name="home_lessonCardBooking">%1$S (booked)</string>
+    <string name="timetable_noDataText">There\'s no data for %1$s available yet. We\'ll notify you shortly after something changed.</string>
+    <string name="timetable_weekend">Weekend</string>
+    <string name="timetable_weekendToday">Enjoy your well-deserved weekend!</string>
+    <string name="timetable_weekendPast">Weekend is over, but another one is coming soon.</string>
+    <plurals name="timetable_weekendFutureThisWeek">
+        <item quantity="one">The weekend is coming up. Just one day left.</item>
+        <item quantity="other">The weekend is coming up. Just %1$d days left.</item>
+    </plurals>
+    <string name="timetable_weekendFuture">The weekend is coming. Just keep on going.</string>
+    <string name="timetable_noDataTitle">No data</string>
+    <string name="timetable_noDataPastText">There\'s no data for %1$s anymore. VPlanPlus deletes old data automatically to avoid using up too much of that precious space.</string>
+    <string name="grades_showMore">Show more</string>
+    <string name="permission_denied_forever">Go to App-Info -> Permissions to allow this.</string>
+    <string name="calendarRecord_title">%1$s (%2$d. lesson)</string>
+    <string name="calendarRecord_location">Room %1$s (%2$s)</string>
+    <string name="calendarRecord_dayTitle">School day (%1$s)</string>
+    <string name="home_planTodayToggle">Today</string>
+    <string name="settingsGeneral_appThemeTitle">App theme</string>
+    <string name="settingsGeneral_appThemeSubtitle">Some older versions of Android don\'t support system-wide darkmode. If you prefer you can force darkmode here.</string>
+    <string name="settingsGeneral_appThemeAuto">System</string>
+    <string name="settingsGeneral_appThemeLight">Light</string>
+    <string name="settingsGeneral_appThemeDark">Dark</string>
+    <string name="home_noDataNextDayTitle">No data yet</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenTitle">Reload FCM token</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenSubtitle">If you\'re not receiving real time notifications, you can try to re-authenticate your device with vpp.ID servers.</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenLoading">Refreshing fcm token…</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenSuccess">The token was updated successfully. You should get realtime notifications from now on.</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenError">An error occurred while updating the fcm token. Check your network connection and try again.</string>
+    <string name="settingsSupport_feedbackSent">Thanks for your feedback!</string>
+
 </resources>
