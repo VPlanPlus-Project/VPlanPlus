@@ -66,7 +66,7 @@ fun TimetableScreen(
     navHostController: NavHostController,
     startDate: LocalDate = LocalDate.now(),
     viewModel: TimetableViewModel = hiltViewModel(),
-    navBar: @Composable () -> Unit
+    navBar: @Composable (expanded: Boolean) -> Unit
 ) {
     val state = viewModel.state.value
 
@@ -87,7 +87,7 @@ fun TimetableScreen(
     }
 
     Scaffold(
-        bottomBar = navBar,
+        bottomBar = { navBar(true) },
     ) { paddingValues ->
         Box(
             modifier = Modifier

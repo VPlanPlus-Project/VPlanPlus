@@ -10,6 +10,10 @@ import android.view.animation.AccelerateInterpolator
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -230,15 +234,21 @@ class MainActivity : FragmentActivity() {
                         ) else null
                     )
 
-                    val navBar = @Composable {
-                        NavigationBar {
-                            navBarItems.forEachIndexed { index, item ->
-                                NavigationBarItem(
-                                    selected = index == selectedIndex,
-                                    onClick = item.onClick,
-                                    icon = item.icon,
-                                    label = item.label
-                                )
+                    val navBar = @Composable { expanded: Boolean ->
+                        AnimatedVisibility(
+                            visible = expanded,
+                            enter = expandVertically(tween(250)),
+                            exit = shrinkVertically(tween(250))
+                        ) {
+                            NavigationBar {
+                                navBarItems.forEachIndexed { index, item ->
+                                    NavigationBarItem(
+                                        selected = index == selectedIndex,
+                                        onClick = item.onClick,
+                                        icon = item.icon,
+                                        label = item.label
+                                    )
+                                }
                             }
                         }
                     }
@@ -350,7 +360,7 @@ class MainActivity : FragmentActivity() {
     }
 }
 
-private data class NavigationBarItem(
+data class NavigationBarItem(
     val onClick: () -> Unit,
     val route: String,
     val icon: @Composable () -> Unit,

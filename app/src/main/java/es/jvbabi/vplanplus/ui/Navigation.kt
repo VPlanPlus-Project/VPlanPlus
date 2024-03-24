@@ -17,7 +17,6 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
-import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
@@ -67,7 +66,7 @@ fun NavigationGraph(
     navController: NavHostController,
     onboardingViewModel: OnboardingViewModel,
     goToOnboarding: Boolean,
-    navBar: @Composable () -> Unit,
+    navBar: @Composable (expanded: Boolean) -> Unit,
     onNavigationChanged: (String?) -> Unit
 ) {
     NavHost(
@@ -236,7 +235,7 @@ private fun NavGraphBuilder.onboarding(
 
 private fun NavGraphBuilder.mainScreens(
     navController: NavHostController,
-    navBar: @Composable () -> Unit
+    navBar: @Composable (expanded: Boolean) -> Unit
 ) {
     composable(
         route = Screen.HomeScreen.route,
@@ -245,7 +244,7 @@ private fun NavGraphBuilder.mainScreens(
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
-        HomeScreen(
+        es.jvbabi.vplanplus.feature.home_screen_v2.ui.HomeScreen(
             navHostController = navController,
             navBar = navBar
         )
