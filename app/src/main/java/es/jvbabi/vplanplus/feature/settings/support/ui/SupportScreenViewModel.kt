@@ -59,11 +59,11 @@ class SupportScreenViewModel @Inject constructor(
         state.value = state.value.copy(isLoading = true)
         viewModelScope.launch {
             state.value = state.value.copy(
-                sendError = !supportUseCases.sendFeedbackUseCase(
+                sendState = if (supportUseCases.sendFeedbackUseCase(
                     state.value.email,
                     state.value.feedback,
                     state.value.attachSystemDetails
-                ),
+                )) FeedbackSendState.SUCCESS else FeedbackSendState.ERROR,
                 isLoading = false
             )
         }
@@ -77,5 +77,11 @@ data class SupportScreenState(
     val attachSystemDetails: Boolean = true,
     val isLoading: Boolean = false,
     val feedbackError: FeedbackError? = null,
-    val sendError: Boolean = false
+    val sendState: FeedbackSendState = FeedbackSendState.NONE
 )
+
+enum class FeedbackSendState {
+    NONE,
+    SUCCESS,
+    ERROR
+}

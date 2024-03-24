@@ -522,5 +522,6 @@
     <string name="advancedSettings_settingsUpdateFCMTokenLoading">Refreshing fcm token…</string>
     <string name="advancedSettings_settingsUpdateFCMTokenSuccess">The token was updated successfully. You should get realtime notifications from now on.</string>
     <string name="advancedSettings_settingsUpdateFCMTokenError">An error occurred while updating the fcm token. Check your network connection and try again.</string>
+    <string name="settingsSupport_feedbackSent">Thanks for your feedback!</string>
 
 </resources>
