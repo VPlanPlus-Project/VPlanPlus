@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.advanced.components
+package es.jvbabi.vplanplus.feature.settings.advanced.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DeleteForever

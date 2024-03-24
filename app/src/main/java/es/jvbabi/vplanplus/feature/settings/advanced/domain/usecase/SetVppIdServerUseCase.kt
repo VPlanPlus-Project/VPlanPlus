@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.settings.advanced
+package es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase
 
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys

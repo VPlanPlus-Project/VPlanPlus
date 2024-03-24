@@ -517,5 +517,10 @@
     <string name="settingsGeneral_appThemeLight">Light</string>
     <string name="settingsGeneral_appThemeDark">Dark</string>
     <string name="home_noDataNextDayTitle">No data yet</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenTitle">Reload FCM token</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenSubtitle">If you\'re not receiving real time notifications, you can try to re-authenticate your device with vpp.ID servers.</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenLoading">Refreshing fcm token…</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenSuccess">The token was updated successfully. You should get realtime notifications from now on.</string>
+    <string name="advancedSettings_settingsUpdateFCMTokenError">An error occurred while updating the fcm token. Check your network connection and try again.</string>
 
 </resources>

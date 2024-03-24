@@ -51,7 +51,7 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
 import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
-import es.jvbabi.vplanplus.ui.screens.settings.advanced.AdvancedSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsDefaultLessonScreen
