@@ -308,7 +308,7 @@ private data class VersionHintResponseItem(
     @SerializedName("version_code") val version: Int,
     @SerializedName("title") val header: String,
     @SerializedName("content") val content: String,
-    @SerializedName("created_at") val createdAt: Long
+    @SerializedName("create_at") val createdAt: Long
 ) {
     fun toModel(): VersionHints {
         return VersionHints(
