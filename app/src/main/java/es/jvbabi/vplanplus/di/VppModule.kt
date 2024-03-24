@@ -555,6 +555,20 @@ object VppModule {
     @Singleton
     fun provideSyncUseCases(
         @ApplicationContext context: Context,
+        doSyncUseCase: DoSyncUseCase
+    ): SyncUseCases {
+        val isSyncRunningUseCase = IsSyncRunningUseCase(context)
+        return SyncUseCases(
+            triggerSyncUseCase = TriggerSyncUseCase(context, isSyncRunningUseCase),
+            isSyncRunningUseCase = isSyncRunningUseCase,
+            doWorkUseCase = doSyncUseCase
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideDoSyncUseCase(
+        @ApplicationContext context: Context,
         keyValueRepository: KeyValueRepository,
         logRecordRepository: LogRecordRepository,
         messageRepository: MessageRepository,
@@ -574,35 +588,28 @@ object VppModule {
         gradeRepository: GradeRepository,
         homeworkRepository: HomeworkRepository,
         updateCalendarUseCase: UpdateCalendarUseCase
-    ): SyncUseCases {
-        val isSyncRunningUseCase = IsSyncRunningUseCase(context)
-        return SyncUseCases(
-            triggerSyncUseCase = TriggerSyncUseCase(context, isSyncRunningUseCase),
-            isSyncRunningUseCase = isSyncRunningUseCase,
-            doWorkUseCase = DoSyncUseCase(
-                context = context,
-                keyValueRepository = keyValueRepository,
-                logRecordRepository = logRecordRepository,
-                messageRepository = messageRepository,
-                schoolRepository = schoolRepository,
-                roomRepository = roomRepository,
-                classRepository = classRepository,
-                teacherRepository = teacherRepository,
-                defaultLessonRepository = defaultLessonRepository,
-                lessonTimesRepository = lessonTimeRepository,
-                profileRepository = profileRepository,
-                lessonRepository = lessonRepository,
-                vPlanRepository = vPlanRepository,
-                planRepository = planRepository,
-                lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
-                systemRepository = systemRepository,
-                notificationRepository = notificationRepository,
-                gradeRepository = gradeRepository,
-                homeworkRepository = homeworkRepository,
-                updateCalendarUseCase = updateCalendarUseCase
-            )
-        )
-    }
+    ) = DoSyncUseCase(
+        context = context,
+        keyValueRepository = keyValueRepository,
+        logRecordRepository = logRecordRepository,
+        messageRepository = messageRepository,
+        schoolRepository = schoolRepository,
+        roomRepository = roomRepository,
+        classRepository = classRepository,
+        teacherRepository = teacherRepository,
+        defaultLessonRepository = defaultLessonRepository,
+        lessonTimesRepository = lessonTimeRepository,
+        profileRepository = profileRepository,
+        lessonRepository = lessonRepository,
+        vPlanRepository = vPlanRepository,
+        planRepository = planRepository,
+        lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
+        systemRepository = systemRepository,
+        notificationRepository = notificationRepository,
+        gradeRepository = gradeRepository,
+        homeworkRepository = homeworkRepository,
+        updateCalendarUseCase = updateCalendarUseCase
+    )
 
     @Provides
     @Singleton

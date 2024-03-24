@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -39,6 +40,9 @@ class PushNotificationService : FirebaseMessagingService() {
     @Inject
     lateinit var homeworkRepository: HomeworkRepository
 
+    @Inject
+    lateinit var doSyncUseCase: DoSyncUseCase
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -64,9 +68,8 @@ class PushNotificationService : FirebaseMessagingService() {
                         roomRepository.fetchRoomBookings(school)
                     }
                 }
-                prefix + PushNotificationType.HOMEWORK_CHANGE -> {
-                    homeworkRepository.fetchHomework(true)
-                }
+                prefix + PushNotificationType.HOMEWORK_CHANGE -> homeworkRepository.fetchHomework(true)
+                prefix + PushNotificationType.UPDATE_PLAN -> doSyncUseCase()
             }
         }
     }
@@ -75,4 +78,5 @@ class PushNotificationService : FirebaseMessagingService() {
 data object PushNotificationType {
     const val NEW_BOOKING = "ROOM_BOOKED"
     const val HOMEWORK_CHANGE = "HOMEWORK_UPDATE"
+    const val UPDATE_PLAN = "UPDATE_PLAN"
 }
