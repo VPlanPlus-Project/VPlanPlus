@@ -59,6 +59,7 @@ import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
+import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.CancelBookingUseCase
@@ -69,14 +70,10 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
-import es.jvbabi.vplanplus.domain.usecase.settings.advanced.AdvancedSettingsUseCases
-import es.jvbabi.vplanplus.domain.usecase.settings.advanced.DeleteCacheUseCase
-import es.jvbabi.vplanplus.domain.usecase.settings.advanced.SetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GeneralSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetColorsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.general.GetSettingsUseCase
@@ -100,7 +97,6 @@ import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.sync.TriggerSyncUseCase
-import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
@@ -615,28 +611,6 @@ object VppModule {
     @Singleton
     fun provideGetLessonTimesForClassUseCase(lessonTimeRepository: LessonTimeRepository): GetLessonTimesForClassUseCase {
         return GetLessonTimesForClassUseCase(lessonTimeRepository)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAdvancedSettingsUseCases(
-        lessonRepository: LessonRepository,
-        roomRepository: RoomRepository,
-        gradeRepository: GradeRepository,
-        homeworkRepository: HomeworkRepository,
-        keyValueRepository: KeyValueRepository,
-        systemRepository: SystemRepository
-    ): AdvancedSettingsUseCases {
-        return AdvancedSettingsUseCases(
-            deleteCacheUseCase = DeleteCacheUseCase(
-                lessonRepository,
-                roomRepository,
-                gradeRepository,
-                homeworkRepository
-            ),
-            getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
-            setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository)
-        )
     }
 
     @Provides

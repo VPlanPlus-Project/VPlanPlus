@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.advanced.components
+package es.jvbabi.vplanplus.feature.settings.advanced.ui.components
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource

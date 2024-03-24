@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.settings.advanced
+package es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase
 
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository

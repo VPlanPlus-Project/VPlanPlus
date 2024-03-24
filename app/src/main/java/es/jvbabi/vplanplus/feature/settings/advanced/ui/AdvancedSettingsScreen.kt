@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.settings.advanced
+package es.jvbabi.vplanplus.feature.settings.advanced.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,14 +24,17 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.repository.Keys
+import es.jvbabi.vplanplus.feature.settings.advanced.domain.data.FcmTokenReloadState
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.DeletePlanDataDialog
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServerDialog
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.PainterSettingsState
+import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.settings.advanced.components.DeletePlanDataDialog
-import es.jvbabi.vplanplus.ui.screens.settings.advanced.components.VppIdServerDialog
 import java.time.ZoneId
 import java.time.format.TextStyle
 import java.util.Locale
@@ -51,7 +54,8 @@ fun AdvancedSettingsScreen(
         onDeletePlansYes = { viewModel.deleteCache() },
         onDeletePlansNo = { viewModel.closeDeleteCacheDialog() },
         onVppIdDialogStateChange = viewModel::showVppIdDialog,
-        onSetServer = viewModel::setVppIdServer
+        onSetServer = viewModel::setVppIdServer,
+        onUpdateFCMToken = viewModel::onUpdateFcmToken
     )
 }
 
@@ -65,7 +69,8 @@ private fun AdvancedSettingsScreenContent(
     onDeletePlansYes: () -> Unit = {},
     onDeletePlansNo: () -> Unit = {},
     onVppIdDialogStateChange: (Boolean) -> Unit = {},
-    onSetServer: (String?) -> Unit = {}
+    onSetServer: (String?) -> Unit = {},
+    onUpdateFCMToken: () -> Unit = {}
 ) {
     if (state.showDeleteCacheDialog) DeletePlanDataDialog(
         { onDeletePlansYes() },
@@ -113,16 +118,35 @@ private fun AdvancedSettingsScreenContent(
                     type = SettingsType.FUNCTION,
                     doAction = { onDeletePlansClicked() }
                 )
-                SettingsSetting(
-                    painter = painterResource(id = R.drawable.database),
-                    title = stringResource(id = R.string.advancedSettings_settingsServerTitle),
-                    subtitle =
-                    if (state.selectedVppIdServer == Keys.VPPID_SERVER_DEFAULT) {
-                        stringResource(id = R.string.advancedSettings_settingsServerDefault)
-                    } else state.selectedVppIdServer,
-                    type = SettingsType.FUNCTION,
-                    doAction = { onVppIdDialogStateChange(true) },
-                    enabled = state.canChangeVppIdServer
+                Setting(
+                    PainterSettingsState(
+                        painter = painterResource(id = R.drawable.database),
+                        title = stringResource(id = R.string.advancedSettings_settingsServerTitle),
+                        subtitle =
+                        if (state.selectedVppIdServer == Keys.VPPID_SERVER_DEFAULT) {
+                            stringResource(id = R.string.advancedSettings_settingsServerDefault)
+                        } else state.selectedVppIdServer,
+                        type = SettingsType.FUNCTION,
+                        doAction = { onVppIdDialogStateChange(true) },
+                        enabled = state.canChangeVppIdServer
+                    )
+                )
+                Setting(
+                    PainterSettingsState(
+                        title = stringResource(id = R.string.advancedSettings_settingsUpdateFCMTokenTitle),
+                        subtitle =
+                            when (state.fcmTokenReloadState) {
+                                FcmTokenReloadState.NONE -> stringResource(id = R.string.advancedSettings_settingsUpdateFCMTokenSubtitle)
+                                FcmTokenReloadState.LOADING -> stringResource(id = R.string.advancedSettings_settingsUpdateFCMTokenLoading)
+                                FcmTokenReloadState.SUCCESS -> stringResource(id = R.string.advancedSettings_settingsUpdateFCMTokenSuccess)
+                                FcmTokenReloadState.ERROR -> stringResource(id = R.string.advancedSettings_settingsUpdateFCMTokenError)
+                            },
+                        painter = painterResource(id = R.drawable.logo_firebase),
+                        type = SettingsType.FUNCTION,
+                        doAction = { onUpdateFCMToken() },
+                        enabled = state.fcmTokenReloadState != FcmTokenReloadState.LOADING,
+                        isLoading = state.fcmTokenReloadState == FcmTokenReloadState.LOADING
+                    )
                 )
             }
             SettingsCategory(
