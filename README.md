@@ -5,7 +5,7 @@
 
 > [!NOTE]
 > #### BALD VERFÜGBAR
-> Die App ist in wenigen Wochen offen im Play Store. Vielen Dank an alle Teilnehmer.
+> Die App ist in wenigen Tagen im Google Play Store verfügbar. Vielen Dank an alle Teilnehmer.
 
 # <img src="https://raw.githubusercontent.com/Julius-Babies/VPlanPlus/v0.5.1-alpha/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" height="30px"> VPlanPlus für Android
 
@@ -47,7 +47,7 @@ Eine vpp.ID erstellst du mit deinem beste.schule Account.
 
 | Schule                                       | Schul-ID | Kompatibel | Unterstützt vpp.ID |
 |----------------------------------------------|----------|------------|--------------------|
-| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ⚠️         | ❌                   |
+| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ⚠️         | ✅                   |
 | Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          | ✅                   |
 | Testschule                                   | 10000000 | ✅️         | ❌                   |
 
