@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.ui.components.views
+package es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -21,7 +21,7 @@ import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 
 @Composable
-fun Weekend() {
+fun Holiday() {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -37,7 +37,7 @@ fun Weekend() {
             modifier = Modifier.fillMaxWidth(0.8f),
         )
         Text(
-            text = stringResource(id = R.string.home_activeDayWeekendTitle),
+            text = stringResource(id = R.string.home_activeDayHolidayTitle),
             style = MaterialTheme.typography.headlineMedium.copy(
                 brush = Brush.horizontalGradient(
                     colors = listOf(
@@ -48,12 +48,12 @@ fun Weekend() {
             ),
             textAlign = TextAlign.Center
         )
-        Text(text = stringResource(id = R.string.home_activeDayWeekendSubtitle), textAlign = TextAlign.Center)
+        Text(text = stringResource(id = R.string.home_activeDayHolidaySubtitle), textAlign = TextAlign.Center)
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun WeekendPreview() {
-    Weekend()
+private fun HolidayPreview() {
+    Holiday()
 }

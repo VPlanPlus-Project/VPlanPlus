@@ -48,7 +48,8 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.isInfoExpandedUseCase(),
                     homeUseCases.getProfilesUseCase(),
                     homeUseCases.hasUnreadNewsUseCase(),
-                    homeUseCases.isSyncRunningUseCase()
+                    homeUseCases.isSyncRunningUseCase(),
+                    homeUseCases.getLastSyncUseCase()
                 )
             ) { data ->
                 val currentIdentity = data[0] as Identity
@@ -57,6 +58,7 @@ class HomeViewModel @Inject constructor(
                 val profiles = data[3] as List<Profile>
                 val hasUnreadNews = data[4] as Boolean
                 val syncing = data[5] as Boolean
+                val lastSync = data[6] as ZonedDateTime
 
                 val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter {
                     it.`class`.classId == currentIdentity.profile?.referenceId
@@ -69,7 +71,8 @@ class HomeViewModel @Inject constructor(
                     infoExpanded = infoExpanded,
                     profiles = profiles,
                     hasUnreadNews = hasUnreadNews,
-                    isSyncRunning = syncing
+                    isSyncRunning = syncing,
+                    lastSync = lastSync
                 )
             }.collect {
                 state = it
@@ -151,4 +154,5 @@ data class HomeState(
     val profiles: List<Profile> = emptyList(),
     val hasUnreadNews: Boolean = false,
     val isSyncRunning: Boolean = false,
+    val lastSync: ZonedDateTime? = null
 )

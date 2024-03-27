@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.ui.components
+package es.jvbabi.vplanplus.feature.home_screen_v2.ui.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

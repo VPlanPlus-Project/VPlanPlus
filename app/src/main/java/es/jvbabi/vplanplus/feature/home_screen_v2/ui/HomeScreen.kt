@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.DayDataState
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.SearchView
@@ -53,7 +55,9 @@ import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.components.M
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.DateEntry
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.DayView
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.Greeting
+import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.preview.navBar
+import es.jvbabi.vplanplus.feature.main_timetable.ui.components.NoData
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
@@ -138,6 +142,7 @@ fun HomeScreenContent(
     LaunchedEffect(key1 = state.selectedDate) {
         val difference = LocalDate.now().until(state.selectedDate).days
         contentPagerState.animateScrollToPage(difference)
+        datePagerState.animateScrollToPage(maxOf(0, difference - 1))
     }
 
     LaunchedEffect(key1 = contentPagerState.targetPage) {
@@ -161,6 +166,7 @@ fun HomeScreenContent(
                 name = state.currentIdentity.vppId?.name,
                 modifier = Modifier.padding(start = 8.dp)
             )
+            LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 8.dp))
 
             Box {
                 HorizontalPager(
@@ -234,24 +240,33 @@ fun HomeScreenContent(
                         visible = state.days[date] != null,
                         enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
                         exit = fadeOut(animationSpec = tween(animationDuration))
-                    ) {
+                    ) dayViewRoot@{
                         Column(
                             Modifier
                                 .padding(start = 8.dp, top = 8.dp, end = 8.dp)
                                 .fillMaxHeight()
-                                .verticalScroll(rememberScrollState())
+                                .then(
+                                    if (state.days[date]?.type == DayType.NORMAL && state.days[date]?.state == DayDataState.DATA) Modifier.verticalScroll(rememberScrollState())
+                                    else Modifier
+                                )
                         ) {
-                            Text(
-                                text = stringResource(
-                                    id = R.string.home_planTitle,
-                                    date.format(DateTimeFormatter.ofPattern("EEEE"))
-                                ),
-                                style = MaterialTheme.typography.displaySmall,
-                            )
-                            Text(
-                                text = date.format(DateTimeFormatter.ofPattern("d. MMMM")),
-                                style = MaterialTheme.typography.labelMedium,
-                            )
+                            if (state.days[date]?.type == DayType.NORMAL) {
+                                Text(
+                                    text = stringResource(
+                                        id = R.string.home_planTitle,
+                                        date.format(DateTimeFormatter.ofPattern("EEEE"))
+                                    ),
+                                    style = MaterialTheme.typography.displaySmall,
+                                )
+                                Text(
+                                    text = date.format(DateTimeFormatter.ofPattern("d. MMMM")),
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                            if (state.days[date]?.lessons?.size == 0 && state.days[date]?.type == DayType.NORMAL) {
+                                NoData(date)
+                                return@dayViewRoot
+                            }
                             DayView(
                                 day = state.days[date]!!,
                                 currentTime = state.currentTime,

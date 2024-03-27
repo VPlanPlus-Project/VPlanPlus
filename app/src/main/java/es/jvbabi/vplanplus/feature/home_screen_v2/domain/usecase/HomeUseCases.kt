@@ -13,6 +13,7 @@ data class HomeUseCases(
     val getHomeworkUseCase: GetHomeworkUseCase,
     val getRoomBookingsForTodayUseCase: GetRoomBookingsForTodayUseCase,
     val isSyncRunningUseCase: IsSyncRunningUseCase,
+    val getLastSyncUseCase: GetLastSyncUseCase,
 
     val setInfoExpandedUseCase: SetInfoExpandedUseCase,
     val isInfoExpandedUseCase: IsInfoExpandedUseCase,

@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetHomeworkUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetRoomBookingsForTodayUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.IsInfoExpandedUseCase

@@ -526,5 +526,7 @@
     <string name="home_planTitle">Plan for %1$s,</string>
     <string name="home_longerThanExpected">That\'s taking longer than expected. Hold on…</string>
     <string name="home_backToToday">Today</string>
+    <string name="home_activeDayHolidayTitle">Day off school</string>
+    <string name="home_activeDayHolidaySubtitle">There is no school on this day.</string>
 
 </resources>
