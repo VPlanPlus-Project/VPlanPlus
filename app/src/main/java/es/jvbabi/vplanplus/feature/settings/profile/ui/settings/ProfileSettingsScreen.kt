@@ -56,7 +56,7 @@ import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
-import es.jvbabi.vplanplus.ui.preview.Profile
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.util.UUID
@@ -351,7 +351,7 @@ private fun ProfileSettingsScreenPreview() {
     val classes = ClassesPreview.generateClass(null)
     ProfileSettingsScreenContent(
         state = ProfileSettingsState(
-            profile = Profile.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY),
+            profile = ProfilePreview.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY),
             linkedVppId = VppIdPreview.generateVppId(classes)
         ),
         onBackClicked = {}

@@ -25,14 +25,14 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetAppThemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetDayForCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetRoomBookingsForTodayUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.UpdateLastVersionHintsVersionUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetProfilesUseCase as GetProfilesUseCase1
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetProfilesUseCase as GetProfilesUseCase1
 
 @Module
 @InstallIn(SingletonComponent::class)

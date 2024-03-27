@@ -39,6 +39,7 @@ fun HomeSearch(
     onUpdateQuery: (query: String) -> Unit,
     onOpenMenu: () -> Unit,
     onFindAvailableRoomClicked: () -> Unit,
+    showNotificationDot: Boolean
 ) {
     val openModifier = animateFloatAsState(
         targetValue = if (isExpanded) 0f else 1f,
@@ -74,7 +75,7 @@ fun HomeSearch(
                 ProfileIcon(
                     name = identity.profile?.displayName ?: "?",
                     isSyncing = isSyncRunning,
-                    showNotificationDot = false,
+                    showNotificationDot = showNotificationDot,
                     onClicked = onOpenMenu
                 )
             }

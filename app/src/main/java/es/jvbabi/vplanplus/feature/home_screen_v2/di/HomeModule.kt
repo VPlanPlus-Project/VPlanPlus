@@ -1,18 +1,26 @@
 package es.jvbabi.vplanplus.feature.home_screen_v2.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
+import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetCurrentDataVersionUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetHomeworkUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetRoomBookingsForTodayUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.HasUnreadNewsUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.SetInfoExpandedUseCase
@@ -30,8 +38,11 @@ object HomeModule {
         planRepository: PlanRepository,
         homeworkRepository: HomeworkRepository,
         roomRepository: RoomRepository,
+        profileRepository: ProfileRepository,
+        messageRepository: MessageRepository,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-        getCurrentTimeUseCase: GetCurrentTimeUseCase
+        getCurrentTimeUseCase: GetCurrentTimeUseCase,
+        @ApplicationContext context: Context
     ): HomeUseCases {
         return HomeUseCases(
             getCurrentIdentityUseCase = getCurrentIdentityUseCase,
@@ -40,15 +51,20 @@ object HomeModule {
                 planRepository = planRepository,
                 getCurrentDataVersionUseCase = GetCurrentDataVersionUseCase(keyValueRepository)
             ),
+            getProfilesUseCase = GetProfilesUseCase(profileRepository),
+            changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
             getHomeworkUseCase = GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 keyValueRepository = keyValueRepository,
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase
             ),
             getRoomBookingsForTodayUseCase = GetRoomBookingsForTodayUseCase(roomRepository),
+            isSyncRunningUseCase = IsSyncRunningUseCase(context),
 
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
-            isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository)
+            isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
+
+            hasUnreadNewsUseCase = HasUnreadNewsUseCase(messageRepository)
         )
     }
 }

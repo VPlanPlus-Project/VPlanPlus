@@ -38,6 +38,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -45,13 +46,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.DateEntry
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.HomeSearch
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.preview.navBar
+import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
-import es.jvbabi.vplanplus.ui.preview.Profile
+import es.jvbabi.vplanplus.ui.common.openLink
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
@@ -67,15 +71,42 @@ fun HomeScreen(
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val state = homeViewModel.state
+    val context = LocalContext.current
 
     HomeScreenContent(
         navBar = navBar,
         state = state,
         onAddHomework = { vpId -> navHostController.navigate(Screen.AddHomeworkScreen.route + "?vpId=$vpId") },
         onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) },
+        onOpenMenu = homeViewModel::onMenuOpenedChange,
         onSearchExpandStateChanges = homeViewModel::setSearchState,
         onSetSelectedDate = homeViewModel::setSelectedDate,
-        onInfoExpandChange = homeViewModel::onInfoExpandChange
+        onInfoExpandChange = homeViewModel::onInfoExpandChange,
+
+        onSwitchProfile = homeViewModel::switchProfile,
+        onManageProfiles = {
+            homeViewModel.onMenuOpenedChange(false)
+            navHostController.navigate(Screen.SettingsProfileScreen.route)
+        },
+        onManageProfile = {
+            homeViewModel.onMenuOpenedChange(false)
+            navHostController.navigate(Screen.SettingsProfileScreen.route + it.id)
+        },
+        onOpenNews = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.NewsScreen.route) },
+        onOpenSettings = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.SettingsScreen.route) },
+        onPrivacyPolicyClicked = {
+            openLink(
+                context,
+                "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md"
+            )
+        },
+        onRepositoryClicked = {
+            openLink(
+                context,
+                "https://github.com/VPlanPlus-Project/VPlanPlus"
+            )
+        },
+        onRefreshClicked = { homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(context) },
     )
 }
 
@@ -85,10 +116,20 @@ fun HomeScreenContent(
     navBar: @Composable (expanded: Boolean) -> Unit,
     state: HomeState,
     onSearchExpandStateChanges: (to: Boolean) -> Unit = {},
+    onOpenMenu: (state: Boolean) -> Unit = {},
     onSetSelectedDate: (date: LocalDate) -> Unit = {},
     onInfoExpandChange: (to: Boolean) -> Unit = {},
     onAddHomework: (vpId: Long?) -> Unit,
-    onBookRoomClicked: () -> Unit
+    onBookRoomClicked: () -> Unit,
+
+    onSwitchProfile: (to: Profile) -> Unit,
+    onManageProfiles: () -> Unit = {},
+    onManageProfile: (profile: Profile) -> Unit = {},
+    onOpenNews: () -> Unit = {},
+    onOpenSettings: () -> Unit = {},
+    onPrivacyPolicyClicked: () -> Unit = {},
+    onRepositoryClicked: () -> Unit = {},
+    onRefreshClicked: () -> Unit = {}
 ) {
     if (state.currentIdentity == null) return
 
@@ -110,12 +151,13 @@ fun HomeScreenContent(
             HomeSearch(
                 identity = state.currentIdentity,
                 isExpanded = state.isSearchExpanded,
-                isSyncRunning = false,
+                isSyncRunning = state.isSyncRunning,
                 searchQuery = "",
                 onChangeOpenCloseState = onSearchExpandStateChanges,
                 onUpdateQuery = {},
-                onOpenMenu = { /*TODO*/ },
-                onFindAvailableRoomClicked = {}
+                onOpenMenu = { onOpenMenu(true) },
+                onFindAvailableRoomClicked = {},
+                showNotificationDot = state.hasUnreadNews
             )
         },
         bottomBar = { navBar(!state.isSearchExpanded) },
@@ -236,22 +278,46 @@ fun HomeScreenContent(
             }
         }
     }
+
+    Menu(
+        isVisible = state.menuOpened,
+        profiles = state.profiles,
+        hasUnreadNews = state.hasUnreadNews,
+        selectedProfile = state.currentIdentity.profile!!,
+        onCloseMenu = { onOpenMenu(false) },
+        onProfileClicked = onSwitchProfile,
+        onManageProfilesClicked = onManageProfiles,
+        onProfileLongClicked = onManageProfile,
+        onNewsClicked = onOpenNews,
+        onSettingsClicked = onOpenSettings,
+        onPrivacyPolicyClicked = onPrivacyPolicyClicked,
+        onRepositoryClicked = onRepositoryClicked,
+        onRefreshClicked = onRefreshClicked
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
     val school = School.generateRandomSchools(1).first()
-    val profile = Profile.generateClassProfile()
+    val profile = ProfilePreview.generateClassProfile()
     HomeScreenContent(
         navBar = navBar,
         state = HomeState(
             currentIdentity = Identity(
                 school = school,
                 profile = profile
-            )
+            ),
+            menuOpened = true,
+            hasUnreadNews = true,
+            profiles = listOf(profile)
         ),
         onAddHomework = {},
-        onBookRoomClicked = {}
+        onBookRoomClicked = {},
+        onOpenMenu = {},
+        onSearchExpandStateChanges = {},
+        onSetSelectedDate = {},
+        onInfoExpandChange = {},
+        onSwitchProfile = {}
     )
 }

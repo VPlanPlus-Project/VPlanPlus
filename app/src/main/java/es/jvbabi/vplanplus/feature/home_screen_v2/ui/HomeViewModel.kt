@@ -1,16 +1,25 @@
 package es.jvbabi.vplanplus.feature.home_screen_v2.ui
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Day
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -37,11 +46,17 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getCurrentIdentityUseCase(),
                     homeUseCases.getHomeworkUseCase(),
                     homeUseCases.isInfoExpandedUseCase(),
+                    homeUseCases.getProfilesUseCase(),
+                    homeUseCases.hasUnreadNewsUseCase(),
+                    homeUseCases.isSyncRunningUseCase()
                 )
             ) { data ->
                 val currentIdentity = data[0] as Identity
                 val homework = data[1] as List<Homework>
                 val infoExpanded = data[2] as Boolean
+                val profiles = data[3] as List<Profile>
+                val hasUnreadNews = data[4] as Boolean
+                val syncing = data[5] as Boolean
 
                 val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter {
                     it.`class`.classId == currentIdentity.profile?.referenceId
@@ -51,7 +66,10 @@ class HomeViewModel @Inject constructor(
                     currentIdentity = currentIdentity,
                     bookings = bookings,
                     homework = homework,
-                    infoExpanded = infoExpanded
+                    infoExpanded = infoExpanded,
+                    profiles = profiles,
+                    hasUnreadNews = hasUnreadNews,
+                    isSyncRunning = syncing
                 )
             }.collect {
                 state = it
@@ -88,6 +106,38 @@ class HomeViewModel @Inject constructor(
             homeUseCases.setInfoExpandedUseCase(expanded)
         }
     }
+
+    fun onMenuOpenedChange(opened: Boolean) {
+        state = state.copy(menuOpened = opened)
+    }
+
+    fun switchProfile(to: Profile) {
+        onMenuOpenedChange(false)
+        viewModelScope.launch {
+            homeUseCases.changeProfileUseCase(to.id.toString())
+        }
+    }
+
+    fun onRefreshClicked(context: Context) {
+        viewModelScope.launch {
+            if (state.isSyncRunning) {
+                Log.d("HomeViewModel", "getVPlanData; already syncing")
+                return@launch
+            }
+
+            val syncWork = OneTimeWorkRequestBuilder<SyncWorker>()
+                .setConstraints(
+                    Constraints.Builder()
+                        .setRequiredNetworkType(NetworkType.CONNECTED)
+                        .build()
+                )
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .addTag("SyncWork")
+                .addTag("ManualSyncWork")
+                .build()
+            WorkManager.getInstance(context).enqueue(syncWork)
+        }
+    }
 }
 
 data class HomeState(
@@ -98,6 +148,10 @@ data class HomeState(
     val bookings: List<RoomBooking> = emptyList(),
     val homework: List<Homework> = emptyList(),
     val infoExpanded: Boolean = false,
+    val menuOpened: Boolean = false,
+    val profiles: List<Profile> = emptyList(),
+    val hasUnreadNews: Boolean = false,
+    val isSyncRunning: Boolean = false,
 
     // search
     val isSearchExpanded: Boolean = false

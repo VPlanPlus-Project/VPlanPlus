@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.domain.usecase
+package es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase
 
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.map
