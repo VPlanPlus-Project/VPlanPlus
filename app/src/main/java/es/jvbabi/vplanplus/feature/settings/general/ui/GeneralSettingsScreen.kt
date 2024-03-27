@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.SyncDisabled
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Brush
@@ -203,14 +204,14 @@ fun GeneralSettingsContent(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size((20*factor.value).dp)
+                                    modifier = Modifier.size((20 * factor.value).dp)
                                 )
                                 if (!record.active && color == Colors.DYNAMIC) {
                                     Icon(
                                         imageVector = Icons.Outlined.AutoAwesome,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.surface,
-                                        modifier = Modifier.size((20*(1-factor.value)).dp)
+                                        modifier = Modifier.size((20 * (1 - factor.value)).dp)
                                     )
 
                                 }
@@ -221,7 +222,7 @@ fun GeneralSettingsContent(
                         }
                     }
                 }
-                
+
                 SettingsSetting(
                     icon = Icons.Default.BrightnessAuto,
                     title = stringResource(id = R.string.settingsGeneral_appThemeTitle),
@@ -289,14 +290,34 @@ fun GeneralSettingsContent(
                         dialogVisible = true
                     }
                 )
+                Setting(
+                    IconSettingsState(
+                        imageVector = Icons.Default.SyncDisabled,
+                        title = stringResource(id = R.string.settingsGeneral_syncDisabledTitle),
+                        subtitle = stringResource(id = R.string.settingsGeneral_syncDisabledSubtitle),
+                        type = SettingsType.CHECKBOX,
+                        checked = state.settings.syncIntervalMinutes == -1,
+                        doAction = {
+                            if (state.settings.syncIntervalMinutes == -1) {
+                                onSyncIntervalChanged(15)
+                            } else {
+                                onSyncIntervalChanged(-1)
+                            }
+                        }
+                    )
+                )
                 SettingsSetting(
                     icon = Icons.Outlined.Timer,
                     type = SettingsType.NUMERIC_INPUT,
                     title = stringResource(id = R.string.settingsGeneral_syncIntervalTitle),
-                    subtitle = stringResource(
-                        id = R.string.settingsGeneral_syncIntervalSubtitle,
-                        state.settings.syncIntervalMinutes
-                    ),
+                    subtitle = if (state.settings.syncIntervalMinutes == -1)
+                        stringResource(id = R.string.settingsGeneral_syncIntervalSubtitleDisabled)
+                    else
+                        stringResource(
+                            id = R.string.settingsGeneral_syncIntervalSubtitle,
+                            state.settings.syncIntervalMinutes
+                        ),
+                    enabled = state.settings.syncIntervalMinutes != -1,
                     doAction = {
                         dialogCall = {
                             InputDialog(

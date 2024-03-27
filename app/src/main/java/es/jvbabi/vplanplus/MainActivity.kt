@@ -270,6 +270,7 @@ class MainActivity : FragmentActivity() {
 
         lifecycleScope.launch {
             val intervalMinutes = mainUseCases.getSyncIntervalMinutesUseCase()
+            if (intervalMinutes == -1L) return@launch
 
             val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
                 intervalMinutes,

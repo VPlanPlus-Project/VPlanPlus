@@ -533,5 +533,8 @@
     <string name="home_show">Anzeigen</string>
     <string name="settingsGeneral_syncIntervalTitle">Synchronisierungsinterval</string>
     <string name="settingsGeneral_syncIntervalSubtitle">Versucht, alle %1$d Minuten zu synchronisieren. Bitte beachte, dass dies sehr stark variieren kann, abhängig von den Systemeinstellungen wie Energie- und/oder Datensparmodus. VPlanPlus versucht in der Regel basierend auf Echtzeit-Serverereignissen zu synchronisieren. Änderungen werden beim nächsten Start der App angewendet.</string>
+    <string name="settingsGeneral_syncDisabledTitle">Geplante Synchronisierung deaktivieren</string>
+    <string name="settingsGeneral_syncDisabledSubtitle">Dies wird die zeitbasierte Synchronisierung deaktivieren. Du wirst immer noch neue Daten via Firebase Cloud Messaging empfangen, schlägt dies jedoch fehl, wird VPlanPlus nicht selbstständig versuchen, aktuelle Daten zu laden. Schalte die zeitbasierte Synchronisierung nur aus, wenn du wirklich Probleme damit hast.</string>
+    <string name="settingsGeneral_syncIntervalSubtitleDisabled">Zeitbasiertes Synchronisieren ist deaktiviert.</string>
 
 </resources>
