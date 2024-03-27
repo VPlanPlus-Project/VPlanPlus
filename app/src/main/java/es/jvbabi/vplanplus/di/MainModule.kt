@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetAppThemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.GetSyncIntervalMinutesUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
@@ -43,7 +44,8 @@ object MainModule {
             getProfilesUseCase = getProfilesUseCase,
             setUpUseCase = setUpUseCase,
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
-            getAppThemeUseCase = GetAppThemeUseCase(keyValueRepository)
+            getAppThemeUseCase = GetAppThemeUseCase(keyValueRepository),
+            getSyncIntervalMinutesUseCase = GetSyncIntervalMinutesUseCase(keyValueRepository)
         )
     }
 }

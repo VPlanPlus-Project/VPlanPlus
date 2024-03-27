@@ -532,5 +532,7 @@
     <string name="settingsGeneral_hideFinishedLessonsSubtitle">Hides finished lessons in home screen so you can focus on the remaining ones.</string>
     <string name="home_someLessonsHidden">Some finished lessons are hidden.</string>
     <string name="home_show">Show</string>
+    <string name="settingsGeneral_syncIntervalTitle">Sync interval</string>
+    <string name="settingsGeneral_syncIntervalSubtitle">Try to sync every %1$d minutes. The minimum is 15 minutes. Please do note, that this can vary very wide depending on your system settings like battery and or data saver modes. VPlanPlus normally tries to sync based on server events in real time. Changes will be applied after the app starts the next time.</string>
 
 </resources>

@@ -82,6 +82,14 @@ class GeneralSettingsViewModel @Inject constructor(
             )
         }
     }
+
+    fun onSyncIntervalChanged(minutes: Int) {
+        viewModelScope.launch {
+            generalSettingsUseCases.updateSettingsUseCase(
+                _state.value.settings!!.copy(syncIntervalMinutes = minutes)
+            )
+        }
+    }
 }
 
 data class GeneralSettingsState(

@@ -97,6 +97,8 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val context = this
+
         processIntent(intent)
 
         var goToOnboarding: Boolean? = null
@@ -266,19 +268,24 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-        val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
-            15,
-            TimeUnit.MINUTES
-        ).setConstraints(
-            Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
+        lifecycleScope.launch {
+            val intervalMinutes = mainUseCases.getSyncIntervalMinutesUseCase()
+
+            val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
+                intervalMinutes,
+                TimeUnit.MINUTES
+            ).setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+                .addTag("SyncWork")
+                .addTag("AutomaticSyncWork")
                 .build()
-        )
-            .addTag("SyncWork")
-            .addTag("AutomaticSyncWork")
-            .build()
-        WorkManager.getInstance(this)
-            .enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
+
+            WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
+        }
     }
 
     private fun processIntent(intent: Intent) {
