@@ -6,8 +6,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,9 +18,14 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,10 +34,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -48,6 +54,7 @@ import es.jvbabi.vplanplus.feature.home_screen_v2.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
 import es.jvbabi.vplanplus.ui.preview.Profile
 import es.jvbabi.vplanplus.ui.preview.School
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -115,30 +122,43 @@ fun HomeScreenContent(
                 modifier = Modifier.padding(start = 8.dp)
             )
 
-            HorizontalPager(
-                state = datePagerState,
-                pageSize = PageSize.Fixed(90.dp),
-                modifier = Modifier
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.surface,
-                                MaterialTheme.colorScheme.surface,
-                                MaterialTheme.colorScheme.surface,
-                                MaterialTheme.colorScheme.surface,
-                                MaterialTheme.colorScheme.surface.copy(alpha = 0f),
-                            )
+            Box {
+                HorizontalPager(
+                    state = datePagerState,
+                    pageSize = PageSize.Fixed(90.dp)
+                ) { offset ->
+                    val date = LocalDate.now().plusDays(offset.toLong())
+                    Row {
+                        DateEntry(
+                            date = date,
+                            homework = 3,
+                            isActive = date == state.selectedDate,
+                            onClick = { onSetSelectedDate(date) }
                         )
-                    )
-            ) { offset ->
-                val date = LocalDate.now().plusDays(offset.toLong())
-                Row {
-                    DateEntry(
-                        date = date,
-                        homework = 3,
-                        isActive = date == state.selectedDate,
-                        onClick = { onSetSelectedDate(date) }
-                    )
+                    }
+                }
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = datePagerState.settledPage > 7,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(end = 8.dp),
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    val scope = rememberCoroutineScope()
+                    Button(
+                        modifier = Modifier.shadow(elevation = 4.dp, shape = RoundedCornerShape(50)),
+                        onClick = {
+                            onSetSelectedDate(LocalDate.now())
+                            scope.launch { datePagerState.animateScrollToPage(0) }
+                        }
+                    ) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = null
+                        )
+                        Text(text = stringResource(id = R.string.home_backToToday))
+                    }
                 }
             }
             HorizontalDivider()

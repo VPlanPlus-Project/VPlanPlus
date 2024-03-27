@@ -525,5 +525,6 @@
     <string name="settingsSupport_feedbackSent">Thanks for your feedback!</string>
     <string name="home_planTitle">Plan for %1$s,</string>
     <string name="home_longerThanExpected">That\'s taking longer than expected. Hold on…</string>
+    <string name="home_backToToday">Today</string>
 
 </resources>
