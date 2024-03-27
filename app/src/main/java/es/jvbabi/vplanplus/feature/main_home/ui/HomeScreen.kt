@@ -74,7 +74,8 @@ const val PAGER_SIZE = 200
 fun HomeScreen(
     navHostController: NavHostController,
     navBar: @Composable (expanded: Boolean) -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = hiltViewModel(),
+    startDate: LocalDate = LocalDate.now()
 ) {
     val state = homeViewModel.state
     val context = LocalContext.current
@@ -113,12 +114,14 @@ fun HomeScreen(
             )
         },
         onRefreshClicked = { homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(context) },
+        startDate = startDate
     )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
+    startDate: LocalDate,
     navBar: @Composable (expanded: Boolean) -> Unit,
     state: HomeState,
     onOpenMenu: (state: Boolean) -> Unit = {},
@@ -149,6 +152,8 @@ fun HomeScreenContent(
 
     val datePagerState = rememberPagerState(pageCount = { PAGER_SIZE })
     val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE })
+
+    LaunchedEffect(key1 = startDate) { onSetSelectedDate(startDate) }
 
     LaunchedEffect(key1 = state.selectedDate) {
         val difference = LocalDate.now().until(state.selectedDate).days
@@ -335,6 +340,7 @@ private fun HomeScreenPreview() {
         onOpenMenu = {},
         onSetSelectedDate = {},
         onInfoExpandChange = {},
-        onSwitchProfile = {}
+        onSwitchProfile = {},
+        startDate = LocalDate.now()
     )
 }

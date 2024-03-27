@@ -313,8 +313,8 @@ class MainActivity : FragmentActivity() {
                     })"
                 )
                 lifecycleScope.launch {
-                    while (currentIdentity.value == null) delay(50)
-                    TODO("Implement date switching for home")
+                    while (currentIdentity.value == null || navController == null) delay(50)
+                    navController!!.navigate(Screen.HomeScreen.route + "?startDate=$date")
                 }
             }
         }

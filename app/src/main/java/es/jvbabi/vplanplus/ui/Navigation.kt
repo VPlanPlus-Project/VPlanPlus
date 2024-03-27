@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
+import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
@@ -55,6 +56,7 @@ import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -242,9 +244,31 @@ private fun NavGraphBuilder.mainScreens(
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
-        es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen(
+        HomeScreen(
             navHostController = navController,
-            navBar = navBar
+            navBar = navBar,
+            startDate = LocalDate.now()
+        )
+    }
+
+    composable(
+        route = Screen.HomeScreen.route + "?startDate={startDate}",
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) },
+        arguments = listOf(
+            navArgument("startDate") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
+    ) {
+        HomeScreen(
+            navHostController = navController,
+            navBar = navBar,
+            startDate = LocalDate.parse(it.arguments?.getString("startDate") ?: LocalDate.now().toString())
         )
     }
 
