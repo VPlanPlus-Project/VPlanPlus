@@ -529,5 +529,7 @@
     <string name="home_activeDayHolidaySubtitle">An diesem Tag findet keine Schule statt.</string>
     <string name="settingsGeneral_hideFinishedLessonsTitle">Beendete Stunden ausblenden</string>
     <string name="settingsGeneral_hideFinishedLessonsSubtitle">Versteckt beendete Stunden im Startbildschirm, damit du dich einfacher auf die verbleibenden Stunden fokussieren kannst.</string>
+    <string name="home_someLessonsHidden">Einige beendete Stunden sind versteckt.</string>
+    <string name="home_show">Anzeigen</string>
 
 </resources>

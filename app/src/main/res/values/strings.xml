@@ -530,5 +530,7 @@
     <string name="home_activeDayHolidaySubtitle">There is no school on this day.</string>
     <string name="settingsGeneral_hideFinishedLessonsTitle">Hide finished lessons</string>
     <string name="settingsGeneral_hideFinishedLessonsSubtitle">Hides finished lessons in home screen so you can focus on the remaining ones.</string>
+    <string name="home_someLessonsHidden">Some finished lessons are hidden.</string>
+    <string name="home_show">Show</string>
 
 </resources>
