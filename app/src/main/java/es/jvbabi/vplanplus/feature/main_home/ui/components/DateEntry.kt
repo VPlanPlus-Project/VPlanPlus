@@ -47,7 +47,7 @@ fun DateEntry(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(top = 8.dp)
-                .width(80.dp)
+                .size(80.dp)
                 .shadow(
                     elevation = 4.dp,
                     shape = RoundedCornerShape(8.dp),

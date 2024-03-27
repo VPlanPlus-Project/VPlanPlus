@@ -188,7 +188,7 @@ fun HomeScreenContent(
                     Row {
                         DateEntry(
                             date = date,
-                            homework = 3,
+                            homework = state.homework.count { it.until.toLocalDate().isEqual(date) },
                             isActive = date == state.selectedDate,
                             onClick = { onSetSelectedDate(date) }
                         )
