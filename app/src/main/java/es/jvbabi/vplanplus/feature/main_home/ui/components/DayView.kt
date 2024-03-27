@@ -28,6 +28,7 @@ import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
@@ -35,7 +36,7 @@ import java.time.temporal.ChronoUnit
 fun DayView(
     day: Day?,
     currentTime: ZonedDateTime,
-    isInfoExpanded: Boolean,
+    isInfoExpanded: Boolean?,
     currentIdentity: Identity,
     bookings: List<RoomBooking>,
     homework: List<Homework>,
@@ -47,14 +48,25 @@ fun DayView(
     if (day?.type == DayType.NORMAL) {
         if (day.lessons.isEmpty()) return
         Column {
-            if (day.info != null) CollapsableInfoCard(
-                imageVector = Icons.Default.Info,
-                title = stringResource(id = R.string.home_activeDaySchoolInformation),
-                text = day.info,
-                modifier = Modifier.padding(vertical = 4.dp),
-                isExpanded = isInfoExpanded,
-                onChangeState = onChangeInfoExpandState
-            )
+            if (day.info != null) {
+                if (isInfoExpanded == null) {
+                    InfoCard(
+                        imageVector = Icons.Default.Info,
+                        title = stringResource(id = R.string.home_activeDaySchoolInformation),
+                        text = day.info,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                } else {
+                    CollapsableInfoCard(
+                        imageVector = Icons.Default.Info,
+                        title = stringResource(id = R.string.home_activeDaySchoolInformation),
+                        text = day.info,
+                        modifier = Modifier.padding(vertical = 4.dp),
+                        isExpanded = isInfoExpanded,
+                        onChangeState = onChangeInfoExpandState
+                    )
+                }
+            }
             day
                 .getFilteredLessons(currentIdentity.profile!!)
                 .groupBy { it.lessonNumber }

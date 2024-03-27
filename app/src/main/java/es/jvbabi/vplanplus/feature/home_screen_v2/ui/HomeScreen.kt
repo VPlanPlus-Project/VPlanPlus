@@ -23,7 +23,6 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -54,6 +53,7 @@ import es.jvbabi.vplanplus.feature.home_screen_v2.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
 import es.jvbabi.vplanplus.ui.preview.Profile
 import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -71,18 +71,24 @@ fun HomeScreen(
     HomeScreenContent(
         navBar = navBar,
         state = state,
+        onAddHomework = { vpId -> navHostController.navigate(Screen.AddHomeworkScreen.route + "?vpId=$vpId") },
+        onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) },
         onSearchExpandStateChanges = homeViewModel::setSearchState,
-        onSetSelectedDate = homeViewModel::setSelectedDate
+        onSetSelectedDate = homeViewModel::setSelectedDate,
+        onInfoExpandChange = homeViewModel::onInfoExpandChange
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
     navBar: @Composable (expanded: Boolean) -> Unit,
     state: HomeState,
     onSearchExpandStateChanges: (to: Boolean) -> Unit = {},
-    onSetSelectedDate: (date: LocalDate) -> Unit = {}
+    onSetSelectedDate: (date: LocalDate) -> Unit = {},
+    onInfoExpandChange: (to: Boolean) -> Unit = {},
+    onAddHomework: (vpId: Long?) -> Unit,
+    onBookRoomClicked: () -> Unit
 ) {
     if (state.currentIdentity == null) return
 
@@ -216,13 +222,13 @@ fun HomeScreenContent(
                                 day = state.days[date]!!,
                                 currentTime = state.currentTime,
                                 showCountdown = date == state.selectedDate,
-                                isInfoExpanded = true,
+                                isInfoExpanded = if (date == LocalDate.now()) state.infoExpanded else null,
                                 currentIdentity = state.currentIdentity,
-                                bookings = emptyList(),
-                                homework = emptyList(),
-                                onChangeInfoExpandState = {  },
-                                onAddHomework = {},
-                                onBookRoomClicked = {  }
+                                bookings = state.bookings,
+                                homework = state.homework,
+                                onChangeInfoExpandState = onInfoExpandChange,
+                                onAddHomework = onAddHomework,
+                                onBookRoomClicked = onBookRoomClicked
                             )
                         }
                     }
@@ -244,6 +250,8 @@ private fun HomeScreenPreview() {
                 school = school,
                 profile = profile
             )
-        )
+        ),
+        onAddHomework = {},
+        onBookRoomClicked = {}
     )
 }

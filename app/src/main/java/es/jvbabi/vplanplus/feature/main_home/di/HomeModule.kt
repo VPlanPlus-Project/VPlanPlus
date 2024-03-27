@@ -18,8 +18,8 @@ import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetVersionHintsUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IsInfoExpandedUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.SetInfoExpandedUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.IsInfoExpandedUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
@@ -28,7 +28,7 @@ import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetDayForCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetRoomBookingsForTodayUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetRoomBookingsForTodayUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.UpdateLastVersionHintsVersionUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
@@ -99,7 +99,7 @@ object HomeModule {
             getCurrentTimeUseCase = GetCurrentTimeUseCase(
                 timeRepository = timeRepository
             ),
-            getHomeworkUseCase = es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHomeworkUseCase(
+            getHomeworkUseCase = es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 keyValueRepository = keyValueRepository,
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase

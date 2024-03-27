@@ -7,8 +7,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Day
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.HomeUseCases
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -16,6 +18,7 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
+@Suppress("UNCHECKED_CAST")
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val homeUseCases: HomeUseCases
@@ -31,13 +34,24 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    homeUseCases.getCurrentIdentityUseCase()
+                    homeUseCases.getCurrentIdentityUseCase(),
+                    homeUseCases.getHomeworkUseCase(),
+                    homeUseCases.isInfoExpandedUseCase(),
                 )
             ) { data ->
                 val currentIdentity = data[0] as Identity
+                val homework = data[1] as List<Homework>
+                val infoExpanded = data[2] as Boolean
+
+                val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter {
+                    it.`class`.classId == currentIdentity.profile?.referenceId
+                }
 
                 state.copy(
                     currentIdentity = currentIdentity,
+                    bookings = bookings,
+                    homework = homework,
+                    infoExpanded = infoExpanded
                 )
             }.collect {
                 state = it
@@ -68,6 +82,12 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun onInfoExpandChange(expanded: Boolean) {
+        viewModelScope.launch {
+            homeUseCases.setInfoExpandedUseCase(expanded)
+        }
+    }
 }
 
 data class HomeState(
@@ -75,6 +95,9 @@ data class HomeState(
     val currentIdentity: Identity? = null,
     val days: Map<LocalDate, Day> = emptyMap(),
     val selectedDate: LocalDate = LocalDate.now(),
+    val bookings: List<RoomBooking> = emptyList(),
+    val homework: List<Homework> = emptyList(),
+    val infoExpanded: Boolean = false,
 
     // search
     val isSearchExpanded: Boolean = false

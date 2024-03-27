@@ -7,4 +7,9 @@ data class HomeUseCases(
     val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
     val getCurrentTimeUseCase: GetCurrentTimeUseCase,
     val getDayUseCase: GetDayUseCase,
+    val getHomeworkUseCase: GetHomeworkUseCase,
+    val getRoomBookingsForTodayUseCase: GetRoomBookingsForTodayUseCase,
+
+    val setInfoExpandedUseCase: SetInfoExpandedUseCase,
+    val isInfoExpandedUseCase: IsInfoExpandedUseCase
 )
