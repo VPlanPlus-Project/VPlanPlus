@@ -12,5 +12,6 @@ class UpdateSettingsUseCase(
         keyValueRepository.set(Keys.COLOR, settings.colorScheme.entries.firstOrNull { it.value.active }?.key?.ordinal.toString())
         keyValueRepository.set(Keys.APP_THEME_MODE, settings.appThemeMode.name)
         keyValueRepository.set(Keys.HIDE_FINISHED_LESSONS, settings.hideFinishedLessons.toString())
+        keyValueRepository.set(Keys.SETTINGS_SYNC_INTERVAL, settings.syncIntervalMinutes.toString())
     }
 }

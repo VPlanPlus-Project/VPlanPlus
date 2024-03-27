@@ -23,11 +23,13 @@ import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Sync
+import androidx.compose.material.icons.filled.SyncDisabled
 import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Brush
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.Timer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -36,6 +38,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,6 +49,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -88,6 +92,7 @@ fun GeneralSettingsScreen(
         onColorSchemeChanged = generalSettingsViewModel::onColorSchemeChanged,
         onAppThemeModeChanged = generalSettingsViewModel::onAppThemeModeChanged,
         onHideFinishedLessonsClicked = generalSettingsViewModel::onHideFinishedLessonsChanged,
+        onSyncIntervalChanged = generalSettingsViewModel::onSyncIntervalChanged,
         onSetProtectGrades = { generalSettingsViewModel.onToggleGradeProtection(fragmentActivity) }
     )
 }
@@ -102,11 +107,16 @@ fun GeneralSettingsContent(
     onColorSchemeChanged: (Colors) -> Unit = {},
     onAppThemeModeChanged: (AppThemeMode) -> Unit = {},
     onHideFinishedLessonsClicked: (hide: Boolean) -> Unit = {},
+    onSyncIntervalChanged: (minutes: Int) -> Unit = {},
     onSetProtectGrades: () -> Unit = {}
 ) {
     if (state.settings == null) return
     var dialogCall = remember<@Composable () -> Unit> { {} }
     var dialogVisible by remember { mutableStateOf(false) }
+
+    val scrollBehavior =
+        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -119,7 +129,8 @@ fun GeneralSettingsContent(
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors()
+                colors = TopAppBarDefaults.topAppBarColors(),
+                scrollBehavior = scrollBehavior
             )
         },
     ) { paddingValues ->
@@ -130,6 +141,7 @@ fun GeneralSettingsContent(
             modifier = Modifier
                 .padding(paddingValues)
                 .fillMaxSize()
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .verticalScroll(rememberScrollState())
         ) {
             SettingsCategory(title = stringResource(id = R.string.settings_generalNotificationsTitle)) {
@@ -192,14 +204,14 @@ fun GeneralSettingsContent(
                                     imageVector = Icons.Default.Check,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size((20*factor.value).dp)
+                                    modifier = Modifier.size((20 * factor.value).dp)
                                 )
                                 if (!record.active && color == Colors.DYNAMIC) {
                                     Icon(
                                         imageVector = Icons.Outlined.AutoAwesome,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.surface,
-                                        modifier = Modifier.size((20*(1-factor.value)).dp)
+                                        modifier = Modifier.size((20 * (1 - factor.value)).dp)
                                     )
 
                                 }
@@ -210,7 +222,7 @@ fun GeneralSettingsContent(
                         }
                     }
                 }
-                
+
                 SettingsSetting(
                     icon = Icons.Default.BrightnessAuto,
                     title = stringResource(id = R.string.settingsGeneral_appThemeTitle),
@@ -271,6 +283,49 @@ fun GeneralSettingsContent(
                                 value = state.settings.daysAheadSync.toString(),
                                 onOk = {
                                     if (it != null) onSyncDaysAheadSet(it.toInt())
+                                    dialogVisible = false
+                                }
+                            )
+                        }
+                        dialogVisible = true
+                    }
+                )
+                Setting(
+                    IconSettingsState(
+                        imageVector = Icons.Default.SyncDisabled,
+                        title = stringResource(id = R.string.settingsGeneral_syncDisabledTitle),
+                        subtitle = stringResource(id = R.string.settingsGeneral_syncDisabledSubtitle),
+                        type = SettingsType.CHECKBOX,
+                        checked = state.settings.syncIntervalMinutes == -1,
+                        doAction = {
+                            if (state.settings.syncIntervalMinutes == -1) {
+                                onSyncIntervalChanged(15)
+                            } else {
+                                onSyncIntervalChanged(-1)
+                            }
+                        }
+                    )
+                )
+                SettingsSetting(
+                    icon = Icons.Outlined.Timer,
+                    type = SettingsType.NUMERIC_INPUT,
+                    title = stringResource(id = R.string.settingsGeneral_syncIntervalTitle),
+                    subtitle = if (state.settings.syncIntervalMinutes == -1)
+                        stringResource(id = R.string.settingsGeneral_syncIntervalSubtitleDisabled)
+                    else
+                        stringResource(
+                            id = R.string.settingsGeneral_syncIntervalSubtitle,
+                            state.settings.syncIntervalMinutes
+                        ),
+                    enabled = state.settings.syncIntervalMinutes != -1,
+                    doAction = {
+                        dialogCall = {
+                            InputDialog(
+                                icon = Icons.Default.Sync,
+                                title = stringResource(id = R.string.settingsGeneral_syncIntervalTitle),
+                                value = state.settings.syncIntervalMinutes.toString(),
+                                onOk = {
+                                    if (it != null && it.toInt() >= 15) onSyncIntervalChanged(it.toInt())
                                     dialogVisible = false
                                 }
                             )
