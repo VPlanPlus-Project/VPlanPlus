@@ -8,13 +8,14 @@ import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetHomeworkUseC
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetRoomBookingsForTodayUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetVersionHintsUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.SetInfoExpandedUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.UpdateLastVersionHintsVersionUseCase
 
 data class HomeUseCases(
     val getProfilesUseCase: GetProfilesUseCase,
     val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-    val getDayForCurrentProfileUseCase: GetDayForCurrentProfileUseCase,
     val getLastSyncUseCase: GetLastSyncUseCase,
     val getCurrentTimeUseCase: GetCurrentTimeUseCase,
     val getHomeworkUseCase: GetHomeworkUseCase,

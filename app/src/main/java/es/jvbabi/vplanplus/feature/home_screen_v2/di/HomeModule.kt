@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
@@ -21,10 +22,12 @@ import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetHomeworkUseC
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetRoomBookingsForTodayUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetVersionHintsUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.HasUnreadNewsUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.SetInfoExpandedUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.UpdateLastVersionHintsVersionUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
 
@@ -41,6 +44,7 @@ object HomeModule {
         roomRepository: RoomRepository,
         profileRepository: ProfileRepository,
         messageRepository: MessageRepository,
+        vppIdRepository: VppIdRepository,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
         @ApplicationContext context: Context
@@ -66,7 +70,10 @@ object HomeModule {
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
 
-            hasUnreadNewsUseCase = HasUnreadNewsUseCase(messageRepository)
+            hasUnreadNewsUseCase = HasUnreadNewsUseCase(messageRepository),
+
+            getVersionHintsUseCase = GetVersionHintsUseCase(keyValueRepository, vppIdRepository),
+            updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository)
         )
     }
 }

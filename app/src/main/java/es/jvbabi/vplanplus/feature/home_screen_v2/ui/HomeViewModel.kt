@@ -13,9 +13,11 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
+import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
@@ -37,6 +39,16 @@ class HomeViewModel @Inject constructor(
     private var uiUpdateJobs: Map<LocalDate, Job> = emptyMap()
 
     init {
+        viewModelScope.launch oneTimeData@{
+            val hints = homeUseCases.getVersionHintsUseCase()
+            val versionName = BuildConfig.VERSION_NAME
+
+            state = state.copy(
+                versionHints = hints,
+                isVersionHintsDialogOpen = hints.isNotEmpty(),
+                currentVersion = versionName
+            )
+        }
         viewModelScope.launch {
             homeUseCases.getCurrentTimeUseCase().collect { state = state.copy(currentTime = it) }
         }
@@ -140,6 +152,13 @@ class HomeViewModel @Inject constructor(
             WorkManager.getInstance(context).enqueue(syncWork)
         }
     }
+
+    fun hideVersionHintsDialog(untilNextVersion: Boolean) {
+        state = state.copy(isVersionHintsDialogOpen = false)
+        if (untilNextVersion) viewModelScope.launch {
+            homeUseCases.updateLastVersionHintsVersionUseCase()
+        }
+    }
 }
 
 data class HomeState(
@@ -154,5 +173,9 @@ data class HomeState(
     val profiles: List<Profile> = emptyList(),
     val hasUnreadNews: Boolean = false,
     val isSyncRunning: Boolean = false,
-    val lastSync: ZonedDateTime? = null
+    val lastSync: ZonedDateTime? = null,
+
+    val versionHints: List<VersionHints> = emptyList(),
+    val isVersionHintsDialogOpen: Boolean = false,
+    val currentVersion: String = "Loading...",
 )

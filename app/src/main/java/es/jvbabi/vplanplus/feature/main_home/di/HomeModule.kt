@@ -8,7 +8,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
@@ -27,9 +26,8 @@ import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetLastSyncUseC
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetRoomBookingsForTodayUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.SetInfoExpandedUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetDayForCurrentProfileUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetVersionHintsUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.UpdateLastVersionHintsVersionUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetVersionHintsUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.UpdateLastVersionHintsVersionUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
 import es.jvbabi.vplanplus.feature.home_screen_v2.domain.usecase.GetProfilesUseCase as GetProfilesUseCase1
@@ -73,7 +71,6 @@ object HomeModule {
         keyValueRepository: KeyValueRepository,
         classRepository: ClassRepository,
         roomRepository: RoomRepository,
-        planRepository: PlanRepository,
         timeRepository: TimeRepository,
         homeworkRepository: HomeworkRepository
     ): es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases {
@@ -88,11 +85,6 @@ object HomeModule {
                 profileRepository = profileRepository
             ),
             getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-            getDayForCurrentProfileUseCase = GetDayForCurrentProfileUseCase(
-                keyValueRepository = keyValueRepository,
-                profileRepository = profileRepository,
-                planRepository = planRepository
-            ),
             getLastSyncUseCase = GetLastSyncUseCase(
                 keyValueRepository = keyValueRepository
             ),

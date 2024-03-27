@@ -18,5 +18,8 @@ data class HomeUseCases(
     val setInfoExpandedUseCase: SetInfoExpandedUseCase,
     val isInfoExpandedUseCase: IsInfoExpandedUseCase,
 
-    val hasUnreadNewsUseCase: HasUnreadNewsUseCase
+    val hasUnreadNewsUseCase: HasUnreadNewsUseCase,
+
+    val getVersionHintsUseCase: GetVersionHintsUseCase,
+    val updateLastVersionHintsVersionUseCase: UpdateLastVersionHintsVersionUseCase
 )

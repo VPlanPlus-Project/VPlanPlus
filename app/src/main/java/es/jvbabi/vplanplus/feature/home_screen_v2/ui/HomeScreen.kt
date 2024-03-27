@@ -56,6 +56,7 @@ import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.DateEntry
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.DayView
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.LastSyncText
+import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_timetable.ui.components.NoData
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
@@ -86,6 +87,7 @@ fun HomeScreen(
         onOpenMenu = homeViewModel::onMenuOpenedChange,
         onSetSelectedDate = homeViewModel::setSelectedDate,
         onInfoExpandChange = homeViewModel::onInfoExpandChange,
+        onVersionHintsClosed = homeViewModel::hideVersionHintsDialog,
 
         onSwitchProfile = homeViewModel::switchProfile,
         onManageProfiles = {
@@ -132,9 +134,18 @@ fun HomeScreenContent(
     onOpenSettings: () -> Unit = {},
     onPrivacyPolicyClicked: () -> Unit = {},
     onRepositoryClicked: () -> Unit = {},
-    onRefreshClicked: () -> Unit = {}
+    onRefreshClicked: () -> Unit = {},
+
+    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
     if (state.currentIdentity == null) return
+
+    if (state.isVersionHintsDialogOpen) VersionHintsInformation(
+        currentVersion = state.currentVersion,
+        hints = state.versionHints,
+        onCloseUntilNextTime = { onVersionHintsClosed(false) },
+        onCloseUntilNextVersion = { onVersionHintsClosed(true) }
+    )
 
     val datePagerState = rememberPagerState(pageCount = { PAGER_SIZE })
     val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE })
