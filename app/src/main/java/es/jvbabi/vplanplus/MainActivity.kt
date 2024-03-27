@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -187,25 +186,10 @@ class MainActivity : FragmentActivity() {
                             label = { Text(text = stringResource(id = R.string.main_home)) },
                             route = Screen.HomeScreen.route
                         ),
-                        NavigationBarItem(
+                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 1) return@NavigationBarItem
                                 selectedIndex = 1
-                                navController!!.navigate(Screen.TimetableScreen.route) { popUpTo(Screen.HomeScreen.route) }
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.FormatListNumbered,
-                                    contentDescription = null
-                                )
-                            },
-                            label = { Text(text = stringResource(id = R.string.main_timetable)) },
-                            route = Screen.TimetableScreen.route
-                        ),
-                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
-                            onClick = {
-                                if (selectedIndex == 2) return@NavigationBarItem
-                                selectedIndex = 2
                                 navController!!.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
@@ -219,8 +203,8 @@ class MainActivity : FragmentActivity() {
                         ) else null,
                         if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
                             onClick = {
-                                if (selectedIndex == 3) return@NavigationBarItem
-                                selectedIndex = 3
+                                if (selectedIndex == 2) return@NavigationBarItem
+                                selectedIndex = 2
                                 navController!!.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
@@ -330,7 +314,7 @@ class MainActivity : FragmentActivity() {
                 )
                 lifecycleScope.launch {
                     while (currentIdentity.value == null) delay(50)
-                    navController!!.navigate(Screen.TimetableScreen.route + "/$date")
+                    TODO("Implement date switching for home")
                 }
             }
         }

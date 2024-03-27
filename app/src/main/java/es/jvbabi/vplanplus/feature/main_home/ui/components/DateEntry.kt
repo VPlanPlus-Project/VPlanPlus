@@ -36,67 +36,70 @@ fun DateEntry(
     isActive: Boolean,
     onClick: () -> Unit = {}
 ) {
-    Box(
-        modifier = Modifier
-            .height(100.dp)
-            .width(90.dp)
-            .clip(RoundedCornerShape(8.dp))
-    ) {
-        val background = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(top = 8.dp)
-                .size(80.dp)
-                .shadow(
-                    elevation = 4.dp,
-                    shape = RoundedCornerShape(8.dp),
-                )
-                .clip(RoundedCornerShape(8.dp))
-                .background(background)
-                .clickable { onClick() }
-                .padding(6.dp)
-                .align(Alignment.TopCenter)
-        ) content@{
-            Text(
-                text = date.format(DateTimeFormatter.ofPattern("d")),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
-            )
-            Text(
-                text = date.format(DateTimeFormatter.ofPattern("E")),
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium
-            )
-            Row {
-                if (homework > 0) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.MenuBook,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                            .size(16.dp)
-                    )
-                    Text(
-                        text = homework.toString(),
-                        style = MaterialTheme.typography.labelSmall
-                    )
-                }
-            }
-        }
-        val modifier = animateFloatAsState(
-            targetValue = if (isActive) 1f else 0f,
-            label = "modifier active"
-        )
+    Column {
         Box(
             modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .alpha(modifier.value)
-                .height((4 * modifier.value).dp)
-                .width(40.dp)
-                .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
-                .background(MaterialTheme.colorScheme.primary)
-        )
+                .height(100.dp)
+                .width(90.dp)
+                .clip(RoundedCornerShape(8.dp))
+        ) {
+            val background = if (isActive) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(top = 8.dp)
+                    .width(60.dp)
+                    .height(80.dp)
+                    .shadow(
+                        elevation = 4.dp,
+                        shape = RoundedCornerShape(16.dp),
+                    )
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(background)
+                    .clickable { onClick() }
+                    .padding(6.dp)
+                    .align(Alignment.TopCenter)
+            ) content@{
+                Text(
+                    text = date.format(DateTimeFormatter.ofPattern("d")),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold)
+                )
+                Text(
+                    text = date.format(DateTimeFormatter.ofPattern("E")),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelMedium
+                )
+                Row {
+                    if (homework > 0) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .size(16.dp)
+                        )
+                        Text(
+                            text = homework.toString(),
+                            style = MaterialTheme.typography.labelSmall
+                        )
+                    }
+                }
+            }
+            val modifier = animateFloatAsState(
+                targetValue = if (isActive) 1f else 0f,
+                label = "modifier active"
+            )
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .alpha(modifier.value)
+                    .height((4 * modifier.value).dp)
+                    .width(40.dp)
+                    .clip(RoundedCornerShape(topStart = 8.dp, topEnd = 8.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+            )
+        }
     }
 }
 

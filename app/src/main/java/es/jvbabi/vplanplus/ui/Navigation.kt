@@ -14,12 +14,12 @@ import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import com.google.gson.Gson
+import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
-import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingAddProfileScreen
@@ -35,8 +35,14 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsDefaultLessonScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.support.ui.SupportScreen
+import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
@@ -49,14 +55,6 @@ import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
-import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
-import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
-import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsDefaultLessonScreen
-import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsScreen
-import es.jvbabi.vplanplus.feature.main_timetable.ui.TimetableScreen
-import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -268,19 +266,6 @@ private fun NavGraphBuilder.mainScreens(
     }
 
     composable(
-        route = Screen.TimetableScreen.route,
-        enterTransition = { fadeIn(tween(300)) },
-        exitTransition = { fadeOut(tween(300)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = { fadeOut(tween(300)) }
-    ) {
-        TimetableScreen(
-            navHostController = navController,
-            navBar = navBar
-        )
-    }
-
-    composable(
         route = Screen.HomeworkScreen.route,
         enterTransition = { fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(300)) },
@@ -301,22 +286,6 @@ private fun NavGraphBuilder.mainScreens(
         popExitTransition = { fadeOut(tween(300)) }
     ) {
         GradesScreen(navHostController = navController, navBar = navBar)
-    }
-
-    composable(route = Screen.TimetableScreen.route + "/{startDate}",
-        arguments = listOf(
-            navArgument("startDate") {
-                type = NavType.StringType
-            }
-        )
-    ) {
-        TimetableScreen(
-            navHostController = navController,
-            startDate = it.arguments?.getString("startDate")?.let { date ->
-                LocalDate.parse(date)
-            } ?: LocalDate.now(),
-            navBar = navBar
-        )
     }
 }
 

@@ -57,8 +57,8 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
+import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
-import es.jvbabi.vplanplus.feature.main_timetable.ui.components.NoData
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
@@ -156,8 +156,8 @@ fun HomeScreenContent(
         datePagerState.animateScrollToPage(maxOf(0, difference - 1))
     }
 
-    LaunchedEffect(key1 = contentPagerState.targetPage) {
-        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong())
+    LaunchedEffect(key1 = contentPagerState.settledPage) {
+        val date = LocalDate.now().plusDays(contentPagerState.settledPage.toLong())
         onSetSelectedDate(date)
     }
 
@@ -182,7 +182,7 @@ fun HomeScreenContent(
             Box {
                 HorizontalPager(
                     state = datePagerState,
-                    pageSize = PageSize.Fixed(90.dp)
+                    pageSize = PageSize.Fixed(70.dp)
                 ) { offset ->
                     val date = LocalDate.now().plusDays(offset.toLong())
                     Row {

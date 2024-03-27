@@ -6,7 +6,6 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -31,17 +30,6 @@ val navBarItems = listOfNotNull(
         },
         label = { Text(text = stringResource(id = R.string.main_home)) },
         route = Screen.HomeScreen.route
-    ),
-    NavigationBarItem(
-        onClick = {},
-        icon = {
-            Icon(
-                imageVector = Icons.Default.FormatListNumbered,
-                contentDescription = null
-            )
-        },
-        label = { Text(text = stringResource(id = R.string.main_timetable)) },
-        route = Screen.TimetableScreen.route
     ),
     NavigationBarItem(
         onClick = {},
