@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components
+package es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.components
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeSpacing
@@ -31,7 +31,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
-import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchResult
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.SearchResult
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime

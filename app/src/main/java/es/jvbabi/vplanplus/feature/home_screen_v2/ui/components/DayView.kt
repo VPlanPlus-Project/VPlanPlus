@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.ui.components
+package es.jvbabi.vplanplus.feature.home_screen_v2.ui.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column

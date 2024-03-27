@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase
+package es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.domain.usecase
 
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
@@ -7,7 +7,7 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
-import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchResult
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.SearchResult
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 

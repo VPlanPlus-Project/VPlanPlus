@@ -48,12 +48,13 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.SearchView
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.DateEntry
+import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.DayView
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.Greeting
-import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.HomeSearch
 import es.jvbabi.vplanplus.feature.home_screen_v2.ui.preview.navBar
-import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.Menu
-import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
+import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
@@ -79,7 +80,6 @@ fun HomeScreen(
         onAddHomework = { vpId -> navHostController.navigate(Screen.AddHomeworkScreen.route + "?vpId=$vpId") },
         onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) },
         onOpenMenu = homeViewModel::onMenuOpenedChange,
-        onSearchExpandStateChanges = homeViewModel::setSearchState,
         onSetSelectedDate = homeViewModel::setSelectedDate,
         onInfoExpandChange = homeViewModel::onInfoExpandChange,
 
@@ -115,7 +115,6 @@ fun HomeScreen(
 fun HomeScreenContent(
     navBar: @Composable (expanded: Boolean) -> Unit,
     state: HomeState,
-    onSearchExpandStateChanges: (to: Boolean) -> Unit = {},
     onOpenMenu: (state: Boolean) -> Unit = {},
     onSetSelectedDate: (date: LocalDate) -> Unit = {},
     onInfoExpandChange: (to: Boolean) -> Unit = {},
@@ -148,19 +147,12 @@ fun HomeScreenContent(
 
     Scaffold(
         topBar = {
-            HomeSearch(
-                identity = state.currentIdentity,
-                isExpanded = state.isSearchExpanded,
-                isSyncRunning = state.isSyncRunning,
-                searchQuery = "",
-                onChangeOpenCloseState = onSearchExpandStateChanges,
-                onUpdateQuery = {},
+            SearchView(
                 onOpenMenu = { onOpenMenu(true) },
-                onFindAvailableRoomClicked = {},
-                showNotificationDot = state.hasUnreadNews
+                onFindAvailableRoomClicked = onBookRoomClicked
             )
         },
-        bottomBar = { navBar(!state.isSearchExpanded) },
+        bottomBar = { navBar(!keyboardAsState().value) },
         containerColor = MaterialTheme.colorScheme.surface
     ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
@@ -315,7 +307,6 @@ private fun HomeScreenPreview() {
         onAddHomework = {},
         onBookRoomClicked = {},
         onOpenMenu = {},
-        onSearchExpandStateChanges = {},
         onSetSelectedDate = {},
         onInfoExpandChange = {},
         onSwitchProfile = {}

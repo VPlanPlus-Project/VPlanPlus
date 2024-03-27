@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.feature_search.di
+package es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.di
 
 import android.content.Context
 import dagger.Module
@@ -17,8 +17,8 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
-import es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase.SearchUseCase
-import es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase.SearchUseCases
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.domain.usecase.SearchUseCase
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.domain.usecase.SearchUseCases
 import javax.inject.Singleton
 
 @Module

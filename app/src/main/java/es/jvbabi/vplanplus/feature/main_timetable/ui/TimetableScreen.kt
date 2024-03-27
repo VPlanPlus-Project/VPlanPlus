@@ -45,7 +45,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
-import es.jvbabi.vplanplus.feature.main_home.ui.components.LessonCard
+import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.LessonCard
 import es.jvbabi.vplanplus.feature.main_timetable.ui.components.Holiday
 import es.jvbabi.vplanplus.feature.main_timetable.ui.components.NoData
 import es.jvbabi.vplanplus.feature.main_timetable.ui.components.Weekend
@@ -219,6 +219,7 @@ private fun TimetableContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Preview
 @Composable
 private fun TimetablePreview() {

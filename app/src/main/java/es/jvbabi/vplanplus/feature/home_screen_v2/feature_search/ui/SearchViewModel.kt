@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.feature_search.ui
+package es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -7,7 +7,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
-import es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase.SearchUseCases
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.domain.usecase.SearchUseCases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase
+package es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.domain.usecase
 
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase

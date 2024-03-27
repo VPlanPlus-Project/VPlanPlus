@@ -78,7 +78,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun setSearchState(to: Boolean) { state = state.copy(isSearchExpanded = to) }
     fun setSelectedDate(date: LocalDate) {
         state = state.copy(selectedDate = date)
         triggerLessonUiSync(date)
@@ -152,7 +151,4 @@ data class HomeState(
     val profiles: List<Profile> = emptyList(),
     val hasUnreadNews: Boolean = false,
     val isSyncRunning: Boolean = false,
-
-    // search
-    val isSearchExpanded: Boolean = false
 )

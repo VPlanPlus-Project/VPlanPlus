@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.home_screen_v2.ui.components
+package es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.TweenSpec
@@ -14,53 +14,70 @@ import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
-import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.ProfileIcon
-import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchPlaceholder
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.components.ProfileIcon
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.components.SearchNoResults
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.components.SearchPlaceholder
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.components.SearchResult
+import es.jvbabi.vplanplus.feature.home_screen_v2.feature_search.ui.components.SearchSearching
+
+@Composable
+fun SearchView(
+    viewModel: SearchViewModel = hiltViewModel(),
+    onOpenMenu: () -> Unit,
+    onFindAvailableRoomClicked: () -> Unit
+) {
+    val state = viewModel.state.value
+    SearchViewContent(
+        state = state,
+        onSearchActiveChange = viewModel::onSearchActiveChange,
+        onUpdateQuery = viewModel::onQueryChange,
+        onOpenMenu = onOpenMenu,
+        onFindAvailableRoomClicked = onFindAvailableRoomClicked
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeSearch(
-    identity: Identity,
-    isExpanded: Boolean,
-    isSyncRunning: Boolean,
-    searchQuery: String,
-    onChangeOpenCloseState: (to: Boolean) -> Unit,
+fun SearchViewContent(
+    state: SearchState,
+    onOpenMenu: () -> Unit = {},
+    onSearchActiveChange: (expanded: Boolean) -> Unit,
     onUpdateQuery: (query: String) -> Unit,
-    onOpenMenu: () -> Unit,
-    onFindAvailableRoomClicked: () -> Unit,
-    showNotificationDot: Boolean
+    onFindAvailableRoomClicked: () -> Unit
 ) {
     val openModifier = animateFloatAsState(
-        targetValue = if (isExpanded) 0f else 1f,
+        targetValue = if (state.expanded) 0f else 1f,
         animationSpec = tween(250),
         label = "search expansion"
     ).value
-    SearchBar(
-        query = searchQuery,
+    androidx.compose.material3.SearchBar(
+        query = state.query,
         onQueryChange = onUpdateQuery,
         onSearch = onUpdateQuery,
-        active = isExpanded,
+        active = state.expanded,
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = (8 * openModifier).dp),
-        onActiveChange = onChangeOpenCloseState,
+        onActiveChange = { onSearchActiveChange(it) },
         leadingIcon = {
             IconButton(
-                onClick = { onChangeOpenCloseState(!isExpanded) },
+                onClick = { onSearchActiveChange(!state.expanded) },
             ) {
                 Icon(
-                    imageVector = if (isExpanded) Icons.AutoMirrored.Default.ArrowBack else Icons.Default.Search,
+                    imageVector = if (state.expanded) Icons.AutoMirrored.Default.ArrowBack else Icons.Default.Search,
                     contentDescription = stringResource(id = R.string.back),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer
                 )
@@ -68,14 +85,14 @@ fun HomeSearch(
         },
         trailingIcon = {
             AnimatedVisibility(
-                visible = !isExpanded,
+                visible = !state.expanded,
                 enter = fadeIn(animationSpec = TweenSpec(200)),
                 exit = fadeOut(animationSpec = TweenSpec(200))
             ) {
                 ProfileIcon(
-                    name = identity.profile?.displayName ?: "?",
-                    isSyncing = isSyncRunning,
-                    showNotificationDot = showNotificationDot,
+                    name = state.identity?.profile?.displayName ?: "?",
+                    isSyncing = state.isSyncRunning,
+                    showNotificationDot = false,
                     onClicked = onOpenMenu
                 )
             }
@@ -90,11 +107,11 @@ fun HomeSearch(
             },
             modifier = Modifier.padding(start = 8.dp)
         )
-        if (searchQuery.isBlank()) {
-            SearchPlaceholder(fullyCompatible = identity.school?.fullyCompatible == true)
+        if (state.query.isBlank()) {
+            SearchPlaceholder(fullyCompatible = state.identity?.school?.fullyCompatible == true)
             return@SearchBar
         }
-        /*if (searchQuery.isNotBlank() && state.results.isEmpty() && !state.isSearchRunning) {
+        if (state.query.isNotBlank() && state.results.isEmpty() && !state.isSearchRunning) {
             SearchNoResults(state.query)
             return@SearchBar
         }
@@ -122,6 +139,6 @@ fun HomeSearch(
         otherResults.forEachIndexed { i, result ->
             SearchResult(searchResult = result, time = state.time)
             if (i != otherResults.lastIndex) HorizontalDivider(Modifier.padding(vertical = 4.dp))
-        }*/
+        }
     }
 }
