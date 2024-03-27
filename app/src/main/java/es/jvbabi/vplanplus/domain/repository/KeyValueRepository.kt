@@ -59,4 +59,6 @@ object Keys {
 
     const val APP_THEME_MODE = "APP_THEME_MODE"
 
+    const val HIDE_FINISHED_LESSONS = "HIDE_FINISHED_LESSONS"
+
 }

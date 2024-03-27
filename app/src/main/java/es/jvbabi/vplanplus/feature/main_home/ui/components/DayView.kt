@@ -1,6 +1,12 @@
 package es.jvbabi.vplanplus.feature.main_home.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -8,8 +14,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,6 +36,7 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.views.Holiday
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.Weekend
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
+import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -36,11 +49,13 @@ fun DayView(
     currentIdentity: Identity,
     bookings: List<RoomBooking>,
     homework: List<Homework>,
+    hideFinishedLessons: Boolean,
     showCountdown: Boolean,
     onChangeInfoExpandState: (Boolean) -> Unit,
     onAddHomework: (vpId: Long?) -> Unit,
     onBookRoomClicked: () -> Unit
 ) {
+    var stillShowHiddenLessons by rememberSaveable { mutableStateOf(false) }
     when (day?.type) {
         DayType.NORMAL -> {
             if (day.lessons.isEmpty()) return
@@ -64,23 +79,44 @@ fun DayView(
                         )
                     }
                 }
+                if (hideFinishedLessons && day.lessons.any { it.progress(currentTime) >= 1 } && !stillShowHiddenLessons) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.home_someLessonsHidden) + " $DOT",
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        TextButton(onClick = { stillShowHiddenLessons = true }) {
+                            Text(text = stringResource(id = R.string.home_show))
+                        }
+                    }
+                }
                 day
                     .getFilteredLessons(currentIdentity.profile!!)
                     .groupBy { it.lessonNumber }
                     .toList()
                     .forEach { (_, lessons) ->
-                        LessonCard(
-                            lessons = lessons.filter {
-                                currentIdentity.profile.isDefaultLessonEnabled(it.vpId)
-                            },
-                            bookings = bookings,
-                            time = currentTime,
-                            modifier = Modifier.padding(vertical = 4.dp),
-                            homework = homework,
-                            onAddHomeworkClicked = { onAddHomework(it) },
-                            onBookRoomClicked = onBookRoomClicked,
-                            profileType = currentIdentity.profile.type
-                        )
+                        AnimatedVisibility(
+                            visible = !hideFinishedLessons || stillShowHiddenLessons || (lessons.any { it.progress(currentTime) < 1.0 }),
+                            enter = expandVertically(tween(250)),
+                            exit = shrinkVertically(tween(250))
+                        ) {
+                            LessonCard(
+                                lessons = lessons.filter {
+                                    currentIdentity.profile.isDefaultLessonEnabled(it.vpId)
+                                },
+                                bookings = bookings,
+                                time = currentTime,
+                                modifier = Modifier.padding(vertical = 4.dp),
+                                homework = homework,
+                                onAddHomeworkClicked = { onAddHomework(it) },
+                                onBookRoomClicked = onBookRoomClicked,
+                                profileType = currentIdentity.profile.type
+                            )
+                        }
                     }
                 val end = day
                     .lessons

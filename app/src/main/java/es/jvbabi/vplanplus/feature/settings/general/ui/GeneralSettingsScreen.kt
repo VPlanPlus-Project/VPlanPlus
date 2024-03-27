@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.ClearAll
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Sync
@@ -56,9 +57,11 @@ import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
+import es.jvbabi.vplanplus.ui.common.IconSettingsState
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.SegmentedButtonItem
 import es.jvbabi.vplanplus.ui.common.SegmentedButtons
+import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
@@ -84,6 +87,7 @@ fun GeneralSettingsScreen(
         onSyncDaysAheadSet = generalSettingsViewModel::onSyncDaysAheadSet,
         onColorSchemeChanged = generalSettingsViewModel::onColorSchemeChanged,
         onAppThemeModeChanged = generalSettingsViewModel::onAppThemeModeChanged,
+        onHideFinishedLessonsClicked = generalSettingsViewModel::onHideFinishedLessonsChanged,
         onSetProtectGrades = { generalSettingsViewModel.onToggleGradeProtection(fragmentActivity) }
     )
 }
@@ -97,6 +101,7 @@ fun GeneralSettingsContent(
     onSyncDaysAheadSet: (Int) -> Unit = {},
     onColorSchemeChanged: (Colors) -> Unit = {},
     onAppThemeModeChanged: (AppThemeMode) -> Unit = {},
+    onHideFinishedLessonsClicked: (hide: Boolean) -> Unit = {},
     onSetProtectGrades: () -> Unit = {}
 ) {
     if (state.settings == null) return
@@ -215,7 +220,7 @@ fun GeneralSettingsContent(
                     clickable = false,
                     doAction = {}
                 ) {
-                    SegmentedButtons(Modifier.padding(start = 56.dp, end = 8.dp)) {
+                    SegmentedButtons(Modifier.padding(start = 56.dp, end = 8.dp, bottom = 8.dp)) {
                         SegmentedButtonItem(
                             icon = { Icon(imageVector = Icons.Default.AutoAwesome, contentDescription = null) },
                             label = { Text(stringResource(id = R.string.settingsGeneral_appThemeAuto)) },
@@ -237,6 +242,17 @@ fun GeneralSettingsContent(
 
                     }
                 }
+
+                Setting(
+                    IconSettingsState(
+                        imageVector = Icons.Default.ClearAll,
+                        title = stringResource(id = R.string.settingsGeneral_hideFinishedLessonsTitle),
+                        subtitle = stringResource(id = R.string.settingsGeneral_hideFinishedLessonsSubtitle),
+                        type = SettingsType.TOGGLE,
+                        checked = state.settings.hideFinishedLessons,
+                        doAction = { onHideFinishedLessonsClicked(!state.settings.hideFinishedLessons) }
+                    )
+                )
             }
             SettingsCategory(title = stringResource(id = R.string.settings_generalSync)) {
                 SettingsSetting(

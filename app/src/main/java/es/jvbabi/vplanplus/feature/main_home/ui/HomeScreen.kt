@@ -293,7 +293,8 @@ fun HomeScreenContent(
                                 homework = state.homework,
                                 onChangeInfoExpandState = onInfoExpandChange,
                                 onAddHomework = onAddHomework,
-                                onBookRoomClicked = onBookRoomClicked
+                                onBookRoomClicked = onBookRoomClicked,
+                                hideFinishedLessons = state.hideFinishedLessons
                             )
                         }
                     }

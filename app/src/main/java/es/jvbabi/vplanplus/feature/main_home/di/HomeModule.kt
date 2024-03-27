@@ -24,6 +24,7 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetRoomBookingsForTodayUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetVersionHintsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasUnreadNewsUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.SetInfoExpandedUseCase
@@ -66,6 +67,7 @@ object HomeModule {
             getRoomBookingsForTodayUseCase = GetRoomBookingsForTodayUseCase(roomRepository),
             isSyncRunningUseCase = IsSyncRunningUseCase(context),
             getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
+            getHideFinishedLessonsUseCase = GetHideFinishedLessonsUseCase(keyValueRepository),
 
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
