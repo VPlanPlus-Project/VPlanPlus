@@ -244,7 +244,7 @@ private fun NavGraphBuilder.mainScreens(
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
-        es.jvbabi.vplanplus.feature.home_screen_v2.ui.HomeScreen(
+        es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen(
             navHostController = navController,
             navBar = navBar
         )
