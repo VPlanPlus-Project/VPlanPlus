@@ -60,7 +60,7 @@ import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
-import es.jvbabi.vplanplus.ui.preview.Profile
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.BookingDetailDialog
@@ -423,7 +423,7 @@ fun FindAvailableRoomScreenContent(
 fun FindAvailableRoomScreenPreview() {
     val school = School.generateRandomSchools(1).first()
     val `class` = ClassesPreview.generateClass(school)
-    val profile = Profile.generateClassProfile()
+    val profile = ProfilePreview.generateClassProfile()
     FindAvailableRoomScreenContent(
         state = RoomSearchState(
             Identity(

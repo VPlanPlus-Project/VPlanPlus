@@ -70,6 +70,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -102,8 +103,6 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
-import es.jvbabi.vplanplus.feature.main_timetable.domain.usecase.GetDataUseCase
-import es.jvbabi.vplanplus.feature.main_timetable.domain.usecase.TimetableUseCases
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -186,6 +185,10 @@ object VppModule {
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentTimeUseCase(timeRepository: TimeRepository) = GetCurrentTimeUseCase(timeRepository)
 
     @Provides
     @Singleton
@@ -747,22 +750,6 @@ object VppModule {
                 vppIdRepository = vppIdRepository,
                 classRepository = classRepository,
                 gradeRepository = gradeRepository
-            )
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideTimetableUseCases(
-        keyValueRepository: KeyValueRepository,
-        planRepository: PlanRepository,
-        getActiveProfileUseCase: GetCurrentProfileUseCase
-    ): TimetableUseCases {
-        return TimetableUseCases(
-            getDataUseCase = GetDataUseCase(
-                keyValueRepository = keyValueRepository,
-                planRepository = planRepository,
-                getActiveProfileUseCase = getActiveProfileUseCase
             )
         )
     }

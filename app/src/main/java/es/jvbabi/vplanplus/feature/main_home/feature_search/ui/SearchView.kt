@@ -51,7 +51,7 @@ fun SearchView(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SearchViewContent(
+fun SearchViewContent(
     state: SearchState,
     onOpenMenu: () -> Unit = {},
     onSearchActiveChange: (expanded: Boolean) -> Unit,

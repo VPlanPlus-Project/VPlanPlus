@@ -21,7 +21,7 @@ import org.junit.Test
 import java.util.UUID
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
-class ProfileOptionsUseCaseTest {
+class ProfilePreviewOptionsUseCaseTest {
 
     private lateinit var profileOptionsUseCase: ProfileOptionsUseCase
     private lateinit var schoolRepository: SchoolRepository

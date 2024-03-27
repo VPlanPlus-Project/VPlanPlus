@@ -211,8 +211,8 @@ fun ProfileManagementScreenPreview() {
     ProfileManagementScreenContent(
         state = ProfileManagementState(
             profiles = mapOf(
-                es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.Profile.generateClassProfile()),
-                es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.Profile.generateClassProfile())
+                es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.ProfilePreview.generateClassProfile()),
+                es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.ProfilePreview.generateClassProfile())
             ),
             shareSchool = "12345678"
         )

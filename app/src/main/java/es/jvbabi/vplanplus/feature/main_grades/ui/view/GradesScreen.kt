@@ -85,7 +85,7 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 @Composable
 fun GradesScreen(
     navHostController: NavHostController,
-    navBar: @Composable () -> Unit,
+    navBar: @Composable (expanded: Boolean) -> Unit,
     gradesViewModel: GradesViewModel = hiltViewModel()
 ) {
     val activity = LocalContext.current as FragmentActivity
@@ -156,7 +156,7 @@ private fun GradesScreenContent(
     onStartCalculator: (List<Grade>) -> Unit,
     onToggleSubject: (Subject) -> Unit,
     state: GradesState,
-    navBar: @Composable () -> Unit
+    navBar: @Composable (expanded: Boolean) -> Unit
 ) {
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
     Scaffold(
@@ -182,7 +182,7 @@ private fun GradesScreenContent(
                 }
             )
         },
-        bottomBar = navBar
+        bottomBar = { navBar(true) }
     ) { paddingValues ->
         Column(
             modifier = Modifier

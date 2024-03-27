@@ -6,7 +6,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview.classNames
 import java.util.UUID
 
-object Profile {
+object ProfilePreview {
 
     fun generateClassProfile(): Profile {
         val name = classNames.random()
