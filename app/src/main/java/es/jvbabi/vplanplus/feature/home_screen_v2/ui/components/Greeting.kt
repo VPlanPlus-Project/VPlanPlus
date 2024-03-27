@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.ui.components
+package es.jvbabi.vplanplus.feature.home_screen_v2.ui.components
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,12 +34,12 @@ fun Greeting(
         withStyle(
             MaterialTheme
                 .typography
-                .headlineMedium
+                .displaySmall
                 .copy(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.secondary
+                            MaterialTheme.colorScheme.tertiary
                         )
                     ),
                     fontWeight = FontWeight.Bold
@@ -47,20 +47,20 @@ fun Greeting(
                 .toSpanStyle()
         ) {
             append(greeting)
-            if (name != null) append(", ")
+            if (name != null) append(",\n")
         }
         if (name != null) withStyle(
             MaterialTheme
                 .typography
-                .headlineMedium
+                .headlineSmall
                 .copy(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.secondary,
-                            MaterialTheme.colorScheme.secondary,
-                            MaterialTheme.colorScheme.tertiary
+                            MaterialTheme.colorScheme.tertiary,
+                            MaterialTheme.colorScheme.secondary
                         )
-                    )
+                    ),
+                    fontWeight = FontWeight.Bold
                 )
                 .toSpanStyle()
         ) {

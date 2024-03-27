@@ -70,6 +70,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -186,6 +187,10 @@ object VppModule {
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentTimeUseCase(timeRepository: TimeRepository) = GetCurrentTimeUseCase(timeRepository)
 
     @Provides
     @Singleton

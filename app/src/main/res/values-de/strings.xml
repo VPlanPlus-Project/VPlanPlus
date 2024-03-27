@@ -493,7 +493,7 @@
     <string name="search_lessons">%1$s Stunden</string>
     <string name="search_moreResults">Mehr Ergebnisse</string>
     <string name="home_lessonCardBooking">%1$s (gebucht)</string>
-    <string name="timetable_noDataText">Für den %1$s sind noch keine Daten verfügbar. Wir benachrichtigen dirch, wenn neue Informationen vorliegen.</string>
+    <string name="timetable_noDataText">Für den %1$s sind noch keine Daten verfügbar. Wir benachrichtigen dich, wenn neue Informationen vorliegen.</string>
     <string name="timetable_weekend">Wochenende</string>
     <string name="timetable_weekendToday">Genieße dein wohlverdientes Wochenende.</string>
     <string name="timetable_weekendPast">Das Wochenende ist vorbei, aber ein neues kommt bald. Halte durch!</string>
@@ -522,5 +522,7 @@
     <string name="advancedSettings_settingsUpdateFCMTokenSuccess">Das Token wurde erfolgreich aktualisiert. Du solltest nun wieder Echtzeitbenachrichtigungen erhalten.</string>
     <string name="advancedSettings_settingsUpdateFCMTokenError">Beim Aktualisieren des FCM Tokens ist ein Fehler aufgetreten. Prüfe deine Netzverbindung und versuche es erneut,</string>
     <string name="settingsSupport_feedbackSent">Vielen Dank für dein Feedback.</string>
+    <string name="home_planTitle">Plan für %1$s,</string>
+    <string name="home_longerThanExpected">Das dauert länger als erwartet. Warte bitte kurz…</string>
 
 </resources>

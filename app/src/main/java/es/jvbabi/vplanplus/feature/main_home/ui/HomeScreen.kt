@@ -38,7 +38,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
-import es.jvbabi.vplanplus.feature.main_home.ui.components.Greeting
+import es.jvbabi.vplanplus.feature.home_screen_v2.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.main_home.ui.components.ToggleButtons
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation

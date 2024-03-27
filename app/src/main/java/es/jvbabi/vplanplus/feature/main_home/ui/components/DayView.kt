@@ -51,10 +51,7 @@ fun DayView(
                 imageVector = Icons.Default.Info,
                 title = stringResource(id = R.string.home_activeDaySchoolInformation),
                 text = day.info,
-                modifier = Modifier.padding(
-                    horizontal = 8.dp,
-                    vertical = 4.dp
-                ),
+                modifier = Modifier.padding(vertical = 4.dp),
                 isExpanded = isInfoExpanded,
                 onChangeState = onChangeInfoExpandState
             )
@@ -69,10 +66,7 @@ fun DayView(
                         },
                         bookings = bookings,
                         time = currentTime,
-                        modifier = Modifier.padding(
-                            horizontal = 8.dp,
-                            vertical = 4.dp
-                        ),
+                        modifier = Modifier.padding(vertical = 4.dp),
                         homework = homework,
                         onAddHomeworkClicked = { onAddHomework(it) },
                         onBookRoomClicked = onBookRoomClicked,

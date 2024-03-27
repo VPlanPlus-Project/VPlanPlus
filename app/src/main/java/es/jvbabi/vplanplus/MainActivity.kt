@@ -240,7 +240,9 @@ class MainActivity : FragmentActivity() {
                             enter = expandVertically(tween(250)),
                             exit = shrinkVertically(tween(250))
                         ) {
-                            NavigationBar {
+                            NavigationBar(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            ) {
                                 navBarItems.forEachIndexed { index, item ->
                                     NavigationBarItem(
                                         selected = index == selectedIndex,

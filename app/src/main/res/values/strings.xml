@@ -523,5 +523,7 @@
     <string name="advancedSettings_settingsUpdateFCMTokenSuccess">The token was updated successfully. You should get realtime notifications from now on.</string>
     <string name="advancedSettings_settingsUpdateFCMTokenError">An error occurred while updating the fcm token. Check your network connection and try again.</string>
     <string name="settingsSupport_feedbackSent">Thanks for your feedback!</string>
+    <string name="home_planTitle">Plan for %1$s,</string>
+    <string name="home_longerThanExpected">That\'s taking longer than expected. Hold on…</string>
 
 </resources>
