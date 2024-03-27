@@ -47,7 +47,7 @@ fun Greeting(
                 .toSpanStyle()
         ) {
             append(greeting)
-            if (name != null) append(",\n")
+            if (name != null) append(", ")
         }
         if (name != null) withStyle(
             MaterialTheme
