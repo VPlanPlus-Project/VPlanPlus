@@ -19,7 +19,7 @@ Diese App ist eine Alternative zu VpMobil und VpMobil24.
 - Alle Features der Lehrer-Accounts mit Schüler-Accounts[^2]
 - Quelloffen
 
-Website: [VPlanPlus.JVBabi.es](https://vplanplus.jvbabi.es)
+Website: [vplan.plus](https://vplan.plus)
 
 ### vpp.ID
 Mit der vpp.ID hast du noch mehr Möglichkeiten, deinen Schulalltag digital zu gestalten. Mit diesem Account kannst du Räume buchen, Hausaufgaben erstellen und in der Klasse teilen - selbst, wenn deine Klassenkameraden selbst keine vpp.ID haben.
