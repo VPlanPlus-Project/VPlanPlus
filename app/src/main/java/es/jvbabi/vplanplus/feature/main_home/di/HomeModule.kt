@@ -65,7 +65,8 @@ object HomeModule {
             getHomeworkUseCase = GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 keyValueRepository = keyValueRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase
+                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                profileRepository = profileRepository
             ),
             getRoomBookingsForTodayUseCase = GetRoomBookingsForTodayUseCase(roomRepository),
             isSyncRunningUseCase = IsSyncRunningUseCase(context),
