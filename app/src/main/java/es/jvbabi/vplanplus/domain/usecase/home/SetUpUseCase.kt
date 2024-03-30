@@ -36,7 +36,6 @@ class SetUpUseCase(
             if (isValid == false) vppIdRepository.unlinkVppId(vppId)
         }
 
-        if (keyValueRepository.getOrDefault(Keys.INVALID_VPP_SESSION, "true").toBoolean()) return
         keyValueRepository.set(Keys.INVALID_VPP_SESSION, testMapping.any { it.second == false }.toString())
     }
 
