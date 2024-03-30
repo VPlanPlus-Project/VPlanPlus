@@ -4,7 +4,9 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
@@ -45,7 +47,25 @@ object MainModule {
             setUpUseCase = setUpUseCase,
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
             getAppThemeUseCase = GetAppThemeUseCase(keyValueRepository),
-            getSyncIntervalMinutesUseCase = GetSyncIntervalMinutesUseCase(keyValueRepository)
+            getSyncIntervalMinutesUseCase = GetSyncIntervalMinutesUseCase(keyValueRepository),
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideSetUpUseCase(
+        keyValueRepository: KeyValueRepository,
+        homeworkRepository: HomeworkRepository,
+        vppIdRepository: VppIdRepository,
+        alarmManagerRepository: AlarmManagerRepository,
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+    ): SetUpUseCase {
+        return SetUpUseCase(
+            keyValueRepository = keyValueRepository,
+            homeworkRepository = homeworkRepository,
+            alarmManagerRepository = alarmManagerRepository,
+            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
+            vppIdRepository = vppIdRepository
         )
     }
 }

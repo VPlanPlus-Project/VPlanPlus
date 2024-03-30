@@ -64,4 +64,6 @@ object Keys {
 
     const val HIDE_FINISHED_LESSONS = "HIDE_FINISHED_LESSONS"
 
+    const val INVALID_VPP_SESSION = "INVALID_VPP_SESSION"
+
 }

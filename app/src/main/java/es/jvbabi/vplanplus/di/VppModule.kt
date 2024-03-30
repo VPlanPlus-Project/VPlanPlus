@@ -71,7 +71,6 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
@@ -696,22 +695,6 @@ object VppModule {
             classRepository = classRepository,
             teacherRepository = teacherRepository,
             roomRepository = roomRepository
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideSetUpUseCase(
-        keyValueRepository: KeyValueRepository,
-        homeworkRepository: HomeworkRepository,
-        alarmManagerRepository: AlarmManagerRepository,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
-    ): SetUpUseCase {
-        return SetUpUseCase(
-            keyValueRepository = keyValueRepository,
-            homeworkRepository = homeworkRepository,
-            alarmManagerRepository = alarmManagerRepository,
-            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
     }
 

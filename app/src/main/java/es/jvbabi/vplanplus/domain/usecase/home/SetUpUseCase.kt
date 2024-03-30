@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
@@ -16,12 +17,27 @@ class SetUpUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val alarmManagerRepository: AlarmManagerRepository,
     private val homeworkRepository: HomeworkRepository,
+    private val vppIdRepository: VppIdRepository,
     private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
 ) {
 
     suspend operator fun invoke() {
+        testVppIds()
         updateFirebaseTokens()
         createHomeworkReminder()
+    }
+
+    private suspend fun testVppIds() {
+        val testMapping = vppIdRepository.getVppIds().first().map {
+            it to vppIdRepository.testVppId(it)
+        }
+
+        testMapping.forEach { (vppId, isValid) ->
+            if (isValid == false) vppIdRepository.unlinkVppId(vppId)
+        }
+
+        if (keyValueRepository.getOrDefault(Keys.INVALID_VPP_SESSION, "true").toBoolean()) return
+        keyValueRepository.set(Keys.INVALID_VPP_SESSION, testMapping.any { it.second == false }.toString())
     }
 
     suspend fun createHomeworkReminder() {
