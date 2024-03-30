@@ -537,5 +537,8 @@
     <string name="settingsGeneral_syncDisabledTitle">Disable scheduled sync</string>
     <string name="settingsGeneral_syncDisabledSubtitle">This will turn off the scheduled sync. You\'ll still receive new data via Firebase Cloud Messaging, but if it fails, VPlanPlus will never automatically sync on its own. Only disable sync if you really have problems with it.</string>
     <string name="settingsGeneral_syncIntervalSubtitleDisabled">Time-based sync is disabled.</string>
+    <string name="home_invalidVppIdSessionTitle">Session closed</string>
+    <string name="home_invalidVppIdSessionText">You were logged out of your vpp.ID. The account has been removed from this device. Please log back in to continue to use vpp.ID features.</string>
+    <string name="ignore">Ignore</string>
 
 </resources>

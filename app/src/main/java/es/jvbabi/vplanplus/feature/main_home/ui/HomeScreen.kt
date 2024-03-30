@@ -2,8 +2,10 @@ package es.jvbabi.vplanplus.feature.main_home.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
@@ -22,6 +25,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -59,6 +63,8 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
@@ -114,6 +120,8 @@ fun HomeScreen(
             )
         },
         onRefreshClicked = { homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(context) },
+        onFixVppIdSessionClicked = { onLogin(context, state.server) },
+        onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
         startDate = startDate
     )
 }
@@ -139,6 +147,9 @@ fun HomeScreenContent(
     onRepositoryClicked: () -> Unit = {},
     onRefreshClicked: () -> Unit = {},
 
+    onFixVppIdSessionClicked: () -> Unit = {},
+    onIgnoreInvalidVppIdSessions: () -> Unit = {},
+
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
     if (state.currentIdentity == null) return
@@ -161,8 +172,8 @@ fun HomeScreenContent(
         datePagerState.animateScrollToPage(maxOf(0, difference - 1))
     }
 
-    LaunchedEffect(key1 = contentPagerState.settledPage) {
-        val date = LocalDate.now().plusDays(contentPagerState.settledPage.toLong())
+    LaunchedEffect(key1 = contentPagerState.targetPage) {
+        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong())
         onSetSelectedDate(date)
     }
 
@@ -176,130 +187,153 @@ fun HomeScreenContent(
         bottomBar = { navBar(!keyboardAsState().value) },
         containerColor = MaterialTheme.colorScheme.surface
     ) { paddingValues ->
-        Column(Modifier.padding(paddingValues)) {
-            Greeting(
-                time = state.currentTime,
-                name = state.currentIdentity.vppId?.name,
-                modifier = Modifier.padding(start = 8.dp)
-            )
-            LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 8.dp))
-
-            Box {
-                HorizontalPager(
-                    state = datePagerState,
-                    pageSize = PageSize.Fixed(70.dp)
-                ) { offset ->
-                    val date = LocalDate.now().plusDays(offset.toLong())
-                    Row {
-                        DateEntry(
-                            date = date,
-                            homework = state.homework.count { it.until.toLocalDate().isEqual(date) },
-                            isActive = date == state.selectedDate,
-                            onClick = { onSetSelectedDate(date) }
-                        )
-                    }
-                }
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = datePagerState.settledPage > 7,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(end = 8.dp),
-                    enter = fadeIn(),
-                    exit = fadeOut()
+        LazyColumn(Modifier.padding(paddingValues)) {
+            item {
+                Greeting(
+                    time = state.currentTime,
+                    name = state.currentIdentity.vppId?.name,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+                AnimatedVisibility(
+                    visible = state.hasInvalidVppIdSession,
+                    enter = expandVertically(tween(250)),
+                    exit = shrinkVertically(tween(250))
                 ) {
-                    val scope = rememberCoroutineScope()
-                    Button(
-                        modifier = Modifier.shadow(elevation = 4.dp, shape = RoundedCornerShape(50)),
-                        onClick = {
-                            onSetSelectedDate(LocalDate.now())
-                            scope.launch { datePagerState.animateScrollToPage(0) }
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                        Text(text = stringResource(id = R.string.home_backToToday))
-                    }
+                    InfoCard(
+                        imageVector = Icons.Default.NoAccounts,
+                        title = stringResource(id = R.string.home_invalidVppIdSessionTitle),
+                        text = stringResource(id = R.string.home_invalidVppIdSessionText),
+                        buttonText1 = stringResource(id = R.string.ignore),
+                        buttonAction1 = onIgnoreInvalidVppIdSessions,
+                        buttonText2 = stringResource(id = R.string.fix),
+                        buttonAction2 = onFixVppIdSessionClicked,
+                        modifier = Modifier.padding(8.dp)
+                    )
                 }
+                LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 8.dp))
             }
-            HorizontalDivider()
 
-            HorizontalPager(
-                state = contentPagerState,
-                modifier = Modifier
-                    .fillMaxHeight()
-            ) {
-                val date = LocalDate.now().plusDays(it.toLong())
-
-                Column(
-                    modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    val start by rememberSaveable { mutableLongStateOf(System.currentTimeMillis() / 1000) }
-                    val timeOffset = 1
-                    AnimatedVisibility(visible = state.days[date] == null && start + timeOffset < System.currentTimeMillis() / 1000) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            LinearProgressIndicator(Modifier.fillMaxWidth(.5f))
-                            Text(
-                                text = stringResource(id = R.string.home_longerThanExpected),
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
+            stickyHeader {
+                Box {
+                    HorizontalPager(
+                        state = datePagerState,
+                        pageSize = PageSize.Fixed(70.dp)
+                    ) { offset ->
+                        val date = LocalDate.now().plusDays(offset.toLong())
+                        Row {
+                            DateEntry(
+                                date = date,
+                                homework = state.homework.count { it.until.toLocalDate().isEqual(date) },
+                                isActive = date == state.selectedDate,
+                                onClick = { onSetSelectedDate(date) }
                             )
                         }
                     }
-
-                    val animationDuration = 300
                     AnimatedVisibility(
-                        modifier = Modifier.fillMaxSize(),
-                        visible = state.days[date] != null,
-                        enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
-                        exit = fadeOut(animationSpec = tween(animationDuration))
-                    ) dayViewRoot@{
-                        Column(
-                            Modifier
-                                .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                                .fillMaxHeight()
-                                .then(
-                                    if (state.days[date]?.type == DayType.NORMAL && state.days[date]?.state == DayDataState.DATA) Modifier.verticalScroll(rememberScrollState())
-                                    else Modifier
-                                )
+                        visible = datePagerState.settledPage > 7,
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .padding(end = 8.dp),
+                        enter = fadeIn(),
+                        exit = fadeOut()
+                    ) {
+                        val scope = rememberCoroutineScope()
+                        Button(
+                            modifier = Modifier.shadow(elevation = 4.dp, shape = RoundedCornerShape(50)),
+                            onClick = {
+                                onSetSelectedDate(LocalDate.now())
+                                scope.launch { datePagerState.animateScrollToPage(0) }
+                            }
                         ) {
-                            if (state.days[date]?.type == DayType.NORMAL) {
-                                Text(
-                                    text = stringResource(
-                                        id = R.string.home_planTitle,
-                                        date.format(DateTimeFormatter.ofPattern("EEEE"))
-                                    ),
-                                    style = MaterialTheme.typography.displaySmall,
-                                )
-                                Text(
-                                    text = date.format(DateTimeFormatter.ofPattern("d. MMMM")),
-                                    style = MaterialTheme.typography.labelMedium,
-                                )
-                            }
-                            if (state.days[date]?.lessons?.size == 0 && state.days[date]?.type == DayType.NORMAL) {
-                                NoData(date)
-                                return@dayViewRoot
-                            }
-                            DayView(
-                                day = state.days[date]!!,
-                                currentTime = state.currentTime,
-                                showCountdown = date == state.selectedDate,
-                                isInfoExpanded = if (date == LocalDate.now()) state.infoExpanded else null,
-                                currentIdentity = state.currentIdentity,
-                                bookings = state.bookings,
-                                homework = state.homework,
-                                onChangeInfoExpandState = onInfoExpandChange,
-                                onAddHomework = onAddHomework,
-                                onBookRoomClicked = onBookRoomClicked,
-                                hideFinishedLessons = state.hideFinishedLessons
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = null
                             )
+                            Text(text = stringResource(id = R.string.home_backToToday))
+                        }
+                    }
+                }
+                HorizontalDivider()
+            }
+
+            item {
+                HorizontalPager(
+                    state = contentPagerState,
+                    modifier = Modifier
+                        .fillMaxHeight()
+                ) {
+                    val date = LocalDate.now().plusDays(it.toLong())
+
+                    Column(
+                        modifier = Modifier.fillMaxSize(),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        val start by rememberSaveable { mutableLongStateOf(System.currentTimeMillis() / 1000) }
+                        val timeOffset = 1
+                        AnimatedVisibility(visible = state.days[date] == null && start + timeOffset < System.currentTimeMillis() / 1000) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                LinearProgressIndicator(Modifier.fillMaxWidth(.5f))
+                                Text(
+                                    text = stringResource(id = R.string.home_longerThanExpected),
+                                    textAlign = TextAlign.Center,
+                                    modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
+                                )
+                            }
+                        }
+
+                        val animationDuration = 300
+                        AnimatedVisibility(
+                            modifier = Modifier.fillMaxSize(),
+                            visible = state.days[date] != null,
+                            enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
+                            exit = fadeOut(animationSpec = tween(animationDuration))
+                        ) dayViewRoot@{
+                            Column(
+                                Modifier
+                                    .padding(start = 8.dp, top = 8.dp, end = 8.dp)
+                                    .fillMaxHeight()
+                                    .then(
+                                        if (state.days[date]?.type == DayType.NORMAL && state.days[date]?.state == DayDataState.DATA) Modifier.verticalScroll(rememberScrollState())
+                                        else Modifier
+                                    )
+                            ) {
+                                if (state.days[date]?.type == DayType.NORMAL) {
+                                    Text(
+                                        text = stringResource(
+                                            id = R.string.home_planTitle,
+                                            date.format(DateTimeFormatter.ofPattern("EEEE"))
+                                        ),
+                                        style = MaterialTheme.typography.displaySmall,
+                                    )
+                                    Text(
+                                        text = date.format(DateTimeFormatter.ofPattern("d. MMMM")),
+                                        style = MaterialTheme.typography.labelMedium,
+                                    )
+                                }
+                                if (state.days[date]?.lessons?.size == 0 && state.days[date]?.type == DayType.NORMAL) {
+                                    NoData(date)
+                                    return@dayViewRoot
+                                }
+                                DayView(
+                                    day = state.days[date]!!,
+                                    currentTime = state.currentTime,
+                                    showCountdown = date == state.selectedDate,
+                                    isInfoExpanded = if (date == LocalDate.now()) state.infoExpanded else null,
+                                    currentIdentity = state.currentIdentity,
+                                    bookings = state.bookings,
+                                    homework = state.homework,
+                                    onChangeInfoExpandState = onInfoExpandChange,
+                                    onAddHomework = onAddHomework,
+                                    onBookRoomClicked = onBookRoomClicked,
+                                    hideFinishedLessons = state.hideFinishedLessons
+                                )
+                            }
                         }
                     }
                 }
             }
+
         }
     }
 
