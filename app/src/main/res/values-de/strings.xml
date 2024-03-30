@@ -536,5 +536,8 @@
     <string name="settingsGeneral_syncDisabledTitle">Geplante Synchronisierung deaktivieren</string>
     <string name="settingsGeneral_syncDisabledSubtitle">Dies wird die zeitbasierte Synchronisierung deaktivieren. Du wirst immer noch neue Daten via Firebase Cloud Messaging empfangen, schlägt dies jedoch fehl, wird VPlanPlus nicht selbstständig versuchen, aktuelle Daten zu laden. Schalte die zeitbasierte Synchronisierung nur aus, wenn du wirklich Probleme damit hast.</string>
     <string name="settingsGeneral_syncIntervalSubtitleDisabled">Zeitbasiertes Synchronisieren ist deaktiviert.</string>
+    <string name="home_invalidVppIdSessionTitle">Abgemeldet</string>
+    <string name="home_invalidVppIdSessionText">Du wurdest aus deiner vpp.ID abgemeldet. Der Account wurde von diesem Gerät entfernt. Bitte melde dich erneut an, um weiterhin alle vpp.ID Funktionen nutzen zu können.</string>
+    <string name="ignore">Ignorieren</string>
 
 </resources>

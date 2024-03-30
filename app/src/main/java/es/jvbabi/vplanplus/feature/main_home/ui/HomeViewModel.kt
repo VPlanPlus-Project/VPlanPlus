@@ -62,7 +62,9 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.hasUnreadNewsUseCase(),
                     homeUseCases.isSyncRunningUseCase(),
                     homeUseCases.getLastSyncUseCase(),
-                    homeUseCases.getHideFinishedLessonsUseCase()
+                    homeUseCases.getHideFinishedLessonsUseCase(),
+                    homeUseCases.hasInvalidVppIdSessionUseCase(),
+                    homeUseCases.getVppIdServerUseCase()
                 )
             ) { data ->
                 val currentIdentity = data[0] as Identity
@@ -73,6 +75,8 @@ class HomeViewModel @Inject constructor(
                 val syncing = data[5] as Boolean
                 val lastSync = data[6] as ZonedDateTime
                 val hideFinishedLessons = data[7] as Boolean
+                val hasInvalidVppIdSession = data[8] as Boolean
+                val server = data[9] as String
 
                 val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter {
                     it.`class`.classId == currentIdentity.profile?.referenceId
@@ -87,7 +91,9 @@ class HomeViewModel @Inject constructor(
                     hasUnreadNews = hasUnreadNews,
                     isSyncRunning = syncing,
                     lastSync = lastSync,
-                    hideFinishedLessons = hideFinishedLessons
+                    hideFinishedLessons = hideFinishedLessons,
+                    hasInvalidVppIdSession = hasInvalidVppIdSession,
+                    server = server
                 )
             }.collect {
                 state = it
@@ -162,6 +168,12 @@ class HomeViewModel @Inject constructor(
             homeUseCases.updateLastVersionHintsVersionUseCase()
         }
     }
+
+    fun ignoreInvalidVppIdSessions() {
+        viewModelScope.launch {
+            homeUseCases.ignoreInvalidVppIdSessionsUseCase()
+        }
+    }
 }
 
 data class HomeState(
@@ -182,4 +194,8 @@ data class HomeState(
     val versionHints: List<VersionHints> = emptyList(),
     val isVersionHintsDialogOpen: Boolean = false,
     val currentVersion: String = "Loading...",
+
+    val server: String = "",
+
+    val hasInvalidVppIdSession: Boolean = false
 )

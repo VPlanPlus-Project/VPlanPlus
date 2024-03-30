@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetCurrentDataVersionUseCase
@@ -25,7 +26,9 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetRoomBookingsForTo
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetVersionHintsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasUnreadNewsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasInvalidVppIdSessionUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IgnoreInvalidVppIdSessionsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IsInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.UpdateLastVersionHintsVersionUseCase
@@ -75,7 +78,12 @@ object HomeModule {
             hasUnreadNewsUseCase = HasUnreadNewsUseCase(messageRepository),
 
             getVersionHintsUseCase = GetVersionHintsUseCase(keyValueRepository, vppIdRepository),
-            updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository)
+            updateLastVersionHintsVersionUseCase = UpdateLastVersionHintsVersionUseCase(keyValueRepository),
+
+            hasInvalidVppIdSessionUseCase = HasInvalidVppIdSessionUseCase(keyValueRepository),
+            ignoreInvalidVppIdSessionsUseCase = IgnoreInvalidVppIdSessionsUseCase(keyValueRepository),
+
+            getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository)
         )
     }
 }

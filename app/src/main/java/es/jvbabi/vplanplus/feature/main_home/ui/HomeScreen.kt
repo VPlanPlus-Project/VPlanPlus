@@ -2,8 +2,10 @@ package es.jvbabi.vplanplus.feature.main_home.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
@@ -22,6 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -59,6 +62,8 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
@@ -114,6 +119,8 @@ fun HomeScreen(
             )
         },
         onRefreshClicked = { homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(context) },
+        onFixVppIdSessionClicked = { onLogin(context, state.server) },
+        onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
         startDate = startDate
     )
 }
@@ -138,6 +145,9 @@ fun HomeScreenContent(
     onPrivacyPolicyClicked: () -> Unit = {},
     onRepositoryClicked: () -> Unit = {},
     onRefreshClicked: () -> Unit = {},
+
+    onFixVppIdSessionClicked: () -> Unit = {},
+    onIgnoreInvalidVppIdSessions: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
@@ -182,6 +192,22 @@ fun HomeScreenContent(
                 name = state.currentIdentity.vppId?.name,
                 modifier = Modifier.padding(start = 8.dp)
             )
+            AnimatedVisibility(
+                visible = state.hasInvalidVppIdSession,
+                enter = expandVertically(tween(250)),
+                exit = shrinkVertically(tween(250))
+            ) {
+                InfoCard(
+                    imageVector = Icons.Default.NoAccounts,
+                    title = stringResource(id = R.string.home_invalidVppIdSessionTitle),
+                    text = stringResource(id = R.string.home_invalidVppIdSessionText),
+                    buttonText1 = stringResource(id = R.string.ignore),
+                    buttonAction1 = onIgnoreInvalidVppIdSessions,
+                    buttonText2 = stringResource(id = R.string.fix),
+                    buttonAction2 = onFixVppIdSessionClicked,
+                    modifier = Modifier.padding(8.dp)
+                )
+            }
             LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 8.dp))
 
             Box {

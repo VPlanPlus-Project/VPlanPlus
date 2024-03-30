@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_home.domain.usecase
 
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 
 data class HomeUseCases(
@@ -22,5 +23,10 @@ data class HomeUseCases(
     val hasUnreadNewsUseCase: HasUnreadNewsUseCase,
 
     val getVersionHintsUseCase: GetVersionHintsUseCase,
-    val updateLastVersionHintsVersionUseCase: UpdateLastVersionHintsVersionUseCase
+    val updateLastVersionHintsVersionUseCase: UpdateLastVersionHintsVersionUseCase,
+
+    val hasInvalidVppIdSessionUseCase: HasInvalidVppIdSessionUseCase,
+    val ignoreInvalidVppIdSessionsUseCase: IgnoreInvalidVppIdSessionsUseCase,
+
+    val getVppIdServerUseCase: GetVppIdServerUseCase
 )
