@@ -119,7 +119,6 @@ fun DayView(
                                 homework = homework,
                                 onAddHomeworkClicked = { onAddHomework(it) },
                                 onBookRoomClicked = onBookRoomClicked,
-                                profileType = currentIdentity.profile.type
                             )
                         }
                     }
