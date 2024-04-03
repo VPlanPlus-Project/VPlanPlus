@@ -112,4 +112,8 @@ object DateUtils {
         val zoned = this.withZoneSameInstant(ZoneId.systemDefault())
         return zoned.toLocalDateTime()
     }
+
+    fun LocalDate.withDayOfWeek(dayOfWeek: Int): LocalDate {
+        return this.plusDays(dayOfWeek.toLong() - this.dayOfWeek.value.toLong())
+    }
 }

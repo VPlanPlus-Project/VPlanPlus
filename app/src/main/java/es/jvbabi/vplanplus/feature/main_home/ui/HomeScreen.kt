@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -25,7 +24,6 @@ import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -59,7 +57,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
@@ -80,6 +77,7 @@ import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -290,7 +288,9 @@ fun HomeScreenContent(
                         .padding(top = 8.dp)
                         .fillMaxWidth()) {
                         TextButton(
-                            onClick = {},
+                            onClick = {
+                                onSetSelectedDate(state.selectedDate.minusWeeks(1L).withDayOfWeek(1))
+                            },
                             modifier = Modifier
                                 .padding(start = 4.dp)
                                 .align(Alignment.CenterStart)
@@ -325,7 +325,9 @@ fun HomeScreenContent(
                             }
                         }
                         TextButton(
-                            onClick = {},
+                            onClick = {
+                                onSetSelectedDate(state.selectedDate.plusWeeks(1L).withDayOfWeek(1))
+                            },
                             modifier = Modifier
                                 .padding(end = 4.dp)
                                 .align(Alignment.CenterEnd)
@@ -341,15 +343,9 @@ fun HomeScreenContent(
                     }
                 }
             }
-            Column(
-                Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-            ) {
+            Column(Modifier.fillMaxSize()) {
                 HorizontalPager(
-                    state = contentPagerState,
-                    modifier = Modifier
-                        .fillMaxHeight()
+                    state = contentPagerState
                 ) {
                     val date = LocalDate.now().plusDays(
                         it.toLong() - PAGER_SIZE / 2
@@ -383,11 +379,7 @@ fun HomeScreenContent(
                             Column(
                                 Modifier
                                     .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                                    .fillMaxHeight()
-                                    .then(
-                                        if (state.days[date]?.type == DayType.NORMAL && state.days[date]?.state == DayDataState.DATA) Modifier.verticalScroll(rememberScrollState())
-                                        else Modifier
-                                    )
+                                    .fillMaxSize()
                             ) {
                                 if (state.days[date]?.type == DayType.NORMAL) {
                                     Text(
@@ -417,7 +409,8 @@ fun HomeScreenContent(
                                     onChangeInfoExpandState = onInfoExpandChange,
                                     onAddHomework = onAddHomework,
                                     onBookRoomClicked = onBookRoomClicked,
-                                    hideFinishedLessons = state.hideFinishedLessons
+                                    hideFinishedLessons = state.hideFinishedLessons,
+                                    scrollState = scrollState,
                                 )
                             }
                         }

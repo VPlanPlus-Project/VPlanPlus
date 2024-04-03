@@ -131,7 +131,7 @@ fun SearchViewContent(
         Spacer(Modifier.windowInsetsTopHeight(WindowInsets.systemBars))
         Row(
             modifier = Modifier
-                .padding(horizontal = (8 * (1 - modifier.value)).dp, vertical = 8.dp)
+                .padding(horizontal = (4 * (1 - modifier.value)).dp, vertical = 8.dp)
                 .fillMaxWidth()
                 .shadow(
                     (8 * (1 - modifier.value)).dp,
