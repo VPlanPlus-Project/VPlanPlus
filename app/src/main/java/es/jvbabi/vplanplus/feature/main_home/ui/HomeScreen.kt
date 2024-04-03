@@ -376,24 +376,7 @@ fun HomeScreenContent(
                             enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
                             exit = fadeOut(animationSpec = tween(animationDuration))
                         ) dayViewRoot@{
-                            Column(
-                                Modifier
-                                    .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                                    .fillMaxSize()
-                            ) {
-                                if (state.days[date]?.type == DayType.NORMAL) {
-                                    Text(
-                                        text = stringResource(
-                                            id = R.string.home_planTitle,
-                                            date.format(DateTimeFormatter.ofPattern("EEEE"))
-                                        ),
-                                        style = MaterialTheme.typography.displaySmall,
-                                    )
-                                    Text(
-                                        text = date.format(DateTimeFormatter.ofPattern("d. MMMM")),
-                                        style = MaterialTheme.typography.labelMedium,
-                                    )
-                                }
+                            Column(Modifier.fillMaxSize()) {
                                 if (state.days[date]?.lessons?.size == 0 && state.days[date]?.type == DayType.NORMAL) {
                                     NoData(date)
                                     return@dayViewRoot
