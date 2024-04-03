@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -8,6 +9,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,34 +18,41 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.PagerDefaults
+import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -56,7 +65,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.Menu
-import es.jvbabi.vplanplus.feature.main_home.ui.components.DateEntry
+import es.jvbabi.vplanplus.feature.main_home.ui.components.DateCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
@@ -70,7 +79,6 @@ import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.screens.Screen
-import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -161,34 +169,79 @@ fun HomeScreenContent(
         onCloseUntilNextVersion = { onVersionHintsClosed(true) }
     )
 
-    val datePagerState = rememberPagerState(pageCount = { PAGER_SIZE })
-    val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE })
+    val scrollState = rememberScrollState()
+    var previous by remember { mutableIntStateOf(0) }
+    var expand by rememberSaveable {
+        mutableStateOf(true)
+    }
+
+    val modifier = animateFloatAsState(
+        targetValue = if (expand) 1f else 0f,
+        label = "mod",
+        animationSpec = tween(250)
+    )
 
     LaunchedEffect(key1 = startDate) { onSetSelectedDate(startDate) }
 
+    val datePagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2 - 1)
+    val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2)
+
+
+    LaunchedEffect(key1 = scrollState.value) {
+        if (previous < scrollState.value) expand = false
+        else if (previous > scrollState.value) expand = true
+        previous = scrollState.value
+    }
+
     LaunchedEffect(key1 = state.selectedDate) {
-        val difference = LocalDate.now().until(state.selectedDate).days
-        contentPagerState.animateScrollToPage(difference)
-        datePagerState.animateScrollToPage(maxOf(0, difference - 1))
+        datePagerState.animateScrollToPage(
+            page = LocalDate.now().until(state.selectedDate).days + PAGER_SIZE /2 - 1
+        )
+        contentPagerState.animateScrollToPage(
+            page = LocalDate.now().until(state.selectedDate).days + PAGER_SIZE / 2
+        )
     }
 
     LaunchedEffect(key1 = contentPagerState.targetPage) {
-        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong())
+        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
 
+    val fling = PagerDefaults.flingBehavior(
+        state = datePagerState,
+        pagerSnapDistance = PagerSnapDistance.atMost(PAGER_SIZE)
+    )
+
     Scaffold(
-        topBar = {
-            SearchView(
-                onOpenMenu = { onOpenMenu(true) },
-                onFindAvailableRoomClicked = onBookRoomClicked
-            )
-        },
         bottomBar = { navBar(!keyboardAsState().value) },
         containerColor = MaterialTheme.colorScheme.surface
     ) { paddingValues ->
-        LazyColumn(Modifier.padding(paddingValues)) {
-            item {
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = paddingValues.calculateBottomPadding())) {
+            Column(
+                Modifier
+                    .shadow(
+                        elevation = 4.dp,
+                        shape = RoundedCornerShape(
+                            bottomStart = 24.dp,
+                            bottomEnd = 24.dp
+                        )
+                    )
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clip(
+                        RoundedCornerShape(
+                            bottomStart = 24.dp,
+                            bottomEnd = 24.dp
+                        )
+                    )
+            ) {
+                SearchView(
+                    onOpenMenu = { onOpenMenu(true) },
+                    onFindAvailableRoomClicked = onBookRoomClicked
+                )
                 Greeting(
                     time = state.currentTime,
                     name = state.currentIdentity.vppId?.name,
@@ -211,58 +264,97 @@ fun HomeScreenContent(
                     )
                 }
                 LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 8.dp))
-            }
-
-            stickyHeader {
-                Box {
-                    HorizontalPager(
-                        state = datePagerState,
-                        pageSize = PageSize.Fixed(70.dp)
-                    ) { offset ->
-                        val date = LocalDate.now().plusDays(offset.toLong())
-                        Row {
-                            DateEntry(
-                                date = date,
-                                homework = state.homework.count { it.until.toLocalDate().isEqual(date) },
-                                isActive = date == state.selectedDate,
-                                onClick = { onSetSelectedDate(date) }
-                            )
-                        }
-                    }
-                    AnimatedVisibility(
-                        visible = datePagerState.settledPage > 7,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 8.dp),
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        val scope = rememberCoroutineScope()
-                        Button(
-                            modifier = Modifier.shadow(elevation = 4.dp, shape = RoundedCornerShape(50)),
-                            onClick = {
-                                onSetSelectedDate(LocalDate.now())
-                                scope.launch { datePagerState.animateScrollToPage(0) }
-                            }
+                HorizontalPager(
+                    state = datePagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    pageSize = PageSize.Fixed(60.dp),
+                    flingBehavior = fling,
+                    verticalAlignment = Alignment.Top,
+                    pageSpacing = 8.dp
+                ) {
+                    val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
+                    val isSelected = date == state.selectedDate
+                    DateCard(
+                        date,
+                        isSelected,
+                        modifier.value,
+                        expand,
+                        onClick = { onSetSelectedDate(date) }
+                    )
+                }
+                Collapsable(expand = expand) {
+                    Box(modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth()) {
+                        TextButton(
+                            onClick = {},
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .align(Alignment.CenterStart)
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                 contentDescription = null
                             )
-                            Text(text = stringResource(id = R.string.home_backToToday))
+                            Text(
+                                text = "KW 22"
+                            )
+                        }
+                        Collapsable(
+                            modifier = Modifier.align(Alignment.Center),
+                            expand = state.selectedDate != LocalDate.now()
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text =
+                                    if (state.selectedDate.isAfter(LocalDate.now())) "In ${LocalDate.now().until(state.selectedDate).days} Tagen"
+                                    else "Vor ${state.selectedDate.until(LocalDate.now()).days} Tagen",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.Light,
+                                        color = Color.Gray
+                                    )
+                                )
+                                TextButton(
+                                    onClick = { onSetSelectedDate(LocalDate.now()) },
+                                    enabled = state.selectedDate != LocalDate.now()
+                                ) { Text("zurück") }
+                            }
+                        }
+                        TextButton(
+                            onClick = {},
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .align(Alignment.CenterEnd)
+                        ) {
+                            Text(
+                                text = "KW 24"
+                            )
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                                contentDescription = null
+                            )
                         }
                     }
                 }
-                HorizontalDivider()
             }
-
-            item {
+            Column(
+                Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+            ) {
                 HorizontalPager(
                     state = contentPagerState,
                     modifier = Modifier
                         .fillMaxHeight()
                 ) {
-                    val date = LocalDate.now().plusDays(it.toLong())
+                    val date = LocalDate.now().plusDays(
+                        it.toLong() - PAGER_SIZE / 2
+                    )
 
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -333,7 +425,6 @@ fun HomeScreenContent(
                     }
                 }
             }
-
         }
     }
 
@@ -378,4 +469,16 @@ private fun HomeScreenPreview() {
         onSwitchProfile = {},
         startDate = LocalDate.now()
     )
+}
+
+@Composable
+fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Composable () -> Unit) {
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = expand,
+        enter = expandVertically(tween(250)),
+        exit = shrinkVertically(tween(250))
+    ) {
+        content()
+    }
 }
