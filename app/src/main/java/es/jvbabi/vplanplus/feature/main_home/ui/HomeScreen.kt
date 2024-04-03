@@ -79,6 +79,7 @@ import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -299,7 +300,7 @@ fun HomeScreenContent(
                                 contentDescription = null
                             )
                             Text(
-                                text = "KW 22"
+                                text = stringResource(id = R.string.home_calendarWeek, state.currentTime.minusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
                             )
                         }
                         Collapsable(
@@ -311,9 +312,7 @@ fun HomeScreenContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text =
-                                    if (state.selectedDate.isAfter(LocalDate.now())) "In ${LocalDate.now().until(state.selectedDate).days} Tagen"
-                                    else "Vor ${state.selectedDate.until(LocalDate.now()).days} Tagen",
+                                    text = formatDayDuration(state.selectedDate),
                                     style = MaterialTheme.typography.labelMedium.copy(
                                         fontWeight = FontWeight.Light,
                                         color = Color.Gray
@@ -322,7 +321,7 @@ fun HomeScreenContent(
                                 TextButton(
                                     onClick = { onSetSelectedDate(LocalDate.now()) },
                                     enabled = state.selectedDate != LocalDate.now()
-                                ) { Text("zurück") }
+                                ) { Text(stringResource(id = R.string.back)) }
                             }
                         }
                         TextButton(
@@ -332,7 +331,7 @@ fun HomeScreenContent(
                                 .align(Alignment.CenterEnd)
                         ) {
                             Text(
-                                text = "KW 24"
+                                text = stringResource(id = R.string.home_calendarWeek, state.currentTime.plusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
                             )
                             Icon(
                                 imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
@@ -480,5 +479,13 @@ fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Compos
         exit = shrinkVertically(tween(250))
     ) {
         content()
+    }
+}
+
+@Composable
+private fun formatDayDuration(compareTo: LocalDate): String {
+    return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false) ?: run {
+        if (compareTo.isAfter(LocalDate.now())) return stringResource(id = R.string.home_inNDays, LocalDate.now().until(compareTo).days)
+        else return stringResource(id = R.string.home_NdaysAgo, compareTo.until(LocalDate.now()).days)
     }
 }

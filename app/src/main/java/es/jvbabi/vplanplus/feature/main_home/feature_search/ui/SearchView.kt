@@ -135,9 +135,9 @@ fun SearchViewContent(
                 .fillMaxWidth()
                 .shadow(
                     (8 * (1 - modifier.value)).dp,
-                    RoundedCornerShape(percent = 50 * (1 - modifier.value).toInt())
+                    RoundedCornerShape(percent = (50 * (1 - modifier.value)).toInt())
                 )
-                .clip(RoundedCornerShape(percent = 50 * (1 - modifier.value).toInt()))
+                .clip(RoundedCornerShape(percent = (50 * (1 - modifier.value)).toInt()))
                 .background(MaterialTheme.colorScheme.surface)
                 .height(56.dp)
                 .clickable { onSearchActiveChange(true) },
@@ -162,7 +162,8 @@ fun SearchViewContent(
                 visualTransformation = VisualTransformation.None,
                 decorationBox = { innerTextField ->
                     Box(
-                        Modifier.focusRequester(focusRequester)
+                        Modifier.focusRequester(focusRequester),
+                        contentAlignment = Alignment.CenterStart
                     ) {
                         if (state.query.isEmpty()) {
                             Text(

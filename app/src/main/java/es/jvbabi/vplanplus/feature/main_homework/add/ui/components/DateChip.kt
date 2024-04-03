@@ -18,7 +18,7 @@ fun DateChip(
 ) {
     val context = LocalContext.current
     FilterChip(
-        label = { Text(text = DateUtils.localizedRelativeDate(context, date))},
+        label = { Text(text = DateUtils.localizedRelativeDate(context, date, true)!!)},
         onClick = { onClicked(date) },
         modifier = Modifier.padding(horizontal = 4.dp),
         selected = selected

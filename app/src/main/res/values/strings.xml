@@ -540,5 +540,8 @@
     <string name="home_invalidVppIdSessionTitle">Session closed</string>
     <string name="home_invalidVppIdSessionText">You were logged out of your vpp.ID. The account has been removed from this device. Please log back in to continue to use vpp.ID features.</string>
     <string name="ignore">Ignore</string>
+    <string name="home_calendarWeek">CW %1$d</string>
+    <string name="home_inNDays">In %1$d days</string>
+    <string name="home_NdaysAgo">%1$d days ago</string>
 
 </resources>
