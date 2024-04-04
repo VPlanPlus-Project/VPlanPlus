@@ -20,9 +20,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.MeetingRoom
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MeetingRoom
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -152,7 +154,7 @@ fun LessonCard(
                                 modifier = Modifier.padding(horizontal = 4.dp)
                             )
                             Icon(
-                                imageVector = Icons.Default.MeetingRoom,
+                                imageVector = Icons.Outlined.MeetingRoom,
                                 contentDescription = null,
                                 tint =
                                 if (lesson.roomIsChanged) colorScheme.error
@@ -181,7 +183,7 @@ fun LessonCard(
                                 )
                             }
                             Icon(
-                                imageVector = Icons.Default.Person,
+                                imageVector = Icons.Outlined.Person,
                                 contentDescription = null,
                                 tint =
                                 if (lesson.teacherIsChanged) colorScheme.error
@@ -217,7 +219,7 @@ fun LessonCard(
                     if (!lesson.info.isNullOrBlank()) {
                         InfoRow(icon = {
                             Icon(
-                                imageVector = Icons.Default.Info,
+                                imageVector = Icons.Outlined.Info,
                                 contentDescription = null,
                                 tint = Color.Gray
                             )
@@ -233,7 +235,7 @@ fun LessonCard(
                     if (booking != null) {
                         InfoRow(icon = {
                             Icon(
-                                imageVector = Icons.Default.MeetingRoom,
+                                imageVector = Icons.Outlined.MeetingRoom,
                                 contentDescription = null,
                                 tint = Color.Gray
                             )
@@ -253,7 +255,7 @@ fun LessonCard(
                     if (relevantHomeworkTasks.isNotEmpty()) {
                         InfoRow(icon = {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                                imageVector = Icons.AutoMirrored.Outlined.MenuBook,
                                 contentDescription = null,
                                 tint = Color.Gray
                             )

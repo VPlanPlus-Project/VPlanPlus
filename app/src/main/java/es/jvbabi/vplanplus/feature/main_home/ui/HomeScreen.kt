@@ -237,11 +237,16 @@ fun HomeScreenContent(
                     onOpenMenu = { onOpenMenu(true) },
                     onFindAvailableRoomClicked = onBookRoomClicked
                 )
-                Greeting(
-                    time = state.currentTime,
-                    name = state.currentIdentity.vppId?.name,
-                    modifier = Modifier.padding(start = 8.dp)
-                )
+                Collapsable(expand = expand) {
+                    Column {
+                        Greeting(
+                            time = state.currentTime,
+                            name = state.currentIdentity.vppId?.name,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                        LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 16.dp))
+                    }
+                }
                 AnimatedVisibility(
                     visible = state.hasInvalidVppIdSession,
                     enter = expandVertically(tween(250)),
@@ -255,10 +260,9 @@ fun HomeScreenContent(
                         buttonAction1 = onIgnoreInvalidVppIdSessions,
                         buttonText2 = stringResource(id = R.string.fix),
                         buttonAction2 = onFixVppIdSessionClicked,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
-                LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 8.dp))
                 HorizontalPager(
                     state = datePagerState,
                     modifier = Modifier
@@ -379,8 +383,8 @@ fun HomeScreenContent(
                                 DayView(
                                     day = state.days[date]!!,
                                     currentTime = state.currentTime,
-                                    showCountdown = date == state.selectedDate,
-                                    isInfoExpanded = if (date == LocalDate.now()) state.infoExpanded else null,
+                                    showCountdown = state.currentTime.toLocalDate().isEqual(date),
+                                    isInfoExpanded = if (state.currentTime.toLocalDate().isEqual(date)) state.infoExpanded else null,
                                     currentIdentity = state.currentIdentity,
                                     bookings = state.bookings,
                                     homework = state.homework,

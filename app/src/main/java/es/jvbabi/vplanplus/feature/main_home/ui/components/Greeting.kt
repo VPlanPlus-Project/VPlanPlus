@@ -42,12 +42,12 @@ fun Greeting(
                             MaterialTheme.colorScheme.tertiary
                         )
                     ),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Black
                 )
                 .toSpanStyle()
         ) {
             append(greeting)
-            if (name != null) append(", ")
+            if (name != null) append("\n")
         }
         if (name != null) withStyle(
             MaterialTheme
@@ -60,11 +60,11 @@ fun Greeting(
                             MaterialTheme.colorScheme.secondary
                         )
                     ),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Light
                 )
                 .toSpanStyle()
         ) {
-            append("$name.")
+            append(name)
         }
     }
 

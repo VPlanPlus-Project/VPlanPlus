@@ -52,11 +52,19 @@ fun DateCard(
     }
 
     val background =
-        if (isSelected) MaterialTheme.colorScheme.tertiaryContainer
+        if (isSelected) MaterialTheme.colorScheme.primary
         else MaterialTheme.colorScheme.surface
 
+    val foreground =
+        if (isSelected) MaterialTheme.colorScheme.onPrimary
+        else MaterialTheme.colorScheme.onSurface
+
+    val secondaryForeground =
+        if (isSelected) Color.LightGray
+        else Color.Gray
+
     Column {
-        val cardShape = RoundedCornerShape(28.dp)
+        val cardShape = RoundedCornerShape(24.dp)
         Box(
             Modifier
                 .shadow(8.dp, cardShape)
@@ -103,16 +111,14 @@ fun DateCard(
                         text = date.dayOfWeek.name.take(3).lowercase(),
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Light,
-                            color = Color.Gray
+                            color = secondaryForeground
                         ),
                     )
                 }
                 Text(
                     text = date.format(DateTimeFormatter.ofPattern("d")),
                     style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
-                    color =
-                    if (isSelected) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.secondary
+                    color = foreground
                 )
             }
         }

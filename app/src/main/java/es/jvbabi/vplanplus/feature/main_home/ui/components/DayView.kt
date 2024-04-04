@@ -30,7 +30,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Day
@@ -148,7 +147,7 @@ fun DayView(
                                         if (isFirstDisplay) PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
                                         else null
                                 )
-                                if (lessonNumber != filteredLessons.lastOrNull()?.lessonNumber) drawLine(
+                                if (lessonNumber != filteredLessons.lastOrNull()?.lessonNumber && showCountdown) drawLine(
                                     color = Color.Gray,
                                     start = Offset((padding/2).toPx(), 27.dp.toPx()),
                                     end = Offset((padding/2).toPx(), size.height),
@@ -188,23 +187,36 @@ fun DayView(
                     .end
                 if (!showCountdown) return@Column
                 val difference = currentTime.until(end, ChronoUnit.SECONDS)
-                if (difference > 0) Column(
+                if (difference > 0) Row(
                     Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                        .fillMaxWidth()
+                        .drawWithContent {
+                            drawContent()
+                            drawLine(
+                                color = Color.Gray,
+                                start = Offset((padding/2).toPx(), 0f),
+                                end = Offset((padding/2).toPx(), 22.dp.toPx()),
+                                strokeWidth = 1.dp.toPx()
+                            )
+                            drawCircle(
+                                color = Color.Gray,
+                                center = Offset((padding/2).toPx(), 18.dp.toPx()),
+                                radius = 6.dp.toPx()
+                            )
+                        },
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
                         imageVector = Icons.Default.SportsEsports,
                         contentDescription = null,
-                        modifier = Modifier.size(30.dp)
+                        modifier = Modifier.padding(start = padding + 8.dp).size(24.dp)
                     )
                     Text(
                         text = stringResource(
                             id = R.string.home_activeDayCountdown,
                             formatDuration(difference)
                         ),
-                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier.padding(8.dp)
                     )
                 }
