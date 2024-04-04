@@ -10,6 +10,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -19,8 +20,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
-import androidx.compose.foundation.pager.PagerDefaults
-import androidx.compose.foundation.pager.PagerSnapDistance
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +27,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.NoAccounts
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -70,6 +70,7 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformati
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
+import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
@@ -80,6 +81,7 @@ import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 const val PAGER_SIZE = 200
 
@@ -194,22 +196,17 @@ fun HomeScreenContent(
 
     LaunchedEffect(key1 = state.selectedDate) {
         datePagerState.animateScrollToPage(
-            page = LocalDate.now().until(state.selectedDate).days + PAGER_SIZE /2 - 1
+            page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2
         )
-        contentPagerState.animateScrollToPage(
-            page = LocalDate.now().until(state.selectedDate).days + PAGER_SIZE / 2
-        )
+        contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
     }
 
+    val isUserDragging = contentPagerState.interactionSource.collectIsDraggedAsState()
     LaunchedEffect(key1 = contentPagerState.targetPage) {
+        if (!isUserDragging.value) return@LaunchedEffect
         val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
-
-    val fling = PagerDefaults.flingBehavior(
-        state = datePagerState,
-        pagerSnapDistance = PagerSnapDistance.atMost(PAGER_SIZE)
-    )
 
     Scaffold(
         bottomBar = { navBar(!keyboardAsState().value) },
@@ -241,6 +238,7 @@ fun HomeScreenContent(
                     onOpenMenu = { onOpenMenu(true) },
                     onFindAvailableRoomClicked = onBookRoomClicked
                 )
+                Button(onClick = { onSetSelectedDate(state.selectedDate.plusDays(14))} ) { Text(text = "update date (${state.selectedDate})") }
                 Greeting(
                     time = state.currentTime,
                     name = state.currentIdentity.vppId?.name,
@@ -269,12 +267,11 @@ fun HomeScreenContent(
                         .fillMaxWidth()
                         .padding(top = 8.dp),
                     pageSize = PageSize.Fixed(60.dp),
-                    flingBehavior = fling,
                     verticalAlignment = Alignment.Top,
                     pageSpacing = 8.dp
                 ) {
                     val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
-                    val isSelected = date == state.selectedDate
+                    val isSelected = date.isEqual(state.selectedDate)
                     DateCard(
                         date,
                         isSelected,
@@ -312,7 +309,7 @@ fun HomeScreenContent(
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Text(
-                                    text = formatDayDuration(state.selectedDate),
+                                    text = formatDayDuration(state.selectedDate) + "  $DOT",
                                     style = MaterialTheme.typography.labelMedium.copy(
                                         fontWeight = FontWeight.Light,
                                         color = Color.Gray
@@ -461,7 +458,7 @@ fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Compos
 @Composable
 private fun formatDayDuration(compareTo: LocalDate): String {
     return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false) ?: run {
-        if (compareTo.isAfter(LocalDate.now())) return stringResource(id = R.string.home_inNDays, LocalDate.now().until(compareTo).days)
-        else return stringResource(id = R.string.home_NdaysAgo, compareTo.until(LocalDate.now()).days)
+        if (compareTo.isAfter(LocalDate.now())) return stringResource(id = R.string.home_inNDays, LocalDate.now().until(compareTo, ChronoUnit.DAYS))
+        else return stringResource(id = R.string.home_NdaysAgo, compareTo.until(LocalDate.now(), ChronoUnit.DAYS))
     }
 }
