@@ -53,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -188,6 +189,7 @@ fun HomeScreenContent(
 
 
     LaunchedEffect(key1 = scrollState.value) {
+        if (scrollState.maxValue - scrollState.value < 100.dp.value) return@LaunchedEffect
         if (previous < scrollState.value) expand = false
         else if (previous > scrollState.value) expand = true
         previous = scrollState.value
@@ -217,6 +219,7 @@ fun HomeScreenContent(
                 .padding(bottom = paddingValues.calculateBottomPadding())) {
             Column(
                 Modifier
+                    .zIndex(1f)
                     .shadow(
                         elevation = 4.dp,
                         shape = RoundedCornerShape(

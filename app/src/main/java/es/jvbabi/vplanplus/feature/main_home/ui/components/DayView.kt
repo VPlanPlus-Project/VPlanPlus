@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayType
@@ -75,14 +76,14 @@ fun DayView(
                             imageVector = Icons.Default.Info,
                             title = stringResource(id = R.string.home_activeDaySchoolInformation),
                             text = day.info,
-                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                            modifier = Modifier.zIndex(1f).padding(start = 8.dp, end = 8.dp, top = 8.dp)
                         )
                     } else {
                         CollapsableInfoCard(
                             imageVector = Icons.Default.Info,
                             title = stringResource(id = R.string.home_activeDaySchoolInformation),
                             text = day.info,
-                            modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp),
+                            modifier = Modifier.zIndex(1f).padding(start = 8.dp, end = 8.dp, top = 8.dp),
                             isExpanded = isInfoExpanded,
                             onChangeState = onChangeInfoExpandState
                         )
@@ -140,7 +141,7 @@ fun DayView(
                                 drawContent()
                                 drawLine(
                                     color = Color.Gray,
-                                    start = Offset((padding/2).toPx(), 0f),
+                                    start = Offset((padding/2).toPx(), -10f),
                                     end = Offset((padding/2).toPx(), 25.dp.toPx()),
                                     strokeWidth = 1.dp.toPx(),
                                     pathEffect =
@@ -170,7 +171,7 @@ fun DayView(
                                 },
                                 bookings = bookings,
                                 time = currentTime,
-                                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp, start = padding),
+                                modifier = Modifier.padding(top = 4.dp, bottom = 8.dp, start = padding, end = 8.dp),
                                 homework = homework,
                                 onAddHomeworkClicked = { onAddHomework(it) },
                                 onBookRoomClicked = onBookRoomClicked,
