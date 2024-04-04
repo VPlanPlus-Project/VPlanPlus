@@ -5,12 +5,12 @@
 
 > [!NOTE]
 > #### BALD VERFÜGBAR
-> Die App ist in wenigen Tagen im Google Play Store verfügbar. Vielen Dank an alle Teilnehmer.
+> Die App ist ab sofort im Google Play Store verfügbar. Vielen Dank an alle Teilnehmer.
 
 # <img src="https://raw.githubusercontent.com/Julius-Babies/VPlanPlus/v0.5.1-alpha/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" height="30px"> VPlanPlus für Android
 
 [<img src="https://raw.githubusercontent.com/Julius-Babies/Julius-Babies/main/static/ghreleases.png" alt="Get it on Github Releases" height="50px">](https://github.com/Julius-Babies/VPlanPlus/releases)
-[<img src="https://raw.githubusercontent.com/Julius-Babies/Julius-Babies/main/static/googleplay.png" alt="Get it on Github Releases" height="50px">](https://play.google.com/store/apps/details?id=es.jvbabi.vplanplus)[^1]<br />
+[<img src="https://raw.githubusercontent.com/Julius-Babies/Julius-Babies/main/static/googleplay.png" alt="Get it on Github Releases" height="50px">](https://play.google.com/store/apps/details?id=es.jvbabi.vplanplus)<br />
 
 Diese App ist eine Alternative zu VpMobil und VpMobil24.
 ### Spotlight-Features
@@ -29,7 +29,6 @@ Eine vpp.ID erstellst du mit deinem beste.schule Account.
 > [!IMPORTANT]
 > Der beste.schule Account benötigt eine E-Mail-Adresse.
 
-[^1]: Aktuell nur für Tester (registrierung per Mail unter [vpp.jvbabi.es](https://vpp.jvbabi.es))
 [^2]: Variiert zwischen Schulen, siehe Kompatibilitätstabelle weiter unten
 <hr />
 
