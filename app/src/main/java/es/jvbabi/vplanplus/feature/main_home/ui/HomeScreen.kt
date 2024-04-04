@@ -27,7 +27,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -238,7 +237,6 @@ fun HomeScreenContent(
                     onOpenMenu = { onOpenMenu(true) },
                     onFindAvailableRoomClicked = onBookRoomClicked
                 )
-                Button(onClick = { onSetSelectedDate(state.selectedDate.plusDays(14))} ) { Text(text = "update date (${state.selectedDate})") }
                 Greeting(
                     time = state.currentTime,
                     name = state.currentIdentity.vppId?.name,
