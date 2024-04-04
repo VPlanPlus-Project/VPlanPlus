@@ -225,7 +225,7 @@ fun HomeScreenContent(
                         )
                     )
                     .fillMaxWidth()
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                     .clip(
                         RoundedCornerShape(
                             bottomStart = 24.dp,
