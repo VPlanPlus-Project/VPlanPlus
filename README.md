@@ -4,7 +4,7 @@
 ### Aktuelles
 
 > [!NOTE]
-> #### BALD VERFÜGBAR
+> #### Google Play Store Release
 > Die App ist ab sofort im Google Play Store verfügbar. Vielen Dank an alle Teilnehmer.
 
 # <img src="https://raw.githubusercontent.com/Julius-Babies/VPlanPlus/v0.5.1-alpha/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" height="30px"> VPlanPlus für Android
