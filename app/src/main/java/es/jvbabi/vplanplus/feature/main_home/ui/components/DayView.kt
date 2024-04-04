@@ -147,7 +147,7 @@ fun DayView(
                                         if (isFirstDisplay) PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
                                         else null
                                 )
-                                if (lessonNumber != filteredLessons.lastOrNull()?.lessonNumber && showCountdown) drawLine(
+                                if (lessonNumber != filteredLessons.lastOrNull()?.lessonNumber || showCountdown) drawLine(
                                     color = Color.Gray,
                                     start = Offset((padding/2).toPx(), 27.dp.toPx()),
                                     end = Offset((padding/2).toPx(), size.height),
