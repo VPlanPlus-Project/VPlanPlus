@@ -10,7 +10,8 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.interaction.collectIsDraggedAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,6 +80,7 @@ import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -196,19 +198,20 @@ fun HomeScreenContent(
     }
 
     LaunchedEffect(key1 = state.selectedDate) {
-        datePagerState.animateScrollToPage(
-            page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2
-        )
+        this.launch {
+            datePagerState.animateScrollToPage(
+                page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2
+            )
+        }
         contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
     }
 
-    val isUserDragging = contentPagerState.interactionSource.collectIsDraggedAsState()
     LaunchedEffect(key1 = contentPagerState.targetPage) {
-        if (!isUserDragging.value) return@LaunchedEffect
         val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
 
+    val interactionSource = remember { MutableInteractionSource() }
     Scaffold(
         bottomBar = { navBar(!keyboardAsState().value) },
         containerColor = MaterialTheme.colorScheme.surface
@@ -235,6 +238,12 @@ fun HomeScreenContent(
                             bottomEnd = 24.dp
                         )
                     )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        expand = !expand
+                    }
             ) {
                 SearchView(
                     onOpenMenu = { onOpenMenu(true) },
