@@ -144,6 +144,7 @@ fun SearchViewContent(
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
+                modifier = Modifier.padding(start = 4.dp),
                 onClick = { focusManager.clearFocus(); onSearchActiveChange(!state.expanded) },
             ) {
                 Icon(

@@ -207,8 +207,8 @@ fun HomeScreenContent(
         contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
     }
 
-    LaunchedEffect(key1 = contentPagerState.targetPage) {
-        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
+    LaunchedEffect(key1 = contentPagerState.settledPage) {
+        val date = LocalDate.now().plusDays(contentPagerState.settledPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
 

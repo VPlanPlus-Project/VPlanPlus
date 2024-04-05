@@ -60,8 +60,8 @@ fun DateCard(
         else MaterialTheme.colorScheme.onSurface
 
     val secondaryForeground =
-        if (isSelected) Color.LightGray
-        else Color.Gray
+        if (isSelected) MaterialTheme.colorScheme.onPrimary
+        else MaterialTheme.colorScheme.onSurface
 
     Column {
         val cardShape = RoundedCornerShape(24.dp)
