@@ -8,7 +8,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,11 +22,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ProfileIcon(name: String, isSyncing: Boolean, showNotificationDot: Boolean, onClicked: () -> Unit) {
+fun ProfileIcon(modifier: Modifier = Modifier, name: String, isSyncing: Boolean, showNotificationDot: Boolean, onClicked: () -> Unit) {
     val error = MaterialTheme.colorScheme.error
     Box(
-        modifier = Modifier
-            .padding(end = 4.dp)
+        modifier = modifier
             .height(40.dp)
             .width(40.dp)
             .clip(RoundedCornerShape(20.dp))

@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -8,55 +9,62 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.Menu
-import es.jvbabi.vplanplus.feature.main_home.ui.components.DateEntry
+import es.jvbabi.vplanplus.feature.main_home.ui.components.DateCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
@@ -64,15 +72,19 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformati
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
+import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
 const val PAGER_SIZE = 200
 
@@ -161,39 +173,93 @@ fun HomeScreenContent(
         onCloseUntilNextVersion = { onVersionHintsClosed(true) }
     )
 
-    val datePagerState = rememberPagerState(pageCount = { PAGER_SIZE })
-    val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE })
+    val scrollState = rememberScrollState()
+    var previous by remember { mutableIntStateOf(0) }
+    var expand by rememberSaveable {
+        mutableStateOf(true)
+    }
+
+    val modifier = animateFloatAsState(
+        targetValue = if (expand) 1f else 0f,
+        label = "mod",
+        animationSpec = tween(250)
+    )
 
     LaunchedEffect(key1 = startDate) { onSetSelectedDate(startDate) }
 
-    LaunchedEffect(key1 = state.selectedDate) {
-        val difference = LocalDate.now().until(state.selectedDate).days
-        contentPagerState.animateScrollToPage(difference)
-        datePagerState.animateScrollToPage(maxOf(0, difference - 1))
+    val datePagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2 - 1)
+    val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2)
+
+
+    LaunchedEffect(key1 = scrollState.value) {
+        if (scrollState.maxValue - scrollState.value < 100.dp.value) return@LaunchedEffect
+        if (previous < scrollState.value) expand = false
+        else if (previous > scrollState.value) expand = true
+        previous = scrollState.value
     }
 
-    LaunchedEffect(key1 = contentPagerState.targetPage) {
-        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong())
+    LaunchedEffect(key1 = state.selectedDate) {
+        this.launch {
+            datePagerState.animateScrollToPage(
+                page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2
+            )
+        }
+        contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
+    }
+
+    LaunchedEffect(key1 = contentPagerState.settledPage) {
+        val date = LocalDate.now().plusDays(contentPagerState.settledPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
 
+    val interactionSource = remember { MutableInteractionSource() }
     Scaffold(
-        topBar = {
-            SearchView(
-                onOpenMenu = { onOpenMenu(true) },
-                onFindAvailableRoomClicked = onBookRoomClicked
-            )
-        },
         bottomBar = { navBar(!keyboardAsState().value) },
         containerColor = MaterialTheme.colorScheme.surface
     ) { paddingValues ->
-        LazyColumn(Modifier.padding(paddingValues)) {
-            item {
-                Greeting(
-                    time = state.currentTime,
-                    name = state.currentIdentity.vppId?.name,
-                    modifier = Modifier.padding(start = 8.dp)
+        Column(
+            Modifier
+                .fillMaxSize()
+                .padding(bottom = paddingValues.calculateBottomPadding())) {
+            Column(
+                Modifier
+                    .zIndex(1f)
+                    .shadow(
+                        elevation = 4.dp,
+                        shape = RoundedCornerShape(
+                            bottomStart = 24.dp,
+                            bottomEnd = 24.dp
+                        )
+                    )
+                    .fillMaxWidth()
+                    .background(CardDefaults.cardColors().containerColor)
+                    .clip(
+                        RoundedCornerShape(
+                            bottomStart = 24.dp,
+                            bottomEnd = 24.dp
+                        )
+                    )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = null
+                    ) {
+                        expand = !expand
+                    }
+            ) {
+                SearchView(
+                    onOpenMenu = { onOpenMenu(true) },
+                    onFindAvailableRoomClicked = onBookRoomClicked
                 )
+                Collapsable(expand = expand) {
+                    Column {
+                        Greeting(
+                            time = state.currentTime,
+                            name = state.currentIdentity.vppId?.name,
+                            modifier = Modifier.padding(start = 16.dp)
+                        )
+                        LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 16.dp))
+                    }
+                }
                 AnimatedVisibility(
                     visible = state.hasInvalidVppIdSession,
                     enter = expandVertically(tween(250)),
@@ -207,62 +273,95 @@ fun HomeScreenContent(
                         buttonAction1 = onIgnoreInvalidVppIdSessions,
                         buttonText2 = stringResource(id = R.string.fix),
                         buttonAction2 = onFixVppIdSessionClicked,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                     )
                 }
-                LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 8.dp))
-            }
-
-            stickyHeader {
-                Box {
-                    HorizontalPager(
-                        state = datePagerState,
-                        pageSize = PageSize.Fixed(70.dp)
-                    ) { offset ->
-                        val date = LocalDate.now().plusDays(offset.toLong())
-                        Row {
-                            DateEntry(
-                                date = date,
-                                homework = state.homework.count { it.until.toLocalDate().isEqual(date) },
-                                isActive = date == state.selectedDate,
-                                onClick = { onSetSelectedDate(date) }
-                            )
-                        }
-                    }
-                    AnimatedVisibility(
-                        visible = datePagerState.settledPage > 7,
-                        modifier = Modifier
-                            .align(Alignment.CenterEnd)
-                            .padding(end = 8.dp),
-                        enter = fadeIn(),
-                        exit = fadeOut()
-                    ) {
-                        val scope = rememberCoroutineScope()
-                        Button(
-                            modifier = Modifier.shadow(elevation = 4.dp, shape = RoundedCornerShape(50)),
+                HorizontalPager(
+                    state = datePagerState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    pageSize = PageSize.Fixed(60.dp),
+                    verticalAlignment = Alignment.Top,
+                    pageSpacing = 8.dp
+                ) {
+                    val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
+                    val isSelected = date.isEqual(state.selectedDate)
+                    DateCard(
+                        date,
+                        isSelected,
+                        modifier.value,
+                        expand,
+                        onClick = { onSetSelectedDate(date) }
+                    )
+                }
+                Collapsable(expand = expand) {
+                    Box(modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth()) {
+                        TextButton(
                             onClick = {
-                                onSetSelectedDate(LocalDate.now())
-                                scope.launch { datePagerState.animateScrollToPage(0) }
-                            }
+                                onSetSelectedDate(state.selectedDate.minusWeeks(1L).withDayOfWeek(1))
+                            },
+                            modifier = Modifier
+                                .padding(start = 4.dp)
+                                .align(Alignment.CenterStart)
                         ) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
                                 contentDescription = null
                             )
-                            Text(text = stringResource(id = R.string.home_backToToday))
+                            Text(
+                                text = stringResource(id = R.string.home_calendarWeek, state.currentTime.minusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
+                            )
+                        }
+                        Collapsable(
+                            modifier = Modifier.align(Alignment.Center),
+                            expand = state.selectedDate != LocalDate.now()
+                        ) {
+                            Row(
+                                horizontalArrangement = Arrangement.Center,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = formatDayDuration(state.selectedDate) + "  $DOT",
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.Light,
+                                        color = Color.Gray
+                                    )
+                                )
+                                TextButton(
+                                    onClick = { onSetSelectedDate(LocalDate.now()) },
+                                    enabled = state.selectedDate != LocalDate.now()
+                                ) { Text(stringResource(id = R.string.back)) }
+                            }
+                        }
+                        TextButton(
+                            onClick = {
+                                onSetSelectedDate(state.selectedDate.plusWeeks(1L).withDayOfWeek(1))
+                            },
+                            modifier = Modifier
+                                .padding(end = 4.dp)
+                                .align(Alignment.CenterEnd)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.home_calendarWeek, state.currentTime.plusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
+                            )
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
+                                contentDescription = null
+                            )
                         }
                     }
                 }
-                HorizontalDivider()
             }
-
-            item {
+            Column(Modifier.fillMaxSize()) {
                 HorizontalPager(
-                    state = contentPagerState,
-                    modifier = Modifier
-                        .fillMaxHeight()
+                    state = contentPagerState
                 ) {
-                    val date = LocalDate.now().plusDays(it.toLong())
+                    val date = LocalDate.now().plusDays(
+                        it.toLong() - PAGER_SIZE / 2
+                    )
 
                     Column(
                         modifier = Modifier.fillMaxSize(),
@@ -289,28 +388,7 @@ fun HomeScreenContent(
                             enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
                             exit = fadeOut(animationSpec = tween(animationDuration))
                         ) dayViewRoot@{
-                            Column(
-                                Modifier
-                                    .padding(start = 8.dp, top = 8.dp, end = 8.dp)
-                                    .fillMaxHeight()
-                                    .then(
-                                        if (state.days[date]?.type == DayType.NORMAL && state.days[date]?.state == DayDataState.DATA) Modifier.verticalScroll(rememberScrollState())
-                                        else Modifier
-                                    )
-                            ) {
-                                if (state.days[date]?.type == DayType.NORMAL) {
-                                    Text(
-                                        text = stringResource(
-                                            id = R.string.home_planTitle,
-                                            date.format(DateTimeFormatter.ofPattern("EEEE"))
-                                        ),
-                                        style = MaterialTheme.typography.displaySmall,
-                                    )
-                                    Text(
-                                        text = date.format(DateTimeFormatter.ofPattern("d. MMMM")),
-                                        style = MaterialTheme.typography.labelMedium,
-                                    )
-                                }
+                            Column(Modifier.fillMaxSize()) {
                                 if (state.days[date]?.lessons?.size == 0 && state.days[date]?.type == DayType.NORMAL) {
                                     NoData(date)
                                     return@dayViewRoot
@@ -318,22 +396,22 @@ fun HomeScreenContent(
                                 DayView(
                                     day = state.days[date]!!,
                                     currentTime = state.currentTime,
-                                    showCountdown = date == state.selectedDate,
-                                    isInfoExpanded = if (date == LocalDate.now()) state.infoExpanded else null,
+                                    showCountdown = state.currentTime.toLocalDate().isEqual(date),
+                                    isInfoExpanded = if (state.currentTime.toLocalDate().isEqual(date)) state.infoExpanded else null,
                                     currentIdentity = state.currentIdentity,
                                     bookings = state.bookings,
                                     homework = state.homework,
                                     onChangeInfoExpandState = onInfoExpandChange,
                                     onAddHomework = onAddHomework,
                                     onBookRoomClicked = onBookRoomClicked,
-                                    hideFinishedLessons = state.hideFinishedLessons
+                                    hideFinishedLessons = state.hideFinishedLessons,
+                                    scrollState = scrollState,
                                 )
                             }
                         }
                     }
                 }
             }
-
         }
     }
 
@@ -378,4 +456,24 @@ private fun HomeScreenPreview() {
         onSwitchProfile = {},
         startDate = LocalDate.now()
     )
+}
+
+@Composable
+fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Composable () -> Unit) {
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = expand,
+        enter = expandVertically(tween(250)),
+        exit = shrinkVertically(tween(250))
+    ) {
+        content()
+    }
+}
+
+@Composable
+private fun formatDayDuration(compareTo: LocalDate): String {
+    return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false) ?: run {
+        if (compareTo.isAfter(LocalDate.now())) return stringResource(id = R.string.home_inNDays, LocalDate.now().until(compareTo, ChronoUnit.DAYS))
+        else return stringResource(id = R.string.home_NdaysAgo, compareTo.until(LocalDate.now(), ChronoUnit.DAYS))
+    }
 }

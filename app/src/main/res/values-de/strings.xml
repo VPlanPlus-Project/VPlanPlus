@@ -539,5 +539,8 @@
     <string name="home_invalidVppIdSessionTitle">Abgemeldet</string>
     <string name="home_invalidVppIdSessionText">Du wurdest aus deiner vpp.ID abgemeldet. Der Account wurde von diesem Gerät entfernt. Bitte melde dich erneut an, um weiterhin alle vpp.ID Funktionen nutzen zu können.</string>
     <string name="ignore">Ignorieren</string>
+    <string name="home_calendarWeek">KW %1$d</string>
+    <string name="home_inNDays">In %1$d Tagen</string>
+    <string name="home_NdaysAgo">Vor %1$d Tagen</string>
 
 </resources>

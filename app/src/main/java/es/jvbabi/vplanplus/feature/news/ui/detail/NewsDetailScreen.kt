@@ -68,7 +68,7 @@ private fun NewsDetailScreenContent(
                             text = if (state.message == null) stringResource(id = R.string.loadingData) else state.message.title,
                             maxLines = 1, overflow = TextOverflow.Ellipsis
                         )
-                        if (state.message != null )Text(text = DateUtils.localizedRelativeDate(LocalContext.current, state.message.date.toLocalDate()), style = MaterialTheme.typography.labelSmall)
+                        if (state.message != null )Text(text = DateUtils.localizedRelativeDate(LocalContext.current, state.message.date.toLocalDate(), true)!!, style = MaterialTheme.typography.labelSmall)
                     }
                 },
                 navigationIcon = {
