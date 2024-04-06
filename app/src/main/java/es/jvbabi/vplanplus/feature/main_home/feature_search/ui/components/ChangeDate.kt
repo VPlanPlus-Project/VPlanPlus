@@ -102,7 +102,7 @@ fun ChangeDate(
                         Row {
                             Text(text = stringResource(id = R.string.search_resultDateChange))
                             AnimatedVisibility(
-                                visible = !selectedDate.isEqual(LocalDate.now()),
+                                visible = selectedDate.isAfter(LocalDate.now().plusDays(2)) || selectedDate.isBefore(LocalDate.now()),
                                 enter = expandHorizontally(tween(250)),
                                 exit = shrinkHorizontally(tween(250))
                             ) {
