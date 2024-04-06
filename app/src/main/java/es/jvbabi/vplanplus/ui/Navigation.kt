@@ -102,7 +102,11 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
             navDeepLink {
                 uriPattern = "https://vppid-development.test.jvbabi.es/android/link_success/{token}"
                 action = Intent.ACTION_VIEW
-            }
+            },
+            navDeepLink {
+                uriPattern = "https://vplan.plus/android/link_success/{token}"
+                action = Intent.ACTION_VIEW
+            },
         ),
         arguments = listOf(
             navArgument("token") {

@@ -56,7 +56,7 @@ fun AboutScreen(
     AboutContent(
         onBack = { navHostController.popBackStack() },
         onOpenWebsite = {
-            openLink(context, "https://vplanplus.jvbabi.es")
+            openLink(context, "https://vplan.plus")
         },
         onOpenPlayStore = {
             openLink(context, "https://play.google.com/store/apps/details?id=es.jvbabi.vplanplus")
@@ -147,7 +147,7 @@ private fun AboutContent(
                 SettingsSetting(
                     icon = Icons.Default.Language,
                     title = stringResource(id = R.string.settingsAbout_websiteTitle),
-                    subtitle = "vpp.jvbabi.es",
+                    subtitle = "vplan.plus",
                     doAction = onOpenWebsite,
                     type = SettingsType.FUNCTION
                 )

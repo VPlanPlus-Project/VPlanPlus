@@ -45,7 +45,7 @@ object Keys {
     const val SHOW_ENABLE_BIOMETRIC_BANNER = "SHOW_ENABLE_BIOMETRIC_BANNER"
 
     const val VPPID_SERVER = "VPPID_SERVER"
-    const val VPPID_SERVER_DEFAULT = "https://id.vpp.jvbabi.es"
+    const val VPPID_SERVER_DEFAULT = "https://vplan.plus"
 
     const val SHOW_NOTIFICATION_ON_NEW_HOMEWORK = "SHOW_NOTIFICATION_ON_NEW_HOMEWORK"
     const val SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT = "true"
