@@ -27,7 +27,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,6 +44,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalFocusManager
@@ -59,11 +59,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.ChangeDate
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.ProfileIcon
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchNoResults
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchPlaceholder
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchResult
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchSearching
+import java.time.LocalDate
 
 @Composable
 fun SearchView(
@@ -77,15 +79,16 @@ fun SearchView(
         onSearchActiveChange = viewModel::onSearchActiveChange,
         onUpdateQuery = viewModel::onQueryChange,
         onOpenMenu = onOpenMenu,
-        onFindAvailableRoomClicked = onFindAvailableRoomClicked
+        onFindAvailableRoomClicked = onFindAvailableRoomClicked,
+        onSetDate = viewModel::onSetDate
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchViewContent(
     state: SearchState,
     onOpenMenu: () -> Unit = {},
+    onSetDate: (date: LocalDate?) -> Unit = {},
     onSearchActiveChange: (expanded: Boolean) -> Unit,
     onUpdateQuery: (query: String) -> Unit,
     onFindAvailableRoomClicked: () -> Unit
@@ -177,6 +180,11 @@ fun SearchViewContent(
                         innerTextField()
                     }
                 },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                cursorBrush = Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.onSecondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer)), // I don't like this
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Search
@@ -215,6 +223,13 @@ fun SearchViewContent(
                     SearchNoResults(state.query)
                     return@AnimatedVisibility
                 }
+
+                ChangeDate(
+                    selectedDate = state.selectedDate,
+                    onSetDate = onSetDate
+                )
+
+                HorizontalDivider(Modifier.padding(vertical = 4.dp))
 
                 if (state.isSearchRunning) {
                     SearchSearching()

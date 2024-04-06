@@ -543,5 +543,6 @@
     <string name="home_calendarWeek">CW %1$d</string>
     <string name="home_inNDays">In %1$d days</string>
     <string name="home_NdaysAgo">%1$d days ago</string>
+    <string name="search_resultDateChange">Date</string>
 
 </resources>
