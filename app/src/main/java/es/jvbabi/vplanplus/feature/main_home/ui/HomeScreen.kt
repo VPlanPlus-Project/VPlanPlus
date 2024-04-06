@@ -16,6 +16,7 @@ import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -207,8 +208,8 @@ fun HomeScreenContent(
         if (!isInteracting) contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
     }
 
-    LaunchedEffect(key1 = contentPagerState.targetPage) {
-        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
+    LaunchedEffect(key1 = contentPagerState.currentPage) {
+        val date = LocalDate.now().plusDays(contentPagerState.currentPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
 
@@ -283,8 +284,9 @@ fun HomeScreenContent(
                         .padding(top = 8.dp),
                     pageSize = PageSize.Fixed(60.dp),
                     verticalAlignment = Alignment.Top,
-                    pageSpacing = 8.dp
-                ) {
+                    pageSpacing = 8.dp,
+                    contentPadding = PaddingValues(horizontal = 8.dp)
+                ) datePager@{
                     val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
                     val isSelected = date.isEqual(state.selectedDate)
                     DateCard(
