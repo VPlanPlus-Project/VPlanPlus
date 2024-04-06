@@ -68,7 +68,7 @@ class SearchViewModel @Inject constructor(
         state.value = state.value.copy(isSearchRunning = true)
 
         searchJob = viewModelScope.launch {
-            val results = searchUseCases.searchUseCase(state.value.query)
+            val results = searchUseCases.searchUseCase(state.value.query, state.value.selectedDate)
             state.value = state.value.copy(
                 results = results,
                 isSearchRunning = false
