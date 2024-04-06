@@ -47,7 +47,7 @@ import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
 fun onLogin(context: Context, server: String) {
-    val url = "${server}/login/link/?version=${BuildConfig.VERSION_CODE}&name=VPlanPlus%20on%20" + URLEncoder.encode(
+    val url = "${server}/id/login/link/?version=${BuildConfig.VERSION_CODE}&name=VPlanPlus%20on%20" + URLEncoder.encode(
         Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
     )
     val intent = CustomTabsIntent.Builder().build()
