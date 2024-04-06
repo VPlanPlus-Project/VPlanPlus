@@ -191,10 +191,10 @@ fun LessonCard(
                             )
                             Text(
                                 text = lesson.teachers.joinToString(", "),
-                                style = MaterialTheme.typography.labelMedium,
+                                style = MaterialTheme.typography.titleLarge,
                                 color =
-                                if (lesson.teacherIsChanged) colorScheme.error
-                                else colorScheme.onSurface
+                                    if (lesson.teacherIsChanged) colorScheme.error
+                                    else colorScheme.onSurface
                             )
                         }
                     }
