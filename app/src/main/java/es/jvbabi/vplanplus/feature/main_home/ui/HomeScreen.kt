@@ -12,6 +12,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsDraggedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -198,17 +199,16 @@ fun HomeScreenContent(
         previous = scrollState.value
     }
 
+    val isInteracting by contentPagerState.interactionSource.collectIsDraggedAsState()
     LaunchedEffect(key1 = state.selectedDate) {
-        this.launch {
-            datePagerState.animateScrollToPage(
-                page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2
-            )
-        }
-        contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
+        launch { datePagerState.animateScrollToPage(
+            page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2
+        ) }
+        if (!isInteracting) contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
     }
 
-    LaunchedEffect(key1 = contentPagerState.settledPage) {
-        val date = LocalDate.now().plusDays(contentPagerState.settledPage.toLong() - PAGER_SIZE / 2)
+    LaunchedEffect(key1 = contentPagerState.targetPage) {
+        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
 
