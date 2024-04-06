@@ -132,7 +132,7 @@ private fun AddHomeworkContent(
 ) {
 
     var showNoDefaultLessonDialog by rememberSaveable { mutableStateOf(false) }
-    if (showNoDefaultLessonDialog) NoDefaultLessonDialog(onYes = onSave, onNo = { showNoDefaultLessonDialog = false })
+    if (showNoDefaultLessonDialog) NoDefaultLessonDialog(onYes = { showNoDefaultLessonDialog = false; onSave() }, onNo = { showNoDefaultLessonDialog = false })
 
     val noTeacher = stringResource(id = R.string.settings_profileDefaultLessonNoTeacher)
     if (state.isLessonDialogOpen) {

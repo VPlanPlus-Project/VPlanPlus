@@ -547,6 +547,6 @@
     <string name="homework_noSubject">Kein Fach</string>
     <string name="addHomework_removeSubject">Fach entfernen</string>
     <string name="addHomework_noDefaultLessonDialogTitle">Kein Fach ausgewählt</string>
-    <string name="addHomework_noDefaultLessonDialogText">Du hast kein Fach für diese Hausaufgabe angegeben. Möchtest Du dennoch fortfahren?</string>
+    <string name="addHomework_noDefaultLessonDialogText">Du hast kein Fach für diese Hausaufgabe angegeben. Sie wird nicht für Nutzer einer veralteten Version (v1.1 und älter) von VPlanPlus angezeigt. Möchtest Du dennoch fortfahren?</string>
 
 </resources>

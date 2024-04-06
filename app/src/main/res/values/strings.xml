@@ -548,6 +548,6 @@
     <string name="homework_noSubject">No subject</string>
     <string name="addHomework_removeSubject">Remove subject</string>
     <string name="addHomework_noDefaultLessonDialogTitle">No subject selected</string>
-    <string name="addHomework_noDefaultLessonDialogText">You didn\'t select a subject. Do you want to continue?</string>
+    <string name="addHomework_noDefaultLessonDialogText">You didn\'t select a subject. This homework won\'t be visible for users with an older version (v1.1 and prior) of the app. Do you want to continue?</string>
 
 </resources>
