@@ -138,5 +138,5 @@ data class AddHomeworkState(
     val isLoading: Boolean = false,
 ) {
     val canSubmit: Boolean
-        get() = selectedDefaultLesson != null && until != null && tasks.isNotEmpty()
+        get() = until != null && tasks.isNotEmpty()
 }

@@ -545,5 +545,8 @@
     <string name="search_resultDateChange">Datum</string>
     <string name="notification_homeworkReminderNoDefaultLesson">keinem definierten Fach</string>
     <string name="homework_noSubject">Kein Fach</string>
+    <string name="addHomework_removeSubject">Fach entfernen</string>
+    <string name="addHomework_noDefaultLessonDialogTitle">Kein Fach ausgewählt</string>
+    <string name="addHomework_noDefaultLessonDialogText">Du hast kein Fach für diese Hausaufgabe angegeben. Möchtest Du dennoch fortfahren?</string>
 
 </resources>
