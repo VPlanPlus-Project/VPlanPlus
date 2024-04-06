@@ -127,7 +127,7 @@ fun LessonCard(
                         }
                     val relevantHomeworkTasks = homework
                         .filter { hw -> hw.defaultLesson.vpId == lesson.vpId }
-                        .filter { hw -> hw.until.toLocalDate().isEqual(time.toLocalDate()) }
+                        .filter { hw -> hw.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
                         .map { it.tasks }
 
                     Row(
