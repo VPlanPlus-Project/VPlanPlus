@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 23,
-    "identityHash": "dce4f265cea09a928581ab79bb53c7fb",
+    "identityHash": "9a2840eaafa6ba00f87bf130ad1e9fc6",
     "entities": [
       {
         "tableName": "lesson",
@@ -1252,7 +1252,7 @@
       },
       {
         "tableName": "homework",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `createdBy` INTEGER, `classes` TEXT NOT NULL, `isPublic` INTEGER NOT NULL DEFAULT false, `createdAt` INTEGER NOT NULL, `defaultLessonVpId` INTEGER NOT NULL, `until` INTEGER NOT NULL, `hidden` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`), FOREIGN KEY(`createdBy`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`classes`) REFERENCES `school_entity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `createdBy` INTEGER, `classes` TEXT NOT NULL, `isPublic` INTEGER NOT NULL DEFAULT false, `createdAt` INTEGER NOT NULL, `defaultLessonVpId` INTEGER, `until` INTEGER NOT NULL, `hidden` INTEGER NOT NULL DEFAULT false, PRIMARY KEY(`id`), FOREIGN KEY(`createdBy`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`classes`) REFERENCES `school_entity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1289,7 +1289,7 @@
             "fieldPath": "defaultLessonVpId",
             "columnName": "defaultLessonVpId",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "until",
@@ -1634,7 +1634,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dce4f265cea09a928581ab79bb53c7fb')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9a2840eaafa6ba00f87bf130ad1e9fc6')"
     ]
   }
 }

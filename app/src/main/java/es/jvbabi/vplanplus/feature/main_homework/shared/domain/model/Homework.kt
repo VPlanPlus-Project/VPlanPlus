@@ -12,7 +12,7 @@ open class Homework(
     val createdBy: VppId?,
     val classes: Classes,
     val createdAt: ZonedDateTime,
-    val defaultLesson: DefaultLesson,
+    val defaultLesson: DefaultLesson?,
     val isPublic: Boolean,
     val until: ZonedDateTime,
     val tasks: List<HomeworkTask>,
@@ -20,7 +20,7 @@ open class Homework(
 ) {
     fun buildHash(): String {
         val converter = ZonedDateTimeConverter()
-        return "$id${createdBy?.id}${converter.zonedDateTimeToTimestamp(createdAt)}${defaultLesson.vpId}${converter.zonedDateTimeToTimestamp(until)}$isPublic${classes.name}${tasks.joinToString { it.content }}".sha256().lowercase()
+        return "$id${createdBy?.id}${converter.zonedDateTimeToTimestamp(createdAt)}${defaultLesson?.vpId}${converter.zonedDateTimeToTimestamp(until)}$isPublic${classes.name}${tasks.joinToString { it.content }}".sha256().lowercase()
     }
 }
 

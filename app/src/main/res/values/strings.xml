@@ -544,5 +544,7 @@
     <string name="home_inNDays">In %1$d days</string>
     <string name="home_NdaysAgo">%1$d days ago</string>
     <string name="search_resultDateChange">Date</string>
+    <string name="notification_homeworkReminderNoDefaultLesson">an unset subject</string>
+    <string name="homework_noSubject">No subject</string>
 
 </resources>
