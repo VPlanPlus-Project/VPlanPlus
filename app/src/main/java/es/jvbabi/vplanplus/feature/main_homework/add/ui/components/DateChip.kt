@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun DateChip(
@@ -18,7 +19,7 @@ fun DateChip(
 ) {
     val context = LocalContext.current
     FilterChip(
-        label = { Text(text = DateUtils.localizedRelativeDate(context, date, true)!!)},
+        label = { Text(text = DateUtils.localizedRelativeDate(context, date, false) ?: DateTimeFormatter.ofPattern("EE, dd.MM.yyyy").format(date))},
         onClick = { onClicked(date) },
         modifier = Modifier.padding(horizontal = 4.dp),
         selected = selected
