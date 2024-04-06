@@ -312,7 +312,7 @@ fun HomeScreenContent(
                                 contentDescription = null
                             )
                             Text(
-                                text = stringResource(id = R.string.home_calendarWeek, state.currentTime.minusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
+                                text = stringResource(id = R.string.home_calendarWeek, state.selectedDate.minusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
                             )
                         }
                         Collapsable(
@@ -345,7 +345,7 @@ fun HomeScreenContent(
                                 .align(Alignment.CenterEnd)
                         ) {
                             Text(
-                                text = stringResource(id = R.string.home_calendarWeek, state.currentTime.plusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
+                                text = stringResource(id = R.string.home_calendarWeek, state.selectedDate.plusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
                             )
                             Icon(
                                 imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
