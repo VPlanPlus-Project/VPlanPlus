@@ -1,7 +1,7 @@
 ---
 name: Task
-about: This template is about tasks in the app which just need to be done.
-title: TASK: [TASK NAME]
+about: This template is about app tasks that need to be done.
+title: "[TASK] {TASK NAME}"
 ---
 
 > [!NOTE]
