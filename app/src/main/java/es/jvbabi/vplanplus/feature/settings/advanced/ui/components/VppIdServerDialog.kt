@@ -14,7 +14,7 @@ fun VppIdServerDialog(
     onDismiss: () -> Unit,
 ) {
     val items = listOf(
-        "https://id.vpp.jvbabi.es",
+        "https://vplan.plus",
         "https://vppid-development.test.jvbabi.es"
     )
     SelectDialog(
@@ -32,7 +32,7 @@ fun VppIdServerDialog(
 @Composable
 fun VppIdServerDialogPreview() {
     VppIdServerDialog(
-        selectedServer = "https://id.vpp.jvbabi.es",
+        selectedServer = "https://vplan.plus",
         onSetServer = {},
         onDismiss = {}
     )
