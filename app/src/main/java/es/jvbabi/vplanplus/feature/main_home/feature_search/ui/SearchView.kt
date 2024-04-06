@@ -44,6 +44,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalFocusManager
@@ -179,6 +180,11 @@ fun SearchViewContent(
                         innerTextField()
                     }
                 },
+                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    fontWeight = FontWeight.SemiBold
+                ),
+                cursorBrush = Brush.verticalGradient(colors = listOf(MaterialTheme.colorScheme.onSecondaryContainer, MaterialTheme.colorScheme.onSecondaryContainer)), // I don't like this
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Search
@@ -218,14 +224,14 @@ fun SearchViewContent(
                     return@AnimatedVisibility
                 }
 
-                if (state.isSearchRunning) {
-                    SearchSearching()
-                }
-                
                 ChangeDate(
                     selectedDate = state.selectedDate,
                     onSetDate = onSetDate
                 )
+
+                if (state.isSearchRunning) {
+                    SearchSearching()
+                }
 
                 val detailedResults = state.results.filter { it.lessons != null }
                 detailedResults.forEachIndexed { i, result ->
