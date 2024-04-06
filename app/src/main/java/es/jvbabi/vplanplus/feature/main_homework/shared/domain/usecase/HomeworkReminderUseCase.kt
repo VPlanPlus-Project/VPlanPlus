@@ -55,7 +55,7 @@ class HomeworkReminderUseCase(
             R.plurals.notification_homeworkReminderTomorrowMessage,
             homeworkForTomorrow.size,
             homeworkForTomorrow.size,
-            homeworkForTomorrow.joinToString(", ") { it.defaultLesson.subject }
+            homeworkForTomorrow.joinToString(", ") { it.defaultLesson?.subject ?: stringRepository.getString(R.string.notification_homeworkReminderNoDefaultLesson) }
         )
 
         val messageAfterTomorrow =

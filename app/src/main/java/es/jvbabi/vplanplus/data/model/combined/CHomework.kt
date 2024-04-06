@@ -38,7 +38,7 @@ data class CHomework(
             id = homework.id,
             createdBy = createdBy?.toModel(),
             createdAt = homework.createdAt,
-            defaultLesson = defaultLessons.first { it.`class`.schoolEntity.id == classes.schoolEntity.id }.toModel(),
+            defaultLesson = defaultLessons.firstOrNull { it.`class`.schoolEntity.id == classes.schoolEntity.id }?.toModel(),
             until = homework.until,
             tasks = tasks.map { it.toModel() },
             classes = classes.toClassModel(),

@@ -21,7 +21,7 @@ class SaveHomeworkUseCase(
         until: LocalDate,
         shareWithClass: Boolean,
         storeInCloud: Boolean,
-        defaultLesson: DefaultLesson,
+        defaultLesson: DefaultLesson?,
         tasks: List<String>,
     ): HomeworkModificationResult {
         val identity = getCurrentIdentityUseCase().first() ?: return HomeworkModificationResult.FAILED
@@ -33,7 +33,7 @@ class SaveHomeworkUseCase(
             createdBy = if (storeInCloud) identity.vppId else null,
             `class` = `class`,
             until = dueTo,
-            defaultLessonVpId = defaultLesson.vpId,
+            defaultLessonVpId = defaultLesson?.vpId,
             tasks = tasks.map { NewTaskRecord(
                 it.trim()
             ) },

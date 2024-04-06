@@ -293,7 +293,7 @@ fun HomeworkCard(
                                 Column {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
                                         Text(
-                                            text = homework.defaultLesson.subject,
+                                            text = homework.defaultLesson?.subject ?: stringResource(id = R.string.homework_noSubject),
                                             style = MaterialTheme.typography.titleMedium
                                         )
                                         if (homework.isPublic) {

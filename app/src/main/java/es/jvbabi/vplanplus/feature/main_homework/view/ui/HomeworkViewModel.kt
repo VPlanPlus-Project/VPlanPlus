@@ -50,7 +50,7 @@ class HomeworkViewModel @Inject constructor(
                         .map {
                             it.toViewModel(
                                 isOwner = it.createdBy?.id == identity.vppId?.id,
-                                isEnabled = identity.profile.isDefaultLessonEnabled(it.defaultLesson.vpId)
+                                isEnabled = identity.profile.isDefaultLessonEnabled(it.defaultLesson?.vpId)
                             )
                         },
                     wrongProfile = homework.wrongProfile,
@@ -314,7 +314,7 @@ data class HomeworkViewModelHomework(
     val createdBy: VppId?,
     val classes: Classes,
     val createdAt: ZonedDateTime,
-    val defaultLesson: DefaultLesson,
+    val defaultLesson: DefaultLesson?,
     val isPublic: Boolean,
     val until: ZonedDateTime,
     val tasks: List<HomeworkViewModelTask>,

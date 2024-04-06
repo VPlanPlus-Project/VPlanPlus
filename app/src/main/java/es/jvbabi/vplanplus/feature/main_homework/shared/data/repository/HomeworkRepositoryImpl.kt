@@ -280,7 +280,7 @@ class HomeworkRepositoryImpl(
         createdBy: VppId?,
         createdAt: ZonedDateTime,
         `class`: Classes,
-        defaultLessonVpId: Long,
+        defaultLessonVpId: Long?,
         shareWithClass: Boolean,
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
@@ -672,7 +672,7 @@ private data class AddOrChangeTaskRequest(
 )
 
 private data class AddHomeworkRequest(
-    @SerializedName("vp_id") val vpId: Long,
+    @SerializedName("vp_id") val vpId: Long?,
     @SerializedName("public") val shareWithClass: Boolean,
     @SerializedName("due_to") val until: Long,
     @SerializedName("tasks") val tasks: List<String>
