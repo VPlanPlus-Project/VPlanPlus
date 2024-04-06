@@ -27,7 +27,6 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -59,11 +58,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.ColorUtils
 import androidx.hilt.navigation.compose.hiltViewModel
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.ChangeDate
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.ProfileIcon
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchNoResults
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchPlaceholder
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchResult
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchSearching
+import java.time.LocalDate
 
 @Composable
 fun SearchView(
@@ -77,15 +78,16 @@ fun SearchView(
         onSearchActiveChange = viewModel::onSearchActiveChange,
         onUpdateQuery = viewModel::onQueryChange,
         onOpenMenu = onOpenMenu,
-        onFindAvailableRoomClicked = onFindAvailableRoomClicked
+        onFindAvailableRoomClicked = onFindAvailableRoomClicked,
+        onSetDate = viewModel::onSetDate
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchViewContent(
     state: SearchState,
     onOpenMenu: () -> Unit = {},
+    onSetDate: (date: LocalDate?) -> Unit = {},
     onSearchActiveChange: (expanded: Boolean) -> Unit,
     onUpdateQuery: (query: String) -> Unit,
     onFindAvailableRoomClicked: () -> Unit
@@ -219,6 +221,11 @@ fun SearchViewContent(
                 if (state.isSearchRunning) {
                     SearchSearching()
                 }
+                
+                ChangeDate(
+                    selectedDate = state.selectedDate,
+                    onSetDate = onSetDate
+                )
 
                 val detailedResults = state.results.filter { it.lessons != null }
                 detailedResults.forEachIndexed { i, result ->
