@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.shared.data
 
 import android.util.Log
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -39,6 +40,7 @@ open class NetworkRepositoryImpl(
     init {
         this.server = server
         if (server.endsWith("/")) this.server = server.dropLast(1)
+        globalHeaders["App-Version"] = BuildConfig.VERSION_CODE.toString()
         init()
     }
 
