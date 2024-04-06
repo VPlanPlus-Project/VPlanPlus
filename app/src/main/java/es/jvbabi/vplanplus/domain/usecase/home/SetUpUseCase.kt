@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
+import java.io.IOException
 import java.time.LocalDate
 import java.time.ZoneId
 
@@ -22,21 +23,25 @@ class SetUpUseCase(
 ) {
 
     suspend operator fun invoke() {
-        testVppIds()
-        updateFirebaseTokens()
-        createHomeworkReminder()
+        try {
+            testForInvalidSessions()
+            updateFirebaseTokens()
+            createHomeworkReminder()
+        } catch (e: IOException) {
+            Log.i("SetUpUseCase", "Error, Firebase services might not be available at the moment: ${e.message}")
+        }
     }
 
-    private suspend fun testVppIds() {
-        val testMapping = vppIdRepository.getVppIds().first().map {
-            it to vppIdRepository.testVppId(it)
+    private suspend fun testForInvalidSessions() {
+        val testMapping = vppIdRepository.getVppIds().first().filter { it.isActive() }.map {
+            it to vppIdRepository.testVppIdSession(it)
         }
 
         testMapping.forEach { (vppId, isValid) ->
             if (isValid == false) vppIdRepository.unlinkVppId(vppId)
         }
 
-        keyValueRepository.set(Keys.INVALID_VPP_SESSION, testMapping.any { it.second == false }.toString())
+        keyValueRepository.set(Keys.INVALID_VPP_SESSION, testMapping.filter { it.second != null }.any { it.second == false }.toString())
     }
 
     suspend fun createHomeworkReminder() {

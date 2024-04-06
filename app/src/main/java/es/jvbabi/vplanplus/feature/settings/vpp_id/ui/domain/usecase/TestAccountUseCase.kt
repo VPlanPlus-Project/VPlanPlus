@@ -7,6 +7,6 @@ class TestAccountUseCase(
     private val vppIdRepository: VppIdRepository
 ) {
     suspend operator fun invoke(vppId: VppId): Boolean? {
-        return vppIdRepository.testVppId(vppId)
+        return vppIdRepository.testVppIdSession(vppId)
     }
 }
