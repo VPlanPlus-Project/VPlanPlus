@@ -186,8 +186,8 @@ fun LessonCard(
                                 imageVector = Icons.Outlined.Person,
                                 contentDescription = null,
                                 tint =
-                                if (lesson.teacherIsChanged) colorScheme.error
-                                else colorScheme.onSurface
+                                    if (lesson.teacherIsChanged) colorScheme.error
+                                    else colorScheme.onSurface
                             )
                             Text(
                                 text = lesson.teachers.joinToString(", "),
