@@ -542,7 +542,6 @@
     <string name="home_calendarWeek">KW %1$d</string>
     <string name="home_inNDays">In %1$d Tagen</string>
     <string name="home_NdaysAgo">Vor %1$d Tagen</string>
-    <string name="search_resultDate">Ergebnisse für %1$s</string>
-    <string name="search_resultDateChange">Anderes Datum wählen</string>
+    <string name="search_resultDateChange">Datum</string>
 
 </resources>

@@ -229,6 +229,8 @@ fun SearchViewContent(
                     onSetDate = onSetDate
                 )
 
+                HorizontalDivider(Modifier.padding(vertical = 4.dp))
+
                 if (state.isSearchRunning) {
                     SearchSearching()
                 }

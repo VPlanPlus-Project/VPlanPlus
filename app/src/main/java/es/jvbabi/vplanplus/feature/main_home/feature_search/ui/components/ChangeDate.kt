@@ -2,25 +2,25 @@ package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.EditCalendar
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
@@ -32,13 +32,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -52,70 +51,6 @@ fun ChangeDate(
 ) {
     val context = LocalContext.current
     var showDateDialog by rememberSaveable { mutableStateOf(false) }
-
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        IconButton(
-            onClick = { onSetDate(selectedDate.minusDays(1L)) }
-        ) {
-            Icon(imageVector = Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
-        }
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.weight(1f, true)
-        ) {
-            Column {
-                Text(
-                    text = stringResource(id = R.string.search_resultDate, DateUtils.localizedRelativeDate(context, selectedDate, true) ?: "?"),
-                    style = MaterialTheme.typography.labelMedium,
-                )
-                Text(
-                    text = selectedDate.format(DateTimeFormatter.ofPattern("EEEE")),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = Color.Gray
-                )
-            }
-            Row {
-                AnimatedVisibility(
-                    enter = fadeIn(tween(250)),
-                    exit = fadeOut(tween(250)),
-                    visible = !selectedDate.isEqual(LocalDate.now())
-                ) {
-                    IconButton(
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(32.dp),
-                        onClick = { onSetDate(LocalDate.now()) }
-                    ) {
-                        Icon(
-                            painter = painterResource(id = R.drawable.undo),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                            contentDescription = stringResource(id = R.string.home_backToToday)
-                        )
-                    }
-                }
-                IconButton(
-                    onClick = { showDateDialog = true },
-                    modifier = Modifier
-                        .padding(start = 8.dp)
-                        .size(32.dp)
-                ) {
-                    Icon(imageVector = Icons.Default.EditCalendar, contentDescription = stringResource(id = R.string.search_resultDateChange))
-                }
-                VerticalDivider(Modifier.padding(start = 8.dp).height(32.dp))
-            }
-        }
-        IconButton(
-            onClick = { onSetDate(selectedDate.plusDays(1L)) },
-        ) {
-            Icon(imageVector = Icons.AutoMirrored.Default.ArrowForward, contentDescription = null)
-        }
-    }
 
     if (showDateDialog) {
         val datePickerState = rememberDatePickerState(
@@ -141,6 +76,57 @@ fun ChangeDate(
             }
         ) {
             DatePicker(state = datePickerState)
+        }
+    }
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Default.AccessTime,
+            contentDescription = null,
+            modifier = Modifier.padding(end = 8.dp)
+        )
+
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = PaddingValues(start = 8.dp, end = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            item {
+                AssistChip(
+                    onClick = { showDateDialog = true },
+                    label = {
+                        Row {
+                            Text(text = stringResource(id = R.string.search_resultDateChange))
+                            AnimatedVisibility(
+                                visible = !selectedDate.isEqual(LocalDate.now()),
+                                enter = expandHorizontally(tween(250)),
+                                exit = shrinkHorizontally(tween(250))
+                            ) {
+                                Text(text = " $DOT ${selectedDate.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))}")
+                            }
+                        }
+                    },
+                    leadingIcon = { Icon(imageVector = Icons.Default.EditCalendar, contentDescription = null) },
+                    trailingIcon = { Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null) }
+                )
+                VerticalDivider(
+                    Modifier
+                        .padding(start = 8.dp)
+                        .height(32.dp))
+            }
+            items(3) {
+                val date = LocalDate.now().plusDays(it.toLong())
+                FilterChip(
+                    onClick = { onSetDate(date) },
+                    label = { Text(text = DateUtils.localizedRelativeDate(context, date, true) ?: "?") },
+                    selected = selectedDate.isEqual(date)
+                )
+            }
         }
     }
 }
