@@ -246,7 +246,7 @@ fun LessonCard(
                                     booking.bookedBy?.name ?: "Unknown",
                                     booking.`class`.name
                                 ),
-                                style = MaterialTheme.typography.labelMedium,
+                                style = MaterialTheme.typography.bodyMedium,
                                 color = Color.Gray
                             )
                         }
@@ -263,14 +263,14 @@ fun LessonCard(
                             Expandable(expanded) {
                                 relevantHomeworkTasks.forEachIndexed { taskIndex, homeworkTasks ->
                                     val tasksText = buildHomeworkTasksText(homeworkTasks)
-                                    Text(text = tasksText, style = MaterialTheme.typography.labelMedium, color = Color.Gray)
+                                    Text(text = tasksText, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
                                     if (taskIndex != relevantHomeworkTasks.lastIndex) HorizontalDivider()
                                 }
                             }
                             Expandable(!expanded) {
                                 Text(
                                     text = pluralStringResource(R.plurals.home_lessonCardHomework, relevantHomeworkTasks.size, relevantHomeworkTasks.size),
-                                    style = MaterialTheme.typography.labelMedium,
+                                    style = MaterialTheme.typography.bodyMedium,
                                     color = Color.Gray
                                 )
                             }
