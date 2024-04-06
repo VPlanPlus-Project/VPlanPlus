@@ -60,7 +60,7 @@ class FakeVppIdRepository : VppIdRepository {
         return tokens.firstOrNull { it.vppId == vppId.id }?.bsToken
     }
 
-    override suspend fun testVppId(vppId: VppId): DataResponse<Boolean?> {
+    override suspend fun testVppIdSession(vppId: VppId): DataResponse<Boolean?> {
         TODO("Not yet implemented")
     }
 
