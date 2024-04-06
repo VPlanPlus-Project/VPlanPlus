@@ -87,8 +87,7 @@ fun ChangeDate(
     ) {
         Icon(
             imageVector = Icons.Default.AccessTime,
-            contentDescription = null,
-            modifier = Modifier.padding(end = 8.dp)
+            contentDescription = null
         )
 
         LazyRow(
