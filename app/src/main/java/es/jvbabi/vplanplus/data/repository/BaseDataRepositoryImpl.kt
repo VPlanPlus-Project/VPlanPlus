@@ -45,8 +45,8 @@ class BaseDataRepositoryImpl(
                     LessonTime(
                         classLessonTimeRefId = `class`.classId,
                         lessonNumber = lessonTime.key,
-                        start = "${lessonTime.value.first}:00".toZonedDateTime().atBeginningOfTheWorld(),
-                        end = "${lessonTime.value.second}:00".toZonedDateTime().atBeginningOfTheWorld(),
+                        from = "${lessonTime.value.first}:00".toZonedDateTime().atBeginningOfTheWorld(),
+                        to = "${lessonTime.value.second}:00".toZonedDateTime().atBeginningOfTheWorld(),
                     )
                 )
             }

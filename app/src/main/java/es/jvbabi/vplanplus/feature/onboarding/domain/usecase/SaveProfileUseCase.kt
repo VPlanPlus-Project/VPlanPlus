@@ -134,8 +134,8 @@ class SaveProfileUseCase(
                             false
                         )!!.classId,
                         lessonNumber = it.lessonNumber,
-                        start = "${it.startTime}:00".toZonedDateTime(ZoneId.of("Europe/Berlin")).atBeginningOfTheWorld(),
-                        end = "${it.endTime}:00".toZonedDateTime(ZoneId.of("Europe/Berlin")).atBeginningOfTheWorld(),
+                        from = "${it.startTime}:00".toZonedDateTime(ZoneId.of("Europe/Berlin")).atBeginningOfTheWorld(),
+                        to = "${it.endTime}:00".toZonedDateTime(ZoneId.of("Europe/Berlin")).atBeginningOfTheWorld(),
                     )
                 }
             )
