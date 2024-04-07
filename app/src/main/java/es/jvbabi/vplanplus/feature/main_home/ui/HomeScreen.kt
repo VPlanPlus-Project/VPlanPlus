@@ -201,14 +201,18 @@ fun HomeScreenContent(
     }
 
     val isInteracting by contentPagerState.interactionSource.collectIsDraggedAsState()
+    var transitionRunning by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = state.selectedDate) {
-        launch { datePagerState.animateScrollToPage(
-            page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2
-        ) }
+        launch {
+            transitionRunning = true
+            datePagerState.animateScrollToPage(page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2)
+            transitionRunning = false
+        }
         if (!isInteracting) contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
     }
 
     LaunchedEffect(key1 = contentPagerState.currentPage) {
+        if (transitionRunning) return@LaunchedEffect
         val date = LocalDate.now().plusDays(contentPagerState.currentPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
