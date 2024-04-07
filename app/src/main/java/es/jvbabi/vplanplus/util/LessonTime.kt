@@ -10,8 +10,8 @@ object LessonTime {
         return LessonTime(
             classLessonTimeRefId = classId,
             lessonNumber = lessonNumber,
-            start = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")),
-            end = ZonedDateTime.of(1970, 1, 1, 23, 59, 59, 99, ZoneId.of("UTC")),
+            from = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("Europe/Berlin")),
+            to = ZonedDateTime.of(1970, 1, 1, 23, 59, 59, 99, ZoneId.of("Europe/Berlin")),
         )
     }
 }
