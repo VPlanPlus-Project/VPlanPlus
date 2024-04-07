@@ -96,8 +96,10 @@ class HomeViewModel @Inject constructor(
                     server = server
                 )
             }.collect {
+                val identityHasChanged = state.currentIdentity != it.currentIdentity
                 state = it
-                restartUiUpdateJobs()
+
+                if (identityHasChanged) restartUiUpdateJobs()
             }
         }
     }
@@ -112,6 +114,7 @@ class HomeViewModel @Inject constructor(
     private fun restartUiUpdateJobs() {
         uiUpdateJobs.values.forEach { it.cancel() }
         uiUpdateJobs = emptyMap()
+        state = state.copy(days = emptyMap())
         setSelectedDate(state.selectedDate)
     }
 

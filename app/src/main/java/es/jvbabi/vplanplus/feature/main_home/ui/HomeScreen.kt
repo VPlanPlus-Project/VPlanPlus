@@ -201,19 +201,17 @@ fun HomeScreenContent(
     }
 
     val isInteracting by contentPagerState.interactionSource.collectIsDraggedAsState()
-    var transitionRunning by remember { mutableStateOf(false) }
     LaunchedEffect(key1 = state.selectedDate) {
         launch {
-            transitionRunning = true
             datePagerState.animateScrollToPage(page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE /2 - 2)
-            transitionRunning = false
         }
-        if (!isInteracting) contentPagerState.animateScrollToPage( page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
+        if (!isInteracting) {
+            contentPagerState.animateScrollToPage(page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2 )
+        }
     }
 
-    LaunchedEffect(key1 = contentPagerState.currentPage) {
-        if (transitionRunning) return@LaunchedEffect
-        val date = LocalDate.now().plusDays(contentPagerState.currentPage.toLong() - PAGER_SIZE / 2)
+    LaunchedEffect(key1 = contentPagerState.targetPage) {
+        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
     }
 
@@ -369,6 +367,8 @@ fun HomeScreenContent(
                         it.toLong() - PAGER_SIZE / 2
                     )
 
+                    val day = state.days[date]
+
                     Column(
                         modifier = Modifier.fillMaxSize(),
                         verticalArrangement = Arrangement.Center,
@@ -376,7 +376,7 @@ fun HomeScreenContent(
                     ) {
                         val start by rememberSaveable { mutableLongStateOf(System.currentTimeMillis() / 1000) }
                         val timeOffset = 1
-                        AnimatedVisibility(visible = state.days[date] == null && start + timeOffset < System.currentTimeMillis() / 1000) {
+                        AnimatedVisibility(visible = day == null && start + timeOffset < System.currentTimeMillis() / 1000) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 LinearProgressIndicator(Modifier.fillMaxWidth(.5f))
                                 Text(
@@ -390,17 +390,17 @@ fun HomeScreenContent(
                         val animationDuration = 300
                         AnimatedVisibility(
                             modifier = Modifier.fillMaxSize(),
-                            visible = state.days[date] != null,
+                            visible = day != null,
                             enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
                             exit = fadeOut(animationSpec = tween(animationDuration))
                         ) dayViewRoot@{
                             Column(Modifier.fillMaxSize()) {
-                                if (state.days[date]?.lessons?.size == 0 && state.days[date]?.type == DayType.NORMAL) {
+                                if (day?.lessons?.size == 0 && day.type == DayType.NORMAL) {
                                     NoData(date)
                                     return@dayViewRoot
                                 }
                                 DayView(
-                                    day = state.days[date]!!,
+                                    day = day,
                                     currentTime = state.currentTime,
                                     showCountdown = state.currentTime.toLocalDate().isEqual(date),
                                     isInfoExpanded = if (state.currentTime.toLocalDate().isEqual(date)) state.infoExpanded else null,
