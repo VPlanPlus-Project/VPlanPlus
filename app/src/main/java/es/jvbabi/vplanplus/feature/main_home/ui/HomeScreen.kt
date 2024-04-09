@@ -235,7 +235,8 @@ fun HomeScreenContent(
                         )
                     )
                     .fillMaxWidth()
-                    .background(CardDefaults.cardColors().containerColor)
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    //.background(CardDefaults.cardColors().containerColor)
                     .clip(
                         RoundedCornerShape(
                             bottomStart = 24.dp,

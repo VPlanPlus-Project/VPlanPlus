@@ -86,7 +86,7 @@ fun DateCard(
         val cardShape = RoundedCornerShape(12.dp)
         Box(
             Modifier
-                .shadow(8.dp, cardShape)
+                .shadow((8*selectedModifier).dp, cardShape)
                 .then(
                     if (date.isEqual(LocalDate.now()) && !isSelected) Modifier.border(
                         2.dp,
@@ -95,9 +95,9 @@ fun DateCard(
                     )
                     else Modifier
                 )
+                .clip(cardShape)
                 .background(background)
                 .size(60.dp)
-                .clip(cardShape)
                 .clickable { onClick(date) }
         ) {
             if (drawable != null) Image(
@@ -129,7 +129,7 @@ fun DateCard(
                     Text(
                         text = date.format(DateTimeFormatter.ofPattern("EEEE", Locale.getDefault())).take(2),
                         style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Light,
+                            fontWeight = FontWeight.Bold,
                             color = secondaryForeground
                         ),
                     )
