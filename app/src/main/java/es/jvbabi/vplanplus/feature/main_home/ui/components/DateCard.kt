@@ -29,6 +29,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_home.ui.Collapsable
 import java.time.LocalDate
@@ -118,6 +119,7 @@ fun DateCard(
                 Text(
                     text = date.format(DateTimeFormatter.ofPattern("d")),
                     style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
+                    fontSize = (24 + 12 * modifier).sp,
                     color = foreground
                 )
             }
