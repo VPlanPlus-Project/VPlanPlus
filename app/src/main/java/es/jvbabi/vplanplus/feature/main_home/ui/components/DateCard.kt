@@ -1,15 +1,18 @@
 package es.jvbabi.vplanplus.feature.main_home.ui.components
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -32,8 +35,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_home.ui.Collapsable
+import es.jvbabi.vplanplus.util.blendColor
+import es.jvbabi.vplanplus.util.toBlackAndWhite
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @SuppressLint("NewApi")
 @Composable
@@ -52,20 +58,32 @@ fun DateCard(
         )
     }
 
-    val background =
-        if (isSelected) MaterialTheme.colorScheme.primary
-        else MaterialTheme.colorScheme.surface
+    val selectedModifier by animateFloatAsState(
+        targetValue = if (isSelected) 1f else 0f,
+        label = "selectedModifier",
+        animationSpec = tween(250)
+    )
 
-    val foreground =
-        if (isSelected) MaterialTheme.colorScheme.onPrimary
-        else MaterialTheme.colorScheme.onSurface
+    val background = blendColor(
+        MaterialTheme.colorScheme.surface,
+        MaterialTheme.colorScheme.tertiary,
+        selectedModifier
+    )
 
-    val secondaryForeground =
-        if (isSelected) MaterialTheme.colorScheme.onPrimary
-        else MaterialTheme.colorScheme.onSurface
+    val foreground = blendColor(
+        MaterialTheme.colorScheme.onSurface,
+        MaterialTheme.colorScheme.onTertiary,
+        selectedModifier
+    )
+
+    val secondaryForeground = blendColor(
+        MaterialTheme.colorScheme.onSurface,
+        MaterialTheme.colorScheme.onTertiary.toBlackAndWhite(),
+        selectedModifier
+    )
 
     Column {
-        val cardShape = RoundedCornerShape(24.dp)
+        val cardShape = RoundedCornerShape(12.dp)
         Box(
             Modifier
                 .shadow(8.dp, cardShape)
@@ -78,8 +96,7 @@ fun DateCard(
                     else Modifier
                 )
                 .background(background)
-                .width(60.dp)
-                .height((50 + 30 * modifier).dp)
+                .size(60.dp)
                 .clip(cardShape)
                 .clickable { onClick(date) }
         ) {
@@ -103,13 +120,14 @@ fun DateCard(
                         )
                     }
             )
-            Box(
+            Column(
                 modifier = Modifier.align(Alignment.Center),
-                contentAlignment = Alignment.Center
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Collapsable(modifier = Modifier.offset(0.dp, (0 - MaterialTheme.typography.displaySmall.lineHeight.value / 2).dp), expand = expand) {
+                Collapsable(expand = expand) {
                     Text(
-                        text = date.dayOfWeek.name.take(3).lowercase(),
+                        text = date.format(DateTimeFormatter.ofPattern("EEEE", Locale.getDefault())).take(2),
                         style = MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Light,
                             color = secondaryForeground
@@ -117,9 +135,10 @@ fun DateCard(
                     )
                 }
                 Text(
-                    text = date.format(DateTimeFormatter.ofPattern("d")),
+                    text = date.format(DateTimeFormatter.ofPattern("d", Locale.getDefault())),
                     style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
-                    fontSize = (24 + 12 * modifier).sp,
+                    fontSize = (26 + 4 * modifier).sp,
+                    lineHeight = (26 + 4 * modifier).sp,
                     color = foreground
                 )
             }
@@ -129,8 +148,8 @@ fun DateCard(
         if (date.dayOfMonth == 1) texts.add(date.format(DateTimeFormatter.ofPattern("MMMM")))
         if (date.dayOfWeek.value == 1) texts.add("KW ${date.format(DateTimeFormatter.ofPattern("w"))}")
 
-        if (texts.isNotEmpty()) Collapsable(expand = expand) {
-            Text(
+        Collapsable(expand = expand) {
+            if (texts.isNotEmpty()) Text(
                 text = texts.joinToString("\n"),
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontWeight = FontWeight.Light,
@@ -138,9 +157,9 @@ fun DateCard(
                 ),
                 modifier = Modifier.padding(top = 4.dp)
             )
-        } else {
-            Box(Modifier.height((MaterialTheme.typography.labelSmall.lineHeight.value * 2).dp + 4.dp))
+            else Box(Modifier.height((MaterialTheme.typography.labelSmall.lineHeight.value * 2).dp + 4.dp))
         }
+        Collapsable(expand = !expand) { Box(Modifier.height(8.dp)) }
     }
 }
 
