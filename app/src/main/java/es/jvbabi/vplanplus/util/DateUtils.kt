@@ -116,4 +116,8 @@ object DateUtils {
     fun LocalDate.withDayOfWeek(dayOfWeek: Int): LocalDate {
         return this.plusDays(dayOfWeek.toLong() - this.dayOfWeek.value.toLong())
     }
+
+    fun ZonedDateTime.atStartOfDay(): ZonedDateTime {
+        return this.withHour(0).withMinute(0).withSecond(0).withNano(0)
+    }
 }

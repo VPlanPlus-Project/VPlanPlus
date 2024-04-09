@@ -101,10 +101,6 @@ fun SearchViewContent(
             label = "Search Bar Animation"
         )
 
-    BackHandler(state.expanded) {
-        onSearchActiveChange(false)
-    }
-
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
@@ -119,6 +115,10 @@ fun SearchViewContent(
             1 - modifier.value
         )
     )
+
+    val exitSearch = { focusManager.clearFocus(); onSearchActiveChange(!state.expanded) }
+    BackHandler(state.expanded) { exitSearch() }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -148,7 +148,7 @@ fun SearchViewContent(
         ) {
             IconButton(
                 modifier = Modifier.padding(start = 4.dp),
-                onClick = { focusManager.clearFocus(); onSearchActiveChange(!state.expanded) },
+                onClick = exitSearch,
             ) {
                 Icon(
                     imageVector = if (state.expanded) Icons.AutoMirrored.Default.ArrowBack else Icons.Default.Search,

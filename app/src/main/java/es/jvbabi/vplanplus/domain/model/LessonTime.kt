@@ -6,6 +6,8 @@ import androidx.room.ForeignKey
 import androidx.room.Ignore
 import androidx.room.Index
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
+import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -40,20 +42,16 @@ data class LessonTime(
     val lessonTimeId: UUID = UUID.randomUUID(),
     val classLessonTimeRefId: UUID,
     val lessonNumber: Int,
-    @ColumnInfo(name = "start") val from: ZonedDateTime,
-    @ColumnInfo(name = "end") val to: ZonedDateTime,
+    @ColumnInfo(name = "start") val from: Long,
+    @ColumnInfo(name = "end") val to: Long,
 ) {
-    init {
-        require(from.dayOfYear == 1 && from.year == 1970) { "Start date needs to be 1970-01-01" }
-        require(to.dayOfYear == 1 && to.year == 1970) { "End date needs to be 1970-01-01" }
-    }
 
     @get:Ignore
     val end: ZonedDateTime
-        get() = this.to.withZoneSameInstant(ZoneId.of("Europe/Berlin"))
+        get() = ZonedDateTime.now().withZoneSameLocal(ZoneId.of("Europe/Berlin")).atStartOfDay().atBeginningOfTheWorld().plusSeconds(this.to)
 
 
     @get:Ignore
     val start: ZonedDateTime
-        get() = this.from.withZoneSameInstant(ZoneId.of("Europe/Berlin"))
+        get() = ZonedDateTime.now().withZoneSameLocal(ZoneId.of("Europe/Berlin")).atStartOfDay().atBeginningOfTheWorld().plusSeconds(this.from)
 }

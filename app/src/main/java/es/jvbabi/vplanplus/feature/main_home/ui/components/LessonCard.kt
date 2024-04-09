@@ -19,12 +19,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.outlined.MenuBook
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.MeetingRoom
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -87,6 +85,12 @@ fun LessonCard(
         label = "activeModifier"
     )
 
+    val lessonIsOver = lessons.all { it.progress(time) > 1.0 }
+    val primaryTextColor =
+        if (lessonIsOver) Color.Gray
+        else MaterialTheme.colorScheme.onSurface
+
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -96,7 +100,7 @@ fun LessonCard(
             )
             .clip(RoundedCornerShape((12 + 12 * activeModifier.value).dp))
             .background(MaterialTheme.colorScheme.surface)
-            .padding(vertical = (4+4*activeModifier.value).dp)
+            .padding(vertical = (4 + 4 * activeModifier.value).dp)
     ) {
         Expandable(lessons.any { it.progress(time) in 0.0..<1.0 }) {
             Text(
@@ -117,7 +121,8 @@ fun LessonCard(
             LessonNumberAndTime(
                 lessons.first().lessonNumber,
                 lessons.first().start,
-                lessons.first().end
+                lessons.first().end,
+                primaryTextColor = primaryTextColor
             )
             Column {
                 lessons.forEachIndexed { i, lesson ->
@@ -137,29 +142,23 @@ fun LessonCard(
                             Text(
                                 text = stringResource(id = R.string.home_activeDayNextLessonCanceled),
                                 style = MaterialTheme.typography.titleLarge,
-                                color = colorScheme.error
+                                color = if (lessonIsOver) primaryTextColor else colorScheme.error
                             )
                         } else {
                             Text(
                                 text = lesson.displaySubject,
                                 style = MaterialTheme.typography.titleLarge,
-                                color = colorScheme.onSurface
+                                color =
+                                    if (lessonIsOver || !lesson.subjectIsChanged) primaryTextColor
+                                    else colorScheme.error
                             )
                         }
                         if (lesson.rooms.isNotEmpty() || booking != null) {
                             Text(
                                 text = DOT,
                                 style = MaterialTheme.typography.titleLarge,
-                                color = colorScheme.onSurface,
+                                color = primaryTextColor,
                                 modifier = Modifier.padding(horizontal = 4.dp)
-                            )
-                            Icon(
-                                imageVector = Icons.Outlined.MeetingRoom,
-                                contentDescription = null,
-                                tint =
-                                if (lesson.roomIsChanged) colorScheme.error
-                                else if (booking != null) colorScheme.secondary
-                                else colorScheme.onSurface
                             )
                             Text(
                                 text = lesson.rooms.joinToString(", ") +
@@ -168,9 +167,10 @@ fun LessonCard(
                                         } else "",
                                 style = MaterialTheme.typography.titleLarge,
                                 color =
-                                if (lesson.roomIsChanged) colorScheme.error
-                                else if (booking != null) colorScheme.secondary
-                                else colorScheme.onSurface
+                                    if (lessonIsOver) primaryTextColor
+                                    else if (lesson.roomIsChanged) colorScheme.error
+                                    else if (booking != null) colorScheme.secondary
+                                    else colorScheme.onSurface
                             )
                         }
                         if (lesson.teachers.isNotEmpty()) {
@@ -178,42 +178,37 @@ fun LessonCard(
                                 Text(
                                     text = DOT,
                                     style = MaterialTheme.typography.titleLarge,
-                                    color = colorScheme.onSurface,
+                                    color = primaryTextColor,
                                     modifier = Modifier.padding(horizontal = 4.dp)
                                 )
                             }
-                            Icon(
-                                imageVector = Icons.Outlined.Person,
-                                contentDescription = null,
-                                tint =
-                                    if (lesson.teacherIsChanged) colorScheme.error
-                                    else colorScheme.onSurface
-                            )
                             Text(
                                 text = lesson.teachers.joinToString(", "),
                                 style = MaterialTheme.typography.titleLarge,
                                 color =
-                                    if (lesson.teacherIsChanged) colorScheme.error
-                                    else colorScheme.onSurface
+                                    if (lessonIsOver || !lesson.teacherIsChanged) primaryTextColor
+                                    else colorScheme.error
                             )
                         }
                     }
 
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(end = 16.dp, top = (2+4*activeModifier.value).dp, bottom = (2+4*activeModifier.value).dp)
-                            .height((1 + 14 * activeModifier.value).dp)
-                            .clip(RoundedCornerShape((50 * activeModifier.value).toInt()))
-                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                    ) {
+                    Expandable(isExpanded = lesson.progress(time) in 0.0..1.0) {
                         Box(
                             modifier = Modifier
-                                .fillMaxWidth(lesson.progress(time))
-                                .fillMaxHeight()
+                                .fillMaxWidth()
+                                .padding(end = 16.dp, top = (2 + 4 * activeModifier.value).dp, bottom = (2 + 4 * activeModifier.value).dp)
+                                .height((1 + 14 * activeModifier.value).dp)
                                 .clip(RoundedCornerShape((50 * activeModifier.value).toInt()))
-                                .background(MaterialTheme.colorScheme.primary)
-                        )
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth(lesson.progress(time))
+                                    .fillMaxHeight()
+                                    .clip(RoundedCornerShape((50 * activeModifier.value).toInt()))
+                                    .background(MaterialTheme.colorScheme.primary)
+                            )
+                        }
                     }
 
                     if (!lesson.info.isNullOrBlank()) {
@@ -294,7 +289,7 @@ fun LessonCard(
                                     onClick = { onAddHomeworkClicked(lesson.vpId) },
                                     label = { Text(text = stringResource(id = R.string.home_addHomeworkLabel)) },
                                     leadingIcon = {
-                                        Icon(Icons.AutoMirrored.Default.MenuBook, null)
+                                        Icon(Icons.AutoMirrored.Outlined.MenuBook, null)
                                     },
                                     modifier = Modifier.padding(end = 8.dp)
                                 )
@@ -302,7 +297,11 @@ fun LessonCard(
                         }
                     }
 
-                    if (i != lessons.lastIndex) Spacer(modifier = Modifier.height(8.dp))
+                    if (i != lessons.lastIndex) {
+                        Expandable(isExpanded = lesson.progress(time) !in 0.0..1.0) {
+                            HorizontalDivider(Modifier.padding(top = 8.dp, bottom = 8.dp, end = 8.dp))
+                        }
+                    }
                 }
             }
         }
@@ -310,7 +309,7 @@ fun LessonCard(
 }
 
 @Composable
-private fun LessonNumberAndTime(lessonNumber: Int, start: ZonedDateTime, end: ZonedDateTime) {
+private fun LessonNumberAndTime(lessonNumber: Int, start: ZonedDateTime, end: ZonedDateTime, primaryTextColor: Color) {
     Column(
         modifier = Modifier
             .padding(end = 8.dp)
@@ -319,18 +318,18 @@ private fun LessonNumberAndTime(lessonNumber: Int, start: ZonedDateTime, end: Zo
     ) {
         Text(
             text = "$lessonNumber",
-            color = MaterialTheme.colorScheme.onSurface,
+            color = primaryTextColor,
             style = MaterialTheme.typography.headlineMedium,
             textAlign = TextAlign.Center,
         )
         Text(
             text = start.toZonedLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = primaryTextColor,
             style = MaterialTheme.typography.labelSmall,
         )
         Text(
             text = end.toZonedLocalDateTime().format(DateTimeFormatter.ofPattern("HH:mm")),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = primaryTextColor,
             style = MaterialTheme.typography.labelSmall,
         )
     }

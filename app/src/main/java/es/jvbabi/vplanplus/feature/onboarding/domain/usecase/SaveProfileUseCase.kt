@@ -21,7 +21,6 @@ import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.toZonedDateTime
 import java.time.LocalDate
-import java.time.ZoneId
 import java.util.UUID
 
 class SaveProfileUseCase(
@@ -125,8 +124,11 @@ class SaveProfileUseCase(
             onStatusUpdate(ProfileCreationStatus(ProfileCreationStage.INSERT_HOLIDAYS, progress / total))
 
             school = schoolRepository.getSchoolFromId(schoolId)!!
+
             lessonTimeRepository.insertLessonTimes(
                 lessonTimes = lessonTimes.map {
+                    val from = "${it.startTime}:00".toZonedDateTime().atBeginningOfTheWorld()
+                    val to = "${it.endTime}:00".toZonedDateTime().atBeginningOfTheWorld()
                     es.jvbabi.vplanplus.domain.model.LessonTime(
                         classLessonTimeRefId = classRepository.getClassBySchoolIdAndClassName(
                             schoolId,
@@ -134,8 +136,8 @@ class SaveProfileUseCase(
                             false
                         )!!.classId,
                         lessonNumber = it.lessonNumber,
-                        from = "${it.startTime}:00".toZonedDateTime(ZoneId.of("Europe/Berlin")).atBeginningOfTheWorld(),
-                        to = "${it.endTime}:00".toZonedDateTime(ZoneId.of("Europe/Berlin")).atBeginningOfTheWorld(),
+                        from = (from.hour * 60L * 60L) + (from.minute * 60L),
+                        to = (to.hour * 60L * 60L) + (to.minute * 60L)
                     )
                 }
             )
