@@ -7,7 +7,7 @@
 > v1.2-preview1 has already been released in production because of an important bug fix.
 
 ### Features
-- [ ] New home screen
+- [ ] New home screen https://github.com/VPlanPlus-Project/VPlanPlus/issues/461
 - [ ] Grade statistics https://github.com/VPlanPlus-Project/VPlanPlus/issues/457
 
 ### Bugfixes & Small improvements
