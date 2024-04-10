@@ -7,12 +7,13 @@
 > v1.2-preview1 has already been released in production because of an important bug fix.
 
 ### Features
-- [ ] New home screen
+- [ ] New home screen https://github.com/VPlanPlus-Project/VPlanPlus/issues/461
 - [ ] Grade statistics https://github.com/VPlanPlus-Project/VPlanPlus/issues/457
 
-### Bugfixes
+### Bugfixes & Small improvements
 - [ ] Notification click actions https://github.com/VPlanPlus-Project/VPlanPlus/issues/458
 - [ ] Grade calculation/divide by zero when removing all grades https://github.com/VPlanPlus-Project/VPlanPlus/issues/456
+- [ ] Hide finished lessons by default https://github.com/VPlanPlus-Project/VPlanPlus/issues/460
 
 ## v1.3
 > Estimated release date: 05.05.2024
