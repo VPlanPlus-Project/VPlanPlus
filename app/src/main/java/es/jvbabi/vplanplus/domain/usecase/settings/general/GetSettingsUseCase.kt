@@ -19,7 +19,7 @@ class GetSettingsUseCase(
                 keyValueRepository.getFlow(Keys.COLOR),
                 keyValueRepository.getFlowOrDefault(Keys.GRADES_BIOMETRIC_ENABLED, "false"),
                 keyValueRepository.getFlowOrDefault(Keys.APP_THEME_MODE, AppThemeMode.SYSTEM.name),
-                keyValueRepository.getFlowOrDefault(Keys.HIDE_FINISHED_LESSONS, "false"),
+                keyValueRepository.getFlowOrDefault(Keys.HIDE_FINISHED_LESSONS, "true"),
                 keyValueRepository.getFlowOrDefault(Keys.SETTINGS_SYNC_INTERVAL, Keys.SETTINGS_SYNC_INTERVAL_DEFAULT.toString())
             )
         ) { data ->

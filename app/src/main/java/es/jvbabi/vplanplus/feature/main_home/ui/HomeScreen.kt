@@ -235,7 +235,8 @@ fun HomeScreenContent(
                         )
                     )
                     .fillMaxWidth()
-                    .background(CardDefaults.cardColors().containerColor)
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    //.background(CardDefaults.cardColors().containerColor)
                     .clip(
                         RoundedCornerShape(
                             bottomStart = 24.dp,
@@ -286,8 +287,8 @@ fun HomeScreenContent(
                         .padding(top = 8.dp),
                     pageSize = PageSize.Fixed(60.dp),
                     verticalAlignment = Alignment.Top,
-                    pageSpacing = 8.dp,
-                    contentPadding = PaddingValues(horizontal = 8.dp)
+                    pageSpacing = 12.dp,
+                    contentPadding = PaddingValues(horizontal = 16.dp)
                 ) datePager@{
                     val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
                     val isSelected = date.isEqual(state.selectedDate)

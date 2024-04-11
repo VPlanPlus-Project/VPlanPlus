@@ -53,9 +53,9 @@ fun Average(
         contentAlignment = Alignment.Center
     ) {
         Text(
-            text = "Ø ${
-                avg.toBigDecimal().setScale(2, RoundingMode.HALF_EVEN)
-            }",
+            text =
+                if (avg.isNaN()) "-"
+                else "Ø ${avg.toBigDecimal().setScale(2, RoundingMode.HALF_EVEN)}",
             style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onSecondary
         )
