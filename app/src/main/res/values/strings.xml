@@ -552,7 +552,7 @@
     <string name="searchAvailableRoom_disclaimerText">This data might be incomplete as recent changes might not be represented in substitution plans. Bookings are not officially recognized by the school.</string>
     <string name="disclaimer">Disclaimer</string>
     <string name="vppIdLink_invalidClassTitle">Invalid class</string>
-    <string name="vppIdLink_invalidClassText">Your beste.schule Account is linked to class %1$s. This does not exist at your school. This can happen especially in JG11 and JG12 classes. Contact me so I can fix it your you.</string>
+    <string name="vppIdLink_invalidClassText">Your beste.schule Account is linked to class %1$s but it does not exist at your school. This can happen especially in JG11 and JG12 classes. Contact us so we can fix it for you.</string>
     <string name="vppIdLink_contactUs">Contact Us</string>
 
 </resources>
