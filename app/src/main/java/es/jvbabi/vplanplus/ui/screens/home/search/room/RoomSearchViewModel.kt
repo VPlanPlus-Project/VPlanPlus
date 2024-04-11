@@ -89,7 +89,7 @@ class RoomSearchViewModel @Inject constructor(
                     nowTimespan = if (now != null) Pair(now.start, now.end) else null
 
                     nextTimespan = if (next != null) Pair(next.start, next.end) else null
-                    profileStart = start.value.start
+                    profileStart = start.value.start.withYear(LocalDate.now().year).withDayOfYear(LocalDate.now().dayOfYear)
                     showFilterChips = currentLessonNumber != null && currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble()
                     showNowFilter = (currentLessonNumber ?: 0.0) % 1 != 0.5
                 }
