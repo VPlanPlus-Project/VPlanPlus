@@ -13,9 +13,9 @@
 ### Bugfixes & Small improvements
 - [ ] Notification click actions https://github.com/VPlanPlus-Project/VPlanPlus/issues/458
 - [X] Grade calculation/divide by zero when removing all grades https://github.com/VPlanPlus-Project/VPlanPlus/issues/456
-- [ ] Hide finished lessons by default https://github.com/VPlanPlus-Project/VPlanPlus/issues/460
+- [X] Hide finished lessons by default https://github.com/VPlanPlus-Project/VPlanPlus/issues/460
 - [ ] Room bookings timezones do not match https://github.com/VPlanPlus-Project/VPlanPlus/issues/463
-- [ ] Room booking notifications https://github.com/VPlanPlus-Project/VPlanPlus/issues/465
+- [X] Room booking notifications https://github.com/VPlanPlus-Project/VPlanPlus/issues/465
 
 ## v1.3
 > Estimated release date: 05.05.2024
