@@ -550,5 +550,8 @@
     <string name="addHomework_noDefaultLessonDialogText">Du hast kein Fach für diese Hausaufgabe angegeben. Sie wird nicht für Nutzer einer veralteten Version (v1.1 und älter) von VPlanPlus angezeigt. Möchtest Du dennoch fortfahren?</string>
     <string name="searchAvailableRoom_disclaimerText">Diese Daten können unvollständig sein, da aktuelle Änderungen möglicherweise nicht in den Vertretungsplänen berücksichtigt sind. Die Buchungen werden von der Schule nicht offiziell anerkannt.</string>
     <string name="disclaimer">Haftungsausschluss</string>
+    <string name="vppIdLink_invalidClassTitle">Ungültige Klasse</string>
+    <string name="vppIdLink_invalidClassText">Dein beste.schule-Account ist mit Klasse %1$s verbunden, diese existiert an deiner Schule aber nicht. Dieses Problem tritt vor allem bei den Klassen JG11 und JG12 auf. Tritt mit uns in Kontakt, sodass wir das Problem schnellstmöglich beheben können.</string>
+    <string name="vppIdLink_contactUs">Kontaktiere uns</string>
 
 </resources>

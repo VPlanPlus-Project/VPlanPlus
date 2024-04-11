@@ -32,15 +32,26 @@ class VppIdLinkViewModel @Inject constructor(
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = false)
             val response = vppIdLinkUseCases.getVppIdDetailsUseCase(token)
+            if (response.data == null) {
+                Log.d("vpp.ID Link", "Something went wrong: ${response.response}")
+                _state.value = _state.value.copy(error = true, isLoading = false)
+                return@launch
+            }
+            if (response.data.classes == null) {
+                // class does not exists
+                _state.value = _state.value.copy(
+                    isLoading = false,
+                    classNotFound = true,
+                    error = true,
+                    vppId = response.data,
+                )
+                return@launch
+            }
             _state.value = _state.value.copy(
                 isLoading = false,
                 vppId = response.data,
                 response = response.response,
             )
-            if (response.data == null) {
-                Log.d("vpp.ID Link", "Something went wrong: ${response.response}")
-                _state.value = _state.value.copy(error = true, isLoading = false)
-            }
         }
     }
 }
@@ -49,5 +60,6 @@ data class VppIdLinkState(
     val vppId: VppId? = null,
     val response: HttpStatusCode? = null,
     val isLoading: Boolean = true,
-    val error: Boolean = false
+    val error: Boolean = false,
+    val classNotFound: Boolean = false,
 )
