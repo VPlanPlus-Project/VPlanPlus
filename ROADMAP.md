@@ -15,6 +15,7 @@
 - [X] Grade calculation/divide by zero when removing all grades https://github.com/VPlanPlus-Project/VPlanPlus/issues/456
 - [X] Hide finished lessons by default https://github.com/VPlanPlus-Project/VPlanPlus/issues/460
 - [X] Room bookings timezones do not match https://github.com/VPlanPlus-Project/VPlanPlus/issues/463
+- [X] Crash on vpp.ID Login with invalid class https://github.com/VPlanPlus-Project/VPlanPlus/issues/472
 - [X] Room booking notifications https://github.com/VPlanPlus-Project/VPlanPlus/issues/465
 
 ## v1.3
