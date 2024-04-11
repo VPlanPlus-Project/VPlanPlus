@@ -8,6 +8,6 @@ class GetHideFinishedLessonsUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
     operator fun invoke() = keyValueRepository
-        .getFlowOrDefault(Keys.HIDE_FINISHED_LESSONS, "false")
+        .getFlowOrDefault(Keys.HIDE_FINISHED_LESSONS, "true")
         .map { it.toBoolean() }
 }
