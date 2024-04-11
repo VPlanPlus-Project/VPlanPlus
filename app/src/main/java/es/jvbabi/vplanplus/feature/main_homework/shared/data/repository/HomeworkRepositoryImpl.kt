@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.util.Log
+import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.MainActivity
@@ -257,16 +258,17 @@ class HomeworkRepositoryImpl(
                         )
                     } else if (changedHomework.isNotEmpty()) {
                         notificationRepository.sendNotification(
-                            CHANNEL_ID_HOMEWORK,
-                            CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
-                            stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
-                            stringRepository.getPlural(
+                            channelId = CHANNEL_ID_HOMEWORK,
+                            id = CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
+                            title = stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
+                            message = stringRepository.getPlural(
                                 R.plurals.notification_homeworkChangedHomeworkContent,
                                 changedHomework.size,
                                 changedHomework.size
                             ),
-                            R.drawable.vpp,
-                            pendingIntent,
+                            icon = R.drawable.vpp,
+                            priority = NotificationCompat.PRIORITY_LOW,
+                            pendingIntent = pendingIntent,
                         )
                     }
                 }
