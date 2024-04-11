@@ -26,3 +26,6 @@
 - [ ] Month-view in the home screen
 - [ ] Timetable and substitution plan middleware to remove SP24 login
 - [ ] Spaces
+
+### Bugfixes & Small improvements
+- [ ] Optimize room matrix
