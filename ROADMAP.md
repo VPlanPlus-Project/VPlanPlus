@@ -2,13 +2,15 @@
 
 ## v1.2
 > Estimated release date: 14.04.2024
+> Current stage: Private testing.
+> Next stage: Closed testing: 12.04.2024
 
 > [!NOTE]
 > v1.2-preview1 has already been released in production because of an important bug fix.
 
 ### Features
 - [X] New home screen https://github.com/VPlanPlus-Project/VPlanPlus/issues/461
-- [ ] Grade statistics https://github.com/VPlanPlus-Project/VPlanPlus/issues/457
+- [X] Grade statistics https://github.com/VPlanPlus-Project/VPlanPlus/issues/457
 
 ### Bugfixes & Small improvements
 - [X] Notification click actions https://github.com/VPlanPlus-Project/VPlanPlus/issues/458
