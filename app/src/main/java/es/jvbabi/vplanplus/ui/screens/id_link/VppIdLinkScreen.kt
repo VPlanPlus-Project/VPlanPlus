@@ -117,15 +117,15 @@ private fun VppIdLinkScreenContent(
                     textAlign = TextAlign.Center
                 )
                 Row(
-                    modifier = Modifier.padding(top = 8.dp)
+                    modifier = Modifier.padding(top = 8.dp).fillMaxWidth()
                 ) {
                     OutlinedButton(
                         onClick = onBack,
-                        modifier = Modifier.padding(end = 8.dp)
+                        modifier = Modifier.fillMaxWidth(0.5f).padding(end = 8.dp)
                     ) { Text(text = stringResource(id = R.string.back)) }
                     Button(
                         onClick = { onContactUs(state.vppId?.id, state.vppId?.className) },
-                        modifier = Modifier.padding(start = 8.dp)
+                        modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
                     ) {
                         Text(text = stringResource(id = R.string.vppIdLink_contactUs))
                         Icon(
