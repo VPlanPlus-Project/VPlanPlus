@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.ui.screens.id_link
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -117,15 +118,16 @@ private fun VppIdLinkScreenContent(
                     textAlign = TextAlign.Center
                 )
                 Row(
-                    modifier = Modifier.padding(top = 8.dp).fillMaxWidth()
+                    modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     OutlinedButton(
                         onClick = onBack,
-                        modifier = Modifier.fillMaxWidth(0.5f).padding(end = 8.dp)
+                        modifier = Modifier.weight(1f).padding(end = 8.dp)
                     ) { Text(text = stringResource(id = R.string.back)) }
                     Button(
                         onClick = { onContactUs(state.vppId?.id, state.vppId?.className) },
-                        modifier = Modifier.fillMaxWidth().padding(start = 8.dp)
+                        modifier = Modifier.weight(1f).padding(start = 8.dp)
                     ) {
                         Text(text = stringResource(id = R.string.vppIdLink_contactUs))
                         Icon(
