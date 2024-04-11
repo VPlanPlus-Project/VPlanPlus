@@ -169,7 +169,7 @@ class RoomRepositoryImpl(
                     bookedBy = bookingResponse.bookedBy,
                     from = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.start),
                     to = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.end),
-                    `class` = classes.first { it.name == bookingResponse.`class` }.classId
+                    `class` = classes.firstOrNull { it.name == bookingResponse.`class` }?.classId ?: return@mapNotNull null
                 )
             }
         )
