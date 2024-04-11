@@ -30,7 +30,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -100,6 +99,8 @@ fun HomeScreen(
     val state = homeViewModel.state
     val context = LocalContext.current
 
+    LaunchedEffect(key1 = startDate) { homeViewModel.setSelectedDate(startDate) }
+
     HomeScreenContent(
         navBar = navBar,
         state = state,
@@ -136,14 +137,12 @@ fun HomeScreen(
         onRefreshClicked = { homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(context) },
         onFixVppIdSessionClicked = { onLogin(context, state.server) },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
-        startDate = startDate
     )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
-    startDate: LocalDate,
     navBar: @Composable (expanded: Boolean) -> Unit,
     state: HomeState,
     onOpenMenu: (state: Boolean) -> Unit = {},
@@ -186,8 +185,6 @@ fun HomeScreenContent(
         label = "mod",
         animationSpec = tween(250)
     )
-
-    LaunchedEffect(key1 = startDate) { onSetSelectedDate(startDate) }
 
     val datePagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2 - 1)
     val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2)
@@ -461,7 +458,6 @@ private fun HomeScreenPreview() {
         onSetSelectedDate = {},
         onInfoExpandChange = {},
         onSwitchProfile = {},
-        startDate = LocalDate.now()
     )
 }
 

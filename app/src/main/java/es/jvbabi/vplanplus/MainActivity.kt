@@ -63,9 +63,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.Period
-import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -299,31 +297,15 @@ class MainActivity : FragmentActivity() {
                 when (intent.getStringExtra("screen")) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
                     "homework" -> navController!!.navigate(Screen.HomeworkScreen.route)
-                    else -> navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreen.route)
                 }
-            }
-        }
-        if (intent.hasExtra("profileId")) {
-            showSplashScreen = false
-            val profileId = intent.getStringExtra("profileId")
-            Log.d("MainActivity.Intent", "profileId: $profileId")
-            Log.d("MainActivity.Intent", "dateStr: ${intent.getStringExtra("dateStr")}")
 
-            if (intent.getStringExtra("dateStr") != null) {
-                val dateStr = intent.getStringExtra("dateStr") ?: return
-                val date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                Log.d(
-                    "MainActivity.Intent",
-                    "Switching to date: $date (Difference: ${
-                        Period.between(
-                            LocalDate.now(),
-                            date
-                        ).days
-                    })"
-                )
-                lifecycleScope.launch {
-                    while (currentIdentity.value == null || navController == null) delay(50)
-                    navController!!.navigate(Screen.HomeScreen.route + "?startDate=$date")
+                if (intent.getStringExtra("screen")!!.startsWith("plan")) {
+                    val params = intent.getStringExtra("screen")!!.split("/")
+                    val profileId = params[1]
+                    val date = params[2]
+
+                    mainUseCases.setCurrentProfileUseCase(UUID.fromString(profileId))
+                    navController!!.navigate(Screen.HomeScreen.route + "/$date")
                 }
             }
         }
