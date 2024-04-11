@@ -1,8 +1,8 @@
 # Roadmap VPlanPlus and related projects
 
 ## v1.2
-> Estimated release date: 14.04.2024
-> Current stage: Private testing.
+> Estimated release date: 14.04.2024<br>
+> Current stage: Private testing.<br>
 > Next stage: Closed testing: 12.04.2024
 
 > [!NOTE]
