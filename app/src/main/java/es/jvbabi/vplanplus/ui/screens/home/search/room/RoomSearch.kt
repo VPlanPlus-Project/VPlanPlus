@@ -66,6 +66,7 @@ import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.BookingDetailDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.CannotBookRoomNotVerifiedDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.CannotBookRoomWrongTypeDialog
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.DisclaimerBanner
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.FilterChips
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.Guide
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.LessonDialog
@@ -100,7 +101,8 @@ fun FindAvailableRoomScreen(
         },
         onCancelCurrentBooking = { roomSearchViewModel.cancelCurrentBooking() },
         onConfirmBooking = { roomSearchViewModel.confirmBooking() },
-        onCloseBookRoomDialog = { roomSearchViewModel.closeBookRoomDialog() }
+        onCloseBookRoomDialog = { roomSearchViewModel.closeBookRoomDialog() },
+        onCloseDisclaimerBanner = { roomSearchViewModel.hideDisclaimerBanner() }
     )
 
     val context = LocalContext.current
@@ -149,7 +151,8 @@ fun FindAvailableRoomScreenContent(
     onBookRoomClicked: (Room, ZonedDateTime, ZonedDateTime) -> Unit = { _, _, _ -> },
     onCancelCurrentBooking: () -> Unit = {},
     onConfirmBooking: () -> Unit = {},
-    onCloseBookRoomDialog: () -> Unit = {}
+    onCloseBookRoomDialog: () -> Unit = {},
+    onCloseDisclaimerBanner: () -> Unit = {}
 ) {
     if (state.detailLesson != null) {
         LessonDialog(
@@ -234,6 +237,7 @@ fun FindAvailableRoomScreenContent(
         ) {
             // user info
             Text(text = state.identity?.school?.name ?: stringResource(id = R.string.loadingData))
+            DisclaimerBanner(state.showDisclaimerBanner, onCloseDisclaimerBanner)
             Guide(className = state.`class`?.name)
 
             // filter

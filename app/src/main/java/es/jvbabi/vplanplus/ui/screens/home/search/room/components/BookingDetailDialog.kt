@@ -34,7 +34,7 @@ fun BookingDetailDialog(
     onCancelBooking: () -> Unit,
 ) {
     val from = DateTimeFormatter.ofPattern("HH:mm").format(booking.from.toZonedLocalDateTime())
-    val to = DateTimeFormatter.ofPattern("HH:mm").format(booking.to.plusMinutes(1).toZonedLocalDateTime())
+    val to = DateTimeFormatter.ofPattern("HH:mm").format(booking.to.toZonedLocalDateTime())
     ComposableDialog(
         icon = Icons.Default.MeetingRoom,
         title = stringResource(

@@ -53,8 +53,9 @@ class RoomSearchViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 findRoomUseCases.getCurrentIdentityUseCase(),
-                findRoomUseCases.canBookRoomUseCase()
-            ) { identity, canBookRooms ->
+                findRoomUseCases.canBookRoomUseCase(),
+                findRoomUseCases.isShowRoomBookingDisclaimerBannerUseCase()
+            ) { identity, canBookRooms, showDisclaimerBanner ->
                 if (identity?.school == null || identity.profile == null) {
                     Log.d("RoomSearchViewModel", "school or profile is null")
                     return@combine state.value
@@ -108,6 +109,7 @@ class RoomSearchViewModel @Inject constructor(
                     filterNow = if (!showNowFilter) false else _state.value.filterNow,
                     filterNext = if (!showFilterChips) false else _state.value.filterNext,
                     canBookRoom = canBookRooms,
+                    showDisclaimerBanner = showDisclaimerBanner
                 )
             }.collect {
                 _state.value = it
@@ -115,6 +117,8 @@ class RoomSearchViewModel @Inject constructor(
             }
         }
     }
+
+    fun hideDisclaimerBanner() { viewModelScope.launch { findRoomUseCases.hideRoomBookingDisclaimerBannerUseCase() } }
 
     fun filter() {
         filterJob?.cancel()
@@ -273,7 +277,9 @@ data class RoomSearchState(
     val currentRoomBooking: RoomBooking? = null,
     val canBookRoom: BookRoomAbility = BookRoomAbility.CAN_BOOK,
     val roomBookingResult: BookResult? = null,
-    val roomCancelBookingResult: CancelBookingResult? = null
+    val roomCancelBookingResult: CancelBookingResult? = null,
+
+    val showDisclaimerBanner: Boolean = false
 )
 
 data class RoomBooking(
