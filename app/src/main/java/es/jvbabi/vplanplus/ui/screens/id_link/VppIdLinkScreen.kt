@@ -1,18 +1,23 @@
 package es.jvbabi.vplanplus.ui.screens.id_link
 
+import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -52,6 +57,24 @@ fun VppIdLinkScreen(
         },
         onRetry = {
             vppIdLinkViewModel.init(token)
+        },
+        onContactUs = { userId, className ->
+            val intent = Intent(Intent.ACTION_SENDTO)
+            intent.data = android.net.Uri.parse("mailto:")
+            intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("julvin.babies@gmail.com"))
+            intent.putExtra(Intent.EXTRA_SUBJECT, "VPP-ID Link Fehler")
+            intent.putExtra(
+                Intent.EXTRA_TEXT,
+                """
+                    Bitte fülle die Daten aus (vorausgefüllte Werte bitte lassen):
+                    vpp.ID Nutzer-ID, beste.schule E-Mail oder Nutzername: ${userId ?: "eingeben"}
+                    Klasse: ${className ?: "eingeben"}
+                    
+                    Wir melden uns, sobald du dich anmelden kannst.
+                    Alternativ kannst du uns auch auf Instagram (@vplanplus) kontaktieren.
+                """.trimIndent()
+            )
+            navHostController.context.startActivity(intent)
         }
     )
 }
@@ -60,6 +83,7 @@ fun VppIdLinkScreen(
 private fun VppIdLinkScreenContent(
     onBack: () -> Unit = {},
     onRetry: () -> Unit = {},
+    onContactUs: (userId: Int?, className: String?) -> Unit = { _, _ -> },
     state: VppIdLinkState
 ) {
     Box(
@@ -69,15 +93,53 @@ private fun VppIdLinkScreenContent(
         contentAlignment = Alignment.Center
     ) {
         if (state.isLoading) CircularProgressIndicator()
-        else if (state.error || state.vppId!!.classes == null) {
+        else if (state.classNotFound) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Error,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .size(48.dp)
+                )
+                Text(
+                    text = stringResource(id = R.string.vppIdLink_invalidClassTitle),
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center
+                )
+                Text(
+                    text = stringResource(id = R.string.vppIdLink_invalidClassText, state.vppId?.className ?: "unknown"),
+                    textAlign = TextAlign.Center
+                )
+                Row(
+                    modifier = Modifier.padding(top = 8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onBack,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) { Text(text = stringResource(id = R.string.back)) }
+                    Button(
+                        onClick = { onContactUs(state.vppId?.id, state.vppId?.className) },
+                        modifier = Modifier.padding(start = 8.dp)
+                    ) {
+                        Text(text = stringResource(id = R.string.vppIdLink_contactUs))
+                        Icon(imageVector = Icons.AutoMirrored.Default.OpenInNew, contentDescription = null)
+                    }
+                }
+            }
+        } else if (state.error || state.vppId!!.classes == null) {
             Column {
                 Text(text = "Error")
                 Button(onClick = onRetry) {
                     Text(text = "Retry/Erneut versuchen")
                 }
             }
-        }
-        else if (state.response == HttpStatusCode.OK) {
+        } else if (state.response == HttpStatusCode.OK) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -109,6 +171,18 @@ private fun VppIdLinkScreenContent(
             Text(text = "Something bad happened: ${state.response}")
         }
     }
+}
+
+@Preview
+@Composable
+private fun VppIdLinkScreenInvalidClassPreview() {
+    VppIdLinkScreenContent(
+        state = VppIdLinkState(
+            isLoading = false,
+            error = true,
+            classNotFound = true
+        )
+    )
 }
 
 @Preview

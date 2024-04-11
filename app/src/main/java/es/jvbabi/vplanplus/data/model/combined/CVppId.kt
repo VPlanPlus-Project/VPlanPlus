@@ -18,7 +18,7 @@ data class CVppId(
         parentColumn = "classId",
         entityColumn = "id",
         entity = DbSchoolEntity::class
-    ) val classes: CSchoolEntity
+    ) val classes: CSchoolEntity?
 ) {
     fun toModel(): VppId {
         return VppId(
@@ -27,7 +27,7 @@ data class CVppId(
             schoolId = vppId.schoolId,
             school = school,
             className = vppId.className,
-            classes = classes.toClassModel(),
+            classes = classes?.toClassModel(),
             state = vppId.state,
             email = vppId.email
         )

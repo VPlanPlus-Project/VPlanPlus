@@ -16,7 +16,7 @@ class GetVppIdDetailsUseCase(
     suspend operator fun invoke(token: String): DataResponse<VppId?> {
         val response = vppIdRepository.getVppIdOnline(token)
         if (response.data != null) {
-            val `class` = classRepository.getClassBySchoolIdAndClassName(response.data.schoolId, response.data.className)!!
+            val `class` = classRepository.getClassBySchoolIdAndClassName(response.data.schoolId, response.data.className)
             val vppId = VppId(
                 id = response.data.id,
                 email = response.data.email,
@@ -24,13 +24,14 @@ class GetVppIdDetailsUseCase(
                 state = State.ACTIVE,
                 classes = `class`,
                 className = response.data.className,
-                school = `class`.school,
+                school = `class`?.school,
                 schoolId = response.data.schoolId
             )
-            vppIdRepository.addVppId(vppId)
-            vppIdRepository.addVppIdToken(vppId, token, response.data.bsToken, true)
-
-            gradeRepository.updateGrades()
+            if (vppId.classes != null) {
+                vppIdRepository.addVppId(vppId)
+                vppIdRepository.addVppIdToken(vppId, token, response.data.bsToken, true)
+                gradeRepository.updateGrades()
+            }
 
             return DataResponse(vppId, response.response)
         }
