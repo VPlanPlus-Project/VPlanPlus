@@ -39,4 +39,7 @@ abstract class RoomBookingDao {
 
     @Query("DELETE FROM room_booking WHERE id = :id")
     abstract fun deleteById(id: Long)
+
+    @Query("SELECT * FROM room_booking")
+    abstract fun getAllRoomBookings(): List<CRoomBooking>
 }
