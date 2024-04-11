@@ -36,7 +36,8 @@ object HomeworkModule {
         notificationRepository: NotificationRepository,
         stringRepository: StringRepository,
         defaultLessonRepository: DefaultLessonRepository,
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        @ApplicationContext context: Context
     ): HomeworkRepository {
         return HomeworkRepositoryImpl(
             homeworkDao = db.homeworkDao,
@@ -48,7 +49,8 @@ object HomeworkModule {
             notificationRepository = notificationRepository,
             stringRepository = stringRepository,
             defaultLessonRepository = defaultLessonRepository,
-            keyValueRepository = keyValueRepository
+            keyValueRepository = keyValueRepository,
+            context = context
         )
     }
 

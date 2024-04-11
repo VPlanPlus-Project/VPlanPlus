@@ -1,8 +1,12 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.data.repository
 
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbHomework
 import es.jvbabi.vplanplus.data.model.DbHomeworkTask
@@ -55,7 +59,8 @@ class HomeworkRepositoryImpl(
     private val notificationRepository: NotificationRepository,
     private val stringRepository: StringRepository,
     private val defaultLessonRepository: DefaultLessonRepository,
-    private val keyValueRepository: KeyValueRepository
+    private val keyValueRepository: KeyValueRepository,
+    private val context: Context
 ) : HomeworkRepository {
 
     private var isUpdateRunning = false
@@ -196,6 +201,17 @@ class HomeworkRepositoryImpl(
                         Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK,
                         Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT
                     ).toBoolean()
+                    val pendingIntent = Intent(context, MainActivity::class.java)
+                        .putExtra("screen", "homework")
+                        .let { intent ->
+                            PendingIntent.getActivity(
+                                context,
+                                0,
+                                intent,
+                                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                            )
+                        }
+
                     if (newHomework.size == 1 && showNewNotification) {
                         val defaultLessons =
                             defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
@@ -225,7 +241,7 @@ class HomeworkRepositoryImpl(
                                 dateString
                             ),
                             R.drawable.vpp,
-                            null,
+                            pendingIntent,
                         )
                     } else if (newHomework.isNotEmpty() && showNewNotification) {
                         notificationRepository.sendNotification(
@@ -237,7 +253,7 @@ class HomeworkRepositoryImpl(
                                 newHomework.size
                             ),
                             R.drawable.vpp,
-                            null,
+                            pendingIntent,
                         )
                     } else if (changedHomework.isNotEmpty()) {
                         notificationRepository.sendNotification(
@@ -250,7 +266,7 @@ class HomeworkRepositoryImpl(
                                 changedHomework.size
                             ),
                             R.drawable.vpp,
-                            null,
+                            pendingIntent,
                         )
                     }
                 }

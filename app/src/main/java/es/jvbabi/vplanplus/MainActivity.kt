@@ -298,6 +298,7 @@ class MainActivity : FragmentActivity() {
                 while (currentIdentity.value == null || navController == null) delay(50)
                 when (intent.getStringExtra("screen")) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
+                    "homework" -> navController!!.navigate(Screen.HomeworkScreen.route)
                     else -> navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreen.route)
                 }
             }
