@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,15 +27,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Fingerprint
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -76,6 +81,8 @@ import es.jvbabi.vplanplus.feature.main_grades.ui.view.components.screens.WrongP
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
+import es.jvbabi.vplanplus.ui.common.charts.BarChart
+import es.jvbabi.vplanplus.ui.common.charts.BarChartData
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.nio.charset.StandardCharsets
 import kotlin.io.encoding.Base64
@@ -159,25 +166,62 @@ private fun GradesScreenContent(
     navBar: @Composable (expanded: Boolean) -> Unit
 ) {
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
+
+    var statisticsSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val statisticsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+
+    if (statisticsSheetOpen) {
+        ModalBottomSheet(
+            onDismissRequest = { statisticsSheetOpen = false },
+            sheetState = statisticsSheetState,
+        ) {
+            Text(
+                text = stringResource(id = R.string.grades_statsTitle),
+                style = MaterialTheme.typography.headlineMedium,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+
+            val allGrades = state.grades.flatMap { it.value.grades }
+            if (allGrades.isNotEmpty()) BarChart(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxHeight(0.5f),
+                items = (1..(if (allGrades.any { it.value > 6 }) 15 else 6)).toList().map { value ->
+                    BarChartData(
+                        group = "$value",
+                        value = allGrades.count { it.value == value.toFloat() }.toFloat()
+                    )
+                },
+                showValueInBars = { "${it.value.toInt()}x"},
+                labeling = { it.group }
+            )
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.grades_title)) },
                 navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
                 actions = {
-                    if (state.enabled == GradeUseState.ENABLED) IconButton(onClick = { searchExpanded = !searchExpanded }) {
-                        val painter = rememberAnimatedVectorPainter(
-                            animatedImageVector = AnimatedImageVector.animatedVectorResource(R.drawable.anim_search_close),
-                            atEnd = searchExpanded
-                        )
-                        Image(
-                            painter = painter,
-                            contentDescription = null,
-                            modifier = Modifier.scale(.8f),
-                            colorFilter =
-                                if (MainActivity.isAppInDarkMode.value) ColorFilter.colorMatrix(ColorMatrix(colorMatrix))
-                                else null
-                        )
+                    if (state.enabled == GradeUseState.ENABLED) {
+                        IconButton(onClick = { statisticsSheetOpen = true }) {
+                            Icon(imageVector = Icons.Default.BarChart, contentDescription = stringResource(id = R.string.grades_statsTitle))
+                        }
+                        IconButton(onClick = { searchExpanded = !searchExpanded }) {
+                            val painter = rememberAnimatedVectorPainter(
+                                animatedImageVector = AnimatedImageVector.animatedVectorResource(R.drawable.anim_search_close),
+                                atEnd = searchExpanded
+                            )
+                            Image(
+                                painter = painter,
+                                contentDescription = null,
+                                modifier = Modifier.scale(.8f),
+                                colorFilter =
+                                    if (MainActivity.isAppInDarkMode.value) ColorFilter.colorMatrix(ColorMatrix(colorMatrix))
+                                    else null
+                            )
+                        }
                     }
                 }
             )
