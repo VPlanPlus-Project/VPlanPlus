@@ -170,7 +170,7 @@ private fun GradesScreenContent(
     var statisticsSheetOpen by rememberSaveable { mutableStateOf(false) }
     val statisticsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    if (statisticsSheetOpen) {
+    if (statisticsSheetOpen && state.authenticationState == AuthenticationState.AUTHENTICATED) {
         ModalBottomSheet(
             onDismissRequest = { statisticsSheetOpen = false },
             sheetState = statisticsSheetState,
@@ -205,8 +205,10 @@ private fun GradesScreenContent(
                 navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
                 actions = {
                     if (state.enabled == GradeUseState.ENABLED) {
-                        IconButton(onClick = { statisticsSheetOpen = true }) {
-                            Icon(imageVector = Icons.Default.BarChart, contentDescription = stringResource(id = R.string.grades_statsTitle))
+                        AnimatedVisibility(visible = state.authenticationState == AuthenticationState.AUTHENTICATED) {
+                            IconButton(onClick = { statisticsSheetOpen = true }) {
+                                Icon(imageVector = Icons.Default.BarChart, contentDescription = stringResource(id = R.string.grades_statsTitle))
+                            }
                         }
                         IconButton(onClick = { searchExpanded = !searchExpanded }) {
                             val painter = rememberAnimatedVectorPainter(
