@@ -459,8 +459,7 @@ class DoSyncUseCase(
     private suspend fun sendNewPlanNotification(notificationData: NotificationData) {
 
         val intent = Intent(context, MainActivity::class.java)
-            .putExtra("profileId", notificationData.profile.id.toString())
-            .putExtra("dateStr", notificationData.date.toString())
+            .putExtra("screen", "plan/${notificationData.profile.id}/${notificationData.date}")
 
         Log.d(
             "SyncWorker.Notification",

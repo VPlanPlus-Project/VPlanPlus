@@ -242,21 +242,7 @@ private fun NavGraphBuilder.mainScreens(
     navBar: @Composable (expanded: Boolean) -> Unit
 ) {
     composable(
-        route = Screen.HomeScreen.route,
-        enterTransition = { fadeIn(tween(300)) },
-        exitTransition = { fadeOut(tween(300)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = { fadeOut(tween(300)) }
-    ) {
-        HomeScreen(
-            navHostController = navController,
-            navBar = navBar,
-            startDate = LocalDate.now()
-        )
-    }
-
-    composable(
-        route = Screen.HomeScreen.route + "?startDate={startDate}",
+        route = Screen.HomeScreen.route + "/{startDate}",
         enterTransition = { fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(300)) },
         popEnterTransition = { fadeIn(tween(300)) },
@@ -273,6 +259,20 @@ private fun NavGraphBuilder.mainScreens(
             navHostController = navController,
             navBar = navBar,
             startDate = LocalDate.parse(it.arguments?.getString("startDate") ?: LocalDate.now().toString())
+        )
+    }
+
+    composable(
+        route = Screen.HomeScreen.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        HomeScreen(
+            navHostController = navController,
+            navBar = navBar,
+            startDate = LocalDate.now()
         )
     }
 
