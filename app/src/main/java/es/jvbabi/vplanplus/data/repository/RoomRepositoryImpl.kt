@@ -157,7 +157,7 @@ class RoomRepositoryImpl(
             }.forEach { vppId -> vppIdRepository.cacheVppId(vppId, school) }
         vppIds = vppIdRepository.getVppIds().first()
 
-        // filter out already existing bookings
+        val existingBookings = roomBookingDao.getAllRoomBookings().map { it.roomBooking.id }
 
         // insert new bookings
         roomBookingDao.deleteAll()
@@ -179,16 +179,13 @@ class RoomRepositoryImpl(
             .getProfiles().first()
             .filter { it.type == ProfileType.STUDENT }
             .mapNotNull { profile -> classes.firstOrNull { it.classId == profile.referenceId }?.name }
+
         roomBookings.bookings
-            .filter { booking -> booking.`class` in profileClasses }
-            .filter { booking ->
-                DateUtils.getDateTimeFromTimestamp(booking.end)
-                    .isAfter(LocalDateTime.now())
-            }
-            .filter { booking ->
-                !vppIds.filter { it.isActive() }.map { it.id }.contains(booking.bookedBy)
-            }
-            .forEach { booking ->
+            .filter profileClass@{ booking -> booking.`class` in profileClasses }
+            .filter notInPast@{ booking -> DateUtils.getDateTimeFromTimestamp(booking.end).isAfter(LocalDateTime.now()) }
+            .filter notBookedByCurrentUser@{ booking -> !vppIds.filter { it.isActive() }.map { it.id }.contains(booking.bookedBy) }
+            .filter isNewInDatabase@{ booking -> !existingBookings.contains(booking.id) }
+            .forEach sendNotification@{ booking ->
                 notificationRepository.sendNotification(
                     channelId = NotificationRepository.CHANNEL_ID_ROOM_BOOKINGS,
                     id = 5000 + booking.id.toInt(),
