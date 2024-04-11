@@ -22,10 +22,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BarChart
 import androidx.compose.material.icons.filled.Fingerprint
@@ -48,12 +46,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.platform.LocalContext
@@ -67,7 +60,6 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Grade
-import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Subject
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
@@ -394,49 +386,3 @@ private val colorMatrix = floatArrayOf(
     0f, 0f, -1f, 0f, 255f,
     0f, 0f, 0f, 1f, 0f
 )
-
-@Composable
-private fun LatestGrade(modifier: Modifier = Modifier, value: Int, gradeModifier: GradeModifier, subject: String)  {
-    val colorScheme = MaterialTheme.colorScheme
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier
-            .size(70.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .drawWithContent {
-                drawRect(
-                    brush = Brush.horizontalGradient(
-                        colors = listOf(
-                            colorScheme.primary,
-                            colorScheme.tertiary
-                        )
-                    ),
-                    topLeft = Offset(0f, 0f),
-                    size = Size(size.width, size.height)
-                )
-                drawContent()
-            }
-    ) {
-        Text(
-            text = "$value${gradeModifier.symbol}",
-            style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
-        )
-        Text(
-            text = subject,
-            style = MaterialTheme.typography.labelMedium,
-            color = MaterialTheme.colorScheme.onPrimary,
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun LatestGradePreview() {
-    LatestGrade(
-        value = 2,
-        gradeModifier = GradeModifier.MINUS,
-        subject = "Math"
-    )
-}
