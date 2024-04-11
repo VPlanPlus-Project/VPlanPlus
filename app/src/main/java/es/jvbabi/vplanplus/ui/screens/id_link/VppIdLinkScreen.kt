@@ -128,7 +128,11 @@ private fun VppIdLinkScreenContent(
                         modifier = Modifier.padding(start = 8.dp)
                     ) {
                         Text(text = stringResource(id = R.string.vppIdLink_contactUs))
-                        Icon(imageVector = Icons.AutoMirrored.Default.OpenInNew, contentDescription = null)
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                            contentDescription = null,
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
                     }
                 }
             }
