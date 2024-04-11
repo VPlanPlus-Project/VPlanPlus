@@ -65,6 +65,8 @@ import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.CancelBookingUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.GetRoomMapUseCase
+import es.jvbabi.vplanplus.domain.usecase.find_room.HideRoomBookingDisclaimerBannerUseCase
+import es.jvbabi.vplanplus.domain.usecase.find_room.IsShowRoomBookingDisclaimerBannerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
@@ -488,7 +490,10 @@ object VppModule {
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
             ),
             getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-            cancelBooking = CancelBookingUseCase(vppIdRepository)
+            cancelBooking = CancelBookingUseCase(vppIdRepository),
+
+            isShowRoomBookingDisclaimerBannerUseCase = IsShowRoomBookingDisclaimerBannerUseCase(keyValueRepository),
+            hideRoomBookingDisclaimerBannerUseCase = HideRoomBookingDisclaimerBannerUseCase(keyValueRepository)
         )
     }
 

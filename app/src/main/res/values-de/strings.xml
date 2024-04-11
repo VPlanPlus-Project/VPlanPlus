@@ -195,7 +195,7 @@
     <string name="onboarding_qrNext">Mit %1$d fortfahren</string>
     <string name="searchAvailableRoom_bookDescription">Raum buchen</string>
     <string name="searchAvailableRoom_bookTitle">Raum %1$s buchen?</string>
-    <string name="searchAvailableRoom_bookText">Möchtest du diesen Raum von %1$s bis %2$s für die Klasse %3$s buchen?\n\nBitte beachte, dass dies an deiner Schule möglicherweise nicht offiziell ist. Buche keine Räume, die du nicht selbst betreten darfst.</string>
+    <string name="searchAvailableRoom_bookText">Möchtest du diesen Raum von %1$s bis %2$s für die Klasse %3$s buchen?\n\nBitte beachte, dass dies an deiner Schule möglicherweise nicht offiziell ist. Es gelten stehts die Anweisungen des Lehr- und Planerpersonals. Dies ist nur eine Orientierung. Buche keine Räume, die du nicht selbst betreten darfst.</string>
     <string name="comingSoon">Bald verfügbar</string>
     <string name="settings_profileManagementCalendarPermissionDialogTitle">Fehlende Berechtigungen</string>
     <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus hat nicht die notwendigen Android Berechtigungen um auf deine Kalender zuzugreifen. Möchtest du den Zugriff jetzt gewähren?</string>
@@ -548,5 +548,7 @@
     <string name="addHomework_removeSubject">Fach entfernen</string>
     <string name="addHomework_noDefaultLessonDialogTitle">Kein Fach ausgewählt</string>
     <string name="addHomework_noDefaultLessonDialogText">Du hast kein Fach für diese Hausaufgabe angegeben. Sie wird nicht für Nutzer einer veralteten Version (v1.1 und älter) von VPlanPlus angezeigt. Möchtest Du dennoch fortfahren?</string>
+    <string name="searchAvailableRoom_disclaimerText">Diese Daten können unvollständig sein, da aktuelle Änderungen möglicherweise nicht in den Vertretungsplänen berücksichtigt sind. Die Buchungen werden von der Schule nicht offiziell anerkannt.</string>
+    <string name="disclaimer">Haftungsausschluss</string>
 
 </resources>
