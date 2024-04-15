@@ -63,7 +63,7 @@ import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.Change
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.ProfileIcon
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchNoResults
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchPlaceholder
-import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchResult
+import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.result.SearchResult
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.SearchSearching
 import java.time.LocalDate
 
