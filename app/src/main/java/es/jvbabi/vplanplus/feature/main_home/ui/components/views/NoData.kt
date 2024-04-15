@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_timetable.ui.components
+package es.jvbabi.vplanplus.feature.main_home.ui.components.views
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

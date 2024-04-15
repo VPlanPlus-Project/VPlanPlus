@@ -25,7 +25,7 @@ class ClassRepositoryImpl(
         schoolId: Long,
         className: String,
         createIfNotExists: Boolean
-    ): Classes {
+    ): Classes? {
         val `class` = schoolEntityDao.getSchoolEntityByName(
             schoolId = schoolId,
             name = className,
@@ -45,7 +45,7 @@ class ClassRepositoryImpl(
             schoolId = schoolId,
             name = className,
             type = SchoolEntityType.CLASS
-        )!!.toClassModel()
+        )?.toClassModel()
     }
 
     override suspend fun getClassById(id: UUID): Classes? {

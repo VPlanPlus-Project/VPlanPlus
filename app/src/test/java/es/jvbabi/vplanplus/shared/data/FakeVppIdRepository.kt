@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.UsersPerClassResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
@@ -60,7 +61,7 @@ class FakeVppIdRepository : VppIdRepository {
         return tokens.firstOrNull { it.vppId == vppId.id }?.bsToken
     }
 
-    override suspend fun testVppId(vppId: VppId): DataResponse<Boolean?> {
+    override suspend fun testVppIdSession(vppId: VppId): Boolean? {
         TODO("Not yet implemented")
     }
 
@@ -90,7 +91,11 @@ class FakeVppIdRepository : VppIdRepository {
         TODO("Not yet implemented")
     }
 
-    override suspend fun fetchUsersPerClass(schoolId: Long): DataResponse<UsersPerClassResponse?> {
+    override suspend fun fetchUsersPerClass(schoolId: Long, username: String, password: String): DataResponse<UsersPerClassResponse?> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getVersionHints(version: Int, versionBefore: Int): DataResponse<List<VersionHints>> {
         TODO("Not yet implemented")
     }
 }

@@ -27,6 +27,7 @@ class NotificationRepositoryImpl(
         message: String,
         icon: Int,
         pendingIntent: PendingIntent?,
+        priority: Int,
         actions: List<NotificationAction>
     ) {
         logRepository.log("Notification", "Sending $id to $channelId: $title")
@@ -34,7 +35,7 @@ class NotificationRepositoryImpl(
         val builder = NotificationCompat.Builder(appContext, channelId)
             .setContentTitle(title)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(priority)
             .setStyle(
                 NotificationCompat.BigTextStyle()
                     .bigText(message)

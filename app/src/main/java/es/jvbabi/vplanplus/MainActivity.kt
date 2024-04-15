@@ -10,12 +10,15 @@ import android.view.animation.AccelerateInterpolator
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.FormatListNumbered
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -60,9 +63,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.Period
-import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -93,6 +94,8 @@ class MainActivity : FragmentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val context = this
 
         processIntent(intent)
 
@@ -183,25 +186,10 @@ class MainActivity : FragmentActivity() {
                             label = { Text(text = stringResource(id = R.string.main_home)) },
                             route = Screen.HomeScreen.route
                         ),
-                        NavigationBarItem(
+                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 1) return@NavigationBarItem
                                 selectedIndex = 1
-                                navController!!.navigate(Screen.TimetableScreen.route) { popUpTo(Screen.HomeScreen.route) }
-                            },
-                            icon = {
-                                Icon(
-                                    imageVector = Icons.Default.FormatListNumbered,
-                                    contentDescription = null
-                                )
-                            },
-                            label = { Text(text = stringResource(id = R.string.main_timetable)) },
-                            route = Screen.TimetableScreen.route
-                        ),
-                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
-                            onClick = {
-                                if (selectedIndex == 2) return@NavigationBarItem
-                                selectedIndex = 2
                                 navController!!.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
@@ -215,8 +203,8 @@ class MainActivity : FragmentActivity() {
                         ) else null,
                         if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
                             onClick = {
-                                if (selectedIndex == 3) return@NavigationBarItem
-                                selectedIndex = 3
+                                if (selectedIndex == 2) return@NavigationBarItem
+                                selectedIndex = 2
                                 navController!!.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
@@ -230,15 +218,23 @@ class MainActivity : FragmentActivity() {
                         ) else null
                     )
 
-                    val navBar = @Composable {
-                        NavigationBar {
-                            navBarItems.forEachIndexed { index, item ->
-                                NavigationBarItem(
-                                    selected = index == selectedIndex,
-                                    onClick = item.onClick,
-                                    icon = item.icon,
-                                    label = item.label
-                                )
+                    val navBar = @Composable { expanded: Boolean ->
+                        AnimatedVisibility(
+                            visible = expanded,
+                            enter = expandVertically(tween(250)),
+                            exit = shrinkVertically(tween(250))
+                        ) {
+                            NavigationBar(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer
+                            ) {
+                                navBarItems.forEachIndexed { index, item ->
+                                    NavigationBarItem(
+                                        selected = index == selectedIndex,
+                                        onClick = item.onClick,
+                                        icon = item.icon,
+                                        label = item.label
+                                    )
+                                }
                             }
                         }
                     }
@@ -270,19 +266,25 @@ class MainActivity : FragmentActivity() {
             }
         }
 
-        val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
-            15,
-            TimeUnit.MINUTES
-        ).setConstraints(
-            Constraints.Builder()
-                .setRequiredNetworkType(NetworkType.CONNECTED)
+        lifecycleScope.launch {
+            val intervalMinutes = mainUseCases.getSyncIntervalMinutesUseCase()
+            if (intervalMinutes == -1L) return@launch
+
+            val syncWork = PeriodicWorkRequestBuilder<SyncWorker>(
+                intervalMinutes,
+                TimeUnit.MINUTES
+            ).setConstraints(
+                Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build()
+            )
+                .addTag("SyncWork")
+                .addTag("AutomaticSyncWork")
                 .build()
-        )
-            .addTag("SyncWork")
-            .addTag("AutomaticSyncWork")
-            .build()
-        WorkManager.getInstance(this)
-            .enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
+
+            WorkManager.getInstance(context)
+                .enqueueUniquePeriodicWork("SyncWork", ExistingPeriodicWorkPolicy.KEEP, syncWork)
+        }
     }
 
     private fun processIntent(intent: Intent) {
@@ -294,31 +296,16 @@ class MainActivity : FragmentActivity() {
                 while (currentIdentity.value == null || navController == null) delay(50)
                 when (intent.getStringExtra("screen")) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
-                    else -> navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreen.route)
+                    "homework" -> navController!!.navigate(Screen.HomeworkScreen.route)
                 }
-            }
-        }
-        if (intent.hasExtra("profileId")) {
-            showSplashScreen = false
-            val profileId = intent.getStringExtra("profileId")
-            Log.d("MainActivity.Intent", "profileId: $profileId")
-            Log.d("MainActivity.Intent", "dateStr: ${intent.getStringExtra("dateStr")}")
 
-            if (intent.getStringExtra("dateStr") != null) {
-                val dateStr = intent.getStringExtra("dateStr") ?: return
-                val date = LocalDate.parse(dateStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"))
-                Log.d(
-                    "MainActivity.Intent",
-                    "Switching to date: $date (Difference: ${
-                        Period.between(
-                            LocalDate.now(),
-                            date
-                        ).days
-                    })"
-                )
-                lifecycleScope.launch {
-                    while (currentIdentity.value == null) delay(50)
-                    navController!!.navigate(Screen.TimetableScreen.route + "/$date")
+                if (intent.getStringExtra("screen")!!.startsWith("plan")) {
+                    val params = intent.getStringExtra("screen")!!.split("/")
+                    val profileId = params[1]
+                    val date = params[2]
+
+                    mainUseCases.setCurrentProfileUseCase(UUID.fromString(profileId))
+                    navController!!.navigate(Screen.HomeScreen.route + "/$date")
                 }
             }
         }
@@ -350,7 +337,7 @@ class MainActivity : FragmentActivity() {
     }
 }
 
-private data class NavigationBarItem(
+data class NavigationBarItem(
     val onClick: () -> Unit,
     val route: String,
     val icon: @Composable () -> Unit,

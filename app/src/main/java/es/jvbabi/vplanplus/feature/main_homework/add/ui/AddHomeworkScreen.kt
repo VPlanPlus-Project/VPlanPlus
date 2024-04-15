@@ -18,12 +18,14 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
@@ -41,6 +43,10 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -50,6 +56,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.DateChip
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.NoDefaultLessonDialog
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -123,6 +130,10 @@ private fun AddHomeworkContent(
     onSave: () -> Unit = {},
     state: AddHomeworkState
 ) {
+
+    var showNoDefaultLessonDialog by rememberSaveable { mutableStateOf(false) }
+    if (showNoDefaultLessonDialog) NoDefaultLessonDialog(onYes = { showNoDefaultLessonDialog = false; onSave() }, onNo = { showNoDefaultLessonDialog = false })
+
     val noTeacher = stringResource(id = R.string.settings_profileDefaultLessonNoTeacher)
     if (state.isLessonDialogOpen) {
         SelectDialog(
@@ -217,6 +228,20 @@ private fun AddHomeworkContent(
                     ),
                     type = SettingsType.SELECT,
                     doAction = onOpenDefaultLessonDialog,
+                    customContent = {
+                        AnimatedVisibility(
+                            visible = state.selectedDefaultLesson != null,
+                            enter = expandVertically(tween(250)),
+                            exit = shrinkVertically(tween(250))
+                        ) {
+                            AssistChip(
+                                modifier = Modifier.padding(start = 56.dp),
+                                onClick = { onSetDefaultLesson(null) },
+                                label = { Text(text = stringResource(id = R.string.addHomework_removeSubject)) },
+                                leadingIcon = { Icon(imageVector = Icons.Default.Cancel, contentDescription = null) }
+                            )
+                        }
+                    }
                 )
                 SettingsSetting(
                     icon = Icons.Default.AccessTime,
@@ -352,7 +377,7 @@ private fun AddHomeworkContent(
             }
 
             Button(
-                onClick = onSave,
+                onClick = { if (state.selectedDefaultLesson == null) showNoDefaultLessonDialog = true else onSave() },
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxWidth(),

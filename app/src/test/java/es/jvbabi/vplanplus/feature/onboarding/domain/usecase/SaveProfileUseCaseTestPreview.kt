@@ -35,7 +35,7 @@ import org.junit.Test
 import java.time.format.DateTimeFormatter
 import java.util.UUID
 
-class SaveProfileUseCaseTest {
+class SaveProfileUseCaseTestPreview {
 
     private lateinit var saveProfileUseCase: SaveProfileUseCase
 

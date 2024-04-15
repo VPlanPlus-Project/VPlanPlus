@@ -18,7 +18,7 @@ class SearchUseCase(
     private val planRepository: PlanRepository,
     private val keyValueRepository: KeyValueRepository
 ) {
-    suspend operator fun invoke(query: String): List<SearchResult> {
+    suspend operator fun invoke(query: String, date: LocalDate): List<SearchResult> {
         val version = keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: 0L
         val classes = classRepository
             .getAll()
@@ -41,19 +41,19 @@ class SearchUseCase(
 
         val firstClassPlan = if (firstClass != null) planRepository.getDayForClass(
             firstClass.classId,
-            LocalDate.now(),
+            date,
             version
         ).first().lessons else null
 
         val firstTeacherPlan = if (firstTeacher != null) planRepository.getDayForTeacher(
             firstTeacher.teacherId,
-            LocalDate.now(),
+            date,
             version
         ).first().lessons else null
 
         val firstRoomPlan = if (firstRoom != null) planRepository.getDayForRoom(
             firstRoom.roomId,
-            LocalDate.now(),
+            date,
             version
         ).first().lessons else null
 

@@ -88,7 +88,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbTeacher::class,
         DbGrade::class
     ],
-    version = 23,
+    version = 24,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -101,7 +101,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 17, to = 18), // add homework.isPublic
         AutoMigration(from = 18, to = 19), // add zoned date time
         AutoMigration(from = 19, to = 20), // add homework can hide
-        AutoMigration(from = 21, to = 22) // add preferred notification time
+        AutoMigration(from = 21, to = 22), // add preferred notification time
     ],
 )
 @TypeConverters(
@@ -225,6 +225,15 @@ abstract class VppDatabase : RoomDatabase() {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("DROP TABLE IF EXISTS calendar_events")
                 db.execSQL("ALTER TABLE keyValue RENAME TO key_value")
+            }
+        }
+
+        val migration_23_24 = object : Migration(23, 24) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE homework RENAME COLUMN defaultLessonVpId TO defaultLessonVpId_old")
+                db.execSQL("ALTER TABLE homework ADD COLUMN defaultLessonVpId INTEGER NULL")
+                db.execSQL("UPDATE homework SET defaultLessonVpId = defaultLessonVpId_old")
+                db.execSQL("ALTER TABLE homework DROP COLUMN defaultLessonVpId_old")
             }
         }
     }

@@ -10,3 +10,7 @@ fun Color.toBlackAndWhite(): Color {
     hsl[1] = 0f
     return Color(ColorUtils.HSLToColor(hsl))
 }
+
+fun blendColor(color1: Color, color2: Color, factor: Float): Color {
+    return Color(ColorUtils.blendARGB(color1.toArgb(), color2.toArgb(), factor))
+}

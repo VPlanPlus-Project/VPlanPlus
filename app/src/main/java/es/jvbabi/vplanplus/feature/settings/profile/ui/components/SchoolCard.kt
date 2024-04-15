@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.ui.preview.Profile as PreviewProfile
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview as PreviewProfile
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
 @Composable

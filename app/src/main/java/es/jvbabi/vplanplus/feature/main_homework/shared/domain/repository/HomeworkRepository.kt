@@ -23,7 +23,7 @@ interface HomeworkRepository {
         createdBy: VppId?,
         createdAt: ZonedDateTime = ZonedDateTime.now(),
         `class`: Classes,
-        defaultLessonVpId: Long,
+        defaultLessonVpId: Long?,
         shareWithClass: Boolean,
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,

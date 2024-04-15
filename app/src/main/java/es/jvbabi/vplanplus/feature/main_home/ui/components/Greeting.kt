@@ -34,15 +34,15 @@ fun Greeting(
         withStyle(
             MaterialTheme
                 .typography
-                .headlineMedium
+                .displaySmall
                 .copy(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
                             MaterialTheme.colorScheme.primary,
-                            MaterialTheme.colorScheme.secondary
+                            MaterialTheme.colorScheme.tertiary
                         )
                     ),
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Black
                 )
                 .toSpanStyle()
         ) {
@@ -52,19 +52,19 @@ fun Greeting(
         if (name != null) withStyle(
             MaterialTheme
                 .typography
-                .headlineMedium
+                .headlineSmall
                 .copy(
                     brush = Brush.horizontalGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.secondary,
-                            MaterialTheme.colorScheme.secondary,
-                            MaterialTheme.colorScheme.tertiary
+                            MaterialTheme.colorScheme.tertiary,
+                            MaterialTheme.colorScheme.secondary
                         )
-                    )
+                    ),
+                    fontWeight = FontWeight.Light
                 )
                 .toSpanStyle()
         ) {
-            append("$name.")
+            append(name)
         }
     }
 

@@ -74,7 +74,7 @@ import java.time.temporal.ChronoUnit
 @Composable
 fun HomeworkScreen(
     navHostController: NavHostController,
-    navBar: @Composable () -> Unit,
+    navBar: @Composable (expanded: Boolean) -> Unit,
     viewModel: HomeworkViewModel = hiltViewModel()
 ) {
     val state = viewModel.state.value
@@ -136,7 +136,7 @@ private fun HomeworkScreenContent(
     onCopyToClipboard: (String) -> Unit = {},
     refresh: () -> Unit = {},
     state: HomeworkState,
-    navBar: @Composable () -> Unit = {},
+    navBar: @Composable (expanded: Boolean) -> Unit = {},
 ) {
     if (state.homeworkDeletionRequest != null) {
         DeleteHomeworkDialog(
@@ -181,7 +181,7 @@ private fun HomeworkScreenContent(
                 }
             )
         },
-        bottomBar = navBar,
+        bottomBar = { navBar(!keyboardAsState().value) },
         floatingActionButton = {
             AnimatedVisibility(
                 visible = !keyboardAsState().value,

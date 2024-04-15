@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.settings.vpp_id.ui
 
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import androidx.browser.customtabs.CustomTabsIntent
@@ -45,6 +46,15 @@ import java.net.URLEncoder
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
+fun onLogin(context: Context, server: String) {
+    val url = "${server}/id/login/link/?version=${BuildConfig.VERSION_CODE}&name=VPlanPlus%20on%20" + URLEncoder.encode(
+        Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
+    )
+    val intent = CustomTabsIntent.Builder().build()
+    intent.launchUrl(context, Uri.parse(url))
+
+}
+
 
 @Composable
 fun AccountSettingsScreen(
@@ -57,11 +67,7 @@ fun AccountSettingsScreen(
     AccountSettingsScreenContent(
         onBack = { navHostController.popBackStack() },
         onLogin = {
-            val url = "${state.server}/login/link/?version=${BuildConfig.VERSION_CODE}&name=VPlanPlus%20on%20" + URLEncoder.encode(
-                Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
-            )
-            val intent = CustomTabsIntent.Builder().build()
-            intent.launchUrl(context, Uri.parse(url))
+            onLogin(context, state.server)
         },
         onOpenVppIdManagement = { vppIdId ->
             navHostController.navigate(Screen.SettingsVppIdManageScreen.route + "/$vppIdId")

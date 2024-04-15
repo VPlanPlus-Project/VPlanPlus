@@ -53,8 +53,9 @@ class RoomSearchViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 findRoomUseCases.getCurrentIdentityUseCase(),
-                findRoomUseCases.canBookRoomUseCase()
-            ) { identity, canBookRooms ->
+                findRoomUseCases.canBookRoomUseCase(),
+                findRoomUseCases.isShowRoomBookingDisclaimerBannerUseCase()
+            ) { identity, canBookRooms, showDisclaimerBanner ->
                 if (identity?.school == null || identity.profile == null) {
                     Log.d("RoomSearchViewModel", "school or profile is null")
                     return@combine state.value
@@ -89,7 +90,7 @@ class RoomSearchViewModel @Inject constructor(
                     nowTimespan = if (now != null) Pair(now.start, now.end) else null
 
                     nextTimespan = if (next != null) Pair(next.start, next.end) else null
-                    profileStart = start.value.start
+                    profileStart = start.value.start.withYear(LocalDate.now().year).withDayOfYear(LocalDate.now().dayOfYear)
                     showFilterChips = currentLessonNumber != null && currentLessonNumber + 0.5 != roomMap.maxLessons.toDouble()
                     showNowFilter = (currentLessonNumber ?: 0.0) % 1 != 0.5
                 }
@@ -108,6 +109,7 @@ class RoomSearchViewModel @Inject constructor(
                     filterNow = if (!showNowFilter) false else _state.value.filterNow,
                     filterNext = if (!showFilterChips) false else _state.value.filterNext,
                     canBookRoom = canBookRooms,
+                    showDisclaimerBanner = showDisclaimerBanner
                 )
             }.collect {
                 _state.value = it
@@ -115,6 +117,8 @@ class RoomSearchViewModel @Inject constructor(
             }
         }
     }
+
+    fun hideDisclaimerBanner() { viewModelScope.launch { findRoomUseCases.hideRoomBookingDisclaimerBannerUseCase() } }
 
     fun filter() {
         filterJob?.cancel()
@@ -273,7 +277,9 @@ data class RoomSearchState(
     val currentRoomBooking: RoomBooking? = null,
     val canBookRoom: BookRoomAbility = BookRoomAbility.CAN_BOOK,
     val roomBookingResult: BookResult? = null,
-    val roomCancelBookingResult: CancelBookingResult? = null
+    val roomCancelBookingResult: CancelBookingResult? = null,
+
+    val showDisclaimerBanner: Boolean = false
 )
 
 data class RoomBooking(

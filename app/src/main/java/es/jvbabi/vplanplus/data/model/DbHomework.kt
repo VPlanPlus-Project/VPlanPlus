@@ -31,7 +31,7 @@ data class DbHomework(
     val classes: UUID,
     @ColumnInfo(defaultValue = "false") val isPublic: Boolean = false,
     val createdAt: ZonedDateTime,
-    val defaultLessonVpId: Long,
+    val defaultLessonVpId: Long?,
     val until: ZonedDateTime,
     @ColumnInfo(defaultValue = "false") val hidden: Boolean = false,
 )

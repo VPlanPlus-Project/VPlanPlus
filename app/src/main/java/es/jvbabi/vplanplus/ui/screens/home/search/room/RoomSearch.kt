@@ -60,12 +60,13 @@ import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
-import es.jvbabi.vplanplus.ui.preview.Profile
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.BookingDetailDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.CannotBookRoomNotVerifiedDialog
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.CannotBookRoomWrongTypeDialog
+import es.jvbabi.vplanplus.ui.screens.home.search.room.components.DisclaimerBanner
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.FilterChips
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.Guide
 import es.jvbabi.vplanplus.ui.screens.home.search.room.components.LessonDialog
@@ -100,7 +101,8 @@ fun FindAvailableRoomScreen(
         },
         onCancelCurrentBooking = { roomSearchViewModel.cancelCurrentBooking() },
         onConfirmBooking = { roomSearchViewModel.confirmBooking() },
-        onCloseBookRoomDialog = { roomSearchViewModel.closeBookRoomDialog() }
+        onCloseBookRoomDialog = { roomSearchViewModel.closeBookRoomDialog() },
+        onCloseDisclaimerBanner = { roomSearchViewModel.hideDisclaimerBanner() }
     )
 
     val context = LocalContext.current
@@ -149,7 +151,8 @@ fun FindAvailableRoomScreenContent(
     onBookRoomClicked: (Room, ZonedDateTime, ZonedDateTime) -> Unit = { _, _, _ -> },
     onCancelCurrentBooking: () -> Unit = {},
     onConfirmBooking: () -> Unit = {},
-    onCloseBookRoomDialog: () -> Unit = {}
+    onCloseBookRoomDialog: () -> Unit = {},
+    onCloseDisclaimerBanner: () -> Unit = {}
 ) {
     if (state.detailLesson != null) {
         LessonDialog(
@@ -234,6 +237,7 @@ fun FindAvailableRoomScreenContent(
         ) {
             // user info
             Text(text = state.identity?.school?.name ?: stringResource(id = R.string.loadingData))
+            DisclaimerBanner(state.showDisclaimerBanner, onCloseDisclaimerBanner)
             Guide(className = state.`class`?.name)
 
             // filter
@@ -261,11 +265,11 @@ fun FindAvailableRoomScreenContent(
 
             val first = lessonTimes.minByOrNull { it.start }
             val last = lessonTimes.maxByOrNull { it.end }
-            val width = (first?.start?.atBeginningOfTheWorld()
-                ?.until(last?.end?.atBeginningOfTheWorld(), ChronoUnit.MINUTES) ?: 0) * scaling
+            val width = (first?.start
+                ?.until(last?.end, ChronoUnit.MINUTES) ?: 0) * scaling
             val currentOffset =
-                ((state.profileStart ?: first?.start?.atBeginningOfTheWorld())?.until(
-                    ZonedDateTime.now().atBeginningOfTheWorld(),
+                ((state.profileStart ?: first?.start)?.until(
+                    ZonedDateTime.now(),
                     ChronoUnit.MINUTES
                 ) ?: 0) * scaling
             var scrollWidth = 0
@@ -348,7 +352,7 @@ fun FindAvailableRoomScreenContent(
                                         Spacer(modifier = Modifier.width(30.dp))
                                         RoomListRecord(
                                             start = state.profileStart
-                                                ?: first.start.atBeginningOfTheWorld(),
+                                                ?: first.start,
                                             lessons = room.lessons,
                                             bookings = room.bookings,
                                             displayed = room.displayed,
@@ -423,7 +427,7 @@ fun FindAvailableRoomScreenContent(
 fun FindAvailableRoomScreenPreview() {
     val school = School.generateRandomSchools(1).first()
     val `class` = ClassesPreview.generateClass(school)
-    val profile = Profile.generateClassProfile()
+    val profile = ProfilePreview.generateClassProfile()
     FindAvailableRoomScreenContent(
         state = RoomSearchState(
             Identity(
@@ -473,32 +477,32 @@ private fun RoomListRecord(
                     if (!lessons.filterNotNull().any { it.lessonNumber == lessonNumber }) {
 
                         if (bookings.any { booking ->
-                                (booking.from.atBeginningOfTheWorld()
-                                    .isBefore(times.end) && booking.to.atBeginningOfTheWorld()
+                                (booking.from
+                                    .isBefore(times.end) && booking.to
                                     .isAfter(
                                         times.start
-                                    )) || (booking.from.atBeginningOfTheWorld()
-                                    .isEqual(times.start)) || (booking.to.atBeginningOfTheWorld()
+                                    )) || (booking.from
+                                    .isEqual(times.start)) || (booking.to
                                     .isEqual(
                                         times.end
                                     ))
                             }) return@forEach
 
-                        val lessonStart = times.start
+                        val lessonStart = times.start.withYear(start.year).withDayOfYear(start.dayOfYear)
                         if (lessonStart.isBefore(start)) return@forEach
                         val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
-                        val length = lessonStart.until(times.end, ChronoUnit.MINUTES) * scaling
+                        val length = lessonStart.until(times.end.withYear(start.year).withDayOfYear(start.dayOfYear), ChronoUnit.MINUTES) * scaling
                         val prevHasLesson =
                             lessons.filterNotNull().any { it.lessonNumber == lessonNumber - 1 }
                         var roundPrevious = 1
-                        if (!prevHasLesson && lessonTimes[lessonNumber - 1]?.end?.isEqual(times.start) == true) {
+                        if (!prevHasLesson && lessonTimes[lessonNumber - 1]?.end?.isEqual(times.start.withYear(start.year).withDayOfYear(start.dayOfYear)) == true) {
                             roundPrevious = 0
                         }
 
                         val nextHasLesson =
                             lessons.filterNotNull().any { it.lessonNumber == lessonNumber + 1 }
                         var roundNext = 1
-                        if (!nextHasLesson && lessonTimes[lessonNumber + 1]?.start?.isEqual(times.end) == true) {
+                        if (!nextHasLesson && lessonTimes[lessonNumber + 1]?.start?.isEqual(times.end.withYear(start.year).withDayOfYear(start.dayOfYear)) == true) {
                             roundNext = 0
                         }
                         Box(
@@ -532,9 +536,9 @@ private fun RoomListRecord(
                     }
                 }
                 bookings.forEach { booking ->
-                    var bookingStart = booking.from.atBeginningOfTheWorld()
+                    var bookingStart = booking.from
                     if (bookingStart.isBefore(start)) bookingStart = start
-                    val bookingEnd = booking.to.atBeginningOfTheWorld()
+                    val bookingEnd = booking.to
                     val offset = start.until(bookingStart, ChronoUnit.MINUTES) * scaling
                     val length = bookingStart.until(bookingEnd, ChronoUnit.MINUTES) * scaling
 
@@ -556,9 +560,9 @@ private fun RoomListRecord(
                     }
                 }
                 lessons.filterNotNull().forEach { lesson ->
-                    var lessonStart = lesson.start.atBeginningOfTheWorld()
+                    var lessonStart = lesson.start
+                    val lessonEnd = lesson.end
                     if (lessonStart.isBefore(start)) lessonStart = start
-                    val lessonEnd = lesson.end.withDayOfYear(1).withYear(1970)
                     val offset = start.until(lessonStart, ChronoUnit.MINUTES) * scaling
                     val length = lessonStart.until(lessonEnd, ChronoUnit.MINUTES) * scaling
                     Box(

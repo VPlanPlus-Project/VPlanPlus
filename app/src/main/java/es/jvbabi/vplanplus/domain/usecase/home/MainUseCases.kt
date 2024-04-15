@@ -7,7 +7,9 @@ data class MainUseCases(
     val getColorSchemeUseCase: GetColorSchemeUseCase,
     val getProfilesUseCase: GetProfilesUseCase,
     val getCurrentIdentity: GetCurrentIdentityUseCase,
+    val setCurrentProfileUseCase: SetCurrentProfileUseCase,
     val setUpUseCase: SetUpUseCase,
     val getHomeworkUseCase: GetHomeworkUseCase,
     val getAppThemeUseCase: GetAppThemeUseCase,
+    val getSyncIntervalMinutesUseCase: GetSyncIntervalMinutesUseCase,
 )

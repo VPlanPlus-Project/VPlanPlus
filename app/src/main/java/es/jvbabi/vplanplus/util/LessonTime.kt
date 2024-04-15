@@ -1,8 +1,6 @@
 package es.jvbabi.vplanplus.util
 
 import es.jvbabi.vplanplus.domain.model.LessonTime
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.UUID
 
 object LessonTime {
@@ -10,8 +8,8 @@ object LessonTime {
         return LessonTime(
             classLessonTimeRefId = classId,
             lessonNumber = lessonNumber,
-            from = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("Europe/Berlin")),
-            to = ZonedDateTime.of(1970, 1, 1, 23, 59, 59, 99, ZoneId.of("Europe/Berlin")),
+            from = (7*60*60)+(30*60), // 7:30
+            to = (8*60*60)+(15*60) // 8:15
         )
     }
 }

@@ -65,12 +65,14 @@ import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.CancelBookingUseCase
 import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
 import es.jvbabi.vplanplus.domain.usecase.find_room.GetRoomMapUseCase
+import es.jvbabi.vplanplus.domain.usecase.find_room.HideRoomBookingDisclaimerBannerUseCase
+import es.jvbabi.vplanplus.domain.usecase.find_room.IsShowRoomBookingDisclaimerBannerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
@@ -102,8 +104,6 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
-import es.jvbabi.vplanplus.feature.main_timetable.domain.usecase.GetDataUseCase
-import es.jvbabi.vplanplus.feature.main_timetable.domain.usecase.TimetableUseCases
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -133,6 +133,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_12_13)
             .addMigrations(VppDatabase.migration_20_21)
             .addMigrations(VppDatabase.migration_22_23)
+            .addMigrations(VppDatabase.migration_23_24)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
@@ -186,6 +187,10 @@ object VppModule {
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentTimeUseCase(timeRepository: TimeRepository) = GetCurrentTimeUseCase(timeRepository)
 
     @Provides
     @Singleton
@@ -485,7 +490,10 @@ object VppModule {
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
             ),
             getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-            cancelBooking = CancelBookingUseCase(vppIdRepository)
+            cancelBooking = CancelBookingUseCase(vppIdRepository),
+
+            isShowRoomBookingDisclaimerBannerUseCase = IsShowRoomBookingDisclaimerBannerUseCase(keyValueRepository),
+            hideRoomBookingDisclaimerBannerUseCase = HideRoomBookingDisclaimerBannerUseCase(keyValueRepository)
         )
     }
 
@@ -698,22 +706,6 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideSetUpUseCase(
-        keyValueRepository: KeyValueRepository,
-        homeworkRepository: HomeworkRepository,
-        alarmManagerRepository: AlarmManagerRepository,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
-    ): SetUpUseCase {
-        return SetUpUseCase(
-            keyValueRepository = keyValueRepository,
-            homeworkRepository = homeworkRepository,
-            alarmManagerRepository = alarmManagerRepository,
-            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
-        )
-    }
-
-    @Provides
-    @Singleton
     fun provideGeneralSettingsUseCases(
         keyValueRepository: KeyValueRepository,
         biometricRepository: BiometricRepository,
@@ -747,22 +739,6 @@ object VppModule {
                 vppIdRepository = vppIdRepository,
                 classRepository = classRepository,
                 gradeRepository = gradeRepository
-            )
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideTimetableUseCases(
-        keyValueRepository: KeyValueRepository,
-        planRepository: PlanRepository,
-        getActiveProfileUseCase: GetCurrentProfileUseCase
-    ): TimetableUseCases {
-        return TimetableUseCases(
-            getDataUseCase = GetDataUseCase(
-                keyValueRepository = keyValueRepository,
-                planRepository = planRepository,
-                getActiveProfileUseCase = getActiveProfileUseCase
             )
         )
     }

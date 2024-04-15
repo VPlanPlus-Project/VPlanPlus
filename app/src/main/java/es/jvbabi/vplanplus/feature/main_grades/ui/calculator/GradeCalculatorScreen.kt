@@ -8,8 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.automirrored.outlined.HelpOutline
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.OutlinedButton
@@ -19,6 +20,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -31,7 +36,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.components.CollectionGroup
 import es.jvbabi.vplanplus.feature.main_grades.ui.components.Average
 import es.jvbabi.vplanplus.ui.common.BackIcon
-import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.ui.common.InfoDialog
 
 @Composable
 fun GradeCalculatorScreen(
@@ -61,12 +66,26 @@ fun GradeCalculatorContent(
 ) {
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    var infoDialogOpen by rememberSaveable { mutableStateOf(false) }
+    if (infoDialogOpen) InfoDialog(
+        icon = Icons.AutoMirrored.Outlined.HelpOutline,
+        title = stringResource(id = R.string.info),
+        message = stringResource(id = R.string.gradesCalculator_text),
+        onOk = { infoDialogOpen = false }
+    )
+
     Scaffold(
         topBar = {
             LargeTopAppBar(
                 title = { Text(text = stringResource(id = R.string.gradesCalculator_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) { BackIcon() }
+                },
+                actions = {
+                    IconButton(onClick = { infoDialogOpen = true }) {
+                        Icon(Icons.AutoMirrored.Outlined.HelpOutline, contentDescription = stringResource(id = R.string.info))
+                    }
                 },
                 scrollBehavior = scrollBehavior
             )
@@ -82,12 +101,6 @@ fun GradeCalculatorContent(
             Box(Modifier.fillMaxWidth()) {
                 Average(Modifier.align(Alignment.Center), avg = state.avg)
             }
-            InfoCard(
-                imageVector = Icons.Default.Info,
-                title = stringResource(id = R.string.info),
-                text = stringResource(id = R.string.gradesCalculator_text),
-                modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp),
-            )
             OutlinedButton(
                 onClick = onRestoreGrades,
                 modifier = Modifier

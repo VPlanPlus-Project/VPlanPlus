@@ -74,6 +74,22 @@ class GeneralSettingsViewModel @Inject constructor(
             generalSettingsUseCases.updateGradeProtectionUseCase(!_state.value.settings!!.isBiometricEnabled, fragmentActivity)
         }
     }
+
+    fun onHideFinishedLessonsChanged(hide: Boolean) {
+        viewModelScope.launch {
+            generalSettingsUseCases.updateSettingsUseCase(
+                _state.value.settings!!.copy(hideFinishedLessons = hide)
+            )
+        }
+    }
+
+    fun onSyncIntervalChanged(minutes: Int) {
+        viewModelScope.launch {
+            generalSettingsUseCases.updateSettingsUseCase(
+                _state.value.settings!!.copy(syncIntervalMinutes = minutes)
+            )
+        }
+    }
 }
 
 data class GeneralSettingsState(

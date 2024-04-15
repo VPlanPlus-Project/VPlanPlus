@@ -95,7 +95,7 @@ class AddHomeworkViewModel @Inject constructor(
             state.value = state.value.copy(
                 result = addHomeworkUseCases.saveHomeworkUseCase(
                     until = state.value.until!!,
-                    defaultLesson = state.value.selectedDefaultLesson!!,
+                    defaultLesson = state.value.selectedDefaultLesson,
                     tasks = state.value.tasks,
                     shareWithClass = state.value.isForAll,
                     storeInCloud = state.value.storeInCloud
@@ -138,5 +138,5 @@ data class AddHomeworkState(
     val isLoading: Boolean = false,
 ) {
     val canSubmit: Boolean
-        get() = selectedDefaultLesson != null && until != null && tasks.isNotEmpty()
+        get() = until != null && tasks.isNotEmpty()
 }

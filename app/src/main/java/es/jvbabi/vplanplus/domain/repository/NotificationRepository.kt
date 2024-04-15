@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.domain.repository
 
 import android.app.PendingIntent
 import android.content.Context
+import androidx.core.app.NotificationCompat
 import es.jvbabi.vplanplus.domain.model.Profile
 
 interface NotificationRepository {
@@ -12,6 +13,7 @@ interface NotificationRepository {
         message: String,
         icon: Int,
         pendingIntent: PendingIntent?,
+        priority: Int = NotificationCompat.PRIORITY_DEFAULT,
         actions: List<NotificationAction> = emptyList()
     )
 

@@ -7,5 +7,8 @@ data class FindRoomUseCases(
     val canBookRoomUseCase: CanBookRoomUseCase,
     val bookRoomUseCase: BookRoomUseCase,
     val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-    val cancelBooking: CancelBookingUseCase
+    val cancelBooking: CancelBookingUseCase,
+
+    val isShowRoomBookingDisclaimerBannerUseCase: IsShowRoomBookingDisclaimerBannerUseCase,
+    val hideRoomBookingDisclaimerBannerUseCase: HideRoomBookingDisclaimerBannerUseCase
 )

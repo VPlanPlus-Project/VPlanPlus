@@ -33,8 +33,8 @@ object DateUtils {
         return ZonedDateTime.of(1970, 1, 1, this.hour, this.minute, this.second, this.nano, this.zone)
     }
 
-    fun localizedRelativeDate(context: Context, localDate: LocalDate): String {
-        return when (localDate) {
+    fun localizedRelativeDate(context: Context, localDate: LocalDate, fallbackToDefaultFormatting: Boolean = true): String? {
+        val result = when (localDate) {
             LocalDate.now() -> {
                 context.getString(R.string.today)
             }
@@ -51,9 +51,15 @@ object DateUtils {
                 context.getString(R.string.day_before_yesterday)
             }
             else -> {
-                localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+                if (fallbackToDefaultFormatting) localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+                else null
             }
-        }.replace(";DATE", localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)))
+        }
+        return if ((result == null || result == ";DATE") && fallbackToDefaultFormatting) {
+            localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+        } else {
+            result
+        }
     }
 
     fun String.toZonedDateTime(zoneId: ZoneId = ZoneId.systemDefault()): ZonedDateTime {
@@ -105,5 +111,13 @@ object DateUtils {
     fun ZonedDateTime.toZonedLocalDateTime(): LocalDateTime {
         val zoned = this.withZoneSameInstant(ZoneId.systemDefault())
         return zoned.toLocalDateTime()
+    }
+
+    fun LocalDate.withDayOfWeek(dayOfWeek: Int): LocalDate {
+        return this.plusDays(dayOfWeek.toLong() - this.dayOfWeek.value.toLong())
+    }
+
+    fun ZonedDateTime.atStartOfDay(): ZonedDateTime {
+        return this.withHour(0).withMinute(0).withSecond(0).withNano(0)
     }
 }

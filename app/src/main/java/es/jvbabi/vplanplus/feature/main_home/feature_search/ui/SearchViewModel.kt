@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase.Searc
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import javax.inject.Inject
 
@@ -54,24 +55,35 @@ class SearchViewModel @Inject constructor(
     }
 
     fun onQueryChange(query: String) {
-        searchJob?.cancel()
         state.value = state.value.copy(query = query, results = emptyList(), isSearchRunning = true)
         if (query.isBlank()) {
             state.value = state.value.copy(results = emptyList(), isSearchRunning = false)
             return
         }
+        doSearch()
+    }
+
+    private fun doSearch() {
+        searchJob?.cancel()
         state.value = state.value.copy(isSearchRunning = true)
+
         searchJob = viewModelScope.launch {
-            val results = searchUseCases.searchUseCase(query)
+            val results = searchUseCases.searchUseCase(state.value.query, state.value.selectedDate)
             state.value = state.value.copy(
                 results = results,
                 isSearchRunning = false
             )
         }
     }
+
+    fun onSetDate(date: LocalDate?) {
+        state.value = state.value.copy(selectedDate = date ?: LocalDate.now())
+        doSearch()
+    }
 }
 
 data class SearchState(
+    val selectedDate: LocalDate = LocalDate.now(),
     val query: String = "",
     val expanded: Boolean = false,
     val identity: Identity? = null,

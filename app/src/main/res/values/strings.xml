@@ -193,7 +193,7 @@
     <string name="onboarding_qrNext">Proceed with %1$d</string>
     <string name="searchAvailableRoom_bookDescription">Book room</string>
     <string name="searchAvailableRoom_bookTitle">Book room %1$s?</string>
-    <string name="searchAvailableRoom_bookText">"Do you want to book this room from %1$s to %2$s for class %3$s?\n\nPlease note that this might be not official at your school. Make sure that you don't book rooms you're not permitted to enter on your own. "</string>
+    <string name="searchAvailableRoom_bookText">"Do you want to book this room from %1$s to %2$s for class %3$s?\n\nPlease note that this might be not official at your school. The instructions of teachers and planning staff must be followed. This is just an orientation. Make sure that you don't book rooms you're not permitted to enter on your own. "</string>
     <string name="comingSoon">Coming soon</string>
     <string name="settings_profileManagementCalendarPermissionDialogTitle">Missing permission</string>
     <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus doesn\'t have permission to edit your calendar. Do you want to grant this permission now?</string>
@@ -477,7 +477,7 @@
     <string name="homeVersionHints_title">A new version of VPlanPlus got installed</string>
     <string name="homeVersionHints_description">You\'re up and running with version %1$s, here is what\'s changed:</string>
     <string name="homeVersionHints_showLater">Show again later</string>
-    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">By using this app, you agree to the</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">By using this app, you agree to the </string>
     <string name="onboarding_welcomeAcceptPrivacyPolicy">privacy policy</string>
     <plurals name="homeLesson_current">
         <item quantity="one">Current lesson</item>
@@ -523,5 +523,37 @@
     <string name="advancedSettings_settingsUpdateFCMTokenSuccess">The token was updated successfully. You should get realtime notifications from now on.</string>
     <string name="advancedSettings_settingsUpdateFCMTokenError">An error occurred while updating the fcm token. Check your network connection and try again.</string>
     <string name="settingsSupport_feedbackSent">Thanks for your feedback!</string>
+    <string name="home_planTitle">Plan for %1$s,</string>
+    <string name="home_longerThanExpected">That\'s taking longer than expected. Hold on…</string>
+    <string name="home_backToToday">Today</string>
+    <string name="home_activeDayHolidayTitle">Day off school</string>
+    <string name="home_activeDayHolidaySubtitle">There is no school on this day.</string>
+    <string name="settingsGeneral_hideFinishedLessonsTitle">Hide finished lessons</string>
+    <string name="settingsGeneral_hideFinishedLessonsSubtitle">Hides finished lessons in home screen so you can focus on the remaining ones.</string>
+    <string name="home_someLessonsHidden">Some finished lessons are hidden.</string>
+    <string name="home_show">Show</string>
+    <string name="settingsGeneral_syncIntervalTitle">Sync interval</string>
+    <string name="settingsGeneral_syncIntervalSubtitle">Try to sync every %1$d minutes. The minimum is 15 minutes. Please do note, that this can vary very wide depending on your system settings like battery and or data saver modes. VPlanPlus normally tries to sync based on server events in real time. Changes will be applied after the app starts the next time.</string>
+    <string name="settingsGeneral_syncDisabledTitle">Disable scheduled sync</string>
+    <string name="settingsGeneral_syncDisabledSubtitle">This will turn off the scheduled sync. You\'ll still receive new data via Firebase Cloud Messaging, but if it fails, VPlanPlus will never automatically sync on its own. Only disable sync if you really have problems with it.</string>
+    <string name="settingsGeneral_syncIntervalSubtitleDisabled">Time-based sync is disabled.</string>
+    <string name="home_invalidVppIdSessionTitle">Session closed</string>
+    <string name="home_invalidVppIdSessionText">You were logged out of your vpp.ID. The account has been removed from this device. Please log back in to continue to use vpp.ID features.</string>
+    <string name="ignore">Ignore</string>
+    <string name="home_calendarWeek">CW %1$d</string>
+    <string name="home_inNDays">In %1$d days</string>
+    <string name="home_NdaysAgo">%1$d days ago</string>
+    <string name="search_resultDateChange">Date</string>
+    <string name="notification_homeworkReminderNoDefaultLesson">an unset subject</string>
+    <string name="homework_noSubject">No subject</string>
+    <string name="addHomework_removeSubject">Remove subject</string>
+    <string name="addHomework_noDefaultLessonDialogTitle">No subject selected</string>
+    <string name="addHomework_noDefaultLessonDialogText">You didn\'t select a subject. This homework won\'t be visible for users with an older version (v1.1 and prior) of the app. Do you want to continue?</string>
+    <string name="searchAvailableRoom_disclaimerText">This data might be incomplete as recent changes might not be represented in substitution plans. Bookings are not officially recognized by the school.</string>
+    <string name="disclaimer">Disclaimer</string>
+    <string name="vppIdLink_invalidClassTitle">Invalid class</string>
+    <string name="vppIdLink_invalidClassText">Your beste.schule Account is linked to class %1$s but it does not exist at your school. This can happen especially in JG11 and JG12 classes. Contact us so we can fix it for you.</string>
+    <string name="vppIdLink_contactUs">Contact Us</string>
+    <string name="grades_statsTitle">Grade statistics</string>
 
 </resources>

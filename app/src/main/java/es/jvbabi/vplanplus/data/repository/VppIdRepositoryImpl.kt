@@ -102,7 +102,7 @@ class VppIdRepositoryImpl(
         return vppIdTokenDao.getTokenByVppId(vppId.id)?.bsToken
     }
 
-    override suspend fun testVppId(vppId: VppId): Boolean? {
+    override suspend fun testVppIdSession(vppId: VppId): Boolean? {
         val currentToken = getVppIdToken(vppId) ?: return null
         vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
         val response = vppIdNetworkRepository.doRequest(
@@ -110,6 +110,7 @@ class VppIdRepositoryImpl(
             requestMethod = HttpMethod.Post,
             requestBody = Gson().toJson(TestSessionRequest(vppId.id))
         )
+        if (response.response == null) return null
         return response.response == HttpStatusCode.Found
     }
 

@@ -19,8 +19,6 @@ sealed class Screen(val route: String) {
 
     data object AccountAddedScreen: Screen("account_added_screen")
 
-    data object TimetableScreen: Screen("timetable_screen")
-
     data object HomeworkScreen: Screen("homework_screen")
 
     data object GradesScreen: Screen("grades")
@@ -35,7 +33,6 @@ sealed class Screen(val route: String) {
 
     data object SettingsVppIdScreen: Screen("settings/vpp_id")
     data object SettingsVppIdManageScreen: Screen("settings/vpp_id/manage")
-    data object SettingsVppIdLoginScreen: Screen("settings/vpp_id/login")
 
     data object SettingsAdvancedScreen: Screen("settings/advanced")
     data object SettingsAdvancedLogScreen: Screen("settings/advanced/logs")

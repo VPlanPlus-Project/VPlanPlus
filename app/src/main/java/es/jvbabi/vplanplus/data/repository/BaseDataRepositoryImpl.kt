@@ -41,12 +41,14 @@ class BaseDataRepositoryImpl(
             val `class` = classRepository.getClassBySchoolIdAndClassName(schoolId, entry.key)!!
             lessonTimeRepository.deleteLessonTimes(`class`)
             entry.value.forEach { lessonTime ->
+                val from = "${lessonTime.value.first}:00".toZonedDateTime().atBeginningOfTheWorld()
+                val to = "${lessonTime.value.second}:00".toZonedDateTime().atBeginningOfTheWorld()
                 lessonTimeRepository.insertLessonTime(
                     LessonTime(
                         classLessonTimeRefId = `class`.classId,
                         lessonNumber = lessonTime.key,
-                        from = "${lessonTime.value.first}:00".toZonedDateTime().atBeginningOfTheWorld(),
-                        to = "${lessonTime.value.second}:00".toZonedDateTime().atBeginningOfTheWorld(),
+                        from = (from.hour * 60L * 60L) + (from.minute * 60L),
+                        to = (to.hour * 60L * 60L) + (to.minute * 60L)
                     )
                 )
             }

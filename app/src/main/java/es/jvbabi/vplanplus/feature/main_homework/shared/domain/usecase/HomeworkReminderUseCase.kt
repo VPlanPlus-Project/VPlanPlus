@@ -55,7 +55,7 @@ class HomeworkReminderUseCase(
             R.plurals.notification_homeworkReminderTomorrowMessage,
             homeworkForTomorrow.size,
             homeworkForTomorrow.size,
-            homeworkForTomorrow.joinToString(", ") { it.defaultLesson.subject }
+            homeworkForTomorrow.joinToString(", ") { it.defaultLesson?.subject ?: stringRepository.getString(R.string.notification_homeworkReminderNoDefaultLesson) }
         )
 
         val messageAfterTomorrow =
@@ -96,13 +96,13 @@ class HomeworkReminderUseCase(
         )
 
         notificationRepository.sendNotification(
-            CHANNEL_ID_HOMEWORK,
-            CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID,
-            title,
-            message,
-            R.drawable.vpp,
-            pendingIntent,
-            listOf(remindAgainAction)
+            channelId = CHANNEL_ID_HOMEWORK,
+            id = CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID,
+            title = title,
+            message = message,
+            icon = R.drawable.vpp,
+            pendingIntent = pendingIntent,
+            actions = listOf(remindAgainAction)
         )
     }
 }

@@ -195,7 +195,7 @@
     <string name="onboarding_qrNext">Mit %1$d fortfahren</string>
     <string name="searchAvailableRoom_bookDescription">Raum buchen</string>
     <string name="searchAvailableRoom_bookTitle">Raum %1$s buchen?</string>
-    <string name="searchAvailableRoom_bookText">Möchtest du diesen Raum von %1$s bis %2$s für die Klasse %3$s buchen?\n\nBitte beachte, dass dies an deiner Schule möglicherweise nicht offiziell ist. Buche keine Räume, die du nicht selbst betreten darfst.</string>
+    <string name="searchAvailableRoom_bookText">Möchtest du diesen Raum von %1$s bis %2$s für die Klasse %3$s buchen?\n\nBitte beachte, dass dies an deiner Schule möglicherweise nicht offiziell ist. Es gelten stehts die Anweisungen des Lehr- und Planerpersonals. Dies ist nur eine Orientierung. Buche keine Räume, die du nicht selbst betreten darfst.</string>
     <string name="comingSoon">Bald verfügbar</string>
     <string name="settings_profileManagementCalendarPermissionDialogTitle">Fehlende Berechtigungen</string>
     <string name="settings_profileManagementCalendarPermissionDialogText">VPlanPlus hat nicht die notwendigen Android Berechtigungen um auf deine Kalender zuzugreifen. Möchtest du den Zugriff jetzt gewähren?</string>
@@ -475,7 +475,7 @@
     <string name="homeVersionHints_title">Eine neue Version von VPlanPlus wurde installiert</string>
     <string name="homeVersionHints_description">Du bist mit Version %1$s startklar, hier sind die Neuigkeiten dazu:</string>
     <string name="homeVersionHints_showLater">Später anzeigen</string>
-    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">"Indem du die App verwendest, aktzeptierst du die "</string>
+    <string name="onboarding_welcomeAcceptPrivacyPolicyStart">"Indem du die App verwendest, akzeptierst du die "</string>
     <string name="onboarding_welcomeAcceptPrivacyPolicy">Datenschutzerklärung</string>
 
     <plurals name="homeLesson_current">
@@ -493,7 +493,7 @@
     <string name="search_lessons">%1$s Stunden</string>
     <string name="search_moreResults">Mehr Ergebnisse</string>
     <string name="home_lessonCardBooking">%1$s (gebucht)</string>
-    <string name="timetable_noDataText">Für den %1$s sind noch keine Daten verfügbar. Wir benachrichtigen dirch, wenn neue Informationen vorliegen.</string>
+    <string name="timetable_noDataText">Für den %1$s sind noch keine Daten verfügbar. Wir benachrichtigen dich, wenn neue Informationen vorliegen.</string>
     <string name="timetable_weekend">Wochenende</string>
     <string name="timetable_weekendToday">Genieße dein wohlverdientes Wochenende.</string>
     <string name="timetable_weekendPast">Das Wochenende ist vorbei, aber ein neues kommt bald. Halte durch!</string>
@@ -522,5 +522,37 @@
     <string name="advancedSettings_settingsUpdateFCMTokenSuccess">Das Token wurde erfolgreich aktualisiert. Du solltest nun wieder Echtzeitbenachrichtigungen erhalten.</string>
     <string name="advancedSettings_settingsUpdateFCMTokenError">Beim Aktualisieren des FCM Tokens ist ein Fehler aufgetreten. Prüfe deine Netzverbindung und versuche es erneut,</string>
     <string name="settingsSupport_feedbackSent">Vielen Dank für dein Feedback.</string>
+    <string name="home_planTitle">Plan für %1$s,</string>
+    <string name="home_longerThanExpected">Das dauert länger als erwartet. Warte bitte kurz…</string>
+    <string name="home_backToToday">Heute</string>
+    <string name="home_activeDayHolidayTitle">Schulfreier Tag</string>
+    <string name="home_activeDayHolidaySubtitle">An diesem Tag findet keine Schule statt.</string>
+    <string name="settingsGeneral_hideFinishedLessonsTitle">Beendete Stunden ausblenden</string>
+    <string name="settingsGeneral_hideFinishedLessonsSubtitle">Versteckt beendete Stunden im Startbildschirm, damit du dich einfacher auf die verbleibenden Stunden fokussieren kannst.</string>
+    <string name="home_someLessonsHidden">Einige beendete Stunden sind versteckt.</string>
+    <string name="home_show">Anzeigen</string>
+    <string name="settingsGeneral_syncIntervalTitle">Synchronisierungsinterval</string>
+    <string name="settingsGeneral_syncIntervalSubtitle">Versucht, alle %1$d Minuten zu synchronisieren. Bitte beachte, dass dies sehr stark variieren kann, abhängig von den Systemeinstellungen wie Energie- und/oder Datensparmodus. VPlanPlus versucht in der Regel basierend auf Echtzeit-Serverereignissen zu synchronisieren. Änderungen werden beim nächsten Start der App angewendet.</string>
+    <string name="settingsGeneral_syncDisabledTitle">Geplante Synchronisierung deaktivieren</string>
+    <string name="settingsGeneral_syncDisabledSubtitle">Dies wird die zeitbasierte Synchronisierung deaktivieren. Du wirst immer noch neue Daten via Firebase Cloud Messaging empfangen, schlägt dies jedoch fehl, wird VPlanPlus nicht selbstständig versuchen, aktuelle Daten zu laden. Schalte die zeitbasierte Synchronisierung nur aus, wenn du wirklich Probleme damit hast.</string>
+    <string name="settingsGeneral_syncIntervalSubtitleDisabled">Zeitbasiertes Synchronisieren ist deaktiviert.</string>
+    <string name="home_invalidVppIdSessionTitle">Abgemeldet</string>
+    <string name="home_invalidVppIdSessionText">Du wurdest aus deiner vpp.ID abgemeldet. Der Account wurde von diesem Gerät entfernt. Bitte melde dich erneut an, um weiterhin alle vpp.ID Funktionen nutzen zu können.</string>
+    <string name="ignore">Ignorieren</string>
+    <string name="home_calendarWeek">KW %1$d</string>
+    <string name="home_inNDays">In %1$d Tagen</string>
+    <string name="home_NdaysAgo">Vor %1$d Tagen</string>
+    <string name="search_resultDateChange">Datum</string>
+    <string name="notification_homeworkReminderNoDefaultLesson">keinem definierten Fach</string>
+    <string name="homework_noSubject">Kein Fach</string>
+    <string name="addHomework_removeSubject">Fach entfernen</string>
+    <string name="addHomework_noDefaultLessonDialogTitle">Kein Fach ausgewählt</string>
+    <string name="addHomework_noDefaultLessonDialogText">Du hast kein Fach für diese Hausaufgabe angegeben. Sie wird nicht für Nutzer einer veralteten Version (v1.1 und älter) von VPlanPlus angezeigt. Möchtest Du dennoch fortfahren?</string>
+    <string name="searchAvailableRoom_disclaimerText">Diese Daten können unvollständig sein, da aktuelle Änderungen möglicherweise nicht in den Vertretungsplänen berücksichtigt sind. Die Buchungen werden von der Schule nicht offiziell anerkannt.</string>
+    <string name="disclaimer">Haftungsausschluss</string>
+    <string name="vppIdLink_invalidClassTitle">Ungültige Klasse</string>
+    <string name="vppIdLink_invalidClassText">Dein beste.schule-Account ist mit Klasse %1$s verbunden, diese existiert an deiner Schule aber nicht. Dieses Problem tritt vor allem bei den Klassen JG11 und JG12 auf. Tritt mit uns in Kontakt, sodass wir das Problem schnellstmöglich beheben können.</string>
+    <string name="vppIdLink_contactUs">Kontaktiere uns</string>
+    <string name="grades_statsTitle">Notenstatistiken</string>
 
 </resources>
