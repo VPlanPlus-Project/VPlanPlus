@@ -62,7 +62,7 @@ class SearchUseCase(
             SchoolEntityType.CLASS,
             firstClass.school.name,
             firstClassPlan,
-            roomRepository.getRoomBookings(date).filter { it.`class` == firstClass }
+            roomRepository.getRoomBookings(date).filter { it.`class` == firstClass && it.from.toLocalDate().isEqual(date) }
         ) else null
 
         val firstTeacherResult = if (firstTeacher != null) SearchResult(
@@ -78,7 +78,7 @@ class SearchUseCase(
             SchoolEntityType.ROOM,
             firstRoom.school.name,
             firstRoomPlan,
-            roomRepository.getRoomBookings(date).filter { it.room == firstRoom }
+            roomRepository.getRoomBookings(date).filter { it.room == firstRoom && it.from.toLocalDate().isEqual(date) }
         ) else null
 
         return listOfNotNull(firstClassResult, firstTeacherResult, firstRoomResult) + classes.drop(1).map {
