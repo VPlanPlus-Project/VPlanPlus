@@ -150,7 +150,8 @@ fun SearchResultPreview() {
             name = "10c",
             type = SchoolEntityType.CLASS,
             school = "Einstein-School",
-            lessons = emptyList()
+            lessons = emptyList(),
+            bookings = emptyList()
         ),
         ZonedDateTime.now()
     )

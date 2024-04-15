@@ -61,29 +61,32 @@ class SearchUseCase(
             firstClass.name,
             SchoolEntityType.CLASS,
             firstClass.school.name,
-            firstClassPlan
+            firstClassPlan,
+            roomRepository.getRoomBookings(date).filter { it.`class` == firstClass }
         ) else null
 
         val firstTeacherResult = if (firstTeacher != null) SearchResult(
             firstTeacher.acronym,
             SchoolEntityType.TEACHER,
             firstTeacher.school.name,
-            firstTeacherPlan
+            firstTeacherPlan,
+            emptyList()
         ) else null
 
         val firstRoomResult = if (firstRoom != null) SearchResult(
             firstRoom.name,
             SchoolEntityType.ROOM,
             firstRoom.school.name,
-            firstRoomPlan
+            firstRoomPlan,
+            roomRepository.getRoomBookings(date).filter { it.room == firstRoom }
         ) else null
 
         return listOfNotNull(firstClassResult, firstTeacherResult, firstRoomResult) + classes.drop(1).map {
-            SearchResult(it.name, SchoolEntityType.CLASS, it.school.name, null)
+            SearchResult(it.name, SchoolEntityType.CLASS, it.school.name, null, emptyList())
         } + teachers.drop(1).map {
-            SearchResult(it.acronym, SchoolEntityType.TEACHER, it.school.name, null)
+            SearchResult(it.acronym, SchoolEntityType.TEACHER, it.school.name, null, emptyList())
         } + rooms.drop(1).map {
-            SearchResult(it.name, SchoolEntityType.ROOM, it.school.name, null)
+            SearchResult(it.name, SchoolEntityType.ROOM, it.school.name, null, emptyList())
         }
     }
 }

@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase.SearchUseCases
 import kotlinx.coroutines.Job
@@ -97,5 +98,6 @@ data class SearchResult(
     val name: String,
     val type: SchoolEntityType,
     val school: String,
-    val lessons: List<Lesson>?
+    val lessons: List<Lesson>?,
+    val bookings: List<RoomBooking>
 )
