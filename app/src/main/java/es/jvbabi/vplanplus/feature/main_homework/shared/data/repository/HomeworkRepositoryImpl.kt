@@ -190,7 +190,7 @@ class HomeworkRepositoryImpl(
                         ),
                         allowCloudUpdate = false,
                         tasks = replacementTasks,
-                        isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now()))),
+                        isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy.id != vppId?.id),
                     )
                 }
 
