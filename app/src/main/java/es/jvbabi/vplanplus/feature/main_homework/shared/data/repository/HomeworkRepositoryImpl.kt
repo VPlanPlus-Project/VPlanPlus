@@ -97,9 +97,7 @@ class HomeworkRepositoryImpl(
                 val response = vppIdNetworkRepository.doRequest(url)
 
                 if (response.response != HttpStatusCode.OK || response.data == null) return@forEach
-                val data = Gson().fromJson(response.data, HomeworkResponse::class.java)
-                    .homework
-                    .filter { it.until > ZonedDateTime.now().minusDays(2).toEpochSecond() }
+                val data = Gson().fromJson(response.data, HomeworkResponse::class.java).homework
 
                 homeworkDao
                     .getAll()
@@ -117,10 +115,6 @@ class HomeworkRepositoryImpl(
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter { !existingHomework.any { eh -> eh.id == it.id } }
                     .filter { it.createdBy != vppId?.id?.toLong() }
-                    .filter {
-                        ZonedDateTimeConverter().timestampToZonedDateTime(it.until)
-                            .isAfter(ZonedDateTime.now())
-                    }
 
                 val changedHomework = data
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
@@ -132,6 +126,7 @@ class HomeworkRepositoryImpl(
                     .filter { newHomework.none { nh -> nh.id == it.id } }
 
                 data.forEach forEachHomework@{ responseHomework ->
+                    val isNewHomework = existingHomework.none { it.id == responseHomework.id }
                     val id = responseHomework.id
                     var createdBy =
                         vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy }
@@ -146,6 +141,8 @@ class HomeworkRepositoryImpl(
                                     return@forEachHomework
                                 }
                     }
+
+                    val until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until)
 
                     val ignoredTaskIds = mutableListOf<Long>()
                     val replacementTasks =
@@ -170,7 +167,7 @@ class HomeworkRepositoryImpl(
                                         val record = NewTaskRecord(
                                             id = task.id.toLong(),
                                             content = task.content,
-                                            done = task.done ?: false,
+                                            done = task.done ?: until.isBefore(ZonedDateTime.now()),
                                         )
                                         record
                                     }
@@ -185,7 +182,7 @@ class HomeworkRepositoryImpl(
                         id = id,
                         createdBy = createdBy,
                         shareWithClass = responseHomework.shareWithClass,
-                        until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until),
+                        until = until,
                         `class` = `class`,
                         defaultLessonVpId = responseHomework.vpId.toLong(),
                         createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(
@@ -193,7 +190,7 @@ class HomeworkRepositoryImpl(
                         ),
                         allowCloudUpdate = false,
                         tasks = replacementTasks,
-                        isHidden = existingRecord?.isHidden ?: false,
+                        isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy.id != vppId?.id),
                     )
                 }
 
@@ -213,58 +210,61 @@ class HomeworkRepositoryImpl(
                             )
                         }
 
-                    if (newHomework.size == 1 && showNewNotification) {
+                    val notificationRelevantNewHomework = newHomework.filter { ZonedDateTimeConverter().timestampToZonedDateTime(it.until).isAfter(ZonedDateTime.now()) }
+                    val notificationRelevantChangedHomework = changedHomework.filter { ZonedDateTimeConverter().timestampToZonedDateTime(it.until).isAfter(ZonedDateTime.now()) }
+
+                    if (notificationRelevantNewHomework.size == 1 && showNewNotification) {
                         val defaultLessons =
                             defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
                         val vpIds = vppIdRepository.getVppIds().first()
 
                         val dateResourceId = DateUtils
-                            .getDateFromTimestamp(newHomework.first().until)
+                            .getDateFromTimestamp(notificationRelevantNewHomework.first().until)
                             .getRelativeStringResource()
 
                         val dateString =
                             if (dateResourceId != null) stringRepository.getString(dateResourceId)
-                            else DateUtils.getDateFromTimestamp(newHomework.first().until).format(
+                            else DateUtils.getDateFromTimestamp(notificationRelevantNewHomework.first().until).format(
                                 DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
                             )
 
                         notificationRepository.sendNotification(
                             CHANNEL_ID_HOMEWORK,
-                            newHomework.first().id.toInt(),
+                            notificationRelevantNewHomework.first().id.toInt(),
                             stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
                             stringRepository.getString(
                                 R.string.notification_homeworkNewHomeworkOneContent,
-                                vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
+                                vpIds.firstOrNull { it.id.toLong() == notificationRelevantNewHomework.first().createdBy }?.name
                                     ?: "Unknown",
-                                defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject
+                                defaultLessons.firstOrNull { it.vpId == notificationRelevantNewHomework.first().vpId.toLong() }?.subject
                                     ?: "Unknown",
-                                newHomework.first().tasks.size,
+                                notificationRelevantNewHomework.first().tasks.size,
                                 dateString
                             ),
                             R.drawable.vpp,
                             pendingIntent,
                         )
-                    } else if (newHomework.isNotEmpty() && showNewNotification) {
+                    } else if (notificationRelevantNewHomework.isNotEmpty() && showNewNotification) {
                         notificationRepository.sendNotification(
                             CHANNEL_ID_HOMEWORK,
                             CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
                             stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
                             stringRepository.getString(
                                 R.string.notification_homeworkNewHomeworkMultipleContent,
-                                newHomework.size
+                                notificationRelevantNewHomework.size
                             ),
                             R.drawable.vpp,
                             pendingIntent,
                         )
-                    } else if (changedHomework.isNotEmpty()) {
+                    } else if (notificationRelevantChangedHomework.isNotEmpty()) {
                         notificationRepository.sendNotification(
                             channelId = CHANNEL_ID_HOMEWORK,
                             id = CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
                             title = stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
                             message = stringRepository.getPlural(
                                 R.plurals.notification_homeworkChangedHomeworkContent,
-                                changedHomework.size,
-                                changedHomework.size
+                                notificationRelevantChangedHomework.size,
+                                notificationRelevantChangedHomework.size
                             ),
                             icon = R.drawable.vpp,
                             priority = NotificationCompat.PRIORITY_LOW,
