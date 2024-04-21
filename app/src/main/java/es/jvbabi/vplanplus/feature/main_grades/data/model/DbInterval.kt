@@ -12,7 +12,8 @@ import java.time.LocalDate
             entity = DbYear::class,
             parentColumns = ["id"],
             childColumns = ["yearId"],
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         ),
     ]
 )

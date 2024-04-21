@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 25,
-    "identityHash": "cda4c0318fdff906a87358173f4e381c",
+    "identityHash": "4a2aa439834c4dca169d018485255dce",
     "entities": [
       {
         "tableName": "lesson",
@@ -1517,7 +1517,7 @@
       },
       {
         "tableName": "grade",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `givenAt` INTEGER NOT NULL, `givenBy` INTEGER NOT NULL, `subject` INTEGER NOT NULL, `value` REAL NOT NULL, `type` TEXT NOT NULL, `comment` TEXT NOT NULL, `modifier` INTEGER NOT NULL, `vppId` INTEGER NOT NULL, `interval` INTEGER NOT NULL, PRIMARY KEY(`id`, `givenBy`, `subject`, `vppId`), FOREIGN KEY(`givenBy`) REFERENCES `grade_teacher`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subject`) REFERENCES `grade_subject`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`vppId`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`interval`) REFERENCES `bs_intervals`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `givenAt` INTEGER NOT NULL, `givenBy` INTEGER NOT NULL, `subject` INTEGER NOT NULL, `value` REAL NOT NULL, `type` TEXT NOT NULL, `comment` TEXT NOT NULL, `modifier` INTEGER NOT NULL, `vppId` INTEGER NOT NULL, `interval` INTEGER NOT NULL, PRIMARY KEY(`id`, `givenBy`, `subject`, `vppId`), FOREIGN KEY(`givenBy`) REFERENCES `grade_teacher`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subject`) REFERENCES `grade_subject`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`vppId`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`interval`) REFERENCES `bs_intervals`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1637,7 +1637,7 @@
           {
             "table": "bs_intervals",
             "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
+            "onUpdate": "CASCADE",
             "columns": [
               "interval"
             ],
@@ -1687,7 +1687,7 @@
       },
       {
         "tableName": "bs_intervals",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `from` INTEGER NOT NULL, `to` INTEGER NOT NULL, `includedIntervalId` INTEGER, `yearId` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`yearId`) REFERENCES `bs_years`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `from` INTEGER NOT NULL, `to` INTEGER NOT NULL, `includedIntervalId` INTEGER, `yearId` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`yearId`) REFERENCES `bs_years`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -1743,7 +1743,7 @@
           {
             "table": "bs_years",
             "onDelete": "CASCADE",
-            "onUpdate": "NO ACTION",
+            "onUpdate": "CASCADE",
             "columns": [
               "yearId"
             ],
@@ -1757,7 +1757,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cda4c0318fdff906a87358173f4e381c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4a2aa439834c4dca169d018485255dce')"
     ]
   }
 }

@@ -35,7 +35,8 @@ import java.time.LocalDate
             parentColumns = ["id"],
             childColumns = ["interval"],
             entity = DbInterval::class,
-            onDelete = ForeignKey.CASCADE
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )
     ]
 )

@@ -46,6 +46,12 @@ class VppIdRepositoryImpl(
         }
     }
 
+    override fun getActiveVppIds(): Flow<List<VppId>> {
+        return vppIdDao.getAll().map { list ->
+            list.filter { it.vppId.state == State.ACTIVE }.map { it.toModel() }
+        }
+    }
+
     override suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?> {
         vppIdNetworkRepository.authentication = BearerAuthentication(token)
         val response = vppIdNetworkRepository.doRequest(
