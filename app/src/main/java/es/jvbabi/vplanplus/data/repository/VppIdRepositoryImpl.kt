@@ -89,31 +89,21 @@ class VppIdRepositoryImpl(
         )
     }
 
-    override suspend fun getVppId(id: Int, school: School, forceUpdate: Boolean): VppId? {
-        val vppId = vppIdDao.getVppId(id)?.toModel() ?: return null
-        if (vppId.cachedAt.plusHours(6).isAfter(ZonedDateTime.now())) return vppId
+    override suspend fun getVppId(id: Long, school: School, forceUpdate: Boolean): VppId? {
+        val vppId = vppIdDao.getVppId(id)?.toModel()
+        if (vppId != null && vppId.cachedAt.plusHours(6).isAfter(ZonedDateTime.now())) return vppId
 
-        if (vppId.isActive() && getVppIdToken(vppId) != null) {
+        if (vppId?.isActive() == true && getVppIdToken(vppId) != null) {
             vppIdNetworkRepository.authentication = BearerAuthentication(getVppIdToken(vppId)!!)
-            val url = "/api/$API_VERSION/user/me"
-            val response = vppIdNetworkRepository.doRequest(url, HttpMethod.Get, null).let {
+            val response = vppIdNetworkRepository.doRequest("/api/$API_VERSION/user/me", HttpMethod.Get, null).let {
                 if(it.response != HttpStatusCode.OK) return null
                 Gson().fromJson(it.data, VppIdOnlineResponse::class.java)
             }?: return null
-            vppIdDao.upsert(
-                DbVppId(
-                    id = id,
-                    name = response.username,
-                    className = response.className,
-                    schoolId = school.schoolId,
-                    state = State.ACTIVE,
-                    email = response.email,
-                    classId = classRepository.getClassBySchoolIdAndClassName(
-                        school.schoolId,
-                        response.className
-                    )?.classId,
-                    cachedAt = ZonedDateTime.now()
-                )
+            vppIdDao.update(
+                vppId = vppId.id,
+                name = response.username,
+                email = response.email,
+                cachedAt = ZonedDateTime.now()
             )
             return vppIdDao.getVppId(id)?.toModel()
         }
@@ -130,7 +120,7 @@ class VppIdRepositoryImpl(
         val r = Gson().fromJson(response.data, UserNameResponse::class.java)
         vppIdDao.upsert(
             DbVppId(
-                id = id,
+                id = id.toInt(),
                 name = r.username,
                 className = r.className,
                 schoolId = school.schoolId,
