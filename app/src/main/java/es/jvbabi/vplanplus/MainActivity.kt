@@ -311,10 +311,10 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         this.finish()
-        if (intent == null) return
         val sanitized = IntentSanitizer.Builder()
             .allowExtra("profileId", String::class.java)
             .allowExtra("dateStr", String::class.java)
