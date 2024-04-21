@@ -132,7 +132,7 @@ class HomeworkRepositoryImpl(
                         vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy }
                     if (createdBy == null) {
                         createdBy =
-                            vppIdRepository.cacheVppId(responseHomework.createdBy.toInt(), school)
+                            vppIdRepository.getVppId(responseHomework.createdBy.toInt(), school, false)
                                 ?: run {
                                     Log.e(
                                         "HomeworkRepositoryImpl",

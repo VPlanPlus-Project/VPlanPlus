@@ -18,14 +18,9 @@ interface VppIdRepository {
     fun getActiveVppIds(): Flow<List<VppId>>
     suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?>
 
-    /**
-     * If this id is already cached, it will return the vpp.ID, otherwise it will fetch it from the server, cache it and return its username
-     * @param id the id of the user
-     * @param school the school where the user is expected to be
-     * @return the now cached vpp.ID or null if something went wrong
-     */
-    suspend fun cacheVppId(id: Int, school: School): VppId?
     suspend fun addVppId(vppId: VppId)
+
+    suspend fun getVppId(id: Int, school: School, forceUpdate: Boolean): VppId?
 
     suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?, initialCreation: Boolean)
     suspend fun getVppIdToken(vppId: VppId): String?

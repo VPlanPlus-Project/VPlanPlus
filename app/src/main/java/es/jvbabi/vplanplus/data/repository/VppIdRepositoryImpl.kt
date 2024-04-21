@@ -89,6 +89,63 @@ class VppIdRepositoryImpl(
         )
     }
 
+    override suspend fun getVppId(id: Int, school: School, forceUpdate: Boolean): VppId? {
+        val vppId = vppIdDao.getVppId(id)?.toModel() ?: return null
+        if (vppId.cachedAt.plusHours(6).isAfter(ZonedDateTime.now())) return vppId
+
+        if (vppId.isActive() && getVppIdToken(vppId) != null) {
+            vppIdNetworkRepository.authentication = BearerAuthentication(getVppIdToken(vppId)!!)
+            val url = "/api/$API_VERSION/user/me"
+            val response = vppIdNetworkRepository.doRequest(url, HttpMethod.Get, null).let {
+                if(it.response != HttpStatusCode.OK) return null
+                Gson().fromJson(it.data, VppIdOnlineResponse::class.java)
+            }?: return null
+            vppIdDao.upsert(
+                DbVppId(
+                    id = id,
+                    name = response.username,
+                    className = response.className,
+                    schoolId = school.schoolId,
+                    state = State.ACTIVE,
+                    email = response.email,
+                    classId = classRepository.getClassBySchoolIdAndClassName(
+                        school.schoolId,
+                        response.className
+                    )?.classId,
+                    cachedAt = ZonedDateTime.now()
+                )
+            )
+            return vppIdDao.getVppId(id)?.toModel()
+        }
+
+        val url = "/api/$API_VERSION/user/find/$id"
+
+        vppIdNetworkRepository.authentication = school.buildAuthentication()
+        val response = vppIdNetworkRepository.doRequest(
+            url,
+            HttpMethod.Get,
+            null
+        )
+        if (response.response != HttpStatusCode.OK) return null
+        val r = Gson().fromJson(response.data, UserNameResponse::class.java)
+        vppIdDao.upsert(
+            DbVppId(
+                id = id,
+                name = r.username,
+                className = r.className,
+                schoolId = school.schoolId,
+                state = State.CACHE,
+                email = null,
+                classId = classRepository.getClassBySchoolIdAndClassName(
+                    school.schoolId,
+                    r.className
+                )?.classId,
+                cachedAt = ZonedDateTime.now()
+            )
+        )
+        return vppIdDao.getVppId(id)?.toModel()
+    }
+
     override suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?, initialCreation: Boolean) {
         vppIdTokenDao.insert(
             DbVppIdToken(
@@ -161,37 +218,6 @@ class VppIdRepositoryImpl(
             }
         }
         return BookResult.SUCCESS
-    }
-
-    override suspend fun cacheVppId(id: Int, school: School): VppId? {
-        val vppId = vppIdDao.getVppId(id)
-        if (vppId != null) return vppId.toModel()
-        val url = "/api/$API_VERSION/user/find/$id"
-
-        vppIdNetworkRepository.authentication = school.buildAuthentication()
-        val response = vppIdNetworkRepository.doRequest(
-            url,
-            HttpMethod.Get,
-            null
-        )
-        if (response.response != HttpStatusCode.OK) return null
-        val r = Gson().fromJson(response.data, UserNameResponse::class.java)
-        vppIdDao.upsert(
-            DbVppId(
-                id = id,
-                name = r.username,
-                className = r.className,
-                schoolId = school.schoolId,
-                state = State.CACHE,
-                email = null,
-                classId = classRepository.getClassBySchoolIdAndClassName(
-                    school.schoolId,
-                    r.className
-                )?.classId,
-                cachedAt = ZonedDateTime.now()
-            )
-        )
-        return vppIdDao.getVppId(id)?.toModel()
     }
 
     override suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode? {
