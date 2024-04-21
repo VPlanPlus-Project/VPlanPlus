@@ -20,6 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.feature.main_grades.data.source.example.ExampleInterval
+import es.jvbabi.vplanplus.feature.main_grades.data.source.example.ExampleYear
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Subject
@@ -123,7 +125,9 @@ private fun GradeSubjectGroupPreview() {
                     givenAt = LocalDate.now(),
                     givenBy = teacher,
                     value = 2f,
-                    vppId = vppId
+                    vppId = vppId,
+                    interval = ExampleInterval.interval1(false),
+                    year = ExampleYear.exampleYear()
                 )
             )
         )

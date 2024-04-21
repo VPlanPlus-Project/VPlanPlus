@@ -498,7 +498,7 @@ private fun NavGraphBuilder.settingsScreens(
 @OptIn(ExperimentalEncodingApi::class)
 private fun NavGraphBuilder.gradesScreens(navController: NavHostController) {
     composable(
-        route = Screen.GradesCalculatorScreen.route + "/{grades}",
+        route = Screen.GradesCalculatorScreen.route + "/?grades={grades}&isSek2={isSek2}",
         enterTransition = enterSlideTransitionLeft,
         exitTransition = { fadeOut(tween(300)) },
         popEnterTransition = { fadeIn(tween(300)) },
@@ -506,11 +506,14 @@ private fun NavGraphBuilder.gradesScreens(navController: NavHostController) {
         arguments = listOf(
             navArgument("grades") {
                 type = NavType.StringType
+            },
+            navArgument("isSek2") {
+                type = NavType.BoolType
             }
         ),
     ) {
         val decodedString = String(Base64.decode(it.arguments?.getString("grades")!!))
         val grades = Gson().fromJson(decodedString, Array<GradeCollection>::class.java)
-        GradeCalculatorScreen(navHostController = navController, grades = grades.toList())
+        GradeCalculatorScreen(navHostController = navController, grades = grades.toList(), isSek2 = it.arguments?.getBoolean("isSek2")?: false)
     }
 }

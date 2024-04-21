@@ -116,7 +116,7 @@ fun GradesScreen(
             }
             val encodedString: String =
                 Base64.encode(Gson().toJson(data).toByteArray(StandardCharsets.UTF_8))
-            navHostController.navigate("${Screen.GradesCalculatorScreen.route}/$encodedString")
+            navHostController.navigate("${Screen.GradesCalculatorScreen.route}/?grades=$encodedString&isSek2=${state.isSek2}")
         },
         onStartAuthenticate = { gradesViewModel.authenticate(activity) },
         onOpenSecuritySettings = {
@@ -178,7 +178,7 @@ private fun GradesScreenContent(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxHeight(0.5f),
-                items = (1..(if (allGrades.any { it.value > 6 }) 15 else 6)).toList().map { value ->
+                items = ((if (state.isSek2) 0 else 1)..(if (state.isSek2) 15 else 6)).toList().map { value ->
                     BarChartData(
                         group = "$value",
                         value = allGrades.count { it.value == value.toFloat() }.toFloat()
@@ -325,7 +325,7 @@ private fun GradesScreenContent(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Average(avg = state.avg)
+                        Average(avg = state.avg, isSek2 = state.isSek2)
                     }
                 }
                 item {

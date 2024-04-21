@@ -65,7 +65,8 @@ class GradesViewModel @Inject constructor(
                     authenticationState =
                         if (state.value.authenticationState == AuthenticationState.AUTHENTICATED) AuthenticationState.AUTHENTICATED
                         else if (isBiometricSetUp && isBiometricEnabled) AuthenticationState.NONE
-                        else AuthenticationState.AUTHENTICATED
+                        else AuthenticationState.AUTHENTICATED,
+                    isSek2 = grades.grades.any { it.interval.type == "Sek II" }
                 )
             }.collect {
                 _state.value = it
@@ -142,7 +143,8 @@ data class GradesState(
     val isBiometricEnabled: Boolean = false,
     val showEnableBiometricBanner: Boolean = false,
     val isBiometricSetUp: Boolean = false,
-    val authenticationState: AuthenticationState = AuthenticationState.NONE
+    val authenticationState: AuthenticationState = AuthenticationState.NONE,
+    val isSek2: Boolean = false
 )
 
 data class SubjectGradeCollection(
