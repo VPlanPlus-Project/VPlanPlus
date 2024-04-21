@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.feature.main_grades.data.model.DbTeacher
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.GradeDao
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.TeacherDao
+import es.jvbabi.vplanplus.feature.main_grades.data.source.database.YearDao
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
@@ -30,6 +31,7 @@ class GradeRepositoryImpl(
     private val teacherDao: TeacherDao,
     private val subjectDao: SubjectDao,
     private val gradeDao: GradeDao,
+    private val yearDao: YearDao,
     private val bsNetworkRepository: BsNetworkRepository,
     private val vppIdRepository: VppIdRepository,
     private val notificationRepository: NotificationRepository,
@@ -39,22 +41,28 @@ class GradeRepositoryImpl(
     override suspend fun updateGrades(): List<Grade> {
         val vppIds = vppIdRepository.getVppIds().first()
         val newGrades = mutableListOf<Grade>()
+        yearDao.dropAll()
+
         vppIds.forEach vppId@{ vppId ->
             val bsToken = vppIdRepository.getBsToken(vppId) ?: return@vppId
 
             bsNetworkRepository.authentication = BearerAuthentication(bsToken)
-            val result = bsNetworkRepository.doRequest(
-                "/api/grades?include=collection"
-            )
+            val years = bsNetworkRepository.doRequest("/api/years").let {
+                if (it.response != HttpStatusCode.OK) {
+                    if (it.response == HttpStatusCode.Unauthorized) sendBsTokenInvalidNotification()
+                    return@vppId
+                }
+                Gson().fromJson(it.data, BsSchoolYearResponse::class.java).years
+            }
+            years.forEach year@{ year ->
+                yearDao.upsert(year.id, year.name, year.start, year.end)
+                year.intervals.forEach interval@{ interval -> yearDao.upsertInterval(interval.id, interval.name, interval.type, interval.start, interval.end, interval.includedIntervalId, year.id) }
+            }
+
+            val result = bsNetworkRepository.doRequest("/api/grades?include=collection")
+            years.javaClass
             if (result.response == HttpStatusCode.Unauthorized) {
-                notificationRepository.sendNotification(
-                    CHANNEL_ID_GRADES,
-                    6000,
-                    stringRepository.getString(R.string.notification_gradeUnauthorizedTitle),
-                    stringRepository.getString(R.string.notification_gradeUnauthorizedContent),
-                    R.drawable.vpp,
-                    null
-                )
+                sendBsTokenInvalidNotification()
                 return@vppId
             }
             if (result.response != HttpStatusCode.OK) return@vppId
@@ -65,7 +73,7 @@ class GradeRepositoryImpl(
             var grades = gradeDao.getAllGrades().first().map { it.toModel() }
 
             data.forEach { grade ->
-                if (grades.any { g -> g.id == grade.id }) return@forEach
+                val isNewGrade = grades.none { g -> g.id == grade.id }
                 if (!subjects.any { s -> s.id == grade.subject.id }) {
                     subjectDao.insert(
                         DbSubject(
@@ -110,11 +118,11 @@ class GradeRepositoryImpl(
                         givenAt = LocalDate.parse(grade.givenAt),
                         type = grade.collection.type,
                         comment = grade.collection.name,
-                        interval = TODO()
+                        interval = grade.collection.intervalId
                     )
                 )
                 grades = gradeDao.getAllGrades().first().map { it.toModel() }
-                newGrades.add(grades.first { it.id == grade.id })
+                if (isNewGrade) newGrades.add(grades.first { it.id == grade.id })
             }
         }
         return newGrades
@@ -132,6 +140,17 @@ class GradeRepositoryImpl(
 
     override suspend fun dropAll() {
         gradeDao.dropAll()
+    }
+
+    private suspend fun sendBsTokenInvalidNotification() {
+        notificationRepository.sendNotification(
+            CHANNEL_ID_GRADES,
+            6000,
+            stringRepository.getString(R.string.notification_gradeUnauthorizedTitle),
+            stringRepository.getString(R.string.notification_gradeUnauthorizedContent),
+            R.drawable.vpp,
+            null
+        )
     }
 }
 
@@ -163,5 +182,39 @@ private data class BsTeacher(
 
 private data class BsCollection(
     @SerializedName("type") val type: String,
-    @SerializedName("name") val name: String
+    @SerializedName("name") val name: String,
+    @SerializedName("interval_id") val intervalId: Long
 )
+
+private data class BsSchoolYearResponse(
+    @SerializedName("data") val years: List<BsSchoolYear>
+)
+
+private data class BsSchoolYear(
+    @SerializedName("id") val id: Long,
+    @SerializedName("name") val name: String,
+    @SerializedName("from") private val startRaw: String,
+    @SerializedName("to") private val endRaw: String,
+    @SerializedName("intervals") val intervals: List<BsSchoolYearInterval>
+) {
+    val start: LocalDate
+        get() = LocalDate.parse(startRaw)
+
+    val end: LocalDate
+        get() = LocalDate.parse(endRaw)
+}
+
+private data class BsSchoolYearInterval(
+    @SerializedName("id") val id: Long,
+    @SerializedName("name") val name: String,
+    @SerializedName("type") val type: String,
+    @SerializedName("from") private val startRaw: String,
+    @SerializedName("to") private val endRaw: String,
+    @SerializedName("included_interval_id") val includedIntervalId: Long? = null
+) {
+    val start: LocalDate
+        get() = LocalDate.parse(startRaw)
+
+    val end: LocalDate
+        get() = LocalDate.parse(endRaw)
+}

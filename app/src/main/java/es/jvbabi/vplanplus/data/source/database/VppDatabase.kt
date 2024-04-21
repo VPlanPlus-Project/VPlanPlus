@@ -60,6 +60,7 @@ import es.jvbabi.vplanplus.feature.main_grades.data.model.DbYear
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.GradeDao
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.TeacherDao
+import es.jvbabi.vplanplus.feature.main_grades.data.source.database.YearDao
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 
 @Database(
@@ -143,6 +144,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val subjectDao: SubjectDao
     abstract val teacherDao: TeacherDao
     abstract val gradeDao: GradeDao
+    abstract val yearDao: YearDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {

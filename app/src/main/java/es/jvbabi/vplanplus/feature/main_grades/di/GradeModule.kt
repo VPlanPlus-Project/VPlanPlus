@@ -51,6 +51,7 @@ object GradeModule {
             teacherDao = db.teacherDao,
             subjectDao = db.subjectDao,
             gradeDao = db.gradeDao,
+            yearDao = db.yearDao,
             vppIdRepository = vppIdRepository,
             bsNetworkRepository = provideBsNetworkRepository(logRepository),
             notificationRepository = notificationRepository,
