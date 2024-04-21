@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.domain.model
 
 import com.google.gson.annotations.SerializedName
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 data class VppId(
     @SerializedName("id") val id: Int,
@@ -10,7 +12,8 @@ data class VppId(
     @SerializedName("school") val school: School?,
     @SerializedName("class_name") val className: String,
     @SerializedName("classes") val classes: Classes?,
-    @SerializedName("state") val state: State = State.ACTIVE
+    @SerializedName("state") val state: State = State.ACTIVE,
+    @SerializedName("cached_at") val cachedAt: ZonedDateTime = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))
 ) {
     fun isActive() = state == State.ACTIVE
 }
