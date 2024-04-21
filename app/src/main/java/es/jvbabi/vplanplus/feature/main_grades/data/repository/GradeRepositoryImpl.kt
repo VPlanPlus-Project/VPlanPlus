@@ -9,8 +9,10 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbGrade
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbInterval
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbSubject
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbTeacher
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbYear
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.GradeDao
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.TeacherDao
@@ -117,8 +119,27 @@ class GradeRepositoryImpl(
             Gson().fromJson(it.data, BsSchoolYearResponse::class.java).years
         }
         years.forEach year@{ year ->
-            yearDao.upsert(year.id, year.name, year.start, year.end)
-            year.intervals.forEach interval@{ interval -> yearDao.upsertInterval(interval.id, interval.name, interval.type, interval.start, interval.end, interval.includedIntervalId, year.id) }
+            yearDao.upsert(
+                DbYear(
+                    id = year.id,
+                    name = year.name,
+                    from = year.start,
+                    to = year.end
+                )
+            )
+            year.intervals.forEach interval@{ interval ->
+                yearDao.upsertInterval(
+                    DbInterval(
+                        id = interval.id,
+                        name = interval.name,
+                        type = interval.type,
+                        from = interval.start,
+                        to = interval.end,
+                        includedIntervalId = interval.includedIntervalId,
+                        yearId = year.id
+                    )
+                )
+            }
         }
     }
 
