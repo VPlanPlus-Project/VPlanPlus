@@ -53,8 +53,10 @@ import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Week
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbGrade
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbInterval
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbSubject
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbTeacher
+import es.jvbabi.vplanplus.feature.main_grades.data.model.DbYear
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.GradeDao
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.data.source.database.TeacherDao
@@ -86,9 +88,11 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
 
         DbSubject::class,
         DbTeacher::class,
-        DbGrade::class
+        DbGrade::class,
+        DbYear::class,
+        DbInterval::class
     ],
-    version = 24,
+    version = 25,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -234,6 +238,17 @@ abstract class VppDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE homework ADD COLUMN defaultLessonVpId INTEGER NULL")
                 db.execSQL("UPDATE homework SET defaultLessonVpId = defaultLessonVpId_old")
                 db.execSQL("ALTER TABLE homework DROP COLUMN defaultLessonVpId_old")
+            }
+        }
+
+        val migration_24_25 = object : Migration(24, 25) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE `grade`")
+                db.execSQL("CREATE TABLE IF NOT EXISTS `bs_years` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `from` INTEGER NOT NULL, `to` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+                db.execSQL("CREATE TABLE IF NOT EXISTS `bs_intervals` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `from` INTEGER NOT NULL, `to` INTEGER NOT NULL, `includedIntervalId` INTEGER, `yearId` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`yearId`) REFERENCES `bs_years`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE TABLE IF NOT EXISTS `_new_grade` (`id` INTEGER NOT NULL, `givenAt` INTEGER NOT NULL, `givenBy` INTEGER NOT NULL, `subject` INTEGER NOT NULL, `value` REAL NOT NULL, `type` TEXT NOT NULL, `comment` TEXT NOT NULL, `modifier` INTEGER NOT NULL, `vppId` INTEGER NOT NULL, `interval` INTEGER NOT NULL DEFAULT 1, PRIMARY KEY(`id`, `givenBy`, `subject`, `vppId`), FOREIGN KEY(`givenBy`) REFERENCES `grade_teacher`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subject`) REFERENCES `grade_subject`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`vppId`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`interval`) REFERENCES `bs_intervals`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("ALTER TABLE `_new_grade` RENAME TO `grade`")
+                db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_grade_id` ON `grade` (`id`)")
             }
         }
     }

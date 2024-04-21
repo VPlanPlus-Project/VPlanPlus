@@ -109,7 +109,8 @@ class GradeRepositoryImpl(
                         givenBy = teachers.first { it.id == grade.teacher.id }.id,
                         givenAt = LocalDate.parse(grade.givenAt),
                         type = grade.collection.type,
-                        comment = grade.collection.name
+                        comment = grade.collection.name,
+                        interval = TODO()
                     )
                 )
                 grades = gradeDao.getAllGrades().first().map { it.toModel() }
