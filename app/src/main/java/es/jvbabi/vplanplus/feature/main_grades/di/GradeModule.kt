@@ -13,7 +13,6 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.main_grades.data.repository.GradeRepositoryImpl
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
-import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.CalculateAverageUseCase
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.CanShowEnableBiometricBannerUseCase
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.SetBiometricUseCase
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.GetGradesUseCase
@@ -76,12 +75,10 @@ object GradeModule {
             ),
             getGradesUseCase = GetGradesUseCase(
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-                gradeRepository = gradeRepository,
-                calculateAverageUseCase = CalculateAverageUseCase()
+                gradeRepository = gradeRepository
             ),
             showBannerUseCase = ShowBannerUseCase(keyValueRepository),
             hideBannerUseCase = HideBannerUseCase(keyValueRepository),
-            calculateAverageUseCase = CalculateAverageUseCase(),
             isBiometricEnabled = IsBiometricEnabledUseCase(keyValueRepository),
             canShowEnableBiometricBannerUseCase = CanShowEnableBiometricBannerUseCase(
                 keyValueRepository = keyValueRepository,

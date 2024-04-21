@@ -1,5 +1,9 @@
 package es.jvbabi.vplanplus.feature.main_grades.ui.view.components.grades
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -17,13 +21,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_grades.data.source.example.ExampleInterval
 import es.jvbabi.vplanplus.feature.main_grades.data.source.example.ExampleYear
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
+import es.jvbabi.vplanplus.feature.main_grades.domain.model.Interval
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Subject
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Teacher
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.SubjectGradeCollection
@@ -36,7 +44,8 @@ import java.time.LocalDate
 @Composable
 fun GradeSubjectGroup(
     grades: SubjectGradeCollection,
-    onStartCalculator: () -> Unit = {}
+    onStartCalculator: () -> Unit = {},
+    withIntervals: Set<Interval>
 ) {
     if (grades.grades.isEmpty()) return
 
@@ -67,8 +76,12 @@ fun GradeSubjectGroup(
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.headlineSmall
                     )
+                    val avg = grades.grades.filter { withIntervals.contains(it.interval) }.map { it.value }.average()
                     Text(
-                        text = "Ø ${grades.avg.toBigDecimal().setScale(2, RoundingMode.HALF_EVEN)} | " + grades.grades.map { "${it.givenBy.firstname} ${it.givenBy.lastname}" }.toSet().joinToString(", "),
+                        text =
+                        "Ø " +
+                                (if (avg.isNaN()) "-" else avg.toBigDecimal().setScale(2, RoundingMode.HALF_EVEN)) +
+                                " | " + grades.grades.map { "${it.givenBy.firstname} ${it.givenBy.lastname}" }.toSet().joinToString(", "),
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.labelMedium
@@ -86,10 +99,28 @@ fun GradeSubjectGroup(
                 }
             }
 
+            AnimatedVisibility(
+                visible = grades.grades.none { withIntervals.contains(it.interval) },
+                enter = expandVertically(tween(250)),
+                exit = shrinkVertically(tween(250))
+            ) {
+                Text(
+                    text = stringResource(id = R.string.grades_noGradesInSubject, grades.subject.name),
+                    style = MaterialTheme.typography.labelMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                )
+            }
             grades.grades.groupBy { it.type }.entries.forEachIndexed { i, (_, grades) ->
                 if (i != grades.groupBy { it.type }.size - 1) HorizontalDivider()
                 grades.forEach { grade ->
-                    GradeRecord(grade)
+                    AnimatedVisibility(
+                        visible = withIntervals.contains(grade.interval),
+                        enter = expandVertically(tween(250)),
+                        exit = shrinkVertically(tween(250))
+                    ) {
+                        GradeRecord(grade)
+                    }
                 }
             }
         }
@@ -112,9 +143,9 @@ private fun GradeSubjectGroupPreview() {
     val classes = ClassesPreview.generateClass(null)
     val vppId = VppIdPreview.generateVppId(classes)
     GradeSubjectGroup(
+        withIntervals = setOf(ExampleInterval.interval2(false)),
         grades = SubjectGradeCollection(
             subject = subject,
-            avg = 2.0,
             grades = listOf(
                 Grade(
                     id = 1,

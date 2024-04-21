@@ -559,5 +559,7 @@
     <string name="not_selected">Not selected</string>
     <string name="grades_sek1">Sec. 1</string>
     <string name="grades_sek2">Sec. 2</string>
+    <string name="grades_filterIntervalsTitle">Intervals</string>
+    <string name="grades_noGradesInSubject">No grades in %1$s</string>
 
 </resources>
