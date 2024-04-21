@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_grades.data.model
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -50,5 +49,5 @@ data class DbGrade(
     val comment: String,
     val modifier: GradeModifier,
     val vppId: Int,
-    @ColumnInfo(defaultValue = "-1") val interval: Long
+    val interval: Long
 )
