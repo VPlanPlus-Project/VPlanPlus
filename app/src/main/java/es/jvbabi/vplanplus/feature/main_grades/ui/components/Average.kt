@@ -20,7 +20,8 @@ import java.math.RoundingMode
 @Composable
 fun Average(
     modifier: Modifier = Modifier,
-    avg: Double
+    avg: Double,
+    isSek2: Boolean
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Box(
@@ -29,7 +30,9 @@ fun Average(
             .size(128.dp)
             .clip(RoundedCornerShape(50))
             .drawWithContent {
-                val percentage = (6 - avg) / 5f
+                val percentage =
+                    if (isSek2) avg / 15f
+                    else (6 - avg) / 5f
                 drawRect(
                     color = colorScheme.secondary,
                     topLeft = Offset(0f, 0f),

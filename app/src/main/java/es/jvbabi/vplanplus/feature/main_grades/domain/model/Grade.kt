@@ -12,9 +12,11 @@ data class Grade(
     val subject: Subject,
     val vppId: VppId,
     val type: String,
-    val comment: String
+    val comment: String,
+    val interval: Interval,
+    val year: Year
 )
 
-enum class GradeModifier(val symbol: String) {
-    PLUS("+"), NEUTRAL(""), MINUS("-")
+enum class GradeModifier {
+    PLUS, NEUTRAL, MINUS
 }

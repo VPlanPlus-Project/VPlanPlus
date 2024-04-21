@@ -5,20 +5,27 @@ import androidx.lifecycle.ViewModel
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
 
 class GradeCalculatorViewModel : ViewModel() {
-    val state = mutableStateOf(GradeCalculatorState(emptyList(), 0.0))
+    val state = mutableStateOf(GradeCalculatorState(emptyList(),0.0))
     private val originalGrades = mutableListOf<GradeCollection>()
+    private var originalIsSek2 = false
 
-    fun init(grades: List<GradeCollection>, init: Boolean) {
+    fun init(grades: List<GradeCollection>, isSek2: Boolean, init: Boolean) {
         if (init) {
             originalGrades.clear()
             originalGrades.addAll(grades)
+            originalIsSek2 = isSek2
         }
         state.value = GradeCalculatorState(
             grades = grades,
             avg = grades.map { it.grades.sumOf { grade -> grade.first.toDouble() } / it.grades.size }
                 .filter { !it.isNaN() }
-                .average()
+                .average(),
+            isSek2 = isSek2
         )
+    }
+
+    fun onSek2Change(isSek2: Boolean) {
+        init(originalGrades, isSek2, false)
     }
 
     fun addGrade(collection: String, grade: Float) {
@@ -30,6 +37,7 @@ class GradeCalculatorViewModel : ViewModel() {
                     it
                 }
             },
+            isSek2 = state.value.isSek2,
             init = false
         )
     }
@@ -43,18 +51,20 @@ class GradeCalculatorViewModel : ViewModel() {
                     it
                 }
             },
+            isSek2 = state.value.isSek2,
             init = false
         )
     }
 
     fun restore() {
-        init(originalGrades, false)
+        init(originalGrades, originalIsSek2, false)
     }
 }
 
 data class GradeCalculatorState(
-    val grades: List<GradeCollection>,
-    val avg: Double
+    val grades: List<GradeCollection> = emptyList(),
+    val avg: Double = 0.0,
+    val isSek2: Boolean = false,
 )
 
 data class GradeCollection(

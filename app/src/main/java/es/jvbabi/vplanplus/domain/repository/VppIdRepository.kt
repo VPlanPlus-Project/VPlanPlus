@@ -15,6 +15,7 @@ import java.time.ZonedDateTime
 
 interface VppIdRepository {
     fun getVppIds(): Flow<List<VppId>>
+    fun getActiveVppIds(): Flow<List<VppId>>
     suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?>
 
     /**

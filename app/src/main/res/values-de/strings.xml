@@ -554,5 +554,11 @@
     <string name="vppIdLink_invalidClassText">Dein beste.schule-Account ist mit Klasse %1$s verbunden, diese existiert an deiner Schule aber nicht. Dieses Problem tritt vor allem bei den Klassen JG11 und JG12 auf. Tritt mit uns in Kontakt, sodass wir das Problem schnellstmöglich beheben können.</string>
     <string name="vppIdLink_contactUs">Kontaktiere uns</string>
     <string name="grades_statsTitle">Notenstatistiken</string>
+    <string name="selected">Ausgewählt</string>
+    <string name="not_selected">Nicht ausgewählt</string>
+    <string name="grades_sek1">Sek I</string>
+    <string name="grades_sek2">Sek II</string>
+    <string name="grades_filterIntervalsTitle">Halbjahre</string>
+    <string name="grades_noGradesInSubject">Keine Noten in %1$s</string>
 
 </resources>

@@ -555,5 +555,11 @@
     <string name="vppIdLink_invalidClassText">Your beste.schule Account is linked to class %1$s but it does not exist at your school. This can happen especially in JG11 and JG12 classes. Contact us so we can fix it for you.</string>
     <string name="vppIdLink_contactUs">Contact Us</string>
     <string name="grades_statsTitle">Grade statistics</string>
+    <string name="selected">Selected</string>
+    <string name="not_selected">Not selected</string>
+    <string name="grades_sek1">Sec. 1</string>
+    <string name="grades_sek2">Sec. 2</string>
+    <string name="grades_filterIntervalsTitle">Intervals</string>
+    <string name="grades_noGradesInSubject">No grades in %1$s</string>
 
 </resources>

@@ -26,7 +26,9 @@ class GradesExample(
                     value = Random.nextInt(1, 6).toFloat(),
                     modifier = GradeModifier.entries[Random.nextInt(0, GradeModifier.entries.size)],
                     type = "KA",
-                    comment = "Test KA"
+                    comment = "Test KA",
+                    interval = ExampleInterval.interval2(false),
+                    year = ExampleYear.exampleYear()
                 )
             )
         }
