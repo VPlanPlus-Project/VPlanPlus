@@ -93,7 +93,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 25,
+    version = 26,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -107,6 +107,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 18, to = 19), // add zoned date time
         AutoMigration(from = 19, to = 20), // add homework can hide
         AutoMigration(from = 21, to = 22), // add preferred notification time
+        AutoMigration(from = 25, to = 26), // add cached-at attribute to vpp.ID
     ],
 )
 @TypeConverters(

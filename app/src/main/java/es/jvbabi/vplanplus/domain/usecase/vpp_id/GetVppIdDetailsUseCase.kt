@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
+import java.time.ZonedDateTime
 
 class GetVppIdDetailsUseCase(
     private val vppIdRepository: VppIdRepository,
@@ -25,7 +26,8 @@ class GetVppIdDetailsUseCase(
                 classes = `class`,
                 className = response.data.className,
                 school = `class`?.school,
-                schoolId = response.data.schoolId
+                schoolId = response.data.schoolId,
+                cachedAt = ZonedDateTime.now()
             )
             if (vppId.classes != null) {
                 vppIdRepository.addVppId(vppId)

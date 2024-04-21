@@ -83,7 +83,8 @@ class VppIdRepositoryImpl(
                     vppId.className
                 )?.classId,
                 state = State.ACTIVE,
-                email = vppId.email
+                email = vppId.email,
+                cachedAt = ZonedDateTime.now()
             )
         )
     }
@@ -187,6 +188,7 @@ class VppIdRepositoryImpl(
                     school.schoolId,
                     r.className
                 )?.classId,
+                cachedAt = ZonedDateTime.now()
             )
         )
         return vppIdDao.getVppId(id)?.toModel()
