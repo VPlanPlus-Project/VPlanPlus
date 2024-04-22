@@ -6,5 +6,6 @@ import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.SetProfileVppI
 data class VppIdLinkUseCases(
     val getVppIdDetailsUseCase: GetVppIdDetailsUseCase,
     val getProfilesWhichCanBeUsedForVppIdUseCase: GetProfilesWhichCanBeUsedForVppIdUseCase,
-    val setProfileVppIdUseCase: SetProfileVppIdUseCase
+    val setProfileVppIdUseCase: SetProfileVppIdUseCase,
+    val updateMissingLinksStateUseCase: UpdateMissingLinksStateUseCase
 )

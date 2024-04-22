@@ -35,6 +35,7 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.id_link.components.AutoConnectToProfile
+import es.jvbabi.vplanplus.ui.screens.id_link.components.LinkNoProfiles
 import io.ktor.http.HttpStatusCode
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
@@ -54,6 +55,7 @@ fun VppIdLinkScreen(
     VppIdLinkScreenContent(
         state = state,
         onOk = {
+            vppIdLinkViewModel.onProceed()
             navHostController.navigate(Screen.HomeScreen.route) {
                 popUpTo(0)
             }
@@ -182,8 +184,13 @@ private fun VppIdLinkScreenContent(
                         modifier = Modifier.padding(vertical = 8.dp),
                         profileName = state.selectedProfiles.toList().first { it.second }.first.displayName
                     )
+                } else if (state.selectedProfiles.isEmpty()) {
+                    LinkNoProfiles(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        className = state.vppId.classes.name
+                    )
                 }
-                Button(onClick = { onOk() }) {
+                Button(enabled = state.selectedProfiles.any { it.value } || state.selectedProfiles.isEmpty(), onClick = { onOk() }) {
                     Text(text = stringResource(id = android.R.string.ok))
                 }
             }
@@ -207,7 +214,7 @@ private fun VppIdLinkScreenInvalidClassPreview() {
 
 @Preview
 @Composable
-private fun VppIdLinkScreenPreview() {
+private fun VppIdLinkScreenAutoLinkPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first()
     val classes = PreviewClasses.generateClass(school)
     val vppId = VppId(
@@ -226,6 +233,34 @@ private fun VppIdLinkScreenPreview() {
             selectedProfileFoundAtStart = true,
             selectedProfiles = mapOf(
                 ProfilePreview.generateClassProfile(vppId) to true
+            ),
+            vppId = vppId,
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun VppIdLinkScreenPreview() {
+    val school = PreviewSchool.generateRandomSchools(1).first()
+    val classes = PreviewClasses.generateClass(school)
+    val vppId = VppId(
+        id = 1,
+        name = "Maria Musterfrau",
+        schoolId = school.schoolId,
+        school = school,
+        className = classes.name,
+        classes = classes,
+        email = "maria.musterfrau@email.com"
+    )
+    VppIdLinkScreenContent(
+        state = VppIdLinkState(
+            isLoading = false,
+            response = HttpStatusCode.OK,
+            selectedProfileFoundAtStart = false,
+            selectedProfiles = mapOf(
+                ProfilePreview.generateClassProfile(vppId) to true,
+                ProfilePreview.generateClassProfile() to false
             ),
             vppId = vppId,
         )

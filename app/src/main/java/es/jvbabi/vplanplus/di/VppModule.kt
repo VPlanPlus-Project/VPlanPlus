@@ -100,6 +100,7 @@ import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.sync.TriggerSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.UpdateMissingLinksStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
@@ -735,6 +736,7 @@ object VppModule {
         profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository
     ): VppIdLinkUseCases {
+        val testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
         return VppIdLinkUseCases(
             getVppIdDetailsUseCase = GetVppIdDetailsUseCase(
                 vppIdRepository = vppIdRepository,
@@ -742,7 +744,11 @@ object VppModule {
                 gradeRepository = gradeRepository
             ),
             getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository, classRepository),
-            setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository))
+            setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, testForMissingVppIdToProfileConnectionsUseCase),
+            updateMissingLinksStateUseCase = UpdateMissingLinksStateUseCase(
+                keyValueRepository = keyValueRepository,
+                testForMissingVppIdToProfileConnectionsUseCase = testForMissingVppIdToProfileConnectionsUseCase
+            )
         )
     }
 

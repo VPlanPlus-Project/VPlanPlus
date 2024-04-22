@@ -61,6 +61,12 @@ class VppIdLinkViewModel @Inject constructor(
             )
         }
     }
+
+    fun onProceed() {
+        viewModelScope.launch {
+            if (state.value.selectedProfiles.isEmpty()) vppIdLinkUseCases.updateMissingLinksStateUseCase()
+        }
+    }
 }
 
 data class VppIdLinkState(

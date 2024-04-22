@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AutoAwesome
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,12 +21,12 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 
 @Composable
-fun AutoConnectToProfile(modifier: Modifier = Modifier, profileName: String) {
+fun LinkNoProfiles(modifier: Modifier = Modifier, className: String) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.errorContainer)
             .padding(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -34,13 +34,13 @@ fun AutoConnectToProfile(modifier: Modifier = Modifier, profileName: String) {
             modifier = Modifier
                 .padding(8.dp)
                 .size(32.dp),
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            imageVector = Icons.Default.AutoAwesome,
+            tint = MaterialTheme.colorScheme.onErrorContainer,
+            imageVector = Icons.Default.Warning,
             contentDescription = null
         )
         Text(
-            text = stringResource(id = R.string.vppIdLink_autoConnect, profileName),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            text = stringResource(id = R.string.vppIdLink_noSuitableProfiles, className),
+            color = MaterialTheme.colorScheme.onErrorContainer,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.padding(8.dp)
         )
@@ -49,6 +49,6 @@ fun AutoConnectToProfile(modifier: Modifier = Modifier, profileName: String) {
 
 @Composable
 @Preview
-fun AutoConnectToProfilePreview() {
-    AutoConnectToProfile(profileName = "10a")
+private fun LinkNoProfilesPreview() {
+    LinkNoProfiles(className = "7a")
 }
