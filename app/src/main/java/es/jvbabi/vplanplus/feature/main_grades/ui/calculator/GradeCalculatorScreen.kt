@@ -9,6 +9,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.filled.Filter1
+import androidx.compose.material.icons.filled.Filter2
+import androidx.compose.material.icons.filled.RadioButtonChecked
+import androidx.compose.material.icons.filled.RadioButtonUnchecked
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -42,16 +48,18 @@ import es.jvbabi.vplanplus.ui.common.InfoDialog
 fun GradeCalculatorScreen(
     navHostController: NavHostController,
     viewModel: GradeCalculatorViewModel = hiltViewModel(),
-    grades: List<GradeCollection>
+    grades: List<GradeCollection>,
+    isSek2: Boolean
 ) {
     val state = viewModel.state.value
-    LaunchedEffect(grades) { viewModel.init(grades, true) }
+    LaunchedEffect(grades, isSek2) { viewModel.init(grades, isSek2, true) }
     GradeCalculatorContent(
         state = state,
         onBack = { navHostController.popBackStack() },
         onAddGrade = { collection, grade -> viewModel.addGrade(collection, grade) },
         onRemoveGrade = { collection, index -> viewModel.removeGradeByIndex(collection, index) },
-        onRestoreGrades = viewModel::restore
+        onRestoreGrades = viewModel::restore,
+        onChangeSek2 = viewModel::onSek2Change
     )
 }
 
@@ -62,6 +70,7 @@ fun GradeCalculatorContent(
     onAddGrade: (String, Float) -> Unit = { _, _ -> },
     onRemoveGrade: (String, Int) -> Unit = { _, _ -> },
     onRestoreGrades: () -> Unit = {},
+    onChangeSek2: (isSek2: Boolean) -> Unit = {},
     state: GradeCalculatorState
 ) {
     val scrollBehavior =
@@ -75,6 +84,8 @@ fun GradeCalculatorContent(
         onOk = { infoDialogOpen = false }
     )
 
+    var showSek2Toggle by rememberSaveable { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             LargeTopAppBar(
@@ -83,6 +94,26 @@ fun GradeCalculatorContent(
                     IconButton(onClick = onBack) { BackIcon() }
                 },
                 actions = {
+                    IconButton(onClick = { showSek2Toggle = !showSek2Toggle }) {
+                        Icon(
+                            imageVector =
+                                if (state.isSek2) Icons.Default.Filter2
+                                else Icons.Default.Filter1,
+                            contentDescription = null
+                        )
+                    }
+                    DropdownMenu(expanded = showSek2Toggle, onDismissRequest = { showSek2Toggle = false }) {
+                        DropdownMenuItem(
+                            text = { Text(stringResource(id = R.string.grades_sek1)) },
+                            leadingIcon = { RadioIcon(!state.isSek2) },
+                            onClick = { onChangeSek2(false); showSek2Toggle = false }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(stringResource(id = R.string.grades_sek2)) },
+                            leadingIcon = { RadioIcon(state.isSek2) },
+                            onClick = { onChangeSek2(true); showSek2Toggle = false }
+                        )
+                    }
                     IconButton(onClick = { infoDialogOpen = true }) {
                         Icon(Icons.AutoMirrored.Outlined.HelpOutline, contentDescription = stringResource(id = R.string.info))
                     }
@@ -99,7 +130,7 @@ fun GradeCalculatorContent(
                 .verticalScroll(rememberScrollState())
         ) {
             Box(Modifier.fillMaxWidth()) {
-                Average(Modifier.align(Alignment.Center), avg = state.avg)
+                Average(Modifier.align(Alignment.Center), avg = state.avg, isSek2 = state.isSek2)
             }
             OutlinedButton(
                 onClick = onRestoreGrades,
@@ -115,7 +146,8 @@ fun GradeCalculatorContent(
                     grades = collection.grades,
                     avg = collection.grades.map { it.first }.average(),
                     onAddGrade = { value -> onAddGrade(collection.name, value) },
-                    onRemoveGrade = { index -> onRemoveGrade(collection.name, index) }
+                    onRemoveGrade = { index -> onRemoveGrade(collection.name, index) },
+                    isSek2 = state.isSek2
                 )
             }
         }
@@ -130,5 +162,17 @@ private fun GradeCalculatorScreenPreview() {
             grades = emptyList(),
             avg = 2.4
         )
+    )
+}
+
+@Composable
+private fun RadioIcon(enabled: Boolean) {
+    Icon(
+        imageVector =
+            if (enabled) Icons.Default.RadioButtonChecked
+            else Icons.Default.RadioButtonUnchecked,
+        contentDescription =
+            if (enabled) stringResource(id = R.string.selected)
+            else stringResource(id = R.string.not_selected)
     )
 }

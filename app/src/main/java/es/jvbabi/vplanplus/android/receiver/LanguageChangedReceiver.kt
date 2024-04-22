@@ -16,6 +16,7 @@ import javax.inject.Inject
 class LanguageChangedReceiver : BroadcastReceiver() {
     @Inject lateinit var profileRepository: ProfileRepository
     @Inject lateinit var notificationRepository: NotificationRepository
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context == null) return

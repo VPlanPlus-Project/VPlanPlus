@@ -30,6 +30,13 @@ import java.time.LocalDate
             childColumns = ["vppId"],
             entity = DbVppId::class,
             onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            parentColumns = ["id"],
+            childColumns = ["interval"],
+            entity = DbInterval::class,
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
         )
     ]
 )
@@ -42,5 +49,6 @@ data class DbGrade(
     val type: String,
     val comment: String,
     val modifier: GradeModifier,
-    val vppId: Int
+    val vppId: Int,
+    val interval: Long
 )

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 abstract class GradeDao {
 
     @Upsert
-    abstract fun insert(grade: DbGrade)
+    abstract fun upsert(grade: DbGrade)
 
     @Transaction
     @Query("SELECT * FROM grade")
@@ -20,7 +20,11 @@ abstract class GradeDao {
 
     @Transaction
     @Query("SELECT * FROM grade WHERE vppId = :vppId")
-    abstract fun getGrades(vppId: Int): Flow<List<CGrade>>
+    abstract fun getGradesByUser(vppId: Int): Flow<List<CGrade>>
+
+    @Transaction
+    @Query("SELECT * FROM grade WHERE id = :id")
+    abstract fun getGradeById(id: Long): Flow<CGrade>
 
     @Query("DELETE FROM grade")
     abstract fun dropAll()

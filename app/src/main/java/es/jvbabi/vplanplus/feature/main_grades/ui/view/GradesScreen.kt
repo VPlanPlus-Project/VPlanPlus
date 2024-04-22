@@ -60,6 +60,7 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Grade
+import es.jvbabi.vplanplus.feature.main_grades.domain.model.Interval
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Subject
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
@@ -116,7 +117,7 @@ fun GradesScreen(
             }
             val encodedString: String =
                 Base64.encode(Gson().toJson(data).toByteArray(StandardCharsets.UTF_8))
-            navHostController.navigate("${Screen.GradesCalculatorScreen.route}/$encodedString")
+            navHostController.navigate("${Screen.GradesCalculatorScreen.route}/?grades=$encodedString&isSek2=${state.isSek2}")
         },
         onStartAuthenticate = { gradesViewModel.authenticate(activity) },
         onOpenSecuritySettings = {
@@ -134,6 +135,7 @@ fun GradesScreen(
         onDismissEnableBiometricBanner = { gradesViewModel.onDismissEnableBiometricBanner() },
         onDisableBiometric = { gradesViewModel.onSetBiometric(false) },
         onToggleSubject = gradesViewModel::onToggleSubject,
+        onToggleInterval = gradesViewModel::onToggleInterval,
         state = state,
         navBar = navBar
     )
@@ -154,6 +156,7 @@ private fun GradesScreenContent(
     onDisableBiometric: () -> Unit,
     onStartCalculator: (List<Grade>) -> Unit,
     onToggleSubject: (Subject) -> Unit,
+    onToggleInterval: (Interval) -> Unit,
     state: GradesState,
     navBar: @Composable (expanded: Boolean) -> Unit
 ) {
@@ -178,7 +181,7 @@ private fun GradesScreenContent(
                 modifier = Modifier
                     .padding(16.dp)
                     .fillMaxHeight(0.5f),
-                items = (1..(if (allGrades.any { it.value > 6 }) 15 else 6)).toList().map { value ->
+                items = ((if (state.isSek2) 0 else 1)..(if (state.isSek2) 15 else 6)).toList().map { value ->
                     BarChartData(
                         group = "$value",
                         value = allGrades.count { it.value == value.toFloat() }.toFloat()
@@ -244,7 +247,8 @@ private fun GradesScreenContent(
                         modifier = Modifier.padding(start = 8.dp, top = 8.dp)
                     )
                     FlowRow(
-                        horizontalArrangement = Arrangement.Center
+                        horizontalArrangement = Arrangement.Center,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         state.grades.keys.sortedBy { it.name }.forEach { subject ->
                             FilterChip(
@@ -259,6 +263,21 @@ private fun GradesScreenContent(
                                         tint = MaterialTheme.colorScheme.onSurface
                                     )
                                 }
+                            )
+                        }
+                    }
+                    Text(
+                        text = stringResource(id = R.string.grades_filterIntervalsTitle),
+                        style = MaterialTheme.typography.labelMedium,
+                        modifier = Modifier.padding(start = 8.dp, top = 8.dp)
+                    )
+                    FlowRow(Modifier.fillMaxWidth()) {
+                        state.intervals.keys.sortedBy { it.name }.forEach { interval ->
+                            FilterChip(
+                                selected = state.intervals[interval] ?: false,
+                                onClick = { onToggleInterval(interval) },
+                                label = { Text(text = interval.name) },
+                                modifier = Modifier.padding(horizontal = 4.dp)
                             )
                         }
                     }
@@ -320,12 +339,12 @@ private fun GradesScreenContent(
                 )
             }
             LazyColumn {
-                if (state.avg != 0.0) item {
+                item {
                     Box(
                         modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ) {
-                        Average(avg = state.avg)
+                        Average(avg = state.avg, isSek2 = state.isSek2)
                     }
                 }
                 item {
@@ -347,7 +366,8 @@ private fun GradesScreenContent(
                     ) {
                         GradeSubjectGroup(
                             grades = grades,
-                            onStartCalculator = { onStartCalculator(grades.grades) }
+                            onStartCalculator = { onStartCalculator(grades.grades) },
+                            withIntervals = state.intervals.filterValues { it }.keys,
                         )
                     }
                 }
@@ -376,7 +396,8 @@ fun GradesScreenPreview() {
         onToggleSubject = {},
         onDismissEnableBiometricBanner = {},
         onEnableBiometric = {},
-        onDisableBiometric = {}
+        onDisableBiometric = {},
+        onToggleInterval = {}
     )
 }
 

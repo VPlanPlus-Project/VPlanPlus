@@ -23,7 +23,7 @@ class BookRoomUseCase(
     ): BookResult {
         val profile = getCurrentProfileUseCase().first() ?: return BookResult.OTHER
         val `class` = classRepository.getClassById(profile.referenceId) ?: return BookResult.OTHER
-        val vppId = vppIdRepository.getVppIds().first().first {
+        val vppId = vppIdRepository.getActiveVppIds().first().first {
             it.className == `class`.name
         }
         val result = vppIdRepository.bookRoom(vppId, room, start, end)
