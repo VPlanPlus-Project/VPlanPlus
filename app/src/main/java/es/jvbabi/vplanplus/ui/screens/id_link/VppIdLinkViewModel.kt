@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import io.ktor.http.HttpStatusCode
@@ -47,10 +48,16 @@ class VppIdLinkViewModel @Inject constructor(
                 )
                 return@launch
             }
+            val profiles = vppIdLinkUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(response.data)
+
+            if (profiles.size == 1) vppIdLinkUseCases.setProfileVppIdUseCase(mapOf(profiles.first() to true), response.data)
+
             _state.value = _state.value.copy(
                 isLoading = false,
                 vppId = response.data,
                 response = response.response,
+                selectedProfiles = profiles.associateWith { profiles.size == 1 },
+                selectedProfileFoundAtStart = profiles.size == 1
             )
         }
     }
@@ -62,4 +69,6 @@ data class VppIdLinkState(
     val isLoading: Boolean = true,
     val error: Boolean = false,
     val classNotFound: Boolean = false,
+    val selectedProfiles: Map<Profile, Boolean> = emptyMap(),
+    val selectedProfileFoundAtStart: Boolean? = null
 )

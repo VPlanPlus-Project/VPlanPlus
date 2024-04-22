@@ -32,7 +32,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.id_link.components.AutoConnectToProfile
 import io.ktor.http.HttpStatusCode
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
@@ -51,7 +53,7 @@ fun VppIdLinkScreen(
 
     VppIdLinkScreenContent(
         state = state,
-        onBack = {
+        onOk = {
             navHostController.navigate(Screen.HomeScreen.route) {
                 popUpTo(0)
             }
@@ -82,7 +84,7 @@ fun VppIdLinkScreen(
 
 @Composable
 private fun VppIdLinkScreenContent(
-    onBack: () -> Unit = {},
+    onOk: () -> Unit = {},
     onRetry: () -> Unit = {},
     onContactUs: (userId: Int?, className: String?) -> Unit = { _, _ -> },
     state: VppIdLinkState
@@ -118,16 +120,22 @@ private fun VppIdLinkScreenContent(
                     textAlign = TextAlign.Center
                 )
                 Row(
-                    modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     OutlinedButton(
-                        onClick = onBack,
-                        modifier = Modifier.weight(1f).padding(end = 8.dp)
+                        onClick = onOk,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
                     ) { Text(text = stringResource(id = R.string.back)) }
                     Button(
                         onClick = { onContactUs(state.vppId?.id, state.vppId?.className) },
-                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
                     ) {
                         Text(text = stringResource(id = R.string.vppIdLink_contactUs))
                         Icon(
@@ -169,7 +177,13 @@ private fun VppIdLinkScreenContent(
                     ),
                     textAlign = TextAlign.Center
                 )
-                Button(onClick = { onBack() }) {
+                if (state.selectedProfileFoundAtStart == true) {
+                    AutoConnectToProfile(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        profileName = state.selectedProfiles.toList().first { it.second }.first.displayName
+                    )
+                }
+                Button(onClick = { onOk() }) {
                     Text(text = stringResource(id = android.R.string.ok))
                 }
             }
@@ -196,19 +210,24 @@ private fun VppIdLinkScreenInvalidClassPreview() {
 private fun VppIdLinkScreenPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first()
     val classes = PreviewClasses.generateClass(school)
+    val vppId = VppId(
+        id = 1,
+        name = "Maria Musterfrau",
+        schoolId = school.schoolId,
+        school = school,
+        className = classes.name,
+        classes = classes,
+        email = "maria.musterfrau@email.com"
+    )
     VppIdLinkScreenContent(
         state = VppIdLinkState(
             isLoading = false,
             response = HttpStatusCode.OK,
-            vppId = VppId(
-                id = 1,
-                name = "Maria Musterfrau",
-                schoolId = school.schoolId,
-                school = school,
-                className = classes.name,
-                classes = classes,
-                email = "maria.musterfrau@email.com"
+            selectedProfileFoundAtStart = true,
+            selectedProfiles = mapOf(
+                ProfilePreview.generateClassProfile(vppId) to true
             ),
+            vppId = vppId,
         )
     )
 }
