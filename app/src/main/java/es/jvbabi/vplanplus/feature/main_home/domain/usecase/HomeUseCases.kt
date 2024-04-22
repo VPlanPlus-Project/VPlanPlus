@@ -27,6 +27,7 @@ data class HomeUseCases(
 
     val hasInvalidVppIdSessionUseCase: HasInvalidVppIdSessionUseCase,
     val ignoreInvalidVppIdSessionsUseCase: IgnoreInvalidVppIdSessionsUseCase,
+    val hasMissingVppIdToProfileLinksUseCase: HasMissingVppIdToProfileLinksUseCase,
 
     val getVppIdServerUseCase: GetVppIdServerUseCase
 )

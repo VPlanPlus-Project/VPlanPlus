@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
+import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.first
@@ -18,6 +19,7 @@ class SetUpUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val alarmManagerRepository: AlarmManagerRepository,
     private val homeworkRepository: HomeworkRepository,
+    private val profileRepository: ProfileRepository,
     private val vppIdRepository: VppIdRepository,
     private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
 ) {
@@ -25,11 +27,18 @@ class SetUpUseCase(
     suspend operator fun invoke() {
         try {
             testForInvalidSessions()
+            testForMissingVppIdToProfileConnections()
             updateFirebaseTokens()
             createHomeworkReminder()
         } catch (e: IOException) {
             Log.i("SetUpUseCase", "Error, Firebase services might not be available at the moment: ${e.message}")
         }
+    }
+
+    private suspend fun testForMissingVppIdToProfileConnections() {
+        val vppIds = vppIdRepository.getVppIds().first().filter { it.isActive() }
+        val withProfileConnectedVppIds = profileRepository.getProfiles().first().mapNotNull { it.vppId }.distinctBy { vppId -> vppId.id }
+        keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, vppIds.any { it !in withProfileConnectedVppIds }.toString())
     }
 
     private suspend fun testForInvalidSessions() {

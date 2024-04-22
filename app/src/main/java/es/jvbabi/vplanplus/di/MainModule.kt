@@ -59,6 +59,7 @@ object MainModule {
         keyValueRepository: KeyValueRepository,
         homeworkRepository: HomeworkRepository,
         vppIdRepository: VppIdRepository,
+        profileRepository: ProfileRepository,
         alarmManagerRepository: AlarmManagerRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
     ): SetUpUseCase {
@@ -67,7 +68,8 @@ object MainModule {
             homeworkRepository = homeworkRepository,
             alarmManagerRepository = alarmManagerRepository,
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
-            vppIdRepository = vppIdRepository
+            vppIdRepository = vppIdRepository,
+            profileRepository = profileRepository
         )
     }
 }

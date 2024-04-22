@@ -18,7 +18,8 @@ object ProfilePreview {
             referenceId = UUID.randomUUID(),
             calendarType = ProfileCalendarType.NONE,
             calendarId = null,
-            defaultLessons = mapOf()
+            defaultLessons = mapOf(),
+            vppId = null
         )
     }
 
@@ -32,7 +33,8 @@ object ProfilePreview {
             referenceId = UUID.randomUUID(),
             calendarType = ProfileCalendarType.NONE,
             calendarId = null,
-            defaultLessons = mapOf()
+            defaultLessons = mapOf(),
+            vppId = null
         )
     }
 }

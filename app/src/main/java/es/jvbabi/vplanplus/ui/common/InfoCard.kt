@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,11 +34,13 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.util.toBlackAndWhite
 
 @Composable
 fun InfoCard(
@@ -49,17 +52,17 @@ fun InfoCard(
     buttonAction1: () -> Unit = {},
     buttonText2: String? = null,
     buttonAction2: () -> Unit = {},
+    accentColor: Color = MaterialTheme.colorScheme.primary
 ) {
-    val colorScheme = MaterialTheme.colorScheme
     Column(
         modifier = modifier
             .shadow(5.dp, shape = RoundedCornerShape(8.dp))
-            .border(1.dp, MaterialTheme.colorScheme.primary, shape = RoundedCornerShape(8.dp))
+            .border(1.dp, accentColor, shape = RoundedCornerShape(8.dp))
             .clip(RoundedCornerShape(8.dp))
             .background(MaterialTheme.colorScheme.surface)
             .drawWithContent {
                 drawRect(
-                    color = colorScheme.primary,
+                    color = accentColor,
                     topLeft = Offset(0f, 0f),
                     size = Size(32f, size.height)
                 )
@@ -87,12 +90,28 @@ fun InfoCard(
                 .padding(end = 8.dp)
                 .align(Alignment.End),
         ) {
-            TextButton(onClick = { buttonAction1() }) {
+            TextButton(
+                onClick = { buttonAction1() },
+                colors = ButtonColors(
+                    contentColor = accentColor,
+                    containerColor = Color.Transparent,
+                    disabledContainerColor = Color.Transparent,
+                    disabledContentColor = accentColor.toBlackAndWhite()
+                )
+            ) {
                 Text(text = buttonText1)
             }
             if (buttonText2 != null) {
                 Spacer(modifier = Modifier.size(8.dp))
-                TextButton(onClick = { buttonAction2() }) {
+                TextButton(
+                    onClick = { buttonAction2() },
+                    colors = ButtonColors(
+                        contentColor = accentColor,
+                        containerColor = Color.Transparent,
+                        disabledContainerColor = Color.Transparent,
+                        disabledContentColor = accentColor.toBlackAndWhite()
+                    )
+                ) {
                     Text(text = buttonText2)
                 }
             }

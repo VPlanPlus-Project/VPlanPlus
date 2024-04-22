@@ -560,5 +560,7 @@
     <string name="grades_sek2">Sek II</string>
     <string name="grades_filterIntervalsTitle">Halbjahre</string>
     <string name="grades_noGradesInSubject">Keine Noten in %1$s</string>
+    <string name="home_linkVppIdToProfileBannerTitle">vpp.ID mit Profil verknüpfen</string>
+    <string name="home_linkVppIdToProfileBannerText">Beginnend mit Version v1.2.2 müssen vpp.IDs an ein Ansichtsprofil gebunden werden, Dies kann in den Einstellungen durchgeführt werden.</string>
 
 </resources>
