@@ -18,6 +18,12 @@ import java.util.UUID
             parentColumns = ["id"],
             childColumns = ["referenceId"],
             onDelete = ForeignKey.CASCADE,
+        ),
+        ForeignKey(
+            entity = DbVppId::class,
+            parentColumns = ["id"],
+            childColumns = ["linkedVppId"],
+            onDelete = ForeignKey.CASCADE,
         )
     ]
 )
@@ -29,6 +35,7 @@ data class DbProfile(
     val calendarMode: ProfileCalendarType,
     val calendarId: Long?,
     val referenceId: UUID,
+    val linkedVppId: Int? = null,
 )
 
 enum class ProfileType {
