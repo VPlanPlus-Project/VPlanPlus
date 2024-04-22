@@ -563,5 +563,13 @@
     <string name="grades_noGradesInSubject">No grades in %1$s</string>
     <string name="home_linkVppIdToProfileBannerTitle">Link vpp.ID to a profile</string>
     <string name="home_linkVppIdToProfileBannerText">Starting with version v1.2.2, you need to link a vpp.ID to a profile in order to use it. This can be done in settings.</string>
+    <string name="vppIdSettings_sessionExpired">Logged out</string>
+    <string name="vppIdSettings_noProfilesConnected">No profile connected</string>
+
+    <plurals name="vppIdSettings_withNProfilesConnected">
+        <item quantity="one">One profile connected</item>
+        <item quantity="two">Two profiles connected</item>
+        <item quantity="other">%1$d profiles connected</item>
+    </plurals>
 
 </resources>

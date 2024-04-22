@@ -562,5 +562,12 @@
     <string name="grades_noGradesInSubject">Keine Noten in %1$s</string>
     <string name="home_linkVppIdToProfileBannerTitle">vpp.ID mit Profil verknüpfen</string>
     <string name="home_linkVppIdToProfileBannerText">Beginnend mit Version v1.2.2 müssen vpp.IDs an ein Ansichtsprofil gebunden werden, Dies kann in den Einstellungen durchgeführt werden.</string>
+    <string name="vppIdSettings_sessionExpired">Abgemeldet</string>
+    <string name="vppIdSettings_noProfilesConnected">Mit keinem Profil verbunden</string>
+
+    <plurals name="vppIdSettings_withNProfilesConnected">
+        <item quantity="other">%1$d Profile verknüpft</item>
+        <item quantity="one">Ein Profil verbunden</item>
+    </plurals>
 
 </resources>

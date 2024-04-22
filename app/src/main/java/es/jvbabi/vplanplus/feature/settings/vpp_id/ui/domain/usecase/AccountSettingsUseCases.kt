@@ -8,5 +8,6 @@ data class AccountSettingsUseCases(
     val deleteAccountUseCase: DeleteAccountUseCase,
     val getSessionsUseCase: GetSessionsUseCase,
     val closeSessionUseCase: CloseSessionUseCase,
-    val getVppIdServerUseCase: GetVppIdServerUseCase
+    val getVppIdServerUseCase: GetVppIdServerUseCase,
+    val getProfilesUseCase: GetProfilesUseCase
 )
