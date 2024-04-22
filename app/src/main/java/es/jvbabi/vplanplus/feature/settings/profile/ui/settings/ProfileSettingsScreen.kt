@@ -120,8 +120,8 @@ fun ProfileSettingsScreen(
             onSetDialogVisible = { viewModel.setDialogOpen(it) },
             onSetDialogCall = { viewModel.setDialogCall(it) },
             onOpenVppIdSettings = {
-                if (state.linkedVppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
-                else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.linkedVppId.id}")
+                if (state.profile.vppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
+                else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.profile.vppId.id}")
             },
             onLaunchPermissionDialog = { writeLauncher.launch(android.Manifest.permission.WRITE_CALENDAR) },
             onDismissedPermissionDialog = { viewModel.dismissPermissionDialog() }
@@ -313,7 +313,7 @@ private fun ProfileSettingsScreenContent(
                     id = R.string.profileManagement_vppIDCategoryTitle
                 )
             ) {
-                if (state.linkedVppId == null) {
+                if (state.profile.vppId == null) {
                     SettingsSetting(
                         icon = Icons.Default.Link,
                         title = stringResource(id = R.string.profileManagement_vppIDTitle),
@@ -325,7 +325,7 @@ private fun ProfileSettingsScreenContent(
                     SettingsSetting(
                         icon = Icons.Default.Link,
                         title = stringResource(id = R.string.profileManagement_vppIDTitle),
-                        subtitle = state.linkedVppId.name,
+                        subtitle = state.profile.vppId.name,
                         type = SettingsType.FUNCTION,
                         doAction = onOpenVppIdSettings
                     )
@@ -351,8 +351,7 @@ private fun ProfileSettingsScreenPreview() {
     val classes = ClassesPreview.generateClass(null)
     ProfileSettingsScreenContent(
         state = ProfileSettingsState(
-            profile = ProfilePreview.generateClassProfile().copy(calendarType = ProfileCalendarType.DAY),
-            linkedVppId = VppIdPreview.generateVppId(classes)
+            profile = ProfilePreview.generateClassProfile(VppIdPreview.generateVppId(classes)).copy(calendarType = ProfileCalendarType.DAY),
         ),
         onBackClicked = {}
     )

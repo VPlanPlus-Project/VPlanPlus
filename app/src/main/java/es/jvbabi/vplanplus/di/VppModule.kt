@@ -85,7 +85,6 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetCalendarsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
-import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetVppIdByClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.UpdateCalendarIdUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.UpdateCalendarTypeUseCase
@@ -632,7 +631,6 @@ object VppModule {
         schoolRepository: SchoolRepository,
         keyValueRepository: KeyValueRepository,
         calendarRepository: CalendarRepository,
-        vppIdRepository: VppIdRepository,
         notificationRepository: NotificationRepository,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
         updateCalendarUseCase: UpdateCalendarUseCase
@@ -674,9 +672,6 @@ object VppModule {
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase,
                 notificationRepository = notificationRepository,
                 updateCalendarUseCase = updateCalendarUseCase
-            ),
-            getVppIdByClassUseCase = GetVppIdByClassUseCase(
-                vppIdRepository = vppIdRepository
             )
         )
     }
