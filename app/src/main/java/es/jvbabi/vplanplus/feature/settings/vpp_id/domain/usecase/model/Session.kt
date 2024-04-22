@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model
+package es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model
 
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter

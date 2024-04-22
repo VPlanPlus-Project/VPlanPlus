@@ -45,7 +45,7 @@ import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsS
 import es.jvbabi.vplanplus.feature.settings.support.ui.SupportScreen
 import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.VppIdManagementScreen
+import es.jvbabi.vplanplus.feature.settings.vpp_id.manage.VppIdManagementScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionLeft
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight

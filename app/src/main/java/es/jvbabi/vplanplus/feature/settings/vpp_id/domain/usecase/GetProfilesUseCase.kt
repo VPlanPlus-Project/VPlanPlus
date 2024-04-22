@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase
+package es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase
 
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.map

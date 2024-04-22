@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.components
+package es.jvbabi.vplanplus.feature.settings.vpp_id.manage.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row

@@ -571,5 +571,7 @@
         <item quantity="two">Two profiles connected</item>
         <item quantity="other">%1$d profiles connected</item>
     </plurals>
+    <string name="vppIdSettingsManagement_linkedProfilesTitle">Linked profiles</string>
+    <string name="vppIdSettingsManagement_noProfilesPossible">No Profiles for class %1$s found. Please create one.</string>
 
 </resources>

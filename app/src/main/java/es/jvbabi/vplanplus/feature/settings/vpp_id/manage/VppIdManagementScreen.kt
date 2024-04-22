@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage
+package es.jvbabi.vplanplus.feature.settings.vpp_id.manage
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -28,15 +29,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.SessionType
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.components.RetrySessions
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.components.SessionEntry
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.SessionType
+import es.jvbabi.vplanplus.feature.settings.vpp_id.manage.components.RetrySessions
+import es.jvbabi.vplanplus.feature.settings.vpp_id.manage.components.SessionEntry
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
 import es.jvbabi.vplanplus.ui.common.FullWidthLoadingCircle
+import es.jvbabi.vplanplus.ui.common.IconSettingsState
+import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
+import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.School
@@ -130,13 +134,26 @@ fun VppIdManagementContent(
             modifier = Modifier.padding(paddingValues)
         ) {
             BigButtonGroup(
-                modifier = Modifier.padding(8.dp),
+                modifier = Modifier.padding(top = 8.dp, bottom = 16.dp),
                 buttons = listOf(
                     BigButton(
                         Icons.AutoMirrored.Default.Logout,
                         stringResource(id = R.string.vppIdSettingsManagement_logout),
                         onRequestLogout,
                     )
+                )
+            )
+            Setting(
+                IconSettingsState(
+                    title = stringResource(id = R.string.vppIdSettingsManagement_linkedProfilesTitle),
+                    subtitle =
+                        if (state.profiles.isEmpty()) stringResource(id = R.string.vppIdSettingsManagement_noProfilesPossible, state.vppId.className)
+                        else if (state.profiles.count { it.vppId == state.vppId } == 0) stringResource(id = R.string.vppIdSettings_noProfilesConnected)
+                        else state.profiles.filter { it.vppId == state.vppId }.joinToString(", ") { it.vppId!!.name },
+                    enabled = state.profiles.isNotEmpty(),
+                    type = SettingsType.FUNCTION,
+                    doAction = {},
+                    imageVector = Icons.Default.SupervisorAccount
                 )
             )
             SettingsCategory(

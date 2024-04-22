@@ -1,20 +1,22 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.di
+package es.jvbabi.vplanplus.feature.settings.vpp_id.di
 
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.AccountSettingsUseCases
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.CloseSessionUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.DeleteAccountUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetAccountsUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetProfilesUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.GetSessionsUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.TestAccountUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.CloseSessionUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.DeleteAccountUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetAccountsUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetSessionsUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.TestAccountUseCase
 import javax.inject.Singleton
 
 @Module
@@ -25,7 +27,8 @@ object VppIdSettingsModule {
     fun provideAccountSettingsUseCases(
         vppIdRepository: VppIdRepository,
         keyValueRepository: KeyValueRepository,
-        profileRepository: ProfileRepository
+        profileRepository: ProfileRepository,
+        classRepository: ClassRepository
     ): AccountSettingsUseCases {
         return AccountSettingsUseCases(
             getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository),
@@ -34,7 +37,8 @@ object VppIdSettingsModule {
             getSessionsUseCase = GetSessionsUseCase(vppIdRepository = vppIdRepository),
             closeSessionUseCase = CloseSessionUseCase(vppIdRepository = vppIdRepository),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository = keyValueRepository),
-            getProfilesUseCase = GetProfilesUseCase(profileRepository = profileRepository)
+            getProfilesUseCase = GetProfilesUseCase(profileRepository = profileRepository),
+            getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository, classRepository)
         )
     }
 }

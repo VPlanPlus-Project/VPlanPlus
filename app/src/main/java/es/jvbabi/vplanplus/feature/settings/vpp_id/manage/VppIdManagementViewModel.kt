@@ -1,12 +1,13 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage
+package es.jvbabi.vplanplus.feature.settings.vpp_id.manage
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.AccountSettingsUseCases
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -28,7 +29,8 @@ class VppIdManagementViewModel @Inject constructor(
                     it.id == id
                 } ?: return@launch
             state.value = state.value.copy(
-                vppId = account
+                vppId = account,
+                profiles = accountSettingsUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(account)
             )
             fetchSessions()
         }
@@ -96,6 +98,7 @@ data class VppIdManagementState(
     val vppId: VppId? = null,
     val logoutDialog: Boolean = false,
     val logoutSuccess: Boolean? = null,
+    val profiles: List<Profile> = emptyList(),
     val sessions: List<Session> = emptyList(),
     val sessionsState: SessionState = SessionState.LOADING
 )

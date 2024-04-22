@@ -1,8 +1,8 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase
+package es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 
 class CloseSessionUseCase(
     private val vppIdRepository: VppIdRepository

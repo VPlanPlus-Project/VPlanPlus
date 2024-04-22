@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.manage.components
+package es.jvbabi.vplanplus.feature.settings.vpp_id.manage.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LaptopWindows
@@ -7,8 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.SessionType
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.SessionType
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
