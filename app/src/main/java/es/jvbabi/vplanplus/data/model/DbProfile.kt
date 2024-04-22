@@ -23,7 +23,7 @@ import java.util.UUID
             entity = DbVppId::class,
             parentColumns = ["id"],
             childColumns = ["linkedVppId"],
-            onDelete = ForeignKey.CASCADE,
+            onDelete = ForeignKey.SET_NULL,
         )
     ]
 )
