@@ -31,9 +31,9 @@ class AddHomeworkViewModel @Inject constructor(
 
                 state.value = state.value.copy(
                     defaultLessons = defaultLessons.filter { identity.profile.isDefaultLessonEnabled(it.vpId) },
-                    username = identity.vppId?.name,
-                    canUseCloud = identity.vppId != null,
-                    isForAll = identity.vppId != null,
+                    username = identity.profile.vppId?.name,
+                    canUseCloud = identity.profile.vppId != null,
+                    isForAll = identity.profile.vppId != null,
                     canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase(),
                     defaultLessonsFiltered = defaultLessonsFiltered,
                     initDone = true

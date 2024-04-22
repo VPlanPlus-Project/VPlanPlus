@@ -258,7 +258,7 @@ fun HomeScreenContent(
                     Column {
                         Greeting(
                             time = state.currentTime,
-                            name = state.currentIdentity.vppId?.name,
+                            name = state.currentIdentity.profile?.vppId?.name,
                             modifier = Modifier.padding(start = 16.dp)
                         )
                         LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 16.dp))

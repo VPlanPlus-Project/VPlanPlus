@@ -516,14 +516,10 @@ object VppModule {
     @Provides
     @Singleton
     fun provideGetCurrentIdentityUseCase(
-        vppIdRepository: VppIdRepository,
-        classRepository: ClassRepository,
         keyValueRepository: KeyValueRepository,
         profileRepository: ProfileRepository
     ): GetCurrentIdentityUseCase {
         return GetCurrentIdentityUseCase(
-            vppIdRepository = vppIdRepository,
-            classRepository = classRepository,
             keyValueRepository = keyValueRepository,
             profileRepository = profileRepository,
         )

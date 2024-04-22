@@ -13,7 +13,6 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
-import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
@@ -32,7 +31,6 @@ object SearchModule {
         classRepository: ClassRepository,
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
-        vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
         planRepository: PlanRepository,
@@ -40,8 +38,6 @@ object SearchModule {
     ): SearchUseCases {
         return SearchUseCases(
             getCurrentIdentityUseCase = GetCurrentIdentityUseCase(
-                vppIdRepository = vppIdRepository,
-                classRepository = classRepository,
                 keyValueRepository = keyValueRepository,
                 profileRepository = profileRepository
             ),

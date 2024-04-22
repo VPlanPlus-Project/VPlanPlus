@@ -5,7 +5,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -30,8 +29,6 @@ object MainModule {
     @Singleton
     fun provideMainUseCases(
         keyValueRepository: KeyValueRepository,
-        classRepository: ClassRepository,
-        vppIdRepository: VppIdRepository,
         homeworkRepository: HomeworkRepository,
         setUpUseCase: SetUpUseCase,
         profileRepository: ProfileRepository,
@@ -40,8 +37,6 @@ object MainModule {
         return MainUseCases(
             getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
             getCurrentIdentity = GetCurrentIdentityUseCase(
-                vppIdRepository = vppIdRepository,
-                classRepository = classRepository,
                 keyValueRepository = keyValueRepository,
                 profileRepository = profileRepository,
             ),

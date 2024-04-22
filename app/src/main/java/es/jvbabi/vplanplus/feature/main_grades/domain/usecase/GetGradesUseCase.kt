@@ -13,12 +13,12 @@ class GetGradesUseCase(
 
     operator fun invoke(): Flow<List<Grade>> = flow {
         getCurrentIdentityUseCase().collect { identity ->
-            if (identity?.vppId == null) {
+            if (identity?.profile?.vppId == null) {
                 emit(emptyList())
                 return@collect
             }
 
-            gradeRepository.getGradesByUser(identity.vppId).collect grades@{ grades ->
+            gradeRepository.getGradesByUser(identity.profile.vppId).collect grades@{ grades ->
                 emit(grades)
             }
         }
