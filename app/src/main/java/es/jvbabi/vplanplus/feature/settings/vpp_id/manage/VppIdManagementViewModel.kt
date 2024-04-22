@@ -6,8 +6,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -33,6 +33,15 @@ class VppIdManagementViewModel @Inject constructor(
                 profiles = accountSettingsUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(account)
             )
             fetchSessions()
+        }
+    }
+
+    fun onSetLinkedProfiles(profiles: Map<Profile, Boolean>) {
+        viewModelScope.launch {
+            profiles.forEach { (profile, selected) ->
+                accountSettingsUseCases.setProfileVppIdUseCase(profile, if (selected) state.value.vppId else null)
+            }
+            state.value = state.value.copy(profiles = accountSettingsUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(state.value.vppId ?: return@launch))
         }
     }
 

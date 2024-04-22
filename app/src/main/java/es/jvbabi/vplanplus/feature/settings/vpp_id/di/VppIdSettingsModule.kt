@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetAccountsUse
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetSessionsUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.SetProfileVppIdUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.TestAccountUseCase
 import javax.inject.Singleton
 
@@ -38,7 +39,8 @@ object VppIdSettingsModule {
             closeSessionUseCase = CloseSessionUseCase(vppIdRepository = vppIdRepository),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository = keyValueRepository),
             getProfilesUseCase = GetProfilesUseCase(profileRepository = profileRepository),
-            getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository, classRepository)
+            getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository, classRepository),
+            setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository)
         )
     }
 }

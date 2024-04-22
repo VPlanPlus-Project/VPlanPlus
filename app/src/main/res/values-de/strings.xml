@@ -571,5 +571,6 @@
     </plurals>
     <string name="vppIdSettingsManagement_linkedProfilesTitle">Verknüpfte Profile</string>
     <string name="vppIdSettingsManagement_noProfilesPossible">Keine Profile für Klasse %1$s gefunden. Bitte erstelle eines.</string>
+    <string name="vppIdSettingsManagement_selectProfilesText">Wähle Profile, welche mit dieser vpp.ID verbunden werden sollen. Dies ist notwendig, damit du vpp.ID Features nutzer kannst, wenn eines dieser Profile aktiv ist.</string>
 
 </resources>

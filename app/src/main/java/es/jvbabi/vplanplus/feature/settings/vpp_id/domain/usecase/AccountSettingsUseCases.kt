@@ -11,4 +11,5 @@ data class AccountSettingsUseCases(
     val getVppIdServerUseCase: GetVppIdServerUseCase,
     val getProfilesUseCase: GetProfilesUseCase,
     val getProfilesWhichCanBeUsedForVppIdUseCase: GetProfilesWhichCanBeUsedForVppIdUseCase,
+    val setProfileVppIdUseCase: SetProfileVppIdUseCase,
 )
