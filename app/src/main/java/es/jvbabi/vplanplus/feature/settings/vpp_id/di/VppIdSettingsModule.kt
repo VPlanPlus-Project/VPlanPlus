@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.CloseSessionUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.DeleteAccountUseCase
@@ -40,7 +41,7 @@ object VppIdSettingsModule {
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository = keyValueRepository),
             getProfilesUseCase = GetProfilesUseCase(profileRepository = profileRepository),
             getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository, classRepository),
-            setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository)
+            setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository))
         )
     }
 }

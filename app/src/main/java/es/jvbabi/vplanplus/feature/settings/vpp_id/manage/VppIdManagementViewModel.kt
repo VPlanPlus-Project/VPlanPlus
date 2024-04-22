@@ -38,9 +38,7 @@ class VppIdManagementViewModel @Inject constructor(
 
     fun onSetLinkedProfiles(profiles: Map<Profile, Boolean>) {
         viewModelScope.launch {
-            profiles.forEach { (profile, selected) ->
-                accountSettingsUseCases.setProfileVppIdUseCase(profile, if (selected) state.value.vppId else null)
-            }
+            accountSettingsUseCases.setProfileVppIdUseCase(profiles, state.value.vppId ?: return@launch)
             state.value = state.value.copy(profiles = accountSettingsUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(state.value.vppId ?: return@launch))
         }
     }

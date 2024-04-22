@@ -19,6 +19,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.SetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
 
@@ -69,7 +70,7 @@ object MainModule {
             alarmManagerRepository = alarmManagerRepository,
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
             vppIdRepository = vppIdRepository,
-            profileRepository = profileRepository
+            testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
         )
     }
 }
