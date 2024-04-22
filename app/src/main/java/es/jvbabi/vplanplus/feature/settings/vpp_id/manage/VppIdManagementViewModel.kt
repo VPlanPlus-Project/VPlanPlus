@@ -80,7 +80,7 @@ class VppIdManagementViewModel @Inject constructor(
 
     fun logout() {
         viewModelScope.launch {
-            val result = accountSettingsUseCases.deleteAccountUseCase(state.value.vppId!!)
+            val result = accountSettingsUseCases.logOutUseCase(state.value.vppId!!)
             state.value = state.value.copy(
                 logoutSuccess = result
             )

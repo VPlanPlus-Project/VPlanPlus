@@ -12,7 +12,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.CloseSessionUseCase
-import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.DeleteAccountUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.LogOutUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetAccountsUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
@@ -32,16 +32,17 @@ object VppIdSettingsModule {
         profileRepository: ProfileRepository,
         classRepository: ClassRepository
     ): AccountSettingsUseCases {
+        val testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
         return AccountSettingsUseCases(
             getAccountsUseCase = GetAccountsUseCase(vppIdRepository = vppIdRepository),
             testAccountUseCase = TestAccountUseCase(vppIdRepository = vppIdRepository),
-            deleteAccountUseCase = DeleteAccountUseCase(vppIdRepository = vppIdRepository),
+            logOutUseCase = LogOutUseCase(vppIdRepository, keyValueRepository, testForMissingVppIdToProfileConnectionsUseCase),
             getSessionsUseCase = GetSessionsUseCase(vppIdRepository = vppIdRepository),
             closeSessionUseCase = CloseSessionUseCase(vppIdRepository = vppIdRepository),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository = keyValueRepository),
             getProfilesUseCase = GetProfilesUseCase(profileRepository = profileRepository),
             getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository, classRepository),
-            setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository))
+            setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, testForMissingVppIdToProfileConnectionsUseCase)
         )
     }
 }

@@ -5,7 +5,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 data class AccountSettingsUseCases(
     val getAccountsUseCase: GetAccountsUseCase,
     val testAccountUseCase: TestAccountUseCase,
-    val deleteAccountUseCase: DeleteAccountUseCase,
+    val logOutUseCase: LogOutUseCase,
     val getSessionsUseCase: GetSessionsUseCase,
     val closeSessionUseCase: CloseSessionUseCase,
     val getVppIdServerUseCase: GetVppIdServerUseCase,
