@@ -574,5 +574,6 @@
     <string name="vppIdSettingsManagement_selectProfilesText">Wähle Profile, welche mit dieser vpp.ID verbunden werden sollen. Dies ist notwendig, damit du vpp.ID Features nutzer kannst, wenn eines dieser Profile aktiv ist.</string>
     <string name="vppIdLink_autoConnect">Deine vpp.ID wurde automatisch mit dem Profil %1$s verknüpft.</string>
     <string name="vppIdLink_noSuitableProfiles">Es gibt aktuell keine passenden Profile für die Klasse %1$s auf diesem Gerät. Du musst ein neues Profil für diese Klasse anlegen und die vpp.ID hinterher damit verbinden.</string>
+    <string name="vppIdLink_selectAProfile">Wähle mindestens ein Profil, zu welchem deine vpp.ID gebunden wird. Diese Einstellung kannst su später ändern.</string>
 
 </resources>
