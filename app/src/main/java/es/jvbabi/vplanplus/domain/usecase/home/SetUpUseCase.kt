@@ -27,7 +27,7 @@ class SetUpUseCase(
     suspend operator fun invoke() {
         try {
             testForInvalidSessions()
-            keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, testForMissingVppIdToProfileConnectionsUseCase().toString())
+            keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, testForMissingVppIdToProfileConnectionsUseCase(true).toString())
             updateFirebaseTokens()
             createHomeworkReminder()
         } catch (e: IOException) {
