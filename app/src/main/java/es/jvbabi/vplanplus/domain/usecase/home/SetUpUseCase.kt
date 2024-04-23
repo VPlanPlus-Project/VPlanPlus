@@ -36,7 +36,7 @@ class SetUpUseCase(
     }
 
     private suspend fun testForInvalidSessions() {
-        val testMapping = vppIdRepository.getVppIds().first().filter { it.isActive() }.map {
+        val testMapping = vppIdRepository.getActiveVppIds().first().map {
             it to vppIdRepository.testVppIdSession(it)
         }
 

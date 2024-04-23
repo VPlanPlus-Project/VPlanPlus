@@ -70,7 +70,6 @@ import es.jvbabi.vplanplus.domain.usecase.find_room.IsShowRoomBookingDisclaimerB
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
@@ -357,7 +356,6 @@ object VppModule {
     ): FirebaseCloudMessagingManagerRepository {
         return FirebaseCloudMessagingManagerRepositoryImpl(
             profileDao = db.profileDao,
-            vppIdDao = db.vppIdDao,
             vppIdTokenDao = db.vppIdTokenDao,
             schoolEntityDao = db.schoolEntityDao,
             classRepository = classRepository,
@@ -471,7 +469,6 @@ object VppModule {
         lessonTimeRepository: LessonTimeRepository,
         vppIdRepository: VppIdRepository,
         planRepository: PlanRepository,
-        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): FindRoomUseCases {
         return FindRoomUseCases(
@@ -482,34 +479,17 @@ object VppModule {
                 lessonTimeRepository = lessonTimeRepository,
                 classRepository = classRepository
             ),
-            canBookRoomUseCase = CanBookRoomUseCase(
-                getCurrentProfileUseCase = getCurrentProfileUseCase,
-                classRepository = classRepository,
-                vppIdRepository = vppIdRepository,
-            ),
+            canBookRoomUseCase = CanBookRoomUseCase(getCurrentIdentityUseCase),
             bookRoomUseCase = BookRoomUseCase(
                 vppIdRepository = vppIdRepository,
-                classRepository = classRepository,
                 roomRepository = roomRepository,
-                getCurrentProfileUseCase = getCurrentProfileUseCase,
+                getCurrentIdentityUseCase = getCurrentIdentityUseCase
             ),
             getCurrentIdentityUseCase = getCurrentIdentityUseCase,
             cancelBooking = CancelBookingUseCase(vppIdRepository),
 
             isShowRoomBookingDisclaimerBannerUseCase = IsShowRoomBookingDisclaimerBannerUseCase(keyValueRepository),
             hideRoomBookingDisclaimerBannerUseCase = HideRoomBookingDisclaimerBannerUseCase(keyValueRepository)
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideGetCurrentProfileUseCase(
-        profileRepository: ProfileRepository,
-        keyValueRepository: KeyValueRepository
-    ): GetCurrentProfileUseCase {
-        return GetCurrentProfileUseCase(
-            profileRepository = profileRepository,
-            keyValueRepository = keyValueRepository
         )
     }
 
