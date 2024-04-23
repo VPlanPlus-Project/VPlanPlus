@@ -8,7 +8,7 @@ class GetEmailForSupportUseCase(
 ) {
     operator fun invoke() = flow {
         getCurrentIdentityUseCase().collect {
-            emit(it?.vppId?.email)
+            emit(it?.profile?.vppId?.email)
         }
     }
 }

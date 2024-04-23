@@ -28,7 +28,7 @@ class GetHomeworkUseCase(
             )
         ) { data ->
             val activeProfile = profileRepository.getProfileById(UUID.fromString(data[0] as String)).first()
-            val vppId = (data[2] as Identity?)?.vppId
+            val vppId = (data[2] as Identity?)?.profile?.vppId
             (data[1] as List<Homework>).filter { it.classes.classId == activeProfile?.referenceId || it.createdBy == null || it.createdBy == vppId }
         }.collect {
             emit(it)

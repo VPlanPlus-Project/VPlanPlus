@@ -4,6 +4,7 @@ import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.VppId
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
@@ -24,4 +25,6 @@ interface ProfileRepository {
 
     suspend fun getSchoolFromProfile(profile: Profile): School
     suspend fun getActiveProfile(): Flow<Profile?>
+
+    suspend fun setProfileVppId(profile: Profile, vppId: VppId?)
 }

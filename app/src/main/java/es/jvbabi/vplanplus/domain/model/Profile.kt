@@ -12,7 +12,8 @@ data class Profile(
     val referenceId: UUID,
     val defaultLessons: Map<DefaultLesson, Boolean>,
     val calendarType: ProfileCalendarType,
-    val calendarId: Long?
+    val calendarId: Long?,
+    val vppId: VppId?
 ) {
 
     /**

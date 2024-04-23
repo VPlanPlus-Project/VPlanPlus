@@ -1,9 +1,7 @@
-package es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model
+package es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model
 
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
-import es.jvbabi.vplanplus.util.DateUtils
-import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 data class Session(
@@ -30,8 +28,8 @@ data class Session(
         isCurrent
     )
 
-    val createAt: LocalDateTime
-        get() = DateUtils.getDateTimeFromTimestamp(createAtParam)
+    val createAt: ZonedDateTime
+        get() = ZonedDateTimeConverter().timestampToZonedDateTime(createAtParam/1000)
 
     val type: SessionType
         get() = when (typeParam) {

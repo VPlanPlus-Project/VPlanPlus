@@ -64,7 +64,8 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getLastSyncUseCase(),
                     homeUseCases.getHideFinishedLessonsUseCase(),
                     homeUseCases.hasInvalidVppIdSessionUseCase(),
-                    homeUseCases.getVppIdServerUseCase()
+                    homeUseCases.getVppIdServerUseCase(),
+                    homeUseCases.hasMissingVppIdToProfileLinksUseCase()
                 )
             ) { data ->
                 val currentIdentity = data[0] as Identity
@@ -77,6 +78,7 @@ class HomeViewModel @Inject constructor(
                 val hideFinishedLessons = data[7] as Boolean
                 val hasInvalidVppIdSession = data[8] as Boolean
                 val server = data[9] as String
+                val hasMissingVppIdToProfileLinks = data[10] as Boolean
 
                 val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter {
                     it.`class`.classId == currentIdentity.profile?.referenceId
@@ -93,7 +95,8 @@ class HomeViewModel @Inject constructor(
                     lastSync = lastSync,
                     hideFinishedLessons = hideFinishedLessons,
                     hasInvalidVppIdSession = hasInvalidVppIdSession,
-                    server = server
+                    server = server,
+                    hasMissingVppIdToProfileLinks = hasMissingVppIdToProfileLinks
                 )
             }.collect {
                 val identityHasChanged = state.currentIdentity != it.currentIdentity
@@ -200,5 +203,6 @@ data class HomeState(
 
     val server: String = "",
 
-    val hasInvalidVppIdSession: Boolean = false
+    val hasInvalidVppIdSession: Boolean = false,
+    val hasMissingVppIdToProfileLinks: Boolean = false
 )

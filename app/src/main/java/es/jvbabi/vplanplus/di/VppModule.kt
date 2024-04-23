@@ -70,7 +70,6 @@ import es.jvbabi.vplanplus.domain.usecase.find_room.IsShowRoomBookingDisclaimerB
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
@@ -85,7 +84,6 @@ import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.DeleteSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetCalendarsUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
-import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetVppIdByClassUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.UpdateCalendarIdUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.UpdateCalendarTypeUseCase
@@ -100,10 +98,14 @@ import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.sync.TriggerSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.UpdateMissingLinksStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.SetProfileVppIdUseCase
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -354,7 +356,6 @@ object VppModule {
     ): FirebaseCloudMessagingManagerRepository {
         return FirebaseCloudMessagingManagerRepositoryImpl(
             profileDao = db.profileDao,
-            vppIdDao = db.vppIdDao,
             vppIdTokenDao = db.vppIdTokenDao,
             schoolEntityDao = db.schoolEntityDao,
             classRepository = classRepository,
@@ -468,7 +469,6 @@ object VppModule {
         lessonTimeRepository: LessonTimeRepository,
         vppIdRepository: VppIdRepository,
         planRepository: PlanRepository,
-        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): FindRoomUseCases {
         return FindRoomUseCases(
@@ -479,16 +479,11 @@ object VppModule {
                 lessonTimeRepository = lessonTimeRepository,
                 classRepository = classRepository
             ),
-            canBookRoomUseCase = CanBookRoomUseCase(
-                getCurrentProfileUseCase = getCurrentProfileUseCase,
-                classRepository = classRepository,
-                vppIdRepository = vppIdRepository,
-            ),
+            canBookRoomUseCase = CanBookRoomUseCase(getCurrentIdentityUseCase),
             bookRoomUseCase = BookRoomUseCase(
                 vppIdRepository = vppIdRepository,
-                classRepository = classRepository,
                 roomRepository = roomRepository,
-                getCurrentProfileUseCase = getCurrentProfileUseCase,
+                getCurrentIdentityUseCase = getCurrentIdentityUseCase
             ),
             getCurrentIdentityUseCase = getCurrentIdentityUseCase,
             cancelBooking = CancelBookingUseCase(vppIdRepository),
@@ -500,27 +495,11 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideGetCurrentProfileUseCase(
-        profileRepository: ProfileRepository,
-        keyValueRepository: KeyValueRepository
-    ): GetCurrentProfileUseCase {
-        return GetCurrentProfileUseCase(
-            profileRepository = profileRepository,
-            keyValueRepository = keyValueRepository
-        )
-    }
-
-    @Provides
-    @Singleton
     fun provideGetCurrentIdentityUseCase(
-        vppIdRepository: VppIdRepository,
-        classRepository: ClassRepository,
         keyValueRepository: KeyValueRepository,
         profileRepository: ProfileRepository
     ): GetCurrentIdentityUseCase {
         return GetCurrentIdentityUseCase(
-            vppIdRepository = vppIdRepository,
-            classRepository = classRepository,
             keyValueRepository = keyValueRepository,
             profileRepository = profileRepository,
         )
@@ -632,7 +611,6 @@ object VppModule {
         schoolRepository: SchoolRepository,
         keyValueRepository: KeyValueRepository,
         calendarRepository: CalendarRepository,
-        vppIdRepository: VppIdRepository,
         notificationRepository: NotificationRepository,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
         updateCalendarUseCase: UpdateCalendarUseCase
@@ -674,9 +652,6 @@ object VppModule {
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase,
                 notificationRepository = notificationRepository,
                 updateCalendarUseCase = updateCalendarUseCase
-            ),
-            getVppIdByClassUseCase = GetVppIdByClassUseCase(
-                vppIdRepository = vppIdRepository
             )
         )
     }
@@ -733,13 +708,22 @@ object VppModule {
     fun provideVppIdLinkUseCases(
         vppIdRepository: VppIdRepository,
         classRepository: ClassRepository,
-        gradeRepository: GradeRepository
+        gradeRepository: GradeRepository,
+        profileRepository: ProfileRepository,
+        keyValueRepository: KeyValueRepository
     ): VppIdLinkUseCases {
+        val testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
         return VppIdLinkUseCases(
             getVppIdDetailsUseCase = GetVppIdDetailsUseCase(
                 vppIdRepository = vppIdRepository,
                 classRepository = classRepository,
                 gradeRepository = gradeRepository
+            ),
+            getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository, classRepository),
+            setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, testForMissingVppIdToProfileConnectionsUseCase),
+            updateMissingLinksStateUseCase = UpdateMissingLinksStateUseCase(
+                keyValueRepository = keyValueRepository,
+                testForMissingVppIdToProfileConnectionsUseCase = testForMissingVppIdToProfileConnectionsUseCase
             )
         )
     }

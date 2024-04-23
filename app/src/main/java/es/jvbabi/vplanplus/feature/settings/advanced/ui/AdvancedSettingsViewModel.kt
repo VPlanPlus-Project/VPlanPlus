@@ -7,10 +7,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.data.FcmTokenReloadState
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.AdvancedSettingsUseCases
 import kotlinx.coroutines.flow.combine
@@ -19,10 +19,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AdvancedSettingsViewModel @Inject constructor(
-    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     private val getClassByProfileUseCase: GetClassByProfileUseCase,
     private val getCurrentLessonNumberUseCase: GetCurrentLessonNumberUseCase,
-    private val advancedSettingsUseCases: AdvancedSettingsUseCases
+    private val advancedSettingsUseCases: AdvancedSettingsUseCases,
+    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase
 ) : ViewModel() {
 
     private val _state = mutableStateOf(AdvancedSettingsState())
@@ -32,18 +32,18 @@ class AdvancedSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    getCurrentProfileUseCase(),
+                    getCurrentIdentityUseCase(),
                     advancedSettingsUseCases.getVppIdServerUseCase()
                 )
             ) { data ->
-                val currentProfile = data[0] as Profile?
+                val currentIdentity = data[0] as Identity?
                 val vppIdServer = data[1] as String
                 val canChangeVppIdServer = BuildConfig.DEBUG
 
-                if (currentProfile == null) return@combine AdvancedSettingsState()
+                if (currentIdentity?.profile == null) return@combine AdvancedSettingsState()
 
-                val currentLessonText = if (currentProfile.type == ProfileType.STUDENT) {
-                    val `class` = getClassByProfileUseCase(currentProfile)!!
+                val currentLessonText = if (currentIdentity.profile.type == ProfileType.STUDENT) {
+                    val `class` = getClassByProfileUseCase(currentIdentity.profile)!!
                     getCurrentLessonNumberUseCase(`class`).toString()
                 } else {
                     "N/A"
@@ -51,8 +51,8 @@ class AdvancedSettingsViewModel @Inject constructor(
 
                 _state.value.copy(
                     currentProfileText = """
-                        Type: ${currentProfile.type}
-                        Name: ${currentProfile.originalName} (${currentProfile.displayName})
+                        Type: ${currentIdentity.profile.type}
+                        Name: ${currentIdentity.profile.originalName} (${currentIdentity.profile.displayName})
                     """.trimIndent(),
                     selectedVppIdServer = vppIdServer,
                     currentLessonText = currentLessonText,

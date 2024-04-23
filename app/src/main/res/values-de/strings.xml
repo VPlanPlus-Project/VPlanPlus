@@ -424,7 +424,7 @@
     <string name="advancedSettings_settingsServerTitle">vpp.ID Server</string>
     <string name="advancedSettings_dialogServerTitle">vpp.ID Server ändern</string>
     <string name="advancedSettings_dialogServerMessage">Tue dies nur zu Testzwecken. Das Wechseln des vpp.ID Servers kann in fehlerhafte Daten resultieren. Nachdem du einen anderen Server ausgewählt hast, wird die App sich schließen.</string>
-    <string name="advancedSettings_settingsServerDefault">Standartserver</string>
+    <string name="advancedSettings_settingsServerDefault">Standardserver</string>
     <string name="grades_filterTitle">Fächer</string>
     <string name="settings_homeworkTitle">Hausaufgaben</string>
     <string name="settings_subjectsSubtitle">Verwalte Benachrichtigungen zu Hausaufgaben</string>
@@ -560,5 +560,20 @@
     <string name="grades_sek2">Sek II</string>
     <string name="grades_filterIntervalsTitle">Halbjahre</string>
     <string name="grades_noGradesInSubject">Keine Noten in %1$s</string>
+    <string name="home_linkVppIdToProfileBannerTitle">vpp.ID mit Profil verknüpfen</string>
+    <string name="home_linkVppIdToProfileBannerText">Beginnend mit Version v1.2.2 müssen vpp.IDs an ein Ansichtsprofil gebunden werden, Dies kann in den Einstellungen durchgeführt werden.</string>
+    <string name="vppIdSettings_sessionExpired">Abgemeldet</string>
+    <string name="vppIdSettings_noProfilesConnected">Mit keinem Profil verbunden</string>
+
+    <plurals name="vppIdSettings_withNProfilesConnected">
+        <item quantity="other">%1$d Profile verknüpft</item>
+        <item quantity="one">Ein Profil verbunden</item>
+    </plurals>
+    <string name="vppIdSettingsManagement_linkedProfilesTitle">Verknüpfte Profile</string>
+    <string name="vppIdSettingsManagement_noProfilesPossible">Keine Profile für Klasse %1$s gefunden. Bitte erstelle eines.</string>
+    <string name="vppIdSettingsManagement_selectProfilesText">Wähle Profile, welche mit dieser vpp.ID verbunden werden sollen. Dies ist notwendig, damit du vpp.ID Features nutzer kannst, wenn eines dieser Profile aktiv ist.</string>
+    <string name="vppIdLink_autoConnect">Deine vpp.ID wurde automatisch mit dem Profil %1$s verknüpft.</string>
+    <string name="vppIdLink_noSuitableProfiles">Es gibt aktuell keine passenden Profile für die Klasse %1$s auf diesem Gerät. Du musst ein neues Profil für diese Klasse anlegen und die vpp.ID hinterher damit verbinden.</string>
+    <string name="vppIdLink_selectAProfile">Wähle mindestens ein Profil, zu welchem deine vpp.ID gebunden wird. Diese Einstellung kannst su später ändern.</string>
 
 </resources>

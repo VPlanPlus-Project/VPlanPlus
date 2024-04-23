@@ -74,15 +74,12 @@ class HomeworkRepositoryImpl(
             .first()
             .filter { it.type == ProfileType.STUDENT }
             .forEach { profile ->
-                val vppId = vppIdRepository.getVppIds().first()
-                    .firstOrNull { it.classes?.classId == profile.referenceId && it.isActive() }
-
                 val `class` = classRepository.getClassById(profile.referenceId) ?: return@forEach
                 val school = `class`.school
                 val url: String
 
-                if (vppId != null) {
-                    val token = vppIdRepository.getVppIdToken(vppId) ?: return@forEach
+                if (profile.vppId != null) {
+                    val token = vppIdRepository.getVppIdToken(profile.vppId) ?: return@forEach
                     vppIdNetworkRepository.authentication = BearerAuthentication(token)
 
                     url = "/api/$API_VERSION/user/me/homework"
@@ -112,7 +109,7 @@ class HomeworkRepositoryImpl(
                 val newHomework = data
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter { !existingHomework.any { eh -> eh.id == it.id } }
-                    .filter { it.createdBy != vppId?.id?.toLong() }
+                    .filter { it.createdBy != profile.vppId?.id?.toLong() }
 
                 val changedHomework = data
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
@@ -120,7 +117,7 @@ class HomeworkRepositoryImpl(
                         it.buildHash(`class`.name) != existingHomework.firstOrNull { eh -> eh.id == it.id && !eh.isHidden }
                             ?.buildHash()
                     }
-                    .filter { it.createdBy != vppId?.id?.toLong() }
+                    .filter { it.createdBy != profile.vppId?.id?.toLong() }
                     .filter { newHomework.none { nh -> nh.id == it.id } }
 
                 data.forEach forEachHomework@{ responseHomework ->
@@ -175,7 +172,7 @@ class HomeworkRepositoryImpl(
                         ),
                         allowCloudUpdate = false,
                         tasks = replacementTasks,
-                        isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != vppId?.id),
+                        isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
                     )
                 }
 
@@ -313,13 +310,8 @@ class HomeworkRepositoryImpl(
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        val vppId = vppIdRepository
-            .getVppIds().first()
-            .firstOrNull { it.classes?.classId == `class`.classId && it.isActive() }
-            ?: return HomeworkModificationResult.FAILED
-
         val vppIdToken =
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+            vppIdRepository.getVppIdToken(createdBy) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework",
@@ -504,7 +496,7 @@ class HomeworkRepositoryImpl(
     ): HomeworkModificationResult {
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.classes == homework.classes }
+            .firstOrNull { it.isActive() && it.classes == homework.classes } // fixme: Use vpp.ID provided in parameter; this creates problems when multiple vpp.IDs are connected to the same class
 
         if (task.id < 0 || vppId == null) {
             val dbHomeworkTask =

@@ -13,8 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileManagementDeletionResult
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import kotlinx.coroutines.flow.combine
@@ -26,7 +24,6 @@ import javax.inject.Inject
 @HiltViewModel
 class ProfileSettingsViewModel @Inject constructor(
     private val profileSettingsUseCases: ProfileSettingsUseCases,
-    private val getClassByProfileUseCase: GetClassByProfileUseCase
 ) : ViewModel() {
 
     private val _state = mutableStateOf(ProfileSettingsState())
@@ -50,16 +47,11 @@ class ProfileSettingsViewModel @Inject constructor(
                 profileSettingsUseCases.getCalendarsUseCase()
             ) { profile, calendars ->
                 if (profile == null) return@combine _state.value.copy(initDone = true)
-                val `class` = getClassByProfileUseCase(profile)
-                val vppId =
-                    if (`class` != null) profileSettingsUseCases.getVppIdByClassUseCase(`class`)
-                    else null
                 _state.value.copy(
                     profile = profile,
                     calendars = calendars,
                     initDone = true,
                     profileCalendar = calendars.firstOrNull { it.id == profile.calendarId },
-                    linkedVppId = vppId
                 )
             }.collect {
                 _state.value = it
@@ -129,7 +121,6 @@ data class ProfileSettingsState(
     val profileCalendar: Calendar? = null,
     val deleteProfileResult: ProfileManagementDeletionResult? = null,
     val calendars: List<Calendar> = listOf(),
-    val linkedVppId: VppId? = null,
 
     val dialogOpen: Boolean = false,
     val dialogCall: @Composable () -> Unit = {},

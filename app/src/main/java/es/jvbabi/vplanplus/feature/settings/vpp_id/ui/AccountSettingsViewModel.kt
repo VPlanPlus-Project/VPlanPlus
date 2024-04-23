@@ -7,8 +7,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.usecase.AccountSettingsUseCases
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -29,25 +30,28 @@ class AccountSettingsViewModel @Inject constructor(
             combine(
                 listOf(
                     accountSettingsUseCases.getAccountsUseCase(),
-                    accountSettingsUseCases.getVppIdServerUseCase()
+                    accountSettingsUseCases.getVppIdServerUseCase(),
+                    accountSettingsUseCases.getProfilesUseCase()
                 )
             ) { data ->
                 val accounts = data[0] as List<VppId>
                 val server = data[1] as String
+                val profiles = data[2] as List<Profile>
 
                 _state.value.copy(
-                    accounts = accounts.associateWith { null },
+                    accounts = accounts.map { vppId -> VppIdSettingsRecord(vppId = vppId, linkedProfiles = profiles.filter { it.vppId == vppId }) },
                     server = server
                 )
             }.collect {
                 _state.value = it
 
                 stateJobs.forEach { job -> job.cancel() }
-                _state.value.accounts?.forEach { (vppId, _) ->
+                _state.value.accounts.forEach { (vppId, _) ->
                     stateJobs.add(viewModelScope.launch testAccount@{
                         val response = accountSettingsUseCases.testAccountUseCase(vppId)
-                        _state.value =
-                            _state.value.copy(accounts = _state.value.accounts?.plus(vppId to response))
+                        val accounts = _state.value.accounts.toMutableList()
+                        accounts.replaceAll { account -> if (account.vppId == vppId) account.copy(hasActiveSession = response) else account }
+                        _state.value = _state.value.copy(accounts = accounts)
                     })
                 }
             }
@@ -56,6 +60,12 @@ class AccountSettingsViewModel @Inject constructor(
 }
 
 data class AccountSettingsState(
-    val accounts: Map<VppId, Boolean?>? = null,
+    val accounts: List<VppIdSettingsRecord> = emptyList(),
     val server: String = ""
+)
+
+data class VppIdSettingsRecord(
+    val vppId: VppId,
+    val hasActiveSession: Boolean? = null,
+    val linkedProfiles: List<Profile>
 )

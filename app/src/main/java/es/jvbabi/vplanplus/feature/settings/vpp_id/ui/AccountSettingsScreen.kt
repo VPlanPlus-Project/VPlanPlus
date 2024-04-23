@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.os.Build
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,7 +16,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ErrorOutline
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.Check
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -27,9 +25,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -39,6 +37,7 @@ import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -99,57 +98,64 @@ private fun AccountSettingsScreenContent(
         Column(
             modifier = Modifier.padding(paddingValues)
         ) {
-            if (state.accounts == null) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(state.accounts) { (account, enabled, profiles) ->
+
+                    val subtitle = listOfNotNull(
+                        if (account.school != null) account.school.name.take(24) + (if (account.school.name.length > 24) "..." else "") else account.schoolId.toString(),
+                        if (profiles.isNotEmpty()) account.className else null,
+                        if (profiles.isEmpty()) stringResource(id = R.string.vppIdSettings_noProfilesConnected) else pluralStringResource(
+                            id = R.plurals.vppIdSettings_withNProfilesConnected,
+                            count = profiles.size,
+                            profiles.size
+                        )
+                    )
+
+                    SettingsSetting(
+                        icon = if (enabled == true) Icons.Outlined.Check else Icons.Default.ErrorOutline,
+                        iconTint = if (enabled == true) null else MaterialTheme.colorScheme.error,
+                        title = account.name,
+                        isLoading = enabled == null,
+                        subtitle =
+                            if (enabled == false) stringResource(id = R.string.vppIdSettings_sessionExpired)
+                            else subtitle.joinToString(" $DOT "),
+                        type = SettingsType.FUNCTION,
+                        doAction = { onOpenVppIdManagement(account.id) },
+                    )
                 }
-            } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
-                    items(state.accounts.entries.toList()) { (account, enabled) ->
-                        SettingsSetting(
-                            icon = if (enabled == true) Icons.Outlined.Check else Icons.Default.ErrorOutline,
-                            iconTint = if (enabled == true) null else MaterialTheme.colorScheme.error,
-                            title = account.name,
-                            isLoading = enabled == null,
-                            subtitle = account.schoolId.toString() + " / " + account.className,
-                            type = SettingsType.FUNCTION,
-                            doAction = { onOpenVppIdManagement(account.id) },
+                if (state.accounts.isNotEmpty()) item {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(
+                            horizontal = 16.dp
                         )
-                    }
-                    if (state.accounts.isNotEmpty()) item {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(
-                                horizontal = 16.dp
-                            )
-                        )
-                    }
-                    item {
-                        SettingsSetting(
-                            icon = Icons.Default.Add,
-                            title = stringResource(id = R.string.vppidSettings_add),
-                            type = SettingsType.FUNCTION,
-                            doAction = { onLogin() },
-                        )
-                    }
-                    item { HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp)) }
-                    item {
-                        Row(
+                    )
+                }
+                item {
+                    SettingsSetting(
+                        icon = Icons.Default.Add,
+                        title = stringResource(id = R.string.vppidSettings_add),
+                        type = SettingsType.FUNCTION,
+                        doAction = { onLogin() },
+                    )
+                }
+                item { HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp)) }
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary,
                             modifier = Modifier
-                                .fillMaxSize()
-                                .padding(16.dp),
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = null,
-                                tint = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier
-                                    .size(16.dp)
-                            )
-                            Text(
-                                text = stringResource(id = R.string.vppidSettings_info),
-                                modifier = Modifier.padding(start = 8.dp)
-                            )
-                        }
+                                .size(16.dp)
+                        )
+                        Text(
+                            text = stringResource(id = R.string.vppidSettings_info),
+                            modifier = Modifier.padding(start = 8.dp)
+                        )
                     }
                 }
             }
@@ -163,7 +169,7 @@ private fun AccountSettingsPreviewNoAccounts() {
     AccountSettingsScreenContent(
         onBack = {},
         state = AccountSettingsState(
-            accounts = emptyMap(),
+            accounts = emptyList(),
         )
     )
 }
@@ -176,16 +182,20 @@ private fun AccountSettingsPreview() {
     AccountSettingsScreenContent(
         onBack = {},
         state = AccountSettingsState(
-            accounts = mapOf(
-                VppId(
-                    id = 654,
-                    name = "Max Mustermann",
-                    schoolId = school.schoolId,
-                    school = school,
-                    className = classes.name,
-                    classes = classes,
-                    email = "max.mustermann@email.com"
-                ) to false
+            accounts = listOf(
+                VppIdSettingsRecord(
+                    VppId(
+                        id = 654,
+                        name = "Max Mustermann",
+                        schoolId = school.schoolId,
+                        school = school,
+                        className = classes.name,
+                        classes = classes,
+                        email = "max.mustermann@email.com"
+                    ),
+                    false,
+                    emptyList()
+                )
             )
         )
     )

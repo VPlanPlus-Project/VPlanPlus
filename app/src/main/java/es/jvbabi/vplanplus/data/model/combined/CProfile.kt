@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
+import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Profile
 
@@ -14,7 +15,12 @@ data class CProfile(
         entityColumn = "profileId",
         entity = DbProfileDefaultLesson::class
     )
-    val defaultLessons: List<CProfileDefaultLesson>
+    val defaultLessons: List<CProfileDefaultLesson>,
+    @Relation(
+        parentColumn = "linkedVppId",
+        entityColumn = "id",
+        entity = DbVppId::class
+    ) val vppId: CVppId?
 ) {
     fun toModel(): Profile {
         return Profile(
@@ -32,6 +38,7 @@ data class CProfile(
             calendarType = profile.calendarMode,
             calendarId = profile.calendarId,
             originalName = profile.name,
+            vppId = vppId?.toModel()
         )
     }
 }
