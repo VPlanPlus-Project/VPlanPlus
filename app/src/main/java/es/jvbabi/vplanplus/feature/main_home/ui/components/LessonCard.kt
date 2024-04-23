@@ -49,6 +49,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
@@ -69,6 +70,7 @@ fun LessonCard(
     lessons: List<Lesson>,
     time: ZonedDateTime,
     allowActions: Boolean = true,
+    displayType: ProfileType
 ) {
     val colorScheme = MaterialTheme.colorScheme
     var expanded by rememberSaveable {
@@ -171,6 +173,19 @@ fun LessonCard(
                                     else if (lesson.roomIsChanged) colorScheme.error
                                     else if (booking != null) colorScheme.secondary
                                     else colorScheme.onSurface
+                            )
+                        }
+                        if (displayType != ProfileType.STUDENT) {
+                            Text(
+                                text = DOT,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = primaryTextColor,
+                                modifier = Modifier.padding(horizontal = 4.dp)
+                            )
+                            Text(
+                                text = lesson.`class`.name,
+                                style = MaterialTheme.typography.titleLarge,
+                                color = primaryTextColor
                             )
                         }
                         if (lesson.teachers.isNotEmpty()) {
@@ -402,6 +417,7 @@ fun LessonCardPreview() {
                 roomBooking = null
             )
         ),
+        displayType = ProfileType.TEACHER,
         time = ZonedDateTime.now()
     )
 }
