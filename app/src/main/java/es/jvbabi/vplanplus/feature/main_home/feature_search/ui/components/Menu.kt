@@ -6,7 +6,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -142,18 +141,14 @@ fun Menu(
                                 LazyRow {
                                     items(profiles) { profile ->
                                         ProfileIcon(
-                                            modifier = Modifier
-                                                .padding(end = 4.dp)
-                                                .combinedClickable(
-                                                    onClick = { onProfileClicked(profile) },
-                                                    onLongClick = { onProfileLongClicked(profile) }
-                                                ),
+                                            modifier = Modifier.padding(end = 4.dp),
                                             name = profile.displayName,
                                             isSyncing = false,
                                             showNotificationDot = false,
                                             foregroundColor = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onTertiaryContainer,
                                             backgroundColor = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiaryContainer,
-                                            onClicked = { onProfileClicked(profile) }
+                                            onClicked = { onProfileClicked(profile) },
+                                            onLongClicked = { onProfileLongClicked(profile) }
                                         )
                                     }
                                 }

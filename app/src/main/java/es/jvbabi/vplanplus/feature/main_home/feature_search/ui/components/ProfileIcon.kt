@@ -3,8 +3,10 @@ package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
@@ -26,6 +28,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ProfileIcon(
     modifier: Modifier = Modifier,
@@ -35,7 +38,8 @@ fun ProfileIcon(
     progressIndicatorColor: Color = MaterialTheme.colorScheme.tertiaryContainer,
     foregroundColor: Color = MaterialTheme.colorScheme.onSecondary,
     backgroundColor: Color = MaterialTheme.colorScheme.secondary,
-    onClicked: () -> Unit
+    onClicked: () -> Unit,
+    onLongClicked: (() -> Unit)? = null
 ) {
     val error = MaterialTheme.colorScheme.error
     Box(
@@ -44,9 +48,10 @@ fun ProfileIcon(
             .width(40.dp)
             .clip(RoundedCornerShape(20.dp))
             .background(backgroundColor)
-            .clickable(enabled = true) {
-                onClicked()
-            }
+            .combinedClickable(
+                onClick = onClicked,
+                onLongClick = onLongClicked
+            )
         ,
         contentAlignment = Alignment.Center
     ) {
