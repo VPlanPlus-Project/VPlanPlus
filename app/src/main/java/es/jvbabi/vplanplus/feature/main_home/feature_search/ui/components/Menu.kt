@@ -5,7 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -142,29 +141,20 @@ fun Menu(
                                 )
                                 LazyRow {
                                     items(profiles) { profile ->
-                                        Box(
+                                        ProfileIcon(
                                             modifier = Modifier
                                                 .padding(end = 4.dp)
-                                                .height(40.dp)
-                                                .width(40.dp)
-                                                .border(
-                                                    width = 1.dp,
-                                                    color = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primaryContainer,
-                                                    shape = RoundedCornerShape(20.dp)
-                                                )
-                                                .clip(RoundedCornerShape(20.dp))
-                                                .background(color = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiaryContainer)
                                                 .combinedClickable(
                                                     onClick = { onProfileClicked(profile) },
                                                     onLongClick = { onProfileLongClicked(profile) }
                                                 ),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = if (profile.displayName.length > 4) profile.originalName else profile.displayName,
-                                                color = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onTertiaryContainer,
-                                            )
-                                        }
+                                            name = profile.displayName,
+                                            isSyncing = false,
+                                            showNotificationDot = false,
+                                            foregroundColor = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onTertiaryContainer,
+                                            backgroundColor = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiaryContainer,
+                                            onClicked = { onProfileClicked(profile) }
+                                        )
                                     }
                                 }
                                 TextButton(
