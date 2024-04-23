@@ -2,7 +2,6 @@ package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,7 +51,6 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.ui.common.DOT
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Menu(
     isVisible: Boolean,
