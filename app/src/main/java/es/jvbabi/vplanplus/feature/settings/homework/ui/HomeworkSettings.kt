@@ -60,6 +60,7 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.IconSettingsState
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.Setting
+import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.TimePicker
@@ -152,89 +153,90 @@ private fun HomeworkSettingsContent(
                 checked = state.notificationOnNewHomework,
                 doAction = onToggleNotificationOnNewHomework
             )
-            SettingsSetting(
-                icon = Icons.Default.NotificationImportant,
-                title = stringResource(id = R.string.settingsHomework_reminderNotificationEnabledTitle),
-                subtitle = stringResource(id = R.string.settingsHomework_reminderNotificationEnabledSubtitle),
-                type = SettingsType.TOGGLE,
-                checked = state.remindUserOnUnfinishedHomework,
-                doAction = onToggleRemindUserOnUnfinishedHomework,
-                customContent = {
-                    if (state.canSendReminderNotifications || !state.remindUserOnUnfinishedHomework) return@SettingsSetting
-                    InfoCard(
-                        modifier = Modifier.padding(
-                            start = 64.dp,
-                            end = 8.dp,
-                            top = 4.dp,
-                            bottom = 4.dp
-                        ),
-                        imageVector = Icons.Default.Warning,
-                        title = stringResource(id = R.string.settingsHomework_alarmNoPermissionTitle),
-                        text = stringResource(id = R.string.settingsHomework_alarmNoPermissionGrantedText),
-                        buttonText1 = stringResource(id = R.string.disable),
-                        buttonAction1 = onToggleRemindUserOnUnfinishedHomework,
-                        buttonText2 = stringResource(id = R.string.grant_permission),
-                        buttonAction2 = onAskForAlarmPermission
-                    )
-                }
-            )
-            TimePicker(
-                IconSettingsState(
-                    imageVector = Icons.Default.AccessTime,
-                    title = stringResource(id = R.string.settingsHomework_defaultNotificationTimeTitle),
-                    subtitle = stringResource(
-                        id = R.string.settingsHomework_defaultNotificationTimeSubtitle,
-                        state.defaultNotificationSecondsAfterMidnight.let {
-                            val hours = (it / 60 / 60).toString().padStart(2, '0')
-                            val minutes = (it / 60 % 60).toString().padStart(2, '0')
-                            "$hours:$minutes"
-                        }
-                    ),
-                    type = SettingsType.FUNCTION,
-                    enabled = state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications,
-                    doAction = {
-                        val time = (it as String).split(":")
-                        onSetDefaultRemindTime(time[0].toInt(), time[1].toInt())
-                    }
-                ),
-                (state.defaultNotificationSecondsAfterMidnight / 60 / 60).toInt(),
-                (state.defaultNotificationSecondsAfterMidnight / 60 % 60).toInt()
-            )
-
-            Setting(
-                IconSettingsState(
-                    title = stringResource(id = R.string.settingsHomework_exceptionsTitle),
-                    subtitle = stringResource(id = R.string.settingsHomework_exceptionsSubtitle),
-                    type = SettingsType.DISPLAY,
-                    imageVector = Icons.Default.MoreTime,
-                    enabled = state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications,
+            SettingsCategory(title = stringResource(id = R.string.settingsHomework_reminderCategory)) {
+                SettingsSetting(
+                    icon = Icons.Default.NotificationImportant,
+                    title = stringResource(id = R.string.settingsHomework_reminderNotificationEnabledTitle),
+                    subtitle = stringResource(id = R.string.settingsHomework_reminderNotificationEnabledSubtitle),
+                    type = SettingsType.TOGGLE,
+                    checked = state.remindUserOnUnfinishedHomework,
+                    doAction = onToggleRemindUserOnUnfinishedHomework,
                     customContent = {
-                        LazyRow(
-                            modifier = if (state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications) Modifier else Modifier.grayScale()
-                        ) {
-                            item { Spacer(modifier = Modifier.size((16 + 50).dp)) }
-                            items(7) {
-                                val dayOfWeek = DayOfWeek.of(it + 1)
-                                DayCard(
-                                    modifier = Modifier.padding(end = 8.dp),
-                                    dayOfWeek = dayOfWeek,
-                                    enabled = state.exceptions.any { e -> e.dayOfWeek == dayOfWeek },
-                                    secondsAfterMidnight = state.exceptions.firstOrNull { e -> e.dayOfWeek == dayOfWeek }?.secondsFromMidnight
-                                        ?: state.defaultNotificationSecondsAfterMidnight,
-                                    onToggle = { onToggleException(dayOfWeek) },
-                                    onSetTime = { hour, minute ->
-                                        onSetTime(
-                                            dayOfWeek,
-                                            hour,
-                                            minute
-                                        )
-                                    }
-                                )
-                            }
-                        }
+                        if (state.canSendReminderNotifications || !state.remindUserOnUnfinishedHomework) return@SettingsSetting
+                        InfoCard(
+                            modifier = Modifier.padding(
+                                start = 64.dp,
+                                end = 8.dp,
+                                top = 4.dp,
+                                bottom = 4.dp
+                            ),
+                            imageVector = Icons.Default.Warning,
+                            title = stringResource(id = R.string.settingsHomework_alarmNoPermissionTitle),
+                            text = stringResource(id = R.string.settingsHomework_alarmNoPermissionGrantedText),
+                            buttonText1 = stringResource(id = R.string.disable),
+                            buttonAction1 = onToggleRemindUserOnUnfinishedHomework,
+                            buttonText2 = stringResource(id = R.string.grant_permission),
+                            buttonAction2 = onAskForAlarmPermission
+                        )
                     }
                 )
-            )
+                TimePicker(
+                    IconSettingsState(
+                        imageVector = Icons.Default.AccessTime,
+                        title = stringResource(id = R.string.settingsHomework_defaultNotificationTimeTitle),
+                        subtitle = stringResource(
+                            id = R.string.settingsHomework_defaultNotificationTimeSubtitle,
+                            state.defaultNotificationSecondsAfterMidnight.let {
+                                val hours = (it / 60 / 60).toString().padStart(2, '0')
+                                val minutes = (it / 60 % 60).toString().padStart(2, '0')
+                                "$hours:$minutes"
+                            }
+                        ),
+                        type = SettingsType.FUNCTION,
+                        enabled = state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications,
+                        doAction = {
+                            val time = (it as String).split(":")
+                            onSetDefaultRemindTime(time[0].toInt(), time[1].toInt())
+                        }
+                    ),
+                    (state.defaultNotificationSecondsAfterMidnight / 60 / 60).toInt(),
+                    (state.defaultNotificationSecondsAfterMidnight / 60 % 60).toInt()
+                )
+                Setting(
+                    IconSettingsState(
+                        title = stringResource(id = R.string.settingsHomework_exceptionsTitle),
+                        subtitle = stringResource(id = R.string.settingsHomework_exceptionsSubtitle),
+                        type = SettingsType.DISPLAY,
+                        imageVector = Icons.Default.MoreTime,
+                        enabled = state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications,
+                        customContent = {
+                            LazyRow(
+                                modifier = if (state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications) Modifier else Modifier.grayScale()
+                            ) {
+                                item { Spacer(modifier = Modifier.size((16 + 50).dp)) }
+                                items(7) {
+                                    val dayOfWeek = DayOfWeek.of(it + 1)
+                                    DayCard(
+                                        modifier = Modifier.padding(end = 8.dp),
+                                        dayOfWeek = dayOfWeek,
+                                        enabled = state.exceptions.any { e -> e.dayOfWeek == dayOfWeek },
+                                        secondsAfterMidnight = state.exceptions.firstOrNull { e -> e.dayOfWeek == dayOfWeek }?.secondsFromMidnight
+                                            ?: state.defaultNotificationSecondsAfterMidnight,
+                                        onToggle = { onToggleException(dayOfWeek) },
+                                        onSetTime = { hour, minute ->
+                                            onSetTime(
+                                                dayOfWeek,
+                                                hour,
+                                                minute
+                                            )
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                    )
+                )
+            }
         }
     }
 }

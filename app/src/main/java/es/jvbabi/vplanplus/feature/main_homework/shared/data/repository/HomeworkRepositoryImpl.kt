@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.data.repository
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.MainActivity
@@ -37,7 +36,6 @@ import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
-import es.jvbabi.vplanplus.util.sha256
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
@@ -110,15 +108,6 @@ class HomeworkRepositoryImpl(
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter { !existingHomework.any { eh -> eh.id == it.id } }
                     .filter { it.createdBy != profile.vppId?.id?.toLong() }
-
-                val changedHomework = data
-                    .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
-                    .filter {
-                        it.buildHash(`class`.name) != existingHomework.firstOrNull { eh -> eh.id == it.id && !eh.isHidden }
-                            ?.buildHash()
-                    }
-                    .filter { it.createdBy != profile.vppId?.id?.toLong() }
-                    .filter { newHomework.none { nh -> nh.id == it.id } }
 
                 data.forEach forEachHomework@{ responseHomework ->
                     val isNewHomework = existingHomework.none { it.id == responseHomework.id }
@@ -193,7 +182,6 @@ class HomeworkRepositoryImpl(
                         }
 
                     val notificationRelevantNewHomework = newHomework.filter { ZonedDateTimeConverter().timestampToZonedDateTime(it.until).isAfter(ZonedDateTime.now()) }
-                    val notificationRelevantChangedHomework = changedHomework.filter { ZonedDateTimeConverter().timestampToZonedDateTime(it.until).isAfter(ZonedDateTime.now()) }
 
                     if (notificationRelevantNewHomework.size == 1 && showNewNotification) {
                         val defaultLessons =
@@ -236,20 +224,6 @@ class HomeworkRepositoryImpl(
                             ),
                             R.drawable.vpp,
                             pendingIntent,
-                        )
-                    } else if (notificationRelevantChangedHomework.isNotEmpty()) {
-                        notificationRepository.sendNotification(
-                            channelId = CHANNEL_ID_HOMEWORK,
-                            id = CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
-                            title = stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
-                            message = stringRepository.getPlural(
-                                R.plurals.notification_homeworkChangedHomeworkContent,
-                                notificationRelevantChangedHomework.size,
-                                notificationRelevantChangedHomework.size
-                            ),
-                            icon = R.drawable.vpp,
-                            priority = NotificationCompat.PRIORITY_LOW,
-                            pendingIntent = pendingIntent,
                         )
                     }
                 }
@@ -641,12 +615,7 @@ private data class HomeworkResponseRecord(
     @SerializedName("created_at") val createdAt: Long,
     @SerializedName("public") val shareWithClass: Boolean,
     @SerializedName("tasks") val tasks: List<HomeRecordTask>
-) {
-    fun buildHash(className: String): String {
-        return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256()
-            .lowercase()
-    }
-}
+)
 
 private data class HomeRecordTask @JvmOverloads constructor(
     @SerializedName("id") val id: Int,
