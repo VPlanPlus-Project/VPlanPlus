@@ -345,10 +345,6 @@
     <string name="notification_homeworkNewHomeworkMultipleTitle">New homework</string>
     <string name="notification_homeworkNewHomeworkMultipleContent">There are %1$d new homework</string>
     <string name="notification_homeworkChangedHomeworkTitle">Homework</string>
-    <plurals name="notification_homeworkChangedHomeworkContent">
-        <item quantity="one">A homework was changed.</item>
-        <item quantity="other">%1$d homework were changed.</item>
-    </plurals>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="addHomework_saveFailedText">Your homework wasn\'t saved. Please try again.</string>
     <string name="addHomework_saveFailedOnlineText">An internet connection is required to save this homework to your vpp.ID.</string>
@@ -432,13 +428,13 @@
     <string name="settings_subjectsSubtitle">Manage notifications for homework</string>
     <string name="settingsHomework_title">Homework</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Show notification when someone created a new homework</string>
-    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">If turned off, you\'ll still receive notification when a homework gets changed so you don\'t miss anything. Also, if the homework was created after your preferred notification time, you\'ll still get a notification.</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">You can turn off notifications about new homework and rely on your daily reminders. However, you might lose track about homework created after your reminder when this is turned off.</string>
     <string name="settingsHomework_defaultNotificationTimeTitle">Preferred reminder time</string>
     <string name="settingsHomework_defaultNotificationTimeSubtitle">You\'ll get a notification if there are undone tasks until tomorrow. Currently set to  %1$s.</string>
     <string name="settingsHomework_reminderNotificationEnabledTitle">Reminder of unfinished homework</string>
     <string name="settingsHomework_reminderNotificationEnabledSubtitle">Get a notification reminding you of undone tasks until tomorrow.</string>
     <string name="settingsHomework_exceptionsTitle">Exceptions</string>
-    <string name="settingsHomework_exceptionsSubtitle">Tap the day to add an exception for this day. Tap the time to change it.</string>
+    <string name="settingsHomework_exceptionsSubtitle">You can set custom times for the reminder for specific days. If the day is marked with a color, the exception for this day is active. Tap a time to change it or tap a day to en- or disable its exception.</string>
     <string name="settingsHomework_reminderTimeForDay">Reminder for %1$s</string>
     <string name="notification_homeworkReminderTitle">There are some unfinished tasks left</string>
     <plurals name="notification_homeworkReminderTomorrowMessage">
@@ -577,5 +573,6 @@
     <string name="vppIdLink_autoConnect">This vpp.ID is automatically connected to profile %1$s.</string>
     <string name="vppIdLink_noSuitableProfiles">There are no suitable profiles for class %1$s on this device right now. You\'ll need to create a new profile for this class and link your vpp.ID to it afterwards.</string>
     <string name="vppIdLink_selectAProfile">Select at least one profile. Your vpp.ID will be linked to them. This can be changed later.</string>
+    <string name="settingsHomework_reminderCategory">Reminders</string>
 
 </resources>

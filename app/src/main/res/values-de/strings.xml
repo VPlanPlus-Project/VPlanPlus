@@ -347,10 +347,6 @@
     <string name="notification_homeworkNewHomeworkMultipleTitle">Neue Hausaufgaben</string>
     <string name="notification_homeworkNewHomeworkMultipleContent">Es gibt %1$d neue Hausaufgaben</string>
     <string name="notification_homeworkChangedHomeworkTitle">Hausaufgaben</string>
-    <plurals name="notification_homeworkChangedHomeworkContent">
-        <item quantity="one">Eine Hausaufgabe wurde geändert.</item>
-        <item quantity="other">%1$d Hausaufgaben wurden geändert.</item>
-    </plurals>
     <string name="something_went_wrong">Etwas ist schiefgelaufen</string>
     <string name="addHomework_saveFailedText">Deine Hausaufgabe wurde nicht gespeichert. Bitte versuche es erneut.</string>
     <string name="addHomework_saveFailedOnlineText">Um die Hausaufgabe auf deiner vpp.ID zu speichern ist eine Internetverbindung notwendig.</string>
@@ -430,13 +426,13 @@
     <string name="settings_subjectsSubtitle">Verwalte Benachrichtigungen zu Hausaufgaben</string>
     <string name="settingsHomework_title">Hausaufgaben</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Benachrichtigung, wenn eine neue Hausaufgabe vorliegt</string>
-    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Wenn dies ausgeschaltet ist, bekommst du dennoch eine Benachrichtigung bei Änderungen von Hausaufgaben, damit du nichts verpasst. Außerdem erhälst du eine Benachrichtigung, wenn eine Hausaufgabe nach deiner bevorzugten Erinnerungszeit erstellt wurde.</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Du kannst Benachrichtigungen über neue Hausaufgaben deaktivieren und dich auf die täglichen Erinnerungen verlassen.</string>
     <string name="settingsHomework_defaultNotificationTimeTitle">Bevorzugte Erinnerungszeit</string>
     <string name="settingsHomework_defaultNotificationTimeSubtitle">Du erhälst eine Benachrichtigung, wenn es unerledigte Hausaufgaben gibt. Aktuell auf %1$s Uhr gesetzt.</string>
     <string name="settingsHomework_reminderNotificationEnabledTitle">An unerledigte Hausaufgaben erinnern</string>
     <string name="settingsHomework_reminderNotificationEnabledSubtitle">Erhalte eine Benachrichtigung, welche dich an unerledigte Hausaufgaben bis morgen erinnert.</string>
-    <string name="settingsHomework_exceptionsTitle">Ausnahmen</string>
-    <string name="settingsHomework_exceptionsSubtitle">Tippe auf den Tag, um eine Ausnahme für ihn hinzuzufügen. Tippe auf die Zeit, um sie zu ändern.</string>
+    <string name="settingsHomework_exceptionsTitle">Ausnahmezeiten</string>
+    <string name="settingsHomework_exceptionsSubtitle">Du kannst für ausgewählte Tage andere Zeiten für die Erinnerungen festlegen. Tippe auf einen Tag, um seine Ausnahme zu (de)aktivieren oder tippe auf die Zeit, um sie zu bearbeiten. Ist ein Tag farbig hervorgehoben, ist eine Ausnahmezeit aktiv.</string>
     <string name="settingsHomework_reminderTimeForDay">Erinnerung für %1$s</string>
     <string name="notification_homeworkReminderTitle">Es gibt noch ein paar Hausaufgaben zu erledigen</string>
     <plurals name="notification_homeworkReminderTomorrowMessage">
@@ -575,5 +571,6 @@
     <string name="vppIdLink_autoConnect">Deine vpp.ID wurde automatisch mit dem Profil %1$s verknüpft.</string>
     <string name="vppIdLink_noSuitableProfiles">Es gibt aktuell keine passenden Profile für die Klasse %1$s auf diesem Gerät. Du musst ein neues Profil für diese Klasse anlegen und die vpp.ID hinterher damit verbinden.</string>
     <string name="vppIdLink_selectAProfile">Wähle mindestens ein Profil, zu welchem deine vpp.ID gebunden wird. Diese Einstellung kannst su später ändern.</string>
+    <string name="settingsHomework_reminderCategory">Erinnerungen</string>
 
 </resources>
