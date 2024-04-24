@@ -249,7 +249,7 @@ fun ButtonRow(
         Icon(
             imageVector = icon,
             contentDescription = text,
-            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(start = 16.dp)
                 .width(24.dp)
@@ -261,11 +261,12 @@ fun ButtonRow(
                 .clip(RoundedCornerShape(5.dp))
                 .background(MaterialTheme.colorScheme.error)
         )
+
         Text(
             text = text,
             modifier = Modifier.padding(start = 12.dp),
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }
