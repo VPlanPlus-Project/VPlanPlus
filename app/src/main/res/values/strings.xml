@@ -434,7 +434,7 @@
     <string name="settingsHomework_reminderNotificationEnabledTitle">Reminder of unfinished homework</string>
     <string name="settingsHomework_reminderNotificationEnabledSubtitle">Get a notification reminding you of undone tasks until tomorrow.</string>
     <string name="settingsHomework_exceptionsTitle">Exceptions</string>
-    <string name="settingsHomework_exceptionsSubtitle">Tap the day to add an exception for this day. Tap the time to change it.</string>
+    <string name="settingsHomework_exceptionsSubtitle">You can set custom times for the reminder for specific days. If the day is marked with a color, the exception for this day is active. Tap a time to change it or tap a day to en- or disable its exception.</string>
     <string name="settingsHomework_reminderTimeForDay">Reminder for %1$s</string>
     <string name="notification_homeworkReminderTitle">There are some unfinished tasks left</string>
     <plurals name="notification_homeworkReminderTomorrowMessage">

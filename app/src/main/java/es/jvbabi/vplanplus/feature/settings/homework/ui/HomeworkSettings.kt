@@ -208,6 +208,7 @@ private fun HomeworkSettingsContent(
                         subtitle = stringResource(id = R.string.settingsHomework_exceptionsSubtitle),
                         type = SettingsType.DISPLAY,
                         imageVector = Icons.Default.MoreTime,
+                        clickable = false,
                         enabled = state.remindUserOnUnfinishedHomework && state.canSendReminderNotifications,
                         customContent = {
                             LazyRow(

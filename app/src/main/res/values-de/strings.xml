@@ -431,8 +431,8 @@
     <string name="settingsHomework_defaultNotificationTimeSubtitle">Du erhälst eine Benachrichtigung, wenn es unerledigte Hausaufgaben gibt. Aktuell auf %1$s Uhr gesetzt.</string>
     <string name="settingsHomework_reminderNotificationEnabledTitle">An unerledigte Hausaufgaben erinnern</string>
     <string name="settingsHomework_reminderNotificationEnabledSubtitle">Erhalte eine Benachrichtigung, welche dich an unerledigte Hausaufgaben bis morgen erinnert.</string>
-    <string name="settingsHomework_exceptionsTitle">Ausnahmen</string>
-    <string name="settingsHomework_exceptionsSubtitle">Tippe auf den Tag, um eine Ausnahme für ihn hinzuzufügen. Tippe auf die Zeit, um sie zu ändern.</string>
+    <string name="settingsHomework_exceptionsTitle">Ausnahmezeiten</string>
+    <string name="settingsHomework_exceptionsSubtitle">Du kannst für ausgewählte Tage andere Zeiten für die Erinnerungen festlegen. Tippe auf einen Tag, um seine Ausnahme zu (de)aktivieren oder tippe auf die Zeit, um sie zu bearbeiten. Ist ein Tag farbig hervorgehoben, ist eine Ausnahmezeit aktiv.</string>
     <string name="settingsHomework_reminderTimeForDay">Erinnerung für %1$s</string>
     <string name="notification_homeworkReminderTitle">Es gibt noch ein paar Hausaufgaben zu erledigen</string>
     <plurals name="notification_homeworkReminderTomorrowMessage">
