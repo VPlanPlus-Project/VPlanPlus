@@ -152,7 +152,13 @@ data class GradesState(
     val avg: Double
         get() {
             val avg = grades.mapNotNull { (subject, grades) ->
-                if (visibleSubjects.contains(subject)) grades.grades.filter { intervals.getOrDefault(it.interval, false) }.map { it.value }.average()
+                if (visibleSubjects.contains(subject)) {
+                    grades.grades
+                        .filter { intervals.getOrDefault(it.interval, false) }
+                        .groupBy { grade -> grade.type }
+                        .map { (_, grades) -> grades.map { it.value }.average() }
+                        .average()
+                }
                 else null
             }.filter { !it.isNaN() }
             return avg.average()

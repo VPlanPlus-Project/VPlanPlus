@@ -61,6 +61,7 @@ fun Menu(
     selectedProfile: Profile,
     onRefreshClicked: () -> Unit = {},
     onSettingsClicked: () -> Unit = {},
+
     onRepositoryClicked: () -> Unit = {},
     onManageProfilesClicked: () -> Unit = {},
     onNewsClicked: () -> Unit = {},
