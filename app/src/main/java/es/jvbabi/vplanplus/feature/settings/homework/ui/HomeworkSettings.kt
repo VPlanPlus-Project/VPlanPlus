@@ -63,7 +63,7 @@ import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
-import es.jvbabi.vplanplus.ui.common.TimePicker
+import es.jvbabi.vplanplus.ui.common.TimePickerSettings
 import es.jvbabi.vplanplus.ui.common.TimePickerDialog
 import es.jvbabi.vplanplus.ui.common.grayScale
 import es.jvbabi.vplanplus.util.toBlackAndWhite
@@ -180,7 +180,7 @@ private fun HomeworkSettingsContent(
                         )
                     }
                 )
-                TimePicker(
+                TimePickerSettings(
                     IconSettingsState(
                         imageVector = Icons.Default.AccessTime,
                         title = stringResource(id = R.string.settingsHomework_defaultNotificationTimeTitle),
@@ -337,29 +337,31 @@ private fun DayCard(
         )
     }
 
-    if (dialogOpen) TimePickerDialog(
-        title = stringResource(
-            id = R.string.settingsHomework_reminderTimeForDay,
-            dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
-        ),
-        onDismissRequest = { dialogOpen = false },
-        confirmButton = {
-            TextButton(onClick = {
-                dialogOpen = false
-                onSetTime(timePickerState.hour, timePickerState.minute)
-            }) {
-                Text(text = stringResource(id = android.R.string.ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = { dialogOpen = false }) {
-                Text(text = stringResource(id = android.R.string.cancel))
-            }
-        },
-    ) {
-        androidx.compose.material3.TimePicker(
-            state = timePickerState,
-            layoutType = TimePickerLayoutType.Vertical
-        )
+    if (dialogOpen) {
+        TimePickerDialog(
+            title = stringResource(
+                id = R.string.settingsHomework_reminderTimeForDay,
+                dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault())
+            ),
+            onDismissRequest = { dialogOpen = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    dialogOpen = false
+                    onSetTime(timePickerState.hour, timePickerState.minute)
+                }) {
+                    Text(text = stringResource(id = android.R.string.ok))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { dialogOpen = false }) {
+                    Text(text = stringResource(id = android.R.string.cancel))
+                }
+            },
+        ) {
+            androidx.compose.material3.TimePicker(
+                state = timePickerState,
+                layoutType = TimePickerLayoutType.Vertical
+            )
+        }
     }
 }

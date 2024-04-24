@@ -399,14 +399,13 @@ data class PainterSettingsState(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TimePicker(
+fun TimePickerSettings(
     settingsState: SettingsState,
     hour: Int = 0,
     minute: Int = 0,
 ) {
-
-    val timePickerState = rememberTimePickerState(hour, minute, false)
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
+    val timePickerState = rememberTimePickerState(hour, minute)
 
     if (showTimePicker) {
         TimePickerDialog(
