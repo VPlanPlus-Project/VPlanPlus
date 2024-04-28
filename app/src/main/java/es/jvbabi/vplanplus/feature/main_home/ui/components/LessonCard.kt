@@ -271,10 +271,12 @@ fun LessonCard(
                             )
                         }) {
                             Expandable(expanded) {
-                                relevantHomeworkTasks.forEachIndexed { taskIndex, homeworkTasks ->
-                                    val tasksText = buildHomeworkTasksText(homeworkTasks)
-                                    Text(text = tasksText, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
-                                    if (taskIndex != relevantHomeworkTasks.lastIndex) HorizontalDivider()
+                                Column {
+                                    relevantHomeworkTasks.forEachIndexed { taskIndex, homeworkTasks ->
+                                        val tasksText = buildHomeworkTasksText(homeworkTasks)
+                                        Text(text = tasksText, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                                        if (taskIndex != relevantHomeworkTasks.lastIndex) HorizontalDivider()
+                                    }
                                 }
                             }
                             Expandable(!expanded) {
