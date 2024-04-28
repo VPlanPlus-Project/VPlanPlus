@@ -76,7 +76,7 @@ fun GradeSubjectGroup(
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.headlineSmall
                     )
-                    val avg = grades.grades.filter { withIntervals.contains(it.interval) }.map { it.value }.average()
+                    val avg = grades.grades.filter { withIntervals.contains(it.interval) }.groupBy { it.type }.map { it.value.map { grade -> grade.value }.average() }.average()
                     Text(
                         text =
                         "Ø " +
@@ -152,12 +152,38 @@ private fun GradeSubjectGroupPreview() {
                     subject = subject,
                     type = "KA",
                     modifier = GradeModifier.MINUS,
-                    comment = "Test",
+                    comment = "Geometrie",
                     givenAt = LocalDate.now(),
                     givenBy = teacher,
                     value = 2f,
                     vppId = vppId,
-                    interval = ExampleInterval.interval1(false),
+                    interval = ExampleInterval.interval2(false),
+                    year = ExampleYear.exampleYear()
+                ),
+                Grade(
+                    id = 2,
+                    subject = subject,
+                    type = "KA",
+                    modifier = GradeModifier.NEUTRAL,
+                    comment = "Lineare Funktionen",
+                    givenAt = LocalDate.now(),
+                    givenBy = teacher,
+                    value = 1f,
+                    vppId = vppId,
+                    interval = ExampleInterval.interval2(false),
+                    year = ExampleYear.exampleYear()
+                ),
+                Grade(
+                    id = 2,
+                    subject = subject,
+                    type = "LK",
+                    modifier = GradeModifier.PLUS,
+                    comment = "Quadratische Funktionen",
+                    givenAt = LocalDate.now(),
+                    givenBy = teacher,
+                    value = 3f,
+                    vppId = vppId,
+                    interval = ExampleInterval.interval2(false),
                     year = ExampleYear.exampleYear()
                 )
             )
