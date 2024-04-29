@@ -154,7 +154,7 @@ data class GradesState(
             val avg = grades.mapNotNull { (subject, grades) ->
                 if (visibleSubjects.contains(subject)) {
                     grades.grades
-                        .filter { intervals.getOrDefault(it.interval, false) }
+                        .filter { intervals.getOrDefault(it.interval, false) && it.actualValue != null }
                         .groupBy { grade -> grade.type }
                         .map { (_, grades) -> grades.map { it.value }.average() }
                         .average()
