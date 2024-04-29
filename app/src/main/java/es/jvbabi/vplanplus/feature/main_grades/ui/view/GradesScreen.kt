@@ -109,7 +109,7 @@ fun GradesScreen(
         onLinkVppId = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onHideBanner = { gradesViewModel.onHideBanner() },
         onStartCalculator = { grades ->
-            val data = grades.groupBy { it.type }.map {
+            val data = grades.filter { it.actualValue != null }.groupBy { it.type }.map {
                 GradeCollection(
                     name = it.key,
                     grades = it.value.map { grade -> grade.value to grade.modifier }
