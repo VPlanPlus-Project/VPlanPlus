@@ -15,7 +15,10 @@ data class Grade(
     val comment: String,
     val interval: Interval,
     val year: Year
-)
+) {
+    val actualValue: Int?
+        get() = if (interval.type != "Sek II" && value == 0f) null else value.toInt()
+}
 
 enum class GradeModifier {
     PLUS, NEUTRAL, MINUS
