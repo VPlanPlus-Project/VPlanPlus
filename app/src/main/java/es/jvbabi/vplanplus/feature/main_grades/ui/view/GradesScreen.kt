@@ -176,7 +176,7 @@ private fun GradesScreenContent(
                 modifier = Modifier.padding(start = 16.dp)
             )
 
-            val allGrades = state.grades.flatMap { it.value.grades }
+            val allGrades = state.grades.flatMap { it.value.grades }.filter { it.actualValue != null }
             if (allGrades.isNotEmpty()) BarChart(
                 modifier = Modifier
                     .padding(16.dp)
