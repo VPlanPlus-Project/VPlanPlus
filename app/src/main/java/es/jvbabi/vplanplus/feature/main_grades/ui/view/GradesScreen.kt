@@ -109,7 +109,7 @@ fun GradesScreen(
         onLinkVppId = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onHideBanner = { gradesViewModel.onHideBanner() },
         onStartCalculator = { grades ->
-            val data = grades.groupBy { it.type }.map {
+            val data = grades.filter { it.actualValue != null }.groupBy { it.type }.map {
                 GradeCollection(
                     name = it.key,
                     grades = it.value.map { grade -> grade.value to grade.modifier }
@@ -176,7 +176,7 @@ private fun GradesScreenContent(
                 modifier = Modifier.padding(start = 16.dp)
             )
 
-            val allGrades = state.grades.flatMap { it.value.grades }
+            val allGrades = state.grades.flatMap { it.value.grades }.filter { it.actualValue != null }
             if (allGrades.isNotEmpty()) BarChart(
                 modifier = Modifier
                     .padding(16.dp)

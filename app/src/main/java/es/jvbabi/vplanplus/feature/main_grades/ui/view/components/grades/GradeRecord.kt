@@ -27,6 +27,7 @@ import es.jvbabi.vplanplus.feature.main_grades.data.source.example.GradesExample
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.util.toBlackAndWhite
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -36,7 +37,9 @@ fun GradeRecord(grade: Grade, showSubject: Boolean = false) {
     ) {
         val colorScheme = MaterialTheme.colorScheme
         Text(
-            text = grade.value.toInt().toString() + when (grade.modifier) {
+            text =
+            if (grade.actualValue == null) "-"
+            else grade.value.toInt().toString() + when (grade.modifier) {
                 GradeModifier.MINUS -> "-"
                 GradeModifier.PLUS -> "+"
                 else -> ""
@@ -49,7 +52,8 @@ fun GradeRecord(grade: Grade, showSubject: Boolean = false) {
                 .width(48.dp)
                 .clip(RoundedCornerShape(4.dp))
                 .drawWithContent {
-                    drawRect(
+                    if (grade.actualValue == null) drawRect(color = colorScheme.primary.toBlackAndWhite(), size = size, topLeft = Offset(0f, 0f))
+                    else drawRect(
                         brush = Brush.horizontalGradient(
                             colors = listOf(
                                 colorScheme.primary,

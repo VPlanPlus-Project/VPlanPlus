@@ -76,7 +76,7 @@ fun GradeSubjectGroup(
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.headlineSmall
                     )
-                    val avg = grades.grades.filter { withIntervals.contains(it.interval) }.groupBy { it.type }.map { it.value.map { grade -> grade.value }.average() }.average()
+                    val avg = grades.grades.filter { withIntervals.contains(it.interval) && it.actualValue != null }.groupBy { it.type }.map { it.value.mapNotNull { grade -> grade.actualValue }.average() }.average()
                     Text(
                         text =
                         "Ø " +
@@ -181,7 +181,7 @@ private fun GradeSubjectGroupPreview() {
                     comment = "Quadratische Funktionen",
                     givenAt = LocalDate.now(),
                     givenBy = teacher,
-                    value = 3f,
+                    value = 0f,
                     vppId = vppId,
                     interval = ExampleInterval.interval2(false),
                     year = ExampleYear.exampleYear()
