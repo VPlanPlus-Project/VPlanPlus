@@ -182,7 +182,7 @@
     <string name="onboarding_setupDoneText">VPlanPlus ist fertig eingerichtet.</string>
     <string name="onboarding_setupDoneLetsGo">Auf geht\'s!</string>
     <string name="advancedSettings_clearCacheTitle">App-Cache löschen</string>
-    <string name="advancedSettings_clearCacheDialogText">Tue dies nur, wenn du seltsame Daten siehst. Nach dem Löschen ist eine Datensynchronsiierung notwendig, um die aktuellsten Daten zu laden. Dieser Vorgang kann nicht rückgängig gemacht werden. Alle Stunden und Raumbuchungen werden von dem Gerät entfernt.</string>
+    <string name="advancedSettings_clearCacheDialogText">Dies löscht die Daten, welche aus dem Internet stammen. Diese Daten können anschließend erneut heruntergeladen werden. Falls falsche Daten angezeigt werden, kann das Löschen des App-Caches helfen.<br />\nKonkret werden folgende Daten von diesem Gerät entfernt:<br />\n- Stundenplandaten<br />\n- Raumbuchen<br />\n- Noten<br />\n- Cloud-Hausaufgaben</string>
     <string name="advancedSettings_clearCacheText">Dies kann helfen, wenn der Cache beschädigt ist.</string>
     <string name="settings_profileDeleteSchool">Löschen</string>
     <string name="settings_profileShareSchool">Teilen</string>
@@ -347,10 +347,6 @@
     <string name="notification_homeworkNewHomeworkMultipleTitle">Neue Hausaufgaben</string>
     <string name="notification_homeworkNewHomeworkMultipleContent">Es gibt %1$d neue Hausaufgaben</string>
     <string name="notification_homeworkChangedHomeworkTitle">Hausaufgaben</string>
-    <plurals name="notification_homeworkChangedHomeworkContent">
-        <item quantity="one">Eine Hausaufgabe wurde geändert.</item>
-        <item quantity="other">%1$d Hausaufgaben wurden geändert.</item>
-    </plurals>
     <string name="something_went_wrong">Etwas ist schiefgelaufen</string>
     <string name="addHomework_saveFailedText">Deine Hausaufgabe wurde nicht gespeichert. Bitte versuche es erneut.</string>
     <string name="addHomework_saveFailedOnlineText">Um die Hausaufgabe auf deiner vpp.ID zu speichern ist eine Internetverbindung notwendig.</string>
@@ -430,13 +426,13 @@
     <string name="settings_subjectsSubtitle">Verwalte Benachrichtigungen zu Hausaufgaben</string>
     <string name="settingsHomework_title">Hausaufgaben</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Benachrichtigung, wenn eine neue Hausaufgabe vorliegt</string>
-    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Wenn dies ausgeschaltet ist, bekommst du dennoch eine Benachrichtigung bei Änderungen von Hausaufgaben, damit du nichts verpasst. Außerdem erhälst du eine Benachrichtigung, wenn eine Hausaufgabe nach deiner bevorzugten Erinnerungszeit erstellt wurde.</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Du kannst Benachrichtigungen über neue Hausaufgaben deaktivieren und dich auf die täglichen Erinnerungen verlassen.</string>
     <string name="settingsHomework_defaultNotificationTimeTitle">Bevorzugte Erinnerungszeit</string>
     <string name="settingsHomework_defaultNotificationTimeSubtitle">Du erhälst eine Benachrichtigung, wenn es unerledigte Hausaufgaben gibt. Aktuell auf %1$s Uhr gesetzt.</string>
     <string name="settingsHomework_reminderNotificationEnabledTitle">An unerledigte Hausaufgaben erinnern</string>
     <string name="settingsHomework_reminderNotificationEnabledSubtitle">Erhalte eine Benachrichtigung, welche dich an unerledigte Hausaufgaben bis morgen erinnert.</string>
-    <string name="settingsHomework_exceptionsTitle">Ausnahmen</string>
-    <string name="settingsHomework_exceptionsSubtitle">Tippe auf den Tag, um eine Ausnahme für ihn hinzuzufügen. Tippe auf die Zeit, um sie zu ändern.</string>
+    <string name="settingsHomework_exceptionsTitle">Ausnahmezeiten</string>
+    <string name="settingsHomework_exceptionsSubtitle">Du kannst für ausgewählte Tage andere Zeiten für die Erinnerungen festlegen. Tippe auf einen Tag, um seine Ausnahme zu (de)aktivieren oder tippe auf die Zeit, um sie zu bearbeiten. Ist ein Tag farbig hervorgehoben, ist eine Ausnahmezeit aktiv.</string>
     <string name="settingsHomework_reminderTimeForDay">Erinnerung für %1$s</string>
     <string name="notification_homeworkReminderTitle">Es gibt noch ein paar Hausaufgaben zu erledigen</string>
     <plurals name="notification_homeworkReminderTomorrowMessage">
@@ -554,5 +550,27 @@
     <string name="vppIdLink_invalidClassText">Dein beste.schule-Account ist mit Klasse %1$s verbunden, diese existiert an deiner Schule aber nicht. Dieses Problem tritt vor allem bei den Klassen JG11 und JG12 auf. Tritt mit uns in Kontakt, sodass wir das Problem schnellstmöglich beheben können.</string>
     <string name="vppIdLink_contactUs">Kontaktiere uns</string>
     <string name="grades_statsTitle">Notenstatistiken</string>
+    <string name="selected">Ausgewählt</string>
+    <string name="not_selected">Nicht ausgewählt</string>
+    <string name="grades_sek1">Sek I</string>
+    <string name="grades_sek2">Sek II</string>
+    <string name="grades_filterIntervalsTitle">Halbjahre</string>
+    <string name="grades_noGradesInSubject">Keine Noten in %1$s</string>
+    <string name="home_linkVppIdToProfileBannerTitle">vpp.ID mit Profil verknüpfen</string>
+    <string name="home_linkVppIdToProfileBannerText">Beginnend mit Version v1.2.2 müssen vpp.IDs an ein Ansichtsprofil gebunden werden, Dies kann in den Einstellungen durchgeführt werden.</string>
+    <string name="vppIdSettings_sessionExpired">Abgemeldet</string>
+    <string name="vppIdSettings_noProfilesConnected">Mit keinem Profil verbunden</string>
+
+    <plurals name="vppIdSettings_withNProfilesConnected">
+        <item quantity="other">%1$d Profile verknüpft</item>
+        <item quantity="one">Ein Profil verbunden</item>
+    </plurals>
+    <string name="vppIdSettingsManagement_linkedProfilesTitle">Verknüpfte Profile</string>
+    <string name="vppIdSettingsManagement_noProfilesPossible">Keine Profile für Klasse %1$s gefunden. Bitte erstelle eines.</string>
+    <string name="vppIdSettingsManagement_selectProfilesText">Wähle Profile, welche mit dieser vpp.ID verbunden werden sollen. Dies ist notwendig, damit du vpp.ID Features nutzer kannst, wenn eines dieser Profile aktiv ist.</string>
+    <string name="vppIdLink_autoConnect">Deine vpp.ID wurde automatisch mit dem Profil %1$s verknüpft.</string>
+    <string name="vppIdLink_noSuitableProfiles">Es gibt aktuell keine passenden Profile für die Klasse %1$s auf diesem Gerät. Du musst ein neues Profil für diese Klasse anlegen und die vpp.ID hinterher damit verbinden.</string>
+    <string name="vppIdLink_selectAProfile">Wähle mindestens ein Profil, zu welchem deine vpp.ID gebunden wird. Diese Einstellung kannst su später ändern.</string>
+    <string name="settingsHomework_reminderCategory">Erinnerungen</string>
 
 </resources>

@@ -168,7 +168,7 @@ fun FindAvailableRoomScreenContent(
                 onCloseLessonDetailDialog()
             },
             onCancelBooking = onCancelCurrentBooking,
-            userIsAuthor = state.detailBooking.bookedBy?.id == state.identity?.vppId?.id && state.identity?.vppId != null
+            userIsAuthor = state.detailBooking.bookedBy?.id == state.identity?.profile?.vppId?.id && state.identity?.profile?.vppId != null
         )
     }
 
@@ -427,13 +427,12 @@ fun FindAvailableRoomScreenContent(
 fun FindAvailableRoomScreenPreview() {
     val school = School.generateRandomSchools(1).first()
     val `class` = ClassesPreview.generateClass(school)
-    val profile = ProfilePreview.generateClassProfile()
+    val profile = ProfilePreview.generateClassProfile(VppIdPreview.generateVppId(`class`))
     FindAvailableRoomScreenContent(
         state = RoomSearchState(
             Identity(
                 school,
-                profile,
-                VppIdPreview.generateVppId(`class`)
+                profile
             ),
             loading = false,
             `class` = `class`,

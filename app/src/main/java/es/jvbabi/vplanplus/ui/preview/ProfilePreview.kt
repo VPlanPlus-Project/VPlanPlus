@@ -3,12 +3,13 @@ package es.jvbabi.vplanplus.ui.preview
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview.classNames
 import java.util.UUID
 
 object ProfilePreview {
 
-    fun generateClassProfile(): Profile {
+    fun generateClassProfile(vppId: VppId? = null): Profile {
         val name = classNames.random()
         return Profile(
             id = UUID.randomUUID(),
@@ -18,7 +19,8 @@ object ProfilePreview {
             referenceId = UUID.randomUUID(),
             calendarType = ProfileCalendarType.NONE,
             calendarId = null,
-            defaultLessons = mapOf()
+            defaultLessons = mapOf(),
+            vppId = vppId
         )
     }
 
@@ -32,7 +34,8 @@ object ProfilePreview {
             referenceId = UUID.randomUUID(),
             calendarType = ProfileCalendarType.NONE,
             calendarId = null,
-            defaultLessons = mapOf()
+            defaultLessons = mapOf(),
+            vppId = null
         )
     }
 }

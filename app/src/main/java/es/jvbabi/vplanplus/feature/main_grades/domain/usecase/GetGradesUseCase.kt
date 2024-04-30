@@ -9,24 +9,18 @@ import kotlinx.coroutines.flow.flow
 class GetGradesUseCase(
     private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
     private val gradeRepository: GradeRepository,
-    private val calculateAverageUseCase: CalculateAverageUseCase
 ) {
 
-    operator fun invoke(): Flow<GradeState> = flow {
+    operator fun invoke(): Flow<List<Grade>> = flow {
         getCurrentIdentityUseCase().collect { identity ->
-            if (identity?.vppId == null) {
-                emit(GradeState(emptyList(), 0.0))
+            if (identity?.profile?.vppId == null) {
+                emit(emptyList())
                 return@collect
             }
 
-            gradeRepository.getGradesByUser(identity.vppId).collect grades@{ grades ->
-                emit(GradeState(grades, calculateAverageUseCase(grades)))
+            gradeRepository.getGradesByUser(identity.profile.vppId).collect grades@{ grades ->
+                emit(grades)
             }
         }
     }
 }
-
-data class GradeState(
-    val grades: List<Grade>,
-    val avg: Double
-)

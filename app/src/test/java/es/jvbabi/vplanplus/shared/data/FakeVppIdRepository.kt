@@ -11,7 +11,7 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.UsersPerClassResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -25,16 +25,20 @@ class FakeVppIdRepository : VppIdRepository {
         return flow { emit(vppIds) }
     }
 
-    override suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?> {
+    override fun getActiveVppIds(): Flow<List<VppId>> {
         TODO("Not yet implemented")
     }
 
-    override suspend fun cacheVppId(id: Int, school: School): VppId? {
+    override suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?> {
         TODO("Not yet implemented")
     }
 
     override suspend fun addVppId(vppId: VppId) {
         vppIds.add(vppId)
+    }
+
+    override suspend fun getVppId(id: Long, school: School, forceUpdate: Boolean): VppId? {
+        TODO("Not yet implemented")
     }
 
     override suspend fun addVppIdToken(

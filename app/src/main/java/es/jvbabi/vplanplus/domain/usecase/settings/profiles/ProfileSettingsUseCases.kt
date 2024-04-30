@@ -11,5 +11,4 @@ data class ProfileSettingsUseCases(
     val updateCalendarIdUseCase: UpdateCalendarIdUseCase,
     val updateProfileDisplayNameUseCase: UpdateProfileDisplayNameUseCase,
     val deleteProfileUseCase: DeleteProfileUseCase,
-    val getVppIdByClassUseCase: GetVppIdByClassUseCase,
 )

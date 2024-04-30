@@ -3,8 +3,6 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.data.repository
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
-import androidx.core.app.NotificationCompat
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.MainActivity
@@ -38,7 +36,6 @@ import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
-import es.jvbabi.vplanplus.util.sha256
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
@@ -70,21 +67,17 @@ class HomeworkRepositoryImpl(
         if (isUpdateRunning) return
         isUpdateRunning = true
         keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "true")
-        val vppIds = vppIdRepository.getVppIds().first()
         profileRepository
             .getProfiles()
             .first()
             .filter { it.type == ProfileType.STUDENT }
             .forEach { profile ->
-                val vppId = vppIds
-                    .firstOrNull { it.classes?.classId == profile.referenceId && it.isActive() }
-
                 val `class` = classRepository.getClassById(profile.referenceId) ?: return@forEach
                 val school = `class`.school
                 val url: String
 
-                if (vppId != null) {
-                    val token = vppIdRepository.getVppIdToken(vppId) ?: return@forEach
+                if (profile.vppId != null) {
+                    val token = vppIdRepository.getVppIdToken(profile.vppId) ?: return@forEach
                     vppIdNetworkRepository.authentication = BearerAuthentication(token)
 
                     url = "/api/$API_VERSION/user/me/homework"
@@ -97,9 +90,7 @@ class HomeworkRepositoryImpl(
                 val response = vppIdNetworkRepository.doRequest(url)
 
                 if (response.response != HttpStatusCode.OK || response.data == null) return@forEach
-                val data = Gson().fromJson(response.data, HomeworkResponse::class.java)
-                    .homework
-                    .filter { it.until > ZonedDateTime.now().minusDays(2).toEpochSecond() }
+                val data = Gson().fromJson(response.data, HomeworkResponse::class.java).homework
 
                 homeworkDao
                     .getAll()
@@ -116,36 +107,13 @@ class HomeworkRepositoryImpl(
                 val newHomework = data
                     .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
                     .filter { !existingHomework.any { eh -> eh.id == it.id } }
-                    .filter { it.createdBy != vppId?.id?.toLong() }
-                    .filter {
-                        ZonedDateTimeConverter().timestampToZonedDateTime(it.until)
-                            .isAfter(ZonedDateTime.now())
-                    }
-
-                val changedHomework = data
-                    .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
-                    .filter {
-                        it.buildHash(`class`.name) != existingHomework.firstOrNull { eh -> eh.id == it.id && !eh.isHidden }
-                            ?.buildHash()
-                    }
-                    .filter { it.createdBy != vppId?.id?.toLong() }
-                    .filter { newHomework.none { nh -> nh.id == it.id } }
+                    .filter { it.createdBy != profile.vppId?.id?.toLong() }
 
                 data.forEach forEachHomework@{ responseHomework ->
+                    val isNewHomework = existingHomework.none { it.id == responseHomework.id }
                     val id = responseHomework.id
-                    var createdBy =
-                        vppIds.firstOrNull { it.id.toLong() == responseHomework.createdBy }
-                    if (createdBy == null) {
-                        createdBy =
-                            vppIdRepository.cacheVppId(responseHomework.createdBy.toInt(), school)
-                                ?: run {
-                                    Log.e(
-                                        "HomeworkRepositoryImpl",
-                                        "Failed to find VppId for homework $id (vpp.ID: ${responseHomework.createdBy})"
-                                    )
-                                    return@forEachHomework
-                                }
-                    }
+                    val createdBy = vppIdRepository.getVppId(responseHomework.createdBy, school, false)
+                    val until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until)
 
                     val ignoredTaskIds = mutableListOf<Long>()
                     val replacementTasks =
@@ -170,7 +138,7 @@ class HomeworkRepositoryImpl(
                                         val record = NewTaskRecord(
                                             id = task.id.toLong(),
                                             content = task.content,
-                                            done = task.done ?: false,
+                                            done = task.done ?: until.isBefore(ZonedDateTime.now()),
                                         )
                                         record
                                     }
@@ -185,7 +153,7 @@ class HomeworkRepositoryImpl(
                         id = id,
                         createdBy = createdBy,
                         shareWithClass = responseHomework.shareWithClass,
-                        until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until),
+                        until = until,
                         `class` = `class`,
                         defaultLessonVpId = responseHomework.vpId.toLong(),
                         createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(
@@ -193,7 +161,7 @@ class HomeworkRepositoryImpl(
                         ),
                         allowCloudUpdate = false,
                         tasks = replacementTasks,
-                        isHidden = existingRecord?.isHidden ?: false,
+                        isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
                     )
                 }
 
@@ -213,62 +181,49 @@ class HomeworkRepositoryImpl(
                             )
                         }
 
-                    if (newHomework.size == 1 && showNewNotification) {
+                    val notificationRelevantNewHomework = newHomework.filter { ZonedDateTimeConverter().timestampToZonedDateTime(it.until).isAfter(ZonedDateTime.now()) }
+
+                    if (notificationRelevantNewHomework.size == 1 && showNewNotification) {
                         val defaultLessons =
                             defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
-                        val vpIds = vppIdRepository.getVppIds().first()
 
                         val dateResourceId = DateUtils
-                            .getDateFromTimestamp(newHomework.first().until)
+                            .getDateFromTimestamp(notificationRelevantNewHomework.first().until)
                             .getRelativeStringResource()
 
                         val dateString =
                             if (dateResourceId != null) stringRepository.getString(dateResourceId)
-                            else DateUtils.getDateFromTimestamp(newHomework.first().until).format(
+                            else DateUtils.getDateFromTimestamp(notificationRelevantNewHomework.first().until).format(
                                 DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
                             )
 
                         notificationRepository.sendNotification(
                             CHANNEL_ID_HOMEWORK,
-                            newHomework.first().id.toInt(),
+                            notificationRelevantNewHomework.first().id.toInt(),
                             stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
                             stringRepository.getString(
                                 R.string.notification_homeworkNewHomeworkOneContent,
-                                vpIds.firstOrNull { it.id.toLong() == newHomework.first().createdBy }?.name
+                                vppIdRepository.getVppId(notificationRelevantNewHomework.first().createdBy, `class`.school, false)?.name
                                     ?: "Unknown",
-                                defaultLessons.firstOrNull { it.vpId == newHomework.first().vpId.toLong() }?.subject
+                                defaultLessons.firstOrNull { it.vpId == notificationRelevantNewHomework.first().vpId.toLong() }?.subject
                                     ?: "Unknown",
-                                newHomework.first().tasks.size,
+                                notificationRelevantNewHomework.first().tasks.size,
                                 dateString
                             ),
                             R.drawable.vpp,
                             pendingIntent,
                         )
-                    } else if (newHomework.isNotEmpty() && showNewNotification) {
+                    } else if (notificationRelevantNewHomework.isNotEmpty() && showNewNotification) {
                         notificationRepository.sendNotification(
                             CHANNEL_ID_HOMEWORK,
                             CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
                             stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
                             stringRepository.getString(
                                 R.string.notification_homeworkNewHomeworkMultipleContent,
-                                newHomework.size
+                                notificationRelevantNewHomework.size
                             ),
                             R.drawable.vpp,
                             pendingIntent,
-                        )
-                    } else if (changedHomework.isNotEmpty()) {
-                        notificationRepository.sendNotification(
-                            channelId = CHANNEL_ID_HOMEWORK,
-                            id = CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
-                            title = stringRepository.getString(R.string.notification_homeworkChangedHomeworkTitle),
-                            message = stringRepository.getPlural(
-                                R.plurals.notification_homeworkChangedHomeworkContent,
-                                changedHomework.size,
-                                changedHomework.size
-                            ),
-                            icon = R.drawable.vpp,
-                            priority = NotificationCompat.PRIORITY_LOW,
-                            pendingIntent = pendingIntent,
                         )
                     }
                 }
@@ -329,13 +284,8 @@ class HomeworkRepositoryImpl(
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        val vppId = vppIdRepository
-            .getVppIds().first()
-            .firstOrNull { it.classes?.classId == `class`.classId && it.isActive() }
-            ?: return HomeworkModificationResult.FAILED
-
         val vppIdToken =
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+            vppIdRepository.getVppIdToken(createdBy) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework",
@@ -419,10 +369,7 @@ class HomeworkRepositoryImpl(
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        val vppId = vppIdRepository
-            .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
-            ?: return HomeworkModificationResult.FAILED
+        val vppId = vppIdRepository.getVppId(homework.createdBy!!.id.toLong(), homework.classes.school, false) ?: return HomeworkModificationResult.FAILED
 
         val vppIdToken =
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
@@ -523,7 +470,7 @@ class HomeworkRepositoryImpl(
     ): HomeworkModificationResult {
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.classes == homework.classes }
+            .firstOrNull { it.isActive() && it.classes == homework.classes } // fixme: Use vpp.ID provided in parameter; this creates problems when multiple vpp.IDs are connected to the same class
 
         if (task.id < 0 || vppId == null) {
             val dbHomeworkTask =
@@ -668,12 +615,7 @@ private data class HomeworkResponseRecord(
     @SerializedName("created_at") val createdAt: Long,
     @SerializedName("public") val shareWithClass: Boolean,
     @SerializedName("tasks") val tasks: List<HomeRecordTask>
-) {
-    fun buildHash(className: String): String {
-        return "$id$createdBy$createdAt$vpId$until$shareWithClass$className${tasks.joinToString { it.content }}".sha256()
-            .lowercase()
-    }
-}
+)
 
 private data class HomeRecordTask @JvmOverloads constructor(
     @SerializedName("id") val id: Int,

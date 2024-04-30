@@ -49,7 +49,7 @@ class HomeworkViewModel @Inject constructor(
                         .homework
                         .map {
                             it.toViewModel(
-                                isOwner = it.createdBy?.id == identity.vppId?.id,
+                                isOwner = it.createdBy?.id == identity.profile.vppId?.id,
                                 isEnabled = identity.profile.isDefaultLessonEnabled(it.defaultLesson?.vpId)
                             )
                         },

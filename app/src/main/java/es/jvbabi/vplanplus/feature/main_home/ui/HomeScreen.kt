@@ -70,6 +70,7 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Greeting
 import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
+import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
@@ -136,6 +137,7 @@ fun HomeScreen(
         },
         onRefreshClicked = { homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(context) },
         onFixVppIdSessionClicked = { onLogin(context, state.server) },
+        onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
     )
 }
@@ -162,6 +164,7 @@ fun HomeScreenContent(
 
     onFixVppIdSessionClicked: () -> Unit = {},
     onIgnoreInvalidVppIdSessions: () -> Unit = {},
+    onFixVppIdLinksClicked: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
@@ -255,7 +258,7 @@ fun HomeScreenContent(
                     Column {
                         Greeting(
                             time = state.currentTime,
-                            name = state.currentIdentity.vppId?.name,
+                            name = state.currentIdentity.profile?.vppId?.name,
                             modifier = Modifier.padding(start = 16.dp)
                         )
                         LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(start = 16.dp))
@@ -275,6 +278,16 @@ fun HomeScreenContent(
                         buttonText2 = stringResource(id = R.string.fix),
                         buttonAction2 = onFixVppIdSessionClicked,
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    )
+                }
+                AnimatedVisibility(
+                    visible = state.hasMissingVppIdToProfileLinks,
+                    enter = expandVertically(tween(250)),
+                    exit = shrinkVertically(tween(250))
+                ) {
+                    MissingVppIdLinkToProfileCard(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        onFixClicked = onFixVppIdLinksClicked
                     )
                 }
                 HorizontalPager(
@@ -457,7 +470,7 @@ private fun HomeScreenPreview() {
         onOpenMenu = {},
         onSetSelectedDate = {},
         onInfoExpandChange = {},
-        onSwitchProfile = {},
+        onSwitchProfile = {}
     )
 }
 

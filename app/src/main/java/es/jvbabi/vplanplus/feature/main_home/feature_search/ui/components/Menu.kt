@@ -2,12 +2,9 @@ package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,7 +51,6 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.ui.common.DOT
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Menu(
     isVisible: Boolean,
@@ -65,6 +61,7 @@ fun Menu(
     selectedProfile: Profile,
     onRefreshClicked: () -> Unit = {},
     onSettingsClicked: () -> Unit = {},
+
     onRepositoryClicked: () -> Unit = {},
     onManageProfilesClicked: () -> Unit = {},
     onNewsClicked: () -> Unit = {},
@@ -142,29 +139,16 @@ fun Menu(
                                 )
                                 LazyRow {
                                     items(profiles) { profile ->
-                                        Box(
-                                            modifier = Modifier
-                                                .padding(end = 4.dp)
-                                                .height(40.dp)
-                                                .width(40.dp)
-                                                .border(
-                                                    width = 1.dp,
-                                                    color = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primaryContainer,
-                                                    shape = RoundedCornerShape(20.dp)
-                                                )
-                                                .clip(RoundedCornerShape(20.dp))
-                                                .background(color = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiaryContainer)
-                                                .combinedClickable(
-                                                    onClick = { onProfileClicked(profile) },
-                                                    onLongClick = { onProfileLongClicked(profile) }
-                                                ),
-                                            contentAlignment = Alignment.Center
-                                        ) {
-                                            Text(
-                                                text = if (profile.displayName.length > 4) profile.originalName else profile.displayName,
-                                                color = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onTertiaryContainer,
-                                            )
-                                        }
+                                        ProfileIcon(
+                                            modifier = Modifier.padding(end = 4.dp),
+                                            name = profile.displayName,
+                                            isSyncing = false,
+                                            showNotificationDot = false,
+                                            foregroundColor = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.onSecondary else MaterialTheme.colorScheme.onTertiaryContainer,
+                                            backgroundColor = if (profile.id != selectedProfile.id) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.tertiaryContainer,
+                                            onClicked = { onProfileClicked(profile) },
+                                            onLongClicked = { onProfileLongClicked(profile) }
+                                        )
                                     }
                                 }
                                 TextButton(
@@ -265,7 +249,7 @@ fun ButtonRow(
         Icon(
             imageVector = icon,
             contentDescription = text,
-            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            tint = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .padding(start = 16.dp)
                 .width(24.dp)
@@ -277,11 +261,12 @@ fun ButtonRow(
                 .clip(RoundedCornerShape(5.dp))
                 .background(MaterialTheme.colorScheme.error)
         )
+
         Text(
             text = text,
             modifier = Modifier.padding(start = 12.dp),
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onPrimaryContainer
+            color = MaterialTheme.colorScheme.onSurface
         )
     }
 }

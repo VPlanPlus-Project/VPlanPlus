@@ -23,11 +23,11 @@ class IsEnabledUseCase(
                     emit(GradeUseState.NO_VPP_ID)
                     return@vppId
                 }
-                if (identity.vppId == null || identity.profile?.type != ProfileType.STUDENT) {
+                if (identity.profile?.vppId == null || identity.profile.type != ProfileType.STUDENT) {
                     emit(GradeUseState.WRONG_PROFILE_SELECTED)
                     return@vppId
                 }
-                val bsToken = vppIdRepository.getBsToken(identity.vppId)
+                val bsToken = vppIdRepository.getBsToken(identity.profile.vppId)
                 if (bsToken == null) {
                     emit(GradeUseState.NOT_ENABLED)
                 } else {

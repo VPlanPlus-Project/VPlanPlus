@@ -48,6 +48,7 @@ fun CollectionGroup(
     group: String,
     grades: List<Pair<Float, GradeModifier>>,
     avg: Double,
+    isSek2: Boolean,
     onAddGrade: (Float) -> Unit,
     onRemoveGrade: (Int) -> Unit
 ) {
@@ -74,13 +75,14 @@ fun CollectionGroup(
                     )
                     Grid(
                         columns = 3,
-                        content = List(6) {
+                        content = List(if (isSek2) 16 else 6) {
                             @Composable { _, _, _ ->
                                 val backgroundColor = Color(
                                     ColorUtils.blendARGB(
                                         Color(0xFF25CC25).toArgb(),
                                         Color.Red.toArgb(),
-                                        (it + 1) / 6f
+                                        if (isSek2) 1 - (it) / 16f
+                                        else it / 6f
                                     )
                                 )
                                 Box(
@@ -90,11 +92,11 @@ fun CollectionGroup(
                                         .height(50.dp)
                                         .clip(RoundedCornerShape(8.dp))
                                         .background(backgroundColor)
-                                        .clickable { onAddGrade(it + 1f); dialogOpenForCategory = "" },
+                                        .clickable { onAddGrade(it + (if (isSek2) 0f else 1f)); dialogOpenForCategory = "" },
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Text(
-                                        text = (it + 1).toString(),
+                                        text = (it + if (isSek2) 0 else 1).toString(),
                                         modifier = Modifier.padding(8.dp),
                                         textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.headlineMedium,
@@ -141,11 +143,12 @@ fun CollectionGroup(
             }
             itemsIndexed(grades) { i, (grade, modifier) ->
                 Text(
-                    text = grade.toInt().toString() + when (modifier) {
-                        GradeModifier.MINUS -> "-"
-                        GradeModifier.PLUS -> "+"
-                        else -> ""
-                    },
+                    text = grade.toInt().toString() +
+                            if (!isSek2) when (modifier) {
+                                GradeModifier.MINUS -> "-"
+                                GradeModifier.PLUS -> "+"
+                                else -> ""
+                            } else "",
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onPrimary,
@@ -180,16 +183,18 @@ fun CollectionGroup(
 @Preview(showBackground = true)
 @Composable
 fun CollectionGroupPreview() {
+    val isSek2 = true
     CollectionGroup(
         group = "KA",
         grades = GradeCollection(
             name = "KA",
             grades = List(5) {
-                Random.nextFloat()*6 to GradeModifier.entries.toTypedArray().random()
+                Random.nextFloat() * (if (isSek2) 15 else 6) to GradeModifier.entries.toTypedArray().random()
             }
         ).grades,
         avg = 2.0,
         onAddGrade = {},
-        onRemoveGrade = {}
+        onRemoveGrade = {},
+        isSek2 = isSek2
     )
 }

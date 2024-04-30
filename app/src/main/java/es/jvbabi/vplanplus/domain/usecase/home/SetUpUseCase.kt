@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerReposi
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
@@ -19,12 +20,14 @@ class SetUpUseCase(
     private val alarmManagerRepository: AlarmManagerRepository,
     private val homeworkRepository: HomeworkRepository,
     private val vppIdRepository: VppIdRepository,
-    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
+    private val testForMissingVppIdToProfileConnectionsUseCase: TestForMissingVppIdToProfileConnectionsUseCase
 ) {
 
     suspend operator fun invoke() {
         try {
             testForInvalidSessions()
+            keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, testForMissingVppIdToProfileConnectionsUseCase(true).toString())
             updateFirebaseTokens()
             createHomeworkReminder()
         } catch (e: IOException) {
@@ -33,7 +36,7 @@ class SetUpUseCase(
     }
 
     private suspend fun testForInvalidSessions() {
-        val testMapping = vppIdRepository.getVppIds().first().filter { it.isActive() }.map {
+        val testMapping = vppIdRepository.getActiveVppIds().first().map {
             it to vppIdRepository.testVppIdSession(it)
         }
 

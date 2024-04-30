@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.ui.screens.id_link
 
 import android.content.Intent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,11 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -24,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -31,8 +35,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.ui.screens.id_link.components.AutoConnectToProfile
+import es.jvbabi.vplanplus.ui.screens.id_link.components.LinkNoProfiles
 import io.ktor.http.HttpStatusCode
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
@@ -43,7 +51,7 @@ fun VppIdLinkScreen(
     token: String?,
     vppIdLinkViewModel: VppIdLinkViewModel = hiltViewModel()
 ) {
-    val state = vppIdLinkViewModel.state.value
+    val state = vppIdLinkViewModel.state
 
     LaunchedEffect(token) {
         vppIdLinkViewModel.init(token)
@@ -51,7 +59,8 @@ fun VppIdLinkScreen(
 
     VppIdLinkScreenContent(
         state = state,
-        onBack = {
+        onOk = {
+            vppIdLinkViewModel.onProceed()
             navHostController.navigate(Screen.HomeScreen.route) {
                 popUpTo(0)
             }
@@ -59,6 +68,7 @@ fun VppIdLinkScreen(
         onRetry = {
             vppIdLinkViewModel.init(token)
         },
+        onToggleProfile = vppIdLinkViewModel::onToggleProfileState,
         onContactUs = { userId, className ->
             val intent = Intent(Intent.ACTION_SENDTO)
             intent.data = android.net.Uri.parse("mailto:")
@@ -82,9 +92,10 @@ fun VppIdLinkScreen(
 
 @Composable
 private fun VppIdLinkScreenContent(
-    onBack: () -> Unit = {},
+    onOk: () -> Unit = {},
     onRetry: () -> Unit = {},
     onContactUs: (userId: Int?, className: String?) -> Unit = { _, _ -> },
+    onToggleProfile: (profile: Profile) -> Unit = {},
     state: VppIdLinkState
 ) {
     Box(
@@ -118,16 +129,22 @@ private fun VppIdLinkScreenContent(
                     textAlign = TextAlign.Center
                 )
                 Row(
-                    modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     OutlinedButton(
-                        onClick = onBack,
-                        modifier = Modifier.weight(1f).padding(end = 8.dp)
+                        onClick = onOk,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 8.dp)
                     ) { Text(text = stringResource(id = R.string.back)) }
                     Button(
                         onClick = { onContactUs(state.vppId?.id, state.vppId?.className) },
-                        modifier = Modifier.weight(1f).padding(start = 8.dp)
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(start = 8.dp)
                     ) {
                         Text(text = stringResource(id = R.string.vppIdLink_contactUs))
                         Icon(
@@ -169,7 +186,38 @@ private fun VppIdLinkScreenContent(
                     ),
                     textAlign = TextAlign.Center
                 )
-                Button(onClick = { onBack() }) {
+                if (state.selectedProfileFoundAtStart == true) {
+                    AutoConnectToProfile(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        profileName = state.selectedProfiles.toList().first { it.second }.first.displayName
+                    )
+                } else if (state.selectedProfiles.isEmpty()) {
+                    LinkNoProfiles(
+                        modifier = Modifier.padding(vertical = 8.dp),
+                        className = state.vppId.classes.name
+                    )
+                } else {
+                    Column(Modifier.padding(vertical = 8.dp)) {
+                        Text(text = stringResource(id = R.string.vppIdLink_selectAProfile), style = MaterialTheme.typography.labelLarge)
+                        state.selectedProfiles.forEach { (profile, selected) ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { onToggleProfile(profile) },
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Checkbox(checked = selected, onCheckedChange = { onToggleProfile(profile) })
+                                Text(
+                                    text = profile.displayName,
+                                    style = MaterialTheme.typography.bodyLarge
+                                )
+                            }
+                        }
+                    }
+                }
+                Button(enabled = state.selectedProfiles.any { it.value } || state.selectedProfiles.isEmpty(), onClick = { onOk() }) {
                     Text(text = stringResource(id = android.R.string.ok))
                 }
             }
@@ -193,22 +241,55 @@ private fun VppIdLinkScreenInvalidClassPreview() {
 
 @Preview
 @Composable
-private fun VppIdLinkScreenPreview() {
+private fun VppIdLinkScreenAutoLinkPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first()
     val classes = PreviewClasses.generateClass(school)
+    val vppId = VppId(
+        id = 1,
+        name = "Maria Musterfrau",
+        schoolId = school.schoolId,
+        school = school,
+        className = classes.name,
+        classes = classes,
+        email = "maria.musterfrau@email.com"
+    )
     VppIdLinkScreenContent(
         state = VppIdLinkState(
             isLoading = false,
             response = HttpStatusCode.OK,
-            vppId = VppId(
-                id = 1,
-                name = "Maria Musterfrau",
-                schoolId = school.schoolId,
-                school = school,
-                className = classes.name,
-                classes = classes,
-                email = "maria.musterfrau@email.com"
+            selectedProfileFoundAtStart = true,
+            selectedProfiles = mapOf(
+                ProfilePreview.generateClassProfile(vppId) to true
             ),
+            vppId = vppId,
+        )
+    )
+}
+
+@Preview
+@Composable
+private fun VppIdLinkScreenPreview() {
+    val school = PreviewSchool.generateRandomSchools(1).first()
+    val classes = PreviewClasses.generateClass(school)
+    val vppId = VppId(
+        id = 1,
+        name = "Maria Musterfrau",
+        schoolId = school.schoolId,
+        school = school,
+        className = classes.name,
+        classes = classes,
+        email = "maria.musterfrau@email.com"
+    )
+    VppIdLinkScreenContent(
+        state = VppIdLinkState(
+            isLoading = false,
+            response = HttpStatusCode.OK,
+            selectedProfileFoundAtStart = false,
+            selectedProfiles = mapOf(
+                ProfilePreview.generateClassProfile(vppId) to true,
+                ProfilePreview.generateClassProfile() to false
+            ),
+            vppId = vppId,
         )
     )
 }

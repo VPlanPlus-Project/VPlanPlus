@@ -68,6 +68,7 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -374,7 +375,9 @@ private fun HomeworkScreenContent(
                                                             (hw.tasks.any { task -> !task.done } || state.showDone)
                                                 }) return@drawWithContent
                                             drawCircle(
-                                                color = colorScheme.tertiary,
+                                                color =
+                                                    if (until.isBefore(ZonedDateTime.now())) colorScheme.error
+                                                    else colorScheme.tertiary,
                                                 center = Offset(90f, 95f),
                                                 radius = 50f
                                             )

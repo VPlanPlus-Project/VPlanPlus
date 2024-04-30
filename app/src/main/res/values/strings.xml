@@ -180,7 +180,7 @@
     <string name="onboarding_setupDoneText">VPlanPlus is set up.</string>
     <string name="onboarding_setupDoneLetsGo">Let\'s go!</string>
     <string name="advancedSettings_clearCacheTitle">Delete app cache</string>
-    <string name="advancedSettings_clearCacheDialogText">Only do this if you see weird data. A sync will be required to get new data. This cannot be undone. All lessons and room bookings will be deleted from your device.</string>
+    <string name="advancedSettings_clearCacheDialogText">This deletes the data that originates from the Internet. This data can then be downloaded again. If incorrect data is displayed, deleting the app cache can help.<br />\nThis will be removed from the device:<br />\n- Timetable data<br />\n- Room bookings<br />\n- Grades<br />\n- Cloud homework<br /></string>
     <string name="advancedSettings_clearCacheText">This can help if the cache is corrupted.</string>
     <string name="settings_profileDeleteSchool">Delete</string>
     <string name="settings_profileShareSchool">Share</string>
@@ -345,10 +345,6 @@
     <string name="notification_homeworkNewHomeworkMultipleTitle">New homework</string>
     <string name="notification_homeworkNewHomeworkMultipleContent">There are %1$d new homework</string>
     <string name="notification_homeworkChangedHomeworkTitle">Homework</string>
-    <plurals name="notification_homeworkChangedHomeworkContent">
-        <item quantity="one">A homework was changed.</item>
-        <item quantity="other">%1$d homework were changed.</item>
-    </plurals>
     <string name="something_went_wrong">Something went wrong</string>
     <string name="addHomework_saveFailedText">Your homework wasn\'t saved. Please try again.</string>
     <string name="addHomework_saveFailedOnlineText">An internet connection is required to save this homework to your vpp.ID.</string>
@@ -432,13 +428,13 @@
     <string name="settings_subjectsSubtitle">Manage notifications for homework</string>
     <string name="settingsHomework_title">Homework</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Show notification when someone created a new homework</string>
-    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">If turned off, you\'ll still receive notification when a homework gets changed so you don\'t miss anything. Also, if the homework was created after your preferred notification time, you\'ll still get a notification.</string>
+    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">You can turn off notifications about new homework and rely on your daily reminders. However, you might lose track about homework created after your reminder when this is turned off.</string>
     <string name="settingsHomework_defaultNotificationTimeTitle">Preferred reminder time</string>
     <string name="settingsHomework_defaultNotificationTimeSubtitle">You\'ll get a notification if there are undone tasks until tomorrow. Currently set to  %1$s.</string>
     <string name="settingsHomework_reminderNotificationEnabledTitle">Reminder of unfinished homework</string>
     <string name="settingsHomework_reminderNotificationEnabledSubtitle">Get a notification reminding you of undone tasks until tomorrow.</string>
     <string name="settingsHomework_exceptionsTitle">Exceptions</string>
-    <string name="settingsHomework_exceptionsSubtitle">Tap the day to add an exception for this day. Tap the time to change it.</string>
+    <string name="settingsHomework_exceptionsSubtitle">You can set custom times for the reminder for specific days. If the day is marked with a color, the exception for this day is active. Tap a time to change it or tap a day to en- or disable its exception.</string>
     <string name="settingsHomework_reminderTimeForDay">Reminder for %1$s</string>
     <string name="notification_homeworkReminderTitle">There are some unfinished tasks left</string>
     <plurals name="notification_homeworkReminderTomorrowMessage">
@@ -555,5 +551,28 @@
     <string name="vppIdLink_invalidClassText">Your beste.schule Account is linked to class %1$s but it does not exist at your school. This can happen especially in JG11 and JG12 classes. Contact us so we can fix it for you.</string>
     <string name="vppIdLink_contactUs">Contact Us</string>
     <string name="grades_statsTitle">Grade statistics</string>
+    <string name="selected">Selected</string>
+    <string name="not_selected">Not selected</string>
+    <string name="grades_sek1">Sec. 1</string>
+    <string name="grades_sek2">Sec. 2</string>
+    <string name="grades_filterIntervalsTitle">Intervals</string>
+    <string name="grades_noGradesInSubject">No grades in %1$s</string>
+    <string name="home_linkVppIdToProfileBannerTitle">Link vpp.ID to a profile</string>
+    <string name="home_linkVppIdToProfileBannerText">Starting with version v1.2.2, you need to link a vpp.ID to a profile in order to use it. This can be done in settings.</string>
+    <string name="vppIdSettings_sessionExpired">Logged out</string>
+    <string name="vppIdSettings_noProfilesConnected">No profile connected</string>
+
+    <plurals name="vppIdSettings_withNProfilesConnected">
+        <item quantity="one">One profile connected</item>
+        <item quantity="two">Two profiles connected</item>
+        <item quantity="other">%1$d profiles connected</item>
+    </plurals>
+    <string name="vppIdSettingsManagement_linkedProfilesTitle">Linked profiles</string>
+    <string name="vppIdSettingsManagement_noProfilesPossible">No Profiles for class %1$s found. Please create one.</string>
+    <string name="vppIdSettingsManagement_selectProfilesText">Select profiles which should be linked to this vpp.ID. This is required to use vpp.ID functionality when a selected profile is active.</string>
+    <string name="vppIdLink_autoConnect">This vpp.ID is automatically connected to profile %1$s.</string>
+    <string name="vppIdLink_noSuitableProfiles">There are no suitable profiles for class %1$s on this device right now. You\'ll need to create a new profile for this class and link your vpp.ID to it afterwards.</string>
+    <string name="vppIdLink_selectAProfile">Select at least one profile. Your vpp.ID will be linked to them. This can be changed later.</string>
+    <string name="settingsHomework_reminderCategory">Reminders</string>
 
 </resources>

@@ -6,6 +6,8 @@ import androidx.room.Index
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
+import java.time.ZoneId
+import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity(
@@ -36,7 +38,8 @@ data class DbVppId(
     val schoolId: Long,
     val className: String,
     val classId: UUID?,
-    val state: State
+    val state: State,
+    val cachedAt: ZonedDateTime?
 ) {
     fun toModel(): VppId {
         return VppId(
@@ -47,7 +50,8 @@ data class DbVppId(
             school = null,
             className = className,
             classes = null,
-            state = state
+            state = state,
+            cachedAt = cachedAt ?: ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))
         )
     }
 }

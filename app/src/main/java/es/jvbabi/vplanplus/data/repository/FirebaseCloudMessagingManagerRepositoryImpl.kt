@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
-import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
@@ -18,7 +17,6 @@ import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.tasks.await
 
 class FirebaseCloudMessagingManagerRepositoryImpl(
@@ -28,17 +26,11 @@ class FirebaseCloudMessagingManagerRepositoryImpl(
     private val keyValueRepository: KeyValueRepository,
     private val schoolEntityDao: SchoolEntityDao,
     private val profileDao: ProfileDao,
-    private val vppIdDao: VppIdDao,
     private val vppIdTokenDao: VppIdTokenDao,
 ) : FirebaseCloudMessagingManagerRepository {
     override suspend fun updateToken(t: String?): Boolean {
         val token = t ?: FirebaseMessaging.getInstance().token.await()
         logRecordRepository.log("FCM", "Update token $token")
-        val vppIds = vppIdDao
-            .getAll()
-            .first()
-            .map { it.toModel() }
-            .filter { it.isActive() }
 
         vppIdNetworkRepository.authentication = null
         logRecordRepository.log("FCM", "Unregister token")
@@ -66,8 +58,7 @@ class FirebaseCloudMessagingManagerRepositoryImpl(
         val results = mutableListOf<Boolean>()
         profiles.forEach { profile ->
             val c = classRepository.getClassById(profile.referenceId)?:return@forEach
-            val vppId = vppIds.firstOrNull { it.classes == c }
-            val vppIdToken = if (vppId != null) vppIdTokenDao.getTokenByVppId(vppId.id)?.token else null
+            val vppIdToken = if (profile.vppId != null) vppIdTokenDao.getTokenByVppId(profile.vppId.id)?.token else null
             val schoolAuthentication = schoolEntityDao.getSchoolEntityById(profile.referenceId)!!.school.buildAuthentication()
 
             if (vppIdToken == null) vppIdNetworkRepository.authentication = schoolAuthentication

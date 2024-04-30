@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossov
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -138,5 +139,10 @@ class ProfileRepositoryImpl(
             val profile = profileDao.getProfileById(id = profileId)!!.toModel()
             emit(profile)
         }
+    }
+
+    override suspend fun setProfileVppId(profile: Profile, vppId: VppId?) {
+        val dbProfile = profileDao.getProfileById(profile.id) ?: return
+        profileDao.insert(dbProfile.profile.copy(linkedVppId = vppId?.id))
     }
 }

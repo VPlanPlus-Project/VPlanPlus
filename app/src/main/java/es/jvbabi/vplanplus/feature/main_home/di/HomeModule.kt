@@ -27,6 +27,7 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetVersionHintsUseCa
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasUnreadNewsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasInvalidVppIdSessionUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasMissingVppIdToProfileLinksUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IgnoreInvalidVppIdSessionsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IsInfoExpandedUseCase
@@ -83,6 +84,7 @@ object HomeModule {
 
             hasInvalidVppIdSessionUseCase = HasInvalidVppIdSessionUseCase(keyValueRepository),
             ignoreInvalidVppIdSessionsUseCase = IgnoreInvalidVppIdSessionsUseCase(keyValueRepository),
+            hasMissingVppIdToProfileLinksUseCase = HasMissingVppIdToProfileLinksUseCase(keyValueRepository),
 
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository)
         )

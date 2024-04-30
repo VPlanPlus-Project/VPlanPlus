@@ -148,14 +148,10 @@ class RoomRepositoryImpl(
         val rooms = getRooms(school.schoolId)
 
         // cache vpp.IDs if necessary
-        var vppIds = vppIdRepository.getVppIds().first()
         roomBookings
             .bookings
             .map { it.bookedBy }
-            .filter { vppId ->
-                vppIds.none { it.id == vppId }
-            }.forEach { vppId -> vppIdRepository.cacheVppId(vppId, school) }
-        vppIds = vppIdRepository.getVppIds().first()
+            .forEach { vppId -> vppIdRepository.getVppId(vppId.toLong(), school, false) }
 
         val existingBookings = roomBookingDao.getAllRoomBookings().map { it.roomBooking.id }
 
@@ -183,7 +179,7 @@ class RoomRepositoryImpl(
         roomBookings.bookings
             .filter profileClass@{ booking -> booking.`class` in profileClasses }
             .filter notInPast@{ booking -> DateUtils.getDateTimeFromTimestamp(booking.end).isAfter(LocalDateTime.now()) }
-            .filter notBookedByCurrentUser@{ booking -> !vppIds.filter { it.isActive() }.map { it.id }.contains(booking.bookedBy) }
+            .filter notBookedByCurrentUser@{ booking -> !(vppIdRepository.getVppId(booking.bookedBy.toLong(), school, false)?.isActive() ?: false) }
             .filter isNewInDatabase@{ booking -> !existingBookings.contains(booking.id) }
             .forEach sendNotification@{ booking ->
                 notificationRepository.sendNotification(
@@ -192,7 +188,7 @@ class RoomRepositoryImpl(
                     title = stringRepository.getString(R.string.notification_roomBookingTitle),
                     message = stringRepository.getString(
                         R.string.notification_roomBookingContent,
-                        vppIds.first { it.id == booking.bookedBy }.name,
+                        vppIdRepository.getVppId(booking.bookedBy.toLong(), school, false)?.name ?: stringRepository.getString(R.string.unknownVppId),
                         booking.roomName,
                         DateUtils.getDateTimeFromTimestamp(booking.start).toLocalTime().format(
                             DateTimeFormatter.ofPattern("HH:mm")

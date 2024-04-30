@@ -5,7 +5,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -19,6 +18,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.SetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
 
@@ -29,8 +29,6 @@ object MainModule {
     @Singleton
     fun provideMainUseCases(
         keyValueRepository: KeyValueRepository,
-        classRepository: ClassRepository,
-        vppIdRepository: VppIdRepository,
         homeworkRepository: HomeworkRepository,
         setUpUseCase: SetUpUseCase,
         profileRepository: ProfileRepository,
@@ -39,8 +37,6 @@ object MainModule {
         return MainUseCases(
             getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
             getCurrentIdentity = GetCurrentIdentityUseCase(
-                vppIdRepository = vppIdRepository,
-                classRepository = classRepository,
                 keyValueRepository = keyValueRepository,
                 profileRepository = profileRepository,
             ),
@@ -59,6 +55,7 @@ object MainModule {
         keyValueRepository: KeyValueRepository,
         homeworkRepository: HomeworkRepository,
         vppIdRepository: VppIdRepository,
+        profileRepository: ProfileRepository,
         alarmManagerRepository: AlarmManagerRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
     ): SetUpUseCase {
@@ -67,7 +64,8 @@ object MainModule {
             homeworkRepository = homeworkRepository,
             alarmManagerRepository = alarmManagerRepository,
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
-            vppIdRepository = vppIdRepository
+            vppIdRepository = vppIdRepository,
+            testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
         )
     }
 }

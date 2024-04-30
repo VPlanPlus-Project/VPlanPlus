@@ -8,23 +8,19 @@ import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.domain.model.Session
+import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import java.time.ZonedDateTime
 
 interface VppIdRepository {
     fun getVppIds(): Flow<List<VppId>>
+    fun getActiveVppIds(): Flow<List<VppId>>
     suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?>
 
-    /**
-     * If this id is already cached, it will return the vpp.ID, otherwise it will fetch it from the server, cache it and return its username
-     * @param id the id of the user
-     * @param school the school where the user is expected to be
-     * @return the now cached vpp.ID or null if something went wrong
-     */
-    suspend fun cacheVppId(id: Int, school: School): VppId?
     suspend fun addVppId(vppId: VppId)
+
+    suspend fun getVppId(id: Long, school: School, forceUpdate: Boolean): VppId?
 
     suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?, initialCreation: Boolean)
     suspend fun getVppIdToken(vppId: VppId): String?
