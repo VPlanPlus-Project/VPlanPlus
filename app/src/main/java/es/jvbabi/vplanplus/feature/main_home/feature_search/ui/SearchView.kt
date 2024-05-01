@@ -143,7 +143,7 @@ fun SearchViewContent(
                 .clip(RoundedCornerShape(percent = (50 * (1 - modifier.value)).toInt()))
                 .background(MaterialTheme.colorScheme.surface)
                 .height(56.dp)
-                .clickable { onSearchActiveChange(true) },
+                .clickable { onSearchActiveChange(true); focusRequester.requestFocus() },
             verticalAlignment = Alignment.CenterVertically
         ) {
             IconButton(
