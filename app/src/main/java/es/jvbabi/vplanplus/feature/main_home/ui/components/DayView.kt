@@ -4,13 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SportsEsports
@@ -59,7 +57,6 @@ fun DayView(
     onChangeInfoExpandState: (Boolean) -> Unit,
     onAddHomework: (vpId: Long?) -> Unit,
     onBookRoomClicked: () -> Unit,
-    scrollState: ScrollState
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
@@ -67,9 +64,7 @@ fun DayView(
     when (day?.type) {
         DayType.NORMAL -> {
             if (day.lessons.isEmpty()) return
-            Column(
-                Modifier.verticalScroll(scrollState)
-            ) {
+            Column {
                 if (day.info != null) {
                     if (isInfoExpanded == null) {
                         InfoCard(

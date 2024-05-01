@@ -572,5 +572,7 @@
     <string name="vppIdLink_noSuitableProfiles">Es gibt aktuell keine passenden Profile für die Klasse %1$s auf diesem Gerät. Du musst ein neues Profil für diese Klasse anlegen und die vpp.ID hinterher damit verbinden.</string>
     <string name="vppIdLink_selectAProfile">Wähle mindestens ein Profil, zu welchem deine vpp.ID gebunden wird. Diese Einstellung kannst su später ändern.</string>
     <string name="settingsHomework_reminderCategory">Erinnerungen</string>
+    <string name="home_planHeader">Plan</string>
+    <string name="home_importantHeader">Wichtig</string>
 
 </resources>
