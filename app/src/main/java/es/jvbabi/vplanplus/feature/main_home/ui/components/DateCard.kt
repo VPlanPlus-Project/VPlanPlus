@@ -128,8 +128,8 @@ fun DateCard(
                     style = MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.Bold,
                         color =
-                            if (date.dayOfWeek.value > 5) MaterialTheme.colorScheme.error
-                            else if (isSelected) MaterialTheme.colorScheme.onPrimary
+                            if (isSelected) MaterialTheme.colorScheme.onPrimary
+                            else if (date.dayOfWeek.value > 5) MaterialTheme.colorScheme.error
                             else secondaryForeground
                     ),
                 )

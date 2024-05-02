@@ -576,5 +576,12 @@
     <string name="settingsHomework_reminderCategory">Reminders</string>
     <string name="home_planHeader">Plan</string>
     <string name="home_importantHeader">Important</string>
+    <string name="home_lessonCardProgressBottomLeft">%1$s Lesson • %2$s - %3$s</string>
+    <plurals name="home_lessonCardProgressBottomRight">
+        <item quantity="one">One minute left</item>
+        <item quantity="other">%1$d minutes left</item>
+    </plurals>
+    <string name="recommended">Recommended</string>
+    <string name="quick_actions">Quick actions</string>
 
 </resources>

@@ -574,5 +574,12 @@
     <string name="settingsHomework_reminderCategory">Erinnerungen</string>
     <string name="home_planHeader">Plan</string>
     <string name="home_importantHeader">Wichtig</string>
+    <string name="home_lessonCardProgressBottomLeft">%1$s Stunde • %2$s - %3$s</string>
+    <plurals name="home_lessonCardProgressBottomRight">
+        <item quantity="one">Noch eine Minute</item>
+        <item quantity="other">Noch %1$d Minuten</item>
+    </plurals>
+    <string name="recommended">Empfohlen</string>
+    <string name="quick_actions">Schnellaktionen</string>
 
 </resources>

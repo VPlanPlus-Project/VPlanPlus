@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
@@ -222,8 +223,6 @@ fun HomeScreenContent(
     }
 
     var shadowAlpha by remember { mutableFloatStateOf(0f) }
-
-
     LaunchedEffect(key1 = lazyListState) {
         snapshotFlow { lazyListState.firstVisibleItemScrollOffset }.collect {
             shadowAlpha = minOf(it + lazyListState.layoutInfo.visibleItemsInfo.subList(0, lazyListState.firstVisibleItemIndex).sumOf { e -> e.size }, 200) / 200f
@@ -300,7 +299,7 @@ fun HomeScreenContent(
                 ) {
                     stickyHeader {
                         Column(Modifier.background(MaterialTheme.colorScheme.background)) {
-                            PlanHeader(Modifier.padding(start = 8.dp))
+                            Collapsable(expand = state.hasMissingVppIdToProfileLinks || state.hasInvalidVppIdSession) { PlanHeader(Modifier.padding(start = 8.dp)) }
                             DayPager(
                                 selectedDate = state.selectedDate,
                                 today = state.currentTime.toLocalDate(),
@@ -375,7 +374,8 @@ fun HomeScreenContent(
                         HorizontalPager(
                             state = contentPagerState,
                             verticalAlignment = Alignment.Top,
-                            beyondBoundsPageCount = 10
+                            beyondBoundsPageCount = 10,
+                            pageSize = PageSize.Fill,
                         ) {
                             val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
 
