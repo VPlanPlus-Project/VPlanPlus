@@ -5,6 +5,8 @@ import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -33,7 +35,8 @@ class FakeProfileRepository : ProfileRepository {
             displayName = customName,
             defaultLessons = emptyMap(),
             calendarId = null,
-            calendarType = ProfileCalendarType.NONE
+            calendarType = ProfileCalendarType.NONE,
+            vppId = null
         )] = emptyList()
         return id
     }
@@ -75,6 +78,18 @@ class FakeProfileRepository : ProfileRepository {
     }
 
     override suspend fun deleteDefaultLessonFromProfile(vpId: Long) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getSchoolFromProfile(profile: Profile): School {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun getActiveProfile(): Flow<Profile?> {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun setProfileVppId(profile: Profile, vppId: VppId?) {
         TODO("Not yet implemented")
     }
 }

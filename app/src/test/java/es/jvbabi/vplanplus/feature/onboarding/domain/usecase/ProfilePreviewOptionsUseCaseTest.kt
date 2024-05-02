@@ -84,7 +84,7 @@ class ProfilePreviewOptionsUseCaseTest {
     @Test
     fun `Return classes for new school`() {
         runBlocking {
-            val result = profileOptionsUseCase(newSchool.schoolId, ProfileType.STUDENT)
+            val result = profileOptionsUseCase(newSchool.schoolId, "", "", ProfileType.STUDENT)
             assert(result == FakeClassRepository.classNames)
         }
     }
@@ -92,7 +92,7 @@ class ProfilePreviewOptionsUseCaseTest {
     @Test
     fun `Return teachers for new school`() {
         runBlocking {
-            val result = profileOptionsUseCase(newSchool.schoolId, ProfileType.TEACHER)
+            val result = profileOptionsUseCase(newSchool.schoolId, "", "", ProfileType.TEACHER)
             assert(result == FakeTeacherRepository.teacherNames)
         }
     }
@@ -100,7 +100,7 @@ class ProfilePreviewOptionsUseCaseTest {
     @Test
     fun `Return rooms for new school`() {
         runBlocking {
-            val result = profileOptionsUseCase(newSchool.schoolId, ProfileType.ROOM)
+            val result = profileOptionsUseCase(newSchool.schoolId, "", "", ProfileType.ROOM)
             assert(result == FakeRoomRepository.roomNames)
         }
     }
@@ -108,7 +108,7 @@ class ProfilePreviewOptionsUseCaseTest {
     @Test
     fun `Return classes for existing school`() {
         runBlocking {
-            val result = profileOptionsUseCase(school.schoolId, ProfileType.STUDENT)
+            val result = profileOptionsUseCase(school.schoolId, "", "", ProfileType.STUDENT)
             assert(result == FakeClassRepository.classNames.drop(1))
         }
     }
@@ -116,7 +116,7 @@ class ProfilePreviewOptionsUseCaseTest {
     @Test
     fun `Return teachers for existing school`() {
         runBlocking {
-            val result = profileOptionsUseCase(school.schoolId, ProfileType.TEACHER)
+            val result = profileOptionsUseCase(school.schoolId, "", "", ProfileType.TEACHER)
             assert(result == FakeTeacherRepository.teacherNames.drop(1))
         }
     }
@@ -124,7 +124,7 @@ class ProfilePreviewOptionsUseCaseTest {
     @Test
     fun `Return rooms for existing school`() {
         runBlocking {
-            val result = profileOptionsUseCase(school.schoolId, ProfileType.ROOM)
+            val result = profileOptionsUseCase(school.schoolId, "", "", ProfileType.ROOM)
             assert(result == FakeRoomRepository.roomNames.drop(1))
         }
     }

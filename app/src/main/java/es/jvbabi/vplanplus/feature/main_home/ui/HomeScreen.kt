@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -230,8 +229,6 @@ fun HomeScreenContent(
             shadowAlpha = minOf(it + lazyListState.layoutInfo.visibleItemsInfo.subList(0, lazyListState.firstVisibleItemIndex).sumOf { e -> e.size }, 200) / 200f
         }
     }
-
-    Log.d("Shadow", shadowAlpha.toString())
 
     Scaffold(
         bottomBar = { navBar(!keyboardAsState().value) },

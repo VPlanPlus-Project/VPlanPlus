@@ -44,6 +44,10 @@ class FakeTeacherRepository(
         teachers.forEach { createTeacher(schoolId, it) }
     }
 
+    override suspend fun getAll(): List<Teacher> {
+        TODO("Not yet implemented")
+    }
+
     companion object {
         val teacherNames = listOf(
             "Ack",

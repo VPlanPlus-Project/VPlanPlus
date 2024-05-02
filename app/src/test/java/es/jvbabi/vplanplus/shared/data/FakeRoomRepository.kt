@@ -69,6 +69,10 @@ class FakeRoomRepository(
         TODO("Not yet implemented")
     }
 
+    override suspend fun getAll(): List<Room> {
+        TODO("Not yet implemented")
+    }
+
     companion object {
         val roomNames = listOf(
             "005a",

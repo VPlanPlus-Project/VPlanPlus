@@ -38,6 +38,10 @@ class FakeClassRepository(
         return classes.filter { it.school == school }
     }
 
+    override suspend fun getAll(): List<Classes> {
+        return classes
+    }
+
     companion object {
         val classNames = listOf(
             "5a",
