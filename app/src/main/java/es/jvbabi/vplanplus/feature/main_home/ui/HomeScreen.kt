@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -36,14 +37,19 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -216,6 +222,17 @@ fun HomeScreenContent(
         }
     }
 
+    var shadowAlpha by remember { mutableFloatStateOf(0f) }
+
+
+    LaunchedEffect(key1 = lazyListState) {
+        snapshotFlow { lazyListState.firstVisibleItemScrollOffset }.collect {
+            shadowAlpha = minOf(it + lazyListState.layoutInfo.visibleItemsInfo.subList(0, lazyListState.firstVisibleItemIndex).sumOf { e -> e.size }, 200) / 200f
+        }
+    }
+
+    Log.d("Shadow", shadowAlpha.toString())
+
     Scaffold(
         bottomBar = { navBar(!keyboardAsState().value) },
         containerColor = MaterialTheme.colorScheme.background,
@@ -226,11 +243,7 @@ fun HomeScreenContent(
                 .padding(bottom = paddingValues.calculateBottomPadding())
                 .nestedScroll(scrollConnection)
         ) {
-            Box(
-                Modifier
-                    .background(MaterialTheme.colorScheme.background)
-                    .zIndex(5f)
-            ) {
+            Box(Modifier.zIndex(5f)) {
                 SearchView(
                     onOpenMenu = { onOpenMenu(true) },
                     onFindAvailableRoomClicked = onBookRoomClicked
@@ -265,7 +278,7 @@ fun HomeScreenContent(
                     Collapsable(
                         expand = state.hasMissingVppIdToProfileLinks || state.hasInvalidVppIdSession
                     ) { ImportantHeader(Modifier.padding(start = 8.dp)) }
-                    Collapsable(expand = state.hasInvalidVppIdSession,) {
+                    Collapsable(expand = state.hasInvalidVppIdSession) {
                         InfoCard(
                             imageVector = Icons.Default.NoAccounts,
                             title = stringResource(id = R.string.home_invalidVppIdSessionTitle),
@@ -277,7 +290,7 @@ fun HomeScreenContent(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
                         )
                     }
-                    Collapsable(expand = state.hasMissingVppIdToProfileLinks,) {
+                    Collapsable(expand = state.hasMissingVppIdToProfileLinks) {
                         MissingVppIdLinkToProfileCard(
                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                             onFixClicked = onFixVppIdLinksClicked
@@ -296,18 +309,17 @@ fun HomeScreenContent(
                                 today = state.currentTime.toLocalDate(),
                                 onDateSelected = onSetSelectedDate
                             )
-                            Box(
-                                modifier = Modifier
-                                    .padding(top = 8.dp)
-                                    .fillMaxWidth()
-                            ) {
+                        }
+                        Column(Modifier.fillMaxWidth()) {
+                            Row(
+                                Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.background), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                                 TextButton(
                                     onClick = {
                                         onSetSelectedDate(state.selectedDate.minusWeeks(1L).withDayOfWeek(1))
                                     },
-                                    modifier = Modifier
-                                        .padding(start = 4.dp)
-                                        .align(Alignment.CenterStart)
+                                    modifier = Modifier.padding(start = 4.dp)
                                 ) {
                                     Icon(
                                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
@@ -317,10 +329,7 @@ fun HomeScreenContent(
                                         text = stringResource(id = R.string.home_calendarWeek, state.selectedDate.minusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
                                     )
                                 }
-                                Collapsable(
-                                    modifier = Modifier.align(Alignment.Center),
-                                    expand = state.selectedDate != LocalDate.now()
-                                ) {
+                                Collapsable(expand = state.selectedDate != LocalDate.now()) {
                                     Row(
                                         horizontalArrangement = Arrangement.Center,
                                         verticalAlignment = Alignment.CenterVertically
@@ -342,9 +351,7 @@ fun HomeScreenContent(
                                     onClick = {
                                         onSetSelectedDate(state.selectedDate.plusWeeks(1L).withDayOfWeek(1))
                                     },
-                                    modifier = Modifier
-                                        .padding(end = 4.dp)
-                                        .align(Alignment.CenterEnd)
+                                    modifier = Modifier.padding(end = 4.dp)
                                 ) {
                                     Text(
                                         text = stringResource(id = R.string.home_calendarWeek, state.selectedDate.plusWeeks(1L).format(DateTimeFormatter.ofPattern("w")).toInt())
@@ -355,6 +362,16 @@ fun HomeScreenContent(
                                     )
                                 }
                             }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(16.dp)
+                                    .alpha(shadowAlpha)
+                                    .drawWithContent {
+                                        drawContent()
+                                        drawRect(brush = Brush.verticalGradient(listOf(Color.DarkGray.copy(alpha = .3f), Color.DarkGray.copy(alpha = 0f))), topLeft = Offset(0f, 0f), size = size)
+                                    }
+                            ) {}
                         }
                     }
                     item {
