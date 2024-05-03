@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
+import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NoAccounts
@@ -69,9 +70,10 @@ import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.time.LocalDate
+import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
-const val PAGER_SIZE = 100
+const val PAGER_SIZE = 200
 
 @Composable
 fun HomeScreen(
@@ -246,7 +248,11 @@ fun HomeScreenContent(
                     state = contentPagerState,
                     modifier = Modifier.fillMaxSize(),
                     pageSize = PageSize.Fill,
-                    verticalAlignment = Alignment.Top
+                    verticalAlignment = Alignment.Top,
+                    flingBehavior = PagerDefaults.flingBehavior(
+                        state = contentPagerState,
+                        snapAnimationSpec = tween(100)
+                    )
                 ) {
                     val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
                     val day = state.days[date]
@@ -335,7 +341,8 @@ private fun HomeScreenPreview() {
             menuOpened = false,
             hasUnreadNews = true,
             profiles = listOf(profile),
-            hasMissingVppIdToProfileLinks = true
+            hasMissingVppIdToProfileLinks = true,
+            lastSync = ZonedDateTime.now().minusDays(1L)
         ),
         onAddHomework = {},
         onBookRoomClicked = {},
