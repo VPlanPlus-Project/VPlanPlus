@@ -572,7 +572,7 @@
     <string name="vppIdLink_noSuitableProfiles">Es gibt aktuell keine passenden Profile für die Klasse %1$s auf diesem Gerät. Du musst ein neues Profil für diese Klasse anlegen und die vpp.ID hinterher damit verbinden.</string>
     <string name="vppIdLink_selectAProfile">Wähle mindestens ein Profil, zu welchem deine vpp.ID gebunden wird. Diese Einstellung kannst su später ändern.</string>
     <string name="settingsHomework_reminderCategory">Erinnerungen</string>
-    <string name="home_planHeader">Plan</string>
+    <string name="home_planHeader">Stundenplan</string>
     <string name="home_importantHeader">Wichtig</string>
     <string name="home_lessonCardProgressBottomLeft">%1$s Stunde • %2$s - %3$s</string>
     <plurals name="home_lessonCardProgressBottomRight">
@@ -580,6 +580,12 @@
         <item quantity="other">Noch %1$d Minuten</item>
     </plurals>
     <string name="recommended">Empfohlen</string>
-    <string name="quick_actions">Schnellaktionen</string>
+    <string name="home_quickActionsTitle">Schnellaktionen</string>
+    <string name="home_quickActionsNewHomework">Neue Hausaufgabe</string>
+    <string name="home_quickActionsNextDayPreparation">Plan für Morgen</string>
+    <string name="home_quickActionsFindAvailableRoom">Freie Räume</string>
+    <string name="home_headSubtitleClass">Klasse %1$s</string>
+    <string name="home_headSubtitleTeacher">Lehrer %1$s</string>
+    <string name="home_headSubtitleRoom">Raum %1$s</string>
 
 </resources>

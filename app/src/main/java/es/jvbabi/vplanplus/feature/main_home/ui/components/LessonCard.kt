@@ -159,11 +159,11 @@ fun LessonCard(
                 text = stringResource(id = R.string.home_activeBookedBy, booking?.bookedBy?.name ?: "Unknown", booking?.`class`?.name ?: "--")
             )
 
-            val showBookRoomAssistChip = lesson.rooms.isEmpty() && booking == null
+            val showBookRoomAssistChip = lesson.rooms.isEmpty() && booking == null && time.isBefore(lesson.end)
             val showCreateHomeworkAssistChip = expanded
             Expandable(isExpanded = (showBookRoomAssistChip || showCreateHomeworkAssistChip) && allowActions) {
                 Column(Modifier.padding(top = 8.dp)) {
-                    Text(text = stringResource(id = R.string.quick_actions), style = MaterialTheme.typography.labelSmall, modifier = Modifier.offset(y = 6.dp))
+                    Text(text = stringResource(id = R.string.home_quickActionsTitle), style = MaterialTheme.typography.labelSmall, modifier = Modifier.offset(y = 6.dp))
                     LazyRow(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically
@@ -379,7 +379,7 @@ private fun ProgressBar(lesson: Lesson, now: ZonedDateTime, activeModifier: Floa
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
-                val minutesLeft = now.until(lesson.end, ChronoUnit.MINUTES).toInt()
+                val minutesLeft = now.until(lesson.end, ChronoUnit.MINUTES).toInt()+1
                 Text(
                     text = stringResource(
                         id = R.string.home_lessonCardProgressBottomLeft,

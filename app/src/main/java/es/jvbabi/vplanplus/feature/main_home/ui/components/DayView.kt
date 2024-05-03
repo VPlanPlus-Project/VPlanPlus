@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.stringResource
@@ -96,7 +97,7 @@ fun DayView(
                                 val lineHeight =
                                     if (day.lessons.any { it.progress(currentTime) < 1 }) size.height else size.height / 2
                                 drawLine(
-                                    color = Color.Gray,
+                                    brush = Brush.verticalGradient(listOf(Color.Gray.copy(alpha = 0f), Color.Gray)),
                                     start = Offset((padding/2).toPx(), 0f),
                                     end = Offset((padding/2).toPx(), lineHeight),
                                     strokeWidth = 1.dp.toPx(),
@@ -135,7 +136,7 @@ fun DayView(
                             modifier = Modifier.drawWithContent {
                                 drawContent()
                                 drawLine(
-                                    color = Color.Gray,
+                                    brush = Brush.verticalGradient(listOf(Color.Gray.copy(alpha = if (isFirstDisplay && (!hideFinishedLessons && !stillShowHiddenLessons)) 0f else 1f), Color.Gray)),
                                     start = Offset((padding/2).toPx(), -10f),
                                     end = Offset((padding/2).toPx(), 25.dp.toPx()),
                                     strokeWidth = 1.dp.toPx(),

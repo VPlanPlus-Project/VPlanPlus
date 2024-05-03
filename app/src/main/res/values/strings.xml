@@ -574,7 +574,7 @@
     <string name="vppIdLink_noSuitableProfiles">There are no suitable profiles for class %1$s on this device right now. You\'ll need to create a new profile for this class and link your vpp.ID to it afterwards.</string>
     <string name="vppIdLink_selectAProfile">Select at least one profile. Your vpp.ID will be linked to them. This can be changed later.</string>
     <string name="settingsHomework_reminderCategory">Reminders</string>
-    <string name="home_planHeader">Plan</string>
+    <string name="home_planHeader">Timetable</string>
     <string name="home_importantHeader">Important</string>
     <string name="home_lessonCardProgressBottomLeft">%1$s Lesson • %2$s - %3$s</string>
     <plurals name="home_lessonCardProgressBottomRight">
@@ -582,6 +582,12 @@
         <item quantity="other">%1$d minutes left</item>
     </plurals>
     <string name="recommended">Recommended</string>
-    <string name="quick_actions">Quick actions</string>
+    <string name="home_quickActionsTitle">Quick actions</string>
+    <string name="home_quickActionsNewHomework">New homework</string>
+    <string name="home_quickActionsNextDayPreparation">Plan for tomorrow</string>
+    <string name="home_quickActionsFindAvailableRoom">Available rooms</string>
+    <string name="home_headSubtitleClass">Class %1$s</string>
+    <string name="home_headSubtitleTeacher">Teacher %1$s</string>
+    <string name="home_headSubtitleRoom">Room %1$s</string>
 
 </resources>
