@@ -120,6 +120,7 @@ fun HomeScreen(
                 "https://github.com/VPlanPlus-Project/VPlanPlus"
             )
         },
+        onOpenSearch = { navHostController.navigate(Screen.SearchScreen.route) },
         onRefreshClicked = { homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(context) },
         onFixVppIdSessionClicked = { onLogin(context, state.server) },
         onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
@@ -137,6 +138,7 @@ fun HomeScreenContent(
     onInfoExpandChange: (to: Boolean) -> Unit = {},
     onAddHomework: (vpId: Long?) -> Unit,
     onBookRoomClicked: () -> Unit,
+    onOpenSearch: () -> Unit = {},
 
     onSwitchProfile: (to: Profile) -> Unit,
     onManageProfiles: () -> Unit = {},
@@ -189,6 +191,7 @@ fun HomeScreenContent(
                     isSyncing = state.isSyncRunning,
                     showNotificationDot = state.hasUnreadNews,
                     onProfileClicked = { onOpenMenu(true) },
+                    onSearchClicked = onOpenSearch
                 )
                 Collapsable(
                     expand = state.hasMissingVppIdToProfileLinks || state.hasInvalidVppIdSession

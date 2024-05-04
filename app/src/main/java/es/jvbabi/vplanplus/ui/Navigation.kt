@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
+import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
@@ -274,6 +275,16 @@ private fun NavGraphBuilder.mainScreens(
             navBar = navBar,
             startDate = LocalDate.now()
         )
+    }
+
+    composable(
+        route = Screen.SearchScreen.route,
+        enterTransition = slideInFromBottom,
+        exitTransition = slideOutFromBottom,
+        popEnterTransition = slideInFromBottom,
+        popExitTransition = slideOutFromBottom
+    ) {
+        SearchView(navHostController = navController)
     }
 
     composable(
