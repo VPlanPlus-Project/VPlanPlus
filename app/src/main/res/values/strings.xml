@@ -589,5 +589,6 @@
     <string name="home_headSubtitleClass">Class %1$s</string>
     <string name="home_headSubtitleTeacher">Teacher %1$s</string>
     <string name="home_headSubtitleRoom">Room %1$s</string>
+    <string name="home_sendFeedback">Send feedback</string>
 
 </resources>

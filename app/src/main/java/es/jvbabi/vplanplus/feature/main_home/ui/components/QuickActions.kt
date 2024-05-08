@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.NextWeek
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Bolt
+import androidx.compose.material.icons.outlined.Feedback
 import androidx.compose.material.icons.outlined.MeetingRoom
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.util.VersionTools
 
 @Composable
 fun QuickActions(
@@ -36,6 +38,7 @@ fun QuickActions(
     onNewHomeworkClicked: () -> Unit = {},
     onFindAvailableRoomClicked: () -> Unit = {},
     onPrepareNextDayClicked: () -> Unit = {},
+    onSendFeedback: () -> Unit = {},
 ) {
     Column(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) title@{
@@ -72,14 +75,20 @@ fun QuickActions(
                     onClick = onFindAvailableRoomClicked,
                 )
             }
-            item {
+            if (VersionTools.isDevelopmentVersion()) item {
                 QuickActionButton(
                     icon = Icons.AutoMirrored.Outlined.NextWeek,
                     text = stringResource(id = R.string.home_quickActionsNextDayPreparation),
                     onClick = onPrepareNextDayClicked,
                 )
             }
-            item {}
+            if (VersionTools.isDevelopmentVersion()) item {
+                QuickActionButton(
+                    icon = Icons.Outlined.Feedback,
+                    text = stringResource(id = R.string.home_sendFeedback),
+                    onClick = onSendFeedback,
+                )
+            }
         }
     }
 }

@@ -49,7 +49,7 @@ fun Greeting(
             )
         ) {
             append(greeting)
-            if (name != null) append(", ${name.split(" ").dropLast(1).joinToString(" ")}")
+            if (name != null) append(", ${name.split(" ").first()}")
             append("!")
         }
     }

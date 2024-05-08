@@ -587,5 +587,6 @@
     <string name="home_headSubtitleClass">Klasse %1$s</string>
     <string name="home_headSubtitleTeacher">Lehrer %1$s</string>
     <string name="home_headSubtitleRoom">Raum %1$s</string>
+    <string name="home_sendFeedback">Feedback geben</string>
 
 </resources>

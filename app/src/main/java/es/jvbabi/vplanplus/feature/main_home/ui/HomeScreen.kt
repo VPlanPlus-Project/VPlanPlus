@@ -125,6 +125,7 @@ fun HomeScreen(
         onFixVppIdSessionClicked = { onLogin(context, state.server) },
         onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
+        onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) }
     )
 }
 
@@ -152,6 +153,8 @@ fun HomeScreenContent(
     onFixVppIdSessionClicked: () -> Unit = {},
     onIgnoreInvalidVppIdSessions: () -> Unit = {},
     onFixVppIdLinksClicked: () -> Unit = {},
+
+    onSendFeedback: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
@@ -219,7 +222,8 @@ fun HomeScreenContent(
                     modifier = Modifier.padding(vertical = 16.dp),
                     onNewHomeworkClicked = { onAddHomework(null) },
                     onFindAvailableRoomClicked = onBookRoomClicked,
-                    onPrepareNextDayClicked = { onSetSelectedDate(state.currentTime.toLocalDate().plusDays(1L)) }
+                    onPrepareNextDayClicked = { onSetSelectedDate(state.currentTime.toLocalDate().plusDays(1L)) },
+                    onSendFeedback = onSendFeedback
                 )
             }
             stickyHeader dateSelector@{
