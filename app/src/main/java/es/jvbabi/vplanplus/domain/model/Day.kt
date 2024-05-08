@@ -21,10 +21,10 @@ data class Day(
     val lessons: List<Lesson>,
     val info: String?,
 ) {
-    fun getFilteredLessons(profile: Profile) =
+    fun getEnabledLessons(profile: Profile) =
         lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
 
     fun anyLessonsLeft(time: ZonedDateTime, profile: Profile): Boolean {
-        return getFilteredLessons(profile).any { it.progress(time) < 1.0 }
+        return getEnabledLessons(profile).any { it.progress(time) < 1.0 }
     }
 }
