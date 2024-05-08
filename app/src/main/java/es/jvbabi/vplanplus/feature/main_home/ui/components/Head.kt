@@ -48,7 +48,7 @@ fun Head(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Top
         ) {
-            Column {
+            Column(Modifier.weight(1f)) {
                 Greeting(time = currentTime, name = profile.vppId?.name)
                 Text(
                     text = stringResource(
@@ -98,7 +98,13 @@ fun Head(
 @Composable
 @Preview(showBackground = true)
 private fun HeadPreview() {
-    val profile = ProfilePreview.generateClassProfile(VppIdPreview.generateVppId(null))
+    val profile = ProfilePreview.generateClassProfile(VppIdPreview.generateVppId(null)).let {
+        it.copy(
+            vppId = it.vppId!!.copy(
+                name = "Johnathaneeeeeee Doe"
+            )
+        )
+    }
     Head(
         currentTime = ZonedDateTime.now(),
         profile = profile,
