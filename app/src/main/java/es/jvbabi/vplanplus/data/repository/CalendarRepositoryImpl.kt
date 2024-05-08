@@ -105,7 +105,7 @@ class CalendarRepositoryImpl(
             val description = cursor.getString(cursor.getColumnIndex(CalendarContract.Events.DESCRIPTION))
             val start = cursor.getLong(cursor.getColumnIndex(CalendarContract.Events.DTSTART))
             val end = cursor.getLong(cursor.getColumnIndex(CalendarContract.Events.DTEND))
-            val timeZone = cursor.getString(cursor.getColumnIndex(CalendarContract.Events.EVENT_TIMEZONE))
+            val timeZone = cursor.getStringOrNull(cursor.getColumnIndex(CalendarContract.Events.EVENT_TIMEZONE))
             val location = cursor.getStringOrNull(cursor.getColumnIndex(CalendarContract.Events.EVENT_LOCATION))
             events.add(
                 CalendarEvent(
@@ -115,7 +115,7 @@ class CalendarRepositoryImpl(
                     startTimeStamp = start / 1000,
                     endTimeStamp = end / 1000,
                     calendarId = calendar.id,
-                    timeZone = TimeZone.getTimeZone(timeZone),
+                    timeZone = TimeZone.getTimeZone(timeZone ?: "UTC"),
                     info = description,
                 )
             )

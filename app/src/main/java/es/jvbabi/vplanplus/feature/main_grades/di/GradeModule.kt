@@ -44,7 +44,8 @@ object GradeModule {
         logRepository: LogRecordRepository,
         vppIdRepository: VppIdRepository,
         notificationRepository: NotificationRepository,
-        stringRepository: StringRepository
+        stringRepository: StringRepository,
+        logRecordRepository: LogRecordRepository
     ): GradeRepository {
         return GradeRepositoryImpl(
             teacherDao = db.teacherDao,
@@ -54,7 +55,8 @@ object GradeModule {
             vppIdRepository = vppIdRepository,
             bsNetworkRepository = provideBsNetworkRepository(logRepository),
             notificationRepository = notificationRepository,
-            stringRepository = stringRepository
+            stringRepository = stringRepository,
+            logRecordRepository = logRecordRepository
         )
     }
 

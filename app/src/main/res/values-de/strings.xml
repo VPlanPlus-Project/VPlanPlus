@@ -321,7 +321,7 @@
     <string name="homework_homeworkHead">%1$s bis %2$s</string>
     <string name="homework_homeworkSubtitleCreatedBy">%1$s, %2$s</string>
     <string name="homework_homeworkSubtitleLocally">Dieses Gerät, %1$s</string>
-    <string name="homework_homeworkSubtitleCreatedByYou">Deine vpp.ID, %1$s</string>
+    <string name="homework_homeworkSubtitleCreatedByYou">Du, am %1$s</string>
     <string name="homework_addTask">Aufgabe hinzufügen</string>
     <string name="menu">Menu</string>
     <string name="homework_deleteHomeworkTitle">Hausaufgabe löschen?</string>
