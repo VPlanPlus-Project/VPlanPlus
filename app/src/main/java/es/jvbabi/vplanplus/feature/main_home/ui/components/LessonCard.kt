@@ -48,7 +48,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -140,7 +139,7 @@ fun LessonCard(
                     Column {
                         relevantHomeworkTasks.forEachIndexed { taskIndex, homeworkTasks ->
                             val tasksText = buildHomeworkTasksText(homeworkTasks)
-                            Text(text = tasksText, style = MaterialTheme.typography.bodyMedium, color = Color.Gray)
+                            Text(text = tasksText, style = MaterialTheme.typography.bodyMedium)
                             if (taskIndex != relevantHomeworkTasks.lastIndex) HorizontalDivider()
                         }
                     }
@@ -149,7 +148,6 @@ fun LessonCard(
                     Text(
                         text = pluralStringResource(R.plurals.home_lessonCardHomework, relevantHomeworkTasks.size, relevantHomeworkTasks.size),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color.Gray
                     )
                 }
             }
@@ -340,9 +338,14 @@ private fun ClassText(className: String) {
     val style = MaterialTheme.typography.labelLarge.toSpanStyle()
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(2.dp)
+        horizontalArrangement = Arrangement.spacedBy(2.dp),
+        modifier = Modifier.height(headerItemHeight())
     ) {
-        Icon(imageVector = Icons.Outlined.PeopleAlt, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Icon(
+            imageVector = Icons.Outlined.PeopleAlt,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary
+        )
         val text = buildAnnotatedString {
             withStyle(style) {
                 append(className)

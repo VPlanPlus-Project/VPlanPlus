@@ -182,134 +182,136 @@ fun HomeScreenContent(
         bottomBar = { navBar(!keyboardAsState().value) },
         containerColor = MaterialTheme.colorScheme.surface,
     ) { paddingValues ->
-        LazyColumn(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize()
-        ) {
-            item appHead@{
-                Head(
-                    profile = state.currentIdentity.profile ?: return@appHead,
-                    currentTime = state.currentTime,
-                    isSyncing = state.isSyncRunning,
-                    showNotificationDot = state.hasUnreadNews,
-                    onProfileClicked = { onOpenMenu(true) },
-                    onSearchClicked = onOpenSearch
-                )
-                Collapsable(
-                    expand = state.hasMissingVppIdToProfileLinks || state.hasInvalidVppIdSession
-                ) { ImportantHeader(Modifier.padding(horizontal = 16.dp)) }
-                Collapsable(expand = state.hasInvalidVppIdSession) {
-                    InfoCard(
-                        imageVector = Icons.Default.NoAccounts,
-                        title = stringResource(id = R.string.home_invalidVppIdSessionTitle),
-                        text = stringResource(id = R.string.home_invalidVppIdSessionText),
-                        buttonText1 = stringResource(id = R.string.ignore),
-                        buttonAction1 = onIgnoreInvalidVppIdSessions,
-                        buttonText2 = stringResource(id = R.string.fix),
-                        buttonAction2 = onFixVppIdSessionClicked,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                    )
-                }
-                Collapsable(expand = state.hasMissingVppIdToProfileLinks) {
-                    MissingVppIdLinkToProfileCard(
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        onFixClicked = onFixVppIdLinksClicked
-                    )
-                }
+        Column(Modifier.padding(paddingValues)) {
+            Head(
+                profile = state.currentIdentity.profile ?: return@Scaffold,
+                currentTime = state.currentTime,
+                isSyncing = state.isSyncRunning,
+                showNotificationDot = state.hasUnreadNews,
+                onProfileClicked = { onOpenMenu(true) },
+                onSearchClicked = onOpenSearch,
+            )
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                item appHead@{
+                    Collapsable(
+                        expand = state.hasMissingVppIdToProfileLinks || state.hasInvalidVppIdSession
+                    ) { ImportantHeader(Modifier.padding(horizontal = 16.dp)) }
+                    Collapsable(expand = state.hasInvalidVppIdSession) {
+                        InfoCard(
+                            imageVector = Icons.Default.NoAccounts,
+                            title = stringResource(id = R.string.home_invalidVppIdSessionTitle),
+                            text = stringResource(id = R.string.home_invalidVppIdSessionText),
+                            buttonText1 = stringResource(id = R.string.ignore),
+                            buttonAction1 = onIgnoreInvalidVppIdSessions,
+                            buttonText2 = stringResource(id = R.string.fix),
+                            buttonAction2 = onFixVppIdSessionClicked,
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        )
+                    }
+                    Collapsable(expand = state.hasMissingVppIdToProfileLinks) {
+                        MissingVppIdLinkToProfileCard(
+                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                            onFixClicked = onFixVppIdLinksClicked
+                        )
+                    }
 
-                QuickActions(
-                    modifier = Modifier.padding(vertical = 16.dp),
-                    onNewHomeworkClicked = { onAddHomework(null) },
-                    onFindAvailableRoomClicked = onBookRoomClicked,
-                    onPrepareNextDayClicked = { onSetSelectedDate(state.currentTime.toLocalDate().plusDays(1L)) },
-                    onSendFeedback = onSendFeedback
-                )
-            }
-            stickyHeader dateSelector@{
-                Column(Modifier.background(MaterialTheme.colorScheme.background)) {
-                    PlanHeader(
-                        modifier = Modifier.padding(bottom = 4.dp),
-                        currentDate = state.currentTime.toLocalDate(),
-                        selectedDate = state.selectedDate,
-                        onSetSelectedDate = onSetSelectedDate,
-                    )
-                    DayPager(
-                        selectedDate = state.selectedDate,
-                        today = state.currentTime.toLocalDate(),
-                        onDateSelected = onSetSelectedDate
+                    QuickActions(
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        onNewHomeworkClicked = { onAddHomework(null) },
+                        onFindAvailableRoomClicked = onBookRoomClicked,
+                        onPrepareNextDayClicked = { onSetSelectedDate(state.currentTime.toLocalDate().plusDays(1L)) },
+                        onSendFeedback = onSendFeedback
                     )
                 }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(16.dp)
-                        .drawWithContent {
-                            drawContent()
-                            drawRect(brush = Brush.verticalGradient(listOf(Color.DarkGray.copy(alpha = .3f), Color.DarkGray.copy(alpha = 0f))), topLeft = Offset(0f, 0f), size = size)
-                        }
-                ) {}
-            }
-            item {
-                HorizontalPager(
-                    state = contentPagerState,
-                    modifier = Modifier.fillMaxSize(),
-                    pageSize = PageSize.Fill,
-                    verticalAlignment = Alignment.Top,
-                    flingBehavior = PagerDefaults.flingBehavior(
+                stickyHeader dateSelector@{
+                    Column(Modifier.background(MaterialTheme.colorScheme.background)) {
+                        PlanHeader(
+                            modifier = Modifier.padding(bottom = 4.dp),
+                            currentDate = state.currentTime.toLocalDate(),
+                            selectedDate = state.selectedDate,
+                            onSetSelectedDate = onSetSelectedDate,
+                        )
+                        DayPager(
+                            selectedDate = state.selectedDate,
+                            today = state.currentTime.toLocalDate(),
+                            onDateSelected = onSetSelectedDate
+                        )
+                    }
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(16.dp)
+                            .drawWithContent {
+                                drawContent()
+                                drawRect(brush = Brush.verticalGradient(listOf(Color.DarkGray.copy(alpha = .3f), Color.DarkGray.copy(alpha = 0f))), topLeft = Offset(0f, 0f), size = size)
+                            }
+                    ) {}
+                }
+                item {
+                    HorizontalPager(
                         state = contentPagerState,
-                        snapAnimationSpec = tween(100)
-                    )
-                ) {
-                    val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
-                    val day = state.days[date]
-
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        modifier = Modifier.fillMaxSize(),
+                        pageSize = PageSize.Fill,
+                        verticalAlignment = Alignment.Top,
+                        flingBehavior = PagerDefaults.flingBehavior(
+                            state = contentPagerState,
+                            snapAnimationSpec = tween(100)
+                        ),
+                        beyondBoundsPageCount = 7
                     ) {
-                        val start by rememberSaveable { mutableLongStateOf(System.currentTimeMillis() / 1000) }
-                        val timeOffset = 1
-                        AnimatedVisibility(visible = day == null && start + timeOffset < System.currentTimeMillis() / 1000) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                LinearProgressIndicator(Modifier.fillMaxWidth(.5f))
-                                Text(
-                                    text = stringResource(id = R.string.home_longerThanExpected),
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
-                                )
-                            }
-                        }
+                        val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
+                        val day = state.days[date]
 
-                        val animationDuration = 300
-                        AnimatedVisibility(
-                            modifier = Modifier.fillMaxSize(),
-                            visible = day != null,
-                            enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
-                            exit = fadeOut(animationSpec = tween(animationDuration))
-                        ) dayViewRoot@{
-                            Column {
-                                if (day?.lessons?.size == 0 && day.type == DayType.NORMAL) {
-                                    NoData(date)
-                                    return@dayViewRoot
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            val start by rememberSaveable { mutableLongStateOf(System.currentTimeMillis() / 1000) }
+                            val timeOffset = 1
+                            AnimatedVisibility(visible = day == null && start + timeOffset < System.currentTimeMillis() / 1000) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    LinearProgressIndicator(Modifier.fillMaxWidth(.5f))
+                                    Text(
+                                        text = stringResource(id = R.string.home_longerThanExpected),
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
+                                    )
                                 }
-                                DayView(
-                                    day = day,
-                                    currentTime = state.currentTime,
-                                    showCountdown = state.currentTime.toLocalDate().isEqual(date),
-                                    isInfoExpanded = if (state.currentTime.toLocalDate().isEqual(date)) state.infoExpanded else null,
-                                    currentIdentity = state.currentIdentity,
-                                    bookings = state.bookings,
-                                    homework = state.homework,
-                                    onChangeInfoExpandState = onInfoExpandChange,
-                                    onAddHomework = onAddHomework,
-                                    onBookRoomClicked = onBookRoomClicked,
-                                    hideFinishedLessons = state.hideFinishedLessons,
-                                )
                             }
+
+                            val animationDuration = 300
+                            AnimatedVisibility(
+                                modifier = Modifier.fillMaxSize(),
+                                visible = day != null,
+                                enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
+                                exit = fadeOut(animationSpec = tween(animationDuration))
+                            ) dayViewRoot@{
+                                Column {
+                                    if (day?.lessons?.size == 0 && day.type == DayType.NORMAL) {
+                                        NoData(date)
+                                        return@dayViewRoot
+                                    }
+                                    DayView(
+                                        day = day,
+                                        currentTime = state.currentTime,
+                                        showCountdown = state.currentTime.toLocalDate().isEqual(date),
+                                        isInfoExpanded = if (state.currentTime.toLocalDate().isEqual(date)) state.infoExpanded else null,
+                                        currentIdentity = state.currentIdentity,
+                                        bookings = state.bookings,
+                                        homework = state.homework,
+                                        onChangeInfoExpandState = onInfoExpandChange,
+                                        onAddHomework = onAddHomework,
+                                        onBookRoomClicked = onBookRoomClicked,
+                                        hideFinishedLessons = state.hideFinishedLessons,
+                                    )
+                                }
+                            }
+                            LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(horizontal = 16.dp))
                         }
-                        LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(horizontal = 16.dp))
                     }
                 }
             }
