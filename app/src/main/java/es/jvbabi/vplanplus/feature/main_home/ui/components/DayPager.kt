@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_home.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -13,10 +14,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.feature.main_home.ui.PAGER_SIZE
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
-private const val PAGER_SIZE = 200
-private const val FLING_ITEMS = 10
+private const val FLING_ITEMS = 20
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -34,6 +36,7 @@ fun DayPager(
 
     LaunchedEffect(key1 = selectedDate) {
         pagerState.animateScrollToPage(maxOf( selectedDate.toPagerIndex(today) - 2, 0))
+        Log.d("DayPager", "Selected date: $selectedDate, page index: ${selectedDate.toPagerIndex(today)}")
     }
 
     HorizontalPager(
@@ -42,7 +45,7 @@ fun DayPager(
         pageSize = PageSize.Fixed(68.dp),
         verticalAlignment = Alignment.Top,
         beyondBoundsPageCount = FLING_ITEMS,
-        flingBehavior = fling
+        flingBehavior = fling,
     ) {
         val date = it.toPagerDate(today)
         DateCard(date = date, isSelected = selectedDate.isEqual(date), onClick = onDateSelected, modifier = Modifier.padding(horizontal = 4.dp))
@@ -50,7 +53,7 @@ fun DayPager(
 }
 
 private fun LocalDate.toPagerIndex(today: LocalDate): Int {
-    return today.until(this).days + PAGER_SIZE / 2
+    return (today.until(this, ChronoUnit.DAYS) + PAGER_SIZE / 2).toInt()
 }
 
 private fun Int.toPagerDate(today: LocalDate): LocalDate {

@@ -73,7 +73,7 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
-const val PAGER_SIZE = 200
+const val PAGER_SIZE = 365*2
 
 @Composable
 fun HomeScreen(

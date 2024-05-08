@@ -68,8 +68,8 @@ fun DayView(
             if (day.lessons.isEmpty()) return
             Column {
                 val allLessonsDone = day.anyLessonsLeft(currentTime, currentIdentity.profile!!)
-                val markerCircleRadius = 25f
-                val markerLineWidth = 5f
+                val markerCircleRadius = 18f
+                val markerLineWidth = 3f
 
                 val lastActualLesson = day
                     .lessons
@@ -164,7 +164,7 @@ fun DayView(
                                 drawContent()
 
                                 val pencilX = (padding/2).toPx()
-                                val circleY = 120f
+                                val circleY = 24.dp.toPx()
 
                                 if (isFirstVisibleLessonCard && !uiWillShowHiddenLessonsCard) {
                                     drawLine(

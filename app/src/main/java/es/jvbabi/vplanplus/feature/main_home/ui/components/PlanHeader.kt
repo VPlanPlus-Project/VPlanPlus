@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_home.ui.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,12 +12,18 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -38,9 +45,9 @@ fun PlanHeader(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     currentDate: LocalDate,
-    onOpenDateSelector: () -> Unit = {},
     onSetSelectedDate: (date: LocalDate) -> Unit = {}
 ) {
+    var isMonthSelectorOpen by rememberSaveable { mutableStateOf(false) }
     Column(modifier) {
         Row(
             modifier = modifier.fillMaxWidth(),
@@ -68,12 +75,28 @@ fun PlanHeader(
                     modifier = Modifier.padding(start = 40.dp)
                 )
             }
-            TextButton(
+            Box(
+                contentAlignment = Alignment.CenterStart,
                 modifier = Modifier.padding(end = 16.dp),
-                onClick = onOpenDateSelector
             ) {
-                Text(text = selectedDate.format(DateTimeFormatter.ofPattern("MMMM", Locale.getDefault())))
-                Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                TextButton(
+                    onClick = { isMonthSelectorOpen = true }
+                ) {
+                    Text(text = selectedDate.format(DateTimeFormatter.ofPattern("MMMM", Locale.getDefault())))
+                    Icon(Icons.Default.ArrowDropDown, contentDescription = null)
+                }
+                DropdownMenu(
+                    expanded = isMonthSelectorOpen,
+                    onDismissRequest = { isMonthSelectorOpen = false }
+                ) {
+                    repeat(12) { month ->
+                        val date = LocalDate.now().plusMonths(month - 6L).withDayOfMonth(1)
+                        DropdownMenuItem(
+                            text = { Text(text = date.format(DateTimeFormatter.ofPattern("MMMM yyyy"))) },
+                            onClick = { onSetSelectedDate(date); isMonthSelectorOpen = false }
+                        )
+                    }
+                }
             }
         }
         Row(
