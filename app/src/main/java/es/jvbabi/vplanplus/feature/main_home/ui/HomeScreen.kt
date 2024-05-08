@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
@@ -69,6 +70,7 @@ import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -168,6 +170,7 @@ fun HomeScreenContent(
     )
 
     val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2)
+    val lazyListState = rememberLazyListState()
 
     LaunchedEffect(key1 = state.selectedDate) {
         contentPagerState.animateScrollToPage(page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2)
@@ -176,6 +179,11 @@ fun HomeScreenContent(
     LaunchedEffect(key1 = contentPagerState.settledPage) {
         val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
+
+        delay(150)
+        if (!contentPagerState.isScrollInProgress && lazyListState.firstVisibleItemIndex > 1) {
+            lazyListState.animateScrollToItem(1, 0)
+        }
     }
 
     Scaffold(
@@ -193,7 +201,8 @@ fun HomeScreenContent(
             )
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxSize(),
+                state = lazyListState
             ) {
                 item appHead@{
                     Collapsable(
