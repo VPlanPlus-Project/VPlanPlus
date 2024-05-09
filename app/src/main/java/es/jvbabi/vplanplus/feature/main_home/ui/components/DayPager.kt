@@ -26,6 +26,7 @@ fun DayPager(
     modifier: Modifier = Modifier,
     selectedDate: LocalDate,
     today: LocalDate,
+    holidays: List<LocalDate>,
     onDateSelected: (date: LocalDate) -> Unit = {}
 ) {
     val pagerState = rememberPagerState(initialPage = PAGER_SIZE / 2) { PAGER_SIZE }
@@ -48,7 +49,13 @@ fun DayPager(
         flingBehavior = fling,
     ) {
         val date = it.toPagerDate(today)
-        DateCard(date = date, isSelected = selectedDate.isEqual(date), onClick = onDateSelected, modifier = Modifier.padding(horizontal = 4.dp))
+        DateCard(
+            date = date,
+            isSelected = selectedDate.isEqual(date),
+            onClick = onDateSelected,
+            isHoliday = holidays.contains(date),
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
     }
 }
 
@@ -65,6 +72,7 @@ private fun Int.toPagerDate(today: LocalDate): LocalDate {
 fun DayPagerPreview() {
     DayPager(
         selectedDate = LocalDate.now(),
+        holidays = emptyList(),
         today = LocalDate.now()
     )
 }

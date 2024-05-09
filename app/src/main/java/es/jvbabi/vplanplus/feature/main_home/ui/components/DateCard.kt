@@ -47,6 +47,7 @@ fun DateCard(
     modifier: Modifier = Modifier,
     date: LocalDate,
     isSelected: Boolean,
+    isHoliday: Boolean,
     onClick: (date: LocalDate) -> Unit
 ) {
     val drawable by rememberSaveable {
@@ -129,7 +130,7 @@ fun DateCard(
                         fontWeight = FontWeight.Bold,
                         color =
                             if (isSelected) MaterialTheme.colorScheme.onPrimary
-                            else if (date.dayOfWeek.value > 5) MaterialTheme.colorScheme.error
+                            else if (date.dayOfWeek.value > 5 || isHoliday) MaterialTheme.colorScheme.error
                             else secondaryForeground
                     ),
                 )
@@ -169,6 +170,7 @@ private fun DateCardPreview() {
     DateCard(
         date = LocalDate.now(),
         isSelected = false,
+        isHoliday = false,
         onClick = {}
     )
 }
@@ -179,6 +181,7 @@ private fun DateCardTomorrowPreview() {
     DateCard(
         date = LocalDate.now().plusDays(1),
         isSelected = false,
+        isHoliday = true,
         onClick = {}
     )
 }
@@ -189,6 +192,7 @@ private fun DateCardSelectedPreview() {
     DateCard(
         date = LocalDate.now(),
         isSelected = true,
+        isHoliday = false,
         onClick = {}
     )
 }

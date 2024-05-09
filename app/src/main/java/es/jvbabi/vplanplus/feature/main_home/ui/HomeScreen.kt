@@ -246,7 +246,8 @@ fun HomeScreenContent(
                         DayPager(
                             selectedDate = state.selectedDate,
                             today = state.currentTime.toLocalDate(),
-                            onDateSelected = onSetSelectedDate
+                            onDateSelected = onSetSelectedDate,
+                            holidays = state.holidays
                         )
                     }
                     Box(

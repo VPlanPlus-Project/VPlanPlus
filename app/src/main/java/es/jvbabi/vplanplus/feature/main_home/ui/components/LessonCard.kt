@@ -114,6 +114,7 @@ fun LessonCard(
             val relevantHomeworkTasks = homework
                 .filter { hw -> hw.defaultLesson?.vpId == lesson.vpId }
                 .filter { hw -> hw.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
+                .filter { hw -> !hw.isHidden }
                 .map { it.tasks }
 
             val booking = bookings.firstOrNull { it.from.isEqual(lesson.start) && it.to.isEqual(lesson.end) }
@@ -268,7 +269,7 @@ private fun SubjectText(subject: String, changed: Boolean) {
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.height(headerItemHeight())
     ) {
-        SubjectIcon(subject = subject, modifier = Modifier.size(24.dp))
+        SubjectIcon(subject = subject, modifier = Modifier.size(24.dp), tint = if (changed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
         Text(
             text =
             if (subject == "-") stringResource(id = R.string.home_activeDayNextLessonCanceled)
