@@ -25,8 +25,8 @@ import androidx.compose.ui.res.painterResource
 import es.jvbabi.vplanplus.R
 
 @Composable
-fun SubjectIcon(subject: String, modifier: Modifier, tint: Color = Color.Unspecified) {
-    when (subject.lowercase()) {
+fun SubjectIcon(subject: String?, modifier: Modifier, tint: Color = Color.Unspecified) {
+    when (subject?.lowercase()) {
         "deutsch", "de", "deu" -> Icon(imageVector = Icons.Default.Book, contentDescription = null, modifier = modifier, tint = tint)
         "informatik", "inf", "info" -> Icon(imageVector = Icons.Default.Code, contentDescription = null, modifier = modifier, tint = tint)
         "biologie", "bio" -> Icon(imageVector = Icons.Default.Biotech, contentDescription = null, modifier = modifier, tint = tint)

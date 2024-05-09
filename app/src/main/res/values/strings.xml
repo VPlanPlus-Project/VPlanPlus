@@ -591,4 +591,15 @@
     <string name="home_headSubtitleRoom">Room %1$s</string>
     <string name="home_sendFeedback">Send feedback</string>
 
+    <plurals name="homework_taskSize">
+        <item quantity="zero">No tasks</item>
+        <item quantity="one">One task</item>
+        <item quantity="other">%1$d tasks</item>
+    </plurals>
+    <string name="homework_allTasks">All tasks</string>
+    <string name="homework_thisDevice">This device</string>
+    <string name="homework_you">You</string>
+    <string name="homework_dueTo">Until %1$s</string>
+    <string name="homework_overdue">Overdue</string>
+
 </resources>
