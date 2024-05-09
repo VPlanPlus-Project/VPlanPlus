@@ -41,13 +41,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,7 +65,6 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
@@ -353,7 +349,6 @@ private fun HomeworkScreenContent(
 
                         items(list) { (until, todo) ->
                             Row(Modifier.fillMaxWidth()) {
-                                val colorScheme = MaterialTheme.colorScheme
                                 val textMeasurer = rememberTextMeasurer()
                                 val style = MaterialTheme.typography.labelSmall
                                 val difference = LocalDateTime.now()
@@ -362,46 +357,10 @@ private fun HomeworkScreenContent(
                                 val text =
                                     if (difference < 6) until.format(DateTimeFormatter.ofPattern("E"))
                                     else until.format(DateTimeFormatter.ofPattern("d.M."))
-                                val textLayoutResult = remember(text, style) {
-                                    textMeasurer.measure(text, style)
-                                }
-                                Column(
-                                    modifier = Modifier
-                                        .drawWithContent {
-                                            drawContent()
-                                            if (todo.none { hw ->
-                                                    (hw.isEnabled || state.showDisabled) &&
-                                                            (!hw.isHidden || state.showHidden) &&
-                                                            (hw.tasks.any { task -> !task.done } || state.showDone)
-                                                }) return@drawWithContent
-                                            drawCircle(
-                                                color =
-                                                    if (until.isBefore(ZonedDateTime.now())) colorScheme.error
-                                                    else colorScheme.tertiary,
-                                                center = Offset(90f, 95f),
-                                                radius = 50f
-                                            )
-                                            drawCircle(
-                                                color = colorScheme.surface,
-                                                center = Offset(90f, 95f),
-                                                radius = 40f
-                                            )
-                                            try {
-                                                drawText(
-                                                    textMeasurer = textMeasurer,
-                                                    text = text,
-                                                    style = style.copy(color = colorScheme.onSurface),
-                                                    topLeft = Offset(
-                                                        90f - (textLayoutResult.size.width / 2),
-                                                        95f - textLayoutResult.size.height / 2,
-                                                    )
-                                                )
-                                            } catch (_: IllegalArgumentException) {}
-                                        }
-                                ) {
+                                Column {
                                     todo.forEach { homework ->
                                         HomeworkCard(
-                                            modifier = Modifier.padding(start = 60.dp),
+                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                             homework = homework,
                                             isOwner = homework.isOwner,
                                             showHidden = state.showHidden,

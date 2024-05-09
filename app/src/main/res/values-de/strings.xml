@@ -321,13 +321,13 @@
     <string name="homework_homeworkHead">%1$s bis %2$s</string>
     <string name="homework_homeworkSubtitleCreatedBy">%1$s, %2$s</string>
     <string name="homework_homeworkSubtitleLocally">Dieses Gerät, %1$s</string>
-    <string name="homework_homeworkSubtitleCreatedByYou">Deine vpp.ID, %1$s</string>
+    <string name="homework_homeworkSubtitleCreatedByYou">Du, am %1$s</string>
     <string name="homework_addTask">Aufgabe hinzufügen</string>
     <string name="menu">Menu</string>
     <string name="homework_deleteHomeworkTitle">Hausaufgabe löschen?</string>
     <string name="homework_deleteHomeworkTextLocal">Möchtest du diese Hausaufgabe wirklich löschen? Alle ihre Aufgaben werden ebenfalls gelöscht.</string>
-    <string name="homework_deleteHomeworkTextPublic">Möchtest du diese Hausaufgabe wirklick löschen? Sie wird dann von den Geräten deiner Mitschüler gelöscht.</string>
-    <string name="homework_deleteHomeworkTextPrivate">Möchtest du diese Hausaufgabe wirklick löschen?</string>
+    <string name="homework_deleteHomeworkTextPublic">Möchtest du diese Hausaufgabe wirklich löschen? Sie wird dann von den Geräten deiner Mitschüler gelöscht.</string>
+    <string name="homework_deleteHomeworkTextPrivate">Möchtest du diese Hausaufgabe wirklich löschen?</string>
     <string name="homework_shared">Geteilt</string>
     <string name="homework_share">Teilen</string>
     <string name="homework_changeVisibilityTitleToPublic">Hausaufgabe mit Klasse teilen?</string>
@@ -572,5 +572,31 @@
     <string name="vppIdLink_noSuitableProfiles">Es gibt aktuell keine passenden Profile für die Klasse %1$s auf diesem Gerät. Du musst ein neues Profil für diese Klasse anlegen und die vpp.ID hinterher damit verbinden.</string>
     <string name="vppIdLink_selectAProfile">Wähle mindestens ein Profil, zu welchem deine vpp.ID gebunden wird. Diese Einstellung kannst su später ändern.</string>
     <string name="settingsHomework_reminderCategory">Erinnerungen</string>
+    <string name="home_planHeader">Stundenplan</string>
+    <string name="home_importantHeader">Wichtig</string>
+    <string name="home_lessonCardProgressBottomLeft">%1$s Stunde • %2$s - %3$s</string>
+    <plurals name="home_lessonCardProgressBottomRight">
+        <item quantity="one">Noch eine Minute</item>
+        <item quantity="other">Noch %1$d Minuten</item>
+    </plurals>
+    <string name="recommended">Empfohlen</string>
+    <string name="home_quickActionsTitle">Schnellaktionen</string>
+    <string name="home_quickActionsNewHomework">Neue Hausaufgabe</string>
+    <string name="home_quickActionsNextDayPreparation">Plan für Morgen</string>
+    <string name="home_quickActionsFindAvailableRoom">Freie Räume</string>
+    <string name="home_headSubtitleClass">Klasse %1$s</string>
+    <string name="home_headSubtitleTeacher">Lehrer %1$s</string>
+    <string name="home_headSubtitleRoom">Raum %1$s</string>
+    <string name="home_sendFeedback">Feedback geben</string>
+
+    <plurals name="homework_taskSize">
+        <item quantity="one">Eine Aufgabe</item>
+        <item quantity="other">%1$d Aufgaben</item>
+    </plurals>
+    <string name="homework_allTasks">Alle Aufgaben</string>
+    <string name="homework_thisDevice">Dieses Gerät</string>
+    <string name="homework_you">Du</string>
+    <string name="homework_dueTo">Bis %1$s</string>
+    <string name="homework_overdue">Überfällig</string>
 
 </resources>

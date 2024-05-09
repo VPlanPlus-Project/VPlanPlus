@@ -3,8 +3,6 @@ package es.jvbabi.vplanplus.shared.data
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import java.time.ZoneId
-import java.time.ZonedDateTime
 import java.util.UUID
 
 class FakeLessonTimesRepository : LessonTimeRepository {
@@ -30,14 +28,14 @@ class FakeLessonTimesRepository : LessonTimeRepository {
 
     companion object {
         fun lessonTimesForClass(classId: UUID) = listOf(
-            LessonTime(lessonNumber = 1, start = ZonedDateTime.of(1970, 1, 1, 8, 0, 0, 0, ZoneId.of("UTC")), end = ZonedDateTime.of(1970, 1, 1, 8, 45, 0, 0, ZoneId.of("UTC")), classLessonTimeRefId = classId),
-            LessonTime(lessonNumber = 2, start = ZonedDateTime.of(1970, 1, 1, 8, 50, 0, 0, ZoneId.of("UTC")), end = ZonedDateTime.of(1970, 1, 1, 9, 35, 0, 0, ZoneId.of("UTC")), classLessonTimeRefId = classId),
-            LessonTime(lessonNumber = 3, start = ZonedDateTime.of(1970, 1, 1, 9, 55, 0, 0, ZoneId.of("UTC")), end = ZonedDateTime.of(1970, 1, 1, 10, 40, 0, 0, ZoneId.of("UTC")), classLessonTimeRefId = classId),
-            LessonTime(lessonNumber = 4, start = ZonedDateTime.of(1970, 1, 1, 10, 45, 0, 0, ZoneId.of("UTC")), end = ZonedDateTime.of(1970, 1, 1, 11, 30, 0, 0, ZoneId.of("UTC")), classLessonTimeRefId = classId),
-            LessonTime(lessonNumber = 5, start = ZonedDateTime.of(1970, 1, 1, 11, 35, 0, 0, ZoneId.of("UTC")), end = ZonedDateTime.of(1970, 1, 1, 12, 20, 0, 0, ZoneId.of("UTC")), classLessonTimeRefId = classId),
-            LessonTime(lessonNumber = 6, start = ZonedDateTime.of(1970, 1, 1, 12, 25, 0, 0, ZoneId.of("UTC")), end = ZonedDateTime.of(1970, 1, 1, 13, 10, 0, 0, ZoneId.of("UTC")), classLessonTimeRefId = classId),
-            LessonTime(lessonNumber = 7, start = ZonedDateTime.of(1970, 1, 1, 13, 15, 0, 0, ZoneId.of("UTC")), end = ZonedDateTime.of(1970, 1, 1, 14, 0, 0, 0, ZoneId.of("UTC")), classLessonTimeRefId = classId),
-            LessonTime(lessonNumber = 8, start = ZonedDateTime.of(1970, 1, 1, 14, 5, 0, 0, ZoneId.of("UTC")), end = ZonedDateTime.of(1970, 1, 1, 14, 50, 0, 0, ZoneId.of("UTC")), classLessonTimeRefId = classId)
+            LessonTime(lessonNumber = 1, classLessonTimeRefId = classId, from = 7*60*60+30*60, to = 8*60*60+15*60), // 7:30 - 8:15
+            LessonTime(lessonNumber = 2, classLessonTimeRefId = classId, from = 8*60*60+25*60, to = 9*60*60+10*60), // 8:25 - 9:10
+            LessonTime(lessonNumber = 3, classLessonTimeRefId = classId, from = 9*60*60+30*60, to = 10*60*60+15*60), // 9:30 - 10:15
+            LessonTime(lessonNumber = 4, classLessonTimeRefId = classId, from = 10*60*60+25*60, to = 11*60*60+10*60), // 10:25 - 11:10
+            LessonTime(lessonNumber = 5, classLessonTimeRefId = classId, from = 11*60*60+20*60, to = 12*60*60+5*60), // 11:20 - 12:05
+            LessonTime(lessonNumber = 6, classLessonTimeRefId = classId, from = 12*60*60+15*60, to = 13*60*60), // 12:15 - 13:00
+            LessonTime(lessonNumber = 7, classLessonTimeRefId = classId, from = 13*60*60+30*60, to = 14*60*60+15*60), // 13:30 - 14:15
+            LessonTime(lessonNumber = 8, classLessonTimeRefId = classId, from = 14*60*60+25*60, to = 15*60*60+10*60), // 14:25 - 15:10
         )
     }
 }

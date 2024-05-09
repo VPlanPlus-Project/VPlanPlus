@@ -109,7 +109,7 @@ class DoSyncUseCase(
             }
         if (newGrades.isNotEmpty()) {
             val msg = if (newGrades.size == 1) {
-                context.getString(
+                if (newGrades.first().actualValue != null) context.getString(
                     R.string.notification_newGradeText,
                     newGrades.first().value.roundToInt()
                         .toString() + when (newGrades.first().modifier) {
@@ -118,11 +118,12 @@ class DoSyncUseCase(
                         else -> ""
                     },
                     newGrades.first().subject.name
-                )
+                ) else ""
             } else {
                 context.getString(R.string.notification_newGradesText, newGrades.size)
             }
-            notificationRepository.sendNotification(
+
+            if (msg.isNotBlank()) notificationRepository.sendNotification(
                 CHANNEL_ID_GRADES,
                 564,
                 context.getString(R.string.notification_newGradesTitle),

@@ -16,7 +16,6 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
-import es.jvbabi.vplanplus.domain.usecase.profile.GetSchoolFromProfileUseCase
 import es.jvbabi.vplanplus.shared.data.FakeClassRepository
 import es.jvbabi.vplanplus.shared.data.FakeKeyValueRepository
 import es.jvbabi.vplanplus.shared.data.FakeProfileRepository
@@ -33,7 +32,6 @@ class IsEnabledUseCaseTest {
 
     private lateinit var isEnabledUseCase: IsEnabledUseCase
     private lateinit var getCurrentIdentityUseCase: GetCurrentIdentityUseCase
-    private lateinit var getSchoolFromProfileUseCase: GetSchoolFromProfileUseCase
 
     private lateinit var vppIdRepository: VppIdRepository
     private lateinit var schoolRepository: SchoolRepository
@@ -86,15 +84,7 @@ class IsEnabledUseCaseTest {
             keyValueRepository.set(Keys.ACTIVE_PROFILE, profileRepository.getProfiles().first().last().id.toString())
         }
 
-        getSchoolFromProfileUseCase = GetSchoolFromProfileUseCase(
-            classRepository = classRepository,
-            teacherRepository = teacherRepository,
-            roomRepository = roomRepository
-        )
-
         getCurrentIdentityUseCase = GetCurrentIdentityUseCase(
-            vppIdRepository = vppIdRepository,
-            classRepository = classRepository,
             keyValueRepository = keyValueRepository,
             profileRepository = profileRepository
         )

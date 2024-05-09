@@ -32,4 +32,8 @@ class FakeKeyValueRepository : KeyValueRepository {
         }
     }
 
+    override fun getOnMainThread(key: String): String? {
+        TODO("Not yet implemented")
+    }
+
 }
