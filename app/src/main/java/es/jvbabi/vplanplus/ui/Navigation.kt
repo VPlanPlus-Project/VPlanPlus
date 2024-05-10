@@ -87,6 +87,7 @@ fun NavigationGraph(
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {
             FindAvailableRoomScreen(navController)
+            //RoomSearch(navHostController = navController)
         }
     }
 }
