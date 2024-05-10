@@ -89,7 +89,7 @@ fun DayView(
                             text = day.info,
                             modifier = Modifier
                                 .zIndex(1f)
-                                .padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                         )
                     } else {
                         CollapsableInfoCard(
@@ -98,7 +98,7 @@ fun DayView(
                             text = day.info,
                             modifier = Modifier
                                 .zIndex(1f)
-                                .padding(start = 8.dp, end = 8.dp, top = 8.dp),
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
                             isExpanded = isInfoExpanded,
                             onChangeState = onChangeInfoExpandState
                         )
@@ -120,7 +120,7 @@ fun DayView(
                                 val lineHeight = if (allLessonsDone) size.height else circleY
                                 drawLine(
                                     brush = Brush.verticalGradient(listOf(Color.Gray.copy(alpha = 0f), Color.Gray)),
-                                    start = Offset(pencilX, 0f),
+                                    start = Offset(pencilX, (-8).dp.toPx()),
                                     end = Offset(pencilX, lineHeight),
                                     strokeWidth = markerLineWidth,
                                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
