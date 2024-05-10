@@ -15,6 +15,8 @@ import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.Day
+import es.jvbabi.vplanplus.domain.model.DayDataState
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
@@ -113,8 +115,10 @@ class HomeViewModel @Inject constructor(
     fun setSelectedDate(date: LocalDate) {
         state = state.copy(selectedDate = date)
         triggerLessonUiSync(date)
-        triggerLessonUiSync(date.minusDays(1L))
-        triggerLessonUiSync(date.plusDays(1L))
+        repeat(4) {
+            triggerLessonUiSync(date.minusDays(it.toLong()))
+            triggerLessonUiSync(date.plusDays(it.toLong()))
+        }
     }
 
     private fun restartUiUpdateJobs() {
@@ -209,4 +213,7 @@ data class HomeState(
 
     val hasInvalidVppIdSession: Boolean = false,
     val hasMissingVppIdToProfileLinks: Boolean = false
-)
+) {
+    val nextSchoolDayWithData: LocalDate?
+        get() = days.entries.firstOrNull { it.key.isAfter(currentTime.toLocalDate()) && it.value.state == DayDataState.DATA && it.value.type == DayType.NORMAL }?.key
+}

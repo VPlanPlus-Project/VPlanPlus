@@ -582,7 +582,7 @@
     <string name="recommended">Empfohlen</string>
     <string name="home_quickActionsTitle">Schnellaktionen</string>
     <string name="home_quickActionsNewHomework">Neue Hausaufgabe</string>
-    <string name="home_quickActionsNextDayPreparation">Plan für Morgen</string>
+    <string name="home_quickActionsNextDayPreparation">Plan für %1$s</string>
     <string name="home_quickActionsFindAvailableRoom">Freie Räume</string>
     <string name="home_headSubtitleClass">Klasse %1$s</string>
     <string name="home_headSubtitleTeacher">Lehrer %1$s</string>

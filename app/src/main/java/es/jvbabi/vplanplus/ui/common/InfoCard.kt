@@ -105,8 +105,6 @@ fun InfoCard(
                     Text(text = buttonText2)
                 }
             }
-        } else {
-            Spacer(modifier = Modifier.size(16.dp))
         }
     }
 
@@ -227,8 +225,6 @@ private fun InfoCardPreview() {
         imageVector = Icons.Default.Info,
         title = "Title",
         text = "Text\nA very big one",
-        buttonText1 = "null",
-        buttonText2 = "null"
     )
 }
 

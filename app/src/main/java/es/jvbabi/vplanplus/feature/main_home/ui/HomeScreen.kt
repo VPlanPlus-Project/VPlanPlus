@@ -229,9 +229,10 @@ fun HomeScreenContent(
 
                     QuickActions(
                         modifier = Modifier.padding(vertical = 16.dp),
+                        nextSchoolDayWithData = state.nextSchoolDayWithData,
                         onNewHomeworkClicked = { onAddHomework(null) },
                         onFindAvailableRoomClicked = onBookRoomClicked,
-                        onPrepareNextDayClicked = { onSetSelectedDate(state.currentTime.toLocalDate().plusDays(1L)) },
+                        onPrepareNextDayClicked = { onSetSelectedDate(state.nextSchoolDayWithData ?: state.currentTime.toLocalDate().plusDays(1L)) },
                         onSendFeedback = onSendFeedback
                     )
                 }

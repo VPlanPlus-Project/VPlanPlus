@@ -584,7 +584,7 @@
     <string name="recommended">Recommended</string>
     <string name="home_quickActionsTitle">Quick actions</string>
     <string name="home_quickActionsNewHomework">New homework</string>
-    <string name="home_quickActionsNextDayPreparation">Plan for tomorrow</string>
+    <string name="home_quickActionsNextDayPreparation">Plan for %1$s</string>
     <string name="home_quickActionsFindAvailableRoom">Available rooms</string>
     <string name="home_headSubtitleClass">Class %1$s</string>
     <string name="home_headSubtitleTeacher">Teacher %1$s</string>

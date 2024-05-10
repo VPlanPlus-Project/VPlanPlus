@@ -1,14 +1,18 @@
 package es.jvbabi.vplanplus.feature.main_home.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,11 +34,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
 import es.jvbabi.vplanplus.util.VersionTools
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun QuickActions(
     modifier: Modifier = Modifier,
+    nextSchoolDayWithData: LocalDate?,
     onNewHomeworkClicked: () -> Unit = {},
     onFindAvailableRoomClicked: () -> Unit = {},
     onPrepareNextDayClicked: () -> Unit = {},
@@ -58,28 +66,41 @@ fun QuickActions(
             modifier = Modifier
                 .padding(top = 4.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            item { Spacer(Modifier.size(8.dp)) }
+            item { Spacer(Modifier.width(8.dp)) }
             item {
                 QuickActionButton(
                     icon = Icons.Default.Add,
                     text = stringResource(id = R.string.home_quickActionsNewHomework),
                     onClick = onNewHomeworkClicked,
+                    modifier = Modifier.padding(horizontal = 4.dp)
                 )
+            }
+            if (VersionTools.isDevelopmentVersion()) item {
+                AnimatedVisibility(
+                    visible = nextSchoolDayWithData != null,
+                    enter = expandHorizontally(tween(200)),
+                    exit = shrinkHorizontally(tween(200))
+                ) {
+                    val resource = nextSchoolDayWithData?.getRelativeStringResource(LocalDate.now())
+                    val dayText =
+                        if (nextSchoolDayWithData == null) stringResource(id = R.string.tomorrow)
+                        else if (resource != null) stringResource(id = resource)
+                        else nextSchoolDayWithData.format(DateTimeFormatter.ofPattern("EEEE"))
+                    QuickActionButton(
+                        icon = Icons.AutoMirrored.Outlined.NextWeek,
+                        text = stringResource(id = R.string.home_quickActionsNextDayPreparation, dayText),
+                        onClick = onPrepareNextDayClicked,
+                        modifier = Modifier.padding(horizontal = 4.dp)
+                    )
+                }
             }
             item {
                 QuickActionButton(
                     icon = Icons.Outlined.MeetingRoom,
                     text = stringResource(id = R.string.home_quickActionsFindAvailableRoom),
                     onClick = onFindAvailableRoomClicked,
-                )
-            }
-            if (VersionTools.isDevelopmentVersion()) item {
-                QuickActionButton(
-                    icon = Icons.AutoMirrored.Outlined.NextWeek,
-                    text = stringResource(id = R.string.home_quickActionsNextDayPreparation),
-                    onClick = onPrepareNextDayClicked,
+                    modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }
             if (VersionTools.isDevelopmentVersion()) item {
@@ -87,8 +108,10 @@ fun QuickActions(
                     icon = Icons.Outlined.Feedback,
                     text = stringResource(id = R.string.home_sendFeedback),
                     onClick = onSendFeedback,
+                    modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }
+            item { Spacer(Modifier.width(8.dp)) }
         }
     }
 }
@@ -96,7 +119,7 @@ fun QuickActions(
 @Composable
 @Preview(showBackground = true)
 private fun QuickActionsPreview() {
-    QuickActions()
+    QuickActions(nextSchoolDayWithData = LocalDate.now().plusDays(1L))
 }
 
 @Composable
