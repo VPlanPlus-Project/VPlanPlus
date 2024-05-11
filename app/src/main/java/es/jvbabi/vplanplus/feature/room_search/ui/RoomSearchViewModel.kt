@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomSearchUseCases
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -28,9 +29,15 @@ class RoomSearchViewModel @Inject constructor(
             state.value = state.value.copy(map = map)
         }
     }
+
+    fun onTapOnMatrix(time: ZonedDateTime?, room: Room?) {
+        state.value = state.value.copy(selectedTime = time, selectedRoom = room)
+    }
 }
 
 data class RoomSearchState(
     val currentIdentity: Identity? = null,
-    val map: Map<Room, List<Lesson>> = emptyMap()
+    val map: Map<Room, List<Lesson>> = emptyMap(),
+    val selectedTime: ZonedDateTime? = null,
+    val selectedRoom: Room? = null
 )

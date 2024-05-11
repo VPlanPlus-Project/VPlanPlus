@@ -601,5 +601,12 @@
     <string name="homework_you">You</string>
     <string name="homework_dueTo">Until %1$s</string>
     <string name="homework_overdue">Overdue</string>
+    <string name="searchAvailableRoom_sheetTitle">Room %1$s</string>
+    <string name="searchAvailableRoom_sheetNowAvailable">Now Available</string>
+    <string name="searchAvailableRoom_sheetNowInUse">Now In use</string>
+    <string name="searchAvailableRoom_sheetTimeTitle">At %1$s</string>
+    <string name="searchAvailableRoom_sheetInUse">In Use</string>
+    <string name="searchAvailableRoom_sheetAvailable">Available</string>
+    <string name="searchAvailableRoom_sheetNow">Now</string>
 
 </resources>

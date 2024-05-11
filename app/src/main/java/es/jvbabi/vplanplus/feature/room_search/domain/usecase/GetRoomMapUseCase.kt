@@ -17,7 +17,7 @@ class GetRoomMapUseCase(
 ) {
     suspend operator fun invoke(
         identity: Identity,
-        date: LocalDate = LocalDate.of(2024, 5, 13) // TODO replace with LocalDate.now()
+        date: LocalDate = LocalDate.now()
     ): Map<Room, List<Lesson>> {
         if (identity.school == null) return emptyMap()
         val rooms = roomRepository.getRooms(identity.school.schoolId).sortedBy { it.name }

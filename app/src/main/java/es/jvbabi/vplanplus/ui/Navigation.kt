@@ -36,6 +36,7 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSetupScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
+import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
@@ -55,7 +56,6 @@ import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.slideInFromBottom
 import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
 import java.time.LocalDate
 import java.util.UUID
@@ -86,8 +86,8 @@ fun NavigationGraph(
         gradesScreens(navController)
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {
-            FindAvailableRoomScreen(navController)
-            //RoomSearch(navHostController = navController)
+            //FindAvailableRoomScreen(navController)
+            RoomSearch(navHostController = navController)
         }
     }
 }

@@ -598,5 +598,12 @@
     <string name="homework_you">Du</string>
     <string name="homework_dueTo">Bis %1$s</string>
     <string name="homework_overdue">Überfällig</string>
+    <string name="searchAvailableRoom_sheetTitle">Raum %1$s</string>
+    <string name="searchAvailableRoom_sheetNowAvailable">Jetzt Verfügbar</string>
+    <string name="searchAvailableRoom_sheetNowInUse">Gerade Belegt</string>
+    <string name="searchAvailableRoom_sheetTimeTitle">Um %1$s</string>
+    <string name="searchAvailableRoom_sheetInUse">Belegt</string>
+    <string name="searchAvailableRoom_sheetAvailable">Verfügbar</string>
+    <string name="searchAvailableRoom_sheetNow">Jetzt</string>
 
 </resources>
