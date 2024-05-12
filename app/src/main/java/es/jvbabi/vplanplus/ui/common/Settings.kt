@@ -327,6 +327,21 @@ fun Setting(
                 customContent = state.customContent
             )
         }
+        else -> {
+            SettingsSetting(
+                title = state.title,
+                subtitle = state.subtitle,
+                type = state.type,
+                checked = state.checked,
+                doAction = { state.doAction(null) },
+                enabled = state.enabled,
+                clickable = state.clickable,
+                isLoading = state.isLoading,
+                titleOverflow = state.titleOverflow,
+                subtitleOverflow = state.subtitleOverflow,
+                customContent = state.customContent
+            )
+        }
     }
 }
 

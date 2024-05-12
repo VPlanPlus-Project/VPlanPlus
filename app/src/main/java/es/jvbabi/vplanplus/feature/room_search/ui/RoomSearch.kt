@@ -45,6 +45,7 @@ import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -60,6 +61,7 @@ fun RoomSearch(
     RoomSearchContent(
         onBack = { navHostController.popBackStack() },
         onTapOnMatrix = viewModel::onTapOnMatrix,
+        onBookRoomRequested = { navHostController.navigate(Screen.BookRoomScreen.route + "/${state.selectedRoom?.name}") },
         state = state
     )
 }
@@ -69,6 +71,7 @@ fun RoomSearch(
 private fun RoomSearchContent(
     onBack: () -> Unit = {},
     onTapOnMatrix: (time: ZonedDateTime?, room: Room?) -> Unit = { _, _ -> },
+    onBookRoomRequested: () -> Unit = {},
     state: RoomSearchState
 ) {
     Scaffold(
@@ -179,12 +182,16 @@ private fun RoomSearchContent(
             val alpha = animateFloatAsState(targetValue = if (state.selectedRoom == null) 0f else 1f, label = "RoomInfo")
             if (state.selectedRoom != null && state.selectedTime != null) Box(Modifier.align(Alignment.BottomCenter)) {
                 TimeInfo(
-                    modifier = Modifier.padding(16.dp).alpha(alpha.value),
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .alpha(alpha.value),
                     room = state.selectedRoom,
                     selectedTime = state.selectedTime,
                     currentTime = ZonedDateTime.now(),
                     lessons = state.map[state.selectedRoom] ?: emptyList(),
-                    onClosed = { onTapOnMatrix(null, null) }
+                    onClosed = { onTapOnMatrix(null, null) },
+                    onBookRoomClicked = onBookRoomRequested,
+                    hasVppId = state.currentIdentity?.profile?.vppId != null
                 )
             }
         }
@@ -198,7 +205,7 @@ private fun RoomSearchPreview() {
     RoomSearchContent(
         state = RoomSearchState(
             selectedRoom = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
-            selectedTime = ZonedDateTime.now(),
+            selectedTime = ZonedDateTime.now()
         )
     )
 }

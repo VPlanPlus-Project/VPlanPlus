@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.find_room
+package es.jvbabi.vplanplus.feature.room_search.domain.usecase
 
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.repository.BookResult

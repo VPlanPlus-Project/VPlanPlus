@@ -36,6 +36,7 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSetupScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
+import es.jvbabi.vplanplus.feature.room_search.ui.BookRoom
 import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
@@ -86,8 +87,22 @@ fun NavigationGraph(
         gradesScreens(navController)
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {
-            //FindAvailableRoomScreen(navController)
             RoomSearch(navHostController = navController)
+        }
+
+        composable(
+            route = Screen.BookRoomScreen.route + "/{roomName}",
+            enterTransition = slideInFromBottom,
+            exitTransition = slideOutFromBottom,
+            popEnterTransition = slideInFromBottom,
+            popExitTransition = slideOutFromBottom,
+            arguments = listOf(
+                navArgument("roomName") {
+                    type = NavType.StringType
+                }
+            )
+        ) {
+            BookRoom(navHostController = navController, roomName = it.arguments?.getString("roomName"))
         }
     }
 }

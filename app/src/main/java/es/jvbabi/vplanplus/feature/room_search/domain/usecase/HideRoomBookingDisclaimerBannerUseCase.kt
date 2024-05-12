@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.domain.usecase.find_room
+package es.jvbabi.vplanplus.feature.room_search.domain.usecase
 
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys

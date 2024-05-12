@@ -20,6 +20,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.NoAccounts
+import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -44,6 +47,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,6 +58,7 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
@@ -74,6 +79,8 @@ fun TimeInfo(
     currentTime: ZonedDateTime = ZonedDateTime.now(),
     lessons: List<Lesson>,
     onClosed: () -> Unit,
+    onBookRoomClicked: () -> Unit,
+    hasVppId: Boolean
 ) {
 
     var height by remember { mutableIntStateOf(1) }
@@ -197,7 +204,12 @@ fun TimeInfo(
 
         val showIndicatorAfterLesson = lessons.filter { it.end.isAfter(time) }.maxByOrNull { it.lessonNumber }?.lessonNumber
 
-        LazyRow(
+        if (lessons.isEmpty()) Text(
+            text = stringResource(id = R.string.searchAvailableRoom_sheetNoLessonsForRoom, room.name),
+            modifier = Modifier.height(48.dp).padding(bottom = 16.dp, start = 16.dp, end = 16.dp).align(CenterHorizontally),
+            style = MaterialTheme.typography.labelMedium.copy(lineHeight = with(LocalDensity.current) { 48.dp.toSp() }),
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        ) else LazyRow(
             Modifier
                 .padding(bottom = 16.dp)
                 .fillMaxWidth()
@@ -265,6 +277,24 @@ fun TimeInfo(
                 }
             }
         }
+
+        Button(
+            onClick = onBookRoomClicked,
+            modifier = Modifier
+                .padding(start = 16.dp, end = 16.dp)
+                .fillMaxWidth(),
+            enabled = hasVppId
+        ) {
+            Text(text = stringResource(id = R.string.searchAvailableRoom_sheetBookRoom))
+        }
+        if (!hasVppId) {
+            InfoCard(
+                imageVector = Icons.Default.NoAccounts,
+                title = stringResource(id = R.string.searchAvailableRoom_bookNoVppIdDialogTitle),
+                text = stringResource(id = R.string.searchAvailableRoom_bookNoVppIdDialogMessage),
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+            )
+        }
     }
 }
 
@@ -276,6 +306,8 @@ private fun TimeInfoPreview() {
         room = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
         selectedTime = ZonedDateTime.now().withHour(19).withMinute(31),
         lessons = Lessons.generateLessons(2, true),
-        onClosed = {}
+        onClosed = {},
+        onBookRoomClicked = {},
+        hasVppId = false
     )
 }
