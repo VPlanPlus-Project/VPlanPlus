@@ -122,26 +122,24 @@ private fun RoomSearchContent(
                     Canvas(
                         modifier = Modifier
                             .fillMaxSize()
-                            .pointerInput(state.map) {
+                            .pointerInput(state.data) {
                                 detectTapGestures {
                                     val roomIndex = ceil((it.y - offset.y) / (48.dp + verticalPadding).toPx()).toInt() - 1
-                                    val room = state.map
-                                        .toList()
-                                        .getOrNull(roomIndex)?.first
+                                    val room = state.data.getOrNull(roomIndex) ?: return@detectTapGestures
 
                                     val minutesOffset = ((it.x / 2) / scale) - ((offset.x / 2) / scale)
-                                    if (minutesOffset < 0 || room == null) return@detectTapGestures
+                                    if (minutesOffset < 0) return@detectTapGestures
 
                                     val time = ZonedDateTime
                                         .now()
                                         .atStartOfDay()
                                         .plusMinutes(minutesOffset.toLong())
 
-                                    onTapOnMatrix(time, room)
+                                    onTapOnMatrix(time, room.room)
                                 }
                             }
                     ) {
-                        state.map.toList().forEachIndexed { roomIndex, (room, lessons) ->
+                        state.data.forEachIndexed { roomIndex, (room, lessons, bookings) ->
                             translate(top = offset.y) {
                                 val verticalOffset = if (roomIndex == 0) 0.dp else verticalPadding
 
@@ -151,6 +149,17 @@ private fun RoomSearchContent(
 
                                     drawRect(
                                         color = colorScheme.secondaryContainer,
+                                        topLeft = Offset(offsetStart, roomIndex * (48.dp + verticalOffset).toPx()),
+                                        size = Size(width, 48.dp.toPx())
+                                    )
+                                }
+
+                                bookings.forEach { booking ->
+                                    val offsetStart = (booking.from.atStartOfDay().until(booking.from, ChronoUnit.MINUTES) * scale * 2) + offset.x
+                                    val width = booking.from.until(booking.to, ChronoUnit.MINUTES) * scale * 2
+
+                                    drawRect(
+                                        color = colorScheme.tertiaryContainer,
                                         topLeft = Offset(offsetStart, roomIndex * (48.dp + verticalOffset).toPx()),
                                         size = Size(width, 48.dp.toPx())
                                     )
@@ -180,15 +189,14 @@ private fun RoomSearchContent(
             }
 
             val alpha = animateFloatAsState(targetValue = if (state.selectedRoom == null) 0f else 1f, label = "RoomInfo")
-            if (state.selectedRoom != null && state.selectedTime != null) Box(Modifier.align(Alignment.BottomCenter)) {
+            if (state.selectedRoom != null && state.selectedTime != null) Box(Modifier.align(Alignment.BottomCenter)) wrapper@{
                 TimeInfo(
                     modifier = Modifier
                         .padding(16.dp)
                         .alpha(alpha.value),
-                    room = state.selectedRoom,
                     selectedTime = state.selectedTime,
                     currentTime = ZonedDateTime.now(),
-                    lessons = state.map[state.selectedRoom] ?: emptyList(),
+                    data = state.data.firstOrNull { it.room == state.selectedRoom } ?: return@wrapper,
                     onClosed = { onTapOnMatrix(null, null) },
                     onBookRoomClicked = onBookRoomRequested,
                     hasVppId = state.currentIdentity?.profile?.vppId != null

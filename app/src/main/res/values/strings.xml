@@ -619,5 +619,6 @@
     <string name="bookRoom_showAll">Show all</string>
     <string name="bookRoom_confirm">Confirm</string>
     <string name="bookRoom_conflict">Conflict with another booking</string>
+    <string name="bookRoom_conflictLesson">Conflict with a lesson</string>
 
 </resources>

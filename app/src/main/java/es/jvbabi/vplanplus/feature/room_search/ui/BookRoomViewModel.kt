@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCases
+import es.jvbabi.vplanplus.feature.room_search.domain.usecase.CurrentRoomState
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -26,7 +27,13 @@ class BookRoomViewModel @Inject constructor(
         viewModelScope.launch {
             state.value = state.value.copy(currentIdentity = bookRoomUseCases.getCurrentIdentityUseCase().first())
             state.value = state.value.copy(room = bookRoomUseCases.getRoomByNameUseCase(roomName, state.value.currentIdentity!!.school!!))
-            state.value = state.value.copy(lessons = bookRoomUseCases.getLessonTimesForClassUseCase(state.value.currentIdentity?.profile?.vppId?.classes!!).values.toList().associateWith { BookTimeState.INACTIVE })
+            state.value = state.value.copy(lessons = bookRoomUseCases.getLessonTimesUseCase(state.value.currentIdentity?.profile!!, state.value.room!!).mapValues {
+                when (it.value) {
+                    CurrentRoomState.BOOKED -> BookTimeState.CONFLICT_BOOKING
+                    CurrentRoomState.HAS_LESSON -> BookTimeState.CONFLICT_LESSON
+                    else -> BookTimeState.INACTIVE
+                }
+            })
             bookRoomUseCases.showRoomBookingDisclaimerBannerUseCase().collect {
                 state.value = state.value.copy(showDisclaimerBanner = it)
             }
@@ -66,7 +73,7 @@ class BookRoomViewModel @Inject constructor(
                 when (result) {
                     BookResult.CONFLICT -> {
                         state.value = state.value.copy(
-                            lessons = state.value.lessons.plus(lessonTime to BookTimeState.CONFLICT)
+                            lessons = state.value.lessons.plus(lessonTime to BookTimeState.CONFLICT_BOOKING)
                         )
                         results.add(false)
                     }
@@ -89,7 +96,11 @@ data class BookRoomState(
 )
 
 enum class BookTimeState {
-    ACTIVE, INACTIVE, CONFLICT
+    ACTIVE, INACTIVE, CONFLICT_BOOKING, CONFLICT_LESSON
+}
+
+fun BookTimeState.isConflict(): Boolean {
+    return this == BookTimeState.CONFLICT_LESSON || this == BookTimeState.CONFLICT_BOOKING
 }
 
 fun LessonTime.toTimeString(): String {

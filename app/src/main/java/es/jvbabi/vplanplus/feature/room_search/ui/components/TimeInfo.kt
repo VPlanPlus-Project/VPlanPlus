@@ -54,8 +54,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.Lesson
-import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomState
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -74,10 +73,9 @@ private enum class DragValue { Center, End }
 @Composable
 fun TimeInfo(
     modifier: Modifier = Modifier,
-    room: Room,
     selectedTime: ZonedDateTime,
     currentTime: ZonedDateTime = ZonedDateTime.now(),
-    lessons: List<Lesson>,
+    data: RoomState,
     onClosed: () -> Unit,
     onBookRoomClicked: () -> Unit,
     hasVppId: Boolean
@@ -119,8 +117,8 @@ fun TimeInfo(
         time = (if (showDataForNow) currentTime else selectedTime)
     }
 
-    val isInUseNow = lessons.any { it.start.isBeforeOrEqual(currentTime) && it.end.isAfter(currentTime) && it.displaySubject != "-" }
-    val isInUseAtSelectedTime = lessons.any { it.start.isBeforeOrEqual(selectedTime) && it.end.isAfter(selectedTime) && it.displaySubject != "-" }
+    val isInUseNow = data.lessons.any { it.start.isBeforeOrEqual(currentTime) && it.end.isAfter(currentTime) && it.displaySubject != "-" }
+    val isInUseAtSelectedTime = data.lessons.any { it.start.isBeforeOrEqual(selectedTime) && it.end.isAfter(selectedTime) && it.displaySubject != "-" }
 
     Column(
         modifier
@@ -173,7 +171,7 @@ fun TimeInfo(
             Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                text = stringResource(id = R.string.searchAvailableRoom_sheetTitle, room.name),
+                text = stringResource(id = R.string.searchAvailableRoom_sheetTitle, data.room.name),
                 style = MaterialTheme.typography.headlineLarge
             )
             if (showDataForNow) {
@@ -185,7 +183,7 @@ fun TimeInfo(
             }
         }
         Text(
-            text = room.school.name,
+            text = data.room.school.name,
             modifier = Modifier.padding(horizontal = 16.dp),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
@@ -202,10 +200,10 @@ fun TimeInfo(
             )
         }
 
-        val showIndicatorAfterLesson = lessons.filter { it.end.isAfter(time) }.maxByOrNull { it.lessonNumber }?.lessonNumber
+        val showIndicatorAfterLesson = data.lessons.filter { it.end.isAfter(time) }.maxByOrNull { it.lessonNumber }?.lessonNumber
 
-        if (lessons.isEmpty()) Text(
-            text = stringResource(id = R.string.searchAvailableRoom_sheetNoLessonsForRoom, room.name),
+        if (data.lessons.isEmpty()) Text(
+            text = stringResource(id = R.string.searchAvailableRoom_sheetNoLessonsForRoom, data.room.name),
             modifier = Modifier.height(48.dp).padding(bottom = 16.dp, start = 16.dp, end = 16.dp).align(CenterHorizontally),
             style = MaterialTheme.typography.labelMedium.copy(lineHeight = with(LocalDensity.current) { 48.dp.toSp() }),
             color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -217,7 +215,7 @@ fun TimeInfo(
             item {
                 Spacer(modifier = Modifier.width(16.dp))
             }
-            items(lessons.filter { it.displaySubject != "-" }.sortedBy { it.lessonNumber }.groupBy { it.lessonNumber }.toList()) { (lessonNumber, currentLessons) ->
+            items(data.lessons.filter { it.displaySubject != "-" }.sortedBy { it.lessonNumber }.groupBy { it.lessonNumber }.toList()) { (lessonNumber, currentLessons) ->
                 val colorScheme = MaterialTheme.colorScheme
                 RowVerticalCenter(
                     Modifier
@@ -303,9 +301,12 @@ fun TimeInfo(
 private fun TimeInfoPreview() {
     val school = School.generateRandomSchools(1).first()
     TimeInfo(
-        room = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
+        data = RoomState(
+            room = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
+            lessons = Lessons.generateLessons(2, true),
+            bookings = emptyList()
+        ),
         selectedTime = ZonedDateTime.now().withHour(19).withMinute(31),
-        lessons = Lessons.generateLessons(2, true),
         onClosed = {},
         onBookRoomClicked = {},
         hasVppId = false

@@ -94,7 +94,10 @@ private fun BookRoomContent(
                 title = {
                     Column {
                         Text(text = stringResource(id = R.string.bookRoom_title))
-                        Text(text = if (state.room == null) stringResource(id = R.string.loadingData) else stringResource(id = R.string.bookRoom_subtitle, state.room.name), style = MaterialTheme.typography.labelSmall)
+                        Text(
+                            text = if (state.room == null) stringResource(id = R.string.loadingData) else stringResource(id = R.string.bookRoom_subtitle, state.room.name),
+                            style = MaterialTheme.typography.labelSmall
+                        )
                     }
                 },
                 navigationIcon = {
@@ -123,11 +126,16 @@ private fun BookRoomContent(
                         Setting(
                             SettingsState(
                                 title = stringResource(id = R.string.bookRoom_lessonTimesItemTitle, lessonTime.lessonNumber.toLocalizedString()),
-                                subtitle = lessonTime.toTimeString() + if (lessonTimeState == BookTimeState.CONFLICT) " $DOT " + stringResource(id = R.string.bookRoom_conflict) else "",
+                                subtitle = lessonTime.toTimeString() +
+                                        when (lessonTimeState) {
+                                            BookTimeState.CONFLICT_BOOKING -> " $DOT " + stringResource(id = R.string.bookRoom_conflict)
+                                            BookTimeState.CONFLICT_LESSON -> " $DOT " + stringResource(id = R.string.bookRoom_conflictLesson)
+                                            else -> ""
+                                        },
                                 type = SettingsType.CHECKBOX,
                                 doAction = { onUpdateLessonTime(lessonTime.lessonNumber) },
                                 checked = lessonTimeState == BookTimeState.ACTIVE,
-                                enabled = lessonTimeState != BookTimeState.CONFLICT
+                                enabled = !lessonTimeState.isConflict()
                             )
                         )
                     }
@@ -164,7 +172,8 @@ private fun BookRoomContent(
                 Row(
                     Modifier
                         .padding(8.dp)
-                        .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
 
                     OutlinedButton(
                         onClick = onBack,
