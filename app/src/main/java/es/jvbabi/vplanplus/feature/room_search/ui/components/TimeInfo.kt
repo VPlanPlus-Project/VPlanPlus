@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
@@ -78,9 +79,9 @@ fun TimeInfo(
     data: RoomState,
     onClosed: () -> Unit,
     onBookRoomClicked: () -> Unit,
-    hasVppId: Boolean
+    hasVppId: Boolean,
+    paddingBottom: Dp = 0.dp
 ) {
-
     var height by remember { mutableIntStateOf(1) }
     var anchors = DraggableAnchors {
         DragValue.Center at 0f
@@ -121,7 +122,8 @@ fun TimeInfo(
     val isInUseAtSelectedTime = data.lessons.any { it.start.isBeforeOrEqual(selectedTime) && it.end.isAfter(selectedTime) && it.displaySubject != "-" }
 
     Column(
-        modifier
+        modifier = modifier
+            .fillMaxWidth()
             .onSizeChanged { height = it.height }
             .alpha(1f - (dragState.requireOffset() / height))
             .offset {
@@ -132,167 +134,175 @@ fun TimeInfo(
                         .roundToInt()
                 )
             }
-            .fillMaxWidth()
-            .shadow(4.dp, shape = RoundedCornerShape(16.dp))
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.background)
             .anchoredDraggable(dragState, Orientation.Vertical)
     ) {
-        Spacer(
+        Column(
             Modifier
-                .padding(top = 8.dp)
-                .align(CenterHorizontally)
-                .width(40.dp)
-                .height(3.dp)
-                .clip(RoundedCornerShape(50))
-                .background(MaterialTheme.colorScheme.onSurfaceVariant)
-        )
-
-        Row(
-            Modifier
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-                .align(CenterHorizontally),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FilterChip(
-                onClick = { showDataForNow = true },
-                label = { Text(text = stringResource(id = R.string.searchAvailableRoom_sheetNow)) },
-                selected = showDataForNow
-            )
-            FilterChip(
-                onClick = { showDataForNow = false },
-                label = { Text(text = stringResource(id = R.string.searchAvailableRoom_sheetTimeTitle, selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")))) },
-                selected = !showDataForNow
-            )
-        }
-
-        RowVerticalCenter(
-            Modifier.padding(start = 16.dp, end = 16.dp),
-            Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = stringResource(id = R.string.searchAvailableRoom_sheetTitle, data.room.name),
-                style = MaterialTheme.typography.headlineLarge
-            )
-            if (showDataForNow) {
-                if (isInUseNow) Badge(color = MaterialTheme.colorScheme.error, text = stringResource(id = R.string.searchAvailableRoom_sheetNowInUse))
-                else Badge(color = Color(37, 190, 120), text = stringResource(id = R.string.searchAvailableRoom_sheetNowAvailable))
-            } else {
-                if (isInUseAtSelectedTime) Badge(color = MaterialTheme.colorScheme.error, text = stringResource(id = R.string.searchAvailableRoom_sheetInUse))
-                else Badge(color = Color(37, 190, 120), text = stringResource(id = R.string.searchAvailableRoom_sheetAvailable))
-            }
-        }
-        Text(
-            text = data.room.school.name,
-            modifier = Modifier.padding(horizontal = 16.dp),
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            maxLines = 1,
-            style = MaterialTheme.typography.labelMedium,
-            overflow = TextOverflow.Ellipsis
-        )
-        RowVerticalCenter(
-            Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
-            Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = if (showDataForNow) stringResource(id = R.string.searchAvailableRoom_sheetNow) else stringResource(id = R.string.searchAvailableRoom_sheetTimeTitle, time.format(DateTimeFormatter.ofPattern("HH:mm"))),
-                style = MaterialTheme.typography.headlineSmall
-            )
-        }
-
-        val showIndicatorAfterLesson = data.lessons.filter { it.end.isAfter(time) }.maxByOrNull { it.lessonNumber }?.lessonNumber
-
-        if (data.lessons.isEmpty()) Text(
-            text = stringResource(id = R.string.searchAvailableRoom_sheetNoLessonsForRoom, data.room.name),
-            modifier = Modifier.height(48.dp).padding(bottom = 16.dp, start = 16.dp, end = 16.dp).align(CenterHorizontally),
-            style = MaterialTheme.typography.labelMedium.copy(lineHeight = with(LocalDensity.current) { 48.dp.toSp() }),
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        ) else LazyRow(
-            Modifier
-                .padding(bottom = 16.dp)
                 .fillMaxWidth()
+                .shadow(4.dp, shape = RoundedCornerShape(16.dp))
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.background)
         ) {
-            item {
-                Spacer(modifier = Modifier.width(16.dp))
-            }
-            items(data.lessons.filter { it.displaySubject != "-" }.sortedBy { it.lessonNumber }.groupBy { it.lessonNumber }.toList()) { (lessonNumber, currentLessons) ->
-                val colorScheme = MaterialTheme.colorScheme
-                RowVerticalCenter(
-                    Modifier
-                        .padding(end = 8.dp)
-                        .height(48.dp)
-                        .clip(RoundedCornerShape(8.dp))
-                        .drawWithContent {
-                            drawRect(
-                                color = colorScheme.primaryContainer,
-                                topLeft = Offset(0f, 0f),
-                                size = size
-                            )
-                            drawRect(
-                                topLeft = Offset(0f, 0f),
-                                size = Size(
-                                    currentLessons
-                                        .first()
-                                        .progress(time) * size.width, size.height
-                                ),
-                                color = colorScheme.tertiaryContainer
-                            )
-                            drawContent()
-                        }
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text(
-                        text = "$lessonNumber.",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    currentLessons.forEach { lesson ->
-                        VerticalDivider()
-                        Column {
-                            Text(
-                                text = lesson.`class`.name + " $DOT " + lesson.displaySubject + " $DOT " + lesson.teachers.joinToString(", "),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(text = lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")) + " - " + lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")), style = MaterialTheme.typography.labelMedium)
-                        }
-                    }
-                }
-                if (lessonNumber == showIndicatorAfterLesson) {
-                    Box(contentAlignment = Alignment.CenterStart) {
-                        Spacer(modifier = Modifier
-                            .width(32.dp)
-                            .height(48.dp)
-                            .background(
-                                Brush.horizontalGradient(colors = listOf(Color(37, 190, 120).copy(alpha = .5f), MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0f)))
-                            )
-                        )
-                        Text(
-                            text = selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
-                            modifier = Modifier.padding(4.dp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-        }
-
-        Button(
-            onClick = onBookRoomClicked,
-            modifier = Modifier
-                .padding(start = 16.dp, end = 16.dp)
-                .fillMaxWidth(),
-            enabled = hasVppId
-        ) {
-            Text(text = stringResource(id = R.string.searchAvailableRoom_sheetBookRoom))
-        }
-        if (!hasVppId) {
-            InfoCard(
-                imageVector = Icons.Default.NoAccounts,
-                title = stringResource(id = R.string.searchAvailableRoom_bookNoVppIdDialogTitle),
-                text = stringResource(id = R.string.searchAvailableRoom_bookNoVppIdDialogMessage),
-                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+            Spacer(
+                Modifier
+                    .padding(top = 8.dp)
+                    .align(CenterHorizontally)
+                    .width(40.dp)
+                    .height(3.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
             )
+
+            Row(
+                Modifier
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
+                    .align(CenterHorizontally),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FilterChip(
+                    onClick = { showDataForNow = true },
+                    label = { Text(text = stringResource(id = R.string.searchAvailableRoom_sheetNow)) },
+                    selected = showDataForNow
+                )
+                FilterChip(
+                    onClick = { showDataForNow = false },
+                    label = { Text(text = stringResource(id = R.string.searchAvailableRoom_sheetTimeTitle, selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")))) },
+                    selected = !showDataForNow
+                )
+            }
+
+            RowVerticalCenter(
+                Modifier.padding(start = 16.dp, end = 16.dp),
+                Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.searchAvailableRoom_sheetTitle, data.room.name),
+                    style = MaterialTheme.typography.headlineLarge
+                )
+                if (showDataForNow) {
+                    if (isInUseNow) Badge(color = MaterialTheme.colorScheme.error, text = stringResource(id = R.string.searchAvailableRoom_sheetNowInUse))
+                    else Badge(color = Color(37, 190, 120), text = stringResource(id = R.string.searchAvailableRoom_sheetNowAvailable))
+                } else {
+                    if (isInUseAtSelectedTime) Badge(color = MaterialTheme.colorScheme.error, text = stringResource(id = R.string.searchAvailableRoom_sheetInUse))
+                    else Badge(color = Color(37, 190, 120), text = stringResource(id = R.string.searchAvailableRoom_sheetAvailable))
+                }
+            }
+            Text(
+                text = data.room.school.name,
+                modifier = Modifier.padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                style = MaterialTheme.typography.labelMedium,
+                overflow = TextOverflow.Ellipsis
+            )
+            RowVerticalCenter(
+                Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp),
+                Arrangement.spacedBy(8.dp)
+            ) {
+                Text(
+                    text = if (showDataForNow) stringResource(id = R.string.searchAvailableRoom_sheetNow) else stringResource(id = R.string.searchAvailableRoom_sheetTimeTitle, time.format(DateTimeFormatter.ofPattern("HH:mm"))),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+            }
+
+            val showIndicatorAfterLesson = data.lessons.filter { it.end.isAfter(time) }.maxByOrNull { it.lessonNumber }?.lessonNumber
+
+            if (data.lessons.isEmpty()) Text(
+                text = stringResource(id = R.string.searchAvailableRoom_sheetNoLessonsForRoom, data.room.name),
+                modifier = Modifier
+                    .height(48.dp)
+                    .padding(bottom = 16.dp, start = 16.dp, end = 16.dp)
+                    .align(CenterHorizontally),
+                style = MaterialTheme.typography.labelMedium.copy(lineHeight = with(LocalDensity.current) { 48.dp.toSp() }),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            ) else LazyRow(
+                Modifier
+                    .padding(bottom = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                item {
+                    Spacer(modifier = Modifier.width(16.dp))
+                }
+                items(data.lessons.filter { it.displaySubject != "-" }.sortedBy { it.lessonNumber }.groupBy { it.lessonNumber }.toList()) { (lessonNumber, currentLessons) ->
+                    val colorScheme = MaterialTheme.colorScheme
+                    RowVerticalCenter(
+                        Modifier
+                            .padding(end = 8.dp)
+                            .height(48.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .drawWithContent {
+                                drawRect(
+                                    color = colorScheme.primaryContainer,
+                                    topLeft = Offset(0f, 0f),
+                                    size = size
+                                )
+                                drawRect(
+                                    topLeft = Offset(0f, 0f),
+                                    size = Size(
+                                        currentLessons
+                                            .first()
+                                            .progress(time) * size.width, size.height
+                                    ),
+                                    color = colorScheme.tertiaryContainer
+                                )
+                                drawContent()
+                            }
+                            .padding(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = "$lessonNumber.",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        currentLessons.forEach { lesson ->
+                            VerticalDivider()
+                            Column {
+                                Text(
+                                    text = lesson.`class`.name + " $DOT " + lesson.displaySubject + " $DOT " + lesson.teachers.joinToString(", "),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Text(text = lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")) + " - " + lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")), style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
+                    }
+                    if (lessonNumber == showIndicatorAfterLesson) {
+                        Box(contentAlignment = Alignment.CenterStart) {
+                            Spacer(modifier = Modifier
+                                .width(32.dp)
+                                .height(48.dp)
+                                .background(
+                                    Brush.horizontalGradient(colors = listOf(Color(37, 190, 120).copy(alpha = .5f), MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0f)))
+                                )
+                            )
+                            Text(
+                                text = selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
+                                modifier = Modifier.padding(4.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+            }
+
+            Button(
+                onClick = onBookRoomClicked,
+                modifier = Modifier
+                    .padding(start = 16.dp, end = 16.dp)
+                    .fillMaxWidth(),
+                enabled = hasVppId
+            ) {
+                Text(text = stringResource(id = R.string.searchAvailableRoom_sheetBookRoom))
+            }
+            if (!hasVppId) {
+                InfoCard(
+                    imageVector = Icons.Default.NoAccounts,
+                    title = stringResource(id = R.string.searchAvailableRoom_bookNoVppIdDialogTitle),
+                    text = stringResource(id = R.string.searchAvailableRoom_bookNoVppIdDialogMessage),
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                )
+            }
         }
+        Spacer(modifier = Modifier.height(maxOf(paddingBottom, 16.dp)))
     }
 }
 

@@ -113,6 +113,10 @@ object DateUtils {
         return zoned.toLocalDateTime()
     }
 
+    fun ZonedDateTime.atDate(other: ZonedDateTime): ZonedDateTime {
+        return this.withYear(other.year).withDayOfYear(other.dayOfYear)
+    }
+
     fun LocalDate.withDayOfWeek(dayOfWeek: Int): LocalDate {
         return this.plusDays(dayOfWeek.toLong() - this.dayOfWeek.value.toLong())
     }

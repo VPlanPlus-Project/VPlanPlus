@@ -3,12 +3,10 @@ package es.jvbabi.vplanplus.feature.room_search.ui
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.rememberTransformableState
-import androidx.compose.foundation.gestures.transformable
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,6 +16,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -29,15 +28,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.center
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -46,8 +52,10 @@ import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.DateUtils.atDate
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import kotlin.math.ceil
 
@@ -74,6 +82,18 @@ private fun RoomSearchContent(
     onBookRoomRequested: () -> Unit = {},
     state: RoomSearchState
 ) {
+    var displayStartTime by remember { mutableStateOf(ZonedDateTime.now().atStartOfDay()) }
+    LaunchedEffect(key1 = state.lessonTimes.hashCode()) updateUiStartTime@{
+        if (state.lessonTimes.isEmpty()) return@updateUiStartTime
+        displayStartTime = state.lessonTimes.values.minBy { it.lessonNumber }.start.atDate(state.currentTime)
+    }
+
+    val localDensity = LocalDensity.current
+    val roomNameWidth = with(localDensity) { 48.dp.toPx() }
+    val offset = 20f
+    val verticalPadding = 4.dp
+    val headerHeightDp = 64.dp
+    val totalHeight = headerHeightDp + (48.dp + verticalPadding) * state.data.size
     Scaffold(
         topBar = {
             TopAppBar(
@@ -87,104 +107,207 @@ private fun RoomSearchContent(
         Box(
             Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
+                .padding(
+                    start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
+                    end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
+                    top = paddingValues.calculateTopPadding(),
+                )
         ) {
-            val verticalPadding = 4.dp
             val colorScheme = MaterialTheme.colorScheme
             val typography = MaterialTheme.typography
 
-            BoxWithConstraints(Modifier.fillMaxSize()) {
-                var scale by rememberSaveable { mutableFloatStateOf(1f) }
-                var offset by remember { mutableStateOf(Offset.Zero) }
-                val boxState = rememberTransformableState { zoomChange, panChange, _ ->
-                    scale = (scale * zoomChange).coerceIn(1f, 5f)
+            Box(Modifier.fillMaxSize()) {
+                var scale by rememberSaveable { mutableFloatStateOf(4f) }
+                var scrollOffset by remember { mutableStateOf(Offset(0f, 0f)) }
 
-                    val extraWidth = scale * constraints.maxWidth
-                    val extraHeight = scale * constraints.maxHeight
+                val textMeasurer = rememberTextMeasurer()
 
-                    val maxX = extraWidth / 2
-                    val maxY = extraHeight / 2
-
-                    offset = Offset(
-                        x = (offset.x + scale * panChange.x).coerceIn(-maxX, maxX),
-                        y = minOf(0f, (offset.y + scale * panChange.y).coerceIn(-maxY, maxY)),
-                    )
-                }
-
-                Column(
-                    verticalArrangement = Arrangement.spacedBy(verticalPadding),
+                Canvas(
                     modifier = Modifier
                         .fillMaxSize()
-                        .transformable(boxState),
-                ) {
-                    val textMeasurer = rememberTextMeasurer()
-                    val roomNameWidthDp = 100.dp
-                    Canvas(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .pointerInput(state.data) {
-                                detectTapGestures {
-                                    val roomIndex = ceil((it.y - offset.y) / (48.dp + verticalPadding).toPx()).toInt() - 1
-                                    val room = state.data.getOrNull(roomIndex) ?: return@detectTapGestures
+                        .pointerInput(state.data) {
+                            detectTransformGestures(
+                                onGesture = { centroid, pan, zoom, _ ->
+                                    val targetScale = (scale * zoom).coerceIn(1f, 10f)
+                                    val realZoom = targetScale / scale
+                                    val center = size.toSize().center
+                                    val targetX = scrollOffset.x * realZoom - (centroid.x - center.x) * (realZoom - 1) + pan.x
+                                    val targetY = scrollOffset.y + pan.y
 
-                                    val minutesOffset = ((it.x / 2) / scale) - ((offset.x / 2) / scale)
-                                    if (minutesOffset < 0) return@detectTapGestures
-
-                                    val time = ZonedDateTime
-                                        .now()
-                                        .atStartOfDay()
-                                        .plusMinutes(minutesOffset.toLong())
-
-                                    onTapOnMatrix(time, room.room)
+                                    scale = targetScale
+                                    scrollOffset = Offset(targetX.coerceAtMost(0f), targetY.coerceAtMost(0f))
                                 }
-                            }
-                    ) {
-                        state.data.forEachIndexed { roomIndex, (room, lessons, bookings) ->
-                            translate(top = offset.y) {
-                                val verticalOffset = if (roomIndex == 0) 0.dp else verticalPadding
+                            )
+                        }
+                        .pointerInput(state.data) {
+                            detectTapGestures { tapOffset ->
+                                val roomIndex = ceil((tapOffset.y - scrollOffset.y - headerHeightDp.toPx()) / (48.dp + verticalPadding).toPx()).toInt() - 1
+                                val room = state.data.getOrNull(roomIndex) ?: return@detectTapGestures
 
-                                lessons.forEach { lesson ->
-                                    val offsetStart = (lesson.start.atStartOfDay().until(lesson.start, ChronoUnit.MINUTES) * scale * 2) + offset.x
-                                    val width = lesson.start.until(lesson.end, ChronoUnit.MINUTES) * scale * 2
+                                val minutesOffset = ((tapOffset.x - scrollOffset.x - roomNameWidth - offset) / scale)
+                                if (minutesOffset < 0) return@detectTapGestures
 
-                                    drawRect(
-                                        color = colorScheme.secondaryContainer,
-                                        topLeft = Offset(offsetStart, roomIndex * (48.dp + verticalOffset).toPx()),
-                                        size = Size(width, 48.dp.toPx())
-                                    )
-                                }
+                                val time = displayStartTime.plusMinutes(minutesOffset.toLong())
 
-                                bookings.forEach { booking ->
-                                    val offsetStart = (booking.from.atStartOfDay().until(booking.from, ChronoUnit.MINUTES) * scale * 2) + offset.x
-                                    val width = booking.from.until(booking.to, ChronoUnit.MINUTES) * scale * 2
-
-                                    drawRect(
-                                        color = colorScheme.tertiaryContainer,
-                                        topLeft = Offset(offsetStart, roomIndex * (48.dp + verticalOffset).toPx()),
-                                        size = Size(width, 48.dp.toPx())
-                                    )
-                                }
-
-                                drawRect(
-                                    color = colorScheme.primaryContainer,
-                                    topLeft = Offset(0f, roomIndex * (48.dp + verticalOffset).toPx()),
-                                    size = Size(roomNameWidthDp.toPx(), 48.dp.toPx())
-                                )
-
-                                val measuredRoomName = textMeasurer.measure(
-                                    buildAnnotatedString { append(room.name) },
-                                    constraints = Constraints.fixedWidth(roomNameWidthDp.roundToPx()),
-                                    style = typography.bodyMedium
-                                )
-
-                                drawText(
-                                    measuredRoomName,
-                                    topLeft = Offset(0f, roomIndex * (48.dp + verticalOffset).toPx())
-                                )
-
+                                onTapOnMatrix(time, room.room)
                             }
                         }
+                ) {
+                    val headerHeight = headerHeightDp.toPx()
+                    val calculator = OffsetCalculator(scale, scrollOffset.x, roomNameWidth + offset)
+
+                    translate(top = scrollOffset.y + headerHeight) {
+                        state.lessonTimes.forEach lessonTimeMarker@{ (_, lessonTime) ->
+                            val startOffset = calculator.calculateOffset(displayStartTime, lessonTime.start.atDate(state.currentTime))
+                            val endOffset = calculator.calculateOffset(displayStartTime, lessonTime.end.atDate(state.currentTime))
+
+                            drawLine(
+                                color = colorScheme.outline,
+                                start = Offset(startOffset, 0f),
+                                end = Offset(startOffset, totalHeight.toPx()),
+                                strokeWidth = 1.dp.toPx(),
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
+                            )
+
+                            drawLine(
+                                color = colorScheme.outline,
+                                start = Offset(endOffset, 0f),
+                                end = Offset(endOffset, totalHeight.toPx()),
+                                strokeWidth = 1.dp.toPx(),
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
+                            )
+                        }
+
+                        state.data.forEachIndexed { roomIndex, (room, lessons, bookings) ->
+                            val verticalOffset = if (roomIndex == 0) 0.dp else verticalPadding
+
+                            lessons.forEach { lesson ->
+                                val offsetStart = calculator.calculateOffset(displayStartTime, lesson.start)
+                                val width = calculator.calculateWidth(lesson.start, lesson.end)
+
+                                drawRect(
+                                    color = colorScheme.secondaryContainer,
+                                    topLeft = Offset(offsetStart, roomIndex * (48.dp + verticalOffset).toPx()),
+                                    size = Size(width, 48.dp.toPx())
+                                )
+
+                                val classText = buildAnnotatedString { append(lesson.`class`.name) }
+                                val measuredClass = textMeasurer.measure(
+                                    classText,
+                                    style = typography.bodyMedium
+                                )
+                                val textSize = measuredClass.size
+                                drawText(
+                                    measuredClass,
+                                    topLeft = Offset(
+                                        offsetStart + (width/2- textSize.width/2),
+                                        (roomIndex * (48.dp + verticalOffset).toPx()) + (48.dp.toPx() / 2 - textSize.height / 2)
+                                    ),
+                                    color = colorScheme.onSecondaryContainer
+                                )
+                            }
+
+                            bookings.forEach { booking ->
+                                val offsetStart = calculator.calculateOffset(displayStartTime, booking.from)
+                                val width = calculator.calculateWidth(booking.from, booking.to)
+
+                                drawRect(
+                                    color = colorScheme.tertiaryContainer,
+                                    topLeft = Offset(offsetStart, roomIndex * (48.dp + verticalOffset).toPx()),
+                                    size = Size(width, 48.dp.toPx())
+                                )
+
+                                val classText = buildAnnotatedString { append(booking.`class`.name) }
+                                val measuredClass = textMeasurer.measure(
+                                    classText,
+                                    style = typography.bodyMedium
+                                )
+                                val textSize = measuredClass.size
+                                drawText(
+                                    measuredClass,
+                                    topLeft = Offset(
+                                        offsetStart + (width/2- textSize.width/2),
+                                        (roomIndex * (48.dp + verticalOffset).toPx()) + (48.dp.toPx() / 2 - textSize.height / 2)
+                                    ),
+                                    color = colorScheme.onTertiaryContainer
+                                )
+                            }
+
+                            drawRect(
+                                color = colorScheme.secondaryContainer,
+                                topLeft = Offset(0f, roomIndex * (48.dp + verticalOffset).toPx()),
+                                size = Size(roomNameWidth, 48.dp.toPx())
+                            )
+
+                            val measuredRoomName = textMeasurer.measure(
+                                buildAnnotatedString { append(room.name) },
+                                style = typography.bodyMedium,
+                            )
+
+                            drawText(
+                                measuredRoomName,
+                                topLeft = Offset(
+                                    roomNameWidth / 2 - measuredRoomName.size.width / 2,
+                                    roomIndex * (48.dp + verticalOffset).toPx() + (48.dp.toPx() / 2 - measuredRoomName.size.height / 2)
+                                ),
+                                color = colorScheme.onSecondaryContainer
+                            )
+                        }
                     }
+                    if (state.selectedTime != null) {
+                        val selectedTimeOffset = calculator.calculateOffset(displayStartTime, state.selectedTime)
+                        if (selectedTimeOffset >= roomNameWidth) drawLine(
+                            color = colorScheme.primary,
+                            start = Offset(selectedTimeOffset, 0f),
+                            end = Offset(selectedTimeOffset, totalHeight.toPx()),
+                            strokeWidth = 2.dp.toPx(),
+                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                        )
+                    }
+
+                    val currentTimeOffset = calculator.calculateOffset(displayStartTime, state.currentTime)
+                    if (currentTimeOffset >= roomNameWidth) drawLine(
+                        color = colorScheme.error,
+                        start = Offset(currentTimeOffset, 0f),
+                        end = Offset(currentTimeOffset, totalHeight.toPx()),
+                        strokeWidth = 2.dp.toPx(),
+                    )
+
+                    drawRect(
+                        color = colorScheme.background,
+                        topLeft = Offset(0f, 0f),
+                        size = Size(size.width, headerHeight)
+                    )
+
+                    state.lessonTimes.forEach lessonTimeHeader@{ (lessonNumber, lessonTime) ->
+                        val startOffset = calculator.calculateOffset(displayStartTime, lessonTime.start.atDate(state.currentTime))
+
+                        val measuredLessonNumber = textMeasurer.measure(
+                            buildAnnotatedString {
+                                withStyle(typography.bodyMedium.toSpanStyle()) {
+                                    append(lessonNumber.toString())
+                                    append(".")
+                                }
+                                withStyle(typography.labelSmall.toSpanStyle()) {
+                                    append("\n" + lessonTime.start.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                    append("→\n" + lessonTime.end.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                }
+                            },
+                            constraints = Constraints.fixedWidth(48.dp.roundToPx()),
+                            style = typography.bodyMedium
+                        )
+                        drawText(
+                            measuredLessonNumber,
+                            topLeft = Offset(startOffset, 0f)
+                        )
+                    }
+
+                    // Fade lesson time information
+                    drawRect(
+                        brush = Brush.horizontalGradient(colors = listOf(colorScheme.background, colorScheme.background.copy(alpha = 0f))),
+                        topLeft = Offset(0f, 0f),
+                        size = Size(roomNameWidth, headerHeight)
+                    )
                 }
             }
 
@@ -192,14 +315,18 @@ private fun RoomSearchContent(
             if (state.selectedRoom != null && state.selectedTime != null) Box(Modifier.align(Alignment.BottomCenter)) wrapper@{
                 TimeInfo(
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(
+                            start = 16.dp,
+                            end = 16.dp,
+                        )
                         .alpha(alpha.value),
                     selectedTime = state.selectedTime,
                     currentTime = ZonedDateTime.now(),
                     data = state.data.firstOrNull { it.room == state.selectedRoom } ?: return@wrapper,
                     onClosed = { onTapOnMatrix(null, null) },
                     onBookRoomClicked = onBookRoomRequested,
-                    hasVppId = state.currentIdentity?.profile?.vppId != null
+                    hasVppId = state.currentIdentity?.profile?.vppId != null,
+                    paddingBottom = paddingValues.calculateBottomPadding()
                 )
             }
         }
@@ -216,4 +343,18 @@ private fun RoomSearchPreview() {
             selectedTime = ZonedDateTime.now()
         )
     )
+}
+
+private class OffsetCalculator(
+    val scale: Float,
+    val scrollOffset: Float,
+    val staticOffset: Float,
+) {
+    fun calculateOffset(from: ZonedDateTime, to: ZonedDateTime): Float {
+        return (from.until(to, ChronoUnit.MINUTES) * scale) + scrollOffset + staticOffset
+    }
+
+    fun calculateWidth(from: ZonedDateTime, to: ZonedDateTime): Float {
+        return from.until(to, ChronoUnit.MINUTES) * scale
+    }
 }

@@ -5,5 +5,6 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 
 data class RoomSearchUseCases(
     val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-    val getRoomMapUseCase: GetRoomMapUseCase
+    val getRoomMapUseCase: GetRoomMapUseCase,
+    val getLessonTimesUseCases: GetClassLessonTimesUseCase
 )

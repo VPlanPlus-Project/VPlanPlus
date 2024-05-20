@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
@@ -12,6 +13,7 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCases
+import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetClassLessonTimesUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetLessonTimesUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetRoomByNameUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetRoomMapUseCase
@@ -41,12 +43,18 @@ object RoomSearchModule {
     @Provides
     @Singleton
     fun provideRoomSearchUseCases(
+        classRepository: ClassRepository,
+        lessonTimeRepository: LessonTimeRepository,
         getRoomMapUseCase: GetRoomMapUseCase,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): RoomSearchUseCases {
         return RoomSearchUseCases(
             getCurrentIdentityUseCase,
             getRoomMapUseCase,
+            getLessonTimesUseCases = GetClassLessonTimesUseCase(
+                lessonTimeRepository,
+                classRepository
+            )
         )
     }
 
