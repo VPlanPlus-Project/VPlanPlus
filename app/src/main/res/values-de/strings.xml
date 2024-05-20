@@ -617,5 +617,6 @@
     <string name="bookRoom_confirm">Bestätigen</string>
     <string name="bookRoom_conflict">Konflikt mit anderer Buchung</string>
     <string name="bookRoom_conflictLesson">Konflikt mit einer Stunde</string>
+    <string name="searchAvailableRoom_searchRoomName">Finde einen Raum</string>
 
 </resources>

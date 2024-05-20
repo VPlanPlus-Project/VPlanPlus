@@ -48,6 +48,16 @@ class RoomSearchViewModel @Inject constructor(
     fun onTapOnMatrix(time: ZonedDateTime?, room: Room?) {
         state.value = state.value.copy(selectedTime = time, selectedRoom = room)
     }
+
+    fun onRoomNameQueryChanged(query: String) {
+        val data  = state.value.data.map {
+            it.copy(isExpanded = query.isBlank() || it.room.name.lowercase().contains(query.lowercase()))
+        }
+        state.value = state.value.copy(
+            roomNameQuery = query,
+            data = data
+        )
+    }
 }
 
 data class RoomSearchState(
@@ -56,5 +66,6 @@ data class RoomSearchState(
     val data: List<RoomState> = emptyList(),
     val lessonTimes: Map<Int, LessonTime> = emptyMap(),
     val selectedTime: ZonedDateTime? = null,
-    val selectedRoom: Room? = null
+    val selectedRoom: Room? = null,
+    val roomNameQuery: String = ""
 )

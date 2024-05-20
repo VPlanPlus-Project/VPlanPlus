@@ -52,5 +52,6 @@ class GetRoomMapUseCase(
 data class RoomState(
     val room: Room,
     val lessons: List<Lesson>,
-    val bookings: List<RoomBooking>
+    val bookings: List<RoomBooking>,
+    val isExpanded: Boolean = true
 )
