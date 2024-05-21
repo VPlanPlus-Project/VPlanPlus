@@ -1,24 +1,17 @@
 package es.jvbabi.vplanplus.feature.room_search.ui
 
 import android.content.Context
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -63,6 +56,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomBookingRequestDialogHost
 import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomSearchField
+import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeFilterRow
 import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.School
@@ -175,37 +169,14 @@ private fun RoomSearchContent(
             val typography = MaterialTheme.typography
 
             RoomSearchField(onQueryChanged, state.roomNameQuery)
-            AnimatedVisibility(
-                visible = state.currentLessonTime != null || state.nextLessonTime != null,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                LazyRow(
-                    modifier = Modifier
-                        .padding(start = 8.dp, bottom = 8.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (state.currentLessonTime != null) {
-                        item {
-                            FilterChip(
-                                selected = state.filterRoomsAvailableNowActive,
-                                onClick = onToggleNowFilter,
-                                label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNow)) }
-                            )
-                        }
-                    }
-                    if (state.nextLessonTime != null) {
-                        item {
-                            FilterChip(
-                                selected = state.filterRoomsAvailableNextLessonActive,
-                                onClick = onToggleNextFilter,
-                                label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNext)) }
-                            )
-                        }
-                    }
-                }
-            }
+            TimeFilterRow(
+                showCurrentLesson = state.currentLessonTime != null,
+                isCurrentLessonEnabled = state.filterRoomsAvailableNowActive,
+                onToggleCurrentLesson = onToggleNowFilter,
+                showNextLesson = state.nextLessonTime != null,
+                isNextLessonEnabled = state.filterRoomsAvailableNextLessonActive,
+                onToggleNextLesson = onToggleNextFilter
+            )
 
             Box(Modifier.fillMaxSize()) {
                 var scale by rememberSaveable { mutableFloatStateOf(4f) }
@@ -251,11 +222,14 @@ private fun RoomSearchContent(
 
                         state.data.forEach { (room, _, _, _) ->
                             if (state.selectedRoom == room) {
+
+                                // Draw selected room background
                                 drawRect(
                                     color = colorScheme.surfaceVariant,
                                     topLeft = Offset(0f, modifierMap[room]?.y?.value ?: 0f),
                                     size = Size(size.width, 48.dp.toPx())
                                 )
+
                                 if (state.selectedLessonTime != null) {
                                     val startOffset = calculator.calculateOffset(displayStartTime.atBeginningOfTheWorld(), state.selectedLessonTime.start)
                                     val width = calculator.calculateWidth(state.selectedLessonTime.start, state.selectedLessonTime.end)
@@ -436,12 +410,7 @@ private fun RoomSearchContent(
                 val alpha = animateFloatAsState(targetValue = if (state.selectedRoom == null) 0f else 1f, label = "RoomInfo")
                 if (state.selectedRoom != null && state.selectedTime != null) Box(Modifier.align(Alignment.BottomCenter)) wrapper@{
                     TimeInfo(
-                        modifier = Modifier
-                            .padding(
-                                start = 16.dp,
-                                end = 16.dp,
-                            )
-                            .alpha(alpha.value),
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp).alpha(alpha.value),
                         selectedTime = state.selectedTime,
                         currentTime = ZonedDateTime.now(),
                         data = state.data.firstOrNull { it.room == state.selectedRoom } ?: return@wrapper,
