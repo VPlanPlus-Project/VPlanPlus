@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomSearchUseCases
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomState
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.progress
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
@@ -26,6 +27,7 @@ class RoomSearchViewModel @Inject constructor(
 ) : ViewModel() {
 
     var state by mutableStateOf(RoomSearchState())
+    private var filterJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -88,19 +90,22 @@ class RoomSearchViewModel @Inject constructor(
     }
 
     private fun updateSearchResults() {
-        val query = state.roomNameQuery.lowercase()
-        val data  = state.data.map {
-            val matchesQuery = query.isBlank() || it.room.name.lowercase().contains(query)
-            val satisfiesCurrentLessonFilter =
-                !state.filterRoomsAvailableNowActive || state.currentLessonTime == null ||
-                it.getOccupiedTimes().none { times -> times.overlaps(state.currentLessonTime!!.toTimeSpan(state.currentTime)) }
+        filterJob?.cancel()
+        filterJob = viewModelScope.launch {
+            val query = state.roomNameQuery.lowercase()
+            val data  = state.data.map {
+                val matchesQuery = query.isBlank() || it.room.name.lowercase().contains(query)
+                val satisfiesCurrentLessonFilter =
+                    !state.filterRoomsAvailableNowActive || state.currentLessonTime == null ||
+                            it.getOccupiedTimes().none { times -> times.overlaps(state.currentLessonTime!!.toTimeSpan(state.currentTime)) }
 
-            val satisfiesNextLessonFilter =
-                !state.filterRoomsAvailableNextLessonActive || state.nextLessonTime == null ||
-                it.getOccupiedTimes().none { times -> times.overlaps(state.nextLessonTime!!.toTimeSpan(state.currentTime)) }
-            it.copy(isExpanded = matchesQuery && satisfiesCurrentLessonFilter && satisfiesNextLessonFilter)
+                val satisfiesNextLessonFilter =
+                    !state.filterRoomsAvailableNextLessonActive || state.nextLessonTime == null ||
+                            it.getOccupiedTimes().none { times -> times.overlaps(state.nextLessonTime!!.toTimeSpan(state.currentTime)) }
+                it.copy(isExpanded = matchesQuery && satisfiesCurrentLessonFilter && satisfiesNextLessonFilter)
+            }
+            state = state.copy(data = data)
         }
-        state = state.copy(data = data)
     }
 }
 

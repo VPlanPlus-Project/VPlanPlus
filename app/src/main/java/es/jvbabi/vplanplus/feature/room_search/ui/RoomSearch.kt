@@ -25,6 +25,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -105,8 +106,24 @@ private fun RoomSearchContent(
     val offset = 20f
     val verticalPadding = 4.dp
     val headerHeightDp = 64.dp
+    val rowHeight = 48.dp
     val totalHeight = headerHeightDp + (48.dp + verticalPadding) * state.data.count { it.isExpanded }
-    val modifierMap = state.data.associate { it.room to animateFloatAsState(targetValue = if (it.isExpanded) 1f else 0f, label = "") }
+
+    var counter = 0
+    var index = 0
+    val modifierMap = state.data.associate {
+        val modifierState = animateFloatAsState(targetValue = if (it.isExpanded) 1f else 0f, label = "")
+        it.room to RoomRowAnimatorState(
+            modifierState,
+            run {
+                val roomIndex = if (it.isExpanded) run { counter++; counter - 1 } else index
+                val verticalOffset = with(localDensity) { ((if (roomIndex == 0) 0.dp else verticalPadding) * (modifierState.value)).toPx() }
+
+                index++
+                animateFloatAsState(targetValue = (verticalOffset + with(localDensity) { rowHeight.toPx() }) * roomIndex, label = "")
+            }
+        )
+    }
 
     LaunchedEffect(key1 = state.lessonTimes.hashCode()) updateUiStartTime@{
         if (state.lessonTimes.isEmpty()) return@updateUiStartTime
@@ -141,7 +158,9 @@ private fun RoomSearchContent(
                 exit = shrinkVertically()
             ) {
                 LazyRow(
-                    modifier = Modifier.padding(start = 8.dp, bottom = 8.dp).fillMaxWidth(),
+                    modifier = Modifier
+                        .padding(start = 8.dp, bottom = 8.dp)
+                        .fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     if (state.currentLessonTime != null) {
@@ -205,21 +224,15 @@ private fun RoomSearchContent(
                 ) {
                     val headerHeight = headerHeightDp.toPx()
                     val calculator = OffsetCalculator(scale, scrollOffset.x, roomNameWidth + offset)
-                    var expandedIndex = 0
-
                     translate(top = scrollOffset.y + headerHeight) {
 
-                        state.data.forEachIndexed { i, (room, _, _, isExpanded) ->
-                            val roomIndex = if (isExpanded) run { expandedIndex++; expandedIndex - 1 } else i
-                            val verticalOffset = (if (roomIndex == 0) 0.dp else verticalPadding) * (modifierMap[room]?.value ?: 1f)
-
+                        state.data.forEach { (room, _, _, _) ->
                             if (state.selectedRoom == room) drawRect(
                                 color = colorScheme.surfaceVariant,
-                                topLeft = Offset(0f, roomIndex * (48.dp + verticalOffset).toPx()),
+                                topLeft = Offset(0f, modifierMap[room]?.y?.value ?: 0f),
                                 size = Size(size.width, 48.dp.toPx())
                             )
                         }
-                        expandedIndex = 0
 
                         state.lessonTimes.forEach lessonTimeMarker@{ (_, lessonTime) ->
                             val startOffset = calculator.calculateOffset(displayStartTime, lessonTime.start.atDate(state.currentTime))
@@ -242,18 +255,15 @@ private fun RoomSearchContent(
                             )
                         }
 
-                        state.data.forEachIndexed { i, (room, lessons, bookings, isExpanded) ->
-                            val roomIndex = if (isExpanded) run { expandedIndex++; expandedIndex - 1 } else i
-                            val verticalOffset = (if (roomIndex == 0) 0.dp else verticalPadding) * (modifierMap[room]?.value ?: 1f)
-
+                        state.data.forEach { (room, lessons, bookings, _) ->
                             lessons.forEach { lesson ->
                                 val offsetStart = calculator.calculateOffset(displayStartTime, lesson.start)
                                 val width = calculator.calculateWidth(lesson.start, lesson.end)
 
                                 drawRect(
-                                    color = colorScheme.secondaryContainer.copy(alpha = (modifierMap[room]?.value ?: 1f)),
-                                    topLeft = Offset(offsetStart, roomIndex * (48.dp + verticalOffset).toPx()),
-                                    size = Size(width, 48.dp.toPx())
+                                    color = colorScheme.secondaryContainer.copy(alpha = (modifierMap[room]?.alpha?.value ?: 1f)),
+                                    topLeft = Offset(offsetStart, modifierMap[room]?.y?.value ?: 0f),
+                                    size = Size(width, rowHeight.toPx())
                                 )
 
                                 val classText = buildAnnotatedString { append(lesson.`class`.name) }
@@ -266,9 +276,9 @@ private fun RoomSearchContent(
                                     measuredClass,
                                     topLeft = Offset(
                                         offsetStart + (width / 2 - textSize.width / 2),
-                                        (roomIndex * (48.dp + verticalOffset).toPx()) + (48.dp.toPx() / 2 - textSize.height / 2)
+                                        (modifierMap[room]?.y?.value ?: 0f) + (48.dp.toPx() / 2 - textSize.height / 2)
                                     ),
-                                    color = colorScheme.onSecondaryContainer.copy(alpha = (modifierMap[room]?.value ?: 1f))
+                                    color = colorScheme.onSecondaryContainer.copy(alpha = (modifierMap[room]?.alpha?.value ?: 1f))
                                 )
                             }
 
@@ -277,8 +287,8 @@ private fun RoomSearchContent(
                                 val width = calculator.calculateWidth(booking.from, booking.to)
 
                                 drawRect(
-                                    color = colorScheme.tertiaryContainer.copy(alpha = (modifierMap[room]?.value ?: 1f)),
-                                    topLeft = Offset(offsetStart, roomIndex * (48.dp + verticalOffset).toPx()),
+                                    color = colorScheme.tertiaryContainer.copy(alpha = modifierMap[room]?.alpha?.value ?: 1f),
+                                    topLeft = Offset(offsetStart, modifierMap[room]?.y?.value ?: 0f),
                                     size = Size(width, 48.dp.toPx())
                                 )
 
@@ -292,15 +302,15 @@ private fun RoomSearchContent(
                                     measuredClass,
                                     topLeft = Offset(
                                         offsetStart + (width / 2 - textSize.width / 2),
-                                        (roomIndex * (48.dp + verticalOffset).toPx()) + (48.dp.toPx() / 2 - textSize.height / 2)
+                                        (modifierMap[room]?.y?.value ?: 0f) + (48.dp.toPx() / 2 - textSize.height / 2)
                                     ),
-                                    color = colorScheme.onTertiaryContainer.copy(alpha = (modifierMap[room]?.value ?: 1f))
+                                    color = colorScheme.onTertiaryContainer.copy(alpha = modifierMap[room]?.alpha?.value ?: 1f)
                                 )
                             }
 
                             drawRect(
-                                color = colorScheme.primaryContainer.copy(alpha = (modifierMap[room]?.value ?: 1f)),
-                                topLeft = Offset(0f, roomIndex * (48.dp + verticalOffset).toPx()),
+                                color = colorScheme.primaryContainer.copy(alpha = modifierMap[room]?.alpha?.value ?: 1f),
+                                topLeft = Offset(0f, (modifierMap[room]?.y?.value ?: 0f)),
                                 size = Size(roomNameWidth, 48.dp.toPx())
                             )
 
@@ -313,9 +323,9 @@ private fun RoomSearchContent(
                                 measuredRoomName,
                                 topLeft = Offset(
                                     roomNameWidth / 2 - measuredRoomName.size.width / 2,
-                                    roomIndex * (48.dp + verticalOffset).toPx() + (48.dp.toPx() / 2 - measuredRoomName.size.height / 2)
+                                    (modifierMap[room]?.y?.value ?: 0f) + (48.dp.toPx() / 2 - measuredRoomName.size.height / 2)
                                 ),
-                                color = colorScheme.onPrimaryContainer.copy(alpha = (modifierMap[room]?.value ?: 1f))
+                                color = colorScheme.onPrimaryContainer.copy(alpha = modifierMap[room]?.alpha?.value ?: 1f)
                             )
                         }
                     }
@@ -423,3 +433,8 @@ private class OffsetCalculator(
         return from.until(to, ChronoUnit.MINUTES) * scale
     }
 }
+
+private data class RoomRowAnimatorState(
+    val alpha: State<Float>,
+    val y: State<Float>
+)

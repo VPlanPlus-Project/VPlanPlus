@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus.feature.room_search.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -25,8 +28,14 @@ fun RoomSearchField(
             .padding(8.dp)
             .fillMaxWidth(),
         trailingIcon = {
-            IconButton(onClick = { onRoomNameQueryChanged("") }) {
-                Icon(imageVector = Icons.Outlined.Cancel, contentDescription = stringResource(id = R.string.clear_text_end_icon_content_description))
+            AnimatedVisibility(
+                visible = roomNameQuery.isNotEmpty(),
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                IconButton(onClick = { onRoomNameQueryChanged("") }) {
+                    Icon(imageVector = Icons.Outlined.Cancel, contentDescription = stringResource(id = R.string.clear_text_end_icon_content_description))
+                }
             }
         },
         leadingIcon = {
