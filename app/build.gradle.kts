@@ -16,8 +16,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 177
-        versionName = "v1.3-dev-13"
+        versionCode = 178
+        versionName = "v1.3-dev-14"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -74,7 +74,7 @@ android {
         buildConfig = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.12"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     packaging {
         resources {
