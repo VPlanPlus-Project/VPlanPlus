@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.home.search.room.components
+package es.jvbabi.vplanplus.feature.room_search.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DoNotDisturbAlt
@@ -23,7 +23,7 @@ fun CannotBookRoomNotVerifiedDialog(
 
 @Preview
 @Composable
-private fun CannotBookRoomNotVeriviedPreview() {
+private fun CannotBookRoomNotVerifiedPreview() {
     CannotBookRoomNotVerifiedDialog()
 }
 

@@ -36,7 +36,6 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSetupScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
-import es.jvbabi.vplanplus.feature.room_search.ui.BookRoom
 import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
@@ -47,8 +46,8 @@ import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsD
 import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.support.ui.SupportScreen
 import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.manage.VppIdManagementScreen
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionLeft
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
@@ -88,21 +87,6 @@ fun NavigationGraph(
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {
             RoomSearch(navHostController = navController)
-        }
-
-        composable(
-            route = Screen.BookRoomScreen.route + "/{roomName}",
-            enterTransition = slideInFromBottom,
-            exitTransition = slideOutFromBottom,
-            popEnterTransition = slideInFromBottom,
-            popExitTransition = slideOutFromBottom,
-            arguments = listOf(
-                navArgument("roomName") {
-                    type = NavType.StringType
-                }
-            )
-        ) {
-            BookRoom(navHostController = navController, roomName = it.arguments?.getString("roomName"))
         }
     }
 }

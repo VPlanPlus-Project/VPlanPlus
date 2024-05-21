@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.ui.screens.home.search.room.components
+package es.jvbabi.vplanplus.feature.room_search.ui.components
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.icons.Icons

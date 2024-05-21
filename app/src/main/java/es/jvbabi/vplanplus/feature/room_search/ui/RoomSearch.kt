@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.room_search.ui
 
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -36,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.geometry.center
@@ -43,6 +45,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
@@ -58,11 +61,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomBookingRequestDialogHost
 import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomSearchField
 import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.School
-import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.atDate
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
 import java.time.ZonedDateTime
@@ -80,10 +84,13 @@ fun RoomSearch(
     RoomSearchContent(
         onBack = { navHostController.popBackStack() },
         onTapOnMatrix = viewModel::onTapOnMatrix,
-        onBookRoomRequested = { navHostController.navigate(Screen.BookRoomScreen.route + "/${state.selectedRoom?.name}") },
         onQueryChanged = viewModel::onRoomNameQueryChanged,
         onToggleNowFilter = viewModel::onToggleNowFilter,
         onToggleNextFilter = viewModel::onToggleNextFilter,
+
+        onConfirmBooking = viewModel::onConfirmBooking,
+        onCancelBooking = viewModel::onCancelBooking,
+
         state = state
     )
 }
@@ -93,10 +100,13 @@ fun RoomSearch(
 private fun RoomSearchContent(
     onBack: () -> Unit = {},
     onTapOnMatrix: (time: ZonedDateTime?, room: Room?) -> Unit = { _, _ -> },
-    onBookRoomRequested: () -> Unit = {},
     onQueryChanged: (query: String) -> Unit = {},
     onToggleNowFilter: () -> Unit = {},
     onToggleNextFilter: () -> Unit = {},
+
+    onConfirmBooking: (context: Context) -> Unit = {},
+    onCancelBooking: () -> Unit = {},
+
     state: RoomSearchState
 ) {
     var displayStartTime by remember { mutableStateOf(ZonedDateTime.now().atStartOfDay()) }
@@ -129,6 +139,19 @@ private fun RoomSearchContent(
         if (state.lessonTimes.isEmpty()) return@updateUiStartTime
         displayStartTime = state.lessonTimes.values.minBy { it.lessonNumber }.start.atDate(state.currentTime)
     }
+
+
+    val context = LocalContext.current
+    if (state.newRoomBookingRequest != null) {
+        RoomBookingRequestDialogHost(
+            bookingAbility = state.canBookRoom,
+            classes = state.currentClass,
+            bookingRequest = state.newRoomBookingRequest,
+            onConfirmBooking = { onConfirmBooking(context) },
+            onCancelBooking = onCancelBooking
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -227,11 +250,36 @@ private fun RoomSearchContent(
                     translate(top = scrollOffset.y + headerHeight) {
 
                         state.data.forEach { (room, _, _, _) ->
-                            if (state.selectedRoom == room) drawRect(
-                                color = colorScheme.surfaceVariant,
-                                topLeft = Offset(0f, modifierMap[room]?.y?.value ?: 0f),
-                                size = Size(size.width, 48.dp.toPx())
-                            )
+                            if (state.selectedRoom == room) {
+                                drawRect(
+                                    color = colorScheme.surfaceVariant,
+                                    topLeft = Offset(0f, modifierMap[room]?.y?.value ?: 0f),
+                                    size = Size(size.width, 48.dp.toPx())
+                                )
+                                if (state.selectedLessonTime != null) {
+                                    val startOffset = calculator.calculateOffset(displayStartTime.atBeginningOfTheWorld(), state.selectedLessonTime.start)
+                                    val width = calculator.calculateWidth(state.selectedLessonTime.start, state.selectedLessonTime.end)
+                                    drawRoundRect(
+                                        color = colorScheme.primary,
+                                        topLeft = Offset(startOffset, modifierMap[room]?.y?.value ?: 0f),
+                                        size = Size(width, rowHeight.toPx()),
+                                        cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
+                                    )
+
+                                    val plusText = textMeasurer.measure(
+                                        "+",
+                                        style = typography.headlineMedium
+                                    )
+                                    drawText(
+                                        plusText,
+                                        topLeft = Offset(
+                                            startOffset + (width / 2 - plusText.size.width / 2),
+                                            (modifierMap[room]?.y?.value ?: 0f) + (48.dp.toPx() / 2 - plusText.size.height / 2)
+                                        ),
+                                        color = colorScheme.onPrimary
+                                    )
+                                }
+                            }
                         }
 
                         state.lessonTimes.forEach lessonTimeMarker@{ (_, lessonTime) ->
@@ -398,8 +446,6 @@ private fun RoomSearchContent(
                         currentTime = ZonedDateTime.now(),
                         data = state.data.firstOrNull { it.room == state.selectedRoom } ?: return@wrapper,
                         onClosed = { onTapOnMatrix(null, null) },
-                        onBookRoomClicked = onBookRoomRequested,
-                        hasVppId = state.currentIdentity?.profile?.vppId != null,
                         paddingBottom = paddingValues.calculateBottomPadding()
                     )
                 }

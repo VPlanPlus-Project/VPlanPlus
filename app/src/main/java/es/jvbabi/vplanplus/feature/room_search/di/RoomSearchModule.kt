@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCases
+import es.jvbabi.vplanplus.feature.room_search.domain.usecase.CanBookRoomUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetClassLessonTimesUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetLessonTimesUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetRoomByNameUseCase
@@ -42,19 +43,45 @@ object RoomSearchModule {
 
     @Provides
     @Singleton
+    fun provideBookRoomUseCase(
+        vppIdRepository: VppIdRepository,
+        roomRepository: RoomRepository,
+        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+    ): BookRoomUseCase {
+        return BookRoomUseCase(
+            vppIdRepository = vppIdRepository,
+            roomRepository = roomRepository,
+            getCurrentIdentityUseCase = getCurrentIdentityUseCase
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideCanBookRoomUseCase(
+        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+    ): CanBookRoomUseCase {
+        return CanBookRoomUseCase(getCurrentIdentityUseCase = getCurrentIdentityUseCase)
+    }
+
+    @Provides
+    @Singleton
     fun provideRoomSearchUseCases(
         classRepository: ClassRepository,
         lessonTimeRepository: LessonTimeRepository,
         getRoomMapUseCase: GetRoomMapUseCase,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        canBookRoomUseCase: CanBookRoomUseCase,
+        bookRoomUseCase: BookRoomUseCase
     ): RoomSearchUseCases {
         return RoomSearchUseCases(
-            getCurrentIdentityUseCase,
-            getRoomMapUseCase,
+            getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+            getRoomMapUseCase = getRoomMapUseCase,
             getLessonTimesUseCases = GetClassLessonTimesUseCase(
                 lessonTimeRepository,
                 classRepository
-            )
+            ),
+            canBookRoomUseCase = canBookRoomUseCase,
+            bookRoomUseCase = bookRoomUseCase
         )
     }
 
@@ -65,7 +92,7 @@ object RoomSearchModule {
         keyValueRepository: KeyValueRepository,
         lessonTimeRepository: LessonTimeRepository,
         lessonRepository: LessonRepository,
-        vppIdRepository: VppIdRepository,
+        bookRoomUseCase: BookRoomUseCase,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
     ): BookRoomUseCases {
         return BookRoomUseCases(
@@ -74,11 +101,7 @@ object RoomSearchModule {
             getLessonTimesUseCase = GetLessonTimesUseCase(lessonTimeRepository, lessonRepository, roomRepository, keyValueRepository),
             hideRoomBookingDisclaimerBannerUseCase = HideRoomBookingDisclaimerBannerUseCase(keyValueRepository),
             showRoomBookingDisclaimerBannerUseCase = IsShowRoomBookingDisclaimerBannerUseCase(keyValueRepository),
-            bookRoomUseCase = BookRoomUseCase(
-                vppIdRepository = vppIdRepository,
-                roomRepository = roomRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase
-            )
+            bookRoomUseCase = bookRoomUseCase
         )
     }
 }

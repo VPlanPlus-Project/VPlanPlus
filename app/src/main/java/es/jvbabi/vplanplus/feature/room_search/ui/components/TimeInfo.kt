@@ -20,9 +20,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.Button
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -58,7 +55,6 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomState
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.DOT
-import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
@@ -79,8 +75,6 @@ fun TimeInfo(
     currentTime: ZonedDateTime = ZonedDateTime.now(),
     data: RoomState,
     onClosed: () -> Unit,
-    onBookRoomClicked: () -> Unit,
-    hasVppId: Boolean,
     paddingBottom: Dp = 0.dp
 ) {
     var height by remember { mutableIntStateOf(1) }
@@ -285,24 +279,6 @@ fun TimeInfo(
                     }
                 }
             }
-
-            Button(
-                onClick = onBookRoomClicked,
-                modifier = Modifier
-                    .padding(start = 16.dp, end = 16.dp)
-                    .fillMaxWidth(),
-                enabled = hasVppId
-            ) {
-                Text(text = stringResource(id = R.string.searchAvailableRoom_sheetBookRoom))
-            }
-            if (!hasVppId) {
-                InfoCard(
-                    imageVector = Icons.Default.NoAccounts,
-                    title = stringResource(id = R.string.searchAvailableRoom_bookNoVppIdDialogTitle),
-                    text = stringResource(id = R.string.searchAvailableRoom_bookNoVppIdDialogMessage),
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-                )
-            }
         }
         Spacer(modifier = Modifier.height(maxOf(paddingBottom, 16.dp)))
     }
@@ -319,8 +295,6 @@ private fun TimeInfoPreview() {
             bookings = emptyList()
         ),
         selectedTime = ZonedDateTime.now().withHour(19).withMinute(31),
-        onClosed = {},
-        onBookRoomClicked = {},
-        hasVppId = false
+        onClosed = {}
     )
 }

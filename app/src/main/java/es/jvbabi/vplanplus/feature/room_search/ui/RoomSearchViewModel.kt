@@ -1,21 +1,30 @@
 package es.jvbabi.vplanplus.feature.room_search.ui
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.data.repository.BookResult
+import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
+import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomAbility
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomSearchUseCases
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomState
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
+import es.jvbabi.vplanplus.util.DateUtils.atDate
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -23,7 +32,8 @@ import javax.inject.Inject
 @HiltViewModel
 class RoomSearchViewModel @Inject constructor(
     private val roomSearchUseCases: RoomSearchUseCases,
-    private val getCurrentTimeUseCase: GetCurrentTimeUseCase
+    private val getCurrentTimeUseCase: GetCurrentTimeUseCase,
+    private val getClassByProfileUseCase: GetClassByProfileUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(RoomSearchState())
@@ -31,15 +41,28 @@ class RoomSearchViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val identity =  roomSearchUseCases.getCurrentIdentityUseCase().first() ?: return@launch
-            state = state.copy(currentIdentity = identity)
+            combine(
+                listOf(
+                    roomSearchUseCases.getCurrentIdentityUseCase(),
+                    roomSearchUseCases.canBookRoomUseCase()
+                )
+            ) { data ->
+                val identity = data[0] as Identity? ?: return@combine null
+                val canBookRoom = data[1] as BookRoomAbility
 
-            val map = roomSearchUseCases.getRoomMapUseCase(identity)
-            val lessonTimes = roomSearchUseCases.getLessonTimesUseCases(identity.profile!!)
-            state = state.copy(
-                data = map,
-                lessonTimes = lessonTimes
-            )
+                val map = roomSearchUseCases.getRoomMapUseCase(identity)
+                val lessonTimes = roomSearchUseCases.getLessonTimesUseCases(identity.profile!!)
+
+                state.copy(
+                    currentIdentity = identity,
+                    canBookRoom = canBookRoom,
+                    data = map,
+                    lessonTimes = lessonTimes,
+                    currentClass = if (identity.profile.type == ProfileType.STUDENT) getClassByProfileUseCase(identity.profile) else null
+                )
+            }.collect {
+                state = it ?: return@collect
+            }
         }
 
         viewModelScope.launch {
@@ -63,7 +86,26 @@ class RoomSearchViewModel @Inject constructor(
     }
 
     fun onTapOnMatrix(time: ZonedDateTime?, room: Room?) {
-        state = state.copy(selectedTime = time, selectedRoom = room)
+        val selectedLessonTime = if (time == null) null else state.lessonTimes.values.firstOrNull { time.atBeginningOfTheWorld().progress(it.start, it.end) in 0.0..1.0 }
+        val tappedOnSameSpot = state.selectedRoom == room && room != null && state.selectedLessonTime == selectedLessonTime && selectedLessonTime != null
+        val roomHasEventsAtSelectedTimeSpan = if (selectedLessonTime == null) false else state.data
+            .any { it.room == room && it.getOccupiedTimes().any { times -> times.overlaps(selectedLessonTime.toTimeSpan(state.currentTime)) } }
+
+        if (tappedOnSameSpot && !roomHasEventsAtSelectedTimeSpan && room != null && selectedLessonTime != null) {
+            state = state.copy(
+                newRoomBookingRequest = NewRoomBookingRequest(
+                    room = room,
+                    start = selectedLessonTime.start,
+                    end = selectedLessonTime.end
+                )
+            )
+        }
+
+        state = state.copy(
+            selectedTime = time,
+            selectedRoom = room,
+            selectedLessonTime = selectedLessonTime
+        )
     }
 
     fun onRoomNameQueryChanged(query: String) {
@@ -107,19 +149,54 @@ class RoomSearchViewModel @Inject constructor(
             state = state.copy(data = data)
         }
     }
+
+    fun onCancelBooking() {
+        state = state.copy(newRoomBookingRequest = null)
+    }
+
+    fun onConfirmBooking(context: Context) {
+        val request = state.newRoomBookingRequest ?: return
+        viewModelScope.launch {
+            state = state.copy(
+                bookingResult = roomSearchUseCases.bookRoomUseCase(request.room, request.start.atDate(state.currentTime), request.end.atDate(state.currentTime)),
+                newRoomBookingRequest = null
+            )
+            when (state.bookingResult) {
+                BookResult.CONFLICT -> context.getString(R.string.searchAvailableRoom_bookConflict)
+                BookResult.NO_INTERNET -> context.getString(R.string.searchAvailableRoom_bookNoInternet)
+                BookResult.OTHER -> context.getString(R.string.searchAvailableRoom_bookOther)
+                BookResult.SUCCESS -> context.getString(R.string.searchAvailableRoom_bookSuccess)
+                null -> null
+            }?.let {
+                Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 }
 
 data class RoomSearchState(
     val currentIdentity: Identity? = null,
+    val currentClass: Classes? = null,
     val currentTime: ZonedDateTime = ZonedDateTime.now(),
     val data: List<RoomState> = emptyList(),
     val lessonTimes: Map<Int, LessonTime> = emptyMap(),
     val selectedTime: ZonedDateTime? = null,
     val selectedRoom: Room? = null,
+    val selectedLessonTime: LessonTime? = null,
     val roomNameQuery: String = "",
+
+    val newRoomBookingRequest: NewRoomBookingRequest? = null,
+    val canBookRoom: BookRoomAbility = BookRoomAbility.CAN_BOOK,
+    val bookingResult: BookResult? = null,
 
     val currentLessonTime: LessonTime? = null,
     val filterRoomsAvailableNowActive: Boolean = false,
     val nextLessonTime: LessonTime? = null,
     val filterRoomsAvailableNextLessonActive: Boolean = false
+)
+
+data class NewRoomBookingRequest(
+    val room: Room,
+    val start: ZonedDateTime,
+    val end: ZonedDateTime
 )
