@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
+import es.jvbabi.vplanplus.util.TimeSpan
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
@@ -54,4 +55,14 @@ data class RoomState(
     val lessons: List<Lesson>,
     val bookings: List<RoomBooking>,
     val isExpanded: Boolean = true
-)
+) {
+    fun getOccupiedTimes(): List<TimeSpan> {
+        return lessons.map { lesson ->
+            TimeSpan(lesson.start, lesson.end)
+        }.plus(
+            bookings.map { booking ->
+                TimeSpan(booking.from, booking.to)
+            }
+        )
+    }
+}

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.model
 
+import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -25,6 +26,6 @@ data class Day(
         lessons.filter { profile.isDefaultLessonEnabled(it.vpId) }
 
     fun anyLessonsLeft(time: ZonedDateTime, profile: Profile): Boolean {
-        return getEnabledLessons(profile).any { it.progress(time) < 1.0 }
+        return getEnabledLessons(profile).any { time.progress(it.start, it.end) < 1.0 }
     }
 }

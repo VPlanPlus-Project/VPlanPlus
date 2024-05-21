@@ -63,6 +63,7 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.util.DateUtils.isBeforeOrEqual
+import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import kotlin.math.roundToInt
@@ -239,9 +240,10 @@ fun TimeInfo(
                                 drawRect(
                                     topLeft = Offset(0f, 0f),
                                     size = Size(
-                                        currentLessons
-                                            .first()
-                                            .progress(time) * size.width, size.height
+                                        run {
+                                            val c = currentLessons.first()
+                                            return@run time.progress(c.start, c.end)
+                                        } * size.width, size.height
                                     ),
                                     color = colorScheme.tertiaryContainer
                                 )

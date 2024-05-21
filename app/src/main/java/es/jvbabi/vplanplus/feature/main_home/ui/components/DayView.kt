@@ -42,6 +42,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
@@ -78,7 +79,7 @@ fun DayView(
                                 it.displaySubject != "-"
                     }
 
-                val uiWillShowHiddenLessonsCard = hideFinishedLessons && !ignoreAutoHideFinishedLessons && day.lessons.any { it.progress(currentTime) >= 1 }
+                val uiWillShowHiddenLessonsCard = hideFinishedLessons && !ignoreAutoHideFinishedLessons && day.lessons.any { currentTime.progress(it.start, it.end) >= 1 }
                 val uiWillShowCountdown = showCountdown && lastActualLesson != null && lastActualLesson.end.isAfter(currentTime)
 
                 if (day.info != null) {
@@ -152,12 +153,12 @@ fun DayView(
                 displayLessonGroups.forEachIndexed { i, (lessonNumber, lessons) ->
                         val isFirstVisibleLessonCard =
                             ((!hideFinishedLessons || ignoreAutoHideFinishedLessons) && i == 0) ||
-                                    (hideFinishedLessons && !ignoreAutoHideFinishedLessons && filteredLessons.none { it.progress(currentTime) < 1 && it.lessonNumber < lessonNumber })
+                                    (hideFinishedLessons && !ignoreAutoHideFinishedLessons && filteredLessons.none { currentTime.progress(it.start, it.end) < 1 && it.lessonNumber < lessonNumber })
                         
                         val isLastVisibleLessonCard = i == displayLessonGroups.lastIndex
 
                         AnimatedVisibility(
-                            visible = !hideFinishedLessons || ignoreAutoHideFinishedLessons || (lessons.any { it.progress(currentTime) < 1.0 }),
+                            visible = !hideFinishedLessons || ignoreAutoHideFinishedLessons || (lessons.any { currentTime.progress(it.start, it.end) < 1.0 }),
                             enter = expandVertically(tween(250)),
                             exit = shrinkVertically(tween(250)),
                             modifier = Modifier.drawWithContent {
@@ -192,7 +193,7 @@ fun DayView(
                                 )
                                 drawCircle(
                                     color =
-                                        if (lessons.any { it.progress(currentTime) < 1 }) colorScheme.primary
+                                        if (lessons.any { currentTime.progress(it.start, it.end) < 1 }) colorScheme.primary
                                         else colorScheme.secondary,
                                     center = Offset(pencilX, circleY),
                                     radius = markerCircleRadius

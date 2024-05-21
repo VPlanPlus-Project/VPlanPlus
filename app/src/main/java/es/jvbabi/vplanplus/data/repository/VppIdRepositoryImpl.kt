@@ -164,7 +164,7 @@ class VppIdRepositoryImpl(
             requestMethod = HttpMethod.Post,
             requestBody = Gson().toJson(TestSessionRequest(vppId.id))
         )
-        if (response.response == null) return null
+        if (response.response == null || response.response == HttpStatusCode.BadGateway) return null
         return response.response == HttpStatusCode.Found
     }
 

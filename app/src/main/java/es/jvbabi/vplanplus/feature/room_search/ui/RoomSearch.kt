@@ -1,9 +1,13 @@
 package es.jvbabi.vplanplus.feature.room_search.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -11,16 +15,13 @@ import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Cancel
-import androidx.compose.material.icons.outlined.Search
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,6 +57,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomSearchField
 import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.School
@@ -72,13 +74,15 @@ fun RoomSearch(
     navHostController: NavHostController,
     viewModel: RoomSearchViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.value
+    val state = viewModel.state
 
     RoomSearchContent(
         onBack = { navHostController.popBackStack() },
         onTapOnMatrix = viewModel::onTapOnMatrix,
         onBookRoomRequested = { navHostController.navigate(Screen.BookRoomScreen.route + "/${state.selectedRoom?.name}") },
         onQueryChanged = viewModel::onRoomNameQueryChanged,
+        onToggleNowFilter = viewModel::onToggleNowFilter,
+        onToggleNextFilter = viewModel::onToggleNextFilter,
         state = state
     )
 }
@@ -90,6 +94,8 @@ private fun RoomSearchContent(
     onTapOnMatrix: (time: ZonedDateTime?, room: Room?) -> Unit = { _, _ -> },
     onBookRoomRequested: () -> Unit = {},
     onQueryChanged: (query: String) -> Unit = {},
+    onToggleNowFilter: () -> Unit = {},
+    onToggleNextFilter: () -> Unit = {},
     state: RoomSearchState
 ) {
     var displayStartTime by remember { mutableStateOf(ZonedDateTime.now().atStartOfDay()) }
@@ -128,22 +134,36 @@ private fun RoomSearchContent(
             val colorScheme = MaterialTheme.colorScheme
             val typography = MaterialTheme.typography
 
-            TextField(
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxWidth(),
-                trailingIcon = {
-                    IconButton(onClick = { onQueryChanged("") }) {
-                        Icon(imageVector = Icons.Outlined.Cancel, contentDescription = stringResource(id = com.google.android.material.R.string.clear_text_end_icon_content_description))
+            RoomSearchField(onQueryChanged, state.roomNameQuery)
+            AnimatedVisibility(
+                visible = state.currentLessonTime != null || state.nextLessonTime != null,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                LazyRow(
+                    modifier = Modifier.padding(start = 8.dp, bottom = 8.dp).fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (state.currentLessonTime != null) {
+                        item {
+                            FilterChip(
+                                selected = state.filterRoomsAvailableNowActive,
+                                onClick = onToggleNowFilter,
+                                label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNow)) }
+                            )
+                        }
                     }
-                },
-                leadingIcon = {
-                    Icon(imageVector = Icons.Outlined.Search, contentDescription = null)
-                },
-                placeholder = { Text(text = stringResource(id = R.string.searchAvailableRoom_searchRoomName)) },
-                value = state.roomNameQuery,
-                onValueChange = onQueryChanged
-            )
+                    if (state.nextLessonTime != null) {
+                        item {
+                            FilterChip(
+                                selected = state.filterRoomsAvailableNextLessonActive,
+                                onClick = onToggleNextFilter,
+                                label = { Text(text = stringResource(id = R.string.searchAvailableRoom_filterNext)) }
+                            )
+                        }
+                    }
+                }
+            }
 
             Box(Modifier.fillMaxSize()) {
                 var scale by rememberSaveable { mutableFloatStateOf(4f) }
