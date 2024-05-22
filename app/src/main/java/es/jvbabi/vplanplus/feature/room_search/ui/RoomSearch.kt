@@ -44,6 +44,7 @@ import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -122,7 +123,7 @@ private fun RoomSearchContent(
     val headerHeightDp = 64.dp
     val rowHeight = 48.dp
     val totalHeight = headerHeightDp + (48.dp + verticalPadding) * state.data.count { it.isExpanded }
-    val bottomSheetHeight by rememberSaveable { mutableFloatStateOf(0f) }
+    var bottomSheetHeight by rememberSaveable { mutableFloatStateOf(0f) }
 
     var counter = 0
     var index = 0
@@ -200,7 +201,7 @@ private fun RoomSearchContent(
                 Canvas(
                     modifier = Modifier
                         .fillMaxSize()
-                        .pointerInput(state.data) {
+                        .pointerInput(state.data, scale) {
                             val decay = splineBasedDecay<Offset>(this)
                             val velocityTracker = VelocityTracker()
                             var isPress = false
@@ -231,16 +232,13 @@ private fun RoomSearchContent(
 
                                             translation.updateBounds(
                                                 Offset(
-                                                    -(offset + roomNameWidth + calculator.calculateWidth(
+                                                    -(calculator.calculateWidth(
                                                         displayStartTime,
                                                         maxOf(state.lessonTimes.values.maxByOrNull { it.lessonNumber }?.end?.atDate(state.currentTime) ?: displayStartTime, displayEndTime)
-                                                    ) + size.width),
+                                                    ) - size.width + roomNameWidth + offset),
                                                     -(totalHeight.toPx() - size.height + bottomSheetHeight)
                                                 ),
-                                                Offset(
-                                                    Float.MIN_VALUE,
-                                                    0f
-                                                )
+                                                Offset(0f, 0f)
                                             )
                                         }
 
@@ -493,7 +491,8 @@ private fun RoomSearchContent(
                     TimeInfo(
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp)
-                            .alpha(alpha.value),
+                            .alpha(alpha.value)
+                            .onSizeChanged { bottomSheetHeight = it.height.toFloat() },
                         selectedTime = state.selectedTime,
                         selectedLessonTime = state.selectedLessonTime,
                         currentTime = ZonedDateTime.now(),
