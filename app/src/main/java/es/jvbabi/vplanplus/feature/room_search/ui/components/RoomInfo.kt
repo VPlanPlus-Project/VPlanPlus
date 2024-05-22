@@ -1,10 +1,13 @@
 package es.jvbabi.vplanplus.feature.room_search.ui.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.AnchoredDraggableState
 import androidx.compose.foundation.gestures.DraggableAnchors
@@ -34,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -64,6 +68,7 @@ import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.util.DateUtils.isBeforeOrEqual
 import es.jvbabi.vplanplus.util.DateUtils.progress
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -122,6 +127,22 @@ fun TimeInfo(
 
     val isInUseNow = data.lessons.any { it.start.isBeforeOrEqual(currentTime) && it.end.isAfter(currentTime) && it.displaySubject != "-" }
     val isInUseAtSelectedTime = data.lessons.any { it.start.isBeforeOrEqual(selectedTime) && it.end.isAfter(selectedTime) && it.displaySubject != "-" }
+    val scope = rememberCoroutineScope()
+
+    BackHandler {
+        scope.launch {
+            dragState.anchoredDrag(targetValue = DragValue.End, dragPriority = MutatePriority.PreventUserInput) { anchors, latestTarget ->
+                val targetOffset = anchors.positionOf(latestTarget)
+                if (!targetOffset.isNaN()) {
+                    var prev = if (dragState.requireOffset().isNaN()) 0f else dragState.requireOffset()
+                    animate(prev, targetOffset, dragState.lastVelocity, tween()) { value, velocity ->
+                        dragTo(value, velocity)
+                        prev = value
+                    }
+                }
+            }
+        }
+    }
 
     Column(
         modifier = modifier
@@ -280,25 +301,27 @@ fun TimeInfo(
                 }
             }
 
-
-            AnimatedVisibility(
-                visible = selectedLessonTime != null,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
-            ) {
-                OutlinedButton(
-                    onClick = onRequestBookingForSelectedContext,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .fillMaxWidth(),
-                    enabled = !isInUseAtSelectedTime && selectedLessonTime != null
+            Column {
+                AnimatedVisibility(
+                    visible = selectedLessonTime != null,
+                    enter = expandVertically(),
+                    exit = shrinkVertically(),
                 ) {
-                    Text(
-                        text = stringResource(
-                            id = R.string.searchAvailableRoom_sheetBookRoom,
-                            selectedLessonTime?.lessonNumber?.toLocalizedString() ?: ""
-                        )
-                    )
+                    OutlinedButton(
+                        onClick = onRequestBookingForSelectedContext,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth(),
+                        enabled = !isInUseAtSelectedTime && selectedLessonTime != null
+                    ) {
+
+                        var lessonNumber by remember { mutableIntStateOf(0) }
+                        LaunchedEffect(key1 = selectedLessonTime) {
+                            if (selectedLessonTime != null) lessonNumber = selectedLessonTime.lessonNumber
+                        }
+
+                        Text(text = stringResource(id = R.string.searchAvailableRoom_sheetBookRoom, lessonNumber.toLocalizedString()))
+                    }
                 }
             }
 
