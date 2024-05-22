@@ -82,6 +82,7 @@ fun RoomSearch(
         onQueryChanged = viewModel::onRoomNameQueryChanged,
         onToggleNowFilter = viewModel::onToggleNowFilter,
         onToggleNextFilter = viewModel::onToggleNextFilter,
+        onRequestBookingForSelectedContext = viewModel::onRequestBookingForSelectedContext,
 
         onConfirmBooking = viewModel::onConfirmBooking,
         onCancelBooking = viewModel::onCancelBooking,
@@ -98,6 +99,7 @@ private fun RoomSearchContent(
     onQueryChanged: (query: String) -> Unit = {},
     onToggleNowFilter: () -> Unit = {},
     onToggleNextFilter: () -> Unit = {},
+    onRequestBookingForSelectedContext: () -> Unit = {},
 
     onConfirmBooking: (context: Context) -> Unit = {},
     onCancelBooking: () -> Unit = {},
@@ -443,10 +445,12 @@ private fun RoomSearchContent(
                     TimeInfo(
                         modifier = Modifier.padding(start = 16.dp, end = 16.dp).alpha(alpha.value),
                         selectedTime = state.selectedTime,
+                        selectedLessonTime = state.selectedLessonTime,
                         currentTime = ZonedDateTime.now(),
                         data = state.data.firstOrNull { it.room == state.selectedRoom } ?: return@wrapper,
                         onClosed = { onTapOnMatrix(null, null) },
-                        paddingBottom = paddingValues.calculateBottomPadding()
+                        paddingBottom = paddingValues.calculateBottomPadding(),
+                        onRequestBookingForSelectedContext = onRequestBookingForSelectedContext
                     )
                 }
             }

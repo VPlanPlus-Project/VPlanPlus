@@ -605,7 +605,7 @@
     <string name="searchAvailableRoom_sheetInUse">Belegt</string>
     <string name="searchAvailableRoom_sheetAvailable">Verfügbar</string>
     <string name="searchAvailableRoom_sheetNow">Jetzt</string>
-    <string name="searchAvailableRoom_sheetBookRoom">Raum buchen</string>
+    <string name="searchAvailableRoom_sheetBookRoom">Raum für %1$s Stunde buchen</string>
     <string name="searchAvailableRoom_bookNoVppIdDialogTitle">Keine vpp.ID</string>
     <string name="searchAvailableRoom_bookNoVppIdDialogMessage">Um einen Raum zu buchen, musst du mit deiner vpp.ID angemeldet sein. Falls du angemeldet bist, prüfe, ob du das richtige Profil verwendest.</string>
     <string name="searchAvailableRoom_sheetNoLessonsForRoom">Keine Stunden für Raum %1$s</string>

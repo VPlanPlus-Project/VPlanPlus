@@ -91,20 +91,22 @@ class RoomSearchViewModel @Inject constructor(
         val roomHasEventsAtSelectedTimeSpan = if (selectedLessonTime == null) false else state.data
             .any { it.room == room && it.getOccupiedTimes().any { times -> times.overlaps(selectedLessonTime.toTimeSpan(state.currentTime)) } }
 
-        if (tappedOnSameSpot && !roomHasEventsAtSelectedTimeSpan && room != null && selectedLessonTime != null) {
-            state = state.copy(
-                newRoomBookingRequest = NewRoomBookingRequest(
-                    room = room,
-                    start = selectedLessonTime.start,
-                    end = selectedLessonTime.end
-                )
-            )
-        }
+        if (tappedOnSameSpot && !roomHasEventsAtSelectedTimeSpan) onRequestBookingForSelectedContext()
 
         state = state.copy(
             selectedTime = time,
             selectedRoom = room,
             selectedLessonTime = selectedLessonTime
+        )
+    }
+
+    fun onRequestBookingForSelectedContext() {
+        state = state.copy(
+            newRoomBookingRequest = NewRoomBookingRequest(
+                room = state.selectedRoom ?: return,
+                start = state.selectedLessonTime?.start ?: return,
+                end = state.selectedLessonTime?.end ?: return
+            )
         )
     }
 

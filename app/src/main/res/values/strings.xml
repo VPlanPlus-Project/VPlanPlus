@@ -608,7 +608,7 @@
     <string name="searchAvailableRoom_sheetInUse">In Use</string>
     <string name="searchAvailableRoom_sheetAvailable">Available</string>
     <string name="searchAvailableRoom_sheetNow">Now</string>
-    <string name="searchAvailableRoom_sheetBookRoom">Book room</string>
+    <string name="searchAvailableRoom_sheetBookRoom">Book room for %1$s lesson</string>
     <string name="searchAvailableRoom_bookNoVppIdDialogTitle">No vpp.ID</string>
     <string name="searchAvailableRoom_bookNoVppIdDialogMessage">To book a room, you need to be logged in with you vpp.ID. If you\'re logged in, check that you are using the correct profile.</string>
     <string name="searchAvailableRoom_sheetNoLessonsForRoom">No lessons for room %1$s</string>
