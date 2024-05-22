@@ -135,6 +135,11 @@ private fun RoomSearchContent(
         displayStartTime = state.lessonTimes.values.minBy { it.lessonNumber }.start.atDate(state.currentTime)
     }
 
+    var scale by rememberSaveable { mutableFloatStateOf(4f) }
+    var scrollOffset by remember { mutableStateOf(Offset(4f, 8f)) }
+
+    val lessonTimeAlphaByScale = animateFloatAsState(targetValue = if (scale >= 3f) 1f else 0f, label = "LessonTimeAlpha")
+
 
     val context = LocalContext.current
     if (state.newRoomBookingRequest != null) {
@@ -180,9 +185,6 @@ private fun RoomSearchContent(
             )
 
             Box(Modifier.fillMaxSize()) {
-                var scale by rememberSaveable { mutableFloatStateOf(4f) }
-                var scrollOffset by remember { mutableStateOf(Offset(4f, 8f)) }
-
                 val textMeasurer = rememberTextMeasurer()
 
                 Canvas(
@@ -358,13 +360,37 @@ private fun RoomSearchContent(
                     }
                     if (state.selectedTime != null) {
                         val selectedTimeOffset = calculator.calculateOffset(displayStartTime, state.selectedTime)
-                        if (selectedTimeOffset >= roomNameWidth) drawLine(
-                            color = colorScheme.primary,
-                            start = Offset(selectedTimeOffset, 0f),
-                            end = Offset(selectedTimeOffset, totalHeight.toPx()),
-                            strokeWidth = 2.dp.toPx(),
-                            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
-                        )
+                        if (selectedTimeOffset >= roomNameWidth) {
+                            drawLine(
+                                color = colorScheme.primary,
+                                start = Offset(selectedTimeOffset, 0f),
+                                end = Offset(selectedTimeOffset, totalHeight.toPx()),
+                                strokeWidth = 2.dp.toPx(),
+                                pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                            )
+                            drawRoundRect(
+                                color = colorScheme.primary,
+                                topLeft = Offset(selectedTimeOffset + 20f, 20f + headerHeight),
+                                size = Size(120f, 60f),
+                                cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
+                            )
+
+                            val selectedTimeMeasurer = textMeasurer.measure(
+                                buildAnnotatedString {
+                                    withStyle(typography.bodyMedium.toSpanStyle()) {
+                                        append(state.selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                    }
+                                },
+                                constraints = Constraints.fixedWidth(120.dp.roundToPx()),
+                                style = typography.bodyMedium,
+                                softWrap = false
+                            )
+                            drawText(
+                                selectedTimeMeasurer,
+                                topLeft = Offset(selectedTimeOffset + 30f, 20f + headerHeight + 30f - selectedTimeMeasurer.size.height / 2),
+                                color = colorScheme.onPrimary
+                            )
+                        }
                     }
 
                     val currentTimeOffset = calculator.calculateOffset(displayStartTime, state.currentTime)
@@ -390,7 +416,7 @@ private fun RoomSearchContent(
                                     append(lessonNumber.toString())
                                     append(".")
                                 }
-                                if (scale >= 3f) withStyle(typography.labelSmall.toSpanStyle()) {
+                                withStyle(typography.labelSmall.toSpanStyle().copy(color = colorScheme.outlineVariant.copy(alpha = lessonTimeAlphaByScale.value))) {
                                     append("\n" + lessonTime.start.format(DateTimeFormatter.ofPattern("HH:mm")))
                                     append("\n" + lessonTime.end.format(DateTimeFormatter.ofPattern("HH:mm")))
                                 }
