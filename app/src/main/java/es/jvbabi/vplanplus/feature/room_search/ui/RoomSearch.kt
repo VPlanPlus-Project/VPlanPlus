@@ -1,11 +1,14 @@
 package es.jvbabi.vplanplus.feature.room_search.ui
 
+import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.splineBasedDecay
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -25,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -34,11 +38,12 @@ import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.geometry.center
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
@@ -50,7 +55,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -64,6 +68,7 @@ import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.atDate
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
+import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -91,6 +96,7 @@ fun RoomSearch(
     )
 }
 
+@SuppressLint("ReturnFromAwaitPointerEventScope")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RoomSearchContent(
@@ -107,6 +113,7 @@ private fun RoomSearchContent(
     state: RoomSearchState
 ) {
     var displayStartTime by remember { mutableStateOf(ZonedDateTime.now().atStartOfDay()) }
+    val displayEndTime by remember(state.data) { mutableStateOf(state.data.flatMap { it.lessons }.maxOfOrNull{ it.end } ?: displayStartTime) }
 
     val localDensity = LocalDensity.current
     val roomNameWidth = with(localDensity) { 48.dp.toPx() }
@@ -136,8 +143,9 @@ private fun RoomSearchContent(
     }
 
     var scale by rememberSaveable { mutableFloatStateOf(4f) }
-    var scrollOffset by remember { mutableStateOf(Offset(4f, 8f)) }
+    val translation = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
 
+    val calculator = OffsetCalculator(scale, translation.value.x, roomNameWidth + offset)
     val lessonTimeAlphaByScale = animateFloatAsState(targetValue = if (scale >= 3f) 1f else 0f, label = "LessonTimeAlpha")
 
 
@@ -186,43 +194,77 @@ private fun RoomSearchContent(
 
             Box(Modifier.fillMaxSize()) {
                 val textMeasurer = rememberTextMeasurer()
+                val scope = rememberCoroutineScope()
 
                 Canvas(
                     modifier = Modifier
                         .fillMaxSize()
                         .pointerInput(state.data) {
-                            detectTransformGestures(
-                                onGesture = { centroid, pan, zoom, _ ->
-                                    val targetScale = (scale * zoom).coerceIn(2f, 5f)
-                                    val realZoom = targetScale / scale
-                                    val center = size.toSize().center
-                                    val targetX = scrollOffset.x * realZoom - (centroid.x - center.x) * (realZoom - 1) + pan.x
-                                    val targetY = scrollOffset.y + pan.y
+                            val decay = splineBasedDecay<Offset>(this)
+                            val velocityTracker = VelocityTracker()
+                            var isPress = false
 
-                                    scale = targetScale
-                                    Log.d("RoomSearch", "Scale: $scale")
-                                    scrollOffset = Offset(targetX.coerceAtMost(0f), targetY.coerceAtMost(0f))
+                            awaitPointerEventScope {
+                                while (true) {
+                                    val event = awaitPointerEvent()
+                                    val change = event.changes.lastOrNull() ?: continue
+                                    when (event.type) {
+                                        PointerEventType.Press -> {
+                                            isPress = true
+                                        }
+                                        PointerEventType.Move -> {
+                                            isPress = false
+                                            val previousCentroid = event.calculateCentroid(false)
+                                            val currentCentroid = event.calculateCentroid(true)
+                                            val targetOffset = Offset(
+                                                translation.value.x + (currentCentroid.x - previousCentroid.x),
+                                                translation.value.y + (currentCentroid.y - previousCentroid.y)
+                                            )
+                                            scope.launch {
+                                                translation.snapTo(targetOffset)
+                                            }
+                                            if (event.changes.size > 2) velocityTracker.resetTracking()
+                                            velocityTracker.addPosition(change.uptimeMillis, change.position)
+                                            scale = (scale * event.calculateZoom()).coerceIn(2f, 5f)
+
+                                            translation.updateBounds(
+                                                Offset(
+                                                    -(offset + roomNameWidth + calculator.calculateWidth(displayStartTime, maxOf(state.lessonTimes.values.maxByOrNull { it.lessonNumber }?.end?.atDate(state.currentTime) ?: displayStartTime, displayEndTime)) + size.width),
+                                                    -totalHeight.toPx() + size.height
+                                                ),
+                                                Offset(
+                                                    Float.MIN_VALUE,
+                                                    0f
+                                                )
+                                            )
+                                        }
+                                        PointerEventType.Release -> {
+                                            val velocity = velocityTracker.calculateVelocity()
+                                            velocityTracker.resetTracking()
+                                            scope.launch {
+                                                translation.animateDecay(Offset(velocity.x, velocity.y), decay)
+                                            }
+
+                                            if (isPress) {
+                                                val roomIndex = ceil((change.position.y - translation.value.y - headerHeightDp.toPx()) / (48.dp + verticalPadding).toPx()).toInt() - 1
+                                                val room = modifierMap.filterValues { it.visualIndex == roomIndex }.keys.firstOrNull() ?: break
+
+                                                val minutesOffset = ((change.position.x - translation.value.x - roomNameWidth - offset) / scale)
+                                                if (minutesOffset < 0) break
+
+                                                val time = displayStartTime.plusMinutes(minutesOffset.toLong())
+
+                                                onTapOnMatrix(time, room)
+                                            }
+                                        }
+                                    }
                                 }
-                            )
-                        }
-                        .pointerInput(state.data) {
-                            detectTapGestures { tapOffset ->
-                                val roomIndex = ceil((tapOffset.y - scrollOffset.y - headerHeightDp.toPx()) / (48.dp + verticalPadding).toPx()).toInt() - 1
-                                val room = modifierMap.filterValues { it.visualIndex == roomIndex }.keys.firstOrNull() ?: return@detectTapGestures
-
-                                val minutesOffset = ((tapOffset.x - scrollOffset.x - roomNameWidth - offset) / scale)
-                                if (minutesOffset < 0) return@detectTapGestures
-
-                                val time = displayStartTime.plusMinutes(minutesOffset.toLong())
-
-                                onTapOnMatrix(time, room)
                             }
                         }
                         .clipToBounds()
                 ) {
                     val headerHeight = headerHeightDp.toPx()
-                    val calculator = OffsetCalculator(scale, scrollOffset.x, roomNameWidth + offset)
-                    translate(top = scrollOffset.y + headerHeight) {
+                    translate(top = translation.value.y + headerHeight) {
 
                         state.data.forEach { roomData ->
                             val room = roomData.room
@@ -443,7 +485,9 @@ private fun RoomSearchContent(
                 val alpha = animateFloatAsState(targetValue = if (state.selectedRoom == null) 0f else 1f, label = "RoomInfo")
                 if (state.selectedRoom != null && state.selectedTime != null) Box(Modifier.align(Alignment.BottomCenter)) wrapper@{
                     TimeInfo(
-                        modifier = Modifier.padding(start = 16.dp, end = 16.dp).alpha(alpha.value),
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp)
+                            .alpha(alpha.value),
                         selectedTime = state.selectedTime,
                         selectedLessonTime = state.selectedLessonTime,
                         currentTime = ZonedDateTime.now(),
