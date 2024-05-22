@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.room_search.ui
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
@@ -197,6 +198,7 @@ private fun RoomSearchContent(
                                     val targetY = scrollOffset.y + pan.y
 
                                     scale = targetScale
+                                    Log.d("RoomSearch", "Scale: $scale")
                                     scrollOffset = Offset(targetX.coerceAtMost(0f), targetY.coerceAtMost(0f))
                                 }
                             )
@@ -388,17 +390,19 @@ private fun RoomSearchContent(
                                     append(lessonNumber.toString())
                                     append(".")
                                 }
-                                withStyle(typography.labelSmall.toSpanStyle()) {
+                                if (scale >= 3f) withStyle(typography.labelSmall.toSpanStyle()) {
                                     append("\n" + lessonTime.start.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                    append("→\n" + lessonTime.end.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                    append("\n" + lessonTime.end.format(DateTimeFormatter.ofPattern("HH:mm")))
                                 }
                             },
                             constraints = Constraints.fixedWidth(48.dp.roundToPx()),
-                            style = typography.bodyMedium
+                            style = typography.bodyMedium,
+                            softWrap = false
                         )
                         drawText(
                             measuredLessonNumber,
-                            topLeft = Offset(startOffset, 0f)
+                            topLeft = Offset(startOffset, 0f),
+                            color = colorScheme.onBackground
                         )
                     }
 
