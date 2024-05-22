@@ -118,15 +118,13 @@ private fun RoomSearchContent(
     var index = 0
     val modifierMap = state.data.associate {
         val modifierState = animateFloatAsState(targetValue = if (it.isExpanded) 1f else 0f, label = "")
+        val roomIndex = if (it.isExpanded) run { counter++; counter - 1 } else -1
+        val verticalOffset = with(localDensity) { ((if (roomIndex == -1) 0.dp else verticalPadding) * (modifierState.value)).toPx() }
+        index++
         it.room to RoomRowAnimatorState(
-            modifierState,
-            run {
-                val roomIndex = if (it.isExpanded) run { counter++; counter - 1 } else index
-                val verticalOffset = with(localDensity) { ((if (roomIndex == 0) 0.dp else verticalPadding) * (modifierState.value)).toPx() }
-
-                index++
-                animateFloatAsState(targetValue = (verticalOffset + with(localDensity) { rowHeight.toPx() }) * roomIndex, label = "")
-            }
+            alpha = modifierState,
+            y = animateFloatAsState(targetValue = (verticalOffset + with(localDensity) { rowHeight.toPx() }) * roomIndex, label = ""),
+            visualIndex = roomIndex
         )
     }
 
@@ -208,14 +206,14 @@ private fun RoomSearchContent(
                         .pointerInput(state.data) {
                             detectTapGestures { tapOffset ->
                                 val roomIndex = ceil((tapOffset.y - scrollOffset.y - headerHeightDp.toPx()) / (48.dp + verticalPadding).toPx()).toInt() - 1
-                                val room = state.data.getOrNull(roomIndex) ?: return@detectTapGestures
+                                val room = modifierMap.filterValues { it.visualIndex == roomIndex }.keys.firstOrNull() ?: return@detectTapGestures
 
                                 val minutesOffset = ((tapOffset.x - scrollOffset.x - roomNameWidth - offset) / scale)
                                 if (minutesOffset < 0) return@detectTapGestures
 
                                 val time = displayStartTime.plusMinutes(minutesOffset.toLong())
 
-                                onTapOnMatrix(time, room.room)
+                                onTapOnMatrix(time, room)
                             }
                         }
                         .clipToBounds()
@@ -484,5 +482,6 @@ private class OffsetCalculator(
 
 private data class RoomRowAnimatorState(
     val alpha: State<Float>,
-    val y: State<Float>
+    val y: State<Float>,
+    val visualIndex: Int
 )
