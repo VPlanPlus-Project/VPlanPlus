@@ -113,7 +113,7 @@ private fun RoomSearchContent(
     state: RoomSearchState
 ) {
     var displayStartTime by remember { mutableStateOf(ZonedDateTime.now().atStartOfDay()) }
-    val displayEndTime by remember(state.data) { mutableStateOf(state.data.flatMap { it.lessons }.maxOfOrNull{ it.end } ?: displayStartTime) }
+    val displayEndTime by remember(state.data) { mutableStateOf(state.data.flatMap { it.lessons }.maxOfOrNull { it.end } ?: displayStartTime) }
 
     val localDensity = LocalDensity.current
     val roomNameWidth = with(localDensity) { 48.dp.toPx() }
@@ -122,6 +122,7 @@ private fun RoomSearchContent(
     val headerHeightDp = 64.dp
     val rowHeight = 48.dp
     val totalHeight = headerHeightDp + (48.dp + verticalPadding) * state.data.count { it.isExpanded }
+    val bottomSheetHeight by rememberSaveable { mutableFloatStateOf(0f) }
 
     var counter = 0
     var index = 0
@@ -212,6 +213,7 @@ private fun RoomSearchContent(
                                         PointerEventType.Press -> {
                                             isPress = true
                                         }
+
                                         PointerEventType.Move -> {
                                             isPress = false
                                             val previousCentroid = event.calculateCentroid(false)
@@ -229,8 +231,11 @@ private fun RoomSearchContent(
 
                                             translation.updateBounds(
                                                 Offset(
-                                                    -(offset + roomNameWidth + calculator.calculateWidth(displayStartTime, maxOf(state.lessonTimes.values.maxByOrNull { it.lessonNumber }?.end?.atDate(state.currentTime) ?: displayStartTime, displayEndTime)) + size.width),
-                                                    -totalHeight.toPx() + size.height
+                                                    -(offset + roomNameWidth + calculator.calculateWidth(
+                                                        displayStartTime,
+                                                        maxOf(state.lessonTimes.values.maxByOrNull { it.lessonNumber }?.end?.atDate(state.currentTime) ?: displayStartTime, displayEndTime)
+                                                    ) + size.width),
+                                                    -(totalHeight.toPx() - size.height + bottomSheetHeight)
                                                 ),
                                                 Offset(
                                                     Float.MIN_VALUE,
@@ -238,6 +243,7 @@ private fun RoomSearchContent(
                                                 )
                                             )
                                         }
+
                                         PointerEventType.Release -> {
                                             val velocity = velocityTracker.calculateVelocity()
                                             velocityTracker.resetTracking()

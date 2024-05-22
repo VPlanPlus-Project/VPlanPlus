@@ -52,8 +52,8 @@ class GetRoomMapUseCase(
 
 data class RoomState(
     val room: Room,
-    val lessons: List<Lesson>,
-    val bookings: List<RoomBooking>,
+    val lessons: List<Lesson> = emptyList(),
+    val bookings: List<RoomBooking> = emptyList(),
     val isExpanded: Boolean = true
 ) {
     fun getOccupiedTimes(): List<TimeSpan> {
