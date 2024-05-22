@@ -220,7 +220,8 @@ private fun RoomSearchContent(
                     val calculator = OffsetCalculator(scale, scrollOffset.x, roomNameWidth + offset)
                     translate(top = scrollOffset.y + headerHeight) {
 
-                        state.data.forEach { (room, _, _, _) ->
+                        state.data.forEach { roomData ->
+                            val room = roomData.room
                             if (state.selectedRoom == room) {
 
                                 // Draw selected room background
@@ -230,7 +231,8 @@ private fun RoomSearchContent(
                                     size = Size(size.width, 48.dp.toPx())
                                 )
 
-                                if (state.selectedLessonTime != null) {
+
+                                if (state.selectedLessonTime != null && roomData.getOccupiedTimes().none { it.overlaps(state.selectedLessonTime.toTimeSpan(state.currentTime)) }) {
                                     val startOffset = calculator.calculateOffset(displayStartTime.atBeginningOfTheWorld(), state.selectedLessonTime.start)
                                     val width = calculator.calculateWidth(state.selectedLessonTime.start, state.selectedLessonTime.end)
                                     drawRoundRect(
@@ -244,6 +246,7 @@ private fun RoomSearchContent(
                                         "+",
                                         style = typography.headlineMedium
                                     )
+
                                     drawText(
                                         plusText,
                                         topLeft = Offset(
