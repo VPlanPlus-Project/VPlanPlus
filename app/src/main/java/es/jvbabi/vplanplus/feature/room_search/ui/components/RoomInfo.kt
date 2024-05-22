@@ -8,7 +8,6 @@ import androidx.compose.foundation.gestures.DraggableAnchors
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.anchoredDraggable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -32,7 +31,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -41,7 +39,6 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -200,8 +197,6 @@ fun TimeInfo(
                 )
             }
 
-            val showIndicatorAfterLesson = data.lessons.filter { it.end.isAfter(time) }.maxByOrNull { it.lessonNumber }?.lessonNumber
-
             if (data.lessons.isEmpty()) Text(
                 text = stringResource(id = R.string.searchAvailableRoom_sheetNoLessonsForRoom, data.room.name),
                 modifier = Modifier
@@ -259,22 +254,6 @@ fun TimeInfo(
                                 )
                                 Text(text = lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")) + " - " + lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")), style = MaterialTheme.typography.labelMedium)
                             }
-                        }
-                    }
-                    if (lessonNumber == showIndicatorAfterLesson) {
-                        Box(contentAlignment = Alignment.CenterStart) {
-                            Spacer(modifier = Modifier
-                                .width(32.dp)
-                                .height(48.dp)
-                                .background(
-                                    Brush.horizontalGradient(colors = listOf(Color(37, 190, 120).copy(alpha = .5f), MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0f)))
-                                )
-                            )
-                            Text(
-                                text = selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")),
-                                modifier = Modifier.padding(4.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
                         }
                     }
                 }
