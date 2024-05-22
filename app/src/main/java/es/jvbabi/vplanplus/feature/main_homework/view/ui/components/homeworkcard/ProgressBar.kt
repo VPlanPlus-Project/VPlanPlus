@@ -29,7 +29,7 @@ fun HomeworkProgressBar(
     ) {
         Box(
             Modifier
-                .fillMaxWidth(animateFloatAsState(targetValue = if (tasks == 0) 1f else (tasksDone.toFloat () / tasks), label = "Progress").value)
+                .fillMaxWidth(animateFloatAsState(targetValue = tasksDone.toFloat () / tasks, label = "Progress").value)
                 .fillMaxHeight()
                 .clip(RoundedCornerShape(50))
                 .background(MaterialTheme.colorScheme.tertiary)
