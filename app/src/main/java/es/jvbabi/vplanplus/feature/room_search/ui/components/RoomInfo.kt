@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -93,6 +94,7 @@ fun TimeInfo(
     currentTime: ZonedDateTime = ZonedDateTime.now(),
     currentIdentity: Identity,
     data: RoomState,
+    isBookingRelatedOperationInProgress: Boolean = false,
     onClosed: () -> Unit,
     paddingBottom: Dp = 0.dp,
     onRequestBookingForSelectedContext: () -> Unit,
@@ -326,8 +328,18 @@ fun TimeInfo(
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth(),
-                        enabled = (!isInUseAtSelectedTime && selectedLessonTime != null) || userCanCancelBooking
+                        enabled = ((!isInUseAtSelectedTime && selectedLessonTime != null) || userCanCancelBooking) && !isBookingRelatedOperationInProgress
                     ) {
+                        if (isBookingRelatedOperationInProgress) {
+                            CircularProgressIndicator(
+                                strokeWidth = 2.dp,
+                                modifier = Modifier
+                                    .width(24.dp)
+                                    .height(24.dp)
+                                    .padding(6.dp)
+                            )
+                            return@OutlinedButton
+                        }
                         var text by remember { mutableStateOf("") }
                         val context = LocalContext.current
 
@@ -367,6 +379,7 @@ private fun TimeInfoPreview() {
         selectedTime = ZonedDateTime.now().withHour(19).withMinute(31),
         selectedLessonTime = es.jvbabi.vplanplus.util.LessonTime.fallbackTime(UUID.randomUUID(), 1),
         onClosed = {},
+        isBookingRelatedOperationInProgress = true,
         onRequestBookingForSelectedContext = {},
         currentIdentity = Identity(school, profile),
         onRequestBookingForCancellation = { _ -> }

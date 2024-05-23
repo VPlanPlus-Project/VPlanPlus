@@ -624,5 +624,9 @@
     <string name="searchAvailableRoom_filterMyBookings">My Bookings</string>
     <string name="searchAvailableRoom_sheetCancelBooking">Cancel booking</string>
     <string name="searchAvailableRoom_sheetRoomBooked">Booked by %1$s</string>
+    <string name="searchAvailableRoom_cancelBookingDialogTitle">Cancel booking?</string>
+    <string name="searchAvailableRoom_cancelBookingDialogText">This will allow other classes to reserve this room as long as no lesson gets moved to this room.</string>
+    <string name="searchAvailableRoom_cancelBookingSuccess">Booking cancelled</string>
+    <string name="searchAvailableRoom_cancelBookingNotFound">Booking not found</string>
 
 </resources>

@@ -8,5 +8,6 @@ data class RoomSearchUseCases(
     val getRoomMapUseCase: GetRoomMapUseCase,
     val getLessonTimesUseCases: GetClassLessonTimesUseCase,
     val canBookRoomUseCase: CanBookRoomUseCase,
-    val bookRoomUseCase: BookRoomUseCase
+    val bookRoomUseCase: BookRoomUseCase,
+    val cancelBookingUseCase: CancelBookingUseCase
 )

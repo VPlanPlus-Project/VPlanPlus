@@ -19,6 +19,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomAbility
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
+import es.jvbabi.vplanplus.feature.room_search.domain.usecase.CancelBookingResult
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomSearchUseCases
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomState
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
@@ -40,6 +41,15 @@ class RoomSearchViewModel @Inject constructor(
     var state by mutableStateOf(RoomSearchState())
     private var filterJob: Job? = null
 
+    private suspend fun reloadMap(identity: Identity = state.currentIdentity!!): RoomSearchState {
+        val map = roomSearchUseCases.getRoomMapUseCase(identity)
+        val lessonTimes = roomSearchUseCases.getLessonTimesUseCases(identity.profile!!)
+        return state.copy(
+            data = map,
+            lessonTimes = lessonTimes
+        )
+    }
+
     init {
         viewModelScope.launch {
             combine(
@@ -51,15 +61,10 @@ class RoomSearchViewModel @Inject constructor(
                 val identity = data[0] as Identity? ?: return@combine null
                 val canBookRoom = data[1] as BookRoomAbility
 
-                val map = roomSearchUseCases.getRoomMapUseCase(identity)
-                val lessonTimes = roomSearchUseCases.getLessonTimesUseCases(identity.profile!!)
-
-                state.copy(
+                reloadMap(identity).copy(
                     currentIdentity = identity,
                     canBookRoom = canBookRoom,
-                    data = map,
-                    lessonTimes = lessonTimes,
-                    currentClass = if (identity.profile.type == ProfileType.STUDENT) getClassByProfileUseCase(identity.profile) else null
+                    currentClass = if (identity.profile!!.type == ProfileType.STUDENT) getClassByProfileUseCase(identity.profile) else null
                 )
             }.collect {
                 state = it ?: return@collect
@@ -155,17 +160,18 @@ class RoomSearchViewModel @Inject constructor(
         }
     }
 
-    fun onCancelBooking() {
+    fun onCancelBookingProgress() {
         state = state.copy(newRoomBookingRequest = null)
     }
 
     fun onConfirmBooking(context: Context) {
+        if (state.isBookingRelatedOperationInProgress) return
         val request = state.newRoomBookingRequest ?: return
+        state = state.copy(newRoomBookingRequest = null)
         viewModelScope.launch {
-            state = state.copy(
-                bookingResult = roomSearchUseCases.bookRoomUseCase(request.room, request.start.atDate(state.currentTime), request.end.atDate(state.currentTime)),
-                newRoomBookingRequest = null
-            )
+            bookingRelatedOperationStart()
+            state = state.copy(bookingResult = roomSearchUseCases.bookRoomUseCase(request.room, request.start.atDate(state.currentTime), request.end.atDate(state.currentTime)))
+            bookingRelatedOperationEnd()
             when (state.bookingResult) {
                 BookResult.CONFLICT -> context.getString(R.string.searchAvailableRoom_bookConflict)
                 BookResult.NO_INTERNET -> context.getString(R.string.searchAvailableRoom_bookNoInternet)
@@ -175,12 +181,53 @@ class RoomSearchViewModel @Inject constructor(
             }?.let {
                 Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
             }
+
+            if (state.bookingResult in listOf(BookResult.SUCCESS, BookResult.CONFLICT)) state = reloadMap()
         }
     }
 
     fun onToggleMyBookingsFilter() {
         state = state.copy(filterMyBookingsEnabled = !state.filterMyBookingsEnabled)
         updateSearchResults()
+    }
+
+    fun onRequestBookingCancellation(booking: RoomBooking) {
+        state = state.copy(cancelBookingRequest = booking)
+    }
+    fun onCancelBookingAborted() {
+        state = state.copy(cancelBookingRequest = null)
+    }
+
+    fun onCancelBookingConfirmed(context: Context) {
+        if (state.isBookingRelatedOperationInProgress) return
+        val booking = state.cancelBookingRequest ?: return
+        state = state.copy(cancelBookingRequest = null)
+        viewModelScope.launch {
+            bookingRelatedOperationStart()
+            val result = roomSearchUseCases.cancelBookingUseCase(booking)
+            bookingRelatedOperationEnd()
+
+            Toast.makeText(
+                context,
+                when (result) {
+                    CancelBookingResult.SUCCESS -> R.string.searchAvailableRoom_cancelBookingSuccess
+                    CancelBookingResult.BOOKING_NOT_FOUND -> R.string.searchAvailableRoom_cancelBookingNotFound
+                    CancelBookingResult.NO_INTERNET -> R.string.noInternet
+                    else -> R.string.unknownError
+                },
+                Toast.LENGTH_SHORT
+            ).show()
+
+            if (result == CancelBookingResult.SUCCESS) state = reloadMap()
+        }
+    }
+
+    private fun bookingRelatedOperationStart() {
+        state = state.copy(isBookingRelatedOperationInProgress = true)
+    }
+
+    private fun bookingRelatedOperationEnd() {
+        state = state.copy(isBookingRelatedOperationInProgress = false)
     }
 }
 
@@ -200,6 +247,8 @@ data class RoomSearchState(
     val bookingResult: BookResult? = null,
 
     val cancelBookingRequest: RoomBooking? = null,
+
+    val isBookingRelatedOperationInProgress: Boolean = false,
 
     val currentLessonTime: LessonTime? = null,
     val filterRoomsAvailableNowActive: Boolean = false,

@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCases
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.CanBookRoomUseCase
+import es.jvbabi.vplanplus.feature.room_search.domain.usecase.CancelBookingUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetClassLessonTimesUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetLessonTimesUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.GetRoomByNameUseCase
@@ -57,6 +58,14 @@ object RoomSearchModule {
 
     @Provides
     @Singleton
+    fun provideCancelBookingUseCase(
+        vppIdRepository: VppIdRepository
+    ): CancelBookingUseCase {
+        return CancelBookingUseCase(vppIdRepository)
+    }
+
+    @Provides
+    @Singleton
     fun provideCanBookRoomUseCase(
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): CanBookRoomUseCase {
@@ -71,7 +80,8 @@ object RoomSearchModule {
         getRoomMapUseCase: GetRoomMapUseCase,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
         canBookRoomUseCase: CanBookRoomUseCase,
-        bookRoomUseCase: BookRoomUseCase
+        bookRoomUseCase: BookRoomUseCase,
+        cancelBookingUseCase: CancelBookingUseCase
     ): RoomSearchUseCases {
         return RoomSearchUseCases(
             getCurrentIdentityUseCase = getCurrentIdentityUseCase,
@@ -81,7 +91,8 @@ object RoomSearchModule {
                 classRepository
             ),
             canBookRoomUseCase = canBookRoomUseCase,
-            bookRoomUseCase = bookRoomUseCase
+            bookRoomUseCase = bookRoomUseCase,
+            cancelBookingUseCase = cancelBookingUseCase
         )
     }
 

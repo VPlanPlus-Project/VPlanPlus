@@ -60,10 +60,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Room
-import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomBookingRequestDialogHost
-import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomSearchField
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.room_search.ui.components.FilterRow
+import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomSearchField
 import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
+import es.jvbabi.vplanplus.feature.room_search.ui.components.dialogs.CancelBookingDialog
+import es.jvbabi.vplanplus.feature.room_search.ui.components.dialogs.RoomBookingRequestDialogHost
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
@@ -91,9 +93,12 @@ fun RoomSearch(
         onToggleMyBookingsFilter = viewModel::onToggleMyBookingsFilter,
 
         onRequestBookingForSelectedContext = viewModel::onRequestBookingForSelectedContext,
-
         onConfirmBooking = viewModel::onConfirmBooking,
-        onCancelBooking = viewModel::onCancelBooking,
+        onCancelBookingProgress = viewModel::onCancelBookingProgress,
+
+        onRequestBookingCancellation = viewModel::onRequestBookingCancellation,
+        onCancelBookingConfirmed = viewModel::onCancelBookingConfirmed,
+        onCancelBookingAborted = viewModel::onCancelBookingAborted,
 
         state = state
     )
@@ -113,19 +118,24 @@ private fun RoomSearchContent(
     onRequestBookingForSelectedContext: () -> Unit = {},
 
     onConfirmBooking: (context: Context) -> Unit = {},
-    onCancelBooking: () -> Unit = {},
+    onCancelBookingProgress: () -> Unit = {},
+
+    onRequestBookingCancellation: (booking: RoomBooking) -> Unit = { _ -> },
+    onCancelBookingAborted: () -> Unit = {},
+    onCancelBookingConfirmed: (context: Context) -> Unit = {},
 
     state: RoomSearchState
 ) {
     var displayStartTime by remember { mutableStateOf(ZonedDateTime.now().atStartOfDay()) }
     val displayEndTime by remember(state.data) { mutableStateOf(state.data.flatMap { it.lessons }.maxOfOrNull { it.end } ?: displayStartTime) }
 
+    val context = LocalContext.current
     val localDensity = LocalDensity.current
     val roomNameWidth = with(localDensity) { 48.dp.toPx() }
     val offset = 20f
     val verticalPadding = 4.dp
-    val headerHeightDp = 64.dp
     val rowHeight = 48.dp
+    val headerHeightDp = 64.dp
     val totalHeight = headerHeightDp + (48.dp + verticalPadding) * state.data.count { it.isExpanded }
     var bottomSheetHeight by rememberSaveable { mutableFloatStateOf(0f) }
 
@@ -148,6 +158,8 @@ private fun RoomSearchContent(
         displayStartTime = state.lessonTimes.values.minBy { it.lessonNumber }.start.atDate(state.currentTime)
     }
 
+    if (state.cancelBookingRequest != null) CancelBookingDialog({ onCancelBookingConfirmed(context) }, onCancelBookingAborted)
+
     var scale by rememberSaveable { mutableFloatStateOf(4f) }
     val translation = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
 
@@ -155,14 +167,13 @@ private fun RoomSearchContent(
     val lessonTimeAlphaByScale = animateFloatAsState(targetValue = if (scale >= 3f) 1f else 0f, label = "LessonTimeAlpha")
 
 
-    val context = LocalContext.current
     if (state.newRoomBookingRequest != null) {
         RoomBookingRequestDialogHost(
             bookingAbility = state.canBookRoom,
             classes = state.currentClass,
             bookingRequest = state.newRoomBookingRequest,
             onConfirmBooking = { onConfirmBooking(context) },
-            onCancelBooking = onCancelBooking
+            onCancelBooking = onCancelBookingProgress
         )
     }
 
@@ -510,10 +521,11 @@ private fun RoomSearchContent(
                         currentTime = ZonedDateTime.now(),
                         currentIdentity = state.currentIdentity ?: return@wrapper,
                         data = state.data.firstOrNull { it.room == state.selectedRoom } ?: return@wrapper,
+                        isBookingRelatedOperationInProgress = state.isBookingRelatedOperationInProgress,
                         onClosed = { onTapOnMatrix(null, null) },
                         paddingBottom = paddingValues.calculateBottomPadding(),
                         onRequestBookingForSelectedContext = onRequestBookingForSelectedContext,
-                        onRequestBookingForCancellation = {}
+                        onRequestBookingForCancellation = onRequestBookingCancellation
                     )
                 }
             }

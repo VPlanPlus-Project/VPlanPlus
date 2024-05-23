@@ -621,5 +621,9 @@
     <string name="searchAvailableRoom_filterMyBookings">Meine Buchungen</string>
     <string name="searchAvailableRoom_sheetCancelBooking">Buchung zurücknehmen</string>
     <string name="searchAvailableRoom_sheetRoomBooked">Gebucht von %1$s</string>
+    <string name="searchAvailableRoom_cancelBookingDialogTitle">Buchung zurücknehmen?</string>
+    <string name="searchAvailableRoom_cancelBookingDialogText">Dadurch können andere Klassen diesen Raum reservieren, solange keine Unterrichtsstunde in diesen Raum verlegt wird.</string>
+    <string name="searchAvailableRoom_cancelBookingSuccess">Buchung zurückgenommen</string>
+    <string name="searchAvailableRoom_cancelBookingNotFound">Buchung nicht gefunden</string>
 
 </resources>
