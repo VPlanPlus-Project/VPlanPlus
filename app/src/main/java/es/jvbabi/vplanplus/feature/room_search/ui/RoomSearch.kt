@@ -165,7 +165,7 @@ private fun RoomSearchContent(
     val translation = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
 
     val calculator = OffsetCalculator(scale, translation.value.x, roomNameWidth + offset)
-    val lessonTimeAlphaByScale = animateFloatAsState(targetValue = if (scale >= 3f) 1f else 0f, label = "LessonTimeAlpha")
+    val detailAlphaByScale = animateFloatAsState(targetValue = if (scale >= 3f) 1f else 0f, label = "LessonTimeAlpha")
 
 
     if (state.newRoomBookingRequest != null) {
@@ -371,7 +371,7 @@ private fun RoomSearchContent(
                                         offsetStart + (width / 2 - textSize.width / 2),
                                         (modifierMap[room]?.y?.value ?: 0f) + (48.dp.toPx() / 2 - textSize.height / 2)
                                     ),
-                                    color = colorScheme.onSecondaryContainer.copy(alpha = (modifierMap[room]?.alpha?.value ?: 1f))
+                                    color = colorScheme.onSecondaryContainer.copy(alpha = (modifierMap[room]?.alpha?.value ?: 1f) * detailAlphaByScale.value)
                                 )
                             }
 
@@ -397,7 +397,7 @@ private fun RoomSearchContent(
                                         offsetStart + (width / 2 - textSize.width / 2),
                                         (modifierMap[room]?.y?.value ?: 0f) + (48.dp.toPx() / 2 - textSize.height / 2)
                                     ),
-                                    color = colorScheme.onTertiaryContainer.copy(alpha = modifierMap[room]?.alpha?.value ?: 1f)
+                                    color = colorScheme.onTertiaryContainer.copy(alpha = (modifierMap[room]?.alpha?.value ?: 1f) * detailAlphaByScale.value)
                                 )
                             }
 
@@ -485,7 +485,7 @@ private fun RoomSearchContent(
                                     if (value.isNaN()) 0f
                                     else value.coerceIn(0f, 1f)
                                 }
-                                withStyle(typography.labelSmall.toSpanStyle().copy(color = colorScheme.outlineVariant.copy(alpha = lessonTimeAlphaByScale.value * alphaHeaderHeight))) {
+                                withStyle(typography.labelSmall.toSpanStyle().copy(color = colorScheme.outlineVariant.copy(alpha = detailAlphaByScale.value * alphaHeaderHeight))) {
                                     append("\n" + lessonTime.start.format(DateTimeFormatter.ofPattern("HH:mm")))
                                     append("\n" + lessonTime.end.format(DateTimeFormatter.ofPattern("HH:mm")))
                                 }
