@@ -76,7 +76,7 @@ fun QuickActions(
                     modifier = Modifier.padding(horizontal = 4.dp)
                 )
             }
-            if (VersionTools.isDevelopmentVersion()) item {
+            item {
                 AnimatedVisibility(
                     visible = nextSchoolDayWithData != null,
                     enter = expandHorizontally(tween(200)),

@@ -68,6 +68,7 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -90,15 +91,15 @@ fun LessonCard(
 ) {
 
     var expanded by rememberSaveable {
-        mutableStateOf(lessons.any { it.progress(time) in 0.0..<1.0 })
+        mutableStateOf(lessons.any { time.progress(it.start, it.end) in 0.0..<1.0 })
     }
 
     LaunchedEffect(time) {
-        expanded = lessons.any { it.progress(time) in 0.0..<1.0 }
+        expanded = lessons.any { time.progress(it.start, it.end) in 0.0..<1.0 }
     }
 
     val activeModifier = animateFloatAsState(
-        targetValue = if (lessons.any { it.progress(time) in 0.0..<1.0 }) 1f else 0f,
+        targetValue = if (lessons.any { time.progress(it.start, it.end) in 0.0..<1.0 }) 1f else 0f,
         animationSpec = tween(300),
         label = "activeModifier"
     )
@@ -358,7 +359,7 @@ private fun ClassText(className: String) {
 
 @Composable
 private fun ProgressBar(lesson: Lesson, now: ZonedDateTime, activeModifier: Float) {
-    val progress = lesson.progress(now)
+    val progress = now.progress(lesson.start, lesson.end)
     Expandable(isExpanded = progress in 0.0..1.0) {
         Column {
             Box(

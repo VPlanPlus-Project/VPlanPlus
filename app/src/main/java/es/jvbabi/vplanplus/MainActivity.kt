@@ -245,7 +245,7 @@ class MainActivity : FragmentActivity() {
                             .imePadding(),
                         color = MaterialTheme.colorScheme.surface
                     ) {
-                        if (goToOnboarding != null) {
+                        if (goToOnboarding != null && navController != null) {
                             NavigationGraph(
                                 navController = navController!!,
                                 onboardingViewModel = onboardingViewModel,

@@ -29,6 +29,12 @@ abstract class LessonDao {
     @Query("SELECT * FROM lesson WHERE day = :timestamp AND version = :version AND lessonId IN (SELECT lsecLessonId FROM lesson_se_crossover WHERE lsecSchoolEntityId = :roomId) ORDER by lessonNumber ASC")
     abstract fun getLessonsByRoom(roomId: UUID, timestamp: Long, version: Long): Flow<List<CLesson>>
 
+    @Transaction
+    @RewriteQueriesToDropUnusedColumns
+    @Query("SELECT * FROM lesson LEFT JOIN school_entity ON school_entity.id = lesson.classLessonRefId WHERE school_entity.schoolId = :schoolId AND day = :timestamp AND version = :version")
+    abstract fun getLessonsForSchool(schoolId: Int, timestamp: Long, version: Long): Flow<List<CLesson>>
+
+
     @Insert
     abstract suspend fun insertLesson(lesson: DbLesson): Long
 

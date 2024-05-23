@@ -31,17 +31,4 @@ data class Lesson(
 
     val subjectIsChanged: Boolean
         get() = changedSubject != null
-
-    /**
-     * Calculate the progress of the lesson
-     * @param date the date to calculate the progress for
-     * @return the progress of the lesson, a value between 0.0 and 1.0
-     */
-    fun progress(date: ZonedDateTime): Float {
-        val from = start.toInstant().epochSecond
-        val now = date.toInstant().epochSecond
-        val to = end.toInstant().epochSecond
-
-        return (now - from) / (to - from).toFloat()
-    }
 }

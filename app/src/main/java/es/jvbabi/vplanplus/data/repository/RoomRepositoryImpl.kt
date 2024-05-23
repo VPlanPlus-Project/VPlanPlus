@@ -84,7 +84,10 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun getRoomBookings(date: LocalDate): List<RoomBooking> {
-        return roomBookingDao.getAll().map { it.toModel() }
+        return roomBookingDao.getAll().mapNotNull {
+            if (it.roomBooking.from.toLocalDate().isEqual(date) || it.roomBooking.to.toLocalDate().isEqual(date)) it.toModel()
+            else null
+        }
     }
 
     override suspend fun deleteRoomsBySchoolId(schoolId: Long) {

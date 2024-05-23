@@ -601,5 +601,32 @@
     <string name="homework_you">You</string>
     <string name="homework_dueTo">Until %1$s</string>
     <string name="homework_overdue">Overdue</string>
+    <string name="searchAvailableRoom_sheetTitle">Room %1$s</string>
+    <string name="searchAvailableRoom_sheetNowAvailable">Now Available</string>
+    <string name="searchAvailableRoom_sheetNowInUse">Now In use</string>
+    <string name="searchAvailableRoom_sheetTimeTitle">At %1$s</string>
+    <string name="searchAvailableRoom_sheetInUse">In Use</string>
+    <string name="searchAvailableRoom_sheetAvailable">Available</string>
+    <string name="searchAvailableRoom_sheetNow">Now</string>
+    <string name="searchAvailableRoom_sheetBookRoom">Book room for %1$s lesson</string>
+    <string name="searchAvailableRoom_bookNoVppIdDialogTitle">No vpp.ID</string>
+    <string name="searchAvailableRoom_bookNoVppIdDialogMessage">To book a room, you need to be logged in with you vpp.ID. If you\'re logged in, check that you are using the correct profile.</string>
+    <string name="searchAvailableRoom_sheetNoLessonsForRoom">No lessons for room %1$s</string>
+    <string name="bookRoom_title">Book room</string>
+    <string name="bookRoom_subtitle">Room %1$s</string>
+    <string name="bookRoom_lessonTimesTitle">Lessons</string>
+    <string name="bookRoom_lessonTimesItemTitle">%1$s lesson</string>
+    <string name="bookRoom_showAll">Show all</string>
+    <string name="bookRoom_confirm">Confirm</string>
+    <string name="bookRoom_conflict">Conflict with another booking</string>
+    <string name="bookRoom_conflictLesson">Conflict with a lesson</string>
+    <string name="searchAvailableRoom_searchRoomName">Find a room</string>
+    <string name="searchAvailableRoom_filterMyBookings">My Bookings</string>
+    <string name="searchAvailableRoom_sheetCancelBooking">Cancel booking</string>
+    <string name="searchAvailableRoom_sheetRoomBooked">Booked by %1$s</string>
+    <string name="searchAvailableRoom_cancelBookingDialogTitle">Cancel booking?</string>
+    <string name="searchAvailableRoom_cancelBookingDialogText">This will allow other classes to reserve this room as long as no lesson gets moved to this room.</string>
+    <string name="searchAvailableRoom_cancelBookingSuccess">Booking cancelled</string>
+    <string name="searchAvailableRoom_cancelBookingNotFound">Booking not found</string>
 
 </resources>

@@ -598,5 +598,32 @@
     <string name="homework_you">Du</string>
     <string name="homework_dueTo">Bis %1$s</string>
     <string name="homework_overdue">Überfällig</string>
+    <string name="searchAvailableRoom_sheetTitle">Raum %1$s</string>
+    <string name="searchAvailableRoom_sheetNowAvailable">Jetzt Verfügbar</string>
+    <string name="searchAvailableRoom_sheetNowInUse">Gerade Belegt</string>
+    <string name="searchAvailableRoom_sheetTimeTitle">Um %1$s</string>
+    <string name="searchAvailableRoom_sheetInUse">Belegt</string>
+    <string name="searchAvailableRoom_sheetAvailable">Verfügbar</string>
+    <string name="searchAvailableRoom_sheetNow">Jetzt</string>
+    <string name="searchAvailableRoom_sheetBookRoom">Raum für %1$s Stunde buchen</string>
+    <string name="searchAvailableRoom_bookNoVppIdDialogTitle">Keine vpp.ID</string>
+    <string name="searchAvailableRoom_bookNoVppIdDialogMessage">Um einen Raum zu buchen, musst du mit deiner vpp.ID angemeldet sein. Falls du angemeldet bist, prüfe, ob du das richtige Profil verwendest.</string>
+    <string name="searchAvailableRoom_sheetNoLessonsForRoom">Keine Stunden für Raum %1$s</string>
+    <string name="bookRoom_title">Neue Raumbuchung</string>
+    <string name="bookRoom_subtitle">Raum %1$s</string>
+    <string name="bookRoom_lessonTimesTitle">Stunden</string>
+    <string name="bookRoom_lessonTimesItemTitle">%1$s Stunde</string>
+    <string name="bookRoom_showAll">Alle anzeigen</string>
+    <string name="bookRoom_confirm">Bestätigen</string>
+    <string name="bookRoom_conflict">Konflikt mit anderer Buchung</string>
+    <string name="bookRoom_conflictLesson">Konflikt mit einer Stunde</string>
+    <string name="searchAvailableRoom_searchRoomName">Finde einen Raum</string>
+    <string name="searchAvailableRoom_filterMyBookings">Meine Buchungen</string>
+    <string name="searchAvailableRoom_sheetCancelBooking">Buchung zurücknehmen</string>
+    <string name="searchAvailableRoom_sheetRoomBooked">Gebucht von %1$s</string>
+    <string name="searchAvailableRoom_cancelBookingDialogTitle">Buchung zurücknehmen?</string>
+    <string name="searchAvailableRoom_cancelBookingDialogText">Dadurch können andere Klassen diesen Raum reservieren, solange keine Unterrichtsstunde in diesen Raum verlegt wird.</string>
+    <string name="searchAvailableRoom_cancelBookingSuccess">Buchung zurückgenommen</string>
+    <string name="searchAvailableRoom_cancelBookingNotFound">Buchung nicht gefunden</string>
 
 </resources>
