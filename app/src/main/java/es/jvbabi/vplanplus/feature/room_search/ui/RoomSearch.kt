@@ -62,7 +62,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomBookingRequestDialogHost
 import es.jvbabi.vplanplus.feature.room_search.ui.components.RoomSearchField
-import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeFilterRow
+import es.jvbabi.vplanplus.feature.room_search.ui.components.FilterRow
 import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.preview.School
@@ -88,6 +88,8 @@ fun RoomSearch(
         onQueryChanged = viewModel::onRoomNameQueryChanged,
         onToggleNowFilter = viewModel::onToggleNowFilter,
         onToggleNextFilter = viewModel::onToggleNextFilter,
+        onToggleMyBookingsFilter = viewModel::onToggleMyBookingsFilter,
+
         onRequestBookingForSelectedContext = viewModel::onRequestBookingForSelectedContext,
 
         onConfirmBooking = viewModel::onConfirmBooking,
@@ -106,6 +108,8 @@ private fun RoomSearchContent(
     onQueryChanged: (query: String) -> Unit = {},
     onToggleNowFilter: () -> Unit = {},
     onToggleNextFilter: () -> Unit = {},
+    onToggleMyBookingsFilter: () -> Unit = {},
+
     onRequestBookingForSelectedContext: () -> Unit = {},
 
     onConfirmBooking: (context: Context) -> Unit = {},
@@ -185,13 +189,15 @@ private fun RoomSearchContent(
             val typography = MaterialTheme.typography
 
             RoomSearchField(onQueryChanged, state.roomNameQuery)
-            TimeFilterRow(
+            FilterRow(
                 showCurrentLesson = state.currentLessonTime != null,
                 isCurrentLessonEnabled = state.filterRoomsAvailableNowActive,
                 onToggleCurrentLesson = onToggleNowFilter,
                 showNextLesson = state.nextLessonTime != null,
                 isNextLessonEnabled = state.filterRoomsAvailableNextLessonActive,
-                onToggleNextLesson = onToggleNextFilter
+                onToggleNextLesson = onToggleNextFilter,
+                onToggleMyBookings = onToggleMyBookingsFilter,
+                isMyBookingsEnabled = state.filterMyBookingsEnabled
             )
 
             Box(Modifier.fillMaxSize()) {
@@ -230,16 +236,17 @@ private fun RoomSearchContent(
                                             velocityTracker.addPosition(change.uptimeMillis, change.position)
                                             scale = (scale * event.calculateZoom()).coerceIn(2f, 5f)
 
-                                            translation.updateBounds(
-                                                Offset(
+                                            run {
+                                                val upperBound = Offset(0f, 0f)
+                                                val lowerBound = Offset(
                                                     -(calculator.calculateWidth(
                                                         displayStartTime,
                                                         maxOf(state.lessonTimes.values.maxByOrNull { it.lessonNumber }?.end?.atDate(state.currentTime) ?: displayStartTime, displayEndTime)
                                                     ) - size.width + roomNameWidth + offset),
-                                                    -(totalHeight.toPx() - size.height + bottomSheetHeight)
-                                                ),
-                                                Offset(0f, 0f)
-                                            )
+                                                    (-(totalHeight.toPx() - size.height + bottomSheetHeight)).coerceAtMost(0f)
+                                                )
+                                                translation.updateBounds(lowerBound, upperBound)
+                                            }
                                         }
 
                                         PointerEventType.Release -> {
@@ -414,12 +421,6 @@ private fun RoomSearchContent(
                                 strokeWidth = 2.dp.toPx(),
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
                             )
-                            drawRoundRect(
-                                color = colorScheme.primary,
-                                topLeft = Offset(selectedTimeOffset + 20f, 20f + headerHeight),
-                                size = Size(120f, 60f),
-                                cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
-                            )
 
                             val selectedTimeMeasurer = textMeasurer.measure(
                                 buildAnnotatedString {
@@ -427,15 +428,26 @@ private fun RoomSearchContent(
                                         append(state.selectedTime.format(DateTimeFormatter.ofPattern("HH:mm")))
                                     }
                                 },
-                                constraints = Constraints.fixedWidth(120.dp.roundToPx()),
                                 style = typography.bodyMedium,
-                                softWrap = false
+                                softWrap = false,
+                                maxLines = 1
+                            )
+                            drawRoundRect(
+                                color = colorScheme.primary,
+                                topLeft = Offset(selectedTimeOffset + 20f, 20f + headerHeight),
+                                size = Size(selectedTimeMeasurer.size.width + 20f, 80f),
+                                cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
                             )
                             drawText(
                                 selectedTimeMeasurer,
-                                topLeft = Offset(selectedTimeOffset + 30f, 20f + headerHeight + 30f - selectedTimeMeasurer.size.height / 2),
+                                topLeft = Offset(selectedTimeOffset + 30f, 30f + headerHeight),
                                 color = colorScheme.onPrimary
                             )
+//                            drawText(
+//                                selectedTimeMeasurer,
+//                                topLeft = Offset(selectedTimeOffset + 30f, 20f + headerHeight + 30f - selectedTimeMeasurer.size.height / 2),
+//                                color = colorScheme.onPrimary
+//                            )
                         }
                     }
 
@@ -496,10 +508,12 @@ private fun RoomSearchContent(
                         selectedTime = state.selectedTime,
                         selectedLessonTime = state.selectedLessonTime,
                         currentTime = ZonedDateTime.now(),
+                        currentIdentity = state.currentIdentity ?: return@wrapper,
                         data = state.data.firstOrNull { it.room == state.selectedRoom } ?: return@wrapper,
                         onClosed = { onTapOnMatrix(null, null) },
                         paddingBottom = paddingValues.calculateBottomPadding(),
-                        onRequestBookingForSelectedContext = onRequestBookingForSelectedContext
+                        onRequestBookingForSelectedContext = onRequestBookingForSelectedContext,
+                        onRequestBookingForCancellation = {}
                     )
                 }
             }

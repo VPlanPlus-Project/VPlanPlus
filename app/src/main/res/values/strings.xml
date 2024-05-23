@@ -621,5 +621,8 @@
     <string name="bookRoom_conflict">Conflict with another booking</string>
     <string name="bookRoom_conflictLesson">Conflict with a lesson</string>
     <string name="searchAvailableRoom_searchRoomName">Find a room</string>
+    <string name="searchAvailableRoom_filterMyBookings">My Bookings</string>
+    <string name="searchAvailableRoom_sheetCancelBooking">Cancel booking</string>
+    <string name="searchAvailableRoom_sheetRoomBooked">Booked by %1$s</string>
 
 </resources>

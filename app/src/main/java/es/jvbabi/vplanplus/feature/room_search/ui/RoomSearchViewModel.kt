@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.data.repository.BookResult
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomAbility
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
@@ -146,7 +147,9 @@ class RoomSearchViewModel @Inject constructor(
                 val satisfiesNextLessonFilter =
                     !state.filterRoomsAvailableNextLessonActive || state.nextLessonTime == null ||
                             it.getOccupiedTimes().none { times -> times.overlaps(state.nextLessonTime!!.toTimeSpan(state.currentTime)) }
-                it.copy(isExpanded = matchesQuery && satisfiesCurrentLessonFilter && satisfiesNextLessonFilter)
+
+                val satisfiesMyBookingsFilter = !state.filterMyBookingsEnabled || it.bookings.any { booking -> (booking.bookedBy?.id ?: -1) == state.currentIdentity?.profile?.vppId?.id }
+                it.copy(isExpanded = matchesQuery && satisfiesCurrentLessonFilter && satisfiesNextLessonFilter && satisfiesMyBookingsFilter)
             }
             state = state.copy(data = data)
         }
@@ -174,6 +177,11 @@ class RoomSearchViewModel @Inject constructor(
             }
         }
     }
+
+    fun onToggleMyBookingsFilter() {
+        state = state.copy(filterMyBookingsEnabled = !state.filterMyBookingsEnabled)
+        updateSearchResults()
+    }
 }
 
 data class RoomSearchState(
@@ -191,10 +199,14 @@ data class RoomSearchState(
     val canBookRoom: BookRoomAbility = BookRoomAbility.CAN_BOOK,
     val bookingResult: BookResult? = null,
 
+    val cancelBookingRequest: RoomBooking? = null,
+
     val currentLessonTime: LessonTime? = null,
     val filterRoomsAvailableNowActive: Boolean = false,
     val nextLessonTime: LessonTime? = null,
-    val filterRoomsAvailableNextLessonActive: Boolean = false
+    val filterRoomsAvailableNextLessonActive: Boolean = false,
+
+    val filterMyBookingsEnabled: Boolean = false
 )
 
 data class NewRoomBookingRequest(

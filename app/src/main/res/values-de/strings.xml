@@ -618,5 +618,8 @@
     <string name="bookRoom_conflict">Konflikt mit anderer Buchung</string>
     <string name="bookRoom_conflictLesson">Konflikt mit einer Stunde</string>
     <string name="searchAvailableRoom_searchRoomName">Finde einen Raum</string>
+    <string name="searchAvailableRoom_filterMyBookings">Meine Buchungen</string>
+    <string name="searchAvailableRoom_sheetCancelBooking">Buchung zurücknehmen</string>
+    <string name="searchAvailableRoom_sheetRoomBooked">Gebucht von %1$s</string>
 
 </resources>

@@ -50,6 +50,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -59,13 +60,19 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.LessonTime
+import es.jvbabi.vplanplus.domain.model.RoomBooking
+import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomState
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
+import es.jvbabi.vplanplus.ui.common.unknownVppId
+import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.util.DateUtils.isBeforeOrEqual
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import kotlinx.coroutines.launch
@@ -84,10 +91,12 @@ fun TimeInfo(
     selectedTime: ZonedDateTime,
     selectedLessonTime: LessonTime? = null,
     currentTime: ZonedDateTime = ZonedDateTime.now(),
+    currentIdentity: Identity,
     data: RoomState,
     onClosed: () -> Unit,
     paddingBottom: Dp = 0.dp,
-    onRequestBookingForSelectedContext: () -> Unit
+    onRequestBookingForSelectedContext: () -> Unit,
+    onRequestBookingForCancellation: (RoomBooking) -> Unit
 ) {
     var height by remember { mutableIntStateOf(1) }
     var anchors = DraggableAnchors {
@@ -307,20 +316,30 @@ fun TimeInfo(
                     enter = expandVertically(),
                     exit = shrinkVertically(),
                 ) {
+                    val currentBooking = data.bookings.firstOrNull { time.progress(it.from, it.to) in 0f..1f }
+                    val userCanCancelBooking = data.bookings.any { time.progress(it.from, it.to) in 0f..1f && (it.bookedBy?.id ?: -1) == currentIdentity.profile?.vppId?.id }
                     OutlinedButton(
-                        onClick = onRequestBookingForSelectedContext,
+                        onClick = {
+                            if (userCanCancelBooking) onRequestBookingForCancellation(currentBooking ?: return@OutlinedButton)
+                            else onRequestBookingForSelectedContext()
+                        },
                         modifier = Modifier
                             .padding(horizontal = 16.dp)
                             .fillMaxWidth(),
-                        enabled = !isInUseAtSelectedTime && selectedLessonTime != null
+                        enabled = (!isInUseAtSelectedTime && selectedLessonTime != null) || userCanCancelBooking
                     ) {
+                        var text by remember { mutableStateOf("") }
+                        val context = LocalContext.current
 
-                        var lessonNumber by remember { mutableIntStateOf(0) }
-                        LaunchedEffect(key1 = selectedLessonTime) {
-                            if (selectedLessonTime != null) lessonNumber = selectedLessonTime.lessonNumber
+                        LaunchedEffect(key1 = selectedLessonTime, userCanCancelBooking, currentBooking) {
+                            text = if (userCanCancelBooking) context.getString(R.string.searchAvailableRoom_sheetCancelBooking)
+                            else if (currentBooking != null) context.getString(R.string.searchAvailableRoom_sheetRoomBooked, currentBooking.bookedBy?.name ?: unknownVppId(context))
+                            else if (selectedLessonTime != null) {
+                                context.getString(R.string.searchAvailableRoom_sheetBookRoom, selectedLessonTime.lessonNumber.toLocalizedString())
+                            } else text
                         }
 
-                        Text(text = stringResource(id = R.string.searchAvailableRoom_sheetBookRoom, lessonNumber.toLocalizedString()))
+                        Text(text = text)
                     }
                 }
             }
@@ -336,6 +355,9 @@ fun TimeInfo(
 @Composable
 private fun TimeInfoPreview() {
     val school = School.generateRandomSchools(1).first()
+    val `class` = ClassesPreview.generateClass(school)
+    val vppId = VppIdPreview.generateVppId(`class`)
+    val profile = ProfilePreview.generateClassProfile(vppId)
     TimeInfo(
         data = RoomState(
             room = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
@@ -345,6 +367,8 @@ private fun TimeInfoPreview() {
         selectedTime = ZonedDateTime.now().withHour(19).withMinute(31),
         selectedLessonTime = es.jvbabi.vplanplus.util.LessonTime.fallbackTime(UUID.randomUUID(), 1),
         onClosed = {},
-        onRequestBookingForSelectedContext = {}
+        onRequestBookingForSelectedContext = {},
+        currentIdentity = Identity(school, profile),
+        onRequestBookingForCancellation = { _ -> }
     )
 }
