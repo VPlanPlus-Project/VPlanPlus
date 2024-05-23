@@ -135,9 +135,9 @@ private fun RoomSearchContent(
     val offset = 20f
     val verticalPadding = with (localDensity) { 4.dp.toPx() }
     val rowHeight = with(localDensity) { 48.dp.toPx() }
-    var lessonTimeHeaderHeightTarget by remember { with(localDensity) { mutableStateOf(0.dp.toPx()) } }
+    var lessonTimeHeaderHeightTarget by remember { with(localDensity) { mutableFloatStateOf(0.dp.toPx()) } }
     val lessonTimeHeaderHeight by animateFloatAsState(targetValue = lessonTimeHeaderHeightTarget, label = "LessonTimeHeaderHeight")
-    val totalHeight by remember(lessonTimeHeaderHeight, state.data.hashCode()) { mutableStateOf(lessonTimeHeaderHeight + (rowHeight + verticalPadding) * state.data.count { it.isExpanded }) }
+    val totalHeight by remember(lessonTimeHeaderHeight, state.data.hashCode()) { mutableFloatStateOf(lessonTimeHeaderHeight + (rowHeight + verticalPadding) * state.data.count { it.isExpanded }) }
     var bottomSheetHeight by rememberSaveable { mutableFloatStateOf(0f) }
 
     var counter = 0
@@ -270,10 +270,10 @@ private fun RoomSearchContent(
 
                                             if (isPress) {
                                                 val roomIndex = ceil((change.position.y - translation.value.y - lessonTimeHeaderHeight) / (rowHeight + verticalPadding)).toInt() - 1
-                                                val room = modifierMap.filterValues { it.visualIndex == roomIndex }.keys.firstOrNull() ?: break
+                                                val room = modifierMap.filterValues { it.visualIndex == roomIndex }.keys.firstOrNull() ?: continue
 
                                                 val minutesOffset = ((change.position.x - translation.value.x - roomNameWidth - offset) / scale)
-                                                if (minutesOffset < 0) break
+                                                if (minutesOffset < 0) continue
 
                                                 val time = displayStartTime.plusMinutes(minutesOffset.toLong())
 
@@ -426,7 +426,7 @@ private fun RoomSearchContent(
                         val selectedTimeOffset = calculator.calculateOffset(displayStartTime, state.selectedTime)
                         if (selectedTimeOffset >= roomNameWidth) {
                             drawLine(
-                                color = colorScheme.primary,
+                                color = colorScheme.tertiary,
                                 start = Offset(selectedTimeOffset, 0f),
                                 end = Offset(selectedTimeOffset, totalHeight),
                                 strokeWidth = 2.dp.toPx(),
@@ -444,15 +444,15 @@ private fun RoomSearchContent(
                                 maxLines = 1
                             )
                             drawRoundRect(
-                                color = colorScheme.primary,
+                                color = colorScheme.tertiary,
                                 topLeft = Offset(selectedTimeOffset + 20f, 20f + lessonTimeHeaderHeight),
-                                size = Size(selectedTimeMeasurer.size.width + 20f, 80f),
+                                size = Size(selectedTimeMeasurer.size.width + 20f, selectedTimeMeasurer.size.height + 20f),
                                 cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
                             )
                             drawText(
                                 selectedTimeMeasurer,
-                                topLeft = Offset(selectedTimeOffset + 30f, 30f + lessonTimeHeaderHeight),
-                                color = colorScheme.onPrimary
+                                topLeft = Offset(selectedTimeOffset + 30f, lessonTimeHeaderHeight + 30f),
+                                color = colorScheme.onTertiary
                             )
                         }
                     }
