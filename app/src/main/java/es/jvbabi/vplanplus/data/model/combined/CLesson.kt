@@ -61,23 +61,18 @@ data class CLesson(
             roomIsChanged = lesson.roomIsChanged,
             info = lesson.info,
             start =
-                lessonTimes.getOrElse(
-                    lesson.lessonNumber
-                ) {
-                    es.jvbabi.vplanplus.util.LessonTime.fallbackTime(
-                        `class`.schoolEntity.id,
-                        lesson.lessonNumber
-                    )
-                }.start.withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
+                (
+                    lessonTimes.firstOrNull { it.lessonNumber == lesson.lessonNumber }?.start ?:
+                    es.jvbabi.vplanplus.util.LessonTime.fallbackTime(`class`.schoolEntity.id, lesson.lessonNumber)
+                    .start
+                )
+                .withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             end =
-                lessonTimes.getOrElse(
-                    lesson.lessonNumber
-                ) {
-                    es.jvbabi.vplanplus.util.LessonTime.fallbackTime(
-                        `class`.schoolEntity.id,
-                        lesson.lessonNumber
-                    )
-                }.end.withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
+                (
+                    lessonTimes.firstOrNull { it.lessonNumber == lesson.lessonNumber }?.end ?:
+                    es.jvbabi.vplanplus.util.LessonTime.fallbackTime(`class`.schoolEntity.id, lesson.lessonNumber)
+                    .end
+                ).withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             vpId = defaultLesson?.defaultLesson?.vpId,
             roomBooking = roomBooking?.toModel()
         )
