@@ -133,10 +133,11 @@ private fun RoomSearchContent(
     val localDensity = LocalDensity.current
     val roomNameWidth = with(localDensity) { 48.dp.toPx() }
     val offset = 20f
-    val verticalPadding = 4.dp
-    val rowHeight = 48.dp
-    val headerHeightDp = 64.dp
-    val totalHeight = headerHeightDp + (48.dp + verticalPadding) * state.data.count { it.isExpanded }
+    val verticalPadding = with (localDensity) { 4.dp.toPx() }
+    val rowHeight = with(localDensity) { 48.dp.toPx() }
+    var lessonTimeHeaderHeightTarget by remember { with(localDensity) { mutableStateOf(0.dp.toPx()) } }
+    val lessonTimeHeaderHeight by animateFloatAsState(targetValue = lessonTimeHeaderHeightTarget, label = "LessonTimeHeaderHeight")
+    val totalHeight by remember(lessonTimeHeaderHeight, state.data.hashCode()) { mutableStateOf(lessonTimeHeaderHeight + (rowHeight + verticalPadding) * state.data.count { it.isExpanded }) }
     var bottomSheetHeight by rememberSaveable { mutableFloatStateOf(0f) }
 
     var counter = 0
@@ -144,11 +145,11 @@ private fun RoomSearchContent(
     val modifierMap = state.data.associate {
         val modifierState = animateFloatAsState(targetValue = if (it.isExpanded) 1f else 0f, label = "")
         val roomIndex = if (it.isExpanded) run { counter++; counter - 1 } else -1
-        val verticalOffset = with(localDensity) { ((if (roomIndex == -1) 0.dp else verticalPadding) * (modifierState.value)).toPx() }
+        val verticalOffset = (if (roomIndex == -1) 0f else verticalPadding) * (modifierState.value)
         index++
         it.room to RoomRowAnimatorState(
             alpha = modifierState,
-            y = animateFloatAsState(targetValue = (verticalOffset + with(localDensity) { rowHeight.toPx() }) * roomIndex, label = ""),
+            y = animateFloatAsState(targetValue = (verticalOffset + rowHeight) * roomIndex, label = ""),
             visualIndex = roomIndex
         )
     }
@@ -250,11 +251,11 @@ private fun RoomSearchContent(
                                             run {
                                                 val upperBound = Offset(0f, 0f)
                                                 val lowerBound = Offset(
-                                                    -(calculator.calculateWidth(
+                                                    (-(calculator.calculateWidth(
                                                         displayStartTime,
                                                         maxOf(state.lessonTimes.values.maxByOrNull { it.lessonNumber }?.end?.atDate(state.currentTime) ?: displayStartTime, displayEndTime)
-                                                    ) - size.width + roomNameWidth + offset),
-                                                    (-(totalHeight.toPx() - size.height + bottomSheetHeight)).coerceAtMost(0f)
+                                                    ) - size.width + roomNameWidth + offset)).coerceAtMost(0f),
+                                                    (-(totalHeight - size.height + bottomSheetHeight)).coerceAtMost(0f)
                                                 )
                                                 translation.updateBounds(lowerBound, upperBound)
                                             }
@@ -268,7 +269,7 @@ private fun RoomSearchContent(
                                             }
 
                                             if (isPress) {
-                                                val roomIndex = ceil((change.position.y - translation.value.y - headerHeightDp.toPx()) / (48.dp + verticalPadding).toPx()).toInt() - 1
+                                                val roomIndex = ceil((change.position.y - translation.value.y - lessonTimeHeaderHeight) / (rowHeight + verticalPadding)).toInt() - 1
                                                 val room = modifierMap.filterValues { it.visualIndex == roomIndex }.keys.firstOrNull() ?: break
 
                                                 val minutesOffset = ((change.position.x - translation.value.x - roomNameWidth - offset) / scale)
@@ -285,8 +286,7 @@ private fun RoomSearchContent(
                         }
                         .clipToBounds()
                 ) {
-                    val headerHeight = headerHeightDp.toPx()
-                    translate(top = translation.value.y + headerHeight) {
+                    translate(top = translation.value.y + lessonTimeHeaderHeight) {
 
                         state.data.forEach { roomData ->
                             val room = roomData.room
@@ -306,7 +306,7 @@ private fun RoomSearchContent(
                                     drawRoundRect(
                                         color = colorScheme.primary,
                                         topLeft = Offset(startOffset, modifierMap[room]?.y?.value ?: 0f),
-                                        size = Size(width, rowHeight.toPx()),
+                                        size = Size(width, rowHeight),
                                         cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
                                     )
 
@@ -334,7 +334,7 @@ private fun RoomSearchContent(
                             drawLine(
                                 color = colorScheme.outline,
                                 start = Offset(startOffset, 0f),
-                                end = Offset(startOffset, totalHeight.toPx()),
+                                end = Offset(startOffset, totalHeight),
                                 strokeWidth = 1.dp.toPx(),
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
                             )
@@ -342,7 +342,7 @@ private fun RoomSearchContent(
                             drawLine(
                                 color = colorScheme.outline,
                                 start = Offset(endOffset, 0f),
-                                end = Offset(endOffset, totalHeight.toPx()),
+                                end = Offset(endOffset, totalHeight),
                                 strokeWidth = 1.dp.toPx(),
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(5f, 5f), 0f)
                             )
@@ -356,7 +356,7 @@ private fun RoomSearchContent(
                                 drawRect(
                                     color = colorScheme.secondaryContainer.copy(alpha = (modifierMap[room]?.alpha?.value ?: 1f)),
                                     topLeft = Offset(offsetStart, modifierMap[room]?.y?.value ?: 0f),
-                                    size = Size(width, rowHeight.toPx())
+                                    size = Size(width, rowHeight)
                                 )
 
                                 val classText = buildAnnotatedString { append(lesson.`class`.name) }
@@ -428,7 +428,7 @@ private fun RoomSearchContent(
                             drawLine(
                                 color = colorScheme.primary,
                                 start = Offset(selectedTimeOffset, 0f),
-                                end = Offset(selectedTimeOffset, totalHeight.toPx()),
+                                end = Offset(selectedTimeOffset, totalHeight),
                                 strokeWidth = 2.dp.toPx(),
                                 pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
                             )
@@ -445,20 +445,15 @@ private fun RoomSearchContent(
                             )
                             drawRoundRect(
                                 color = colorScheme.primary,
-                                topLeft = Offset(selectedTimeOffset + 20f, 20f + headerHeight),
+                                topLeft = Offset(selectedTimeOffset + 20f, 20f + lessonTimeHeaderHeight),
                                 size = Size(selectedTimeMeasurer.size.width + 20f, 80f),
                                 cornerRadius = CornerRadius(8.dp.toPx(), 8.dp.toPx())
                             )
                             drawText(
                                 selectedTimeMeasurer,
-                                topLeft = Offset(selectedTimeOffset + 30f, 30f + headerHeight),
+                                topLeft = Offset(selectedTimeOffset + 30f, 30f + lessonTimeHeaderHeight),
                                 color = colorScheme.onPrimary
                             )
-//                            drawText(
-//                                selectedTimeMeasurer,
-//                                topLeft = Offset(selectedTimeOffset + 30f, 20f + headerHeight + 30f - selectedTimeMeasurer.size.height / 2),
-//                                color = colorScheme.onPrimary
-//                            )
                         }
                     }
 
@@ -466,14 +461,14 @@ private fun RoomSearchContent(
                     if (currentTimeOffset >= roomNameWidth) drawLine(
                         color = colorScheme.error,
                         start = Offset(currentTimeOffset, 0f),
-                        end = Offset(currentTimeOffset, totalHeight.toPx()),
+                        end = Offset(currentTimeOffset, totalHeight),
                         strokeWidth = 2.dp.toPx(),
                     )
 
                     drawRect(
                         color = colorScheme.background,
                         topLeft = Offset(0f, 0f),
-                        size = Size(size.width, headerHeight)
+                        size = Size(size.width, lessonTimeHeaderHeight)
                     )
 
                     state.lessonTimes.forEach lessonTimeHeader@{ (lessonNumber, lessonTime) ->
@@ -485,7 +480,12 @@ private fun RoomSearchContent(
                                     append(lessonNumber.toString())
                                     append(".")
                                 }
-                                withStyle(typography.labelSmall.toSpanStyle().copy(color = colorScheme.outlineVariant.copy(alpha = lessonTimeAlphaByScale.value))) {
+                                val alphaHeaderHeight = run {
+                                    val value = lessonTimeHeaderHeight / lessonTimeHeaderHeightTarget
+                                    if (value.isNaN()) 0f
+                                    else value.coerceIn(0f, 1f)
+                                }
+                                withStyle(typography.labelSmall.toSpanStyle().copy(color = colorScheme.outlineVariant.copy(alpha = lessonTimeAlphaByScale.value * alphaHeaderHeight))) {
                                     append("\n" + lessonTime.start.format(DateTimeFormatter.ofPattern("HH:mm")))
                                     append("\n" + lessonTime.end.format(DateTimeFormatter.ofPattern("HH:mm")))
                                 }
@@ -494,6 +494,7 @@ private fun RoomSearchContent(
                             style = typography.bodyMedium,
                             softWrap = false
                         )
+                        if (lessonTimeHeaderHeightTarget != measuredLessonNumber.size.height.toFloat()) lessonTimeHeaderHeightTarget = measuredLessonNumber.size.height.toFloat()
                         drawText(
                             measuredLessonNumber,
                             topLeft = Offset(startOffset, 0f),
@@ -505,7 +506,7 @@ private fun RoomSearchContent(
                     drawRect(
                         brush = Brush.horizontalGradient(colors = listOf(colorScheme.background, colorScheme.background.copy(alpha = 0f))),
                         topLeft = Offset(0f, 0f),
-                        size = Size(roomNameWidth, headerHeight)
+                        size = Size(roomNameWidth, lessonTimeHeaderHeight)
                     )
                 }
 
