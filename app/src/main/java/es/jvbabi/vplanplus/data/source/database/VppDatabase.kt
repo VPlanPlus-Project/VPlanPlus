@@ -93,7 +93,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 28,
+    version = 30,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -258,6 +258,24 @@ abstract class VppDatabase : RoomDatabase() {
         val migration_27_28 = object : Migration(27, 28) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE school ADD COLUMN credentials_valid INTEGER DEFAULT NULL")
+            }
+        }
+
+        val migration_28_29 = object : Migration(28, 29) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE homework RENAME TO homework_old")
+                db.execSQL("ALTER TABLE homework_old ADD COLUMN profile_id TEXT DEFAULT NULL")
+                db.execSQL("CREATE TABLE `homework` (`id` INTEGER NOT NULL, `createdBy` INTEGER, `classes` TEXT NOT NULL, `isPublic` INTEGER NOT NULL DEFAULT false, `createdAt` INTEGER NOT NULL, `defaultLessonVpId` INTEGER, `until` INTEGER NOT NULL, `hidden` INTEGER NOT NULL DEFAULT false, `profile_id` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`createdBy`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`profile_id`) REFERENCES `profile`(`profileId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`classes`) REFERENCES `school_entity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("UPDATE homework_old SET profile_id = (SELECT profileId FROM profile WHERE linkedVppId = homework_old.createdBy LIMIT 1) WHERE profile_id IS NULL")
+                db.execSQL("UPDATE homework_old SET profile_id = (SELECT profileId FROM profile WHERE referenceId = homework_old.classes LIMIT 1)")
+                db.execSQL("INSERT INTO homework (id, createdBy, classes, isPublic, createdAt, defaultLessonVpId, until, hidden, profile_id) SELECT * FROM homework_old WHERE homework_old.profile_id IS NOT NULL")
+                db.execSQL("DROP TABLE homework_old")
+            }
+        }
+
+        val migration_29_30 = object : Migration(29, 30) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE profile ADD COLUMN is_homework_enabled INTEGER NOT NULL DEFAULT true")
             }
         }
     }

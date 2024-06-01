@@ -639,5 +639,12 @@
     <string name="home_invalidCredentialsText">Die Zugangsdaten deiner Schule haben sich geändert. Bitte aktualisiere diese, um weiterhin Planupdates zu erhalten.</string>
     <string name="home_invalidCredentialsUpdate">Aktualisieren</string>
     <string name="home_menuSyncing">Wird aktualisiert…</string>
+    <string name="profileManagement_homeworkTitle">Hausaufgaben</string>
+    <string name="profileManagement_homeworkEnableHomeworkTitle">Hausaufgaben aktivieren</string>
+    <string name="profileManagement_homeworkEnableHomeworkSubtitle">Du kannst Hausaufgaben für dieses Profil anlegen und für deine Klasse freigeben.</string>
+    <string name="profileSettings_disableHomeworkTitle">Hausaufgaben deaktivieren?</string>
+    <string name="profileSettings_disableHomeworkMessage">Du hast einige Hausaufgaben, welche nicht in deiner vpp.ID gespeichert sind.</string>
+    <string name="homework_disabledText">Du kannst Hausaufgaben erstellen und mit deinen Mitschülern teilen, wenn du eine vpp.ID verwendest. Alternativ kannst du auch deine Aufgaben lokal auf dem Gerät anlegen und deinen Fortschrit verwalten. Beginne, indem du Hausaufgaben für dieses Profil aktivierst.</string>
+    <string name="homework_enable">Hausaufgaben aktivieren</string>
 
 </resources>

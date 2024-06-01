@@ -17,7 +17,7 @@ class GetHomeworkUseCase(
             getCurrentIdentityUseCase()
         ) { homework, identity ->
             HomeworkResult(
-                homework = homework.filter { it.classes.classId == identity?.profile?.referenceId },
+                homework = homework.filter { it.profile == identity?.profile },
                 wrongProfile = identity?.profile?.type != ProfileType.STUDENT
             )
         }.collect {

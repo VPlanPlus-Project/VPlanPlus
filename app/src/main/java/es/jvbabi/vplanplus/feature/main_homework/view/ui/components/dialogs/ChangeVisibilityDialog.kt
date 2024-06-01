@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
@@ -61,6 +62,7 @@ private fun ChangeVisibilityDialogPreview() {
         vpId = 42
     )
     val createdBy = VppIdPreview.generateVppId(`class`)
+    val profile = ProfilePreview.generateClassProfile(createdBy)
     ChangeVisibilityDialog(
         homework = Homework(
             id = 1,
@@ -82,7 +84,8 @@ private fun ChangeVisibilityDialogPreview() {
             ),
             classes = `class`,
             isPublic = true,
-            isHidden = false
+            isHidden = false,
+            profile = profile
         ),
         onConfirm = {},
         onDismiss = {}

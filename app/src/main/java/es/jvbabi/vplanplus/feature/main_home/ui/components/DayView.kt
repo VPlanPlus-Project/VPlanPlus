@@ -208,7 +208,8 @@ fun DayView(
                                 time = currentTime,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp, start = padding, end = 8.dp),
                                 homework = homework,
-                                onAddHomeworkClicked = { onAddHomework(it) },
+                                allowHomeworkQuickAction = currentIdentity.profile.isHomeworkEnabled,
+                                onAddHomeworkClicked = { if (currentIdentity.profile.isHomeworkEnabled) onAddHomework(it) },
                                 onBookRoomClicked = onBookRoomClicked,
                                 displayType = currentIdentity.profile.type
                             )

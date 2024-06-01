@@ -30,14 +30,12 @@ class SaveHomeworkUseCase(
         val dueTo = ZonedDateTime.of(until, LocalTime.of(0, 0, 0), ZoneId.of("UTC"))
 
         return homeworkRepository.insertHomework(
-            createdBy = if (storeInCloud) identity.profile.vppId else null,
+            profile = identity.profile,
             `class` = `class`,
             until = dueTo,
             defaultLessonVpId = defaultLesson?.vpId,
-            tasks = tasks.map { NewTaskRecord(
-                it.trim()
-            ) },
-            allowCloudUpdate = true,
+            tasks = tasks.map { NewTaskRecord(it.trim()) },
+            storeInCloud = storeInCloud,
             shareWithClass = shareWithClass,
             createdAt = ZonedDateTime.now(),
             isHidden = false

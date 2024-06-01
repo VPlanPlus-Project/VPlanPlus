@@ -1,5 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase
 
+import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
+
 data class HomeworkUseCases(
     val getHomeworkUseCase: GetHomeworkUseCase,
     val markAllDoneUseCase: MarkAllDoneUseCase,
@@ -15,4 +17,5 @@ data class HomeworkUseCases(
     val showHomeworkNotificationBannerUseCase: ShowHomeworkNotificationBannerUseCase,
     val hideHomeworkNotificationBannerUseCase: HideHomeworkNotificationBannerUseCase,
     val updateDueDateUseCase: UpdateDueDateUseCase,
+    val updateHomeworkEnabledUseCase: UpdateHomeworkEnabledUseCase
 )

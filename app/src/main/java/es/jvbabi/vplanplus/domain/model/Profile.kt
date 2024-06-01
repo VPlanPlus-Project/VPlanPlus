@@ -13,7 +13,8 @@ data class Profile(
     val defaultLessons: Map<DefaultLesson, Boolean>,
     val calendarType: ProfileCalendarType,
     val calendarId: Long?,
-    val vppId: VppId?
+    val vppId: VppId?,
+    val isHomeworkEnabled: Boolean
 ) {
 
     /**

@@ -20,7 +20,8 @@ object ProfilePreview {
             calendarType = ProfileCalendarType.NONE,
             calendarId = null,
             defaultLessons = mapOf(),
-            vppId = vppId
+            vppId = vppId,
+            isHomeworkEnabled = true
         )
     }
 
@@ -35,7 +36,8 @@ object ProfilePreview {
             calendarType = ProfileCalendarType.NONE,
             calendarId = null,
             defaultLessons = mapOf(),
-            vppId = null
+            vppId = null,
+            isHomeworkEnabled = false
         )
     }
 }
