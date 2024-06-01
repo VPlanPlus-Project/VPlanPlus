@@ -22,7 +22,8 @@ fun MissingVppIdLinkToProfileCard(
         text = stringResource(id = R.string.home_linkVppIdToProfileBannerText),
         buttonAction1 = onFixClicked,
         buttonText1 = stringResource(id = R.string.to_settings),
-        accentColor = MaterialTheme.colorScheme.error
+        backgroundColor = MaterialTheme.colorScheme.errorContainer,
+        textColor = MaterialTheme.colorScheme.onErrorContainer
     )
 }
 

@@ -2,6 +2,9 @@ package es.jvbabi.vplanplus.util
 
 import android.content.Context
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.util.DateUtils.between
+import es.jvbabi.vplanplus.util.DateUtils.isAfterOrEqual
+import es.jvbabi.vplanplus.util.DateUtils.isBeforeOrEqual
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -38,18 +41,23 @@ object DateUtils {
             LocalDate.now() -> {
                 context.getString(R.string.today)
             }
+
             LocalDate.now().plusDays(1) -> {
                 context.getString(R.string.tomorrow)
             }
+
             LocalDate.now().plusDays(2) -> {
                 context.getString(R.string.day_after_tomorrow)
             }
+
             LocalDate.now().minusDays(1) -> {
                 context.getString(R.string.yesterday)
             }
+
             LocalDate.now().minusDays(2) -> {
                 context.getString(R.string.day_before_yesterday)
             }
+
             else -> {
                 if (fallbackToDefaultFormatting) localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
                 else null
@@ -79,18 +87,23 @@ object DateUtils {
             contextDate -> {
                 R.string.today
             }
+
             contextDate.plusDays(1) -> {
                 R.string.tomorrow
             }
+
             contextDate.plusDays(2) -> {
                 R.string.day_after_tomorrow
             }
+
             contextDate.minusDays(1) -> {
                 R.string.yesterday
             }
+
             contextDate.minusDays(2) -> {
                 R.string.day_before_yesterday
             }
+
             else -> {
                 null
             }
@@ -113,11 +126,33 @@ object DateUtils {
         return zoned.toLocalDateTime()
     }
 
+    fun ZonedDateTime.atDate(other: ZonedDateTime): ZonedDateTime {
+        return this.withYear(other.year).withDayOfYear(other.dayOfYear)
+    }
+
     fun LocalDate.withDayOfWeek(dayOfWeek: Int): LocalDate {
         return this.plusDays(dayOfWeek.toLong() - this.dayOfWeek.value.toLong())
     }
 
     fun ZonedDateTime.atStartOfDay(): ZonedDateTime {
         return this.withHour(0).withMinute(0).withSecond(0).withNano(0)
+    }
+
+    fun ZonedDateTime.isAfterOrEqual(other: ZonedDateTime): Boolean {
+        return this.isAfter(other) || this.isEqual(other)
+    }
+
+    fun ZonedDateTime.isBeforeOrEqual(other: ZonedDateTime): Boolean {
+        return this.isBefore(other) || this.isEqual(other)
+    }
+}
+
+data class TimeSpan(
+    val start: ZonedDateTime,
+    val end: ZonedDateTime
+) {
+    fun overlaps(other: TimeSpan): Boolean {
+        return (this.start.between(other.start, other.end) || this.end.between(other.start, other.end)) ||
+                (this.start.isBeforeOrEqual(other.start) && this.end.isAfterOrEqual(other.end))
     }
 }

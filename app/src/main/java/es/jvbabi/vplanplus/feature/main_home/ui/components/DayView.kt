@@ -4,13 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SportsEsports
@@ -27,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.res.stringResource
@@ -43,6 +42,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
@@ -59,31 +59,47 @@ fun DayView(
     onChangeInfoExpandState: (Boolean) -> Unit,
     onAddHomework: (vpId: Long?) -> Unit,
     onBookRoomClicked: () -> Unit,
-    scrollState: ScrollState
 ) {
     val colorScheme = MaterialTheme.colorScheme
 
-    var stillShowHiddenLessons by rememberSaveable { mutableStateOf(false) }
+    var ignoreAutoHideFinishedLessons by rememberSaveable { mutableStateOf(false) }
+
     when (day?.type) {
         DayType.NORMAL -> {
             if (day.lessons.isEmpty()) return
-            Column(
-                Modifier.verticalScroll(scrollState)
-            ) {
+            Column {
+                val allLessonsDone = day.anyLessonsLeft(currentTime, currentIdentity.profile!!)
+                val markerCircleRadius = 18f
+                val markerLineWidth = 3f
+
+                val lastActualLesson = day
+                    .lessons
+                    .lastOrNull {
+                        currentIdentity.profile.isDefaultLessonEnabled(it.vpId) &&
+                                it.displaySubject != "-"
+                    }
+
+                val uiWillShowHiddenLessonsCard = hideFinishedLessons && !ignoreAutoHideFinishedLessons && day.lessons.any { currentTime.progress(it.start, it.end) >= 1 }
+                val uiWillShowCountdown = showCountdown && lastActualLesson != null && lastActualLesson.end.isAfter(currentTime)
+
                 if (day.info != null) {
                     if (isInfoExpanded == null) {
                         InfoCard(
                             imageVector = Icons.Default.Info,
                             title = stringResource(id = R.string.home_activeDaySchoolInformation),
                             text = day.info,
-                            modifier = Modifier.zIndex(1f).padding(start = 8.dp, end = 8.dp, top = 8.dp)
+                            modifier = Modifier
+                                .zIndex(1f)
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp)
                         )
                     } else {
                         CollapsableInfoCard(
                             imageVector = Icons.Default.Info,
                             title = stringResource(id = R.string.home_activeDaySchoolInformation),
                             text = day.info,
-                            modifier = Modifier.zIndex(1f).padding(start = 8.dp, end = 8.dp, top = 8.dp),
+                            modifier = Modifier
+                                .zIndex(1f)
+                                .padding(start = 8.dp, end = 8.dp, bottom = 8.dp),
                             isExpanded = isInfoExpanded,
                             onChangeState = onChangeInfoExpandState
                         )
@@ -91,26 +107,30 @@ fun DayView(
                 }
 
                 val padding = 32.dp
-                if (hideFinishedLessons && day.lessons.any { it.progress(currentTime) >= 1 } && !stillShowHiddenLessons) {
+                if (uiWillShowHiddenLessonsCard) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(end = 8.dp)
                             .drawWithContent {
                                 drawContent()
-                                val lineHeight =
-                                    if (day.lessons.any { it.progress(currentTime) < 1 }) size.height else size.height / 2
+
+                                val pencilX = (padding / 2).toPx()
+                                val circleY = size.height / 2
+
+                                val lineHeight = if (allLessonsDone) size.height else circleY
                                 drawLine(
-                                    color = Color.Gray,
-                                    start = Offset((padding/2).toPx(), 0f),
-                                    end = Offset((padding/2).toPx(), lineHeight),
-                                    strokeWidth = 1.dp.toPx(),
-                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
+                                    brush = Brush.verticalGradient(listOf(Color.Gray.copy(alpha = 0f), Color.Gray)),
+                                    start = Offset(pencilX, (-8).dp.toPx()),
+                                    end = Offset(pencilX, lineHeight),
+                                    strokeWidth = markerLineWidth,
+                                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
                                 )
+
                                 drawCircle(
                                     color = Color.Gray,
-                                    center = Offset((padding/2).toPx(), size.height/2),
-                                    radius = 6.dp.toPx()
+                                    center = Offset(pencilX, circleY),
+                                    radius = markerCircleRadius
                                 )
                             },
                         verticalAlignment = Alignment.CenterVertically
@@ -120,49 +140,64 @@ fun DayView(
                             style = MaterialTheme.typography.labelLarge,
                             modifier = Modifier.padding(start = padding)
                         )
-                        TextButton(onClick = { stillShowHiddenLessons = true }) {
+                        TextButton(onClick = { ignoreAutoHideFinishedLessons = true }) {
                             Text(text = stringResource(id = R.string.home_show))
                         }
                     }
                 }
 
-                val filteredLessons = day.getFilteredLessons(currentIdentity.profile!!).sortedBy { it.lessonNumber }
-                var isFirstDisplay = true
+                val filteredLessons = day.getEnabledLessons(currentIdentity.profile).sortedBy { it.lessonNumber }
 
-                filteredLessons
-                    .groupBy { it.lessonNumber }
-                    .toList()
-                    .forEach { (lessonNumber, lessons) ->
+                val displayLessonGroups = filteredLessons.groupBy { it.lessonNumber }.toList()
+
+                displayLessonGroups.forEachIndexed { i, (lessonNumber, lessons) ->
+                        val isFirstVisibleLessonCard =
+                            ((!hideFinishedLessons || ignoreAutoHideFinishedLessons) && i == 0) ||
+                                    (hideFinishedLessons && !ignoreAutoHideFinishedLessons && filteredLessons.none { currentTime.progress(it.start, it.end) < 1 && it.lessonNumber < lessonNumber })
+                        
+                        val isLastVisibleLessonCard = i == displayLessonGroups.lastIndex
+
                         AnimatedVisibility(
-                            visible = !hideFinishedLessons || stillShowHiddenLessons || (lessons.any { it.progress(currentTime) < 1.0 }),
+                            visible = !hideFinishedLessons || ignoreAutoHideFinishedLessons || (lessons.any { currentTime.progress(it.start, it.end) < 1.0 }),
                             enter = expandVertically(tween(250)),
                             exit = shrinkVertically(tween(250)),
                             modifier = Modifier.drawWithContent {
                                 drawContent()
-                                drawLine(
+
+                                val pencilX = (padding/2).toPx()
+                                val circleY = 24.dp.toPx()
+
+                                if (isFirstVisibleLessonCard && !uiWillShowHiddenLessonsCard) {
+                                    drawLine(
+                                        brush = Brush.verticalGradient(listOf(Color.Gray.copy(alpha = 0f), Color.Gray, Color.Gray)),
+                                        start = Offset(pencilX, 0f),
+                                        end = Offset(pencilX, circleY-markerCircleRadius),
+                                        strokeWidth = markerLineWidth,
+                                        pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f)
+                                    )
+                                } else {
+                                    drawLine(
+                                        color = Color.Gray,
+                                        start = Offset(pencilX, 0f),
+                                        end = Offset(pencilX, circleY),
+                                        strokeWidth = markerLineWidth,
+                                        pathEffect = if (uiWillShowHiddenLessonsCard && isFirstVisibleLessonCard) PathEffect.dashPathEffect(floatArrayOf(10f, 5f), 0f) else null
+                                    )
+                                }
+
+                                if ((isLastVisibleLessonCard && uiWillShowCountdown) || !isLastVisibleLessonCard) drawLine(
                                     color = Color.Gray,
-                                    start = Offset((padding/2).toPx(), -10f),
-                                    end = Offset((padding/2).toPx(), 25.dp.toPx()),
-                                    strokeWidth = 1.dp.toPx(),
-                                    pathEffect =
-                                        if (isFirstDisplay) PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f)
-                                        else null
-                                )
-                                if (lessonNumber != filteredLessons.lastOrNull()?.lessonNumber || showCountdown) drawLine(
-                                    color = Color.Gray,
-                                    start = Offset((padding/2).toPx(), 27.dp.toPx()),
-                                    end = Offset((padding/2).toPx(), size.height),
-                                    strokeWidth = 1.dp.toPx()
+                                    start = Offset(pencilX, circleY),
+                                    end = Offset(pencilX, size.height),
+                                    strokeWidth = markerLineWidth
                                 )
                                 drawCircle(
                                     color =
-                                        if (lessons.any { it.progress(currentTime) < 1 }) colorScheme.primary
+                                        if (lessons.any { currentTime.progress(it.start, it.end) < 1 }) colorScheme.primary
                                         else colorScheme.secondary,
-                                    center = Offset((padding/2).toPx(), 27.dp.toPx()),
-                                    radius = 6.dp.toPx()
+                                    center = Offset(pencilX, circleY),
+                                    radius = markerCircleRadius
                                 )
-
-                                isFirstDisplay = false
                             }
                         ) {
                             LessonCard(
@@ -179,16 +214,8 @@ fun DayView(
                             )
                         }
                     }
-                val end = day
-                    .lessons
-                    .last {
-                        currentIdentity.profile.isDefaultLessonEnabled(
-                            it.vpId
-                        )
-                    }
-                    .end
-                if (!showCountdown) return@Column
-                val difference = currentTime.until(end, ChronoUnit.SECONDS)
+                if (!uiWillShowCountdown || lastActualLesson == null) return@Column
+                val difference = currentTime.until(lastActualLesson.end, ChronoUnit.SECONDS)
                 if (difference > 0) Row(
                     Modifier
                         .fillMaxWidth()
@@ -196,13 +223,13 @@ fun DayView(
                             drawContent()
                             drawLine(
                                 color = Color.Gray,
-                                start = Offset((padding/2).toPx(), 0f),
-                                end = Offset((padding/2).toPx(), 22.dp.toPx()),
-                                strokeWidth = 1.dp.toPx()
+                                start = Offset((padding / 2).toPx(), 0f),
+                                end = Offset((padding / 2).toPx(), 22.dp.toPx()),
+                                strokeWidth = markerLineWidth
                             )
                             drawCircle(
                                 color = Color.Gray,
-                                center = Offset((padding/2).toPx(), 18.dp.toPx()),
+                                center = Offset((padding / 2).toPx(), 18.dp.toPx()),
                                 radius = 6.dp.toPx()
                             )
                         },
@@ -211,7 +238,9 @@ fun DayView(
                     Icon(
                         imageVector = Icons.Default.SportsEsports,
                         contentDescription = null,
-                        modifier = Modifier.padding(start = padding + 8.dp).size(24.dp)
+                        modifier = Modifier
+                            .padding(start = padding + 8.dp)
+                            .size(24.dp)
                     )
                     Text(
                         text = stringResource(

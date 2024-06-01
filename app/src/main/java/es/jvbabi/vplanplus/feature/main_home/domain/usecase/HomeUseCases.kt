@@ -16,6 +16,7 @@ data class HomeUseCases(
     val isSyncRunningUseCase: IsSyncRunningUseCase,
     val getLastSyncUseCase: GetLastSyncUseCase,
     val getHideFinishedLessonsUseCase: GetHideFinishedLessonsUseCase,
+    val getHolidaysUseCase: GetHolidaysUseCase,
 
     val setInfoExpandedUseCase: SetInfoExpandedUseCase,
     val isInfoExpandedUseCase: IsInfoExpandedUseCase,

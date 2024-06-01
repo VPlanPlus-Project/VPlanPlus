@@ -8,10 +8,8 @@ import androidx.compose.animation.shrinkOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,7 +28,6 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -38,17 +35,12 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -65,12 +57,7 @@ import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 @Composable
 fun HomeworkScreen(
@@ -330,7 +317,7 @@ private fun HomeworkScreenContent(
                         )
                     }
                     val list =
-                        state.homework.sortedBy { it.until }.groupBy { it.until }.toList()
+                        state.homework.sortedBy { it.until }.toList()
                     LazyColumn(Modifier.fillMaxSize()) {
                         item {
                             AnimatedVisibility(
@@ -351,84 +338,33 @@ private fun HomeworkScreenContent(
                             }
                         }
 
-                        items(list) { (until, todo) ->
-                            Row(Modifier.fillMaxWidth()) {
-                                val colorScheme = MaterialTheme.colorScheme
-                                val textMeasurer = rememberTextMeasurer()
-                                val style = MaterialTheme.typography.labelSmall
-                                val difference = LocalDateTime.now()
-                                    .until(until.toZonedLocalDateTime(), ChronoUnit.DAYS)
-
-                                val text =
-                                    if (difference < 6) until.format(DateTimeFormatter.ofPattern("E"))
-                                    else until.format(DateTimeFormatter.ofPattern("d.M."))
-                                val textLayoutResult = remember(text, style) {
-                                    textMeasurer.measure(text, style)
-                                }
-                                Column(
-                                    modifier = Modifier
-                                        .drawWithContent {
-                                            drawContent()
-                                            if (todo.none { hw ->
-                                                    (hw.isEnabled || state.showDisabled) &&
-                                                            (!hw.isHidden || state.showHidden) &&
-                                                            (hw.tasks.any { task -> !task.done } || state.showDone)
-                                                }) return@drawWithContent
-                                            drawCircle(
-                                                color =
-                                                    if (until.isBefore(ZonedDateTime.now())) colorScheme.error
-                                                    else colorScheme.tertiary,
-                                                center = Offset(90f, 95f),
-                                                radius = 50f
-                                            )
-                                            drawCircle(
-                                                color = colorScheme.surface,
-                                                center = Offset(90f, 95f),
-                                                radius = 40f
-                                            )
-                                            try {
-                                                drawText(
-                                                    textMeasurer = textMeasurer,
-                                                    text = text,
-                                                    style = style.copy(color = colorScheme.onSurface),
-                                                    topLeft = Offset(
-                                                        90f - (textLayoutResult.size.width / 2),
-                                                        95f - textLayoutResult.size.height / 2,
-                                                    )
-                                                )
-                                            } catch (_: IllegalArgumentException) {}
-                                        }
-                                ) {
-                                    todo.forEach { homework ->
-                                        HomeworkCard(
-                                            modifier = Modifier.padding(start = 60.dp),
-                                            homework = homework,
-                                            isOwner = homework.isOwner,
-                                            showHidden = state.showHidden,
-                                            showDisabled = state.showDisabled,
-                                            showDone = state.showDone,
-                                            allDone = { onMarkAllDone(homework, it) },
-                                            singleDone = { task, done ->
-                                                onMarkSingleDone(
-                                                    task,
-                                                    done
-                                                )
-                                            },
-                                            onAddTask = { onAddTask(homework, it) },
-                                            onDeleteRequest = { onHomeworkDeleteRequest(homework) },
-                                            onChangePublicVisibility = {
-                                                onHomeworkChangeVisibilityRequest(
-                                                    homework
-                                                )
-                                            },
-                                            onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
-                                            onEditTaskRequest = { onHomeworkTaskEditRequest(it) },
-                                            onHomeworkHide = { onHomeworkHide(homework) },
-                                            onUpdateDueDate = { onUpdateDueDate(homework, it) }
-                                        )
-                                    }
-                                }
-                            }
+                        items(list) { homeworkForDay ->
+                            HomeworkCard(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                homework = homeworkForDay,
+                                isOwner = homeworkForDay.isOwner,
+                                showHidden = state.showHidden,
+                                showDisabled = state.showDisabled,
+                                showDone = state.showDone,
+                                allDone = { onMarkAllDone(homeworkForDay, it) },
+                                singleDone = { task, done ->
+                                    onMarkSingleDone(
+                                        task,
+                                        done
+                                    )
+                                },
+                                onAddTask = { onAddTask(homeworkForDay, it) },
+                                onDeleteRequest = { onHomeworkDeleteRequest(homeworkForDay) },
+                                onChangePublicVisibility = {
+                                    onHomeworkChangeVisibilityRequest(
+                                        homeworkForDay
+                                    )
+                                },
+                                onDeleteTaskRequest = { onHomeworkTaskDeleteRequest(it) },
+                                onEditTaskRequest = { onHomeworkTaskEditRequest(it) },
+                                onHomeworkHide = { onHomeworkHide(homeworkForDay) },
+                                onUpdateDueDate = { onUpdateDueDate(homeworkForDay, it) }
+                            )
                         }
                         if (state.homework.none {
                                 (it.isEnabled || state.showDisabled) &&

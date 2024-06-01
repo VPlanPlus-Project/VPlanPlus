@@ -15,6 +15,8 @@ import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.Day
+import es.jvbabi.vplanplus.domain.model.DayDataState
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
@@ -33,7 +35,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val homeUseCases: HomeUseCases
-): ViewModel() {
+) : ViewModel() {
     var state by mutableStateOf(HomeState())
 
     private var uiUpdateJobs: Map<LocalDate, Job> = emptyMap()
@@ -65,7 +67,8 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getHideFinishedLessonsUseCase(),
                     homeUseCases.hasInvalidVppIdSessionUseCase(),
                     homeUseCases.getVppIdServerUseCase(),
-                    homeUseCases.hasMissingVppIdToProfileLinksUseCase()
+                    homeUseCases.hasMissingVppIdToProfileLinksUseCase(),
+                    homeUseCases.getHolidaysUseCase()
                 )
             ) { data ->
                 val currentIdentity = data[0] as Identity
@@ -79,6 +82,7 @@ class HomeViewModel @Inject constructor(
                 val hasInvalidVppIdSession = data[8] as Boolean
                 val server = data[9] as String
                 val hasMissingVppIdToProfileLinks = data[10] as Boolean
+                val holidays = data[11] as List<LocalDate>
 
                 val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter {
                     it.`class`.classId == currentIdentity.profile?.referenceId
@@ -96,7 +100,8 @@ class HomeViewModel @Inject constructor(
                     hideFinishedLessons = hideFinishedLessons,
                     hasInvalidVppIdSession = hasInvalidVppIdSession,
                     server = server,
-                    hasMissingVppIdToProfileLinks = hasMissingVppIdToProfileLinks
+                    hasMissingVppIdToProfileLinks = hasMissingVppIdToProfileLinks,
+                    holidays = holidays
                 )
             }.collect {
                 val identityHasChanged = state.currentIdentity != it.currentIdentity
@@ -110,8 +115,10 @@ class HomeViewModel @Inject constructor(
     fun setSelectedDate(date: LocalDate) {
         state = state.copy(selectedDate = date)
         triggerLessonUiSync(date)
-        triggerLessonUiSync(date.minusDays(1L))
-        triggerLessonUiSync(date.plusDays(1L))
+        repeat(4) {
+            triggerLessonUiSync(date.minusDays(it.toLong()))
+            triggerLessonUiSync(date.plusDays(it.toLong()))
+        }
     }
 
     private fun restartUiUpdateJobs() {
@@ -196,6 +203,7 @@ data class HomeState(
     val isSyncRunning: Boolean = false,
     val lastSync: ZonedDateTime? = null,
     val hideFinishedLessons: Boolean = false,
+    val holidays: List<LocalDate> = emptyList(),
 
     val versionHints: List<VersionHints> = emptyList(),
     val isVersionHintsDialogOpen: Boolean = false,
@@ -205,4 +213,7 @@ data class HomeState(
 
     val hasInvalidVppIdSession: Boolean = false,
     val hasMissingVppIdToProfileLinks: Boolean = false
-)
+) {
+    val nextSchoolDayWithData: LocalDate?
+        get() = days.entries.firstOrNull { it.key.isAfter(currentTime.toLocalDate()) && it.value.state == DayDataState.DATA && it.value.type == DayType.NORMAL }?.key
+}

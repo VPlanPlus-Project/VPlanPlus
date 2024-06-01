@@ -60,13 +60,6 @@ import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
-import es.jvbabi.vplanplus.domain.usecase.find_room.BookRoomUseCase
-import es.jvbabi.vplanplus.domain.usecase.find_room.CanBookRoomUseCase
-import es.jvbabi.vplanplus.domain.usecase.find_room.CancelBookingUseCase
-import es.jvbabi.vplanplus.domain.usecase.find_room.FindRoomUseCases
-import es.jvbabi.vplanplus.domain.usecase.find_room.GetRoomMapUseCase
-import es.jvbabi.vplanplus.domain.usecase.find_room.HideRoomBookingDisclaimerBannerUseCase
-import es.jvbabi.vplanplus.domain.usecase.find_room.IsShowRoomBookingDisclaimerBannerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
@@ -457,39 +450,6 @@ object VppModule {
                 lessonRepository = lessonRepository,
                 keyValueRepository = keyValueRepository
             )
-        )
-    }
-
-    @Singleton
-    @Provides
-    fun provideFindRoomUseCases(
-        roomRepository: RoomRepository,
-        keyValueRepository: KeyValueRepository,
-        classRepository: ClassRepository,
-        lessonTimeRepository: LessonTimeRepository,
-        vppIdRepository: VppIdRepository,
-        planRepository: PlanRepository,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
-    ): FindRoomUseCases {
-        return FindRoomUseCases(
-            getRoomMapUseCase = GetRoomMapUseCase(
-                roomRepository = roomRepository,
-                keyValueRepository = keyValueRepository,
-                planRepository = planRepository,
-                lessonTimeRepository = lessonTimeRepository,
-                classRepository = classRepository
-            ),
-            canBookRoomUseCase = CanBookRoomUseCase(getCurrentIdentityUseCase),
-            bookRoomUseCase = BookRoomUseCase(
-                vppIdRepository = vppIdRepository,
-                roomRepository = roomRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase
-            ),
-            getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-            cancelBooking = CancelBookingUseCase(vppIdRepository),
-
-            isShowRoomBookingDisclaimerBannerUseCase = IsShowRoomBookingDisclaimerBannerUseCase(keyValueRepository),
-            hideRoomBookingDisclaimerBannerUseCase = HideRoomBookingDisclaimerBannerUseCase(keyValueRepository)
         )
     }
 

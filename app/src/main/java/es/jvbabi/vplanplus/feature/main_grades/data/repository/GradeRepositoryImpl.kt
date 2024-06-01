@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbGrade
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbInterval
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbSubject
@@ -39,7 +40,8 @@ class GradeRepositoryImpl(
     private val bsNetworkRepository: BsNetworkRepository,
     private val vppIdRepository: VppIdRepository,
     private val notificationRepository: NotificationRepository,
-    private val stringRepository: StringRepository
+    private val stringRepository: StringRepository,
+    private val logRecordRepository: LogRecordRepository
 ) : GradeRepository {
 
     override suspend fun updateGrades(): List<Grade> {
@@ -85,6 +87,8 @@ class GradeRepositoryImpl(
                 }
             } catch (e: BsUnauthorizedException) {
                 sendBsTokenInvalidNotification()
+            } catch (e: BsRequestFailedException) {
+                logRecordRepository.log("Grades", "Error: BS request failed with ${e.response?.value}")
             }
         }
         return newGrades
@@ -115,7 +119,7 @@ class GradeRepositoryImpl(
         bsNetworkRepository.authentication = BearerAuthentication(token)
         val years = bsNetworkRepository.doRequest("/api/years").let {
             if (it.response == HttpStatusCode.Unauthorized) throw BsUnauthorizedException()
-            if (it.response != HttpStatusCode.OK) throw BsRequestFailedException()
+            if (it.response != HttpStatusCode.OK) throw BsRequestFailedException(it.response)
             Gson().fromJson(it.data, BsSchoolYearResponse::class.java).years
         }
         years.forEach year@{ year ->
@@ -156,7 +160,7 @@ class GradeRepositoryImpl(
         bsNetworkRepository.authentication = BearerAuthentication(token)
         val result = bsNetworkRepository.doRequest("/api/grades?include=collection")
         if (result.response == HttpStatusCode.Unauthorized) throw BsUnauthorizedException()
-        if (result.response != HttpStatusCode.OK) throw BsRequestFailedException()
+        if (result.response != HttpStatusCode.OK) throw BsRequestFailedException(result.response)
         return Gson().fromJson(result.data, BsGradesResponse::class.java).data
     }
 
@@ -288,4 +292,4 @@ private data class BsSchoolYearInterval(
 }
 
 private class BsUnauthorizedException : Exception("The token is invalid")
-private class BsRequestFailedException : Exception("The request failed")
+private class BsRequestFailedException(val response: HttpStatusCode?) : Exception("The request failed with $response")

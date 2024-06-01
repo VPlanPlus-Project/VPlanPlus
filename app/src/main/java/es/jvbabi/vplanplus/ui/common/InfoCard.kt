@@ -52,39 +52,29 @@ fun InfoCard(
     buttonAction1: () -> Unit = {},
     buttonText2: String? = null,
     buttonAction2: () -> Unit = {},
-    accentColor: Color = MaterialTheme.colorScheme.primary
+    backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
 ) {
     Column(
         modifier = modifier
             .shadow(5.dp, shape = RoundedCornerShape(8.dp))
-            .border(1.dp, accentColor, shape = RoundedCornerShape(8.dp))
             .clip(RoundedCornerShape(8.dp))
-            .background(MaterialTheme.colorScheme.surface)
-            .drawWithContent {
-                drawRect(
-                    color = accentColor,
-                    topLeft = Offset(0f, 0f),
-                    size = Size(32f, size.height)
-                )
-                drawContent()
-            }
+            .background(backgroundColor)
             .padding(start = 4.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 8.dp, top = 16.dp),
-        ) {
+        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(30.dp),
+                tint = textColor
             )
-            Column(modifier = Modifier.padding(start = 8.dp)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium)
-                Text(text = text)
+            Column(modifier = Modifier.padding(start = 16.dp)) {
+                Text(text = title, style = MaterialTheme.typography.titleMedium, color = textColor)
+                Text(text = text, color = textColor)
             }
         }
+
         if (buttonText1 != null) Row(
             modifier = Modifier
                 .padding(end = 8.dp)
@@ -93,10 +83,10 @@ fun InfoCard(
             TextButton(
                 onClick = { buttonAction1() },
                 colors = ButtonColors(
-                    contentColor = accentColor,
+                    contentColor = textColor,
                     containerColor = Color.Transparent,
                     disabledContainerColor = Color.Transparent,
-                    disabledContentColor = accentColor.toBlackAndWhite()
+                    disabledContentColor = textColor.toBlackAndWhite()
                 )
             ) {
                 Text(text = buttonText1)
@@ -106,19 +96,19 @@ fun InfoCard(
                 TextButton(
                     onClick = { buttonAction2() },
                     colors = ButtonColors(
-                        contentColor = accentColor,
+                        contentColor = textColor,
                         containerColor = Color.Transparent,
                         disabledContainerColor = Color.Transparent,
-                        disabledContentColor = accentColor.toBlackAndWhite()
+                        disabledContentColor = textColor.toBlackAndWhite()
                     )
                 ) {
                     Text(text = buttonText2)
                 }
             }
-        } else {
-            Spacer(modifier = Modifier.size(16.dp))
         }
     }
+
+    return
 }
 
 @Composable
@@ -235,8 +225,6 @@ private fun InfoCardPreview() {
         imageVector = Icons.Default.Info,
         title = "Title",
         text = "Text\nA very big one",
-        buttonText1 = "null",
-        buttonText2 = "null"
     )
 }
 

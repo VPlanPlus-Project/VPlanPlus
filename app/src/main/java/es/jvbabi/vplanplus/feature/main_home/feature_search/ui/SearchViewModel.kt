@@ -48,13 +48,6 @@ class SearchViewModel @Inject constructor(
         }
     }
 
-    fun onSearchActiveChange(expanded: Boolean) {
-        state.value = state.value.copy(expanded = expanded)
-        if (!expanded) {
-            state.value = state.value.copy(results = emptyList(), query = "")
-        }
-    }
-
     fun onQueryChange(query: String) {
         state.value = state.value.copy(query = query, results = emptyList(), isSearchRunning = true)
         if (query.isBlank()) {
@@ -86,7 +79,6 @@ class SearchViewModel @Inject constructor(
 data class SearchState(
     val selectedDate: LocalDate = LocalDate.now(),
     val query: String = "",
-    val expanded: Boolean = false,
     val identity: Identity? = null,
     val isSyncRunning: Boolean = false,
     val results: List<SearchResult> = emptyList(),

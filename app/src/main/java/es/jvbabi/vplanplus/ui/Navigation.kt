@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
+import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
@@ -35,6 +36,7 @@ import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSetupScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.Task
+import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
@@ -44,8 +46,8 @@ import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsD
 import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.support.ui.SupportScreen
 import es.jvbabi.vplanplus.feature.settings.ui.SettingsScreen
-import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.vpp_id.manage.VppIdManagementScreen
+import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.AccountSettingsScreen
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransition
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionLeft
 import es.jvbabi.vplanplus.ui.common.Transition.enterSlideTransitionRight
@@ -54,7 +56,6 @@ import es.jvbabi.vplanplus.ui.common.Transition.exitSlideTransitionRight
 import es.jvbabi.vplanplus.ui.common.Transition.slideInFromBottom
 import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.ui.screens.home.search.room.FindAvailableRoomScreen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
 import java.time.LocalDate
 import java.util.UUID
@@ -85,7 +86,7 @@ fun NavigationGraph(
         gradesScreens(navController)
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {
-            FindAvailableRoomScreen(navController)
+            RoomSearch(navHostController = navController)
         }
     }
 }
@@ -274,6 +275,16 @@ private fun NavGraphBuilder.mainScreens(
             navBar = navBar,
             startDate = LocalDate.now()
         )
+    }
+
+    composable(
+        route = Screen.SearchScreen.route,
+        enterTransition = slideInFromBottom,
+        exitTransition = slideOutFromBottom,
+        popEnterTransition = slideInFromBottom,
+        popExitTransition = slideOutFromBottom
+    ) {
+        SearchView(navHostController = navController)
     }
 
     composable(

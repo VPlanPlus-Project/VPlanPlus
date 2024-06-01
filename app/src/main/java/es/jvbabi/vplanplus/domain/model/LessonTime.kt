@@ -7,7 +7,9 @@ import androidx.room.Ignore
 import androidx.room.Index
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
+import es.jvbabi.vplanplus.util.DateUtils.atDate
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
+import es.jvbabi.vplanplus.util.TimeSpan
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -54,4 +56,14 @@ data class LessonTime(
     @get:Ignore
     val start: ZonedDateTime
         get() = ZonedDateTime.now().withZoneSameLocal(ZoneId.of("Europe/Berlin")).atStartOfDay().atBeginningOfTheWorld().plusSeconds(this.from)
+
+    fun toTimeSpan(withDate: ZonedDateTime? = null): TimeSpan {
+        return TimeSpan(run {
+            if (withDate != null) start.atDate(withDate)
+            else start
+        }, run {
+            if (withDate != null) end.atDate(withDate)
+            else end
+        })
+    }
 }

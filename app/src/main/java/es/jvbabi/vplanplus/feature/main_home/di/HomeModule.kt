@@ -6,6 +6,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -26,6 +27,7 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetRoomBookingsForTo
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetVersionHintsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasUnreadNewsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHolidaysUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasInvalidVppIdSessionUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasMissingVppIdToProfileLinksUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
@@ -50,6 +52,7 @@ object HomeModule {
         profileRepository: ProfileRepository,
         messageRepository: MessageRepository,
         vppIdRepository: VppIdRepository,
+        holidayRepository: HolidayRepository,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
         @ApplicationContext context: Context
@@ -73,6 +76,7 @@ object HomeModule {
             isSyncRunningUseCase = IsSyncRunningUseCase(context),
             getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
             getHideFinishedLessonsUseCase = GetHideFinishedLessonsUseCase(keyValueRepository),
+            getHolidaysUseCase = GetHolidaysUseCase(holidayRepository, getCurrentIdentityUseCase),
 
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),

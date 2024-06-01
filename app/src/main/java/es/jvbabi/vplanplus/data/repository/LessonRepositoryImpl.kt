@@ -60,6 +60,16 @@ class LessonRepositoryImpl(
             }
     }
 
+    override fun getLessonsForSchoolByDate(schoolId: Int, date: LocalDate, version: Long): Flow<List<Lesson>> {
+        val timestamp = converter.zonedDateTimeToTimestamp(ZonedDateTime.of(date, LocalTime.MIN, ZoneId.of("UTC")))
+
+        return lessonDao.getLessonsForSchool(schoolId, timestamp, version).map { lessons ->
+            lessons.map {
+                it.toModel()
+            }
+        }
+    }
+
     override suspend fun getLessonsForProfile(
         profileId: UUID,
         date: LocalDate,
