@@ -260,6 +260,7 @@ class HomeworkRepositoryImpl(
         allowCloudUpdate: Boolean,
         isHidden: Boolean
     ): HomeworkModificationResult {
+        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE // fixme
         if (!allowCloudUpdate || createdBy == null) {
             val dbHomework = DbHomework(
                 id = id ?: (findLocalId() - 1),
@@ -269,7 +270,8 @@ class HomeworkRepositoryImpl(
                 defaultLessonVpId = defaultLessonVpId,
                 createdBy = createdBy?.id,
                 hidden = isHidden,
-                isPublic = shareWithClass
+                isPublic = shareWithClass,
+                profileId = UUID.randomUUID() // fixme
             )
             homeworkDao.insert(dbHomework)
             tasks.forEach { newTask ->
@@ -310,7 +312,8 @@ class HomeworkRepositoryImpl(
             defaultLessonVpId = defaultLessonVpId,
             createdBy = createdBy.id,
             isPublic = shareWithClass,
-            hidden = isHidden
+            hidden = isHidden,
+            profileId = UUID.randomUUID() // fixme
         )
         homeworkDao.insert(dbHomework)
         response.tasks.forEach {

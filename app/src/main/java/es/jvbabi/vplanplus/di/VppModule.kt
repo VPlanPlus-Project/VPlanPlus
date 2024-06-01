@@ -133,6 +133,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_23_24)
             .addMigrations(VppDatabase.migration_24_25)
             .addMigrations(VppDatabase.migration_27_28)
+            .addMigrations(VppDatabase.migration_28_29)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())

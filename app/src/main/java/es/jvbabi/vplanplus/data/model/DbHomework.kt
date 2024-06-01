@@ -22,6 +22,12 @@ import java.util.UUID
             parentColumns = ["id"],
             childColumns = ["classes"],
             onDelete = CASCADE
+        ),
+        ForeignKey(
+            entity = DbProfile::class,
+            parentColumns = ["profileId"],
+            childColumns = ["profile_id"],
+            onDelete = CASCADE,
         )
     ]
 )
@@ -34,4 +40,5 @@ data class DbHomework(
     val defaultLessonVpId: Long?,
     val until: ZonedDateTime,
     @ColumnInfo(defaultValue = "false") val hidden: Boolean = false,
+    @ColumnInfo(name = "profile_id") val profileId: UUID
 )
