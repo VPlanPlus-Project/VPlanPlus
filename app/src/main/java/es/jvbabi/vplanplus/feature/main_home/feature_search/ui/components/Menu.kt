@@ -91,7 +91,7 @@ fun Menu(
                     .fillMaxWidth(0.9f)
                     .clip(RoundedCornerShape(16.dp))
                     .noRippleClickable(onClick = { })
-                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
             ) {
                 Column {
                     Box(
