@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
@@ -322,7 +323,8 @@ data class HomeworkViewModelHomework(
     val isHidden: Boolean,
     val isLoading: Boolean = false,
     val isLoadingNewTask: Boolean = false,
-    val isEnabled: Boolean = true
+    val isEnabled: Boolean = true,
+    val profile: Profile
 ) {
     fun toHomework() = Homework(
         id = id,
@@ -333,7 +335,8 @@ data class HomeworkViewModelHomework(
         isPublic = isPublic,
         until = until,
         tasks = tasks.map { it.toTask() },
-        isHidden = isHidden
+        isHidden = isHidden,
+        profile = profile
     )
 
 }
@@ -361,7 +364,8 @@ private fun Homework.toViewModel(
     tasks = tasks.map { it.toViewModel() },
     isOwner = isOwner,
     isHidden = isHidden,
-    isEnabled = isEnabled
+    isEnabled = isEnabled,
+    profile = profile
 )
 
 private fun HomeworkTask.toViewModel() = HomeworkViewModelTask(

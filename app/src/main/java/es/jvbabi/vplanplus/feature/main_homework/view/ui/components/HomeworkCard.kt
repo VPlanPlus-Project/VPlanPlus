@@ -68,6 +68,7 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.util.DateUtils
@@ -257,6 +258,7 @@ private fun HomeworkCardPreview() {
     val school = School.generateRandomSchools(1).first()
     val `class` = ClassesPreview.generateClass(school)
     val creator = VppIdPreview.generateVppId(`class`)
+    val profile = ProfilePreview.generateClassProfile(creator)
     val defaultLesson = DefaultLesson(
         teacher = null,
         defaultLessonId = UUID.randomUUID(),
@@ -290,7 +292,8 @@ private fun HomeworkCardPreview() {
             isLoading = false,
             isLoadingNewTask = true,
             isHidden = true,
-            isEnabled = false
+            isEnabled = false,
+            profile = profile
         ),
         isOwner = true,
         allDone = {},

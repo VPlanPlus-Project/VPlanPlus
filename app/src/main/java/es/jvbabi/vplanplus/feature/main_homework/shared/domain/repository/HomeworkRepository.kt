@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository
 
 import es.jvbabi.vplanplus.domain.model.Classes
-import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PreferredHomeworkNotificationTime
@@ -20,15 +20,15 @@ interface HomeworkRepository {
 
     suspend fun insertHomework(
         id: Long? = null,
-        createdBy: VppId?,
-        createdAt: ZonedDateTime = ZonedDateTime.now(),
+        profile: Profile,
         `class`: Classes,
         defaultLessonVpId: Long?,
+        storeInCloud: Boolean,
         shareWithClass: Boolean,
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
-        allowCloudUpdate: Boolean,
-        isHidden: Boolean
+        isHidden: Boolean,
+        createdAt: ZonedDateTime = ZonedDateTime.now()
     ): HomeworkModificationResult
 
     suspend fun addNewTask(

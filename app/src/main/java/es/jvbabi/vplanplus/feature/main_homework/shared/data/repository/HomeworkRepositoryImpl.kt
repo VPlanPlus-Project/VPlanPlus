@@ -14,7 +14,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.domain.model.Classes
-import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -151,7 +151,7 @@ class HomeworkRepositoryImpl(
 
                     insertHomework(
                         id = id,
-                        createdBy = createdBy,
+                        profile = profile,
                         shareWithClass = responseHomework.shareWithClass,
                         until = until,
                         `class` = `class`,
@@ -159,7 +159,7 @@ class HomeworkRepositoryImpl(
                         createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(
                             responseHomework.createdAt
                         ),
-                        allowCloudUpdate = false,
+                        storeInCloud = false,
                         tasks = replacementTasks,
                         isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
                     )
@@ -250,28 +250,27 @@ class HomeworkRepositoryImpl(
 
     override suspend fun insertHomework(
         id: Long?,
-        createdBy: VppId?,
-        createdAt: ZonedDateTime,
+        profile: Profile,
         `class`: Classes,
         defaultLessonVpId: Long?,
+        storeInCloud: Boolean,
         shareWithClass: Boolean,
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
-        allowCloudUpdate: Boolean,
-        isHidden: Boolean
+        isHidden: Boolean,
+        createdAt: ZonedDateTime
     ): HomeworkModificationResult {
-        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE // fixme
-        if (!allowCloudUpdate || createdBy == null) {
+        if (!storeInCloud || profile.vppId == null) {
             val dbHomework = DbHomework(
                 id = id ?: (findLocalId() - 1),
                 classes = `class`.classId,
                 createdAt = createdAt,
                 until = until,
                 defaultLessonVpId = defaultLessonVpId,
-                createdBy = createdBy?.id,
+                createdBy = profile.vppId?.id,
                 hidden = isHidden,
                 isPublic = shareWithClass,
-                profileId = UUID.randomUUID() // fixme
+                profileId = profile.id
             )
             homeworkDao.insert(dbHomework)
             tasks.forEach { newTask ->
@@ -286,8 +285,7 @@ class HomeworkRepositoryImpl(
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        val vppIdToken =
-            vppIdRepository.getVppIdToken(createdBy) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken = vppIdRepository.getVppIdToken(profile.vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me/homework",
@@ -310,10 +308,10 @@ class HomeworkRepositoryImpl(
             createdAt = createdAt,
             until = until,
             defaultLessonVpId = defaultLessonVpId,
-            createdBy = createdBy.id,
+            createdBy = profile.vppId.id,
             isPublic = shareWithClass,
             hidden = isHidden,
-            profileId = UUID.randomUUID() // fixme
+            profileId = profile.id
         )
         homeworkDao.insert(dbHomework)
         response.tasks.forEach {
