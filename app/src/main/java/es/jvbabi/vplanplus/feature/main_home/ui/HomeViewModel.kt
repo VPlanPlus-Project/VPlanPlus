@@ -23,6 +23,7 @@ import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.util.DateUtils.progress
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
@@ -216,4 +217,7 @@ data class HomeState(
 ) {
     val nextSchoolDayWithData: LocalDate?
         get() = days.entries.firstOrNull { it.key.isAfter(currentTime.toLocalDate()) && it.value.state == DayDataState.DATA && it.value.type == DayType.NORMAL }?.key
+
+    val autoNextDay: Boolean
+        get() = nextSchoolDayWithData != null && days.entries.firstOrNull { it.key.isEqual(currentTime.toLocalDate()) }?.value?.lessons?.none { currentTime.progress(it.start, it.end) < 1f } ?: true
 }

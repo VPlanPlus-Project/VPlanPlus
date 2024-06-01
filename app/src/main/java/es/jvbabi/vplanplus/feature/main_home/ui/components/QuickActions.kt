@@ -43,6 +43,7 @@ import java.time.format.DateTimeFormatter
 fun QuickActions(
     modifier: Modifier = Modifier,
     nextSchoolDayWithData: LocalDate?,
+    selectedDate: LocalDate,
     onNewHomeworkClicked: () -> Unit = {},
     onFindAvailableRoomClicked: () -> Unit = {},
     onPrepareNextDayClicked: () -> Unit = {},
@@ -78,7 +79,7 @@ fun QuickActions(
             }
             item {
                 AnimatedVisibility(
-                    visible = nextSchoolDayWithData != null,
+                    visible = nextSchoolDayWithData != null && !selectedDate.isEqual(nextSchoolDayWithData),
                     enter = expandHorizontally(tween(200)),
                     exit = shrinkHorizontally(tween(200))
                 ) {
@@ -119,7 +120,7 @@ fun QuickActions(
 @Composable
 @Preview(showBackground = true)
 private fun QuickActionsPreview() {
-    QuickActions(nextSchoolDayWithData = LocalDate.now().plusDays(1L))
+    QuickActions(nextSchoolDayWithData = LocalDate.now().plusDays(1L), selectedDate = LocalDate.now())
 }
 
 @Composable
