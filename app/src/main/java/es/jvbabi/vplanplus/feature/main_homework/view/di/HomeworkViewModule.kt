@@ -5,6 +5,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.AddTaskUseCase
@@ -22,6 +23,7 @@ import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.MarkSingleD
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.ShowHomeworkNotificationBannerUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.UpdateDueDateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.UpdateUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
 import javax.inject.Singleton
 
 @Module
@@ -32,53 +34,41 @@ object HomeworkViewModule {
     @Singleton
     fun provideHomeworkUseCases(
         homeworkRepository: HomeworkRepository,
+        profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
         getCurrentIdentityUseCase: GetCurrentIdentityUseCase
     ): HomeworkUseCases {
         return HomeworkUseCases(
-            getHomeworkUseCase = GetHomeworkUseCase(
+            GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 getCurrentIdentityUseCase = getCurrentIdentityUseCase
-            ),
-            markAllDoneUseCase = MarkAllDoneUseCase(
+            ), MarkAllDoneUseCase(
                 homeworkRepository = homeworkRepository
-            ),
-            markSingleDoneUseCase = MarkSingleDoneUseCase(
+            ), MarkSingleDoneUseCase(
                 homeworkRepository = homeworkRepository
-            ),
-            addTaskUseCase = AddTaskUseCase(
+            ), AddTaskUseCase(
                 homeworkRepository = homeworkRepository
-            ),
-            deleteHomeworkUseCase = DeleteHomeworkUseCase(
+            ), DeleteHomeworkUseCase(
                 homeworkRepository = homeworkRepository
-            ),
-            changeVisibilityUseCase = ChangeVisibilityUseCase(
+            ), ChangeVisibilityUseCase(
                 homeworkRepository = homeworkRepository
-            ),
-            deleteHomeworkTaskUseCase = DeleteHomeworkTaskUseCase(
+            ), DeleteHomeworkTaskUseCase(
                 homeworkRepository = homeworkRepository
-            ),
-            editTaskUseCase = EditTaskUseCase(
+            ), EditTaskUseCase(
                 homeworkRepository = homeworkRepository
-            ),
-            isUpdateRunningUseCase = IsUpdateRunningUseCase(
+            ), IsUpdateRunningUseCase(
+                keyValueRepository = keyValueRepository
+            ), UpdateUseCase(
+                homeworkRepository = homeworkRepository
+            ), HideHomeworkUseCase(
+                homeworkRepository = homeworkRepository
+            ), ShowHomeworkNotificationBannerUseCase(
+                keyValueRepository = keyValueRepository
+            ), HideHomeworkNotificationBannerUseCase(
                 keyValueRepository = keyValueRepository
             ),
-            updateUseCase = UpdateUseCase(
-                homeworkRepository = homeworkRepository
-            ),
-            hideHomeworkUseCase = HideHomeworkUseCase(
-                homeworkRepository = homeworkRepository
-            ),
-            showHomeworkNotificationBannerUseCase = ShowHomeworkNotificationBannerUseCase(
-                keyValueRepository = keyValueRepository
-            ),
-            hideHomeworkNotificationBannerUseCase = HideHomeworkNotificationBannerUseCase(
-                keyValueRepository = keyValueRepository
-            ),
-            updateDueDateUseCase = UpdateDueDateUseCase(
-                homeworkRepository = homeworkRepository
-            )
+            UpdateDueDateUseCase(homeworkRepository),
+            UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository)
         )
     }
 }

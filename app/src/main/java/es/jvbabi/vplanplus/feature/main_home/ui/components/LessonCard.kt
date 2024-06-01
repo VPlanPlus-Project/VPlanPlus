@@ -87,6 +87,7 @@ fun LessonCard(
     lessons: List<Lesson>,
     time: ZonedDateTime,
     allowActions: Boolean = true,
+    allowHomeworkQuickAction: Boolean,
     displayType: ProfileType
 ) {
 
@@ -160,7 +161,7 @@ fun LessonCard(
             )
 
             val showBookRoomAssistChip = lesson.rooms.isEmpty() && booking == null && time.isBefore(lesson.end)
-            val showCreateHomeworkAssistChip = expanded
+            val showCreateHomeworkAssistChip = expanded && allowHomeworkQuickAction
             Expandable(isExpanded = (showBookRoomAssistChip || showCreateHomeworkAssistChip) && allowActions) {
                 Column(Modifier.padding(top = 8.dp)) {
                     Text(text = stringResource(id = R.string.home_quickActionsTitle), style = MaterialTheme.typography.labelSmall, modifier = Modifier.offset(y = 6.dp))
@@ -259,6 +260,7 @@ fun LessonCardPreview() {
             )
         ),
         displayType = ProfileType.TEACHER,
+        allowHomeworkQuickAction = true,
         time = ZonedDateTime.now()
     )
 }

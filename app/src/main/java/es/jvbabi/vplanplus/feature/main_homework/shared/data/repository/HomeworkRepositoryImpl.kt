@@ -71,7 +71,7 @@ class HomeworkRepositoryImpl(
         profileRepository
             .getProfiles()
             .first()
-            .filter { it.type == ProfileType.STUDENT }
+            .filter { it.type == ProfileType.STUDENT && it.isHomeworkEnabled }
             .forEach { profile ->
                 val `class` = classRepository.getClassById(profile.referenceId) ?: return@forEach
                 val school = `class`.school

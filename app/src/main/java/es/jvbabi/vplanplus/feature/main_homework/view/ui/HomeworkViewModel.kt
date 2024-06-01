@@ -291,6 +291,12 @@ class HomeworkViewModel @Inject constructor(
             }
         }
     }
+
+    fun onEnableHomework() {
+        viewModelScope.launch {
+            homeworkUseCases.updateHomeworkEnabledUseCase(state.value.identity.profile ?: return@launch, true)
+        }
+    }
 }
 
 data class HomeworkState(
