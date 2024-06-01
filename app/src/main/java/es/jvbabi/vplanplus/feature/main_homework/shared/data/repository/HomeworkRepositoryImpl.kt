@@ -28,6 +28,7 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.DeleteTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.NewTaskRecord
@@ -326,32 +327,44 @@ class HomeworkRepositoryImpl(
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
     }
 
-    override suspend fun deleteOrHideHomework(
+    override suspend fun removeOrHideHomework(
         homework: Homework,
-        onlyHide: Boolean
+        task: DeleteTask
     ): HomeworkModificationResult {
-        if (homework.id < 0) {
-            homeworkDao.deleteHomework(homework.id)
-            return HomeworkModificationResult.SUCCESS_OFFLINE
-        }
 
-        val vppId = vppIdRepository
-            .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
-            ?: return HomeworkModificationResult.FAILED
+        when (task) {
+            DeleteTask.HIDE -> {
+                homeworkDao.changeHidden(homework.id, true)
+                return HomeworkModificationResult.SUCCESS_OFFLINE
+            }
+            DeleteTask.DELETE -> {
+                if (homework.id < 0) {
+                    homeworkDao.deleteHomework(homework.id)
+                    return HomeworkModificationResult.SUCCESS_OFFLINE
+                }
+                val vppId = vppIdRepository
+                    .getVppIds().first()
+                    .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
+                    ?: return HomeworkModificationResult.FAILED
 
-        val vppIdToken =
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
-        val result = vppIdNetworkRepository.doRequest(
-            path = "/api/$API_VERSION/user/me/homework/${homework.id}",
-            requestMethod = HttpMethod.Delete
-        )
-        return if (result.response == HttpStatusCode.OK) {
-            homeworkDao.deleteHomework(homework.id)
-            HomeworkModificationResult.SUCCESS_OFFLINE
-        } else {
-            HomeworkModificationResult.FAILED
+                val vppIdToken =
+                    vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+                vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
+                val result = vppIdNetworkRepository.doRequest(
+                    path = "/api/$API_VERSION/user/me/homework/${homework.id}",
+                    requestMethod = HttpMethod.Delete
+                )
+                return if (result.response == HttpStatusCode.OK) {
+                    homeworkDao.deleteHomework(homework.id)
+                    HomeworkModificationResult.SUCCESS_OFFLINE
+                } else {
+                    HomeworkModificationResult.FAILED
+                }
+            }
+            DeleteTask.FORCE_DELETE_LOCALLY -> {
+                homeworkDao.deleteHomework(homework.id)
+                return HomeworkModificationResult.SUCCESS_OFFLINE
+            }
         }
     }
 
@@ -535,11 +548,6 @@ class HomeworkRepositoryImpl(
         } else {
             HomeworkModificationResult.FAILED
         }
-    }
-
-    override suspend fun changeVisibility(homework: Homework): HomeworkModificationResult {
-        homeworkDao.changeHidden(homework.id, !homework.isHidden)
-        return HomeworkModificationResult.SUCCESS_OFFLINE
     }
 
     override suspend fun updateDueDate(

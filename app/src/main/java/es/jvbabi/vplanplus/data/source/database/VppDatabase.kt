@@ -93,7 +93,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 29,
+    version = 30,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -270,6 +270,12 @@ abstract class VppDatabase : RoomDatabase() {
                 db.execSQL("UPDATE homework_old SET profile_id = (SELECT profileId FROM profile WHERE referenceId = homework_old.classes LIMIT 1)")
                 db.execSQL("INSERT INTO homework (id, createdBy, classes, isPublic, createdAt, defaultLessonVpId, until, hidden, profile_id) SELECT * FROM homework_old WHERE homework_old.profile_id IS NOT NULL")
                 db.execSQL("DROP TABLE homework_old")
+            }
+        }
+
+        val migration_29_30 = object : Migration(29, 30) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE profile ADD COLUMN is_homework_enabled INTEGER NOT NULL DEFAULT true")
             }
         }
     }

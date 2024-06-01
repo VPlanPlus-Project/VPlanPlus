@@ -10,7 +10,7 @@ import java.util.UUID
 
 interface ProfileRepository {
     fun getProfiles(): Flow<List<Profile>>
-    suspend fun createProfile(referenceId: UUID, type: ProfileType, name: String, customName: String): UUID
+    suspend fun createProfile(referenceId: UUID, type: ProfileType, name: String, customName: String, enableHomework: Boolean): UUID
     suspend fun getProfileByReferenceId(referenceId: UUID, type: ProfileType): Profile
     fun getProfileById(id: UUID): Flow<Profile?>
     suspend fun deleteProfile(profileId: UUID)
@@ -27,4 +27,6 @@ interface ProfileRepository {
     suspend fun getActiveProfile(): Flow<Profile?>
 
     suspend fun setProfileVppId(profile: Profile, vppId: VppId?)
+
+    suspend fun setHomeworkEnabled(profile: Profile, enabled: Boolean)
 }

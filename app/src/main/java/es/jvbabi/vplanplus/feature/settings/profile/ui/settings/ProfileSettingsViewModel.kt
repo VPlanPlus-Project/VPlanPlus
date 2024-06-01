@@ -52,6 +52,7 @@ class ProfileSettingsViewModel @Inject constructor(
                     calendars = calendars,
                     initDone = true,
                     profileCalendar = calendars.firstOrNull { it.id == profile.calendarId },
+                    profileHasLocalHomework = profileSettingsUseCases.hasProfileLocalHomeworkUseCase(profile)
                 )
             }.collect {
                 _state.value = it
@@ -113,6 +114,12 @@ class ProfileSettingsViewModel @Inject constructor(
             calendarPermissionState = if (granted) CalendarPermissionState.GRANTED else CalendarPermissionState.DENIED
         )
     }
+
+    fun onToggleHomework() {
+        viewModelScope.launch {
+            profileSettingsUseCases.updateHomeworkEnabledUseCase(_state.value.profile?:return@launch, _state.value.profile?.isHomeworkEnabled?.not()?:return@launch)
+        }
+    }
 }
 
 data class ProfileSettingsState(
@@ -126,6 +133,8 @@ data class ProfileSettingsState(
     val dialogCall: @Composable () -> Unit = {},
 
     val calendarPermissionState: CalendarPermissionState = CalendarPermissionState.GRANTED,
+
+    val profileHasLocalHomework: Boolean = false,
 )
 
 enum class CalendarPermissionState {

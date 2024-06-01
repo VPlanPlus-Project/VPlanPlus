@@ -642,5 +642,10 @@
     <string name="home_invalidCredentialsText">Your schools credentials have changed. Please update then to continue receiving plan updates.</string>
     <string name="home_invalidCredentialsUpdate">Update</string>
     <string name="home_menuSyncing">Sync in progress…</string>
+    <string name="profileManagement_homeworkTitle">Homework</string>
+    <string name="profileManagement_homeworkEnableHomeworkTitle">Enable homework</string>
+    <string name="profileManagement_homeworkEnableHomeworkSubtitle">You can create and share homework associated with this profile,</string>
+    <string name="profileSettings_disableHomeworkTitle">Disable homework?</string>
+    <string name="profileSettings_disableHomeworkMessage">You have some homework that aren\'t saved in your vpp.ID which will be deleted once you disable homework for this profile. Do you want to continue?</string>
 
 </resources>

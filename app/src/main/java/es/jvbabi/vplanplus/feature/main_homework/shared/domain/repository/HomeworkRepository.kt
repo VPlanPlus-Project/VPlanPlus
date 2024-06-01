@@ -47,9 +47,9 @@ interface HomeworkRepository {
         newContent: String
     ): HomeworkModificationResult
 
-    suspend fun deleteOrHideHomework(
+    suspend fun removeOrHideHomework(
         homework: Homework,
-        onlyHide: Boolean = false
+        task: DeleteTask
     ): HomeworkModificationResult
 
     suspend fun deleteTask(
@@ -64,7 +64,6 @@ interface HomeworkRepository {
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
 
     suspend fun changeShareStatus(homework: Homework): HomeworkModificationResult
-    suspend fun changeVisibility(homework: Homework): HomeworkModificationResult
 
     suspend fun updateDueDate(homework: Homework, newDate: ZonedDateTime): HomeworkModificationResult
 
@@ -88,3 +87,9 @@ data class NewTaskRecord(
     val done: Boolean = false,
     val id: Long? = null
 )
+
+enum class DeleteTask {
+    DELETE,
+    HIDE,
+    FORCE_DELETE_LOCALLY
+}

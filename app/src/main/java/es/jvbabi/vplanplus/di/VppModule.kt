@@ -99,6 +99,8 @@ import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.CheckCredentialsUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.UpdateCredentialsUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasProfileLocalHomeworkUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.SetProfileVppIdUseCase
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
@@ -134,6 +136,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_24_25)
             .addMigrations(VppDatabase.migration_27_28)
             .addMigrations(VppDatabase.migration_28_29)
+            .addMigrations(VppDatabase.migration_29_30)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
@@ -574,6 +577,7 @@ object VppModule {
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
         schoolRepository: SchoolRepository,
+        homeworkRepository: HomeworkRepository,
         keyValueRepository: KeyValueRepository,
         calendarRepository: CalendarRepository,
         notificationRepository: NotificationRepository,
@@ -619,7 +623,9 @@ object VppModule {
                 updateCalendarUseCase = updateCalendarUseCase
             ),
             checkCredentialsUseCase = CheckCredentialsUseCase(baseDataRepository),
-            updateCredentialsUseCase = UpdateCredentialsUseCase(schoolRepository, notificationRepository)
+            updateCredentialsUseCase = UpdateCredentialsUseCase(schoolRepository, notificationRepository),
+            hasProfileLocalHomeworkUseCase = HasProfileLocalHomeworkUseCase(homeworkRepository),
+            updateHomeworkEnabledUseCase = UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository)
         )
     }
 

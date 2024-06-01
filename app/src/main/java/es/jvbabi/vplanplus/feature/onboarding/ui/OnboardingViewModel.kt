@@ -211,6 +211,7 @@ class OnboardingViewModel @Inject constructor(
                 defaultLessonsEnabled = state.value.defaultLessons.map {
                     it.key.vpId to it.value
                 }.toMap(),
+                enableHomework = state.value.profileType == ProfileType.STUDENT && state.value.task == Task.CREATE_SCHOOL, // only enable homework for first profile by default
                 onStatusUpdate = {
                     _state.value = _state.value.copy(creationStatus = it)
                 }
