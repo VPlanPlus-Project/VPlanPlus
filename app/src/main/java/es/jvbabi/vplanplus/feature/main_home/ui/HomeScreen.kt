@@ -176,6 +176,9 @@ fun HomeScreenContent(
         contentPagerState.animateScrollToPage(page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2)
     }
 
+    LaunchedEffect(key1 = state.autoNextDay) {
+        if (state.autoNextDay) onSetSelectedDate(state.nextSchoolDayWithData ?: return@LaunchedEffect) }
+
     LaunchedEffect(key1 = contentPagerState.settledPage) {
         val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
         onSetSelectedDate(date)
@@ -230,6 +233,7 @@ fun HomeScreenContent(
                     QuickActions(
                         modifier = Modifier.padding(vertical = 16.dp),
                         nextSchoolDayWithData = state.nextSchoolDayWithData,
+                        selectedDate = state.selectedDate,
                         onNewHomeworkClicked = { onAddHomework(null) },
                         onFindAvailableRoomClicked = onBookRoomClicked,
                         onPrepareNextDayClicked = { onSetSelectedDate(state.nextSchoolDayWithData ?: state.currentTime.toLocalDate().plusDays(1L)) },
