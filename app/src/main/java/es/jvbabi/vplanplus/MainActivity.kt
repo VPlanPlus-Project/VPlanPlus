@@ -120,9 +120,7 @@ class MainActivity : FragmentActivity() {
                 appTheme.value = AppThemeMode.valueOf(data[2] as String)
 
                 initDone = true
-            }.collect {
-                Log.d("MainActivity", "Identity: $currentIdentity")
-            }
+            }.collect {}
         }
 
         if (showSplashScreen) installSplashScreen().apply {
