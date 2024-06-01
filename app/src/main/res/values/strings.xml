@@ -641,5 +641,6 @@
     <string name="home_invalidCredentialsTitle">Invalid credentials</string>
     <string name="home_invalidCredentialsText">Your schools credentials have changed. Please update then to continue receiving plan updates.</string>
     <string name="home_invalidCredentialsUpdate">Update</string>
+    <string name="home_menuSyncing">Sync in progress…</string>
 
 </resources>

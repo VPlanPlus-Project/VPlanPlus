@@ -344,6 +344,7 @@ fun HomeScreenContent(
 
     Menu(
         isVisible = state.menuOpened,
+        isSyncing = state.isSyncRunning,
         profiles = state.profiles,
         hasUnreadNews = state.hasUnreadNews,
         selectedProfile = state.currentIdentity.profile!!,

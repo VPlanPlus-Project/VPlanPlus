@@ -2,6 +2,8 @@ package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -33,7 +35,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -50,10 +57,12 @@ import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 
 @Composable
 fun Menu(
     isVisible: Boolean,
+    isSyncing: Boolean,
     onCloseMenu: () -> Unit = {},
     onProfileClicked: (profile: Profile) -> Unit = {},
     onProfileLongClicked: (profile: Profile) -> Unit = {},
@@ -82,7 +91,7 @@ fun Menu(
                     .fillMaxWidth(0.9f)
                     .clip(RoundedCornerShape(16.dp))
                     .noRippleClickable(onClick = { })
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column {
                     Box(
@@ -185,6 +194,7 @@ fun Menu(
                             ButtonRow(
                                 Icons.Outlined.Refresh,
                                 text = stringResource(id = R.string.home_menuRefresh),
+                                subtext = if (isSyncing) stringResource(id = R.string.home_menuSyncing) else null,
                                 onClick = { onRefreshClicked() })
                             ButtonRow(
                                 Icons.Outlined.Settings,
@@ -232,6 +242,7 @@ fun Menu(
 fun ButtonRow(
     icon: ImageVector,
     text: String,
+    subtext: String? = null,
     showNotificationDot: Boolean = false,
     onClick: () -> Unit = {}
 ) {
@@ -262,19 +273,46 @@ fun ButtonRow(
                 .background(MaterialTheme.colorScheme.error)
         )
 
-        Text(
-            text = text,
-            modifier = Modifier.padding(start = 12.dp),
-            style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurface
-        )
+        Column(
+            Modifier
+                .padding(horizontal = 12.dp)
+                .fillMaxWidth()) {
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            AnimatedVisibility(
+                visible = subtext != null,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                var actualText by rememberSaveable { mutableStateOf("") }
+                LaunchedEffect(key1 = subtext) {
+                    if (subtext == null) return@LaunchedEffect
+                    actualText = subtext
+                }
+                Text(
+                    text = actualText,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
     }
 }
 
 @Composable
 @Preview
-fun ButtonRowPreview() {
-    ButtonRow(Icons.Default.Settings, "Settings")
+private fun ButtonRowPreview() {
+    ButtonRow(Icons.Default.Settings, "Settings", "Manage your preferences")
+}
+
+@Composable
+@Preview
+private fun MenuPreview() {
+    val profile = ProfilePreview.generateClassProfile()
+    Menu(isVisible = true, isSyncing = true, profiles = listOf(profile), selectedProfile = profile, hasUnreadNews = true)
 }
 
 inline fun Modifier.noRippleClickable(
