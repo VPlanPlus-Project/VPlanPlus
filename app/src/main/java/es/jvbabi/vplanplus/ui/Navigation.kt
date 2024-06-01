@@ -97,10 +97,6 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
         route = Screen.AccountAddedScreen.route + "/{token}",
         deepLinks = listOf(
             navDeepLink {
-                uriPattern = "https://id.vpp.jvbabi.es/android/link_success/{token}"
-                action = Intent.ACTION_VIEW
-            },
-            navDeepLink {
                 uriPattern = "https://vppid-development.test.jvbabi.es/android/link_success/{token}"
                 action = Intent.ACTION_VIEW
             },
