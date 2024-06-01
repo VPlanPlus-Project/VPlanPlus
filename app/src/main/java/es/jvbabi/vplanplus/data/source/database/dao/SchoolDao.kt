@@ -26,4 +26,10 @@ abstract class SchoolDao {
 
     @Query("DELETE FROM school WHERE schoolId = :schoolId")
     abstract suspend fun delete(schoolId: Long)
+
+    @Query("UPDATE school SET credentials_valid = :credentialsValid WHERE schoolId = :schoolId")
+    abstract suspend fun updateCredentialsValid(schoolId: Long, credentialsValid: Boolean?)
+
+    @Query("UPDATE school SET username = :username, password = :password WHERE schoolId = :schoolId")
+    abstract suspend fun updateCredentials(schoolId: Long, username: String, password: String)
 }

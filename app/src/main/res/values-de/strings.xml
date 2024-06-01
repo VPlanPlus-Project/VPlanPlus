@@ -625,5 +625,18 @@
     <string name="searchAvailableRoom_cancelBookingDialogText">Dadurch können andere Klassen diesen Raum reservieren, solange keine Unterrichtsstunde in diesen Raum verlegt wird.</string>
     <string name="searchAvailableRoom_cancelBookingSuccess">Buchung zurückgenommen</string>
     <string name="searchAvailableRoom_cancelBookingNotFound">Buchung nicht gefunden</string>
+    <string name="notification_systemName">System</string>
+    <string name="notification_systemDescription">Dieser Kanal wird Benachrichtigungen bezüglich der App oder wichtige Probleme, welche Nutzerinteraktion erfordern, aussenden. Wir empfehlen das Deaktivieren dieses Kanales nicht.</string>
+    <string name="notification_syncErrorCredentialsIncorrectTitle">Falsche Zugangsdaten</string>
+    <string name="notification_syncErrorCredentialsIncorrectText">Das Passwort für %1$s@%2$d (%3$s) scheint falsch zu sein. Tippe hier, um die stundenplan24.de-Anmeldedaten zu aktualisieren.</string>
+    <string name="settings_profileUpdateSchoolCredentials">Zugangsdaten</string>
+    <string name="settings_profileUpdateSchoolCredentialsTitle">Zugangsdaten aktualisieren</string>
+    <string name="settings_profileUpdateSchoolCredentialsCheckingCredentials">Prüfe Zugangsdaten…</string>
+    <string name="settings_profileUpdateSchoolCredentialsCredentialsValid">Zugangsdaten korrekt</string>
+    <string name="settings_profileUpdateSchoolCredentialsCredentialsInvalid">Zugangsdaten nicht korrekt</string>
+    <string name="settings_profileUpdateSchoolCredentialsCredentialsError">Zugangsdaten konnten nicht geprüft werden</string>
+    <string name="home_invalidCredentialsTitle">Zugangsdaten abgelaufen</string>
+    <string name="home_invalidCredentialsText">Die Zugangsdaten deiner Schule haben sich geändert. Bitte aktualisiere diese, um weiterhin Planupdates zu erhalten.</string>
+    <string name="home_invalidCredentialsUpdate">Aktualisieren</string>
 
 </resources>

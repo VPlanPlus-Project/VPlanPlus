@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.Card
@@ -34,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview as PreviewProfile
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
@@ -45,6 +48,7 @@ fun SchoolCard(
     onProfileClicked: (Profile) -> Unit,
     onDeleteRequest: () -> Unit,
     onShareRequest: () -> Unit,
+    onUpdateCredentialsRequest: () -> Unit,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
     Card(
@@ -72,6 +76,14 @@ fun SchoolCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(text = school.username, style = MaterialTheme.typography.labelSmall)
+                    if (school.credentialsValid == false) RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(
+                            imageVector = Icons.Default.Error,
+                            contentDescription = stringResource(id = R.string.home_invalidCredentialsTitle),
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                        Text(text = stringResource(id = R.string.home_invalidCredentialsTitle), style = MaterialTheme.typography.labelSmall)
+                    }
                 }
                 Box(
                     modifier = Modifier
@@ -86,16 +98,17 @@ fun SchoolCard(
                         DropdownMenuItem(
                             text = { Text(text = stringResource(id = R.string.settings_profileDeleteSchool)) },
                             onClick = { menuExpanded = false; onDeleteRequest() },
-                            leadingIcon = {
-                                Icon(imageVector = Icons.Default.Delete, contentDescription = null)
-                            }
+                            leadingIcon = { Icon(imageVector = Icons.Default.Delete, contentDescription = null) }
                         )
                         DropdownMenuItem(
                             text = { Text(text = stringResource(id = R.string.settings_profileShareSchool)) },
                             onClick = { menuExpanded = false; onShareRequest() },
-                            leadingIcon = {
-                                Icon(imageVector = Icons.Default.Share, contentDescription = null)
-                            }
+                            leadingIcon = { Icon(imageVector = Icons.Default.Share, contentDescription = null) }
+                        )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.settings_profileUpdateSchoolCredentials)) },
+                            onClick = { menuExpanded = false; onUpdateCredentialsRequest() },
+                            leadingIcon = { Icon(imageVector = Icons.Default.Key, contentDescription = null) }
                         )
                     }
                 }
@@ -129,7 +142,7 @@ fun SchoolCard(
 @Preview
 @Composable
 private fun SchoolCardPreview() {
-    val school = PreviewSchool.generateRandomSchools(1).first()
+    val school = PreviewSchool.generateRandomSchools(1).first().copy(credentialsValid = false)
     SchoolCard(
         school = school,
         profiles = listOf(
@@ -140,5 +153,6 @@ private fun SchoolCardPreview() {
         onProfileClicked = {},
         onShareRequest = {},
         onDeleteRequest = {},
+        onUpdateCredentialsRequest = {},
     )
 }

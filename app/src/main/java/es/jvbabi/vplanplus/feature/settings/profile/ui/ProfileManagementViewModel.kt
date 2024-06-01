@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -19,6 +20,8 @@ class ProfileManagementViewModel @Inject constructor(
 
     private val _state = mutableStateOf(ProfileManagementState())
     val state: State<ProfileManagementState> = _state
+
+    private var checkNewCredentialsValidityJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -50,17 +53,70 @@ class ProfileManagementViewModel @Inject constructor(
     }
 
     fun share(school: School) {
-        _state.value = _state.value.copy(shareSchool = Gson().toJson(
-            ShareSchool(
-            school.schoolId,
-            school.username,
-            school.password
+        _state.value = _state.value.copy(
+            shareSchool = Gson().toJson(
+                ShareSchool(
+                    school.schoolId,
+                    school.username,
+                    school.password
+                )
+            )
         )
-        ))
     }
 
     fun closeShareDialog() {
         _state.value = _state.value.copy(shareSchool = null)
+    }
+
+    fun openUpdateCredentialsDialog(schoolId: Long) {
+        val school = state.value.profiles.keys.firstOrNull { it.schoolId == schoolId } ?: return
+        _state.value = _state.value.copy(
+            changeCredentials = ProfileManagementChangeCredentialsState(
+                school = school,
+                username = school.username,
+                password = school.password,
+                isValid = null
+            )
+        )
+    }
+
+    fun resetUpdateCredentialsValidity() {
+        _state.value = _state.value.copy(
+            changeCredentials = _state.value.changeCredentials?.copy(isValid = null)
+        )
+    }
+
+    fun checkCredentialsValidity(username: String, password: String) {
+        val schoolId = _state.value.changeCredentials?.school?.schoolId ?: return
+        checkNewCredentialsValidityJob?.cancel()
+        _state.value = _state.value.copy(
+            changeCredentials = _state.value.changeCredentials?.copy(
+                isLoading = true
+            )
+        )
+        checkNewCredentialsValidityJob = viewModelScope.launch {
+            val isValid = profileSettingsUseCase.checkCredentialsUseCase(schoolId, username, password)
+            _state.value = _state.value.copy(
+                changeCredentials = _state.value.changeCredentials?.copy(
+                    isValid = isValid,
+                    hasError = isValid == null,
+                    isLoading = false
+                )
+            )
+        }
+    }
+
+    fun confirmNewCredentials(username: String, password: String) {
+        val school = _state.value.changeCredentials?.school ?: return
+        viewModelScope.launch {
+            profileSettingsUseCase.updateCredentialsUseCase(school, username, password)
+            closeUpdateCredentialsDialog()
+        }
+        _state.value = _state.value.copy(taskCompleted = true)
+    }
+
+    fun closeUpdateCredentialsDialog() {
+        _state.value = _state.value.copy(changeCredentials = null, taskCompleted = true)
     }
 }
 
@@ -70,10 +126,21 @@ data class ProfileManagementState(
 
     val deletingSchool: School? = null,
     val shareSchool: String? = null,
+    val changeCredentials: ProfileManagementChangeCredentialsState? = null,
+    val taskCompleted: Boolean = false
 )
 
-private data class ShareSchool (
+private data class ShareSchool(
     val schoolId: Long,
     val username: String,
     val password: String
+)
+
+data class ProfileManagementChangeCredentialsState(
+    val school: School,
+    val username: String,
+    val password: String,
+    val isLoading: Boolean = false,
+    val isValid: Boolean? = null,
+    val hasError: Boolean = false
 )

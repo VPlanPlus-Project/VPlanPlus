@@ -110,4 +110,10 @@ class BaseDataRepositoryImpl(
             HttpStatusCode.OK
         )
     }
+
+    override suspend fun checkCredentials(schoolId: Long, username: String, password: String): DataResponse<Boolean?> {
+        sp24NetworkRepository.authentication = BasicAuthentication(username, password)
+        val response = sp24NetworkRepository.doRequest("/$schoolId/wplan/wdatenk/SPlanKl_Basis.xml")
+        return DataResponse(response.response == HttpStatusCode.OK, response.response)
+    }
 }

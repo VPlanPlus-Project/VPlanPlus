@@ -122,4 +122,12 @@ class SchoolRepositoryImpl(
     override suspend fun getSchoolByName(schoolName: String): School {
         return schoolDao.getSchoolByName(schoolName)
     }
+
+    override suspend fun updateCredentialsValid(school: School, credentialsValid: Boolean?) {
+        schoolDao.updateCredentialsValid(school.schoolId, credentialsValid)
+    }
+
+    override suspend fun updateCredentials(school: School, username: String, password: String) {
+        schoolDao.updateCredentials(school.schoolId, username, password)
+    }
 }

@@ -13,4 +13,10 @@ interface BaseDataRepository {
         password: String,
     ): DataResponse<XmlBaseData?>
 
+    suspend fun checkCredentials(
+        schoolId: Long,
+        username: String,
+        password: String,
+    ): DataResponse<Boolean?>
+
 }

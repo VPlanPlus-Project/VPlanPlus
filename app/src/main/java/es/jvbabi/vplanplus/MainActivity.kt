@@ -297,6 +297,10 @@ class MainActivity : FragmentActivity() {
                 when (intent.getStringExtra("screen")) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
                     "homework" -> navController!!.navigate(Screen.HomeworkScreen.route)
+                    else -> {
+                        Log.d("MainActivity.Intent", "Navigating to ${intent.getStringExtra("screen")}")
+                        navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreen.route)
+                    }
                 }
 
                 if (intent.getStringExtra("screen")!!.startsWith("plan")) {

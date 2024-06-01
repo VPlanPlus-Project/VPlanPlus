@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -51,10 +52,11 @@ import com.lightspark.composeqr.QrCodeView
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.feature.settings.profile.ui.components.SchoolCard
+import es.jvbabi.vplanplus.feature.settings.profile.ui.components.UpdateCredentialsDialog
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.feature.settings.profile.ui.components.SchoolCard
 import kotlinx.coroutines.launch
 
 @Composable
@@ -62,10 +64,16 @@ fun ProfileManagementScreen(
     navController: NavHostController,
     onNewProfileClicked: (school: School) -> Unit = {},
     onNewSchoolClicked: () -> Unit,
-    viewModel: ProfileManagementViewModel = hiltViewModel()
+    viewModel: ProfileManagementViewModel = hiltViewModel(),
+    task: ProfileManagementTask?
 ) {
     val state = viewModel.state.value
     val scope = rememberCoroutineScope()
+    
+    LaunchedEffect(key1 = task) {
+        if (state.taskCompleted) return@LaunchedEffect
+        if (task is UpdateCredentialsTask) viewModel.openUpdateCredentialsDialog(task.schoolId)
+    }
 
     ProfileManagementScreenContent(
         onBackClicked = { navController.navigateUp() },
@@ -78,7 +86,7 @@ fun ProfileManagementScreen(
                 }
             }
         },
-        onProfileClicked = { navController.navigate(Screen.SettingsProfileScreen.route + it.id) },
+        onProfileClicked = { navController.navigate("${Screen.SettingsProfileScreen.route}/${it.id}") },
         onNewSchoolClicked = {
             onNewSchoolClicked()
             navController.navigate(Screen.OnboardingSchoolIdScreen.route)
@@ -87,7 +95,12 @@ fun ProfileManagementScreen(
         onDeleteSchoolConfirm = { viewModel.deleteSchool() },
         onDeleteSchoolDismiss = { viewModel.closeDeleteSchoolDialog() },
         onShareSchool = { viewModel.share(it) },
-        onCloseShareDialog = { viewModel.closeShareDialog() }
+        onCloseShareDialog = { viewModel.closeShareDialog() },
+        onUpdateCredentialsRequest = viewModel::openUpdateCredentialsDialog,
+        onResetUpdateCredentialsValidity = viewModel::resetUpdateCredentialsValidity,
+        onCheckCredentialsValidity = viewModel::checkCredentialsValidity,
+        onUpdateCredentials = viewModel::confirmNewCredentials,
+        onCancelUpdateCredentialsRequest = viewModel::closeUpdateCredentialsDialog
     )
 }
 
@@ -104,8 +117,29 @@ fun ProfileManagementScreenContent(
     onDeleteSchoolConfirm: () -> Unit = {},
     onDeleteSchoolDismiss: () -> Unit = {},
     onCloseShareDialog: () -> Unit = {},
-    onShareSchool: (school: School) -> Unit = {}
+    onShareSchool: (school: School) -> Unit = {},
+    onUpdateCredentialsRequest: (schoolId: Long) -> Unit = {},
+    onResetUpdateCredentialsValidity: () -> Unit = {},
+    onCheckCredentialsValidity: (username: String, password: String) -> Unit = { _, _ -> },
+    onUpdateCredentials: (username: String, password: String) -> Unit = { _, _ -> },
+    onCancelUpdateCredentialsRequest: () -> Unit = {}
 ) {
+
+    if (state.changeCredentials != null) {
+        UpdateCredentialsDialog(
+            schoolName = state.changeCredentials.school.name,
+            username = state.changeCredentials.school.username,
+            password = state.changeCredentials.school.password,
+            isLoading = state.changeCredentials.isLoading,
+            isValid = state.changeCredentials.isValid,
+            hasError = state.changeCredentials.hasError,
+            onResetValidity = onResetUpdateCredentialsValidity,
+            onCheckValidity = onCheckCredentialsValidity,
+            onConfirm = onUpdateCredentials,
+            onCancel = onCancelUpdateCredentialsRequest
+        )
+    }
+
     val snackbarState = remember { SnackbarHostState() }
     Scaffold(
         snackbarHost = {
@@ -195,7 +229,8 @@ fun ProfileManagementScreenContent(
                             onAddProfileClicked = { onNewSchoolProfileClicked(school) },
                             onProfileClicked = onProfileClicked,
                             onDeleteRequest = { onDeleteSchoolOpenDialog(school) },
-                            onShareRequest = { onShareSchool(school) }
+                            onShareRequest = { onShareSchool(school) },
+                            onUpdateCredentialsRequest = { onUpdateCredentialsRequest(school.schoolId) }
                         )
                     }
                 }
@@ -213,8 +248,7 @@ fun ProfileManagementScreenPreview() {
             profiles = mapOf(
                 es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.ProfilePreview.generateClassProfile()),
                 es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.ProfilePreview.generateClassProfile())
-            ),
-            shareSchool = "12345678"
+            )
         )
     )
 }
@@ -245,4 +279,12 @@ fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp): Mo
             )
         }
     )
+}
+
+sealed class ProfileManagementTask(val name: String)
+
+class UpdateCredentialsTask(val schoolId: Long) : ProfileManagementTask(NAME) {
+    companion object {
+        const val NAME = "update_credentials"
+    }
 }

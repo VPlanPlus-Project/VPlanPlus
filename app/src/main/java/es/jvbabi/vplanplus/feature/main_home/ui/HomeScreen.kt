@@ -59,6 +59,7 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
 import es.jvbabi.vplanplus.feature.main_home.ui.components.PlanHeader
 import es.jvbabi.vplanplus.feature.main_home.ui.components.QuickActions
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
+import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredentialsBanner
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
@@ -106,7 +107,7 @@ fun HomeScreen(
         },
         onManageProfile = {
             homeViewModel.onMenuOpenedChange(false)
-            navHostController.navigate(Screen.SettingsProfileScreen.route + it.id)
+            navHostController.navigate("${Screen.SettingsProfileScreen.route}/${it.id}")
         },
         onOpenNews = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.NewsScreen.route) },
         onOpenSettings = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.SettingsScreen.route) },
@@ -127,6 +128,7 @@ fun HomeScreen(
         onFixVppIdSessionClicked = { onLogin(context, state.server) },
         onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
+        onFixCredentialsClicked = { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentIdentity?.school?.schoolId}") },
         onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) }
     )
 }
@@ -155,6 +157,8 @@ fun HomeScreenContent(
     onFixVppIdSessionClicked: () -> Unit = {},
     onIgnoreInvalidVppIdSessions: () -> Unit = {},
     onFixVppIdLinksClicked: () -> Unit = {},
+
+    onFixCredentialsClicked: () -> Unit = {},
 
     onSendFeedback: () -> Unit = {},
 
@@ -229,6 +233,11 @@ fun HomeScreenContent(
                             onFixClicked = onFixVppIdLinksClicked
                         )
                     }
+                    BadCredentialsBanner(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        expand = state.currentIdentity.school?.credentialsValid == false,
+                        onFixCredentialsClicked = onFixCredentialsClicked
+                    )
 
                     QuickActions(
                         modifier = Modifier.padding(vertical = 16.dp),
