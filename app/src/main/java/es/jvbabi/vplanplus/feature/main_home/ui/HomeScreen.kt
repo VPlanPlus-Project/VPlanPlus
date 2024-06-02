@@ -246,7 +246,8 @@ fun HomeScreenContent(
                         onNewHomeworkClicked = { onAddHomework(null) },
                         onFindAvailableRoomClicked = onBookRoomClicked,
                         onPrepareNextDayClicked = { onSetSelectedDate(state.nextSchoolDayWithData ?: state.currentTime.toLocalDate().plusDays(1L)) },
-                        onSendFeedback = onSendFeedback
+                        onSendFeedback = onSendFeedback,
+                        allowHomeworkQuickAction = state.currentIdentity.profile.isHomeworkEnabled
                     )
                 }
                 stickyHeader dateSelector@{
