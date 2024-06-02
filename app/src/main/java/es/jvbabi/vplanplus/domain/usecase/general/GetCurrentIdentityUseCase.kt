@@ -18,7 +18,11 @@ class GetCurrentIdentityUseCase(
             keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
             profileRepository.getProfiles()
         ) { identityId, profiles ->
-            val profile = profiles.firstOrNull { it.id == UUID.fromString(identityId) } ?: return@combine null
+            if (profiles.isEmpty() || identityId == null) return@combine null
+            val uuid = try {
+                UUID.fromString(identityId)
+            } catch (e: IllegalArgumentException) {return@combine null }
+            val profile = profiles.firstOrNull { it.id == uuid } ?: return@combine null
             Identity(
                 school = profileRepository.getSchoolFromProfile(profile),
                 profile = profile,
