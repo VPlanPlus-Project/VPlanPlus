@@ -101,11 +101,15 @@ class MainActivity : FragmentActivity() {
 
         var goToOnboarding: Boolean? = null
         lifecycleScope.launch {
+            Log.d("MainActivity.Setup", "Loading Identity")
             currentIdentity.value = mainUseCases.getCurrentIdentity.invoke().first()
             goToOnboarding = currentIdentity.value?.profile == null
 
+            Log.i("MainActivity.Setup", "Creating or updating notification channels")
             notificationRepository.createSystemChannels(applicationContext)
             notificationRepository.createProfileChannels(applicationContext, mainUseCases.getProfilesUseCase().first().map { it.value }.flatten())
+
+            Log.i("MainActivity.Setup", "Run preparation")
             mainUseCases.setUpUseCase()
 
             combine(
@@ -118,13 +122,14 @@ class MainActivity : FragmentActivity() {
                 colorScheme.value = data[0] as Colors
                 currentIdentity.value = data[1] as Identity?
                 appTheme.value = AppThemeMode.valueOf(data[2] as String)
-
+            }.collect {
                 initDone = true
-            }.collect {}
+            }
         }
 
         if (showSplashScreen) installSplashScreen().apply {
             setKeepOnScreenCondition {
+                //Log.d("MainActivity", "Showing splash screen")
                 !initDone
             }
             setOnExitAnimationListener { screen ->

@@ -24,7 +24,7 @@ class GetCurrentIdentityUseCase(
                 profile = profile,
             )
         }.collect { identity ->
-            emit(identity ?: return@collect)
+            emit(identity)
         }
     }
 }
