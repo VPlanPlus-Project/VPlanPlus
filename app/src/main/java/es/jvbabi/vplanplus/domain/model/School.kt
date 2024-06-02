@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
@@ -18,7 +19,8 @@ data class School(
     val username: String,
     val password: String,
     val daysPerWeek: Int,
-    val fullyCompatible: Boolean
+    val fullyCompatible: Boolean,
+    @ColumnInfo(name = "credentials_valid", defaultValue = "NULL") val credentialsValid: Boolean? = null
 ) {
     override fun hashCode(): Int {
         var result = schoolId.hashCode()

@@ -48,7 +48,8 @@ class ProfileRepositoryImpl(
         referenceId: UUID,
         type: ProfileType,
         name: String,
-        customName: String
+        customName: String,
+        enableHomework: Boolean
     ): UUID {
         val dbProfile = DbProfile(
             referenceId = referenceId,
@@ -56,7 +57,8 @@ class ProfileRepositoryImpl(
             name = name,
             customName = customName,
             calendarMode = ProfileCalendarType.NONE,
-            calendarId = null
+            calendarId = null,
+            isHomeworkEnabled = enableHomework
         )
         profileDao.insert(dbProfile)
         if (type == ProfileType.STUDENT) {
@@ -144,5 +146,10 @@ class ProfileRepositoryImpl(
     override suspend fun setProfileVppId(profile: Profile, vppId: VppId?) {
         val dbProfile = profileDao.getProfileById(profile.id) ?: return
         profileDao.insert(dbProfile.profile.copy(linkedVppId = vppId?.id))
+    }
+
+    override suspend fun setHomeworkEnabled(profile: Profile, enabled: Boolean) {
+        val dbProfile = profileDao.getProfileById(profile.id) ?: return
+        profileDao.insert(dbProfile.profile.copy(isHomeworkEnabled = enabled))
     }
 }

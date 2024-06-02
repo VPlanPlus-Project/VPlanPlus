@@ -40,4 +40,8 @@ class FakeBaseDataRepository(private val fullySupportedSchool: Map<Long, Boolean
             response = HttpStatusCode.OK
         )
     }
+
+    override suspend fun checkCredentials(schoolId: Long, username: String, password: String): DataResponse<Boolean?> {
+        TODO("Not yet implemented")
+    }
 }

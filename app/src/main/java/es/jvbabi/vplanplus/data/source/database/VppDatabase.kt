@@ -93,7 +93,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 27,
+    version = 30,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -252,6 +252,30 @@ abstract class VppDatabase : RoomDatabase() {
                 db.execSQL("CREATE TABLE IF NOT EXISTS `bs_intervals` (`id` INTEGER NOT NULL, `name` TEXT NOT NULL, `type` TEXT NOT NULL, `from` INTEGER NOT NULL, `to` INTEGER NOT NULL, `includedIntervalId` INTEGER, `yearId` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`yearId`) REFERENCES `bs_years`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )")
                 db.execSQL("CREATE TABLE IF NOT EXISTS `grade` (`id` INTEGER NOT NULL, `givenAt` INTEGER NOT NULL, `givenBy` INTEGER NOT NULL, `subject` INTEGER NOT NULL, `value` REAL NOT NULL, `type` TEXT NOT NULL, `comment` TEXT NOT NULL, `modifier` INTEGER NOT NULL, `vppId` INTEGER NOT NULL, `interval` INTEGER NOT NULL, PRIMARY KEY(`id`, `givenBy`, `subject`, `vppId`), FOREIGN KEY(`givenBy`) REFERENCES `grade_teacher`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION , FOREIGN KEY(`subject`) REFERENCES `grade_subject`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`vppId`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`interval`) REFERENCES `bs_intervals`(`id`) ON UPDATE CASCADE ON DELETE CASCADE )")
                 db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_grade_id` ON `grade` (`id`)")
+            }
+        }
+
+        val migration_27_28 = object : Migration(27, 28) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE school ADD COLUMN credentials_valid INTEGER DEFAULT NULL")
+            }
+        }
+
+        val migration_28_29 = object : Migration(28, 29) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE homework RENAME TO homework_old")
+                db.execSQL("ALTER TABLE homework_old ADD COLUMN profile_id TEXT DEFAULT NULL")
+                db.execSQL("CREATE TABLE `homework` (`id` INTEGER NOT NULL, `createdBy` INTEGER, `classes` TEXT NOT NULL, `isPublic` INTEGER NOT NULL DEFAULT false, `createdAt` INTEGER NOT NULL, `defaultLessonVpId` INTEGER, `until` INTEGER NOT NULL, `hidden` INTEGER NOT NULL DEFAULT false, `profile_id` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`createdBy`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`profile_id`) REFERENCES `profile`(`profileId`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`classes`) REFERENCES `school_entity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("UPDATE homework_old SET profile_id = (SELECT profileId FROM profile WHERE linkedVppId = homework_old.createdBy LIMIT 1) WHERE profile_id IS NULL")
+                db.execSQL("UPDATE homework_old SET profile_id = (SELECT profileId FROM profile WHERE referenceId = homework_old.classes LIMIT 1)")
+                db.execSQL("INSERT INTO homework (id, createdBy, classes, isPublic, createdAt, defaultLessonVpId, until, hidden, profile_id) SELECT * FROM homework_old WHERE homework_old.profile_id IS NOT NULL")
+                db.execSQL("DROP TABLE homework_old")
+            }
+        }
+
+        val migration_29_30 = object : Migration(29, 30) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE profile ADD COLUMN is_homework_enabled INTEGER NOT NULL DEFAULT true")
             }
         }
     }

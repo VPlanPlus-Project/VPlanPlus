@@ -25,6 +25,8 @@ import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_SYSTEM_NOTIFICATION_ID
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -37,6 +39,7 @@ import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
@@ -136,7 +139,7 @@ class DoSyncUseCase(
         val profileDataBefore = hashMapOf<Profile, List<Lesson>>()
         val notifications = mutableListOf<NotificationData>()
 
-        schoolRepository.getSchools().forEach { school ->
+        schoolRepository.getSchools().filter { it.credentialsValid != false }.forEach school@{ school ->
             logRecordRepository.log("Sync.School", "Syncing school ${school.name}")
             logRecordRepository.log("Sync.Messages", "Syncing messages for school ${school.name}")
             messageRepository.updateMessages(school.schoolId)
@@ -161,6 +164,22 @@ class DoSyncUseCase(
                 }
 
                 val data = vPlanRepository.getVPlanData(school, date)
+                if (data.response == HttpStatusCode.Unauthorized) {
+                    Log.d("Sync.VPlan", "Unauthorized")
+                    schoolRepository.updateCredentialsValid(school, false)
+                    val notificationId = CHANNEL_SYSTEM_NOTIFICATION_ID + 100 + school.schoolId.toInt()
+                    val intent = buildSchoolCredentialsFixIntent(context, notificationId, school.schoolId)
+                    notificationRepository.sendNotification(
+                        channelId = CHANNEL_ID_SYSTEM,
+                        id = notificationId,
+                        title = context.getString(R.string.notification_syncErrorCredentialsIncorrectTitle),
+                        message = context.getString(R.string.notification_syncErrorCredentialsIncorrectText, school.username, school.schoolId, school.name),
+                        icon = R.drawable.vpp,
+                        pendingIntent = intent
+                    )
+                    return@school
+                }
+
                 if (!listOf(HttpStatusCode.OK, HttpStatusCode.NotFound).contains(data.response)) {
                     logRecordRepository.log("Sync.VPlan", "Failed to sync VPlan for $date")
                     return false
@@ -174,7 +193,7 @@ class DoSyncUseCase(
                     return@repeat
                 }
 
-                processVPlanData(data.data ?: return@forEach)
+                processVPlanData(data.data ?: return@school)
                 profiles.forEach profile@{ profile ->
                     // check if plan has changed
                     val day =
@@ -523,6 +542,18 @@ class DoSyncUseCase(
             message,
             R.drawable.vpp,
             pendingIntent
+        )
+    }
+
+    private fun buildSchoolCredentialsFixIntent(context: Context, notificationId: Int, schoolId: Long): PendingIntent {
+        val intent = Intent(context, MainActivity::class.java)
+            .putExtra("screen", "${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=$schoolId")
+
+        return PendingIntent.getActivity(
+            context,
+            notificationId,
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 

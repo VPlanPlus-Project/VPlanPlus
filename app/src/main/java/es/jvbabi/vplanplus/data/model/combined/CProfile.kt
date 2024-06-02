@@ -38,7 +38,8 @@ data class CProfile(
             calendarType = profile.calendarMode,
             calendarId = profile.calendarId,
             originalName = profile.name,
-            vppId = vppId?.toModel()
+            vppId = vppId?.toModel(),
+            isHomeworkEnabled = profile.isHomeworkEnabled
         )
     }
 }

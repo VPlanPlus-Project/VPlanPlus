@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Delete
@@ -31,6 +32,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -44,6 +46,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Calendar
+import es.jvbabi.vplanplus.feature.settings.profile.ui.components.dialogs.ConfirmHomeworkDisableDialog
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
 import es.jvbabi.vplanplus.ui.common.BigButtonGroup
@@ -124,6 +127,7 @@ fun ProfileSettingsScreen(
                 else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.profile.vppId.id}")
             },
             onLaunchPermissionDialog = { writeLauncher.launch(android.Manifest.permission.WRITE_CALENDAR) },
+            onToggleHomework = viewModel::onToggleHomework,
             onDismissedPermissionDialog = { viewModel.dismissPermissionDialog() }
         )
     }
@@ -143,12 +147,14 @@ private fun ProfileSettingsScreenContent(
     onDefaultLessonsClicked: () -> Unit = {},
     onLaunchPermissionDialog: () -> Unit = {},
     onDismissedPermissionDialog: () -> Unit = {},
+    onToggleHomework: () -> Unit = {},
     onOpenVppIdSettings: () -> Unit = {}
 ) {
     if (state.profile == null) return
 
     var deleteDialogOpen by remember { mutableStateOf(false) }
     var renameDialogOpen by remember { mutableStateOf(false) }
+    var isConfirmDisableHomeworkDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -308,6 +314,18 @@ private fun ProfileSettingsScreenContent(
                         onDefaultLessonsClicked()
                     })
             }
+
+            if (state.profile.type == ProfileType.STUDENT) SettingsCategory(title = stringResource(id = R.string.profileManagement_homeworkTitle)) {
+                SettingsSetting(
+                    icon = Icons.Default.TaskAlt,
+                    title = stringResource(id = R.string.profileManagement_homeworkEnableHomeworkTitle),
+                    subtitle = stringResource(id = R.string.profileManagement_homeworkEnableHomeworkSubtitle),
+                    type = SettingsType.CHECKBOX,
+                    checked = state.profile.isHomeworkEnabled,
+                    doAction = { if (state.profile.isHomeworkEnabled && state.profileHasLocalHomework) isConfirmDisableHomeworkDialogVisible = true else onToggleHomework() }
+                )
+            }
+
             if (state.profile.type == ProfileType.STUDENT) SettingsCategory(
                 title = stringResource(
                     id = R.string.profileManagement_vppIDCategoryTitle
@@ -343,6 +361,8 @@ private fun ProfileSettingsScreenContent(
             onYes = onLaunchPermissionDialog
         )
     }
+
+    if (isConfirmDisableHomeworkDialogVisible) ConfirmHomeworkDisableDialog({ isConfirmDisableHomeworkDialogVisible = false; onToggleHomework() }, { isConfirmDisableHomeworkDialogVisible = false })
 }
 
 @Composable

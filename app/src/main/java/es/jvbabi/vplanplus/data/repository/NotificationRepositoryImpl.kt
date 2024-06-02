@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_NEWS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ROOM_BOOKINGS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYNC
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 
 class NotificationRepositoryImpl(
@@ -107,6 +108,12 @@ class NotificationRepositoryImpl(
             CHANNEL_ID_HOMEWORK,
             context.getString(R.string.notification_homeworkName),
             context.getString(R.string.notification_homeworkDescription),
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        createChannel(
+            CHANNEL_ID_SYSTEM,
+            context.getString(R.string.notification_systemName),
+            context.getString(R.string.notification_systemDescription),
             NotificationManager.IMPORTANCE_HIGH
         )
     }

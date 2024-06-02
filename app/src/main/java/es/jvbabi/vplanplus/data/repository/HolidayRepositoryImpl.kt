@@ -48,7 +48,7 @@ class HolidayRepositoryImpl(
     }
 
     override suspend fun getDayType(schoolId: Long, date: LocalDate): DayType {
-        val school = schoolRepository.getSchoolFromId(schoolId)!!
+        val school = schoolRepository.getSchoolFromId(schoolId) ?: return DayType.NORMAL
         return if (isHoliday(schoolId, date)) DayType.HOLIDAY
         else if (date.dayOfWeek.value > school.daysPerWeek) DayType.WEEKEND
         else DayType.NORMAL

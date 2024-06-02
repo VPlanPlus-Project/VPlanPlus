@@ -42,6 +42,8 @@ import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
+import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementTask
+import es.jvbabi.vplanplus.feature.settings.profile.ui.UpdateCredentialsTask
 import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsDefaultLessonScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.settings.ProfileSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.support.ui.SupportScreen
@@ -96,10 +98,6 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
     composable(
         route = Screen.AccountAddedScreen.route + "/{token}",
         deepLinks = listOf(
-            navDeepLink {
-                uriPattern = "https://id.vpp.jvbabi.es/android/link_success/{token}"
-                action = Intent.ACTION_VIEW
-            },
             navDeepLink {
                 uriPattern = "https://vppid-development.test.jvbabi.es/android/link_success/{token}"
                 action = Intent.ACTION_VIEW
@@ -387,7 +385,7 @@ private fun NavGraphBuilder.settingsScreens(
     }
 
     composable(
-        route = Screen.SettingsProfileScreen.route + "{profileId}",
+        route = Screen.SettingsProfileScreen.route + "/{profileId}",
         arguments = listOf(
             navArgument("profileId") {
                 type = NavType.StringType
@@ -423,12 +421,30 @@ private fun NavGraphBuilder.settingsScreens(
     }
 
     composable(
-        route = Screen.SettingsProfileScreen.route,
+        route = Screen.SettingsProfileScreen.route + "?task={task}&schoolId={schoolId}",
+        arguments = listOf(
+            navArgument("task") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = "display"
+            },
+            navArgument("schoolId") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        ),
         enterTransition = enterSlideTransitionLeft,
         exitTransition = { fadeOut(tween(300)) },
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
+        val taskName = it.arguments?.getString("task") ?: "display"
+        val task: ProfileManagementTask? = when (taskName) {
+            UpdateCredentialsTask.NAME -> UpdateCredentialsTask(it.arguments?.getString("schoolId")!!.toLong())
+            else -> null
+        }
+
         ProfileManagementScreen(
             navController = navController,
             onNewProfileClicked = {
@@ -441,7 +457,8 @@ private fun NavGraphBuilder.settingsScreens(
                 onboardingViewModel.reset()
                 onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
                 onboardingViewModel.setTask(Task.CREATE_SCHOOL)
-            }
+            },
+            task = task
         )
     }
 

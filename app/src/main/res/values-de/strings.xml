@@ -625,5 +625,26 @@
     <string name="searchAvailableRoom_cancelBookingDialogText">Dadurch können andere Klassen diesen Raum reservieren, solange keine Unterrichtsstunde in diesen Raum verlegt wird.</string>
     <string name="searchAvailableRoom_cancelBookingSuccess">Buchung zurückgenommen</string>
     <string name="searchAvailableRoom_cancelBookingNotFound">Buchung nicht gefunden</string>
+    <string name="notification_systemName">System</string>
+    <string name="notification_systemDescription">Dieser Kanal wird Benachrichtigungen bezüglich der App oder wichtige Probleme, welche Nutzerinteraktion erfordern, aussenden. Wir empfehlen das Deaktivieren dieses Kanales nicht.</string>
+    <string name="notification_syncErrorCredentialsIncorrectTitle">Falsche Zugangsdaten</string>
+    <string name="notification_syncErrorCredentialsIncorrectText">Das Passwort für %1$s@%2$d (%3$s) scheint falsch zu sein. Tippe hier, um die stundenplan24.de-Anmeldedaten zu aktualisieren.</string>
+    <string name="settings_profileUpdateSchoolCredentials">Zugangsdaten</string>
+    <string name="settings_profileUpdateSchoolCredentialsTitle">Zugangsdaten aktualisieren</string>
+    <string name="settings_profileUpdateSchoolCredentialsCheckingCredentials">Prüfe Zugangsdaten…</string>
+    <string name="settings_profileUpdateSchoolCredentialsCredentialsValid">Zugangsdaten korrekt</string>
+    <string name="settings_profileUpdateSchoolCredentialsCredentialsInvalid">Zugangsdaten nicht korrekt</string>
+    <string name="settings_profileUpdateSchoolCredentialsCredentialsError">Zugangsdaten konnten nicht geprüft werden</string>
+    <string name="home_invalidCredentialsTitle">Zugangsdaten abgelaufen</string>
+    <string name="home_invalidCredentialsText">Die Zugangsdaten deiner Schule haben sich geändert. Bitte aktualisiere diese, um weiterhin Planupdates zu erhalten.</string>
+    <string name="home_invalidCredentialsUpdate">Aktualisieren</string>
+    <string name="home_menuSyncing">Wird aktualisiert…</string>
+    <string name="profileManagement_homeworkTitle">Hausaufgaben</string>
+    <string name="profileManagement_homeworkEnableHomeworkTitle">Hausaufgaben aktivieren</string>
+    <string name="profileManagement_homeworkEnableHomeworkSubtitle">Du kannst Hausaufgaben für dieses Profil anlegen und für deine Klasse freigeben.</string>
+    <string name="profileSettings_disableHomeworkTitle">Hausaufgaben deaktivieren?</string>
+    <string name="profileSettings_disableHomeworkMessage">Du hast einige Hausaufgaben, welche nicht in deiner vpp.ID gespeichert sind. Diese werden gelöscht, wenn du die Hausaufgaben-Funktion für dieses Profil deaktivierst. Möchtest du fortfahren?</string>
+    <string name="homework_disabledText">Du kannst Hausaufgaben erstellen und mit deinen Mitschülern teilen, wenn du eine vpp.ID verwendest. Alternativ kannst du auch deine Aufgaben lokal auf dem Gerät anlegen und deinen Fortschrit verwalten. Beginne, indem du Hausaufgaben für dieses Profil aktivierst.</string>
+    <string name="homework_enable">Hausaufgaben aktivieren</string>
 
 </resources>

@@ -25,6 +25,7 @@ interface NotificationRepository {
     fun dismissNotification(id: Int)
 
     companion object {
+        const val CHANNEL_ID_SYSTEM = "system"
         const val CHANNEL_ID_GRADES = "grades"
         const val CHANNEL_ID_ROOM_BOOKINGS = "room_bookings"
         const val CHANNEL_ID_NEWS = "news"
@@ -33,6 +34,7 @@ interface NotificationRepository {
 
         const val CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK = 7000
         const val CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID = 8000
+        const val CHANNEL_SYSTEM_NOTIFICATION_ID = 100000
     }
 }
 

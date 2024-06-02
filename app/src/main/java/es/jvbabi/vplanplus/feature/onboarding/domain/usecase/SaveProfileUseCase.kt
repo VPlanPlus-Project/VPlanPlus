@@ -51,6 +51,7 @@ class SaveProfileUseCase(
         referenceName: String,
         type: ProfileType,
         defaultLessonsEnabled: Map<Long, Boolean> = emptyMap(),
+        enableHomework: Boolean,
         onStatusUpdate: (ProfileCreationStatus) -> Unit
     ) {
         var school = schoolRepository.getSchoolFromId(schoolId)
@@ -199,7 +200,8 @@ class SaveProfileUseCase(
             name = referenceName,
             type = type,
             referenceId = referenceId,
-            customName = name
+            customName = name,
+            enableHomework = enableHomework
         )
 
         defaultLessonsEnabled.forEach {

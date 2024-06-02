@@ -13,6 +13,8 @@ interface SchoolRepository {
     suspend fun getSchoolFromId(schoolId: Long): School?
     suspend fun deleteSchool(schoolId: Long)
     suspend fun getSchoolByName(schoolName: String): School
+    suspend fun updateCredentialsValid(school: School, credentialsValid: Boolean?)
+    suspend fun updateCredentials(school: School, username: String, password: String)
 
     fun checkSchoolIdSyntax(schoolId: String): Boolean {
         return schoolId.length == 8 && schoolId.toIntOrNull() != null

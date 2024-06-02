@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -36,6 +37,7 @@ data class DbProfile(
     val calendarId: Long?,
     val referenceId: UUID,
     val linkedVppId: Int? = null,
+    @ColumnInfo(name = "is_homework_enabled", defaultValue = "true") val isHomeworkEnabled: Boolean,
 )
 
 enum class ProfileType {

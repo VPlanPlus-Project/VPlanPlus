@@ -5,7 +5,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import java.util.UUID
 
@@ -14,12 +14,21 @@ class GetCurrentIdentityUseCase(
     private val profileRepository: ProfileRepository
 ) {
     suspend operator fun invoke() = flow {
-        keyValueRepository.getFlow(Keys.ACTIVE_PROFILE).collect {
-            val profile = profileRepository.getProfileById(UUID.fromString(it ?: run { emit(null); return@collect })).first() ?: run { emit(null); return@collect }
-            emit(Identity(
+        combine(
+            keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
+            profileRepository.getProfiles()
+        ) { identityId, profiles ->
+            if (profiles.isEmpty() || identityId == null) return@combine null
+            val uuid = try {
+                UUID.fromString(identityId)
+            } catch (e: IllegalArgumentException) {return@combine null }
+            val profile = profiles.firstOrNull { it.id == uuid } ?: return@combine null
+            Identity(
                 school = profileRepository.getSchoolFromProfile(profile),
                 profile = profile,
-            ))
+            )
+        }.collect { identity ->
+            emit(identity)
         }
     }
 }
