@@ -127,9 +127,8 @@ fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp),
-                label = { Text("Password") },
+                label = { Text(stringResource(id = R.string.password)) },
                 singleLine = true,
-                placeholder = { Text("Password") },
                 visualTransformation = if (state.passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                 trailingIcon = {

@@ -48,6 +48,7 @@ fun QuickActions(
     onFindAvailableRoomClicked: () -> Unit = {},
     onPrepareNextDayClicked: () -> Unit = {},
     onSendFeedback: () -> Unit = {},
+    allowHomeworkQuickAction: Boolean
 ) {
     Column(modifier) {
         Row(verticalAlignment = Alignment.CenterVertically) title@{
@@ -69,7 +70,7 @@ fun QuickActions(
                 .fillMaxWidth(),
         ) {
             item { Spacer(Modifier.width(8.dp)) }
-            item {
+            if (allowHomeworkQuickAction) item {
                 QuickActionButton(
                     icon = Icons.Default.Add,
                     text = stringResource(id = R.string.home_quickActionsNewHomework),
@@ -120,7 +121,11 @@ fun QuickActions(
 @Composable
 @Preview(showBackground = true)
 private fun QuickActionsPreview() {
-    QuickActions(nextSchoolDayWithData = LocalDate.now().plusDays(1L), selectedDate = LocalDate.now())
+    QuickActions(
+        allowHomeworkQuickAction = true,
+        nextSchoolDayWithData = LocalDate.now().plusDays(1L),
+        selectedDate = LocalDate.now()
+    )
 }
 
 @Composable

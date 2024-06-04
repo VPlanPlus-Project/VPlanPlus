@@ -178,13 +178,24 @@ fun DefaultLessonCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(checked = activated, onCheckedChange = { onClick() })
-            Text(text = "$subject • $teacherAcronym", style = MaterialTheme.typography.titleMedium)
+            Text(text = subject, style = MaterialTheme.typography.titleMedium)
+            Text(
+                text = if (teacherAcronym == "") stringResource(id = R.string.settings_profileDefaultLessonNoTeacher) else teacherAcronym,
+                style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.padding(start = 8.dp)
+            )
         }
     }
 }
 
 @Preview
 @Composable
-fun DefaultLessonCardPreview() {
+private fun DefaultLessonCardPreview() {
     DefaultLessonCard(subject = "DEU", teacherAcronym = "Mul", activated = true, onClick = {})
+}
+
+@Preview
+@Composable
+private fun DefaultLessonCardWithoutTeacherPreview() {
+    DefaultLessonCard(subject = "DEU", teacherAcronym = "", activated = true, onClick = {})
 }
