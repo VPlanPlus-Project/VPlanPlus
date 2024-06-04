@@ -74,10 +74,8 @@ fun DayView(
 
                 val lastActualLesson = day
                     .lessons
-                    .lastOrNull {
-                        currentIdentity.profile.isDefaultLessonEnabled(it.vpId) &&
-                                it.displaySubject != "-"
-                    }
+                    .filter { currentIdentity.profile.isDefaultLessonEnabled(it.vpId) && it.displaySubject != "-" }
+                    .maxByOrNull { it.end }
 
                 val uiWillShowHiddenLessonsCard = hideFinishedLessons && !ignoreAutoHideFinishedLessons && day.lessons.any { currentTime.progress(it.start, it.end) >= 1 }
                 val uiWillShowCountdown = showCountdown && lastActualLesson != null && lastActualLesson.end.isAfter(currentTime)
