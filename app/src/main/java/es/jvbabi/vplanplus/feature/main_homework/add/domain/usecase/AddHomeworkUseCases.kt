@@ -5,4 +5,7 @@ data class AddHomeworkUseCases(
     val canShowVppIdBannerUseCase: CanShowVppIdBannerUseCase,
     val hideVppIdBannerUseCase: HideVppIdBannerUseCase,
     val saveHomeworkUseCase: SaveHomeworkUseCase,
+
+    val isShowNewLayoutBalloonUseCase: IsShowNewLayoutBalloonUseCase,
+    val hideShowNewLayoutBalloonUseCase: HideShowNewLayoutBalloonUseCase
 )

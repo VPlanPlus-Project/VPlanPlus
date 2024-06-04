@@ -310,7 +310,6 @@
     <string name="addHomework_newTask">Neue Aufgabe</string>
     <string name="add">Hinzufügen</string>
     <string name="delete">Löschen</string>
-    <string name="addHomework_save">Hausaufgabe speichern</string>
     <string name="addHomework_shareSubtitleOnlyLocal">Du kannst diese Hausaufgabe nicht mit deinen Klassenkameraden teilen, da du nicht mit einer vpp.ID angemeldet bist.</string>
     <string name="addHomework_noVppIdTitle">Keine vpp.ID gefunden</string>
     <string name="addHomework_noVppIdText">Du benötigst eine vpp.ID, um deine Hausaufgaben online zu speichern und mit deinen Klassenkameraden zu teilen. Gehe in die Einstellungen, um dich anzumelden. Ohne Anmeldung, kannst du Hausaufgaben dennoch lokal speichern.</string>
@@ -644,5 +643,7 @@
     <string name="profileSettings_disableHomeworkMessage">Du hast einige Hausaufgaben, welche nicht in deiner vpp.ID gespeichert sind. Diese werden gelöscht, wenn du die Hausaufgaben-Funktion für dieses Profil deaktivierst. Möchtest du fortfahren?</string>
     <string name="homework_disabledText">Du kannst Hausaufgaben erstellen und mit deinen Mitschülern teilen, wenn du eine vpp.ID verwendest. Alternativ kannst du auch deine Aufgaben lokal auf dem Gerät anlegen und deinen Fortschrit verwalten. Beginne, indem du Hausaufgaben für dieses Profil aktivierst.</string>
     <string name="homework_enable">Hausaufgaben aktivieren</string>
+    <string name="save">Speichern</string>
+    <string name="addHomework_newDesignInfo">Wir haben das Layout etwas umgestaltet, du speicherst nun hier.</string>
 
 </resources>

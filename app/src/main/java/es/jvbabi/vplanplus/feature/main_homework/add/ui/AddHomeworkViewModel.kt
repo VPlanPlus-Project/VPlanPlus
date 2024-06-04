@@ -6,8 +6,10 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import javax.inject.Inject
@@ -22,22 +24,33 @@ class AddHomeworkViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            getCurrentIdentityUseCase().collect { identity ->
-                if (identity?.school == null) return@collect
-                if (identity.profile == null) return@collect
+            combine(
+                listOf(
+                    getCurrentIdentityUseCase(),
+                    addHomeworkUseCases.isShowNewLayoutBalloonUseCase()
+                )
+            ) { data ->
+                val identity = data[0] as Identity?
+                val showNewLayoutBalloon = data[1] as Boolean
+
+                if (identity?.school == null) return@combine null
+                if (identity.profile == null) return@combine null
 
                 val defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase()
                 val defaultLessonsFiltered = defaultLessons.any { identity.profile.isDefaultLessonEnabled(it.vpId) }
 
-                state.value = state.value.copy(
+                state.value.copy(
                     defaultLessons = defaultLessons.filter { identity.profile.isDefaultLessonEnabled(it.vpId) },
                     username = identity.profile.vppId?.name,
                     canUseCloud = identity.profile.vppId != null,
                     isForAll = identity.profile.vppId != null,
                     canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase(),
                     defaultLessonsFiltered = defaultLessonsFiltered,
-                    initDone = true
+                    initDone = true,
+                    showNewSaveButtonLocationBalloon = showNewLayoutBalloon
                 )
+            }.collect {
+                if (it != null) state.value = it
             }
         }
     }
@@ -88,7 +101,10 @@ class AddHomeworkViewModel @Inject constructor(
         state.value = state.value.copy(newTask = content)
     }
 
-    fun save() {
+    /**
+     * Request to save the homework, will return if not all requirements are met
+     */
+    fun requestSave() {
         viewModelScope.launch {
             if (!state.value.canSubmit) return@launch
             state.value = state.value.copy(isLoading = true)
@@ -110,6 +126,19 @@ class AddHomeworkViewModel @Inject constructor(
             storeInCloud = !state.value.storeInCloud,
             isForAll = !state.value.storeInCloud
         )
+    }
+
+    fun onUiAction(event: AddHomeworkUiEvent) {
+        when (event) {
+            is NewLayoutBalloonDismissed -> dismissNewLayoutBalloon()
+        }
+    }
+
+    private fun dismissNewLayoutBalloon() {
+        viewModelScope.launch {
+            addHomeworkUseCases.hideShowNewLayoutBalloonUseCase()
+            state.value = state.value.copy(showNewSaveButtonLocationBalloon = false)
+        }
     }
 }
 
@@ -136,7 +165,13 @@ data class AddHomeworkState(
 
     val result: HomeworkModificationResult? = null,
     val isLoading: Boolean = false,
+
+    val showNewSaveButtonLocationBalloon: Boolean = false
 ) {
     val canSubmit: Boolean
-        get() = until != null && tasks.isNotEmpty()
+        get() = until != null && tasks.isNotEmpty() && !isLoading
 }
+
+sealed class AddHomeworkUiEvent
+
+data object NewLayoutBalloonDismissed : AddHomeworkUiEvent()

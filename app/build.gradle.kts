@@ -16,7 +16,7 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 197
+        versionCode = 198
         versionName = "20240604_538"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -86,6 +86,9 @@ android {
 
 dependencies {
     implementation("androidx.compose.animation:animation-graphics")
+
+    //implementation("com.github.skydoves:balloon:1.6.4")
+    implementation("com.github.skydoves:balloon-compose:1.6.4")
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.1")

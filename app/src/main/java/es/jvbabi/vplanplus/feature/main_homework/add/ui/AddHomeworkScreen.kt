@@ -9,9 +9,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -26,8 +24,6 @@ import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.AssistChip
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DatePicker
 import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -49,6 +45,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.compose.rememberBalloonBuilder
+import com.skydoves.balloon.compose.setBackgroundColor
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.DateChip
@@ -91,7 +93,8 @@ fun AddHomeworkScreen(
         onHideBannerForever = { viewModel.hideCloudInfoBanner() },
         onOpenVppIdSettings = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onToggleStoreInCloud = viewModel::onToggleCloud,
-        onSave = { viewModel.save() },
+        onSave = viewModel::requestSave,
+        onAction = viewModel::onUiAction,
         state = state
     )
 
@@ -123,6 +126,7 @@ private fun AddHomeworkContent(
     onOpenVppIdSettings: () -> Unit = {},
     onToggleStoreInCloud: () -> Unit = {},
     onSave: () -> Unit = {},
+    onAction: (action: AddHomeworkUiEvent) -> Unit = { _ -> },
     state: AddHomeworkState
 ) {
 
@@ -189,6 +193,39 @@ private fun AddHomeworkContent(
                             imageVector = Icons.Default.Close,
                             contentDescription = stringResource(id = R.string.close)
                         )
+                    }
+                },
+                actions = {
+                    val colorScheme = MaterialTheme.colorScheme
+                    Balloon(
+                        builder = rememberBalloonBuilder {
+                            setArrowSize(10)
+                            setArrowPosition(0.5f)
+                            setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                            setWidth(BalloonSizeSpec.WRAP)
+                            setHeight(BalloonSizeSpec.WRAP)
+                            setPadding(12)
+                            setMarginHorizontal(12)
+                            setCornerRadius(16f)
+                            setBackgroundColor(colorScheme.primaryContainer)
+                            setBalloonAnimation(BalloonAnimation.FADE)
+                        },
+                        balloonContent = {
+                            Text(text = stringResource(id = R.string.addHomework_newDesignInfo), color = colorScheme.onPrimaryContainer)
+                        }
+                    ) { balloonWindow ->
+                        LaunchedEffect(key1 = state.showNewSaveButtonLocationBalloon, key2 = state.canSubmit) {
+                            if (state.showNewSaveButtonLocationBalloon && state.canSubmit) {
+                                balloonWindow.showAlignBottom()
+                                onAction(NewLayoutBalloonDismissed)
+                            }
+                        }
+                        TextButton(
+                            onClick = onSave,
+                            enabled = state.canSubmit
+                        ) {
+                            Text(text = stringResource(id = R.string.save))
+                        }
                     }
                 }
             )
@@ -366,22 +403,6 @@ private fun AddHomeworkContent(
                         )
                     }
                 }
-            }
-
-            Button(
-                onClick = onSave,
-                modifier = Modifier
-                    .padding(16.dp)
-                    .fillMaxWidth(),
-                enabled = state.canSubmit && !state.isLoading
-            ) {
-                if (state.isLoading) CircularProgressIndicator(
-                    strokeWidth = 2.dp,
-                    modifier = Modifier
-                        .width(24.dp)
-                        .height(24.dp)
-                        .padding(6.dp)
-                ) else Text(text = stringResource(id = R.string.addHomework_save))
             }
 
             AnimatedVisibility(

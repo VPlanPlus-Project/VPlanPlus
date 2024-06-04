@@ -308,7 +308,6 @@
     <string name="addHomework_newTask">New task</string>
     <string name="add">Add</string>
     <string name="delete">Delete</string>
-    <string name="addHomework_save">Save homework</string>
     <string name="addHomework_shareSubtitleOnlyLocal">You can\'t share this homework with your classmates because you\'re not logged in to vpp.ID.</string>
     <string name="addHomework_noVppIdTitle">No vpp.ID found</string>
     <string name="addHomework_noVppIdText">You need a vpp.ID to save your homework online and share it with your classmates. Go to settings, to log in. If you decide, not to log in, you can still save homework locally on your device.</string>
@@ -647,5 +646,7 @@
     <string name="profileSettings_disableHomeworkMessage">You have some homework that aren\'t saved in your vpp.ID which will be deleted once you disable homework for this profile. Do you want to continue?</string>
     <string name="homework_disabledText">You can create and share homework with all your classmates if you\'re using a vpp.ID or just create and keeping track of your tasks locally. Start now by enabling homework for this profile.</string>
     <string name="homework_enable">Enable homework</string>
+    <string name="save">Save</string>
+    <string name="addHomework_newDesignInfo">The save button is now up here!</string>
 
 </resources>
