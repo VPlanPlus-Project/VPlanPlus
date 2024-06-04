@@ -648,5 +648,14 @@
     <string name="homework_enable">Enable homework</string>
     <string name="save">Save</string>
     <string name="addHomework_newDesignInfo">The save button is now up here!</string>
+    <string name="addHomework_storeTitle">Store &amp; Share</string>
+    <string name="addHomework_storeOnThisDevice">This device</string>
+    <string name="addHomework_shareWithClass">Sharing with classmates</string>
+    <string name="addHomework_storeInCloud">In your vpp.ID</string>
+    <string name="addHomework_saveThisDevice">This device</string>
+    <string name="addHomework_saveVppId">Your vpp.ID</string>
+    <string name="addHomework_saveVppIdNoVppId">No vpp.ID</string>
+    <string name="addHomework_saveVppIdSharedTitle">Shared</string>
+    <string name="addHomework_saveVppIdSharedDescription">Saved in your vpp.ID • Shared with your classmates</string>
 
 </resources>

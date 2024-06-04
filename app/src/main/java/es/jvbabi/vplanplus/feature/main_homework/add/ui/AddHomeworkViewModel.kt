@@ -43,7 +43,7 @@ class AddHomeworkViewModel @Inject constructor(
                     defaultLessons = defaultLessons.filter { identity.profile.isDefaultLessonEnabled(it.vpId) },
                     username = identity.profile.vppId?.name,
                     canUseCloud = identity.profile.vppId != null,
-                    isForAll = identity.profile.vppId != null,
+                    saveType = state.value.saveType ?: if (identity.profile.vppId != null) SaveType.CLOUD else SaveType.LOCAL,
                     canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase(),
                     defaultLessonsFiltered = defaultLessonsFiltered,
                     initDone = true,
@@ -55,7 +55,7 @@ class AddHomeworkViewModel @Inject constructor(
         }
     }
 
-    fun hideCloudInfoBanner() {
+    private fun hideCloudInfoBanner() {
         viewModelScope.launch {
             addHomeworkUseCases.hideVppIdBannerUseCase()
             state.value = state.value.copy(canShowCloudInfoBanner = false)
@@ -80,27 +80,6 @@ class AddHomeworkViewModel @Inject constructor(
         setUntilDialogOpen(false)
     }
 
-    fun toggleForAll() {
-        state.value = state.value.copy(isForAll = !state.value.isForAll)
-    }
-
-    fun addTask() {
-        if (state.value.newTask.isBlank() || state.value.tasks.contains(state.value.newTask)) return
-        state.value = state.value.copy(tasks = state.value.tasks + state.value.newTask)
-        setNewTask("")
-    }
-
-    fun modifyTask(before: String, after: String) {
-        val tasks = state.value.tasks.toMutableList()
-        tasks.remove(before)
-        if (after.isNotBlank()) tasks.add(after)
-        state.value = state.value.copy(tasks = tasks)
-    }
-
-    fun setNewTask(content: String) {
-        state.value = state.value.copy(newTask = content)
-    }
-
     /**
      * Request to save the homework, will return if not all requirements are met
      */
@@ -113,24 +92,22 @@ class AddHomeworkViewModel @Inject constructor(
                     until = state.value.until!!,
                     defaultLesson = state.value.selectedDefaultLesson,
                     tasks = state.value.tasks,
-                    shareWithClass = state.value.isForAll,
-                    storeInCloud = state.value.storeInCloud
+                    shareWithClass = state.value.saveType == SaveType.SHARED,
+                    storeInCloud = state.value.saveType != SaveType.LOCAL
                 ),
                 isLoading = false
             )
         }
     }
 
-    fun onToggleCloud() {
-        state.value = state.value.copy(
-            storeInCloud = !state.value.storeInCloud,
-            isForAll = !state.value.storeInCloud
-        )
-    }
-
     fun onUiAction(event: AddHomeworkUiEvent) {
         when (event) {
             is NewLayoutBalloonDismissed -> dismissNewLayoutBalloon()
+            is HideNoVppIdBanner -> hideCloudInfoBanner()
+            is DeleteTask -> removeTask(event.index)
+            is CreateTask -> addTask(event.content)
+            is UpdateTask -> updateTask(event.index, event.content)
+            is UpdateSaveType -> setSaveType(event.saveType)
         }
     }
 
@@ -139,6 +116,22 @@ class AddHomeworkViewModel @Inject constructor(
             addHomeworkUseCases.hideShowNewLayoutBalloonUseCase()
             state.value = state.value.copy(showNewSaveButtonLocationBalloon = false)
         }
+    }
+
+    private fun removeTask(index: Int) {
+        state.value = state.value.copy(tasks = state.value.tasks.toMutableList().apply { removeAt(index) })
+    }
+
+    private fun addTask(content: String) {
+        state.value = state.value.copy(tasks = state.value.tasks + content)
+    }
+
+    private fun updateTask(index: Int, content: String) {
+        state.value = state.value.copy(tasks = state.value.tasks.toMutableList().apply { set(index, content) })
+    }
+
+    private fun setSaveType(saveType: SaveType) {
+        state.value = state.value.copy(saveType = saveType)
     }
 }
 
@@ -157,8 +150,7 @@ data class AddHomeworkState(
     val isUntilDialogOpen: Boolean = false,
     val until: LocalDate? = null,
 
-    val isForAll: Boolean = true,
-    val storeInCloud: Boolean = true,
+    val saveType: SaveType? = null,
 
     val tasks: List<String> = emptyList(),
     val newTask: String = "",
@@ -172,6 +164,15 @@ data class AddHomeworkState(
         get() = until != null && tasks.isNotEmpty() && !isLoading
 }
 
+enum class SaveType {
+    LOCAL, CLOUD, SHARED
+}
+
 sealed class AddHomeworkUiEvent
 
 data object NewLayoutBalloonDismissed : AddHomeworkUiEvent()
+data object HideNoVppIdBanner : AddHomeworkUiEvent()
+data class DeleteTask(val index: Int): AddHomeworkUiEvent()
+data class CreateTask(val content: String): AddHomeworkUiEvent()
+data class UpdateTask(val index: Int, val content: String) : AddHomeworkUiEvent()
+data class UpdateSaveType(val saveType: SaveType) : AddHomeworkUiEvent()
