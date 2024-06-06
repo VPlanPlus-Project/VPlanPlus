@@ -20,12 +20,7 @@ class FakeProfileRepository : ProfileRepository {
         return flowOf(profiles.keys.toList())
     }
 
-    override suspend fun createProfile(
-        referenceId: UUID,
-        type: ProfileType,
-        name: String,
-        customName: String
-    ): UUID {
+    override suspend fun createProfile(referenceId: UUID, type: ProfileType, name: String, customName: String, enableHomework: Boolean): UUID {
         val id = UUID.randomUUID()
         profiles[Profile(
             id = id,
@@ -36,7 +31,8 @@ class FakeProfileRepository : ProfileRepository {
             defaultLessons = emptyMap(),
             calendarId = null,
             calendarType = ProfileCalendarType.NONE,
-            vppId = null
+            vppId = null,
+            isHomeworkEnabled = enableHomework
         )] = emptyList()
         return id
     }
@@ -91,5 +87,9 @@ class FakeProfileRepository : ProfileRepository {
 
     override suspend fun setProfileVppId(profile: Profile, vppId: VppId?) {
         TODO("Not yet implemented")
+    }
+
+    override suspend fun setHomeworkEnabled(profile: Profile, enabled: Boolean) {
+        TODO()
     }
 }
