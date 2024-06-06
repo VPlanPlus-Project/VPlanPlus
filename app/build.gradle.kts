@@ -31,10 +31,10 @@ android {
         }
 
         val localProperties = Properties()
-        localProperties.load(rootProject.file("local.properties").inputStream())
-        buildConfigField("String", "VPP_CLIENT_ID", properties["vpp.client_id"].toString())
-        buildConfigField("String", "VPP_CLIENT_SECRET", properties["vpp.client_secret"].toString())
-        buildConfigField("String", "VPP_REDIRECT_URI", properties["vpp.redirect_uri"].toString())
+        localProperties.load(project.rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "VPP_CLIENT_ID", localProperties["vpp.client_id"].toString())
+        buildConfigField("String", "VPP_CLIENT_SECRET", localProperties["vpp.client_secret"].toString())
+        buildConfigField("String", "VPP_REDIRECT_URI", localProperties["vpp.redirect_uri"].toString())
     }
 
     buildTypes {
