@@ -23,6 +23,8 @@ import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import es.jvbabi.vplanplus.worker.SyncWorker
 import kotlinx.coroutines.Job
@@ -81,7 +83,7 @@ class HomeViewModel @Inject constructor(
                 val lastSync = data[6] as ZonedDateTime
                 val hideFinishedLessons = data[7] as Boolean
                 val hasInvalidVppIdSession = data[8] as Boolean
-                val server = data[9] as String
+                val server = data[9] as VppIdServer
                 val hasMissingVppIdToProfileLinks = data[10] as Boolean
                 val holidays = data[11] as List<LocalDate>
 
@@ -210,7 +212,7 @@ data class HomeState(
     val isVersionHintsDialogOpen: Boolean = false,
     val currentVersion: String = "Loading...",
 
-    val server: String = "",
+    val server: VppIdServer = servers.first(),
 
     val hasInvalidVppIdSession: Boolean = false,
     val hasMissingVppIdToProfileLinks: Boolean = false
