@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.feature.settings.vpp_id.ui
 
 import android.content.Context
-import android.net.Uri
 import android.os.Build
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Column
@@ -31,27 +30,47 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.screens.Screen
-import java.net.URLEncoder
+import io.ktor.http.Parameters
+import io.ktor.http.URLBuilder
+import io.ktor.http.URLProtocol
+import io.ktor.http.Url
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
 
-fun onLogin(context: Context, server: String) {
-    val url = "${server}/id/login/link/?version=${BuildConfig.VERSION_CODE}&name=VPlanPlus%20on%20" + URLEncoder.encode(
-        Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")", "UTF-8"
+fun onLogin(context: Context, server: VppIdServer) {
+    val host = URLBuilder(server.uiHost).host
+    val clientId = BuildConfig.VPP_CLIENT_ID
+    val clientSecret = BuildConfig.VPP_CLIENT_SECRET
+    val redirectUri = BuildConfig.VPP_REDIRECT_URI
+    val url = Url(
+        URLBuilder(
+            protocol = URLProtocol.HTTPS,
+            host = host,
+            port = 443,
+            pathSegments = listOf("id", "login", "link"),
+            parameters = Parameters.build {
+                append("version", BuildConfig.VERSION_CODE.toString())
+                append("name", Build.BRAND + " " + Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")")
+                append("client_id", clientId)
+                append("client_secret", clientSecret)
+                append("redirect_uri", redirectUri)
+            }
+        )
     )
     val intent = CustomTabsIntent.Builder().build()
-    intent.launchUrl(context, Uri.parse(url))
-
+    intent.launchUrl(context, url.toString().toUri())
 }
 
 

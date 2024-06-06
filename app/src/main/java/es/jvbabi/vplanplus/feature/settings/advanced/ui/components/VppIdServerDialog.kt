@@ -1,38 +1,55 @@
 package es.jvbabi.vplanplus.feature.settings.advanced.ui.components
 
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.SelectDialog
 
+val servers = listOf(
+    VppIdServer("https://vplan.plus"),
+    VppIdServer("https://vppid-development.test.jvbabi.es", "https://5173--main--website--julius-babies.coder.vppid-server02.cluster.jvbabi.es"),
+)
+
 @Composable
 fun VppIdServerDialog(
-    selectedServer: String,
+    selectedServer: VppIdServer,
     onSetServer: (String?) -> Unit,
     onDismiss: () -> Unit,
 ) {
-    val items = listOf(
-        "https://vplan.plus",
-        "https://vppid-development.test.jvbabi.es"
-    )
     SelectDialog(
         painter = painterResource(id = R.drawable.database),
         title = stringResource(id = R.string.advancedSettings_dialogServerTitle),
         message = stringResource(id = R.string.advancedSettings_dialogServerMessage),
-        items = items,
+        items = servers,
+        itemToComposable = {
+            Text(text = it.apiHost, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            Text(text = it.uiHost, style = MaterialTheme.typography.labelMedium, maxLines = 1, overflow = TextOverflow.Ellipsis)
+        },
         value = selectedServer,
         onDismiss = onDismiss,
-        onOk = onSetServer
+        onOk = { onSetServer(it?.apiHost) }
     )
+}
+
+data class VppIdServer(
+    val apiHost: String,
+    val uiHost: String = apiHost
+) : Comparable<VppIdServer> {
+    override fun compareTo(other: VppIdServer): Int {
+        return apiHost.compareTo(other.apiHost)
+    }
 }
 
 @Preview
 @Composable
 fun VppIdServerDialogPreview() {
     VppIdServerDialog(
-        selectedServer = "https://vplan.plus",
+        selectedServer = servers.first(),
         onSetServer = {},
         onDismiss = {}
     )

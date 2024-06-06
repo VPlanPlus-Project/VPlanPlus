@@ -46,11 +46,16 @@ Eine vpp.ID erstellst du mit deinem beste.schule Account.
 
 | Schule                                       | Schul-ID | Kompatibel | Unterstützt vpp.ID |
 |----------------------------------------------|----------|------------|--------------------|
-| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ⚠️         | ✅                   |
-| Vitzthum-Gymnasium Dresden | 10223946 | ⚠️         |  ❌                   |
-| Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          | ✅                   |
-| Testschule                                   | 10000000 | ✅️         | ❌                   |
+| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ⚠️         | ✅                  |
+| Vitzthum-Gymnasium Dresden                   | 10223946 | ⚠️         | ❌                  |
+| Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          | ✅                  |
+| Testschule                                   | 10000000 | ✅️         | ❌                  |
 
 Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es anderen Schülern/Lehrern an der Schule einfacher zu machen.
 
 **Hinweis**: Die Datenschutzerklärung findest du [hier](https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md)
+
+## Development
+Um eine Entwicklungsumgebung aufzusetzen, sind einige Schritte erforderlich.
+Diese Liste ist noch unvollständig:
+- Setzen von `vpp.client_id`, `vpp.client_secret`, `vpp.redirect_uri` in `/local.properties`

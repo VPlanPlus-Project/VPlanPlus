@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
@@ -35,7 +37,7 @@ class AccountSettingsViewModel @Inject constructor(
                 )
             ) { data ->
                 val accounts = data[0] as List<VppId>
-                val server = data[1] as String
+                val server = data[1] as VppIdServer
                 val profiles = data[2] as List<Profile>
 
                 _state.value.copy(
@@ -61,7 +63,7 @@ class AccountSettingsViewModel @Inject constructor(
 
 data class AccountSettingsState(
     val accounts: List<VppIdSettingsRecord> = emptyList(),
-    val server: String = ""
+    val server: VppIdServer = servers.first()
 )
 
 data class VppIdSettingsRecord(

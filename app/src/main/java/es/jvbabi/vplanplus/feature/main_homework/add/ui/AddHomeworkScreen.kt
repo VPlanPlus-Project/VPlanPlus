@@ -222,7 +222,7 @@ private fun AddHomeworkContent(
             title = stringResource(id = R.string.addHomework_defaultLessonTitle),
             items = state.defaultLessons.sortedBy { it.subject },
             value = state.selectedDefaultLesson,
-            itemToString = { it.subject + " $DOT " + (it.teacher?.acronym ?: noTeacher) },
+            itemToComposable = { Text(it.subject + " $DOT " + (it.teacher?.acronym ?: noTeacher)) },
             onDismiss = onCloseDefaultLessonDialog,
             onOk = { onSetDefaultLesson(it) }
         )

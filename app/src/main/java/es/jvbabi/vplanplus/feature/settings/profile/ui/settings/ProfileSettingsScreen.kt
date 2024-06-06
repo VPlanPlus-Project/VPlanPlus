@@ -284,7 +284,7 @@ private fun ProfileSettingsScreenContent(
                                 icon = Icons.Default.EditCalendar,
                                 title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
                                 items = state.calendars.sortedBy { it.owner + it.displayName },
-                                itemToString = { "${it.displayName} (${it.owner})" },
+                                itemToComposable = { Text("${it.displayName} (${it.owner})") },
                                 onDismiss = { onSetDialogVisible(false) },
                                 value = state.profileCalendar,
                                 onOk = {
