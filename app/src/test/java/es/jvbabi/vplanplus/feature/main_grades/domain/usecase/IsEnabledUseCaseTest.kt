@@ -67,17 +67,19 @@ class IsEnabledUseCaseTest {
             }
             `class` = classRepository.getClassesBySchool(school).random()
 
-            profileRepository.createProfile(
+            (profileRepository as FakeProfileRepository).createProfile(
                 name = `class`.name,
                 customName = `class`.name,
                 referenceId = `class`.classId,
+                enableHomework = false,
                 type = ProfileType.STUDENT
             )
             val teacher = teacherRepository.getTeachersBySchoolId(school.schoolId).random()
-            profileRepository.createProfile(
+            (profileRepository as FakeProfileRepository).createProfile(
                 name = teacher.acronym,
                 customName = teacher.acronym,
                 referenceId = teacher.teacherId,
+                enableHomework = false,
                 type = ProfileType.TEACHER
             )
 

@@ -163,6 +163,7 @@ class SaveProfileUseCaseTestPreview {
                 password = existingSchool.password,
                 referenceName = testClass.name,
                 type = ProfileType.STUDENT,
+                enableHomework = false,
                 onStatusUpdate = {}
             )
 
@@ -188,6 +189,7 @@ class SaveProfileUseCaseTestPreview {
                 password = existingSchool.password,
                 referenceName = testTeacher.acronym,
                 type = ProfileType.TEACHER,
+                enableHomework = false,
                 onStatusUpdate = {}
             )
 
@@ -213,6 +215,7 @@ class SaveProfileUseCaseTestPreview {
                 password = existingSchool.password,
                 referenceName = testRoom.name,
                 type = ProfileType.ROOM,
+                enableHomework = false,
                 onStatusUpdate = {}
             )
 
@@ -238,6 +241,7 @@ class SaveProfileUseCaseTestPreview {
                 password = newSchool.password,
                 referenceName = testClass,
                 type = ProfileType.STUDENT,
+                enableHomework = false,
                 onStatusUpdate = {}
             )
 
@@ -266,6 +270,7 @@ class SaveProfileUseCaseTestPreview {
                 password = newSchool.password,
                 referenceName = testTeacher,
                 type = ProfileType.TEACHER,
+                enableHomework = false,
                 onStatusUpdate = {}
             )
 
@@ -294,6 +299,7 @@ class SaveProfileUseCaseTestPreview {
                 password = newSchool.password,
                 referenceName = testRoom,
                 type = ProfileType.ROOM,
+                enableHomework = false,
                 onStatusUpdate = {}
             )
 

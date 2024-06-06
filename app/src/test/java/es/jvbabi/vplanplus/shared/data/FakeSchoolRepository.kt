@@ -54,6 +54,14 @@ class FakeSchoolRepository : SchoolRepository {
         return schools.first { it.name == schoolName }
     }
 
+    override suspend fun updateCredentialsValid(school: School, credentialsValid: Boolean?) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun updateCredentials(school: School, username: String, password: String) {
+        TODO("Not yet implemented")
+    }
+
     suspend fun createExampleData() {
         exampleSchools.forEach {
             createSchool(

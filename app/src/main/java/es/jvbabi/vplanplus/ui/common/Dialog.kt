@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.ui.common
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,7 +16,6 @@ import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -199,7 +199,7 @@ fun <T : Comparable<T>> SelectDialog(
     title: String?,
     message: String? = null,
     value: T? = null,
-    itemToString: (T) -> String = { it.toString() },
+    itemToComposable: @Composable ColumnScope.(T) -> Unit = { Text(text = it.toString()) },
     onOk: (T?) -> Unit = {},
     items: List<T>,
     onDismiss: () -> Unit = {}
@@ -232,10 +232,9 @@ fun <T : Comparable<T>> SelectDialog(
                                 RadioButton(
                                     selected = selected == item,
                                     onClick = { selected = item })
-                                Text(
-                                    text = itemToString(item),
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
+                                Column {
+                                    itemToComposable(item)
+                                }
                             }
                         }
                     }

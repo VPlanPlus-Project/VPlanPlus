@@ -123,9 +123,8 @@ private fun AdvancedSettingsScreenContent(
                         painter = painterResource(id = R.drawable.database),
                         title = stringResource(id = R.string.advancedSettings_settingsServerTitle),
                         subtitle =
-                        if (state.selectedVppIdServer == Keys.VPPID_SERVER_DEFAULT) {
-                            stringResource(id = R.string.advancedSettings_settingsServerDefault)
-                        } else state.selectedVppIdServer,
+                            if (state.selectedVppIdServer.apiHost == Keys.VPPID_SERVER_DEFAULT) stringResource(id = R.string.advancedSettings_settingsServerDefault)
+                            else state.selectedVppIdServer.apiHost,
                         type = SettingsType.FUNCTION,
                         doAction = { onVppIdDialogStateChange(true) },
                         enabled = state.canChangeVppIdServer
