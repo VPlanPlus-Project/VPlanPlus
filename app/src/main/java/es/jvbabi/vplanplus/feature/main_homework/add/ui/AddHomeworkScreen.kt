@@ -13,8 +13,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,6 +39,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SelectableDates
 import androidx.compose.material3.Text
@@ -43,13 +47,16 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -84,10 +91,64 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.SelectDialog
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
+import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun AddHomeworkSheet(
+    navHostController: NavHostController,
+    viewModel: AddHomeworkViewModel = hiltViewModel(),
+    vpId: Long? = null,
+    onDismissRequest: () -> Unit
+) {
+    val scope = rememberCoroutineScope()
+    val sheetState = rememberModalBottomSheetState()
+
+    val state = viewModel.state.value
+    LaunchedEffect(vpId, state.initDone) {
+        if (vpId == null) return@LaunchedEffect
+        viewModel.setDefaultLesson(state.defaultLessons.firstOrNull { it.vpId == vpId })
+    }
+
+    LaunchedEffect(key1 = state.result) {
+        if (
+            state.result == HomeworkModificationResult.SUCCESS_OFFLINE ||
+            state.result == HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+        ) {
+            scope.launch { sheetState.hide() }
+        }
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        sheetState.show()
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = onDismissRequest,
+        containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        dragHandle = null,
+        shape = RoundedCornerShape(topStart = 0.dp, topEnd = 0.dp),
+    ) {
+        AddHomeworkContent(
+            onBack = { scope.launch { sheetState.hide() } },
+            onOpenDefaultLessonDialog = { viewModel.setLessonDialogOpen(true) },
+            onCloseDefaultLessonDialog = { viewModel.setLessonDialogOpen(false) },
+            onOpenDateDialog = { viewModel.setUntilDialogOpen(true) },
+            onCloseDateDialog = { viewModel.setUntilDialogOpen(false) },
+            onSetDefaultLesson = { viewModel.setDefaultLesson(it) },
+            onSetDate = { viewModel.setUntil(it) },
+            onOpenVppIdSettings = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
+            onSave = viewModel::requestSave,
+            onAction = viewModel::onUiAction,
+            state = state
+        )
+    }
+}
+
+@Composable
+@Deprecated("Use AddHomeworkSheet instead")
 fun AddHomeworkScreen(
     navHostController: NavHostController,
     viewModel: AddHomeworkViewModel = hiltViewModel(),
@@ -198,59 +259,72 @@ private fun AddHomeworkContent(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column {
-                        Text(text = stringResource(id = R.string.home_addHomeworkLabel))
-                        if (state.username != null) Text(
-                            text = state.username,
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(id = R.string.close)
-                        )
-                    }
-                },
-                actions = {
-                    val colorScheme = MaterialTheme.colorScheme
-                    Balloon(
-                        builder = rememberBalloonBuilder {
-                            setArrowSize(10)
-                            setArrowPosition(0.5f)
-                            setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-                            setWidth(BalloonSizeSpec.WRAP)
-                            setHeight(BalloonSizeSpec.WRAP)
-                            setPadding(12)
-                            setMarginHorizontal(12)
-                            setCornerRadius(16f)
-                            setBackgroundColor(colorScheme.primaryContainer)
-                            setBalloonAnimation(BalloonAnimation.FADE)
-                        },
-                        balloonContent = {
-                            Text(text = stringResource(id = R.string.addHomework_newDesignInfo), color = colorScheme.onPrimaryContainer)
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .background(TopAppBarDefaults.topAppBarColors().containerColor), horizontalAlignment = Alignment.CenterHorizontally) {
+                Box(modifier = Modifier
+                    .padding(vertical = 2.dp)
+                    .clip(RoundedCornerShape(50))
+                    .background(MaterialTheme.colorScheme.onSurfaceVariant)
+                    .width(32.dp)
+                    .height(6.dp)
+                )
+                TopAppBar(
+                    title = {
+                        Column {
+                            Text(text = stringResource(id = R.string.home_addHomeworkLabel))
+                            if (state.username != null) Text(
+                                text = state.username,
+                                style = MaterialTheme.typography.labelSmall
+                            )
                         }
-                    ) { balloonWindow ->
-                        LaunchedEffect(key1 = state.showNewSaveButtonLocationBalloon, key2 = state.canSubmit) {
-                            if (state.showNewSaveButtonLocationBalloon && state.canSubmit) {
-                                balloonWindow.showAlignBottom()
-                                onAction(NewLayoutBalloonDismissed)
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = onBack) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = stringResource(id = R.string.close)
+                            )
+                        }
+                    },
+                    actions = {
+                        val colorScheme = MaterialTheme.colorScheme
+                        Balloon(
+                            builder = rememberBalloonBuilder {
+                                setArrowSize(10)
+                                setArrowPosition(0.5f)
+                                setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                                setWidth(BalloonSizeSpec.WRAP)
+                                setHeight(BalloonSizeSpec.WRAP)
+                                setPadding(12)
+                                setMarginHorizontal(12)
+                                setCornerRadius(16f)
+                                setBackgroundColor(colorScheme.primaryContainer)
+                                setBalloonAnimation(BalloonAnimation.FADE)
+                            },
+                            balloonContent = {
+                                Text(text = stringResource(id = R.string.addHomework_newDesignInfo), color = colorScheme.onPrimaryContainer)
+                            }
+                        ) { balloonWindow ->
+                            LaunchedEffect(key1 = state.showNewSaveButtonLocationBalloon, key2 = state.canSubmit) {
+                                if (state.showNewSaveButtonLocationBalloon && state.canSubmit) {
+                                    balloonWindow.showAlignBottom()
+                                    onAction(NewLayoutBalloonDismissed)
+                                }
+                            }
+                            TextButton(
+                                onClick = onSave,
+                                enabled = state.canSubmit
+                            ) {
+                                Text(text = stringResource(id = R.string.save))
                             }
                         }
-                        TextButton(
-                            onClick = onSave,
-                            enabled = state.canSubmit
-                        ) {
-                            Text(text = stringResource(id = R.string.save))
-                        }
                     }
-                }
-            )
-        }
+                )
+            }
+        },
+        modifier = Modifier.imePadding()
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -320,12 +394,12 @@ private fun AddHomeworkContent(
                 },
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                placeholder = { Text(text = "Neue Aufgabe") },
+                placeholder = { Text(text = "Neue Aufgabe") }, // todo string resource
                 leadingIcon = {
                     Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 },
@@ -390,7 +464,7 @@ private fun AddHomeworkContent(
                 RowVerticalCenter(Modifier.padding(start = 12.dp, top = 16.dp, bottom = 16.dp)) {
                     Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
                     Box(Modifier.padding(start = 8.dp), contentAlignment = Alignment.CenterStart) {
-                        var realSize by remember { mutableStateOf(0f) }
+                        var realSize by remember { mutableFloatStateOf(0f) }
                         val sizeText by animateFloatAsState(targetValue = realSize, animationSpec = tween(250), label = "padding row")
                         val context = LocalContext.current
                         Column(
@@ -417,7 +491,7 @@ private fun AddHomeworkContent(
                                 Box(
                                     modifier = Modifier
                                         .then(if (i == 0) Modifier.padding(start = 16.dp + sizeText.dp) else Modifier)
-                                        .background(MaterialTheme.colorScheme.surface)
+                                        .background(MaterialTheme.colorScheme.surfaceContainerLow)
                                 ) {
                                     DateChip(
                                         date = date,

@@ -9,10 +9,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudQueue
@@ -54,7 +57,7 @@ fun StoreSaveModal(
     onHideBannerForever: () -> Unit
 ) {
     ModalBottomSheet(onDismissRequest = { onDismissRequest() }, sheetState = sheetState) {
-        Column {
+        Column(Modifier.padding(bottom = WindowInsets.systemBars.asPaddingValues().calculateBottomPadding())) {
             Text(text = stringResource(id = R.string.addHomework_storeTitle), modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 8.dp))
             Column(
                 Modifier
