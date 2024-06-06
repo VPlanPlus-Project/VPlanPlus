@@ -13,6 +13,8 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.data.FcmTokenReloadState
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.AdvancedSettingsUseCases
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,7 +39,7 @@ class AdvancedSettingsViewModel @Inject constructor(
                 )
             ) { data ->
                 val currentIdentity = data[0] as Identity?
-                val vppIdServer = data[1] as String
+                val vppIdServer = data[1] as VppIdServer
                 val canChangeVppIdServer = BuildConfig.DEBUG
 
                 if (currentIdentity?.profile == null) return@combine AdvancedSettingsState()
@@ -105,7 +107,7 @@ data class AdvancedSettingsState(
     val currentLessonText: String = "Loading...",
     val showDeleteCacheDialog: Boolean = false,
     val showVppIdServerDialog: Boolean = false,
-    val selectedVppIdServer: String = "",
+    val selectedVppIdServer: VppIdServer = servers.first(),
     val canChangeVppIdServer: Boolean = false,
     val fcmTokenReloadState: FcmTokenReloadState = FcmTokenReloadState.NONE
 )
