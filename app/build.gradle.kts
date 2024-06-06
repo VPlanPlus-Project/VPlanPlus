@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -16,8 +18,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 197
-        versionName = "20240604_538"
+        versionCode = 198
+        versionName = "20240606_544"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -27,6 +29,12 @@ android {
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
         }
+
+        val localProperties = Properties()
+        localProperties.load(rootProject.file("local.properties").inputStream())
+        buildConfigField("String", "VPP_CLIENT_ID", properties["vpp.client_id"].toString())
+        buildConfigField("String", "VPP_CLIENT_SECRET", properties["vpp.client_secret"].toString())
+        buildConfigField("String", "VPP_REDIRECT_URI", properties["vpp.redirect_uri"].toString())
     }
 
     buildTypes {
