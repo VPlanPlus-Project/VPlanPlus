@@ -32,9 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -65,7 +63,6 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredential
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
-import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
@@ -90,18 +87,13 @@ fun HomeScreen(
 ) {
     val state = homeViewModel.state
     val context = LocalContext.current
-    var addHomeworkVpId: Long? by rememberSaveable { mutableStateOf(null) }
-    var showAddHomeworkSheet by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(key1 = startDate) { homeViewModel.setSelectedDate(startDate) }
 
     HomeScreenContent(
         navBar = navBar,
         state = state,
-        onAddHomework = { vpId ->
-            addHomeworkVpId = vpId
-            showAddHomeworkSheet = true
-        },
+        onAddHomework = { vpId -> navHostController.navigate(Screen.AddHomeworkScreen.route + "?vpId=$vpId") },
         onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) },
         onOpenMenu = homeViewModel::onMenuOpenedChange,
         onSetSelectedDate = homeViewModel::setSelectedDate,
@@ -119,8 +111,18 @@ fun HomeScreen(
         },
         onOpenNews = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.NewsScreen.route) },
         onOpenSettings = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.SettingsScreen.route) },
-        onPrivacyPolicyClicked = { openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md") },
-        onRepositoryClicked = { openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus") },
+        onPrivacyPolicyClicked = {
+            openLink(
+                context,
+                "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md"
+            )
+        },
+        onRepositoryClicked = {
+            openLink(
+                context,
+                "https://github.com/VPlanPlus-Project/VPlanPlus"
+            )
+        },
         onOpenSearch = { navHostController.navigate(Screen.SearchScreen.route) },
         onRefreshClicked = { homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(context) },
         onFixVppIdSessionClicked = { onLogin(context, state.server) },
@@ -129,11 +131,6 @@ fun HomeScreen(
         onFixCredentialsClicked = { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentIdentity?.school?.schoolId}") },
         onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) }
     )
-
-    if (showAddHomeworkSheet) AddHomeworkSheet(navHostController) {
-        showAddHomeworkSheet = false
-        addHomeworkVpId = null
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
