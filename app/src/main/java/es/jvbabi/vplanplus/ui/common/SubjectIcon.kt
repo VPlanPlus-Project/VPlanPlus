@@ -32,7 +32,7 @@ fun SubjectIcon(subject: String?, modifier: Modifier, tint: Color = Color.Unspec
 }
 
 @Composable
-fun DefaultLesson.getIcon() = subject.lowercase().getIcon()
+fun DefaultLesson?.getIcon() = this?.subject?.lowercase().getIcon()
 
 @Composable
 private fun String?.getIcon(): ImageVector {

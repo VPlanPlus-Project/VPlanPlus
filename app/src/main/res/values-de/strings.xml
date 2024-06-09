@@ -657,4 +657,9 @@
     <string name="addHomework_saveVppIdText">Diese Hausaufgabe wird in deiner vpp.ID gespeichert, Alle Informationen und der Fortschritt der Aufgaben wird auf jedes Gerät synchronisiert, in welchem du mit deiner vpp.ID angemeldet bist.</string>
     <string name="addHomework_taskPlaceholder">Aufgabe %1$d</string>
 
+    <plurals name="homework_documentCount">
+        <item quantity="one">Ein Dokument</item>
+        <item quantity="other">%1$d Dokumente</item>
+    </plurals>
+
 </resources>

@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavArgument
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -21,7 +22,8 @@ import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
-import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.HomeworkScreen
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkDetailScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
 import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingAddProfileScreen
@@ -313,6 +315,17 @@ private fun NavGraphBuilder.mainScreens(
             navHostController = navController,
             navBar = navBar
         )
+    }
+
+    composable(
+        route = Screen.HomeworkDetailScreen.route + "/{homeworkId}",
+        arguments = listOf(
+            navArgument(name = "homeworkId") {
+                type = NavType.IntType
+            }
+        )
+    ) {
+        HomeworkDetailScreen(navHostController = navController, homeworkId = it.arguments!!.getInt("homeworkId"))
     }
 
     composable(

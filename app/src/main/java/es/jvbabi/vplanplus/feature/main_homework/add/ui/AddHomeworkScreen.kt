@@ -105,7 +105,6 @@ import kotlinx.coroutines.delay
 import java.time.format.DateTimeFormatter
 
 @Composable
-@Deprecated("Use AddHomeworkSheet instead")
 fun AddHomeworkScreen(
     navHostController: NavHostController,
     viewModel: AddHomeworkViewModel = hiltViewModel(),

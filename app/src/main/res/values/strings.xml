@@ -660,4 +660,9 @@
     <string name="addHomework_saveVppIdText">This homework will be saved in your vpp.ID. Its information and progress will be synchronized with all devices you use with your vpp.ID.</string>
     <string name="addHomework_taskPlaceholder">Task %1$d</string>
 
+    <plurals name="homework_documentCount">
+        <item quantity="one">One document</item>
+        <item quantity="other">%1$d documents</item>
+    </plurals>
+
 </resources>

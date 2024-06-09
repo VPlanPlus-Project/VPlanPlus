@@ -7,6 +7,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
+fun Spacer4Dp(modifier: Modifier = Modifier) {
+    Spacer(modifier.size(4.dp))
+}
+
+@Composable
 fun Spacer8Dp(modifier: Modifier = Modifier) {
     Spacer(modifier.size(8.dp))
 }
