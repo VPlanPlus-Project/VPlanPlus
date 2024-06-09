@@ -18,9 +18,12 @@ import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.ProfileCreationStag
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.ProfileCreationStatus
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.toLoginState
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.toResponse
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.ui.common.Permission
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import javax.inject.Inject
@@ -40,8 +43,18 @@ class OnboardingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            timeRepository.getTime().collect {
-                _state.value = _state.value.copy(time = it)
+            combine(
+                listOf(
+                    timeRepository.getTime(),
+                    onboardingUseCases.getVppIdServerUseCase()
+                )
+            ) { data ->
+                val time = data[0] as ZonedDateTime
+                val server = data[1] as VppIdServer
+
+                _state.value.copy(time = time, vppIdServer = server)
+            }.collect {
+                _state.value = it
             }
         }
     }
@@ -385,7 +398,9 @@ data class OnboardingState(
 
     val currentPermissionIndex: Int = 0,
 
-    val allDone: Boolean = false
+    val allDone: Boolean = false,
+
+    val vppIdServer: VppIdServer = servers.first(),
 )
 
 enum class Task {
