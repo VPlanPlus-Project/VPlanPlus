@@ -65,7 +65,7 @@ fun AboutScreen(
             openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus")
         },
         onOpenPrivacyPolicy = {
-            openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md")
+            openLink(context, "https://vplan.plus/privacy")
         },
         onOpenInstagram = {
             openLink(context, "https://instagram.com/vplanplus")

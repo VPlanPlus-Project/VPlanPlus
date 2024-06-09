@@ -51,7 +51,7 @@ fun OnboardingWelcomeScreen(
             }
         },
         onPrivacyPolicy = {
-            openLink(context, "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md")
+            openLink(context, "${state.vppIdServer.uiHost}/privacy")
         }
     )
 

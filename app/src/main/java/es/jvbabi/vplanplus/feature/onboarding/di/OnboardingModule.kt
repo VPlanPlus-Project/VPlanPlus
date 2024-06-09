@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.CheckSchoolIdSyntax
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.DefaultLessonUseCase
 import es.jvbabi.vplanplus.feature.onboarding.domain.usecase.GetSchoolByIdUseCase
@@ -76,7 +77,8 @@ object OnboardingModule {
                 notificationRepository = notificationRepository,
                 stringRepository = stringRepository
             ),
-            getSchoolByIdUseCase = GetSchoolByIdUseCase(schoolRepository)
+            getSchoolByIdUseCase = GetSchoolByIdUseCase(schoolRepository),
+            getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository)
         )
     }
 }
