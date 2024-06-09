@@ -7,8 +7,8 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
-import es.jvbabi.vplanplus.data.model.DbHomework
-import es.jvbabi.vplanplus.data.model.DbHomeworkTask
+import es.jvbabi.vplanplus.data.model.homework.DbHomework
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.DbProfile
@@ -17,6 +17,7 @@ import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -29,6 +30,7 @@ import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCros
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
+import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDocumentDao
 import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
@@ -85,6 +87,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
 
         DbHomework::class,
         DbHomeworkTask::class,
+        DbHomeworkDocument::class,
         DbPreferredNotificationTime::class,
 
         DbSubject::class,
@@ -93,7 +96,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 30,
+    version = 31,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -109,6 +112,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 21, to = 22), // add preferred notification time
         AutoMigration(from = 25, to = 26), // add cached-at attribute to vpp.ID
         AutoMigration(from = 26, to = 27), // add vpp.ID to profile
+        AutoMigration(from = 30, to = 31), // add documents
     ],
 )
 @TypeConverters(
@@ -139,7 +143,9 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val vppIdDao: VppIdDao
     abstract val vppIdTokenDao: VppIdTokenDao
     abstract val roomBookingDao: RoomBookingDao
+
     abstract val homeworkDao: HomeworkDao
+    abstract val homeworkDocumentDao: HomeworkDocumentDao
     abstract val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao
 
     // grades

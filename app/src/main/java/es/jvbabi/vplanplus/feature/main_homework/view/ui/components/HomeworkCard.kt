@@ -293,7 +293,8 @@ private fun HomeworkCardPreview() {
             isLoadingNewTask = true,
             isHidden = true,
             isEnabled = false,
-            profile = profile
+            profile = profile,
+            documentUris = emptyList()
         ),
         isOwner = true,
         allDone = {},

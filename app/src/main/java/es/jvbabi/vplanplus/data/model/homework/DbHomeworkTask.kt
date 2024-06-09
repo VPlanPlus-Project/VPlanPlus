@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.model
+package es.jvbabi.vplanplus.data.model.homework
 
 import androidx.room.Entity
 import androidx.room.ForeignKey

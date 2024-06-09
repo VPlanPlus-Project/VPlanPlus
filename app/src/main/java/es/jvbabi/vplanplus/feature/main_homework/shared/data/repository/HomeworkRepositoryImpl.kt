@@ -3,15 +3,18 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.data.repository
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.data.model.DbHomework
-import es.jvbabi.vplanplus.data.model.DbHomeworkTask
+import es.jvbabi.vplanplus.data.model.homework.DbHomework
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
+import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDocumentDao
 import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -43,6 +46,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -50,6 +56,7 @@ import java.util.UUID
 
 class HomeworkRepositoryImpl(
     private val homeworkDao: HomeworkDao,
+    private val homeworkDocumentDao: HomeworkDocumentDao,
     private val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao,
     private val classRepository: ClassRepository,
     private val vppIdRepository: VppIdRepository,
@@ -147,7 +154,7 @@ class HomeworkRepositoryImpl(
 
                     val existingRecord = homeworkDao
                         .getById(responseHomework.id.toInt()).first()
-                        ?.toModel()
+                        ?.toModel(context)
                     homeworkDao.deleteTasksForHomework(responseHomework.id)
 
                     insertHomework(
@@ -163,6 +170,7 @@ class HomeworkRepositoryImpl(
                         storeInCloud = false,
                         tasks = replacementTasks,
                         isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
+                        documentUris = emptyList()
                     )
                 }
 
@@ -235,18 +243,18 @@ class HomeworkRepositoryImpl(
 
     override suspend fun getHomeworkByClassId(classId: UUID): Flow<List<Homework>> {
         return homeworkDao.getByClassId(classId).map {
-            it.map { homework -> homework.toModel() }
+            it.map { homework -> homework.toModel(context) }
         }
     }
 
     override suspend fun getAll(): Flow<List<Homework>> {
         return homeworkDao.getAll().map {
-            it.map { homework -> homework.toModel() }
+            it.map { homework -> homework.toModel(context) }
         }
     }
 
     override suspend fun getHomeworkById(homeworkId: Int): Flow<Homework?> {
-        return homeworkDao.getById(homeworkId).map { it?.toModel() }
+        return homeworkDao.getById(homeworkId).map { it?.toModel(context) }
     }
 
     override suspend fun insertHomework(
@@ -259,8 +267,42 @@ class HomeworkRepositoryImpl(
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
         isHidden: Boolean,
-        createdAt: ZonedDateTime
+        createdAt: ZonedDateTime,
+        documentUris: List<Uri>
     ): HomeworkModificationResult {
+
+        val documentIds = mutableListOf<UUID>()
+
+        val saveDocumentIdsToDatabase = { homeworkId: Long ->
+            documentIds.forEach {
+                homeworkDocumentDao.insertHomeworkDocument(DbHomeworkDocument(it, homeworkId))
+            }
+        }
+
+        documentUris.forEach document@{ documentUri ->
+            val documentId = UUID.randomUUID()
+            val inputStream: InputStream? = context.contentResolver.openInputStream(documentUri)
+            val folder = File(context.filesDir, "homework_documents")
+            folder.mkdirs()
+            val outputFile = File(folder, "$documentId.pdf")
+            val outputStream = FileOutputStream(outputFile)
+            val buffer = ByteArray(1024)
+            var bytesRead : Int
+
+            inputStream?.use { input ->
+                outputStream.use { output ->
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                    }
+                }
+            }
+
+            inputStream?.close()
+            outputStream.close()
+
+            documentIds.add(documentId)
+        }
+
         if (!storeInCloud || profile.vppId == null) {
             val dbHomework = DbHomework(
                 id = id ?: (findLocalId() - 1),
@@ -283,6 +325,7 @@ class HomeworkRepositoryImpl(
                 )
                 homeworkDao.insertTask(dbHomeworkTask)
             }
+            saveDocumentIdsToDatabase(dbHomework.id)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
@@ -324,6 +367,7 @@ class HomeworkRepositoryImpl(
             )
             homeworkDao.insertTask(dbHomeworkTask)
         }
+        saveDocumentIdsToDatabase(response.id.toLong())
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
     }
 
@@ -523,7 +567,7 @@ class HomeworkRepositoryImpl(
 
     override suspend fun getHomeworkByTask(task: HomeworkTask): Homework {
         val homeworkId = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().homeworkId
-        return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel()
+        return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel(context)
     }
 
     override suspend fun changeShareStatus(homework: Homework): HomeworkModificationResult {

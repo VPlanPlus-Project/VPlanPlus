@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository
 
+import android.net.Uri
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
@@ -28,7 +29,8 @@ interface HomeworkRepository {
         until: ZonedDateTime,
         tasks: List<NewTaskRecord>,
         isHidden: Boolean,
-        createdAt: ZonedDateTime = ZonedDateTime.now()
+        createdAt: ZonedDateTime = ZonedDateTime.now(),
+        documentUris: List<Uri>
     ): HomeworkModificationResult
 
     suspend fun addNewTask(

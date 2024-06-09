@@ -85,7 +85,8 @@ private fun ChangeVisibilityDialogPreview() {
             classes = `class`,
             isPublic = true,
             isHidden = false,
-            profile = profile
+            profile = profile,
+            documents = emptyList()
         ),
         onConfirm = {},
         onDismiss = {}

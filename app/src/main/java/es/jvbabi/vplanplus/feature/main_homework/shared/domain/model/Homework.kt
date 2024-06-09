@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.domain.model
 
+import android.net.Uri
 import es.jvbabi.vplanplus.domain.model.Classes
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -17,7 +18,8 @@ open class Homework(
     val until: ZonedDateTime,
     val tasks: List<HomeworkTask>,
     val isHidden: Boolean,
-    val profile: Profile
+    val profile: Profile,
+    val documents: List<Uri>
 ) {
     fun isOverdue(date: LocalDate): Boolean {
         return until.toLocalDate().isBefore(date) && tasks.any { !it.done }

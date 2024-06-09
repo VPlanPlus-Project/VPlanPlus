@@ -1,9 +1,12 @@
-package es.jvbabi.vplanplus.data.model
+package es.jvbabi.vplanplus.data.model.homework
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
+import es.jvbabi.vplanplus.data.model.DbProfile
+import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.DbVppId
 import java.time.ZonedDateTime
 import java.util.UUID
 

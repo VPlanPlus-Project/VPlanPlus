@@ -4,8 +4,8 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
-import es.jvbabi.vplanplus.data.model.DbHomework
-import es.jvbabi.vplanplus.data.model.DbHomeworkTask
+import es.jvbabi.vplanplus.data.model.homework.DbHomework
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.combined.CHomework
 import kotlinx.coroutines.flow.Flow
 import java.time.ZonedDateTime

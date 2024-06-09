@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase
 
+import android.net.Uri
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
@@ -23,6 +24,7 @@ class SaveHomeworkUseCase(
         storeInCloud: Boolean,
         defaultLesson: DefaultLesson?,
         tasks: List<String>,
+        documentUris: List<Uri>
     ): HomeworkModificationResult {
         val identity = getCurrentIdentityUseCase().first() ?: return HomeworkModificationResult.FAILED
         val `class` = getClassByProfileUseCase(identity.profile!!)!!
@@ -38,7 +40,8 @@ class SaveHomeworkUseCase(
             storeInCloud = storeInCloud,
             shareWithClass = shareWithClass,
             createdAt = ZonedDateTime.now(),
-            isHidden = false
+            isHidden = false,
+            documentUris = documentUris
         )
     }
 }

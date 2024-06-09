@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui
 
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -330,7 +331,8 @@ data class HomeworkViewModelHomework(
     val isLoading: Boolean = false,
     val isLoadingNewTask: Boolean = false,
     val isEnabled: Boolean = true,
-    val profile: Profile
+    val profile: Profile,
+    val documentUris: List<Uri>
 ) {
     fun toHomework() = Homework(
         id = id,
@@ -342,7 +344,8 @@ data class HomeworkViewModelHomework(
         until = until,
         tasks = tasks.map { it.toTask() },
         isHidden = isHidden,
-        profile = profile
+        profile = profile,
+        documents = documentUris
     )
 
 }
@@ -371,7 +374,8 @@ private fun Homework.toViewModel(
     isOwner = isOwner,
     isHidden = isHidden,
     isEnabled = isEnabled,
-    profile = profile
+    profile = profile,
+    documentUris = documents
 )
 
 private fun HomeworkTask.toViewModel() = HomeworkViewModelTask(

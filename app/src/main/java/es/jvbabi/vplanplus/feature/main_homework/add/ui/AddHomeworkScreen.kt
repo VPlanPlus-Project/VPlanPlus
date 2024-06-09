@@ -51,6 +51,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -131,9 +132,9 @@ fun AddHomeworkScreen(
         if (it.resultCode == RESULT_OK) {
             val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
             Log.d("AddHomeworkScreen", "Scanned ${result?.pages?.size} pages")
-            result?.pages?.map { image -> image.imageUri }?.forEach { uri ->
-                viewModel.onUiAction(AddDocument(uri))
-            }
+            if (result?.pdf?.uri == null) return@rememberLauncherForActivityResult
+            val imageUris = result.pages?.map { image -> image.imageUri } ?: emptyList()
+            viewModel.onUiAction(AddDocument(imageUris, result.pdf?.uri ?: return@rememberLauncherForActivityResult))
         }
     }
 
@@ -549,8 +550,11 @@ private fun AddHomeworkContent(
                 item {
                     Spacer(modifier = Modifier.size(8.dp))
                 }
-                items(state.imageUris, key = { it.hashCode() }) {
-                    ImageButton(Modifier.animateItemPlacement(), it) { onAction(RemoveDocument(it)) }
+                items(state.documents, key = { it.hashCode() }) { document ->
+                    document.imageUris.forEach page@{ uri ->
+                        ImageButton(Modifier.animateItemPlacement(), uri) { onAction(RemoveDocumentByDocument(document)) }
+                    }
+                    VerticalDivider()
                 }
                 item {
                     AddImageButton(onClick = startScanning)

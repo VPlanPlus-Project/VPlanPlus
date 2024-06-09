@@ -1,14 +1,18 @@
 package es.jvbabi.vplanplus.data.model.combined
 
+import android.content.Context
+import android.net.Uri
 import androidx.room.Embedded
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
-import es.jvbabi.vplanplus.data.model.DbHomework
-import es.jvbabi.vplanplus.data.model.DbHomeworkTask
+import es.jvbabi.vplanplus.data.model.homework.DbHomework
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import java.io.File
 
 
 data class CHomework(
@@ -37,9 +41,14 @@ data class CHomework(
         parentColumn = "profile_id",
         entityColumn = "profileId",
         entity = DbProfile::class
-    ) val profile: CProfile
+    ) val profile: CProfile,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "homework_id",
+        entity = DbHomeworkDocument::class
+    ) val documents: List<DbHomeworkDocument>
 ) {
-    fun toModel(): Homework {
+    fun toModel(context: Context): Homework {
         return Homework(
             id = homework.id,
             createdBy = createdBy?.toModel(),
@@ -50,7 +59,8 @@ data class CHomework(
             classes = classes.toClassModel(),
             isPublic = homework.isPublic,
             isHidden = homework.hidden,
-            profile = profile.toModel()
+            profile = profile.toModel(),
+            documents = documents.map { Uri.fromFile(File(context.filesDir, "homework_documents/${it.id}.pdf")) }
         )
     }
 }
