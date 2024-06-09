@@ -164,7 +164,7 @@ data class AddHomeworkState(
     val documents: List<HomeworkDocument> = emptyList()
 ) {
     val canSubmit: Boolean
-        get() = until != null && tasks.all { it.isNotBlank() } && !isLoading && !isInvalidSaveTypeSelected
+        get() = until != null && tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
 
     val isInvalidSaveTypeSelected: Boolean
         get() = (saveType == SaveType.SHARED || saveType == SaveType.CLOUD) && !canUseCloud

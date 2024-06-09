@@ -60,6 +60,7 @@ interface HomeworkRepository {
 
     suspend fun findLocalId(): Long
     suspend fun findLocalTaskId(): Long
+    suspend fun findLocalDocumentId(): Int
 
     suspend fun fetchHomework(sendNotification: Boolean)
 

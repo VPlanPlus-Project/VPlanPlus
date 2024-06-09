@@ -18,6 +18,6 @@ import java.util.UUID
     ]
 )
 data class DbHomeworkDocument(
-    val id: UUID,
+    val id: Int,
     @ColumnInfo(name = "homework_id") val homeworkId: Long?
 )

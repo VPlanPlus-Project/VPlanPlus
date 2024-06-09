@@ -10,7 +10,14 @@ interface NetworkRepository {
     suspend fun doRequest(
         path: String,
         requestMethod: HttpMethod = HttpMethod.Get,
-        requestBody: String? = null,
+        requestBody: Any? = null,
         queries: Map<String, String> = emptyMap()
     ): DataResponse<String?>
+
+    suspend fun doRequestRaw(
+        path: String,
+        requestMethod: HttpMethod = HttpMethod.Get,
+        requestBody: Any? = null,
+        queries: Map<String, String> = emptyMap()
+    ): DataResponse<ByteArray?>
 }

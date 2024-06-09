@@ -42,13 +42,13 @@ import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.isSuccess
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.io.File
 import java.io.FileOutputStream
-import java.io.InputStream
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -123,55 +123,43 @@ class HomeworkRepositoryImpl(
                     val createdBy = vppIdRepository.getVppId(responseHomework.createdBy, school, false)
                     val until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until)
 
-                    val ignoredTaskIds = mutableListOf<Long>()
-                    val replacementTasks =
-                        (homeworkDao
-                            .getById(id.toInt()).first()
-                            ?.tasks ?: emptyList())
-                            .mapNotNull { dbTask ->
-                                val new =
-                                    responseHomework.tasks.firstOrNull { task -> task.id.toLong() == dbTask.id }
-                                        ?: return@mapNotNull null
-                                ignoredTaskIds.add(new.id.toLong())
-                                NewTaskRecord(
-                                    id = dbTask.id,
-                                    content = new.content,
-                                    done = new.done ?: dbTask.done,
-                                )
-                            }
-                            .plus(
-                                responseHomework.tasks
-                                    .filter { !ignoredTaskIds.contains(it.id.toLong()) }
-                                    .map { task ->
-                                        val record = NewTaskRecord(
-                                            id = task.id.toLong(),
-                                            content = task.content,
-                                            done = task.done ?: until.isBefore(ZonedDateTime.now()),
-                                        )
-                                        record
-                                    }
-                            )
-
                     val existingRecord = homeworkDao
                         .getById(responseHomework.id.toInt()).first()
                         ?.toModel(context)
                     homeworkDao.deleteTasksForHomework(responseHomework.id)
 
-                    insertHomework(
-                        id = id,
-                        profile = profile,
-                        shareWithClass = responseHomework.shareWithClass,
-                        until = until,
-                        `class` = `class`,
-                        defaultLessonVpId = responseHomework.vpId.toLong(),
-                        createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(
-                            responseHomework.createdAt
-                        ),
-                        storeInCloud = false,
-                        tasks = replacementTasks,
-                        isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
-                        documentUris = emptyList()
+                    homeworkDao.insert(
+                        DbHomework(
+                            id = id,
+                            classes = `class`.classId,
+                            createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.createdAt),
+                            until = until,
+                            defaultLessonVpId = responseHomework.vpId.toLong(),
+                            createdBy = createdBy?.id,
+                            isPublic = responseHomework.shareWithClass,
+                            hidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
+                            profileId = profile.id
+                        )
                     )
+                    responseHomework.tasks.forEach { task ->
+                        homeworkDao.insertTask(
+                            DbHomeworkTask(
+                                id = task.id.toLong(),
+                                homeworkId = id,
+                                content = task.content,
+                                done = task.done ?: until.isBefore(ZonedDateTime.now())
+                            )
+                        )
+                    }
+
+                    responseHomework.documentIds.forEach document@{ documentId ->
+                        val file = File(context.filesDir, "homework_documents/$documentId.pdf")
+                        if (file.exists()) return@document
+                        val binary = getHomeworkDocument(`class`.name, id, documentId, profile.vppId?.id?.toLong() != responseHomework.createdBy) ?: return@document
+                        val outputStream = FileOutputStream(file)
+                        outputStream.write(binary)
+                        outputStream.close()
+                    }
                 }
 
                 if (sendNotification) {
@@ -241,6 +229,20 @@ class HomeworkRepositoryImpl(
         isUpdateRunning = false
     }
 
+    private suspend fun getHomeworkDocument(className: String, homeworkId: Long, documentId: Int, usePublicAuth: Boolean): ByteArray? {
+        if (usePublicAuth) {
+            val response = vppIdNetworkRepository.doRequestRaw(
+                path = "/api/$API_VERSION/school/$className/homework/$homeworkId/document/$documentId",
+                requestMethod = HttpMethod.Get
+            )
+            return response.data
+        }
+        return vppIdNetworkRepository.doRequestRaw(
+            path = "/api/$API_VERSION/user/me/homework/$homeworkId/document/$documentId",
+            requestMethod = HttpMethod.Get
+        ).data
+    }
+
     override suspend fun getHomeworkByClassId(classId: UUID): Flow<List<Homework>> {
         return homeworkDao.getByClassId(classId).map {
             it.map { homework -> homework.toModel(context) }
@@ -271,104 +273,96 @@ class HomeworkRepositoryImpl(
         documentUris: List<Uri>
     ): HomeworkModificationResult {
 
-        val documentIds = mutableListOf<UUID>()
+        var homeworkId = id ?: (findLocalId() - 1L)
+        val homeworkTasks = tasks.toMutableList()
 
-        val saveDocumentIdsToDatabase = { homeworkId: Long ->
-            documentIds.forEach {
-                homeworkDocumentDao.insertHomeworkDocument(DbHomeworkDocument(it, homeworkId))
-            }
-        }
+        if (storeInCloud && profile.vppId != null) {
+            // setup authentication
+            val vppIdToken = vppIdRepository.getVppIdToken(profile.vppId) ?: return HomeworkModificationResult.FAILED
+            vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
 
-        documentUris.forEach document@{ documentUri ->
-            val documentId = UUID.randomUUID()
-            val inputStream: InputStream? = context.contentResolver.openInputStream(documentUri)
-            val folder = File(context.filesDir, "homework_documents")
-            folder.mkdirs()
-            val outputFile = File(folder, "$documentId.pdf")
-            val outputStream = FileOutputStream(outputFile)
-            val buffer = ByteArray(1024)
-            var bytesRead : Int
+            // post homework
+            val result = vppIdNetworkRepository.doRequest(
+                path = "/api/$API_VERSION/user/me/homework",
+                requestBody = Gson().toJson(
+                    AddHomeworkRequest(
+                        vpId = defaultLessonVpId,
+                        shareWithClass = shareWithClass,
+                        until = ZonedDateTimeConverter().zonedDateTimeToTimestamp(until),
+                        tasks = tasks.map { it.content }
+                    )
+                ),
+                requestMethod = HttpMethod.Post
+            )
+            if (result.response != HttpStatusCode.Created || result.data == null) return HomeworkModificationResult.FAILED
+            val response = Gson().fromJson(result.data, AddHomeworkResponse::class.java)
 
-            inputStream?.use { input ->
-                outputStream.use { output ->
-                    while (input.read(buffer).also { bytesRead = it } != -1) {
-                        output.write(buffer, 0, bytesRead)
-                    }
+            homeworkId = response.id
+            response.tasks.forEach { responseTask ->
+                homeworkTasks.replaceAll { task ->
+                    if (task.content != responseTask.content) return@replaceAll task
+                    else task.copy(id = responseTask.id)
                 }
             }
-
-            inputStream?.close()
-            outputStream.close()
-
-            documentIds.add(documentId)
         }
-
-        if (!storeInCloud || profile.vppId == null) {
-            val dbHomework = DbHomework(
-                id = id ?: (findLocalId() - 1),
-                classes = `class`.classId,
-                createdAt = createdAt,
-                until = until,
-                defaultLessonVpId = defaultLessonVpId,
-                createdBy = profile.vppId?.id,
-                hidden = isHidden,
-                isPublic = shareWithClass,
-                profileId = profile.id
-            )
-            homeworkDao.insert(dbHomework)
-            tasks.forEach { newTask ->
-                val dbHomeworkTask = DbHomeworkTask(
-                    id = newTask.id ?: (findLocalTaskId() - 1),
-                    homeworkId = dbHomework.id,
-                    content = newTask.content,
-                    done = newTask.done
-                )
-                homeworkDao.insertTask(dbHomeworkTask)
-            }
-            saveDocumentIdsToDatabase(dbHomework.id)
-            return HomeworkModificationResult.SUCCESS_OFFLINE
-        }
-
-        val vppIdToken = vppIdRepository.getVppIdToken(profile.vppId) ?: return HomeworkModificationResult.FAILED
-        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
-        val result = vppIdNetworkRepository.doRequest(
-            path = "/api/$API_VERSION/user/me/homework",
-            requestBody = Gson().toJson(
-                AddHomeworkRequest(
-                    vpId = defaultLessonVpId,
-                    shareWithClass = shareWithClass,
-                    until = ZonedDateTimeConverter().zonedDateTimeToTimestamp(until),
-                    tasks = tasks.map { it.content }
-                )
-            ),
-            requestMethod = HttpMethod.Post
-        )
-        if (result.response != HttpStatusCode.Created || result.data == null) return HomeworkModificationResult.FAILED
-        val response = Gson().fromJson(result.data, AddHomeworkResponse::class.java)
 
         val dbHomework = DbHomework(
-            id = response.id.toLong(),
+            id = homeworkId,
             classes = `class`.classId,
             createdAt = createdAt,
             until = until,
             defaultLessonVpId = defaultLessonVpId,
-            createdBy = profile.vppId.id,
+            createdBy = if (storeInCloud) profile.vppId?.id else null,
             isPublic = shareWithClass,
             hidden = isHidden,
             profileId = profile.id
         )
         homeworkDao.insert(dbHomework)
-        response.tasks.forEach {
+        homeworkTasks.forEach {
             val dbHomeworkTask = DbHomeworkTask(
-                id = it.id,
+                id = it.id ?: (findLocalTaskId() - 1),
                 homeworkId = dbHomework.id,
                 content = it.content,
-                done = false
+                done = it.done
             )
             homeworkDao.insertTask(dbHomeworkTask)
         }
-        saveDocumentIdsToDatabase(response.id.toLong())
-        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+
+        documentUris.forEach document@{ uri ->
+            val inputStream = context.contentResolver.openInputStream(uri) ?: return@document
+            val folder = File(context.filesDir, "homework_documents")
+            folder.mkdirs()
+            val binary = inputStream.readBytes()
+            val documentId =
+                if (storeInCloud) {
+                    uploadDocument(homeworkId, binary) ?: return@document
+                } else findLocalDocumentId() - 1
+            val outputFile = File(folder, "$documentId.pdf")
+            val outputStream = FileOutputStream(outputFile)
+            outputStream.write(binary)
+
+            inputStream.close()
+            outputStream.close()
+
+            homeworkDocumentDao.insertHomeworkDocument(DbHomeworkDocument(documentId, homeworkId))
+        }
+
+        if (storeInCloud) return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+        return HomeworkModificationResult.SUCCESS_OFFLINE
+    }
+
+    private suspend fun uploadDocument(
+        homeworkId: Long,
+        byteArray: ByteArray
+    ): Int? {
+        val response = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/user/me/homework/$homeworkId/document",
+            requestBody = byteArray,
+            requestMethod = HttpMethod.Post
+        )
+        if (response.response?.isSuccess() != true) return null
+        val data = response.data ?: return null
+        return Gson().fromJson(data, UploadDocumentResponse::class.java).id
     }
 
     override suspend fun removeOrHideHomework(
@@ -376,39 +370,45 @@ class HomeworkRepositoryImpl(
         task: DeleteTask
     ): HomeworkModificationResult {
 
-        when (task) {
+        return when (task) {
             DeleteTask.HIDE -> {
                 homeworkDao.changeHidden(homework.id, true)
-                return HomeworkModificationResult.SUCCESS_OFFLINE
+                HomeworkModificationResult.SUCCESS_OFFLINE
             }
-            DeleteTask.DELETE -> {
-                if (homework.id < 0) {
-                    homeworkDao.deleteHomework(homework.id)
-                    return HomeworkModificationResult.SUCCESS_OFFLINE
-                }
-                val vppId = vppIdRepository
-                    .getVppIds().first()
-                    .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
-                    ?: return HomeworkModificationResult.FAILED
 
-                val vppIdToken =
-                    vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-                vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
-                val result = vppIdNetworkRepository.doRequest(
-                    path = "/api/$API_VERSION/user/me/homework/${homework.id}",
-                    requestMethod = HttpMethod.Delete
-                )
-                return if (result.response == HttpStatusCode.OK) {
-                    homeworkDao.deleteHomework(homework.id)
-                    HomeworkModificationResult.SUCCESS_OFFLINE
-                } else {
-                    HomeworkModificationResult.FAILED
+            DeleteTask.DELETE -> {
+                if (homework.id > 0) {
+                    val vppId = vppIdRepository
+                        .getVppIds().first()
+                        .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
+                        ?: return HomeworkModificationResult.FAILED
+                    val vppIdToken =
+                        vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+                    vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
+                    val result = vppIdNetworkRepository.doRequest(
+                        path = "/api/$API_VERSION/user/me/homework/${homework.id}",
+                        requestMethod = HttpMethod.Delete
+                    )
+                    if (result.response != HttpStatusCode.OK) return HomeworkModificationResult.FAILED
                 }
-            }
-            DeleteTask.FORCE_DELETE_LOCALLY -> {
+
+                deleteDocumentsByHomeworkId(homework.id)
                 homeworkDao.deleteHomework(homework.id)
-                return HomeworkModificationResult.SUCCESS_OFFLINE
+                if (homework.id > 0) HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE else HomeworkModificationResult.SUCCESS_OFFLINE
             }
+
+            DeleteTask.FORCE_DELETE_LOCALLY -> {
+                deleteDocumentsByHomeworkId(homework.id)
+                homeworkDao.deleteHomework(homework.id)
+                HomeworkModificationResult.SUCCESS_OFFLINE
+            }
+        }
+    }
+
+    private suspend fun deleteDocumentsByHomeworkId(homeworkId: Long) {
+        homeworkDocumentDao.getHomeworkDocumentsByHomeworkId(homeworkId).first().map {
+            File(context.filesDir, "homework_documents/${it.id}.pdf").delete()
+            homeworkDocumentDao.deleteHomeworkDocumentById(it.id)
         }
     }
 
@@ -565,6 +565,10 @@ class HomeworkRepositoryImpl(
         return minOf(task?.id ?: 0, 0) - 1
     }
 
+    override suspend fun findLocalDocumentId(): Int {
+        return homeworkDocumentDao.getAllHomeworkDocuments().first().minByOrNull { it.id }?.id ?: 0
+    }
+
     override suspend fun getHomeworkByTask(task: HomeworkTask): Homework {
         val homeworkId = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().homeworkId
         return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel(context)
@@ -623,6 +627,13 @@ class HomeworkRepositoryImpl(
 
     override suspend fun clearCache() {
         homeworkDao.deleteAllCloud()
+        File(context.filesDir, "homework_documents").listFiles()?.forEach {
+            val id = it.name.substringBefore(".").toInt()
+            if (id > 0) {
+                homeworkDocumentDao.deleteHomeworkDocumentById(id)
+                it.delete()
+            }
+        }
     }
 
     override fun isUpdateRunning(): Boolean {
@@ -660,6 +671,10 @@ private data class HomeworkResponse(
     @SerializedName("data") val homework: List<HomeworkResponseRecord>
 )
 
+private data class UploadDocumentResponse(
+    @SerializedName("data") val id: Int
+)
+
 private data class HomeworkResponseRecord(
     @SerializedName("id") val id: Long,
     @SerializedName("vp_id") val vpId: Int,
@@ -667,7 +682,8 @@ private data class HomeworkResponseRecord(
     @SerializedName("created_by") val createdBy: Long,
     @SerializedName("created_at") val createdAt: Long,
     @SerializedName("public") val shareWithClass: Boolean,
-    @SerializedName("tasks") val tasks: List<HomeRecordTask>
+    @SerializedName("tasks") val tasks: List<HomeRecordTask>,
+    @SerializedName("documentIds") val documentIds: List<Int>
 )
 
 private data class HomeRecordTask @JvmOverloads constructor(
@@ -692,7 +708,7 @@ private data class AddHomeworkRequest(
 )
 
 private data class AddHomeworkResponse(
-    @SerializedName("id") val id: Int,
+    @SerializedName("id") val id: Long,
     @SerializedName("tasks") val tasks: List<AddHomeworkResponseTask>,
 )
 
