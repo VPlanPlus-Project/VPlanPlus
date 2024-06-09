@@ -114,7 +114,7 @@ fun HomeScreen(
         onPrivacyPolicyClicked = {
             openLink(
                 context,
-                "https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md"
+                "${state.server.uiHost}/privacy"
             )
         },
         onRepositoryClicked = {
