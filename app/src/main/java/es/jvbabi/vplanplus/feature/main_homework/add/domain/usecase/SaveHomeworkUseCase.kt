@@ -34,7 +34,7 @@ class SaveHomeworkUseCase(
             `class` = `class`,
             until = dueTo,
             defaultLessonVpId = defaultLesson?.vpId,
-            tasks = tasks.map { NewTaskRecord(it.trim()) },
+            tasks = tasks.map { NewTaskRecord(it.trim()) }.filterNot { it.content.isBlank() },
             storeInCloud = storeInCloud,
             shareWithClass = shareWithClass,
             createdAt = ZonedDateTime.now(),

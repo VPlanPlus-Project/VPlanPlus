@@ -312,7 +312,6 @@
     <string name="delete">Löschen</string>
     <string name="addHomework_shareSubtitleOnlyLocal">Du kannst diese Hausaufgabe nicht mit deinen Klassenkameraden teilen, da du nicht mit einer vpp.ID angemeldet bist.</string>
     <string name="addHomework_noVppIdTitle">Keine vpp.ID gefunden</string>
-    <string name="addHomework_noVppIdText">Du benötigst eine vpp.ID, um deine Hausaufgaben online zu speichern und mit deinen Klassenkameraden zu teilen. Gehe in die Einstellungen, um dich anzumelden. Ohne Anmeldung, kannst du Hausaufgaben dennoch lokal speichern.</string>
     <string name="addHomework_noVppIdButtonOpenSettings">Einstellungen</string>
     <string name="main_homework">Hausaufgaben</string>
     <string name="homework_title">Hausaufgaben</string>
@@ -540,7 +539,7 @@
     <string name="search_resultDateChange">Datum</string>
     <string name="notification_homeworkReminderNoDefaultLesson">keinem definierten Fach</string>
     <string name="homework_noSubject">Kein Fach</string>
-    <string name="addHomework_removeSubject">Fach entfernen</string>
+    <string name="addHomework_removeSubjectTitle">Fach entfernen</string>
     <string name="searchAvailableRoom_disclaimerText">Diese Daten können unvollständig sein, da aktuelle Änderungen möglicherweise nicht in den Vertretungsplänen berücksichtigt sind. Die Buchungen werden von der Schule nicht offiziell anerkannt.</string>
     <string name="disclaimer">Haftungsausschluss</string>
     <string name="vppIdLink_invalidClassTitle">Ungültige Klasse</string>
@@ -649,10 +648,13 @@
     <string name="addHomework_storeOnThisDevice">Dieses Gerät</string>
     <string name="addHomework_shareWithClass">Mit Klasse teilen</string>
     <string name="addHomework_storeInCloud">Deine vpp.ID</string>
-    <string name="addHomework_saveThisDevice">Dieses Gerät</string>
-    <string name="addHomework_saveVppId">Deine vpp.ID</string>
-    <string name="addHomework_saveVppIdNoVppId">Keine vpp.ID angemeldet</string>
-    <string name="addHomework_saveVppIdSharedTitle">Freigegeben</string>
-    <string name="addHomework_saveVppIdSharedDescription">In deiner vpp.ID • Mit Klasse geteilt</string>
+    <string name="addHomework_saveThisDevice">Lokal</string>
+    <string name="addHomework_saveVppId">vpp.ID</string>
+    <string name="addHomework_saveVppIdNoVppId">Du bist nicht in deiner vpp.ID angemeldet. Gehe zu den Einstellungen um dich anzumelden und die Cloudsynchronisierung und vieles mehr nutzen zu können.</string>
+    <string name="addHomework_saveVppIdSharedTitle">Geteilt</string>
+    <string name="addHomework_saveVppIdSharedDescription">Deine Klasse kann diese Hausaufgabe sehen.</string>
+    <string name="addHomework_saveThisDeviceText">Diese Hausaufgabe wird auf diesem Gerät gespeichert und ist somit für andere nicht einsehbar.</string>
+    <string name="addHomework_saveVppIdText">Diese Hausaufgabe wird in deiner vpp.ID gespeichert, Alle Informationen und der Fortschritt der Aufgaben wird auf jedes Gerät synchronisiert, in welchem du mit deiner vpp.ID angemeldet bist.</string>
+    <string name="addHomework_taskPlaceholder">Aufgabe %1$d</string>
 
 </resources>

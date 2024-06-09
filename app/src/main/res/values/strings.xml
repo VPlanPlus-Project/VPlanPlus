@@ -310,7 +310,6 @@
     <string name="delete">Delete</string>
     <string name="addHomework_shareSubtitleOnlyLocal">You can\'t share this homework with your classmates because you\'re not logged in to vpp.ID.</string>
     <string name="addHomework_noVppIdTitle">No vpp.ID found</string>
-    <string name="addHomework_noVppIdText">You need a vpp.ID to save your homework online and share it with your classmates. Go to settings, to log in. If you decide, not to log in, you can still save homework locally on your device.</string>
     <string name="addHomework_noVppIdButtonOpenSettings">Open settings</string>
     <string name="main_homework">Homework</string>
     <string name="homework_title">Homework</string>
@@ -541,7 +540,7 @@
     <string name="search_resultDateChange">Date</string>
     <string name="notification_homeworkReminderNoDefaultLesson">an unset subject</string>
     <string name="homework_noSubject">No subject</string>
-    <string name="addHomework_removeSubject">Remove subject</string>
+    <string name="addHomework_removeSubjectTitle">Remove subject</string>
     <string name="searchAvailableRoom_disclaimerText">This data might be incomplete as recent changes might not be represented in substitution plans. Bookings are not officially recognized by the school.</string>
     <string name="disclaimer">Disclaimer</string>
     <string name="vppIdLink_invalidClassTitle">Invalid class</string>
@@ -652,10 +651,13 @@
     <string name="addHomework_storeOnThisDevice">This device</string>
     <string name="addHomework_shareWithClass">Sharing with classmates</string>
     <string name="addHomework_storeInCloud">In your vpp.ID</string>
-    <string name="addHomework_saveThisDevice">This device</string>
-    <string name="addHomework_saveVppId">Your vpp.ID</string>
-    <string name="addHomework_saveVppIdNoVppId">No vpp.ID</string>
+    <string name="addHomework_saveThisDevice">Locally</string>
+    <string name="addHomework_saveVppId">vpp.ID</string>
+    <string name="addHomework_saveVppIdNoVppId">You\'re not logged in to your vpp.ID. Head to the settings so you can get cloud synchronisation and more!</string>
     <string name="addHomework_saveVppIdSharedTitle">Shared</string>
-    <string name="addHomework_saveVppIdSharedDescription">Saved in your vpp.ID • Shared with your classmates</string>
+    <string name="addHomework_saveVppIdSharedDescription">You classmates will see this homework.</string>
+    <string name="addHomework_saveThisDeviceText">This homework will be stored locally and thus cannot be seen by others.</string>
+    <string name="addHomework_saveVppIdText">This homework will be saved in your vpp.ID. Its information and progress will be synchronized with all devices you use with your vpp.ID.</string>
+    <string name="addHomework_taskPlaceholder">Task %1$d</string>
 
 </resources>

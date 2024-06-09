@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.ui
 
+import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -62,22 +63,8 @@ class AddHomeworkViewModel @Inject constructor(
         }
     }
 
-    fun setLessonDialogOpen(isOpen: Boolean) {
-        state.value = state.value.copy(isLessonDialogOpen = isOpen)
-    }
-
-    fun setUntilDialogOpen(isOpen: Boolean) {
-        state.value = state.value.copy(isUntilDialogOpen = isOpen)
-    }
-
     fun setDefaultLesson(defaultLesson: DefaultLesson?) {
         state.value = state.value.copy(selectedDefaultLesson = defaultLesson)
-        setLessonDialogOpen(false)
-    }
-
-    fun setUntil(until: LocalDate?) {
-        state.value = state.value.copy(until = until)
-        setUntilDialogOpen(false)
     }
 
     /**
@@ -108,6 +95,9 @@ class AddHomeworkViewModel @Inject constructor(
             is CreateTask -> addTask(event.content)
             is UpdateTask -> updateTask(event.index, event.content)
             is UpdateSaveType -> setSaveType(event.saveType)
+            is UpdateUntil -> updateDueTo(event.until)
+            is AddDocument -> addDocument(event.uri)
+            is RemoveDocument -> removeDocument(event.uri)
         }
     }
 
@@ -133,6 +123,18 @@ class AddHomeworkViewModel @Inject constructor(
     private fun setSaveType(saveType: SaveType) {
         state.value = state.value.copy(saveType = saveType)
     }
+
+    private fun addDocument(uri: Uri) {
+        state.value = state.value.copy(imageUris = state.value.imageUris + uri)
+    }
+
+    private fun removeDocument(uri: Uri) {
+        state.value = state.value.copy(imageUris = state.value.imageUris.toMutableList().apply { remove(uri) })
+    }
+
+    private fun updateDueTo(dueTo: LocalDate) {
+        state.value = state.value.copy(until = dueTo)
+    }
 }
 
 data class AddHomeworkState(
@@ -145,9 +147,7 @@ data class AddHomeworkState(
     val defaultLessonsFiltered: Boolean = false,
     val defaultLessons: List<DefaultLesson> = emptyList(),
     val selectedDefaultLesson: DefaultLesson? = null,
-    val isLessonDialogOpen: Boolean = false,
 
-    val isUntilDialogOpen: Boolean = false,
     val until: LocalDate? = null,
 
     val saveType: SaveType? = null,
@@ -158,10 +158,15 @@ data class AddHomeworkState(
     val result: HomeworkModificationResult? = null,
     val isLoading: Boolean = false,
 
-    val showNewSaveButtonLocationBalloon: Boolean = false
+    val showNewSaveButtonLocationBalloon: Boolean = false,
+
+    val imageUris: List<Uri> = emptyList()
 ) {
     val canSubmit: Boolean
-        get() = until != null && tasks.isNotEmpty() && !isLoading
+        get() = until != null && tasks.all { it.isNotBlank() } && !isLoading && !isInvalidSaveTypeSelected
+
+    val isInvalidSaveTypeSelected: Boolean
+        get() = (saveType == SaveType.SHARED || saveType == SaveType.CLOUD) && !canUseCloud
 }
 
 enum class SaveType {
@@ -176,3 +181,8 @@ data class DeleteTask(val index: Int): AddHomeworkUiEvent()
 data class CreateTask(val content: String): AddHomeworkUiEvent()
 data class UpdateTask(val index: Int, val content: String) : AddHomeworkUiEvent()
 data class UpdateSaveType(val saveType: SaveType) : AddHomeworkUiEvent()
+
+data class UpdateUntil(val until: LocalDate) : AddHomeworkUiEvent()
+
+data class AddDocument(val uri: Uri) : AddHomeworkUiEvent()
+data class RemoveDocument(val uri: Uri) : AddHomeworkUiEvent()

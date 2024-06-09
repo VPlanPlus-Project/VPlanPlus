@@ -1,54 +1,60 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.ui
 
-import android.content.Context
-import android.util.DisplayMetrics
+import android.app.Activity
+import android.app.Activity.RESULT_OK
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Cancel
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PhoneAndroid
-import androidx.compose.material.icons.filled.School
 import androidx.compose.material.icons.filled.Share
-import androidx.compose.material3.AssistChip
-import androidx.compose.material3.DatePicker
-import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SelectableDates
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -59,8 +65,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
@@ -69,6 +75,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
+import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_PDF
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
+import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.BalloonSizeSpec
@@ -77,16 +88,19 @@ import com.skydoves.balloon.compose.rememberBalloonBuilder
 import com.skydoves.balloon.compose.setBackgroundColor
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.DateChip
-import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.StoreSaveModal
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddImageButton
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.ImageButton
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.default_lesson_dialog.SelectDefaultLessonSheet
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.due_to.SetDueToModal
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
-import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
-import es.jvbabi.vplanplus.ui.common.SelectDialog
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
+import es.jvbabi.vplanplus.ui.common.SegmentedButtonItem
+import es.jvbabi.vplanplus.ui.common.SegmentedButtons
+import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.blendColor
 import kotlinx.coroutines.delay
-import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -96,6 +110,32 @@ fun AddHomeworkScreen(
     viewModel: AddHomeworkViewModel = hiltViewModel(),
     vpId: Long? = null
 ) {
+    val context = LocalContext.current
+
+    val scannerOptions = remember {
+        GmsDocumentScannerOptions.Builder()
+            .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
+            .setGalleryImportAllowed(true)
+            .setPageLimit(3)
+            .setResultFormats(RESULT_FORMAT_PDF, RESULT_FORMAT_JPEG)
+            .build()
+    }
+
+    val scanner = remember {
+        GmsDocumentScanning.getClient(scannerOptions)
+    }
+
+    val scannerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) {
+        if (it.resultCode == RESULT_OK) {
+            val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
+            Log.d("AddHomeworkScreen", "Scanned ${result?.pages?.size} pages")
+            result?.pages?.map { image -> image.imageUri }?.forEach { uri ->
+                viewModel.onUiAction(AddDocument(uri))
+            }
+        }
+    }
 
     val state = viewModel.state.value
     LaunchedEffect(vpId, state.initDone) {
@@ -104,15 +144,19 @@ fun AddHomeworkScreen(
     }
     AddHomeworkContent(
         onBack = { navHostController.popBackStack() },
-        onOpenDefaultLessonDialog = { viewModel.setLessonDialogOpen(true) },
-        onCloseDefaultLessonDialog = { viewModel.setLessonDialogOpen(false) },
-        onOpenDateDialog = { viewModel.setUntilDialogOpen(true) },
-        onCloseDateDialog = { viewModel.setUntilDialogOpen(false) },
         onSetDefaultLesson = { viewModel.setDefaultLesson(it) },
-        onSetDate = { viewModel.setUntil(it) },
         onOpenVppIdSettings = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onSave = viewModel::requestSave,
         onAction = viewModel::onUiAction,
+        startScanning = {
+            scanner.getStartScanIntent(context as Activity)
+                .addOnSuccessListener {
+                    scannerLauncher.launch(IntentSenderRequest.Builder(it).build())
+                }
+                .addOnFailureListener {
+                    Log.e("AddHomeworkScreen", "Failed to start scanning", it)
+                }
+        },
         state = state
     )
 
@@ -126,78 +170,40 @@ fun AddHomeworkScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun AddHomeworkContent(
     onBack: () -> Unit = {},
-    onOpenDefaultLessonDialog: () -> Unit = {},
-    onCloseDefaultLessonDialog: () -> Unit = {},
     onSetDefaultLesson: (DefaultLesson?) -> Unit = {},
-    onOpenDateDialog: () -> Unit = {},
-    onCloseDateDialog: () -> Unit = {},
-    onSetDate: (LocalDate?) -> Unit = {},
     onOpenVppIdSettings: () -> Unit = {},
     onSave: () -> Unit = {},
     onAction: (action: AddHomeworkUiEvent) -> Unit = { _ -> },
+    startScanning: () -> Unit = {},
     state: AddHomeworkState
 ) {
-    var isSaveTypeSheetOpen by rememberSaveable { mutableStateOf(false) }
-    val saveTypeSheetState = rememberModalBottomSheetState(true)
-    if (isSaveTypeSheetOpen) StoreSaveModal(
-        canUseVppId = state.canUseCloud,
-        allowNoVppIdBanner = state.canShowCloudInfoBanner,
-        sheetState = saveTypeSheetState,
-        currentState = state.saveType ?: SaveType.LOCAL,
-        onSubmit = { onAction(UpdateSaveType(it)) },
-        onDismissRequest = { isSaveTypeSheetOpen = false },
-        onOpenVppIdSettings = onOpenVppIdSettings,
-        onHideBannerForever = { onAction(HideNoVppIdBanner) }
+
+    var isSelectDefaultLessonSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val selectDefaultLessonSheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = true,
+        confirmValueChange = { it != SheetValue.PartiallyExpanded }
+    )
+    if (isSelectDefaultLessonSheetOpen) SelectDefaultLessonSheet(
+        defaultLessons = state.defaultLessons,
+        selectedDefaultLesson = state.selectedDefaultLesson,
+        hasDefaultLessonsFiltered = state.defaultLessonsFiltered,
+        sheetState = selectDefaultLessonSheetState,
+        onDismiss = { isSelectDefaultLessonSheetOpen = false },
+        onSelectDefaultLesson = onSetDefaultLesson
     )
 
-    val noTeacher = stringResource(id = R.string.settings_profileDefaultLessonNoTeacher)
-    if (state.isLessonDialogOpen) {
-        SelectDialog(
-            icon = Icons.Default.School,
-            message =
-            if (state.defaultLessonsFiltered) stringResource(id = R.string.addHomework_defaultLessonFilteredMessage)
-            else null,
-            title = stringResource(id = R.string.addHomework_defaultLessonTitle),
-            items = state.defaultLessons.sortedBy { it.subject },
-            value = state.selectedDefaultLesson,
-            itemToComposable = { Text(it.subject + " $DOT " + (it.teacher?.acronym ?: noTeacher)) },
-            onDismiss = onCloseDefaultLessonDialog,
-            onOk = { onSetDefaultLesson(it) }
-        )
-    }
-    if (state.isUntilDialogOpen) {
-        val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
-            override fun isSelectableDate(utcTimeMillis: Long): Boolean {
-                val date = DateUtils.getDateFromTimestamp(utcTimeMillis / 1000)
-                return date.isAfter(LocalDate.now())
-            }
-        })
-
-        DatePickerDialog(
-            onDismissRequest = onCloseDateDialog,
-            confirmButton = {
-                TextButton(onClick = {
-                    val date =
-                        if (datePickerState.selectedDateMillis == null) null
-                        else DateUtils.getDateFromTimestamp(datePickerState.selectedDateMillis!! / 1000)
-                    onSetDate(date)
-                }) {
-                    Text(stringResource(id = R.string.ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = onCloseDateDialog) {
-                    Text(stringResource(id = android.R.string.cancel))
-                }
-            }
-        ) {
-            DatePicker(state = datePickerState)
-        }
-    }
+    var isUntilSheetOpen by rememberSaveable { mutableStateOf(false) }
+    val untilSheetState = rememberModalBottomSheetState(true)
+    if (isUntilSheetOpen) SetDueToModal(
+        sheetState = untilSheetState,
+        selectedDate = state.until,
+        onSelectDate = { onAction(UpdateUntil(it)) },
+        onDismiss = { isUntilSheetOpen = false }
+    )
 
     Scaffold(
         topBar = {
@@ -238,8 +244,8 @@ private fun AddHomeworkContent(
                             Text(text = stringResource(id = R.string.addHomework_newDesignInfo), color = colorScheme.onPrimaryContainer)
                         }
                     ) { balloonWindow ->
-                        LaunchedEffect(key1 = state.showNewSaveButtonLocationBalloon, key2 = state.canSubmit) {
-                            delay(200)
+                        LaunchedEffect(key1 = state.showNewSaveButtonLocationBalloon) {
+                            delay(100)
                             if (state.showNewSaveButtonLocationBalloon && state.canSubmit) {
                                 balloonWindow.showAlignBottom()
                                 onAction(NewLayoutBalloonDismissed)
@@ -254,8 +260,7 @@ private fun AddHomeworkContent(
                     }
                 }
             )
-        },
-        //modifier = Modifier.imePadding()
+        }
     ) { paddingValues ->
         Column(
             modifier = Modifier
@@ -285,7 +290,7 @@ private fun AddHomeworkContent(
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent
                     ),
-                    placeholder = { Text(text = "Aufgabe $i") },
+                    placeholder = { Text(text = stringResource(id = R.string.addHomework_taskPlaceholder, i + 1)) },
                     leadingIcon = {
                         Box(
                             Modifier
@@ -330,147 +335,225 @@ private fun AddHomeworkContent(
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                placeholder = { Text(text = "Neue Aufgabe") }, // todo string resource
-                leadingIcon = {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                },
+                placeholder = { Text(text = stringResource(id = R.string.addHomework_newTask)) },
+                leadingIcon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
             )
 
-            HorizontalDivider()
-
-            Column(
-                Modifier
+            RowVerticalCenterSpaceBetweenFill(
+                modifier = Modifier
+                    .padding(8.dp)
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { onOpenDefaultLessonDialog() }
-                    .padding(bottom = 16.dp)
+                    .height(92.dp)
+                    .clip(RoundedCornerShape(24.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .drawWithContent {
+                        drawContent()
+                        drawLine(
+                            color = colorScheme.outline,
+                            start = Offset(size.width / 2, 16.dp.toPx()),
+                            end = Offset(size.width / 2, size.height - 16.dp.toPx()),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }
             ) {
-                RowVerticalCenter(Modifier.padding(start = 12.dp, top = 16.dp)) {
-                    Box(modifier = Modifier.size(24.dp)) icon@{
-                        Icon(
-                            imageVector = Icons.Default.School,
-                            contentDescription = null
-                        )
-                    }
-                    Column(Modifier.padding(start = 16.dp, end = 4.dp)) {
-                        Text(
-                            text = stringResource(id = R.string.addHomework_lesson),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Text(
-                            text =
-                            if (state.selectedDefaultLesson == null) stringResource(id = R.string.addHomework_notSelected)
-                            else if (state.selectedDefaultLesson.teacher == null) stringResource(id = R.string.addHomework_lessonSubtitleNoTeacher, state.selectedDefaultLesson.subject)
-                            else stringResource(
-                                id = R.string.addHomework_lessonSubtitle,
-                                state.selectedDefaultLesson.subject,
-                                state.selectedDefaultLesson.teacher.acronym
-                            ),
-                            style = MaterialTheme.typography.bodySmall
-                        )
-                    }
-                }
-
-                AnimatedVisibility(
-                    visible = state.selectedDefaultLesson != null,
-                    enter = expandVertically(tween(250)),
-                    exit = shrinkVertically(tween(250))
+                RowVerticalCenter(
+                    Modifier
+                        .weight(1f, true)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { isSelectDefaultLessonSheetOpen = true }
+                        .padding(start = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    AssistChip(
-                        modifier = Modifier.padding(start = 56.dp),
-                        onClick = { onSetDefaultLesson(null) },
-                        label = { Text(text = stringResource(id = R.string.addHomework_removeSubject)) },
-                        leadingIcon = { Icon(imageVector = Icons.Default.Cancel, contentDescription = null) }
+                    SubjectIcon(
+                        subject = state.selectedDefaultLesson?.subject,
+                        modifier = Modifier.size(32.dp),
+                        tint = colorScheme.onSurfaceVariant
                     )
-                }
-            }
-
-            HorizontalDivider()
-
-            Box(
-                Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { onOpenDateDialog() }
-            ) {
-                RowVerticalCenter(Modifier.padding(start = 12.dp, top = 16.dp, bottom = 16.dp)) {
-                    Icon(imageVector = Icons.Default.AccessTime, contentDescription = null)
-                    Box(Modifier.padding(start = 8.dp), contentAlignment = Alignment.CenterStart) {
-                        var realSize by remember { mutableFloatStateOf(0f) }
-                        val sizeText by animateFloatAsState(targetValue = realSize, animationSpec = tween(250), label = "padding row")
-                        val context = LocalContext.current
-                        Column(
-                            Modifier
-                                .padding(start = 8.dp, end = 4.dp)
-                                .onSizeChanged {
-                                    realSize = it.width
-                                        .toFloat()
-                                        .pxToDp(context)
-                                }
-                        ) {
+                    RowVerticalCenterSpaceBetweenFill {
+                        Column {
                             Text(
-                                text = stringResource(id = R.string.addHomework_until),
+                                text = stringResource(id = R.string.addHomework_lesson),
                                 style = MaterialTheme.typography.bodyLarge
                             )
                             Text(
-                                text = if (state.until == null) stringResource(id = R.string.addHomework_notSelected) else state.until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
+                                text =
+                                if (state.selectedDefaultLesson == null) stringResource(id = R.string.addHomework_notSelected)
+                                else if (state.selectedDefaultLesson.teacher == null) stringResource(id = R.string.addHomework_lessonSubtitleNoTeacher, state.selectedDefaultLesson.subject)
+                                else stringResource(
+                                    id = R.string.addHomework_lessonSubtitle,
+                                    state.selectedDefaultLesson.subject,
+                                    state.selectedDefaultLesson.teacher.acronym
+                                ),
                                 style = MaterialTheme.typography.bodySmall
                             )
                         }
-                        LazyRow {
-                            items(4) { i ->
-                                val date = LocalDate.now().plusDays(i + 1L)
-                                Box(
-                                    modifier = Modifier
-                                        .then(if (i == 0) Modifier.padding(start = 16.dp + sizeText.dp) else Modifier)
-                                        .background(MaterialTheme.colorScheme.surface)
-                                ) {
-                                    DateChip(
-                                        date = date,
-                                        selected = state.until == date,
-                                    ) { onSetDate(date) }
-                                }
+                        AnimatedVisibility(
+                            visible = state.selectedDefaultLesson != null,
+                            enter = expandHorizontally(),
+                            exit = shrinkHorizontally()
+                        ) {
+                            IconButton(
+                                onClick = { onSetDefaultLesson(null) }
+                            ) {
+                                Icon(imageVector = Icons.Default.Close, contentDescription = null)
                             }
                         }
                     }
                 }
-            }
-
-            HorizontalDivider()
-
-            Box(
-                Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .clickable { isSaveTypeSheetOpen = true }
-            ) {
-                RowVerticalCenter(Modifier.padding(start = 12.dp, top = 16.dp, bottom = 16.dp)) {
-                    Box(modifier = Modifier.size(24.dp)) icon@{
-                        Icon(
-                            imageVector = when (state.saveType) {
-                                SaveType.LOCAL -> Icons.Default.PhoneAndroid
-                                SaveType.CLOUD -> Icons.Default.CloudQueue
-                                SaveType.SHARED -> Icons.Default.Share
-                                null -> return@icon
-                            },
-                            contentDescription = null
-                        )
-                    }
-                    Column(Modifier.padding(start = 16.dp, end = 4.dp)) {
+                RowVerticalCenter(
+                    Modifier
+                        .weight(1f, true)
+                        .fillMaxHeight()
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { isUntilSheetOpen = true }
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.AccessTime,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = colorScheme.onSurfaceVariant
+                    )
+                    Column {
                         Text(
-                            text = stringResource(id = R.string.addHomework_storeTitle),
+                            text = stringResource(id = R.string.addHomework_until),
                             style = MaterialTheme.typography.bodyLarge
                         )
                         Text(
-                            text =
-                            when (state.saveType) {
-                                SaveType.LOCAL -> stringResource(id = R.string.addHomework_storeOnThisDevice)
-                                SaveType.CLOUD -> stringResource(id = R.string.addHomework_storeInCloud)
-                                SaveType.SHARED -> stringResource(id = R.string.addHomework_storeInCloud) + " $DOT " + stringResource(id = R.string.addHomework_shareWithClass)
-                                null -> ""
-                            },
+                            text = if (state.until == null) stringResource(id = R.string.addHomework_notSelected) else state.until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")),
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
+                }
+            }
+
+            Text(
+                text = stringResource(id = R.string.addHomework_storeTitle),
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 4.dp)
+            )
+            RowVerticalCenter(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                SegmentedButtons(Modifier.weight(1f, true)) {
+                    SegmentedButtonItem(
+                        icon = { Icon(imageVector = Icons.Default.PhoneAndroid, contentDescription = null) },
+                        label = { Text(text = stringResource(id = R.string.addHomework_saveThisDevice)) },
+                        selected = state.saveType == SaveType.LOCAL,
+                        onClick = { onAction(UpdateSaveType(SaveType.LOCAL)) }
+                    )
+                }
+
+                SegmentedButtons(Modifier.weight(2f, true)) {
+                    SegmentedButtonItem(
+                        icon = { Icon(imageVector = Icons.Default.CloudQueue, contentDescription = null) },
+                        label = { Text(stringResource(id = R.string.addHomework_saveVppId)) },
+                        selected = state.saveType == SaveType.CLOUD,
+                        onClick = { onAction(UpdateSaveType(SaveType.CLOUD)) }
+                    )
+                    SegmentedButtonItem(
+                        icon = { Icon(imageVector = Icons.Default.Share, contentDescription = null) },
+                        label = { Text(stringResource(id = R.string.addHomework_saveVppIdSharedTitle)) },
+                        selected = state.saveType == SaveType.SHARED,
+                        onClick = { onAction(UpdateSaveType(SaveType.SHARED)) }
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .animateContentSize(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                val style = MaterialTheme.typography.bodyMedium
+                val iconColorFade by animateFloatAsState(targetValue = if (state.isInvalidSaveTypeSelected) 1f else 0f, label = "info icon fader")
+                val iconColor = blendColor(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.error, iconColorFade)
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = null,
+                    modifier = Modifier.size(style.lineHeight.value.dp),
+                    tint = iconColor
+                )
+                Column {
+                    Text(
+                        text = when (state.saveType) {
+                            SaveType.LOCAL -> stringResource(id = R.string.addHomework_saveThisDeviceText)
+                            null -> ""
+                            else -> {
+                                if (state.canUseCloud) {
+                                    var string =  stringResource(id = R.string.addHomework_saveVppIdText)
+                                    if (state.saveType == SaveType.SHARED) string += " " + stringResource(id = R.string.addHomework_saveVppIdSharedDescription)
+                                    string
+                                }
+                                else stringResource(id = R.string.addHomework_saveVppIdNoVppId)
+                            }
+                        },
+                        style = style,
+                    )
+                    if (state.isInvalidSaveTypeSelected) {
+                        TextButton(onClick = onOpenVppIdSettings, modifier = Modifier.align(Alignment.End)) {
+                            Icon(imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight, contentDescription = null)
+                            Text(text = stringResource(id = R.string.addHomework_noVppIdButtonOpenSettings))
+                        }
+                    }
+                }
+            }
+
+//            Box(
+//                Modifier
+//                    .fillMaxWidth()
+//                    .clip(RoundedCornerShape(16.dp))
+//                    .clickable { isSaveTypeSheetOpen = true }
+//            ) {
+//                RowVerticalCenter(Modifier.padding(start = 12.dp, top = 16.dp, bottom = 16.dp)) {
+//                    Box(modifier = Modifier.size(24.dp)) icon@{
+//                        Icon(
+//                            imageVector = when (state.saveType) {
+//                                SaveType.LOCAL -> Icons.Default.PhoneAndroid
+//                                SaveType.CLOUD -> Icons.Default.CloudQueue
+//                                SaveType.SHARED -> Icons.Default.Share
+//                                null -> return@icon
+//                            },
+//                            contentDescription = null
+//                        )
+//                    }
+//                    Column(Modifier.padding(start = 16.dp, end = 4.dp)) {
+//                        Text(
+//                            text = stringResource(id = R.string.addHomework_storeTitle),
+//                            style = MaterialTheme.typography.bodyLarge
+//                        )
+//                        Text(
+//                            text =
+//                            when (state.saveType) {
+//                                SaveType.LOCAL -> stringResource(id = R.string.addHomework_storeOnThisDevice)
+//                                SaveType.CLOUD -> stringResource(id = R.string.addHomework_storeInCloud)
+//                                SaveType.SHARED -> stringResource(id = R.string.addHomework_storeInCloud) + " $DOT " + stringResource(id = R.string.addHomework_shareWithClass)
+//                                null -> ""
+//                            },
+//                            style = MaterialTheme.typography.bodySmall
+//                        )
+//                    }
+//                }
+//            }
+
+            HorizontalDivider()
+
+            LazyRow(
+                modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                item {
+                    Spacer(modifier = Modifier.size(8.dp))
+                }
+                items(state.imageUris, key = { it.hashCode() }) {
+                    ImageButton(Modifier.animateItemPlacement(), it) { onAction(RemoveDocument(it)) }
+                }
+                item {
+                    AddImageButton(onClick = startScanning)
                 }
             }
         }
@@ -501,14 +584,9 @@ private fun AddHomeworkScreenPreview() {
     AddHomeworkContent(
         state = AddHomeworkState(
             username = "John Doe",
-            isLessonDialogOpen = false,
-            isUntilDialogOpen = false,
             tasks = listOf("Task 1", "Task 2", "Task 3"),
             canUseCloud = true,
             canShowCloudInfoBanner = true
         )
     )
 }
-
-fun Float.pxToDp(context: Context): Float =
-    (this / (context.resources.displayMetrics.densityDpi.toFloat() / DisplayMetrics.DENSITY_DEFAULT))
