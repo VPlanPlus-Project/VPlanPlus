@@ -8,13 +8,16 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -28,16 +31,16 @@ import es.jvbabi.vplanplus.util.blendColor
 fun TaskRecord(
     task: String,
     isDone: Boolean,
-    isLoading: Boolean,
     onClick: () -> Unit = {},
 ) {
+    var isLoading by rememberSaveable { mutableStateOf(false) }
     val colorScheme = MaterialTheme.colorScheme
     val blendValue by animateFloatAsState(targetValue = if (isDone) 0f else 1f, label = "blendValue")
     RowVerticalCenter(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() }
+            .clickable { isLoading = true; onClick() }
     ) {
         Box(
             modifier = Modifier
@@ -48,20 +51,30 @@ fun TaskRecord(
                         radius = 14.dp.toPx(),
                     )
                     drawCircle(
-                        color = blendColor(colorScheme.background.copy(alpha = 0f), colorScheme.background, blendValue),
+                        color = blendColor(
+                            colorScheme.background.copy(alpha = 0f),
+                            colorScheme.background,
+                            blendValue
+                        ),
                         radius = 12.dp.toPx(),
                     )
                     drawContent()
                 },
             contentAlignment = Alignment.Center,
         ) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .alpha(animateFloatAsState(targetValue = if (isLoading) 1f else 0f, label = "Alpha").value)
+                    .size(30.dp),
+                strokeWidth = 4.dp
+            )
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = null,
                 tint = colorScheme.onPrimary,
                 modifier = Modifier
                     .size(24.dp)
-                    .alpha(1-blendValue),
+                    .alpha(1 - blendValue),
             )
         }
         Text(
@@ -78,7 +91,6 @@ private fun TaskRecordPreview() {
     TaskRecord(
         task = "Task",
         isDone = false,
-        isLoading = false,
     )
 }
 
@@ -88,6 +100,5 @@ private fun TaskRecordDonePreview() {
     TaskRecord(
         task = "Task",
         isDone = true,
-        isLoading = false,
     )
 }

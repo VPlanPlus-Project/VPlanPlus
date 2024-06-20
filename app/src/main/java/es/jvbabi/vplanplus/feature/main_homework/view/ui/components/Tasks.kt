@@ -13,7 +13,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTas
 @Composable
 fun Tasks(
     tasks: List<HomeworkTask>,
-    onClick: (HomeworkTask) -> Unit
+    onTaskClicked: (HomeworkTask) -> Unit
 ) {
     Column(
         Modifier
@@ -23,10 +23,10 @@ fun Tasks(
             text = "Aufgaben", // TODO sr
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.outline,
-            modifier = Modifier.padding(bottom = 2.dp)
+            modifier = Modifier.padding(bottom = 4.dp)
         )
         tasks.forEach { task ->
-            TaskRecord(task = task.content, isDone = task.done, isLoading = false, onClick = { onClick(task) })
+            TaskRecord(task = task.content, isDone = task.done, onClick = { onTaskClicked(task) })
         }
     }
 }

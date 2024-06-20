@@ -29,7 +29,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTas
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DefaultLessonCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DueToCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.ProgressCard
-import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.TaskRecord
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.Tasks
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
@@ -52,6 +51,7 @@ fun HomeworkDetailScreen(
     val state = viewModel.state
     HomeworkDetailScreenContent(
         onBack = { navHostController.popBackStack() },
+        onAction = viewModel::onAction,
         state = state
     )
 }
@@ -59,7 +59,8 @@ fun HomeworkDetailScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeworkDetailScreenContent(
-    onBack: () -> Unit = { },
+    onBack: () -> Unit = {},
+    onAction: (action: UiAction) -> Unit = {},
     state: HomeworkDetailState
 ) {
     val scrollBehavior =
@@ -93,7 +94,7 @@ private fun HomeworkDetailScreenContent(
                 DueToCard(until = state.homework?.until?.toLocalDate())
             }
             HorizontalDivider(Modifier.padding(8.dp))
-            Tasks(tasks = state.homework?.tasks?: emptyList(), onClick = {})
+            Tasks(tasks = state.homework?.tasks?: emptyList(), onTaskClicked = { onAction(TaskDoneStateToggledAction(it)) })
         }
     }
 }

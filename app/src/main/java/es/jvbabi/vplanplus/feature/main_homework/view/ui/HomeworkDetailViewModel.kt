@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -39,9 +40,21 @@ class HomeworkDetailViewModel @Inject constructor(
             }
         }
     }
+
+    fun onAction(action: UiAction) {
+        viewModelScope.launch {
+            when (action) {
+                is TaskDoneStateToggledAction -> homeworkDetailUseCases.taskDoneUseCase(action.homeworkTask, !action.homeworkTask.done)
+            }
+        }
+    }
 }
 
 data class HomeworkDetailState(
     val homework: Homework? = null,
     val currentIdentity: Identity? = null
 )
+
+sealed class UiAction
+
+data class TaskDoneStateToggledAction(val homeworkTask: HomeworkTask) : UiAction()

@@ -80,6 +80,7 @@ fun Welcome(
             val footerText = buildAnnotatedString {
                 withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(color = MaterialTheme.colorScheme.onSurface)) {
                     append(stringResource(id = R.string.onboarding_welcomeAcceptPrivacyPolicyStart))
+                    append(" ")
                     withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(color = MaterialTheme.colorScheme.primary)) {
                         pushStringAnnotation("PRIVACY_POLICY", "PRIVACY_POLICY")
                         append(stringResource(id = R.string.onboarding_welcomeAcceptPrivacyPolicy))
