@@ -30,6 +30,10 @@ open class Homework(
         if (profile.vppId != null && this.createdBy?.id == profile.vppId.id) return true // is remote and created by the profiles vpp.ID
         return false
     }
+
+    fun getTaskById(id: Long): HomeworkTask? {
+        return tasks.find { it.id == id }
+    }
 }
 
 data class HomeworkTask(

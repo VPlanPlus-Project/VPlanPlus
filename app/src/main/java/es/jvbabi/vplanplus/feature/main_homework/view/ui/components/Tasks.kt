@@ -8,36 +8,45 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.noRippleClickable
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.EditTask
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 
 @Composable
 fun Tasks(
     tasks: List<HomeworkTask>,
-    onAddTask: (content: String) -> Unit,
+    editTasks: List<EditTask>,
+    newTasks: List<EditTask>,
     onTaskClicked: (HomeworkTask) -> Unit,
-    onUpdateTaskContent: (task: HomeworkTask, content: String) -> Unit,
-    onDeleteTask: (HomeworkTask) -> Unit,
+    onAddTask: (newTaskId: Long, content: String) -> Unit,
+    onUpdateExistingTask: (existingTaskId: Long, content: String) -> Unit,
+    onUpdateNewTask: (newTaskId: Long, content: String) -> Unit,
+    onDeleteExistingTask: (HomeworkTask) -> Unit,
+    onDeleteNewTask: (newTaskId: Long) -> Unit,
     isEditing: Boolean
 ) {
-    var newTasks by rememberSaveable { mutableStateOf(listOf<String>()) }
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
+            .padding(horizontal = 16.dp)
     ) {
         Text(
             text = stringResource(id = R.string.homework_detailViewTasksTitle),
@@ -46,28 +55,29 @@ fun Tasks(
             modifier = Modifier.padding(bottom = 4.dp)
         )
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            tasks.forEach { task ->
+            editTasks.forEach { editTask ->
+                val task = tasks.firstOrNull { it.id == editTask.id }
                 TaskRecord(
-                    id = task.id,
-                    task = task.content,
-                    isDone = task.done,
+                    id = editTask.id,
+                    task = editTask.content,
+                    isDone = task?.done ?: false,
                     isNewTask = false,
                     isEditing = isEditing,
-                    onClick = { onTaskClicked(task) },
-                    onUpdateTask = { onUpdateTaskContent(task, it) },
-                    onDelete = { onDeleteTask(task) }
+                    onClick = { if (task != null) onTaskClicked(task) },
+                    onUpdateTask = { if (task != null) onUpdateExistingTask(task.id, it) },
+                    onDelete = { if (task != null) onDeleteExistingTask(task) }
                 )
             }
-            newTasks.forEachIndexed { i, t ->
+            newTasks.forEach { newTask ->
                 TaskRecord(
-                    id = i.toLong(),
-                    task = t,
+                    id = newTask.id,
+                    task = newTask.content,
                     isDone = false,
                     isEditing = isEditing,
                     isNewTask = true,
                     onClick = {},
-                    onUpdateTask = { onAddTask(it); newTasks = newTasks - t },
-                    onDelete = { newTasks = newTasks - t },
+                    onUpdateTask = { onUpdateNewTask(newTask.id, it) },
+                    onDelete = { onDeleteNewTask(newTask.id) },
                 )
             }
             AnimatedVisibility(
@@ -75,22 +85,59 @@ fun Tasks(
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth(),
-                    contentAlignment = Alignment.CenterStart
-                ) {
-                    Text(text = stringResource(id = R.string.addHomework_newTask))
-                    RowVerticalCenter(Modifier.fillMaxWidth()) {
-                        BasicTextField(
-                            value = "",
-                            onValueChange = {
-                                if (it.isBlank()) return@BasicTextField
-                                newTasks = newTasks + it
-                            }
-                        )
+                val focusRequester = remember { FocusRequester() }
+                RowVerticalCenter(Modifier.noRippleClickable { focusRequester.requestFocus() }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(8.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                    Box(
+                        modifier = Modifier
+                            .padding(end = 8.dp)
+                            .fillMaxWidth(),
+                        contentAlignment = Alignment.CenterStart
+                    ) {
+                        Text(text = stringResource(id = R.string.addHomework_newTask))
+                        RowVerticalCenter(Modifier.fillMaxWidth()) {
+                            BasicTextField(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .focusRequester(focusRequester),
+                                value = "",
+                                onValueChange = {
+                                    if (it.isBlank()) return@BasicTextField
+                                    onAddTask((newTasks.maxOfOrNull { newTask -> newTask.id } ?: 0) + 1, it)
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun TasksPreview() {
+    Tasks(
+        tasks = listOf(
+            HomeworkTask(1, "Task 1", false),
+            HomeworkTask(2, "Task 2", true),
+            HomeworkTask(3, "Task 3", false),
+        ),
+        onAddTask = { _, _ -> },
+        onTaskClicked = {},
+        onUpdateExistingTask = { _, _ -> },
+        onUpdateNewTask = { _, _ -> },
+        onDeleteExistingTask = {},
+        onDeleteNewTask = {},
+        newTasks = emptyList(),
+        editTasks = emptyList(),
+        isEditing = false
+    )
 }

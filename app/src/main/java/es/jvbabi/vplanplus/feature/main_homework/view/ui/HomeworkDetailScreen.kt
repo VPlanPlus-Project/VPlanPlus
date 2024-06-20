@@ -2,9 +2,7 @@ package es.jvbabi.vplanplus.feature.main_homework.view.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,22 +10,30 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
@@ -44,16 +50,18 @@ import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.Documents
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DueToCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.ProgressCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.Tasks
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.UnsavedChangesDialog
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.FadeAnimatedVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
+import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.School
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
-import es.jvbabi.vplanplus.util.blendColor
-import es.jvbabi.vplanplus.util.toTransparent
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -79,68 +87,84 @@ private fun HomeworkDetailScreenContent(
     onAction: (action: UiAction) -> Unit = {},
     state: HomeworkDetailState
 ) {
-    val scrollBehavior =
-        TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
+
+    var showUnsavedChangesDialog by rememberSaveable { mutableStateOf(false) }
+    if (showUnsavedChangesDialog) UnsavedChangesDialog(
+        onDismiss = { showUnsavedChangesDialog = false },
+        onDiscardChanges = { onAction(ExitAndDiscardChangesAction) }
+    )
 
     BackHandler(state.isEditing) {
-        onAction(ToggleEditModeAction)
+        onAction(StartEditModeAction)
     }
 
     Scaffold(
         topBar = {
-            LargeTopAppBar(
-                title = {
-                    Box {
-                        AnimatedVisibility(
-                            visible = !state.isEditing,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            Text(stringResource(id = R.string.homework_detailViewTitle))
-                        }
-                        AnimatedVisibility(
-                            visible = state.isEditing,
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            Text(stringResource(id = R.string.homework_detailViewEditTitle))
-                        }
-                    }
-                },
-                navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
-                actions = {
-                    val blendValue = animateFloatAsState(
-                        targetValue = if (state.isEditing) 1f else 0f,
-                        label = "blendValue"
+            Box(Modifier.animateContentSize()) {
+                VerticalExpandAnimatedAndFadingVisibility(visible = !state.isEditing) {
+                    LargeTopAppBar(
+                        title = { Text(stringResource(id = R.string.homework_detailViewTitle)) },
+                        navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
+                        actions = {
+                            if (state.canEdit) {
+                                IconButton(onClick = { onAction(StartEditModeAction) }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Edit,
+                                        contentDescription = stringResource(id = R.string.homework_detailViewEditTitle)
+                                    )
+                                }
+                            }
+                        },
+                        scrollBehavior = scrollBehavior
                     )
-                    val backgroundColor = blendColor(
-                        MaterialTheme.colorScheme.surfaceVariant.toTransparent(),
-                        MaterialTheme.colorScheme.surfaceVariant,
-                        blendValue.value
-                    )
-                    if (state.canEdit) {
-                        IconButton(
-                            onClick = { onAction(ToggleEditModeAction) },
-                            colors = IconButtonDefaults.iconButtonColors(
-                                containerColor = backgroundColor
-                            )
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = stringResource(id = R.string.homework_detailViewEditTitle)
-                            )
+                }
+                FadeAnimatedVisibility(visible = state.isEditing) {
+                    TopAppBar(
+                        title = {
+                            Column {
+                                Text(text = stringResource(id = R.string.homework_detailViewEditTitle))
+                                VerticalExpandVisibility(visible = state.hasEdited) {
+                                    Text(
+                                        text = stringResource(id = R.string.homework_detailViewUnsavedChanges),
+                                        style = MaterialTheme.typography.labelSmall
+                                    )
+                                }
+                            }
+                        },
+                        navigationIcon = {
+                            IconButton(onClick = {
+                                if (state.hasEdited) showUnsavedChangesDialog = true
+                                else onAction(ExitAndDiscardChangesAction) }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = stringResource(id = android.R.string.cancel)
+                                )
+                            }
+                        },
+                        actions = {
+                            IconButton(
+                                onClick = { onAction(ExitAndSaveHomeworkAction) },
+                                enabled = state.homework?.tasks?.isNotEmpty() == true
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Save,
+                                    contentDescription = stringResource(id = R.string.save)
+                                )
+                            }
                         }
-                    }
-                },
-                scrollBehavior = scrollBehavior
-            )
+                    )
+                }
+            }
         }
     ) { paddingValues ->
         Column(
             Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .nestedScroll(scrollBehavior.nestedScrollConnection),
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Spacer4Dp()
@@ -158,19 +182,35 @@ private fun HomeworkDetailScreenContent(
                 DefaultLessonCard(defaultLesson = state.homework?.defaultLesson)
                 VerticalDivider(Modifier.height(64.dp))
                 DueToCard(
-                    until = state.homework?.until?.toLocalDate(),
+                    until = (if (state.isEditing) state.editDueDate else null)
+                        ?: state.homework?.until?.toLocalDate(),
                     onUpdateDueDate = { onAction(UpdateDueDateAction(it)) },
                     isEditModeActive = state.isEditing
                 )
             }
-            HorizontalDivider(Modifier.padding(8.dp))
+            HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
             Tasks(
                 tasks = state.homework?.tasks ?: emptyList(),
                 isEditing = state.isEditing,
-                onAddTask = { onAction(AddTaskAction(it)) },
+                editTasks = state.editTasks,
+                newTasks = state.newTasks,
+                onAddTask = { newTaskId, content -> onAction(AddTaskAction(newTaskId, content)) },
                 onTaskClicked = { onAction(TaskDoneStateToggledAction(it)) },
-                onUpdateTaskContent = { task, content -> onAction(UpdateTaskContentAction(task, content)) },
-                onDeleteTask = { onAction(DeleteTaskAction(it)) }
+                onDeleteExistingTask = { onAction(DeleteExistingTaskAction(it.id)) },
+                onDeleteNewTask = { onAction(DeleteNewTaskAction(it)) },
+                onUpdateExistingTask = { existingTaskId, content ->
+                    onAction(
+                        UpdateExistingTaskContentAction(existingTaskId, content)
+                    )
+                },
+                onUpdateNewTask = { newTaskId, content ->
+                    onAction(
+                        UpdateNewTaskContentAction(
+                            newTaskId,
+                            content
+                        )
+                    )
+                }
             )
             Documents(documents = state.homework?.documents ?: emptyList())
         }

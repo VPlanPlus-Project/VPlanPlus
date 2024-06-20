@@ -22,7 +22,7 @@ fun Documents(
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)) {
+            .padding(horizontal = 16.dp)) {
         Text(
             text = stringResource(id = R.string.homework_detailViewDocumentsTitle),
             style = MaterialTheme.typography.titleSmall,

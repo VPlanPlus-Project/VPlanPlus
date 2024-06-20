@@ -35,6 +35,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 state.copy(
                     homework = homework,
                     currentIdentity = identity,
+                    editTasks = homework.tasks.map { EditTask(it.id, it.content) },
                     canEdit = homework.canBeEdited(identity.profile!!)
                 )
             }.collect {
@@ -43,15 +44,59 @@ class HomeworkDetailViewModel @Inject constructor(
         }
     }
 
+    private fun initEditMode() {
+        state = state.copy(
+            isEditing = true,
+            editDueDate = state.homework?.until?.toLocalDate(),
+            editTasks = state.homework?.tasks.orEmpty().map { EditTask(it.id, it.content) },
+            newTasks = emptyList(),
+            hasEdited = false
+        )
+    }
+
     fun onAction(action: UiAction) {
         viewModelScope.launch {
             when (action) {
                 is TaskDoneStateToggledAction -> homeworkDetailUseCases.taskDoneUseCase(action.homeworkTask, !action.homeworkTask.done)
-                is ToggleEditModeAction -> state = state.copy(isEditing = !state.isEditing)
-                is UpdateDueDateAction -> homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, action.date)
-                is DeleteTaskAction -> homeworkDetailUseCases.deleteHomeworkTaskUseCase(action.homeworkTask)
-                is UpdateTaskContentAction -> homeworkDetailUseCases.editTaskUseCase(action.homeworkTask, action.content)
-                is AddTaskAction -> homeworkDetailUseCases.addTaskUseCase(state.homework!!, action.content)
+                is StartEditModeAction -> initEditMode()
+                is ExitEditModeAction -> {
+                    if (action is ExitAndSaveHomeworkAction) {
+                        if (state.editDueDate != null) homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, state.editDueDate!!)
+
+                        val tasksToDelete = state.homework?.tasks?.filter { task -> state.editTasks.none { it.id == task.id } } ?: emptyList()
+                        tasksToDelete.forEach { homeworkDetailUseCases.deleteHomeworkTaskUseCase(it) }
+
+                        val tasksToUpdate = state.editTasks.filter { state.homework?.getTaskById(it.id)?.content != it.content }
+                        tasksToUpdate.forEach { homeworkDetailUseCases.editTaskUseCase(state.homework!!.getTaskById(it.id)!!, it.content) }
+
+                        state.newTasks.forEach { newTask -> homeworkDetailUseCases.addTaskUseCase(state.homework!!, newTask.content) }
+                    }
+                    state = state.copy(
+                        isEditing = false,
+                        editDueDate = null,
+                        editTasks = state.homework?.tasks.orEmpty().map { EditTask(it.id, it.content) },
+                        newTasks = emptyList()
+                    )
+                }
+                is UpdateDueDateAction -> state = state.copy(editDueDate = action.date, hasEdited = true)
+                is AddTaskAction -> {
+                    val newTask = EditTask(id = action.newTaskId, content = action.content)
+                    state = state.copy(newTasks = state.newTasks + newTask, hasEdited = true)
+                }
+                is DeleteExistingTaskAction -> state = state.copy(editTasks = state.editTasks.filter { it.id != action.existingTaskId }, hasEdited = true)
+                is DeleteNewTaskAction -> state = state.copy(newTasks = state.newTasks.filter { it.id != action.newTaskId })
+                is UpdateTaskContentAction -> {
+                    if (action is UpdateExistingTaskContentAction) {
+                        state = state.copy(editTasks = state.editTasks.map {
+                            if (it.id == action.existingTaskId) it.copy(content = action.content) else it
+                        })
+                    } else if (action is UpdateNewTaskContentAction) {
+                        state = state.copy(newTasks = state.newTasks.map {
+                            if (it.id == action.newTaskId) it.copy(content = action.content) else it
+                        })
+                    }
+                    state = state.copy(hasEdited = true)
+                }
             }
         }
     }
@@ -60,15 +105,33 @@ class HomeworkDetailViewModel @Inject constructor(
 data class HomeworkDetailState(
     val homework: Homework? = null,
     val currentIdentity: Identity? = null,
+    val canEdit: Boolean = false,
+
     val isEditing: Boolean = false,
-    val canEdit: Boolean = false
+    val hasEdited: Boolean = false,
+    val editDueDate: LocalDate? = null,
+    val editTasks: List<EditTask> = emptyList(),
+    val newTasks: List<EditTask> = emptyList(),
+)
+
+data class EditTask(
+    val id: Long,
+    val content: String,
 )
 
 sealed class UiAction
 
 data class TaskDoneStateToggledAction(val homeworkTask: HomeworkTask) : UiAction()
-data object ToggleEditModeAction: UiAction()
+data object StartEditModeAction: UiAction()
+sealed class ExitEditModeAction: UiAction()
+data object ExitAndSaveHomeworkAction: ExitEditModeAction()
+data object ExitAndDiscardChangesAction: ExitEditModeAction()
 data class UpdateDueDateAction(val date: LocalDate): UiAction()
-data class DeleteTaskAction(val homeworkTask: HomeworkTask): UiAction()
-data class UpdateTaskContentAction(val homeworkTask: HomeworkTask, val content: String): UiAction()
-data class AddTaskAction(val content: String): UiAction()
+data class DeleteNewTaskAction(val newTaskId: Long): UiAction()
+
+data class DeleteExistingTaskAction(val existingTaskId: Long): UiAction()
+sealed class UpdateTaskContentAction(val content: String): UiAction()
+data class UpdateExistingTaskContentAction(val existingTaskId: Long, val description: String) : UpdateTaskContentAction(description)
+
+data class UpdateNewTaskContentAction(val newTaskId: Long, val description: String) : UpdateTaskContentAction(description)
+data class AddTaskAction(val newTaskId: Long, val content: String): UiAction()

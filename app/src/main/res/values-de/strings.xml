@@ -676,6 +676,8 @@
     <string name="homework_detailViewProgressLeft">%1$d offen</string>
     <string name="homework_detailViewTasksTitle">Aufgaben</string>
     <string name="homework_detailViewEditTitle">Hausaufgabe bearbeiten</string>
-    <string name="homework_detailViewTaskMarkedAsDelete">Aufgabe für Löschung markiert</string>
+    <string name="homework_detailViewUnsavedChanges">Ungespeicherte Änderungen</string>
+    <string name="discard_changes">Änderungen verwerfen</string>
+    <string name="homework_detailViewUnsavedChangesText">Einige Änderungen wurden noch nicht gespeichert. Möchtest du diese Änderungen verwerfen?</string>
 
 </resources>

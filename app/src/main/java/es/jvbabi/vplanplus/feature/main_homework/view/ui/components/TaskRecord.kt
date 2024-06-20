@@ -1,11 +1,8 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -19,7 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,15 +33,12 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
-import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
-import es.jvbabi.vplanplus.ui.common.grayScale
 import es.jvbabi.vplanplus.util.blendColor
 import es.jvbabi.vplanplus.util.toTransparent
 
@@ -62,7 +55,6 @@ fun TaskRecord(
 ) {
     val focusRequester = remember { FocusRequester() }
     var isLoading by rememberSaveable(id) { mutableStateOf(false) }
-    var shallBeDeleted by rememberSaveable(id) { mutableStateOf(false) }
     var textFieldValueState by remember(id) {
         mutableStateOf(
             TextFieldValue(
@@ -89,19 +81,9 @@ fun TaskRecord(
         label = "blendValue"
     )
 
-    LaunchedEffect(key1 = isEditing) {
-        if (!isEditing && shallBeDeleted) onDelete()
-        else if (!isEditing && (textFieldValueState.text != task || isNewTask)) onUpdateTask(textFieldValueState.text)
-    }
-
-    val deleteBlendValue by animateFloatAsState(
-        targetValue = if (shallBeDeleted) 1f else 0f,
-        label = "blendValue"
-    )
     RowVerticalCenter(
         modifier = Modifier
             .fillMaxWidth()
-            .grayScale(1 - deleteBlendValue)
             .defaultMinSize(minHeight = 48.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(
@@ -194,12 +176,12 @@ fun TaskRecord(
                         },
                     contentAlignment = Alignment.Center,
                 ) {
-                    IconButton(onClick = {
-                        if (isNewTask) onDelete()
-                        else shallBeDeleted = !shallBeDeleted
-                    }) {
-                        
-                    }
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(50))
+                            .clickable { onDelete() }
+                    )
                 }
             }
         }
@@ -207,7 +189,10 @@ fun TaskRecord(
         Column {
             if (isEditing) BasicTextField(
                 value = textFieldValueState,
-                onValueChange = { textFieldValueState = it },
+                onValueChange = {
+                    textFieldValueState = it
+                    onUpdateTask(it.text)
+                },
                 modifier = Modifier
                     .fillMaxWidth(1f)
                     .focusRequester(focusRequester)
@@ -217,16 +202,6 @@ fun TaskRecord(
                 style = MaterialTheme.typography.bodyMedium,
                 color = colorScheme.onSurface
             )
-            AnimatedVisibility(
-                visible = shallBeDeleted,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                Text(
-                    text = stringResource(id = R.string.homework_detailViewTaskMarkedAsDelete),
-                    style = MaterialTheme.typography.labelSmall
-                )
-            }
         }
     }
 }

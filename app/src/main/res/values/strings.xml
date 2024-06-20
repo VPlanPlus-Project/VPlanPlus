@@ -679,6 +679,8 @@
     <string name="homework_detailViewProgressLeft">%1$d left</string>
     <string name="homework_detailViewTasksTitle">Tasks</string>
     <string name="homework_detailViewEditTitle">Edit homework</string>
-    <string name="homework_detailViewTaskMarkedAsDelete">Task marked for deletion</string>
+    <string name="homework_detailViewUnsavedChanges">Unsaved changes</string>
+    <string name="discard_changes">Discard changes</string>
+    <string name="homework_detailViewUnsavedChangesText">Some changes haven\'t been saved yet. Do you want to discard them?</string>
 
 </resources>
