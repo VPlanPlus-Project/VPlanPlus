@@ -661,5 +661,19 @@
         <item quantity="one">Ein Dokument</item>
         <item quantity="other">%1$d Dokumente</item>
     </plurals>
+    <string name="homework_detailViewTitle">Hausaufgabe</string>
+    <string name="homework_detailViewSubject">Fach</string>
+    <string name="homework_detailViewNoSubject">Kein Fach</string>
+    <plurals name="homework_detailViewDocumentPages">
+        <item quantity="one">Eine Seite</item>
+        <item quantity="other">%1$d Seiten</item>
+    </plurals>
+    <string name="homework_detailViewDocumentsTitle">Dokumente</string>
+    <string name="homework_detailViewDocumentsNoDocuments">Keine Dokumente</string>
+    <string name="homework_detailViewDueTo">Fällig bis</string>
+    <string name="homework_detailViewProgressTitle">Fortschritt</string>
+    <string name="homework_detailViewProgressDone">%1$d erledigt</string>
+    <string name="homework_detailViewProgressLeft">%1$d offen</string>
+    <string name="homework_detailViewTasksTitle">Aufgaben</string>
 
 </resources>

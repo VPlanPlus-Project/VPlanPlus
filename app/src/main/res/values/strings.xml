@@ -664,5 +664,19 @@
         <item quantity="one">One document</item>
         <item quantity="other">%1$d documents</item>
     </plurals>
+    <string name="homework_detailViewTitle">Homework</string>
+    <string name="homework_detailViewSubject">Subject</string>
+    <string name="homework_detailViewNoSubject">No subject</string>
+    <plurals name="homework_detailViewDocumentPages">
+        <item quantity="one">One page</item>
+        <item quantity="other">%1$d pages</item>
+    </plurals>
+    <string name="homework_detailViewDocumentsTitle">Documents</string>
+    <string name="homework_detailViewDocumentsNoDocuments">No documents</string>
+    <string name="homework_detailViewDueTo">Due to</string>
+    <string name="homework_detailViewProgressTitle">Progress</string>
+    <string name="homework_detailViewProgressDone">%1$d done</string>
+    <string name="homework_detailViewProgressLeft">%1$d left</string>
+    <string name="homework_detailViewTasksTitle">Tasks</string>
 
 </resources>

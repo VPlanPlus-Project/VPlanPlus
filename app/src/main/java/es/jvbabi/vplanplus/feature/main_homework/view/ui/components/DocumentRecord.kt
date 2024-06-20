@@ -29,11 +29,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toFile
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
 
@@ -86,13 +88,13 @@ fun DocumentRecord(
         ) {
             if (bitmap != null) Image(
                 bitmap = bitmap!!.asImageBitmap(),
-                contentDescription = "page",
+                contentDescription = null,
                 modifier = Modifier.fillMaxSize()
             )
         }
         Column {
             Text(
-                text = "$pageCount Seiten", // TODO sr
+                text = pluralStringResource(id = R.plurals.homework_detailViewDocumentPages, count = pageCount, pageCount),
                 style = MaterialTheme.typography.labelMedium
             )
             Text(

@@ -9,8 +9,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 
 @Composable
@@ -22,7 +24,7 @@ fun Documents(
             .fillMaxWidth()
             .padding(horizontal = 8.dp)) {
         Text(
-            text = "Dokumente", // TODO sr
+            text = stringResource(id = R.string.homework_detailViewDocumentsTitle),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier.padding(bottom = 4.dp)
@@ -32,7 +34,7 @@ fun Documents(
                 Modifier.align(Alignment.CenterHorizontally)
             ) {
                 Text(
-                    text = "Keine Dokumente", // TODO sr
+                    text = stringResource(id = R.string.homework_detailViewDocumentsNoDocuments),
                     color = MaterialTheme.colorScheme.outline,
                     style = MaterialTheme.typography.labelMedium,
                 )

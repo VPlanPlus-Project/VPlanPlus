@@ -20,11 +20,11 @@ fun RowScope.DefaultLessonCard(defaultLesson: DefaultLesson?) {
     BigCustomCard(
         modifier = Modifier.weight(1f, true),
         icon = defaultLesson.getIcon(),
-        title = "Fach", // TODO sr
+        title = stringResource(id = R.string.homework_detailViewSubject),
         content = {
             RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    text = defaultLesson?.subject ?: "Kein Fach",  // TODO sr
+                    text = defaultLesson?.subject ?: stringResource(id = R.string.homework_detailViewNoSubject),
                     style = MaterialTheme.typography.bodyMedium
                 )
                 if (defaultLesson?.subject != null) Text(

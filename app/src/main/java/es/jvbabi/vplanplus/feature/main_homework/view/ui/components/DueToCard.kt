@@ -7,7 +7,9 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
 
@@ -19,7 +21,7 @@ fun RowScope.DueToCard(
     BigCard(
         modifier = Modifier.weight(1f, true),
         icon = Icons.Default.AccessTime,
-        title = "Fällig bis", // TODO sr
+        title = stringResource(id = R.string.homework_detailViewDueTo),
         subtitle = if (until != null) DateUtils.localizedRelativeDate(context, until) else ""
     )
 }

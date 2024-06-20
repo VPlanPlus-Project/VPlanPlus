@@ -20,9 +20,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import kotlin.math.roundToInt
@@ -35,7 +37,7 @@ fun ProgressCard(tasks: Int, done: Int) {
             .padding(horizontal = 16.dp)) {
         val progress by animateFloatAsState(targetValue = done.toFloat() / tasks.toFloat().coerceAtLeast(1f), label = "progress")
         Text(
-            text = "Fortschritt",
+            text = stringResource(id = R.string.homework_detailViewProgressTitle),
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier.padding(bottom = 2.dp)
@@ -78,7 +80,7 @@ fun ProgressCard(tasks: Int, done: Int) {
                     tint = MaterialTheme.colorScheme.primary
                 )
                 Text(
-                    text = "$done erledigt", // TODO sr
+                    text = stringResource(id = R.string.homework_detailViewProgressDone, done),
                     style = style.copy(fontWeight = FontWeight.SemiBold)
                 )
             }
@@ -92,7 +94,7 @@ fun ProgressCard(tasks: Int, done: Int) {
                     tint = MaterialTheme.colorScheme.outline
                 )
                 Text(
-                    text = "${tasks-done} offen", // TODO sr
+                    text = stringResource(id = R.string.homework_detailViewProgressLeft, tasks-done),
                     style = style,
                     color = MaterialTheme.colorScheme.outline
                 )

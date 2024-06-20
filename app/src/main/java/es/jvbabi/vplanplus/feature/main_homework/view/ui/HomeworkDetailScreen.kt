@@ -19,10 +19,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
@@ -69,7 +71,7 @@ private fun HomeworkDetailScreenContent(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text("Hausaufgabe") }, // TODO sr
+                title = { Text(stringResource(id = R.string.homework_detailViewTitle)) },
                 navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
                 scrollBehavior = scrollBehavior
             )
