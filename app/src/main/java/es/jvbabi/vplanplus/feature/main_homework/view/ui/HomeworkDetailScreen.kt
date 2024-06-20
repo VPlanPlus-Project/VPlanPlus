@@ -96,7 +96,8 @@ private fun HomeworkDetailScreenContent(
     )
 
     BackHandler(state.isEditing) {
-        onAction(StartEditModeAction)
+        if (state.hasEdited) showUnsavedChangesDialog = true
+        else onAction(ExitAndDiscardChangesAction)
     }
 
     Scaffold(
