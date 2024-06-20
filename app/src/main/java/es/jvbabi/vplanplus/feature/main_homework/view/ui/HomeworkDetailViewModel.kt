@@ -50,6 +50,8 @@ class HomeworkDetailViewModel @Inject constructor(
                 is ToggleEditModeAction -> state = state.copy(isEditing = !state.isEditing)
                 is UpdateDueDateAction -> homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, action.date)
                 is DeleteTaskAction -> homeworkDetailUseCases.deleteHomeworkTaskUseCase(action.homeworkTask)
+                is UpdateTaskContentAction -> homeworkDetailUseCases.editTaskUseCase(action.homeworkTask, action.content)
+                is AddTaskAction -> homeworkDetailUseCases.addTaskUseCase(state.homework!!, action.content)
             }
         }
     }
@@ -68,3 +70,5 @@ data class TaskDoneStateToggledAction(val homeworkTask: HomeworkTask) : UiAction
 data object ToggleEditModeAction: UiAction()
 data class UpdateDueDateAction(val date: LocalDate): UiAction()
 data class DeleteTaskAction(val homeworkTask: HomeworkTask): UiAction()
+data class UpdateTaskContentAction(val homeworkTask: HomeworkTask, val content: String): UiAction()
+data class AddTaskAction(val content: String): UiAction()

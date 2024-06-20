@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -33,8 +34,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.lerp
@@ -50,11 +55,27 @@ fun TaskRecord(
     task: String,
     isDone: Boolean,
     isEditing: Boolean,
+    isNewTask: Boolean,
     onClick: () -> Unit = {},
-    onDelete: () -> Unit = {}
+    onDelete: () -> Unit = {},
+    onUpdateTask: (content: String) -> Unit = {}
 ) {
+    val focusRequester = remember { FocusRequester() }
     var isLoading by rememberSaveable(id) { mutableStateOf(false) }
     var shallBeDeleted by rememberSaveable(id) { mutableStateOf(false) }
+    var textFieldValueState by remember(id) {
+        mutableStateOf(
+            TextFieldValue(
+                text = task,
+            )
+        )
+    }
+    LaunchedEffect(key1 = isNewTask) {
+        if (isNewTask) {
+            focusRequester.requestFocus()
+            textFieldValueState = textFieldValueState.copy(selection = TextRange(1))
+        }
+    }
     LaunchedEffect(key1 = isDone, key2 = task) {
         isLoading = false
     }
@@ -70,6 +91,7 @@ fun TaskRecord(
 
     LaunchedEffect(key1 = isEditing) {
         if (!isEditing && shallBeDeleted) onDelete()
+        else if (!isEditing && (textFieldValueState.text != task || isNewTask)) onUpdateTask(textFieldValueState.text)
     }
 
     val deleteBlendValue by animateFloatAsState(
@@ -172,7 +194,10 @@ fun TaskRecord(
                         },
                     contentAlignment = Alignment.Center,
                 ) {
-                    IconButton(onClick = { shallBeDeleted = !shallBeDeleted }) {
+                    IconButton(onClick = {
+                        if (isNewTask) onDelete()
+                        else shallBeDeleted = !shallBeDeleted
+                    }) {
                         
                     }
                 }
@@ -181,9 +206,11 @@ fun TaskRecord(
 
         Column {
             if (isEditing) BasicTextField(
-                value = task,
-                onValueChange = {},
-                modifier = Modifier.fillMaxWidth(1f)
+                value = textFieldValueState,
+                onValueChange = { textFieldValueState = it },
+                modifier = Modifier
+                    .fillMaxWidth(1f)
+                    .focusRequester(focusRequester)
             )
             else Text(
                 text = task,
@@ -211,7 +238,8 @@ private fun TaskRecordPreview() {
         id = 1,
         task = "Task",
         isDone = false,
-        isEditing = false
+        isEditing = false,
+        isNewTask = false
     )
 }
 
@@ -222,6 +250,7 @@ private fun TaskRecordDoneAndEditingPreview() {
         id = 1,
         task = "Task",
         isDone = true,
-        isEditing = true
+        isEditing = true,
+        isNewTask = true
     )
 }

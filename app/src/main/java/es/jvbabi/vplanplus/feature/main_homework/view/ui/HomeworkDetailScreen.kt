@@ -63,7 +63,7 @@ fun HomeworkDetailScreen(
     viewModel: HomeworkDetailViewModel = hiltViewModel(),
     homeworkId: Int
 ) {
-    LaunchedEffect(key1 = homeworkId) { viewModel.init(homeworkId, { navHostController.popBackStack() }) }
+    LaunchedEffect(key1 = homeworkId) { viewModel.init(homeworkId) { navHostController.popBackStack() } }
     val state = viewModel.state
     HomeworkDetailScreenContent(
         onBack = { navHostController.popBackStack() },
@@ -167,7 +167,9 @@ private fun HomeworkDetailScreenContent(
             Tasks(
                 tasks = state.homework?.tasks ?: emptyList(),
                 isEditing = state.isEditing,
+                onAddTask = { onAction(AddTaskAction(it)) },
                 onTaskClicked = { onAction(TaskDoneStateToggledAction(it)) },
+                onUpdateTaskContent = { task, content -> onAction(UpdateTaskContentAction(task, content)) },
                 onDeleteTask = { onAction(DeleteTaskAction(it)) }
             )
             Documents(documents = state.homework?.documents ?: emptyList())
