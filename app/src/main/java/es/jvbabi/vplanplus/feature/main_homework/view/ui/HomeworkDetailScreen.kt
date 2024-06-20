@@ -27,6 +27,7 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DefaultLessonCard
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.Documents
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DueToCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.ProgressCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.Tasks
@@ -95,6 +96,7 @@ private fun HomeworkDetailScreenContent(
             }
             HorizontalDivider(Modifier.padding(8.dp))
             Tasks(tasks = state.homework?.tasks?: emptyList(), onTaskClicked = { onAction(TaskDoneStateToggledAction(it)) })
+            Documents(documents = state.homework?.documents ?: emptyList())
         }
     }
 }
