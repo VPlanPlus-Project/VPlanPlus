@@ -13,6 +13,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -34,6 +35,9 @@ fun TaskRecord(
     onClick: () -> Unit = {},
 ) {
     var isLoading by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(key1 = isDone, key2 = task) {
+        isLoading = false
+    }
     val colorScheme = MaterialTheme.colorScheme
     val blendValue by animateFloatAsState(targetValue = if (isDone) 0f else 1f, label = "blendValue")
     RowVerticalCenter(
@@ -64,7 +68,12 @@ fun TaskRecord(
         ) {
             CircularProgressIndicator(
                 modifier = Modifier
-                    .alpha(animateFloatAsState(targetValue = if (isLoading) 1f else 0f, label = "Alpha").value)
+                    .alpha(
+                        animateFloatAsState(
+                            targetValue = if (isLoading) 1f else 0f,
+                            label = "Alpha"
+                        ).value
+                    )
                     .size(30.dp),
                 strokeWidth = 4.dp
             )
