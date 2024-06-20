@@ -1,15 +1,25 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,74 +33,174 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.util.lerp
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.grayScale
 import es.jvbabi.vplanplus.util.blendColor
+import es.jvbabi.vplanplus.util.toTransparent
 
 @Composable
 fun TaskRecord(
+    id: Long,
     task: String,
     isDone: Boolean,
+    isEditing: Boolean,
     onClick: () -> Unit = {},
+    onDelete: () -> Unit = {}
 ) {
-    var isLoading by rememberSaveable { mutableStateOf(false) }
+    var isLoading by rememberSaveable(id) { mutableStateOf(false) }
+    var shallBeDeleted by rememberSaveable(id) { mutableStateOf(false) }
     LaunchedEffect(key1 = isDone, key2 = task) {
         isLoading = false
     }
     val colorScheme = MaterialTheme.colorScheme
-    val blendValue by animateFloatAsState(targetValue = if (isDone) 0f else 1f, label = "blendValue")
+    val loadingBlendValue by animateFloatAsState(
+        targetValue = if (isDone) 0f else 1f,
+        label = "blendValue"
+    )
+    val editingBlendValue by animateFloatAsState(
+        targetValue = if (isEditing) 1f else 0f,
+        label = "blendValue"
+    )
+
+    LaunchedEffect(key1 = isEditing) {
+        if (!isEditing && shallBeDeleted) onDelete()
+    }
+
+    val deleteBlendValue by animateFloatAsState(
+        targetValue = if (shallBeDeleted) 1f else 0f,
+        label = "blendValue"
+    )
     RowVerticalCenter(
         modifier = Modifier
             .fillMaxWidth()
+            .grayScale(1 - deleteBlendValue)
+            .defaultMinSize(minHeight = 48.dp)
             .clip(RoundedCornerShape(8.dp))
-            .clickable { isLoading = true; onClick() }
+            .background(
+                blendColor(
+                    colorScheme.surfaceVariant.toTransparent(),
+                    colorScheme.surfaceVariant,
+                    editingBlendValue
+                )
+            )
+            .then(if (!isEditing) Modifier.clickable {
+                isLoading = true; onClick()
+            } else Modifier)
     ) {
         Box(
-            modifier = Modifier
-                .size(48.dp)
-                .drawWithContent {
-                    drawCircle(
-                        color = blendColor(colorScheme.primary, colorScheme.outline, blendValue),
-                        radius = 14.dp.toPx(),
+            modifier = Modifier.size(48.dp)
+        ) action@{
+            androidx.compose.animation.AnimatedVisibility(
+                visible = !isEditing,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .drawWithContent {
+                            drawCircle(
+                                color = blendColor(
+                                    colorScheme.primary,
+                                    colorScheme.outline,
+                                    loadingBlendValue
+                                ),
+                                radius = 14.dp.toPx(),
+                            )
+                            drawCircle(
+                                color = blendColor(
+                                    colorScheme.background.copy(alpha = 0f),
+                                    colorScheme.background,
+                                    loadingBlendValue
+                                ),
+                                radius = 12.dp.toPx(),
+                            )
+                            drawContent()
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .alpha(
+                                animateFloatAsState(
+                                    targetValue = if (isLoading) 1f else 0f,
+                                    label = "Alpha"
+                                ).value
+                            )
+                            .size(30.dp),
+                        strokeWidth = 4.dp
                     )
-                    drawCircle(
-                        color = blendColor(
-                            colorScheme.background.copy(alpha = 0f),
-                            colorScheme.background,
-                            blendValue
-                        ),
-                        radius = 12.dp.toPx(),
+                    Icon(
+                        imageVector = Icons.Default.Check,
+                        contentDescription = null,
+                        tint = colorScheme.onPrimary,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .alpha(1 - loadingBlendValue),
                     )
-                    drawContent()
-                },
-            contentAlignment = Alignment.Center,
-        ) {
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .alpha(
-                        animateFloatAsState(
-                            targetValue = if (isLoading) 1f else 0f,
-                            label = "Alpha"
-                        ).value
-                    )
-                    .size(30.dp),
-                strokeWidth = 4.dp
-            )
-            Icon(
-                imageVector = Icons.Default.Check,
-                contentDescription = null,
-                tint = colorScheme.onPrimary,
-                modifier = Modifier
-                    .size(24.dp)
-                    .alpha(1 - blendValue),
-            )
+                }
+            }
+            androidx.compose.animation.AnimatedVisibility(
+                visible = isEditing,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .drawWithContent {
+                            drawCircle(
+                                color = colorScheme.error,
+                                radius = 14.dp.toPx(),
+                            )
+                            drawLine(
+                                color = colorScheme.onError,
+                                start = Offset(16.dp.toPx(), size.height / 2),
+                                end = Offset(
+                                    lerp(16.dp.toPx(), 32.dp.toPx(), editingBlendValue),
+                                    size.height / 2
+                                ),
+                                strokeWidth = 2.dp.toPx(),
+                            )
+                            drawContent()
+                        },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    IconButton(onClick = { shallBeDeleted = !shallBeDeleted }) {
+                        
+                    }
+                }
+            }
         }
-        Text(
-            text = task,
-            style = MaterialTheme.typography.bodyMedium,
-            color = colorScheme.onSurface
-        )
+
+        Column {
+            if (isEditing) BasicTextField(
+                value = task,
+                onValueChange = {},
+                modifier = Modifier.fillMaxWidth(1f)
+            )
+            else Text(
+                text = task,
+                style = MaterialTheme.typography.bodyMedium,
+                color = colorScheme.onSurface
+            )
+            AnimatedVisibility(
+                visible = shallBeDeleted,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) {
+                Text(
+                    text = stringResource(id = R.string.homework_detailViewTaskMarkedAsDelete),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
     }
 }
 
@@ -98,16 +208,20 @@ fun TaskRecord(
 @Composable
 private fun TaskRecordPreview() {
     TaskRecord(
+        id = 1,
         task = "Task",
         isDone = false,
+        isEditing = false
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun TaskRecordDonePreview() {
+private fun TaskRecordDoneAndEditingPreview() {
     TaskRecord(
+        id = 1,
         task = "Task",
         isDone = true,
+        isEditing = true
     )
 }

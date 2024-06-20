@@ -679,5 +679,6 @@
     <string name="homework_detailViewProgressLeft">%1$d left</string>
     <string name="homework_detailViewTasksTitle">Tasks</string>
     <string name="homework_detailViewEditTitle">Edit homework</string>
+    <string name="homework_detailViewTaskMarkedAsDelete">Task marked for deletion</string>
 
 </resources>

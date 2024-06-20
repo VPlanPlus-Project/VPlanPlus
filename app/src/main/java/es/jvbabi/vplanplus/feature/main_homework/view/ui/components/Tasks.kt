@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui.components
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -15,7 +16,9 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTas
 @Composable
 fun Tasks(
     tasks: List<HomeworkTask>,
-    onTaskClicked: (HomeworkTask) -> Unit
+    onTaskClicked: (HomeworkTask) -> Unit,
+    onDeleteTask: (HomeworkTask) -> Unit,
+    isEditing: Boolean
 ) {
     Column(
         Modifier
@@ -27,8 +30,17 @@ fun Tasks(
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier.padding(bottom = 4.dp)
         )
-        tasks.forEach { task ->
-            TaskRecord(task = task.content, isDone = task.done, onClick = { onTaskClicked(task) })
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            tasks.forEach { task ->
+                TaskRecord(
+                    id = task.id,
+                    task = task.content,
+                    isDone = task.done,
+                    isEditing = isEditing,
+                    onDelete = { onDeleteTask(task) },
+                    onClick = { onTaskClicked(task) }
+                )
+            }
         }
     }
 }

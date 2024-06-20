@@ -22,7 +22,7 @@ class HomeworkDetailViewModel @Inject constructor(
 
     var state by mutableStateOf(HomeworkDetailState())
 
-    fun init(homeworkId: Int) {
+    fun init(homeworkId: Int, onBack: () -> Unit) {
         viewModelScope.launch {
             combine(
                 listOf(
@@ -31,7 +31,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 )
             ) { data ->
                 val identity = data[0] as Identity
-                val homework = data[1] as Homework
+                val homework = data[1] as Homework? ?: run { onBack(); return@combine state }
                 state.copy(
                     homework = homework,
                     currentIdentity = identity,
@@ -49,6 +49,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 is TaskDoneStateToggledAction -> homeworkDetailUseCases.taskDoneUseCase(action.homeworkTask, !action.homeworkTask.done)
                 is ToggleEditModeAction -> state = state.copy(isEditing = !state.isEditing)
                 is UpdateDueDateAction -> homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, action.date)
+                is DeleteTaskAction -> homeworkDetailUseCases.deleteHomeworkTaskUseCase(action.homeworkTask)
             }
         }
     }
@@ -66,3 +67,4 @@ sealed class UiAction
 data class TaskDoneStateToggledAction(val homeworkTask: HomeworkTask) : UiAction()
 data object ToggleEditModeAction: UiAction()
 data class UpdateDueDateAction(val date: LocalDate): UiAction()
+data class DeleteTaskAction(val homeworkTask: HomeworkTask): UiAction()
