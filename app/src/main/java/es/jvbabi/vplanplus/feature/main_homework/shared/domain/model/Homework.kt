@@ -24,6 +24,12 @@ open class Homework(
     fun isOverdue(date: LocalDate): Boolean {
         return until.toLocalDate().isBefore(date) && tasks.any { !it.done }
     }
+
+    fun canBeEdited(profile: Profile): Boolean {
+        if (this.profile.id == profile.id && this.id < 0) return true // is local and created by the profile
+        if (profile.vppId != null && this.createdBy?.id == profile.vppId.id) return true // is remote and created by the profiles vpp.ID
+        return false
+    }
 }
 
 data class HomeworkTask(

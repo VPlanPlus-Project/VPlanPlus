@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTas
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,7 +34,8 @@ class HomeworkDetailViewModel @Inject constructor(
                 val homework = data[1] as Homework
                 state.copy(
                     homework = homework,
-                    currentIdentity = identity
+                    currentIdentity = identity,
+                    canEdit = homework.canBeEdited(identity.profile!!)
                 )
             }.collect {
                 state = it
@@ -45,6 +47,8 @@ class HomeworkDetailViewModel @Inject constructor(
         viewModelScope.launch {
             when (action) {
                 is TaskDoneStateToggledAction -> homeworkDetailUseCases.taskDoneUseCase(action.homeworkTask, !action.homeworkTask.done)
+                is ToggleEditModeAction -> state = state.copy(isEditing = !state.isEditing)
+                is UpdateDueDateAction -> homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, action.date)
             }
         }
     }
@@ -52,9 +56,13 @@ class HomeworkDetailViewModel @Inject constructor(
 
 data class HomeworkDetailState(
     val homework: Homework? = null,
-    val currentIdentity: Identity? = null
+    val currentIdentity: Identity? = null,
+    val isEditing: Boolean = false,
+    val canEdit: Boolean = false
 )
 
 sealed class UiAction
 
 data class TaskDoneStateToggledAction(val homeworkTask: HomeworkTask) : UiAction()
+data object ToggleEditModeAction: UiAction()
+data class UpdateDueDateAction(val date: LocalDate): UiAction()

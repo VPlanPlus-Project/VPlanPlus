@@ -675,5 +675,6 @@
     <string name="homework_detailViewProgressDone">%1$d erledigt</string>
     <string name="homework_detailViewProgressLeft">%1$d offen</string>
     <string name="homework_detailViewTasksTitle">Aufgaben</string>
+    <string name="homework_detailViewEditTitle">Hausaufgabe bearbeiten</string>
 
 </resources>

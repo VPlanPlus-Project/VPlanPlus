@@ -678,5 +678,6 @@
     <string name="homework_detailViewProgressDone">%1$d done</string>
     <string name="homework_detailViewProgressLeft">%1$d left</string>
     <string name="homework_detailViewTasksTitle">Tasks</string>
+    <string name="homework_detailViewEditTitle">Edit homework</string>
 
 </resources>
