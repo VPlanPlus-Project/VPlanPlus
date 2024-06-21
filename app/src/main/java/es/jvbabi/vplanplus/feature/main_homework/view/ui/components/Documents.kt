@@ -17,7 +17,8 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 
 @Composable
 fun Documents(
-    documents: List<Uri>
+    documents: List<Uri>,
+    isEditing: Boolean
 ) {
     Column(
         Modifier
@@ -41,7 +42,7 @@ fun Documents(
             }
         } else {
             documents.forEach { documentUri ->
-                DocumentRecord(documentUri)
+                DocumentRecord(documentUri, isEditing)
             }
         }
     }
@@ -50,5 +51,5 @@ fun Documents(
 @Composable
 @Preview(showBackground = true)
 private fun NoDocumentsPreview() {
-    Documents(documents = emptyList())
+    Documents(documents = emptyList(), false)
 }

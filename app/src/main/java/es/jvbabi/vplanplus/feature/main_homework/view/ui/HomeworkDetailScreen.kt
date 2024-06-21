@@ -1,8 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -55,6 +53,7 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.FadeAnimatedVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
 import es.jvbabi.vplanplus.ui.preview.ClassesPreview
@@ -102,7 +101,7 @@ private fun HomeworkDetailScreenContent(
 
     Scaffold(
         topBar = {
-            Box(Modifier.animateContentSize()) {
+            Box {
                 VerticalExpandAnimatedAndFadingVisibility(visible = !state.isEditing) {
                     LargeTopAppBar(
                         title = { Text(stringResource(id = R.string.homework_detailViewTitle)) },
@@ -166,13 +165,15 @@ private fun HomeworkDetailScreenContent(
                 .padding(paddingValues)
                 .nestedScroll(scrollBehavior.nestedScrollConnection)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Spacer4Dp()
-            AnimatedVisibility(visible = !state.isEditing) {
-                ProgressCard(
-                    tasks = state.homework?.tasks?.size ?: 0,
-                    done = state.homework?.tasks?.count { it.done } ?: 0)
+            VerticalExpandVisibility(visible = !state.isEditing) {
+                Column {
+                    ProgressCard(
+                        tasks = state.homework?.tasks?.size ?: 0,
+                        done = state.homework?.tasks?.count { it.done } ?: 0)
+                    Spacer8Dp()
+                }
             }
             RowVerticalCenter(
                 Modifier
@@ -213,7 +214,8 @@ private fun HomeworkDetailScreenContent(
                     )
                 }
             )
-            Documents(documents = state.homework?.documents ?: emptyList())
+            Spacer8Dp()
+            Documents(documents = state.homework?.documents ?: emptyList(), isEditing = state.isEditing)
         }
     }
 }

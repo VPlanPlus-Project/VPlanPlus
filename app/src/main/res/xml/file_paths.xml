@@ -3,4 +3,8 @@
     <files-path
         name="homework_documents"
         path="./homework_documents" />
+
+    <cache-path
+        name="homework_documents"
+        path="./homework_documents" />
 </paths>

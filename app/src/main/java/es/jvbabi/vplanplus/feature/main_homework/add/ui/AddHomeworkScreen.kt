@@ -1,24 +1,27 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.ui
 
+import android.Manifest
 import android.app.Activity
 import android.app.Activity.RESULT_OK
+import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.webkit.MimeTypeMap
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkHorizontally
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -74,10 +77,12 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
-import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_JPEG
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_PDF
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
@@ -89,8 +94,9 @@ import com.skydoves.balloon.compose.rememberBalloonBuilder
 import com.skydoves.balloon.compose.setBackgroundColor
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddDocumentButton
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddImageButton
-import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.ImageButton
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.DocumentView
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.default_lesson_dialog.SelectDefaultLessonSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.due_to.SetDueToModal
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
@@ -98,10 +104,16 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.SegmentedButtonItem
 import es.jvbabi.vplanplus.ui.common.SegmentedButtons
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.blendColor
 import kotlinx.coroutines.delay
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -112,12 +124,44 @@ fun AddHomeworkScreen(
 ) {
     val context = LocalContext.current
 
+    val imageFile = context.createImageFile()
+    val uri = FileProvider.getUriForFile(
+        context,
+        context.packageName + ".fileprovider",
+        imageFile
+    )
+    val takePhotoLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture(),
+        onResult = { isSaved ->
+            if (isSaved) viewModel.onUiAction(AddDocument(fileFromContentUri(context, uri).toUri()))
+        }
+    )
+
+    val pickPhotosLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickMultipleVisualMedia(),
+        onResult = {
+            it.forEach { uri -> viewModel.onUiAction(AddDocument(fileFromContentUri(context, uri).toUri())) }
+        }
+    )
+
+    val pickDocumentLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetMultipleContents(),
+        onResult = {
+            it.forEach { uri -> viewModel.onUiAction(AddDocument(fileFromContentUri(context, uri).toUri())) }
+        }
+    )
+
+    val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
+        if (it) takePhotoLauncher.launch(uri)
+        else Log.e("AddHomeworkScreen", "Permission denied")
+    }
+
     val scannerOptions = remember {
         GmsDocumentScannerOptions.Builder()
             .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
             .setGalleryImportAllowed(true)
             .setPageLimit(3)
-            .setResultFormats(RESULT_FORMAT_PDF, RESULT_FORMAT_JPEG)
+            .setResultFormats(RESULT_FORMAT_PDF)
             .build()
     }
 
@@ -132,8 +176,7 @@ fun AddHomeworkScreen(
             val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
             Log.d("AddHomeworkScreen", "Scanned ${result?.pages?.size} pages")
             if (result?.pdf?.uri == null) return@rememberLauncherForActivityResult
-            val imageUris = result.pages?.map { image -> image.imageUri } ?: emptyList()
-            viewModel.onUiAction(AddDocument(imageUris, result.pdf?.uri ?: return@rememberLauncherForActivityResult))
+            viewModel.onUiAction(AddDocument(result.pdf?.uri ?: return@rememberLauncherForActivityResult))
         }
     }
 
@@ -146,9 +189,23 @@ fun AddHomeworkScreen(
         onBack = { navHostController.popBackStack() },
         onSetDefaultLesson = { viewModel.setDefaultLesson(it) },
         onOpenVppIdSettings = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
+        onTakePhoto = {
+            val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
+            if (permissionCheckResult == android.content.pm.PackageManager.PERMISSION_GRANTED) {
+                takePhotoLauncher.launch(uri)
+            } else {
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            }
+        },
+        onPickPhotos = {
+            pickPhotosLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+        },
+        onPickDocuments = {
+            pickDocumentLauncher.launch("application/pdf")
+        },
         onSave = viewModel::requestSave,
         onAction = viewModel::onUiAction,
-        startScanning = {
+        onScanDocument = {
             scanner.getStartScanIntent(context as Activity)
                 .addOnSuccessListener {
                     scannerLauncher.launch(IntentSenderRequest.Builder(it).build())
@@ -170,7 +227,7 @@ fun AddHomeworkScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddHomeworkContent(
     onBack: () -> Unit = {},
@@ -178,7 +235,10 @@ private fun AddHomeworkContent(
     onOpenVppIdSettings: () -> Unit = {},
     onSave: () -> Unit = {},
     onAction: (action: AddHomeworkUiEvent) -> Unit = { _ -> },
-    startScanning: () -> Unit = {},
+    onTakePhoto: () -> Unit = {},
+    onPickPhotos: () -> Unit = {},
+    onScanDocument: () -> Unit = {},
+    onPickDocuments: () -> Unit = {},
     state: AddHomeworkState
 ) {
 
@@ -503,82 +563,26 @@ private fun AddHomeworkContent(
                 }
             }
 
-//            Box(
-//                Modifier
-//                    .fillMaxWidth()
-//                    .clip(RoundedCornerShape(16.dp))
-//                    .clickable { isSaveTypeSheetOpen = true }
-//            ) {
-//                RowVerticalCenter(Modifier.padding(start = 12.dp, top = 16.dp, bottom = 16.dp)) {
-//                    Box(modifier = Modifier.size(24.dp)) icon@{
-//                        Icon(
-//                            imageVector = when (state.saveType) {
-//                                SaveType.LOCAL -> Icons.Default.PhoneAndroid
-//                                SaveType.CLOUD -> Icons.Default.CloudQueue
-//                                SaveType.SHARED -> Icons.Default.Share
-//                                null -> return@icon
-//                            },
-//                            contentDescription = null
-//                        )
-//                    }
-//                    Column(Modifier.padding(start = 16.dp, end = 4.dp)) {
-//                        Text(
-//                            text = stringResource(id = R.string.addHomework_storeTitle),
-//                            style = MaterialTheme.typography.bodyLarge
-//                        )
-//                        Text(
-//                            text =
-//                            when (state.saveType) {
-//                                SaveType.LOCAL -> stringResource(id = R.string.addHomework_storeOnThisDevice)
-//                                SaveType.CLOUD -> stringResource(id = R.string.addHomework_storeInCloud)
-//                                SaveType.SHARED -> stringResource(id = R.string.addHomework_storeInCloud) + " $DOT " + stringResource(id = R.string.addHomework_shareWithClass)
-//                                null -> ""
-//                            },
-//                            style = MaterialTheme.typography.bodySmall
-//                        )
-//                    }
-//                }
-//            }
-
             HorizontalDivider()
 
             LazyRow(
                 modifier = Modifier.padding(top = 16.dp, bottom = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                item {
-                    Spacer(modifier = Modifier.size(8.dp))
-                }
-                items(state.documents, key = { it.hashCode() }) { document ->
-                    document.imageUris.forEach page@{ uri ->
-                        ImageButton(Modifier.animateItemPlacement(), uri) { onAction(RemoveDocumentByDocument(document)) }
-                    }
+                item { Spacer8Dp() }
+                items(state.documents, key = { it.hashCode() }) { documentUri ->
+                    DocumentView(uri = documentUri) { onAction(RemoveDocument(documentUri)) }
                     VerticalDivider()
                 }
                 item {
-                    AddImageButton(onClick = startScanning)
+                    Column {
+                        AddImageButton(onOpenCamera = onTakePhoto, onOpenGallery = onPickPhotos)
+                        AddDocumentButton(onScanDocument, onPickDocuments)
+                    }
                 }
             }
         }
     }
-//
-//            return@Column
-//
-//        AnimatedVisibility(
-//            visible = state.result == HomeworkModificationResult.FAILED,
-//            enter = expandVertically(tween(200)),
-//            exit = shrinkVertically(tween(200))
-//        ) {
-//            InfoCard(
-//                modifier = Modifier.padding(16.dp),
-//                imageVector = Icons.Default.Error,
-//                title = stringResource(id = R.string.something_went_wrong),
-//                text =
-//                stringResource(id = R.string.addHomework_saveFailedText) +
-//                        if (state.canUseCloud) " " + stringResource(id = R.string.addHomework_saveFailedOnlineText)
-//                        else "",
-//            )}}
-//        }
 }
 
 @Composable
@@ -592,4 +596,50 @@ private fun AddHomeworkScreenPreview() {
             canShowCloudInfoBanner = true
         )
     )
+}
+
+private fun Context.createImageFile(): File {
+    val timestamp = System.currentTimeMillis().toString()
+    val folder = File(cacheDir, "homework_documents")
+    if (!folder.exists()) folder.mkdirs()
+    val image = File.createTempFile("JPEG_${timestamp}_", ".jpg", folder)
+    return image
+}
+
+private fun fileFromContentUri(context: Context, contentUri: Uri): File {
+
+    val fileExtension = getFileExtension(context, contentUri)
+    val fileName = "temporary_file" + contentUri.pathSegments.last() + if (fileExtension != null) ".$fileExtension" else ""
+
+    val tempFile = File(context.cacheDir, fileName)
+    tempFile.createNewFile()
+
+    try {
+        val oStream = FileOutputStream(tempFile)
+        val inputStream = context.contentResolver.openInputStream(contentUri)
+
+        inputStream?.let {
+            copy(inputStream, oStream)
+        }
+
+        oStream.flush()
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+
+    return tempFile
+}
+
+private fun getFileExtension(context: Context, uri: Uri): String? {
+    val fileType: String? = context.contentResolver.getType(uri)
+    return MimeTypeMap.getSingleton().getExtensionFromMimeType(fileType)
+}
+
+@Throws(IOException::class)
+private fun copy(source: InputStream, target: OutputStream) {
+    val buf = ByteArray(8192)
+    var length: Int
+    while (source.read(buf).also { length = it } > 0) {
+        target.write(buf, 0, length)
+    }
 }

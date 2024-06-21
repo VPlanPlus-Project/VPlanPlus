@@ -1,9 +1,11 @@
 package es.jvbabi.vplanplus.ui.common
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -51,6 +53,22 @@ fun VerticalExpandAnimatedAndFadingVisibility(
         visible = visible,
         enter = expandVertically() + fadeIn(),
         exit = shrinkVertically() + fadeOut()
+    ) {
+        content()
+    }
+}
+
+@Composable
+fun HorizontalExpandAnimatedAndFadingVisibility(
+    modifier: Modifier = Modifier,
+    visible: Boolean,
+    content: @Composable () -> Unit
+) {
+    AnimatedVisibility(
+        modifier = modifier,
+        visible = visible,
+        enter = expandHorizontally() + fadeIn(),
+        exit = shrinkHorizontally() + fadeOut()
     ) {
         content()
     }

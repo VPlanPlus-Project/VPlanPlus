@@ -679,5 +679,15 @@
     <string name="homework_detailViewUnsavedChanges">Ungespeicherte Änderungen</string>
     <string name="discard_changes">Änderungen verwerfen</string>
     <string name="homework_detailViewUnsavedChangesText">Einige Änderungen wurden noch nicht gespeichert. Möchtest du diese Änderungen verwerfen?</string>
+    <string name="addHomework_addImageGalleryTitle">Galerie öffnen</string>
+    <string name="addHomework_addImageGallerySubtitle">Wähle ein bereits aufgenommenes Bild.</string>
+    <string name="addHomework_addImageCameraTitle">Bild aufnehmen</string>
+    <string name="addHomework_addImageCameraSubtitle">Verwende deine Kamera, um ein Bild aufzunehmen.</string>
+    <string name="addHomework_addImage">Bild hinzufügen</string>
+    <string name="addHomework_addDocument">Dokument hinzufügen</string>
+    <string name="addHomework_addDocumentChooseDocumentTitle">Dokument wählen</string>
+    <string name="addHomework_addDocumentChooseDocumentSubtitle">Wähle ein Dokument auf deinem Gerät aus.</string>
+    <string name="addHomework_addDocumentScanDocumentSubtitle">Nutze deine Kamera, um ein Dokument einzuscannen.</string>
+    <string name="addHomework_addDocumentScanDocumentTitle">Dokument scannen</string>
 
 </resources>

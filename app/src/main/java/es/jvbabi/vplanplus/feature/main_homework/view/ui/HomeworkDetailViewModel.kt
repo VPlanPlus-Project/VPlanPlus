@@ -63,13 +63,15 @@ class HomeworkDetailViewModel @Inject constructor(
                     if (action is ExitAndSaveHomeworkAction) {
                         if (state.editDueDate != null) homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, state.editDueDate!!)
 
-                        val tasksToDelete = state.homework?.tasks?.filter { task -> state.editTasks.none { it.id == task.id } } ?: emptyList()
-                        tasksToDelete.forEach { homeworkDetailUseCases.deleteHomeworkTaskUseCase(it) }
+                        val editTasks = state.editTasks
 
-                        val tasksToUpdate = state.editTasks.filter { state.homework?.getTaskById(it.id)?.content != it.content }
+                        val tasksToUpdate = editTasks.filter { state.homework?.getTaskById(it.id) != null && state.homework?.getTaskById(it.id)?.content != it.content }
                         tasksToUpdate.forEach { homeworkDetailUseCases.editTaskUseCase(state.homework!!.getTaskById(it.id)!!, it.content) }
 
                         state.newTasks.forEach { newTask -> homeworkDetailUseCases.addTaskUseCase(state.homework!!, newTask.content) }
+
+                        val tasksToDelete = state.homework?.tasks?.filter { task -> editTasks.none { it.id == task.id } } ?: emptyList()
+                        tasksToDelete.forEach { homeworkDetailUseCases.deleteHomeworkTaskUseCase(it) }
                     }
                     state = state.copy(
                         isEditing = false,

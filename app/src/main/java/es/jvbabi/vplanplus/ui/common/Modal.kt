@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -23,6 +28,60 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.util.blendColor
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun rememberModalBottomSheetStateWithoutFullExpansion(): SheetState {
+    return rememberModalBottomSheetState(
+        skipPartiallyExpanded = false,
+        confirmValueChange = { it != SheetValue.Expanded }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun CustomModal(
+    sheetState: SheetState,
+    onDismiss: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+    ) {
+        content()
+    }
+}
+
+data class ModalOption(
+    val title: String,
+    val subtitle: String? = null,
+    val icon: ImageVector,
+    val isEnabled: Boolean,
+    val isSelected: Boolean,
+    val onClick: () -> Unit
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun Modal(
+    sheetState: SheetState,
+    entries: List<ModalOption>,
+    onDismiss: () -> Unit
+) {
+    CustomModal(sheetState, onDismiss) {
+        entries.forEach { entry ->
+            Option(
+                title = entry.title,
+                subtitle = entry.subtitle,
+                icon = entry.icon,
+                state = entry.isSelected,
+                enabled = entry.isEnabled,
+                onClick = entry.onClick
+            )
+        }
+    }
+}
 
 @Composable
 fun Option(

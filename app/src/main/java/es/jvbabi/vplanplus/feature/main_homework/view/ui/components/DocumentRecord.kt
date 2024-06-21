@@ -18,7 +18,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +32,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -42,18 +45,21 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toFile
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.HorizontalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
 
 @Composable
 fun DocumentRecord(
     uri: Uri?,
+    isEditing: Boolean
 ) {
-    var isLoading by rememberSaveable { mutableStateOf(true) }
+    var isLoading by remember(uri) { mutableStateOf(true) }
     val context = LocalContext.current
-    var bitmap = remember<Bitmap?> { null }
-    var pageCount by remember { mutableIntStateOf(0) }
-    var documentSize by remember { mutableLongStateOf(0) }
+    var bitmap = remember<Bitmap?>(uri) { null }
+    var pageCount by remember(uri) { mutableIntStateOf(0) }
+    var documentSize by remember(uri) { mutableLongStateOf(0) }
     LaunchedEffect(key1 = uri) {
         if (uri != null) {
             val file = uri.toFile()
@@ -92,11 +98,11 @@ fun DocumentRecord(
             modifier = Modifier
                 .size(92.dp)
                 .clip(RoundedCornerShape(8.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer),
+                .background(MaterialTheme.colorScheme.surfaceVariant),
             contentAlignment = Alignment.Center
         ) {
             if (isLoading) {
-                CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimaryContainer)
+                CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             if (bitmap != null) Image(
                 bitmap = bitmap!!.asImageBitmap(),
@@ -105,15 +111,22 @@ fun DocumentRecord(
             )
         }
         AnimatedVisibility(visible = !isLoading) {
-            Column {
-                Text(
-                    text = pluralStringResource(id = R.plurals.homework_detailViewDocumentPages, count = pageCount, pageCount),
-                    style = MaterialTheme.typography.labelMedium
-                )
-                Text(
-                    text = storageToHumanReadableFormat(documentSize),
-                    style = MaterialTheme.typography.labelSmall
-                )
+            RowVerticalCenterSpaceBetweenFill {
+                Column {
+                    Text(
+                        text = pluralStringResource(id = R.plurals.homework_detailViewDocumentPages, count = pageCount, pageCount),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    Text(
+                        text = storageToHumanReadableFormat(documentSize),
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+                HorizontalExpandAnimatedAndFadingVisibility(visible = isEditing) {
+                    IconButton(onClick = { /*TODO*/ }) {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                    }
+                }
             }
         }
     }
@@ -122,5 +135,11 @@ fun DocumentRecord(
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordPreview() {
-    DocumentRecord(null)
+    DocumentRecord(null, false)
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun DocumentRecordEditingPreview() {
+    DocumentRecord(null, true)
 }

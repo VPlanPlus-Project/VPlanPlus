@@ -81,7 +81,7 @@ class AddHomeworkViewModel @Inject constructor(
                     tasks = state.value.tasks,
                     shareWithClass = state.value.saveType == SaveType.SHARED,
                     storeInCloud = state.value.saveType != SaveType.LOCAL,
-                    documentUris = state.value.documents.map { it.documentUri }
+                    documentUris = state.value.documents
                 ),
                 isLoading = false
             )
@@ -97,8 +97,8 @@ class AddHomeworkViewModel @Inject constructor(
             is UpdateTask -> updateTask(event.index, event.content)
             is UpdateSaveType -> setSaveType(event.saveType)
             is UpdateUntil -> updateDueTo(event.until)
-            is AddDocument -> addDocument(event.imageUris, event.documentUri)
-            is RemoveDocumentByDocument -> removeDocument(event.document)
+            is AddDocument -> addDocument(event.documentUri)
+            is RemoveDocument -> removeDocument(event.documentUri)
         }
     }
 
@@ -125,12 +125,12 @@ class AddHomeworkViewModel @Inject constructor(
         state.value = state.value.copy(saveType = saveType)
     }
 
-    private fun addDocument(imageUris: List<Uri>, documentUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents + HomeworkDocument(imageUris, documentUri))
+    private fun addDocument(documentUri: Uri) {
+        state.value = state.value.copy(documents = state.value.documents + documentUri)
     }
 
-    private fun removeDocument(document: HomeworkDocument) {
-        state.value = state.value.copy(documents = state.value.documents.toMutableList().apply { remove(document) })
+    private fun removeDocument(documentUri: Uri) {
+        state.value = state.value.copy(documents = state.value.documents.toMutableList().apply { remove(documentUri) })
     }
 
     private fun updateDueTo(dueTo: LocalDate) {
@@ -161,7 +161,7 @@ data class AddHomeworkState(
 
     val showNewSaveButtonLocationBalloon: Boolean = false,
 
-    val documents: List<HomeworkDocument> = emptyList()
+    val documents: List<Uri> = emptyList()
 ) {
     val canSubmit: Boolean
         get() = until != null && tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
@@ -174,8 +174,6 @@ enum class SaveType {
     LOCAL, CLOUD, SHARED
 }
 
-data class HomeworkDocument(val imageUris: List<Uri>, val documentUri: Uri)
-
 sealed class AddHomeworkUiEvent
 
 data object NewLayoutBalloonDismissed : AddHomeworkUiEvent()
@@ -187,5 +185,5 @@ data class UpdateSaveType(val saveType: SaveType) : AddHomeworkUiEvent()
 
 data class UpdateUntil(val until: LocalDate) : AddHomeworkUiEvent()
 
-data class AddDocument(val imageUris: List<Uri>, val documentUri: Uri) : AddHomeworkUiEvent()
-data class RemoveDocumentByDocument(val document: HomeworkDocument) : AddHomeworkUiEvent()
+data class AddDocument(val documentUri: Uri) : AddHomeworkUiEvent()
+data class RemoveDocument(val documentUri: Uri) : AddHomeworkUiEvent()

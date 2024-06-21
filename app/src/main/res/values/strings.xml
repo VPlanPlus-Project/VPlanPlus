@@ -682,5 +682,15 @@
     <string name="homework_detailViewUnsavedChanges">Unsaved changes</string>
     <string name="discard_changes">Discard changes</string>
     <string name="homework_detailViewUnsavedChangesText">Some changes haven\'t been saved yet. Do you want to discard them?</string>
+    <string name="addHomework_addImageGalleryTitle">Open gallery</string>
+    <string name="addHomework_addImageGallerySubtitle">Select an image that has already been taken.</string>
+    <string name="addHomework_addImageCameraTitle">Take photo</string>
+    <string name="addHomework_addImageCameraSubtitle">Use your devices camera to take a photo.</string>
+    <string name="addHomework_addImage">Add image</string>
+    <string name="addHomework_addDocument">Add document</string>
+    <string name="addHomework_addDocumentChooseDocumentTitle">Choose document</string>
+    <string name="addHomework_addDocumentChooseDocumentSubtitle">Select a document on your device.</string>
+    <string name="addHomework_addDocumentScanDocumentSubtitle">Use your camera to scan a document.</string>
+    <string name="addHomework_addDocumentScanDocumentTitle">Scan document</string>
 
 </resources>
