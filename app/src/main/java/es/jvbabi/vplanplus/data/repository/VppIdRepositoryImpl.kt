@@ -4,6 +4,7 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
@@ -11,6 +12,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.domain.DataResponse
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
@@ -18,9 +20,10 @@ import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.GroupInfoResponse
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
+import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
@@ -30,13 +33,16 @@ import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.ZonedDateTime
+import java.util.UUID
 
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
     private val vppIdTokenDao: VppIdTokenDao,
     private val groupRepository: GroupRepository,
+    private val profileRepository: ProfileRepository,
     private val roomBookingDao: RoomBookingDao,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
     private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
@@ -53,23 +59,12 @@ class VppIdRepositoryImpl(
         }
     }
 
-    override suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?> {
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
-        val response = vppIdNetworkRepository.doRequest(
-            "/api/$API_VERSION/user/me",
-            HttpMethod.Get,
-            null
-        )
-        return if(response.response != HttpStatusCode.OK) {
-            DataResponse(
-                null, response.response
-            )
-        } else DataResponse(
-            Gson().fromJson(
-                response.data,
-                VppIdOnlineResponse::class.java
-            ), HttpStatusCode.OK
-        )
+    override suspend fun deleteVppId(id: Int) {
+        vppIdDao.delete(id)
+    }
+
+    override suspend fun getVppId(id: Int): VppId? {
+        return vppIdDao.getVppId(id.toLong())?.toModel()
     }
 
     override suspend fun addVppId(vppId: VppId) {
@@ -161,22 +156,28 @@ class VppIdRepositoryImpl(
         val currentToken = getVppIdToken(vppId) ?: return null
         vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
         val response = vppIdNetworkRepository.doRequest(
-            path = "/api/$API_VERSION/session",
-            requestMethod = HttpMethod.Post,
-            requestBody = Gson().toJson(TestSessionRequest(vppId.id))
+            path = "/api/$API_VERSION/user/me",
+            requestMethod = HttpMethod.Get
         )
         if (response.response == null || response.response == HttpStatusCode.BadGateway) return null
-        return response.response == HttpStatusCode.Found
+        return response.response == HttpStatusCode.OK
     }
 
     override suspend fun unlinkVppId(vppId: VppId): Boolean {
         val currentToken = getVppIdToken(vppId) ?: return false
         vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
         val response = vppIdNetworkRepository.doRequest(
-            "/api/$API_VERSION/session",
-            HttpMethod.Delete,
+            "/api/$API_VERSION/auth/logout",
+            HttpMethod.Get,
         )
         if (response.response != HttpStatusCode.OK && response.response != HttpStatusCode.Unauthorized) return false
+
+        profileRepository.getProfiles().first()
+            .filterIsInstance<ClassProfile>()
+            .filter { it.vppId?.id == vppId.id }
+            .forEach profileWithThisVppId@{
+                profileRepository.setVppIdForProfile(it, null)
+            }
         vppIdDao.delete(vppId.id)
         firebaseCloudMessagingManagerRepository.updateToken(null)
         return true
@@ -236,19 +237,11 @@ class VppIdRepositoryImpl(
         vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/$API_VERSION/user/me/sessions",
+            "/api/$API_VERSION/user/me/session",
             HttpMethod.Get
         )
-        return if(response.response != HttpStatusCode.OK) {
-            DataResponse(
-                null, response.response
-            )
-        } else DataResponse(
-            Gson().fromJson(
-                response.data,
-                Array<Session>::class.java
-            ).toList(), HttpStatusCode.OK
-        )
+        return if(response.response != HttpStatusCode.OK || response.data == null) DataResponse(null, response.response)
+        else DataResponse(ResponseDataWrapper.fromJson<List<Session>>(response.data), HttpStatusCode.OK)
     }
 
     override suspend fun closeSession(session: Session, vppId: VppId): Boolean {
@@ -257,7 +250,7 @@ class VppIdRepositoryImpl(
 
         return try {
             val response = vppIdNetworkRepository.doRequest(
-                "/api/$API_VERSION/session/${session.id}",
+                "/api/$API_VERSION/user/me/session/${session.id}",
                 HttpMethod.Delete
             )
             response.response == HttpStatusCode.OK
@@ -295,7 +288,72 @@ class VppIdRepositoryImpl(
             response.response
         )
     }
+
+    override suspend fun useOAuthCode(code: String): VppId? {
+        vppIdNetworkRepository.authentication = null
+        val response = vppIdNetworkRepository.doRequestForm(
+            "/api/$API_VERSION/auth/token",
+            form = mapOf(
+                "grant_type" to "authorization_code",
+                "code" to code,
+                "client_id" to BuildConfig.VPP_CLIENT_ID,
+                "client_secret" to BuildConfig.VPP_CLIENT_SECRET,
+                "redirect_uri" to BuildConfig.VPP_REDIRECT_URI
+            ),
+            requestMethod = HttpMethod.Post
+        )
+        if (response.response != HttpStatusCode.OK || response.data == null) return null
+        val oAuthResponse = Gson().fromJson(response.data, OAuthResponse::class.java)
+
+        vppIdNetworkRepository.authentication = BearerAuthentication(oAuthResponse.accessToken)
+        val meResponse = vppIdNetworkRepository.doRequest(
+            "/api/$API_VERSION/user/me",
+            HttpMethod.Get
+        )
+
+        if (meResponse.response != HttpStatusCode.OK || meResponse.data == null) return null
+        val me = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)
+
+        deleteVppId(me.id)
+
+        val group = groupRepository.getGroupById(me.groupId) ?: return null
+        val dbEntity = DbVppId(
+            id = me.id,
+            name = me.username,
+            email = me.email,
+            schoolId = group.school.id,
+            groupName = group.name,
+            classId = group.groupId,
+            state = State.ACTIVE,
+            cachedAt = ZonedDateTime.now()
+        )
+
+        vppIdDao.upsert(dbEntity)
+
+        vppIdTokenDao.insert(DbVppIdToken(
+            accessToken = oAuthResponse.accessToken,
+            vppId = me.id,
+            id = UUID.randomUUID(),
+            bsToken = me.schulverwalterAccessToken
+        ))
+        return getVppId(me.id)
+    }
 }
+
+private data class OAuthResponse(
+    @SerializedName("access_token") val accessToken: String,
+    @SerializedName("token_type") val tokenType: String,
+    @SerializedName("expires_in") val expiresIn: Int,
+    @SerializedName("refresh_token") val refreshToken: String,
+)
+
+private data class MeResponse(
+    @SerializedName("id") val id: Int,
+    @SerializedName("username") val username: String,
+    @SerializedName("email") val email: String,
+    @SerializedName("group_id") val groupId: Int,
+    @SerializedName("schulverwalter_access_token") val schulverwalterAccessToken: String,
+)
 
 private data class BookRoomRequest(
     @SerializedName("room_name") val roomName: String,
@@ -313,10 +371,6 @@ enum class BookResult {
 private data class UserNameResponse(
     @SerializedName("name") val username: String,
     @SerializedName("school_class") val className: String,
-)
-
-private data class TestSessionRequest(
-    @SerializedName("user_id") val userId: Int
 )
 
 private data class VersionHintResponse(

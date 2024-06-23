@@ -12,9 +12,9 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.AlarmManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BiometricRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.GroupRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.FirebaseCloudMessagingManagerRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.GroupRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.LessonTimeRepositoryImpl
@@ -37,9 +37,9 @@ import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
-import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -57,8 +57,8 @@ import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -378,6 +378,7 @@ object VppModule {
     fun provideVppIdRepository(
         db: VppDatabase,
         groupRepository: GroupRepository,
+        profileRepository: ProfileRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
         keyValueRepository: KeyValueRepository,
         logRecordRepository: LogRecordRepository
@@ -391,7 +392,8 @@ object VppModule {
                 keyValueRepository,
                 logRecordRepository
             ),
-            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
+            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
+            profileRepository = profileRepository
         )
     }
 
@@ -632,18 +634,12 @@ object VppModule {
     @Singleton
     fun provideVppIdLinkUseCases(
         vppIdRepository: VppIdRepository,
-        groupRepository: GroupRepository,
-        gradeRepository: GradeRepository,
         profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository
     ): VppIdLinkUseCases {
         val testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
         return VppIdLinkUseCases(
-            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(
-                vppIdRepository = vppIdRepository,
-                groupRepository = groupRepository,
-                gradeRepository = gradeRepository
-            ),
+            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository),
             getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository),
             setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, testForMissingVppIdToProfileConnectionsUseCase),
             updateMissingLinksStateUseCase = UpdateMissingLinksStateUseCase(

@@ -20,4 +20,11 @@ interface NetworkRepository {
         requestBody: Any? = null,
         queries: Map<String, String> = emptyMap()
     ): DataResponse<ByteArray?>
+
+    suspend fun doRequestForm(
+        path: String,
+        requestMethod: HttpMethod = HttpMethod.Get,
+        form: Map<String, String>,
+        queries: Map<String, String> = emptyMap()
+    ): DataResponse<String?>
 }

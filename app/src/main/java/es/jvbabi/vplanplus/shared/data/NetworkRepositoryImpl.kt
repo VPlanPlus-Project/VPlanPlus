@@ -14,6 +14,7 @@ import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
+import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
 import io.ktor.client.request.request
@@ -22,6 +23,7 @@ import io.ktor.client.statement.bodyAsChannel
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.parameters
 import io.ktor.util.toByteArray
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -145,6 +147,61 @@ open class NetworkRepositoryImpl(
                 else Log.w("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} at $server$path")
             }
             return DataResponse(response.bodyAsChannel().toByteArray(), response.status)
+        } catch (e: Exception) {
+            logRepository?.log(
+                "Network",
+                "error when requesting $server$path (${e.javaClass.name}):\n${e.localizedMessage}"
+            )
+            return when (e) {
+                is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(
+                    null,
+                    null
+                )
+
+                is ConnectException, is UnknownHostException -> DataResponse(null, null)
+                else -> DataResponse(null, null)
+            }
+        }
+    }
+
+    override suspend fun doRequestForm(
+        path: String,
+        requestMethod: HttpMethod,
+        form: Map<String, String>,
+        queries: Map<String, String>
+    ): DataResponse<String?> {
+        try {
+            logRepository?.log("Network", "Requesting ${requestMethod.value} $server$path")
+            val response = client.submitForm(
+                url = "$server$path",
+                formParameters = parameters {
+                    form.forEach { (key, value) -> append(key, value) }
+                }
+            ) request@{
+                method = requestMethod
+                headers headers@{
+                    if (authentication != null) {
+                        val (key, value) = authentication!!.toHeader()
+                        append(key, value)
+                    }
+                    globalHeaders.forEach { (key, value) -> append(key, value) }
+                    if (requestMethod != HttpMethod.Get) append("Content-Type", "application/json")
+                }
+                queries.forEach { (key, value) -> parameter(key, value) }
+            }
+            if (!listOf(
+                    HttpStatusCode.OK,
+                    HttpStatusCode.Created,
+                    HttpStatusCode.NoContent,
+                    HttpStatusCode.Accepted,
+                    HttpStatusCode.Found,
+                ).contains(response.status)
+            ) {
+                logRepository?.log("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} (see log for details)")
+                if (LOG_CONTENT_ON_ERROR) Log.w("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} at $server$path\n${response.bodyAsText()}")
+                else Log.w("Network.${this.javaClass.name}", "Unexpected status code: ${response.status} at $server$path")
+            }
+            return DataResponse(response.bodyAsText(), response.status)
         } catch (e: Exception) {
             logRepository?.log(
                 "Network",

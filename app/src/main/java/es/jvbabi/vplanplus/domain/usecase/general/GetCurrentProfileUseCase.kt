@@ -15,10 +15,10 @@ class GetCurrentProfileUseCase(
         combine(
             keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
             profileRepository.getProfiles()
-        ) { identityId, profiles ->
-            if (profiles.isEmpty() || identityId == null) return@combine null
+        ) { profileId, profiles ->
+            if (profiles.isEmpty() || profileId == null) return@combine null
             val uuid = try {
-                UUID.fromString(identityId)
+                UUID.fromString(profileId)
             } catch (e: IllegalArgumentException) {return@combine null }
             val profile = profiles.firstOrNull { it.id == uuid } ?: return@combine null
             profile

@@ -17,7 +17,9 @@ import java.time.ZonedDateTime
 interface VppIdRepository {
     fun getVppIds(): Flow<List<VppId>>
     fun getActiveVppIds(): Flow<List<VppId>>
-    suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?>
+    suspend fun getVppId(id: Int): VppId?
+
+    suspend fun deleteVppId(id: Int)
 
     suspend fun addVppId(vppId: VppId)
 
@@ -35,6 +37,8 @@ interface VppIdRepository {
 
     suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?>
     suspend fun closeSession(session: Session, vppId: VppId): Boolean
+
+    suspend fun useOAuthCode(code: String): VppId?
 
     /**
      * @return A map with the class name as key and the number of students in that class as value or null if something went wrong

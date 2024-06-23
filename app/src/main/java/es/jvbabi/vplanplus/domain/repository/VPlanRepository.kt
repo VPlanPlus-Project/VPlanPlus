@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.domain.repository
 
 import es.jvbabi.vplanplus.domain.DataResponse
-import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import java.time.LocalDate
 

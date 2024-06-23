@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.settings.vpp_id.ui
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -69,6 +70,7 @@ fun onLogin(context: Context, server: VppIdServer) {
             }
         )
     )
+    if (BuildConfig.DEBUG) Log.d("VppId", "Opening $url")
     val intent = CustomTabsIntent.Builder().build()
     intent.launchUrl(context, url.toString().toUri())
 }

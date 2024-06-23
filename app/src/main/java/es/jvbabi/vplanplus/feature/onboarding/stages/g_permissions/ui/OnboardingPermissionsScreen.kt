@@ -80,7 +80,7 @@ fun PermissionScreenContent(
                 Text(text = stringResource(id = state.permissions.toList()[state.currentIndex].first.description))
             }
             LinearProgressIndicator(
-                progress = { (state.currentIndex ?: 0) / state.permissions.size.toFloat() },
+                progress = { (state.currentIndex ?: 0) / state.permissions.size.toFloat().coerceAtLeast(1f) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)

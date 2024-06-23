@@ -59,6 +59,17 @@
                 <data android:pathPrefix="/android" />
             </intent-filter>
 
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="vplanplus" />
+                <data android:host="android" />
+                <data android:pathPrefix="/" />
+            </intent-filter>
+
         </activity>
 
         <service

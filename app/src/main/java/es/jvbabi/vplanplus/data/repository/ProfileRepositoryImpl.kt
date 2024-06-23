@@ -34,12 +34,14 @@ class ProfileRepositoryImpl(
             classProfiles.filter { it.group.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
             teacherProfiles.filter { it.schoolEntity.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
             roomProfiles.filter { it.schoolEntity.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
-            emit(profiles)
+            profiles
+        }.collect {
+            emit(it)
         }
     }
 
-    override fun getProfiles(): Flow<List<Profile>> {
-        return combine(
+    override fun getProfiles() = flow {
+        combine(
             profileDao.getClassProfiles(),
             profileDao.getTeacherProfiles(),
             profileDao.getRoomProfiles()
@@ -49,6 +51,8 @@ class ProfileRepositoryImpl(
             teacherProfiles.forEach { profiles.add(it.toModel()) }
             roomProfiles.forEach { profiles.add(it.toModel()) }
             profiles
+        }.collect {
+            emit(it)
         }
     }
 

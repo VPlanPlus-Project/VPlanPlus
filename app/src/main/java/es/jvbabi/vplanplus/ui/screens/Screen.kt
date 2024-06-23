@@ -12,7 +12,6 @@ sealed class Screen(val route: String) {
     data object OnboardingSchoolIdScreen: Screen("onboarding/school_id_screen")
     data object OnboardingLoginScreen: Screen("onboarding/login_screen")
     data object OnboardingNewProfileScreen: Screen("onboarding/first_profile_screen") // used for creating another profile
-    @Deprecated("") data object OnboardingFirstProfileScreen: Screen("onboarding/first_profile_screen") // used for creating the first profile
     data object OnboardingProfileSelectScreen: Screen("onboarding/profile_options_list_screen")
     data object OnboardingDefaultLessonScreen: Screen("onboarding/default_lesson_screen")
     data object OnboardingPermissionsScreen: Screen("onboarding/permissions_screen")
