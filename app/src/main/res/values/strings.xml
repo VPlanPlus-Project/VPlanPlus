@@ -692,5 +692,6 @@
     <string name="addHomework_addDocumentChooseDocumentSubtitle">Select a document on your device.</string>
     <string name="addHomework_addDocumentScanDocumentSubtitle">Use your camera to scan a document.</string>
     <string name="addHomework_addDocumentScanDocumentTitle">Scan document</string>
+    <string name="please_try_again">Please try again</string>
 
 </resources>

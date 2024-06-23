@@ -45,7 +45,7 @@ fun DayPager(
         state = pagerState,
         pageSize = PageSize.Fixed(68.dp),
         verticalAlignment = Alignment.Top,
-        beyondBoundsPageCount = FLING_ITEMS,
+        beyondViewportPageCount = FLING_ITEMS,
         flingBehavior = fling,
     ) {
         val date = it.toPagerDate(today)

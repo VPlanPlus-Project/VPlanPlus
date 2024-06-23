@@ -11,7 +11,7 @@ interface PlanRepository {
 
     fun getDayForProfile(profile: Profile, date: LocalDate, version: Long): Flow<Day>
     fun getDayForTeacher(teacherId: UUID, date: LocalDate, version: Long): Flow<Day>
-    fun getDayForClass(classId: UUID, date: LocalDate, version: Long): Flow<Day>
+    fun getDayForGroup(groupId: Int, date: LocalDate, version: Long): Flow<Day>
     fun getDayForRoom(roomId: UUID, date: LocalDate, version: Long): Flow<Day>
 
     suspend fun createPlan(plan: Plan)

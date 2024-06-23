@@ -23,9 +23,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.RoomProfile
+import es.jvbabi.vplanplus.domain.model.TeacherProfile
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.ProfileIcon
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
@@ -49,14 +52,14 @@ fun Head(
             verticalAlignment = Alignment.Top
         ) {
             Column(Modifier.weight(1f)) {
-                Greeting(time = currentTime, name = profile.vppId?.name)
+                Greeting(time = currentTime, name = (profile as? ClassProfile)?.vppId?.name)
                 Text(
                     text = stringResource(
                         id =
-                        when (profile.type) {
-                            ProfileType.STUDENT -> R.string.home_headSubtitleClass
-                            ProfileType.TEACHER -> R.string.home_headSubtitleTeacher
-                            ProfileType.ROOM -> R.string.home_headSubtitleRoom
+                        when (profile) {
+                            is ClassProfile -> R.string.home_headSubtitleClass
+                            is TeacherProfile -> R.string.home_headSubtitleTeacher
+                            is RoomProfile -> R.string.home_headSubtitleRoom
                         },
                         profile.originalName
                     ),
@@ -98,13 +101,8 @@ fun Head(
 @Composable
 @Preview(showBackground = true)
 private fun HeadPreview() {
-    val profile = ProfilePreview.generateClassProfile(VppIdPreview.generateVppId(null)).let {
-        it.copy(
-            vppId = it.vppId!!.copy(
-                name = "Johnathaneeeeeee Doe"
-            )
-        )
-    }
+    val group = GroupPreview.generateGroup()
+    val profile = ProfilePreview.generateClassProfile(group, VppIdPreview.generateVppId(group))
     Head(
         currentTime = ZonedDateTime.now(),
         profile = profile,

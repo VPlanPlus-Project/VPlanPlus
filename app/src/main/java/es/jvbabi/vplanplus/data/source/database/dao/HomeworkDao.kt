@@ -18,9 +18,9 @@ abstract class HomeworkDao {
     @Transaction
     abstract fun getAll(): Flow<List<CHomework>>
 
-    @Query("SELECT * FROM homework WHERE classes = :classId")
+    @Query("SELECT * FROM homework WHERE group_id = :groupId")
     @Transaction
-    abstract fun getByClassId(classId: UUID): Flow<List<CHomework>>
+    abstract fun getByGroupId(groupId: Int): Flow<List<CHomework>>
 
     @Query("SELECT * FROM homework WHERE id = :homeworkId")
     @Transaction
@@ -41,16 +41,16 @@ abstract class HomeworkDao {
     @Query("DELETE FROM homework_task WHERE id = :taskId")
     abstract suspend fun deleteTask(taskId: Long)
 
-    @Query("UPDATE homework SET isPublic = :isPublic WHERE id = :homeworkId")
+    @Query("UPDATE homework SET is_public = :isPublic WHERE id = :homeworkId")
     abstract suspend fun changePublic(homeworkId: Long, isPublic: Boolean)
 
-    @Query("UPDATE homework SET hidden = :hidden WHERE id = :homeworkId")
+    @Query("UPDATE homework SET is_hidden = :hidden WHERE id = :homeworkId")
     abstract suspend fun changeHidden(homeworkId: Long, hidden: Boolean)
 
     @Query("UPDATE homework SET until = :newDate WHERE id = :homeworkId")
     abstract suspend fun updateDueDate(homeworkId: Long, newDate: ZonedDateTime)
 
-    @Query("DELETE FROM homework_task WHERE homeworkId = :homeworkId")
+    @Query("DELETE FROM homework_task WHERE homework_id = :homeworkId")
     abstract suspend fun deleteTasksForHomework(homeworkId: Long)
 
     @Query("DELETE FROM homework WHERE id > 0")

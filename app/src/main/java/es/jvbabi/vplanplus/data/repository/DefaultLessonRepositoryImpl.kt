@@ -11,23 +11,30 @@ class DefaultLessonRepositoryImpl(
 ): DefaultLessonRepository {
     override suspend fun insert(defaultLesson: DbDefaultLesson): UUID {
         defaultLessonDao.insert(defaultLesson)
-        return defaultLesson.defaultLessonId
+        return defaultLesson.id
     }
 
-    @Deprecated("Insecure")
-    override suspend fun getDefaultLessonByVpId(vpId: Long): DefaultLesson? {
-        return defaultLessonDao.getDefaultLessonByVpId(vpId)?.toModel()
+    override suspend fun getDefaultLessonByGroupId(groupId: Int): List<DefaultLesson> {
+        return defaultLessonDao.getDefaultLessonByGroupId(groupId).map { dl -> dl.toModel() }
     }
 
-    override suspend fun getDefaultLessonByClassId(classId: UUID): List<DefaultLesson> {
-        return defaultLessonDao.getDefaultLessonByClassId(classId).map { dl -> dl.toModel() }
-    }
-
-    override suspend fun updateTeacherId(classId: UUID, vpId: Long, teacherId: UUID) {
-        defaultLessonDao.updateTeacherId(classId, vpId, teacherId)
+    override suspend fun updateTeacherId(groupId: Int, vpId: Int, teacherId: UUID) {
+        defaultLessonDao.updateTeacherId(groupId, vpId, teacherId)
     }
 
     override suspend fun deleteDefaultLesson(id: UUID) {
         defaultLessonDao.deleteById(id)
+    }
+
+    override suspend fun insertDefaultLesson(groupId: Int, vpId: Int, subject: String, teacherId: UUID) {
+        defaultLessonDao.insert(
+            DbDefaultLesson(
+                id = UUID.randomUUID(),
+                classId = groupId,
+                vpId = vpId,
+                subject = subject,
+                teacherId = teacherId
+            )
+        )
     }
 }

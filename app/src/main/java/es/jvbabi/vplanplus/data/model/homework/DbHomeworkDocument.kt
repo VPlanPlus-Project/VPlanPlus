@@ -3,11 +3,15 @@ package es.jvbabi.vplanplus.data.model.homework
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
-import java.util.UUID
+import androidx.room.Index
 
 @Entity(
     tableName = "homework_document",
     primaryKeys = ["id"],
+    indices = [
+        Index(value = ["id"], unique = true),
+        Index(value = ["homework_id"])
+    ],
     foreignKeys = [
         ForeignKey(
             entity = DbHomework::class,
@@ -19,5 +23,7 @@ import java.util.UUID
 )
 data class DbHomeworkDocument(
     val id: Int,
-    @ColumnInfo(name = "homework_id") val homeworkId: Long?
+    @ColumnInfo("file_name") val fileName: String,
+    @ColumnInfo("file_type") val fileType: String,
+    @ColumnInfo("homework_id") val homeworkId: Long?
 )

@@ -1,13 +1,13 @@
 package es.jvbabi.vplanplus.feature.room_search.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.util.TimeSpan
 import kotlinx.coroutines.flow.first
 import java.time.LocalDate
@@ -19,14 +19,13 @@ class GetRoomMapUseCase(
 ) {
 
     suspend operator fun invoke(
-        identity: Identity,
+        profile: Profile,
         date: LocalDate = LocalDate.now()
     ): List<RoomState> {
-        if (identity.school == null) return emptyList()
-        val rooms = roomRepository.getRooms(identity.school.schoolId).sortedBy { it.name }
+        val rooms = roomRepository.getRooms(profile.getSchool().id).sortedBy { it.name }
         val version = keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
-        val lessons = lessonRepository.getLessonsForSchoolByDate(identity.school.schoolId.toInt(), date, version).first()
-        val bookings = roomRepository.getRoomBookings(date).filter { it.`class`.school == identity.school }
+        val lessons = lessonRepository.getLessonsForSchoolByDate(profile.getSchool().id, date, version).first()
+        val bookings = roomRepository.getRoomBookings(date).filter { it.`class`.school == profile.getSchool() }
 
         val result = mutableListOf<RoomState>()
         rooms.forEach { room -> result.add(RoomState(room, emptyList(), emptyList())) }

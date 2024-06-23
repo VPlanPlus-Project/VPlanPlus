@@ -7,9 +7,6 @@ class UpdateProfileDisplayNameUseCase(
     private val profileRepository: ProfileRepository
 ) {
     suspend operator fun invoke(profile: Profile, displayName: String) {
-        profileRepository.updateProfile(
-            (profileRepository.getDbProfileById(profileId = profile.id) ?: return)
-                .copy(customName = displayName)
-        )
+        profileRepository.setProfileDisplayName(profile, displayName)
     }
 }

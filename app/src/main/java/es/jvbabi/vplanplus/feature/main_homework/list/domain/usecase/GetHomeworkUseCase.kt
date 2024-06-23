@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase
 
-import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.combine
@@ -9,16 +9,16 @@ import kotlinx.coroutines.flow.flow
 
 class GetHomeworkUseCase(
     private val homeworkRepository: HomeworkRepository,
-    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
 ) {
     operator fun invoke() = flow {
         combine(
             homeworkRepository.getAll(),
-            getCurrentIdentityUseCase()
-        ) { homework, identity ->
+            getCurrentProfileUseCase()
+        ) { homework, profile ->
             HomeworkResult(
-                homework = homework.filter { it.profile == identity?.profile },
-                wrongProfile = identity?.profile?.type != ProfileType.STUDENT
+                homework = homework.filter { it.profile == profile },
+                wrongProfile = profile !is ClassProfile
             )
         }.collect {
             emit(it)

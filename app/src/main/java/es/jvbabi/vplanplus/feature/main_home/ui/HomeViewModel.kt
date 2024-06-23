@@ -14,13 +14,13 @@ import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.BuildConfig
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
@@ -60,7 +60,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    homeUseCases.getCurrentIdentityUseCase(),
+                    homeUseCases.getCurrentProfileUseCase(),
                     homeUseCases.getHomeworkUseCase(),
                     homeUseCases.isInfoExpandedUseCase(),
                     homeUseCases.getProfilesUseCase(),
@@ -74,7 +74,7 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.getHolidaysUseCase()
                 )
             ) { data ->
-                val currentIdentity = data[0] as Identity
+                val currentProfile = data[0] as Profile?
                 val homework = data[1] as List<Homework>
                 val infoExpanded = data[2] as Boolean
                 val profiles = data[3] as List<Profile>
@@ -87,12 +87,10 @@ class HomeViewModel @Inject constructor(
                 val hasMissingVppIdToProfileLinks = data[10] as Boolean
                 val holidays = data[11] as List<LocalDate>
 
-                val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter {
-                    it.`class`.classId == currentIdentity.profile?.referenceId
-                }
+                val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter { it.`class`.groupId == (currentProfile as? ClassProfile)?.group?.groupId }
 
                 state.copy(
-                    currentIdentity = currentIdentity,
+                    currentProfile = currentProfile,
                     bookings = bookings,
                     homework = homework,
                     infoExpanded = infoExpanded,
@@ -107,7 +105,7 @@ class HomeViewModel @Inject constructor(
                     holidays = holidays
                 )
             }.collect {
-                val identityHasChanged = state.currentIdentity != it.currentIdentity
+                val identityHasChanged = state.currentProfile != it.currentProfile
                 state = it
 
                 if (identityHasChanged) restartUiUpdateJobs()
@@ -132,9 +130,9 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun triggerLessonUiSync(date: LocalDate) {
-        if (state.days.containsKey(date) || state.currentIdentity?.profile == null) return
+        if (state.days.containsKey(date) || state.currentProfile == null) return
         viewModelScope.launch {
-            homeUseCases.getDayUseCase(date, state.currentIdentity!!.profile!!).collect {
+            homeUseCases.getDayUseCase(date, state.currentProfile!!).collect {
                 state = state.copy(days = state.days + (date to it))
             }
         }
@@ -194,7 +192,7 @@ class HomeViewModel @Inject constructor(
 
 data class HomeState(
     val currentTime: ZonedDateTime = ZonedDateTime.now(),
-    val currentIdentity: Identity? = null,
+    val currentProfile: Profile? = null,
     val days: Map<LocalDate, Day> = emptyMap(),
     val selectedDate: LocalDate = LocalDate.now(),
     val bookings: List<RoomBooking> = emptyList(),

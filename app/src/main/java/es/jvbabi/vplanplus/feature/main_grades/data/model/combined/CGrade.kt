@@ -13,22 +13,22 @@ import es.jvbabi.vplanplus.feature.main_grades.domain.model.Grade
 data class CGrade(
     @Embedded val grade: DbGrade,
     @Relation(
-        parentColumn = "givenBy",
+        parentColumn = "teacher_id",
         entityColumn = "id",
         entity = DbTeacher::class
     ) val teacher: DbTeacher,
     @Relation(
-        parentColumn = "subject",
+        parentColumn = "subject_id",
         entityColumn = "id",
         entity = DbSubject::class
     ) val subject: DbSubject,
     @Relation(
-        parentColumn = "vppId",
+        parentColumn = "vpp_id",
         entityColumn = "id",
         entity = DbVppId::class
     ) val vppId: CVppId,
     @Relation(
-        parentColumn = "interval",
+        parentColumn = "interval_id",
         entityColumn = "id",
         entity = DbInterval::class
     ) val interval: CInterval

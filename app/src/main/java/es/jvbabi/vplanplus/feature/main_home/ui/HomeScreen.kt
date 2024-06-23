@@ -47,9 +47,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.DayPager
 import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
@@ -67,8 +67,9 @@ import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
-import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.delay
@@ -128,7 +129,7 @@ fun HomeScreen(
         onFixVppIdSessionClicked = { onLogin(context, state.server) },
         onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
-        onFixCredentialsClicked = { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentIdentity?.school?.schoolId}") },
+        onFixCredentialsClicked = { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentProfile?.getSchool()?.id}") },
         onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) }
     )
 }
@@ -141,7 +142,7 @@ fun HomeScreenContent(
     onOpenMenu: (state: Boolean) -> Unit = {},
     onSetSelectedDate: (date: LocalDate) -> Unit = {},
     onInfoExpandChange: (to: Boolean) -> Unit = {},
-    onAddHomework: (vpId: Long?) -> Unit,
+    onAddHomework: (vpId: Int?) -> Unit,
     onBookRoomClicked: () -> Unit,
     onOpenSearch: () -> Unit = {},
 
@@ -164,7 +165,7 @@ fun HomeScreenContent(
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
-    if (state.currentIdentity == null) return
+    if (state.currentProfile == null) return
 
     if (state.isVersionHintsDialogOpen) VersionHintsInformation(
         currentVersion = state.currentVersion,
@@ -199,7 +200,7 @@ fun HomeScreenContent(
     ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
             Head(
-                profile = state.currentIdentity.profile ?: return@Scaffold,
+                profile = state.currentProfile,
                 currentTime = state.currentTime,
                 isSyncing = state.isSyncRunning,
                 showNotificationDot = state.hasUnreadNews,
@@ -235,7 +236,7 @@ fun HomeScreenContent(
                     }
                     BadCredentialsBanner(
                         modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                        expand = state.currentIdentity.school?.credentialsValid == false,
+                        expand = state.currentProfile.getSchool().credentialsValid == false,
                         onFixCredentialsClicked = onFixCredentialsClicked
                     )
 
@@ -247,7 +248,7 @@ fun HomeScreenContent(
                         onFindAvailableRoomClicked = onBookRoomClicked,
                         onPrepareNextDayClicked = { onSetSelectedDate(state.nextSchoolDayWithData ?: state.currentTime.toLocalDate().plusDays(1L)) },
                         onSendFeedback = onSendFeedback,
-                        allowHomeworkQuickAction = state.currentIdentity.profile.isHomeworkEnabled
+                        allowHomeworkQuickAction = (state.currentProfile as? ClassProfile)?.isHomeworkEnabled ?: false
                     )
                 }
                 stickyHeader dateSelector@{
@@ -285,7 +286,7 @@ fun HomeScreenContent(
                             state = contentPagerState,
                             snapAnimationSpec = tween(100)
                         ),
-                        beyondBoundsPageCount = 7
+                        beyondViewportPageCount = 7
                     ) {
                         val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
                         val day = state.days[date]
@@ -325,7 +326,7 @@ fun HomeScreenContent(
                                         currentTime = state.currentTime,
                                         showCountdown = state.currentTime.toLocalDate().isEqual(date),
                                         isInfoExpanded = if (state.currentTime.toLocalDate().isEqual(date)) state.infoExpanded else null,
-                                        currentIdentity = state.currentIdentity,
+                                        currentProfile = state.currentProfile,
                                         bookings = state.bookings,
                                         homework = state.homework,
                                         onChangeInfoExpandState = onInfoExpandChange,
@@ -348,7 +349,7 @@ fun HomeScreenContent(
         isSyncing = state.isSyncRunning,
         profiles = state.profiles,
         hasUnreadNews = state.hasUnreadNews,
-        selectedProfile = state.currentIdentity.profile!!,
+        selectedProfile = state.currentProfile,
         onCloseMenu = { onOpenMenu(false) },
         onProfileClicked = onSwitchProfile,
         onManageProfilesClicked = onManageProfiles,
@@ -364,15 +365,13 @@ fun HomeScreenContent(
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
-    val school = School.generateRandomSchools(1).first()
-    val profile = ProfilePreview.generateClassProfile(VppIdPreview.generateVppId(null))
+    val school = SchoolPreview.generateRandomSchools(1).first()
+    val group = GroupPreview.generateGroup(school)
+    val profile = ProfilePreview.generateClassProfile(group, VppIdPreview.generateVppId(group))
     HomeScreenContent(
         navBar = navBar,
         state = HomeState(
-            currentIdentity = Identity(
-                school = school,
-                profile = profile
-            ),
+            currentProfile = profile,
             menuOpened = false,
             hasUnreadNews = true,
             profiles = listOf(profile),

@@ -7,6 +7,6 @@ interface MessageRepository {
     fun getMessages(): Flow<List<Message>>
     fun getUnreadMessages(): Flow<List<Message>>
     fun getMessage(messageId: String): Flow<Message>
-    suspend fun updateMessages(schoolId: Long?)
+    suspend fun updateMessages(schoolId: Int?)
     suspend fun markMessageAsRead(messageId: String)
 }

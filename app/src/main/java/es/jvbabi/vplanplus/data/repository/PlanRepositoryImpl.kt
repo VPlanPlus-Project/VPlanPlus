@@ -1,8 +1,8 @@
 package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.data.model.DbPlanData
-import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayDataState
 import es.jvbabi.vplanplus.domain.model.DayType
@@ -10,8 +10,10 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
+import es.jvbabi.vplanplus.domain.model.RoomProfile
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.model.TeacherProfile
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -26,16 +28,16 @@ import java.util.UUID
 class PlanRepositoryImpl(
     private val holidayRepository: HolidayRepository,
     private val teacherRepository: TeacherRepository,
-    private val classRepository: ClassRepository,
+    private val groupRepository: GroupRepository,
     private val roomRepository: RoomRepository,
     private val lessonRepository: LessonRepository,
     private val planDao: PlanDao
 ) : PlanRepository {
     override fun getDayForProfile(profile: Profile, date: LocalDate, version: Long): Flow<Day> {
-        return when (profile.type) {
-            ProfileType.STUDENT -> getDayForClass(profile.referenceId, date, version)
-            ProfileType.TEACHER -> getDayForTeacher(profile.referenceId, date, version)
-            ProfileType.ROOM -> getDayForRoom(profile.referenceId, date, version)
+        return when (profile) {
+            is ClassProfile -> getDayForGroup(profile.group.groupId, date, version)
+            is TeacherProfile -> getDayForTeacher(profile.teacher.teacherId, date, version)
+            is RoomProfile -> getDayForRoom(profile.room.roomId, date, version)
         }
     }
 
@@ -51,18 +53,18 @@ class PlanRepositoryImpl(
                         school,
                         lessons,
                         date,
-                        planDao.getPlanByDate(school.schoolId, date)?.planData?.info,
+                        planDao.getPlanByDate(school.id, date)?.planData?.info,
                         bookings
                     )
                 )
             }
     }
 
-    override fun getDayForClass(classId: UUID, date: LocalDate, version: Long) = flow {
-        val `class` = classRepository.getClassById(classId)!!
+    override fun getDayForGroup(groupId: Int, date: LocalDate, version: Long) = flow {
+        val `class` = groupRepository.getGroupById(groupId)!!
         val school = `class`.school
 
-        lessonRepository.getLessonsForClass(`class`.classId, date, version).distinctUntilChanged()
+        lessonRepository.getLessonsForGroup(`class`.groupId, date, version).distinctUntilChanged()
             .collect { lessons ->
                 val bookings = roomRepository.getRoomBookings(date)
                 emit(
@@ -70,7 +72,7 @@ class PlanRepositoryImpl(
                         school,
                         lessons,
                         date,
-                        planDao.getPlanByDate(school.schoolId, date)?.planData?.info,
+                        planDao.getPlanByDate(school.id, date)?.planData?.info,
                         bookings
                     )
                 )
@@ -89,7 +91,7 @@ class PlanRepositoryImpl(
                         school,
                         lessons,
                         date,
-                        planDao.getPlanByDate(school.schoolId, date)?.planData?.info,
+                        planDao.getPlanByDate(school.id, date)?.planData?.info,
                         bookings
                     )
                 )
@@ -107,7 +109,7 @@ class PlanRepositoryImpl(
         info: String?,
         bookings: List<RoomBooking>
     ): Day {
-        val dayType = holidayRepository.getDayType(school.schoolId, date)
+        val dayType = holidayRepository.getDayType(school.id, date)
         val lessonsWithBookings = lessons?.map { lesson ->
             val booking = bookings.firstOrNull { roomBooking ->
                 roomBooking.`class` == lesson.`class` &&
@@ -151,7 +153,7 @@ class PlanRepositoryImpl(
             DbPlanData(
                 id = UUID.randomUUID(),
                 createDate = plan.createAt,
-                schoolId = plan.school.schoolId,
+                schoolId = plan.school.id,
                 planDate = plan.date,
                 info = plan.info,
                 version = plan.version

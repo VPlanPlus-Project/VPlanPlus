@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.source.database.crossover
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -9,27 +10,27 @@ import java.util.UUID
 
 @Entity(
     tableName = "lesson_se_crossover",
-    primaryKeys = ["lsecLessonId", "lsecSchoolEntityId"],
+    primaryKeys = ["lesson_id", "school_entity_id"],
+    indices = [
+        Index(value = ["lesson_id"]),
+        Index(value = ["school_entity_id"]),
+    ],
     foreignKeys = [
         ForeignKey(
             entity = DbLesson::class,
-            parentColumns = ["lessonId"],
-            childColumns = ["lsecLessonId"],
+            parentColumns = ["id"],
+            childColumns = ["lesson_id"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DbSchoolEntity::class,
             parentColumns = ["id"],
-            childColumns = ["lsecSchoolEntityId"],
+            childColumns = ["school_entity_id"],
             onDelete = ForeignKey.CASCADE
         ),
-    ],
-    indices = [
-        Index(value = ["lsecLessonId"]),
-        Index(value = ["lsecSchoolEntityId"]),
     ]
 )
 data class LessonSchoolEntityCrossover(
-    val lsecLessonId: UUID,
-    val lsecSchoolEntityId: UUID
+    @ColumnInfo("lesson_id") val lessonId: UUID,
+    @ColumnInfo("school_entity_id") val schoolEntityId: UUID
 )

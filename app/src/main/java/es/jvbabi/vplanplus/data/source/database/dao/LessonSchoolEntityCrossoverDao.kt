@@ -8,10 +8,10 @@ import java.util.UUID
 @Dao
 abstract class LessonSchoolEntityCrossoverDao {
 
-    @Query("DELETE FROM lesson_se_crossover WHERE lsecLessonId = :lessonId")
+    @Query("DELETE FROM lesson_se_crossover WHERE lesson_id = :lessonId")
     abstract suspend fun deleteCrossoversByLessonId(lessonId: UUID)
 
-    @Query("INSERT INTO lesson_se_crossover (lsecLessonId, lsecSchoolEntityId) VALUES (:lessonId, :teacherId)")
+    @Query("INSERT INTO lesson_se_crossover (lesson_id, school_entity_id) VALUES (:lessonId, :teacherId)")
     abstract suspend fun insertCrossover(lessonId: UUID, teacherId: UUID)
 
     /**

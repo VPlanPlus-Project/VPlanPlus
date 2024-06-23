@@ -10,15 +10,12 @@ import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
-import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDocumentDao
 import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
-import es.jvbabi.vplanplus.domain.model.Classes
-import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -52,13 +49,11 @@ import java.io.FileOutputStream
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 class HomeworkRepositoryImpl(
     private val homeworkDao: HomeworkDao,
     private val homeworkDocumentDao: HomeworkDocumentDao,
     private val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao,
-    private val classRepository: ClassRepository,
     private val vppIdRepository: VppIdRepository,
     private val profileRepository: ProfileRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
@@ -78,21 +73,16 @@ class HomeworkRepositoryImpl(
         profileRepository
             .getProfiles()
             .first()
-            .filter { it.type == ProfileType.STUDENT && it.isHomeworkEnabled }
+            .filterIsInstance<ClassProfile>()
+            .filter { it.isHomeworkEnabled }
             .forEach { profile ->
-                val `class` = classRepository.getClassById(profile.referenceId) ?: return@forEach
-                val school = `class`.school
-                val url: String
-
-                if (profile.vppId != null) {
+                val url = if (profile.vppId != null) {
                     val token = vppIdRepository.getVppIdToken(profile.vppId) ?: return@forEach
                     vppIdNetworkRepository.authentication = BearerAuthentication(token)
-
-                    url = "/api/$API_VERSION/user/me/homework"
+                    "/api/$API_VERSION/user/me/homework"
                 } else {
-                    vppIdNetworkRepository.authentication = school.buildAuthentication()
-                    url =
-                        "/api/$API_VERSION/school/${school.schoolId}/class/${`class`.name}/homework"
+                    vppIdNetworkRepository.authentication = profile.group.school.buildAccess().buildVppAuthentication()
+                    "/api/$API_VERSION/school/${profile.group.school.id}/class/${profile.group.name}/homework"
                 }
 
                 val response = vppIdNetworkRepository.doRequest(url)
@@ -105,22 +95,20 @@ class HomeworkRepositoryImpl(
                     .first()
                     .filter { data.none { nd -> nd.id == it.homework.id } }
                     .filter { it.homework.id > 0 }
-                    .filter { it.classes.schoolEntity.name == `class`.name }
+                    .filter { it.classes.group.name == profile.group.name }
                     .map { it.homework.id }
-                    .forEach {
-                        homeworkDao.deleteHomework(it)
-                    }
+                    .forEach { homeworkDao.deleteHomework(it) }
 
-                val existingHomework = getAll().first().filter { it.classes == `class` }
+                val existingHomework = getAll().first().filter { it.group == profile.group }
                 val newHomework = data
-                    .filter { profile.isDefaultLessonEnabled(it.vpId.toLong()) }
+                    .filter { profile.isDefaultLessonEnabled(it.vpId) }
                     .filter { !existingHomework.any { eh -> eh.id == it.id } }
                     .filter { it.createdBy != profile.vppId?.id?.toLong() }
 
                 data.forEach forEachHomework@{ responseHomework ->
                     val isNewHomework = existingHomework.none { it.id == responseHomework.id }
                     val id = responseHomework.id
-                    val createdBy = vppIdRepository.getVppId(responseHomework.createdBy, school, false)
+                    val createdBy = vppIdRepository.getVppId(responseHomework.createdBy, profile.getSchool(), false)
                     val until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until)
 
                     val existingRecord = homeworkDao
@@ -131,13 +119,13 @@ class HomeworkRepositoryImpl(
                     homeworkDao.insert(
                         DbHomework(
                             id = id,
-                            classes = `class`.classId,
+                            groupId = profile.group.groupId,
                             createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.createdAt),
                             until = until,
-                            defaultLessonVpId = responseHomework.vpId.toLong(),
+                            defaultLessonVpId = responseHomework.vpId,
                             createdBy = createdBy?.id,
                             isPublic = responseHomework.shareWithClass,
-                            hidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
+                            isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
                             profileId = profile.id
                         )
                     )
@@ -147,7 +135,7 @@ class HomeworkRepositoryImpl(
                                 id = task.id.toLong(),
                                 homeworkId = id,
                                 content = task.content,
-                                done = task.done ?: until.isBefore(ZonedDateTime.now())
+                                isDone = task.done ?: until.isBefore(ZonedDateTime.now())
                             )
                         )
                     }
@@ -155,7 +143,7 @@ class HomeworkRepositoryImpl(
                     responseHomework.documentIds.forEach document@{ documentId ->
                         val file = File(context.filesDir, "homework_documents/$documentId.pdf")
                         if (file.exists()) return@document
-                        val binary = getHomeworkDocument(`class`.name, id, documentId, profile.vppId?.id?.toLong() != responseHomework.createdBy) ?: return@document
+                        val binary = getHomeworkDocument(profile.group.name, id, documentId, profile.vppId?.id?.toLong() != responseHomework.createdBy) ?: return@document
                         val outputStream = FileOutputStream(file)
                         outputStream.write(binary)
                         outputStream.close()
@@ -182,7 +170,7 @@ class HomeworkRepositoryImpl(
 
                     if (notificationRelevantNewHomework.size == 1 && showNewNotification) {
                         val defaultLessons =
-                            defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
+                            defaultLessonRepository.getDefaultLessonByGroupId(profile.group.groupId)
 
                         val dateResourceId = DateUtils
                             .getDateFromTimestamp(notificationRelevantNewHomework.first().until)
@@ -200,9 +188,9 @@ class HomeworkRepositoryImpl(
                             stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
                             stringRepository.getString(
                                 R.string.notification_homeworkNewHomeworkOneContent,
-                                vppIdRepository.getVppId(notificationRelevantNewHomework.first().createdBy, `class`.school, false)?.name
+                                vppIdRepository.getVppId(notificationRelevantNewHomework.first().createdBy, profile.group.school, false)?.name
                                     ?: "Unknown",
-                                defaultLessons.firstOrNull { it.vpId == notificationRelevantNewHomework.first().vpId.toLong() }?.subject
+                                defaultLessons.firstOrNull { it.vpId == notificationRelevantNewHomework.first().vpId }?.subject
                                     ?: "Unknown",
                                 notificationRelevantNewHomework.first().tasks.size,
                                 dateString
@@ -243,8 +231,8 @@ class HomeworkRepositoryImpl(
         ).data
     }
 
-    override suspend fun getHomeworkByClassId(classId: UUID): Flow<List<Homework>> {
-        return homeworkDao.getByClassId(classId).map {
+    override suspend fun getHomeworkByGroupId(groupId: Int): Flow<List<Homework>> {
+        return homeworkDao.getByGroupId(groupId).map {
             it.map { homework -> homework.toModel(context) }
         }
     }
@@ -261,9 +249,9 @@ class HomeworkRepositoryImpl(
 
     override suspend fun insertHomework(
         id: Long?,
-        profile: Profile,
-        `class`: Classes,
-        defaultLessonVpId: Long?,
+        profile: ClassProfile,
+        group: Group,
+        defaultLessonVpId: Int?,
         storeInCloud: Boolean,
         shareWithClass: Boolean,
         until: ZonedDateTime,
@@ -308,13 +296,13 @@ class HomeworkRepositoryImpl(
 
         val dbHomework = DbHomework(
             id = homeworkId,
-            classes = `class`.classId,
+            groupId = group.groupId,
             createdAt = createdAt,
             until = until,
             defaultLessonVpId = defaultLessonVpId,
             createdBy = if (storeInCloud) profile.vppId?.id else null,
             isPublic = shareWithClass,
-            hidden = isHidden,
+            isHidden = isHidden,
             profileId = profile.id
         )
         homeworkDao.insert(dbHomework)
@@ -323,7 +311,7 @@ class HomeworkRepositoryImpl(
                 id = it.id ?: (findLocalTaskId() - 1),
                 homeworkId = dbHomework.id,
                 content = it.content,
-                done = it.done
+                isDone = it.done
             )
             homeworkDao.insertTask(dbHomeworkTask)
         }
@@ -344,7 +332,7 @@ class HomeworkRepositoryImpl(
             inputStream.close()
             outputStream.close()
 
-            homeworkDocumentDao.insertHomeworkDocument(DbHomeworkDocument(documentId, homeworkId))
+//            homeworkDocumentDao.insertHomeworkDocument(DbHomeworkDocument(documentId, homeworkId)) TODO
         }
 
         if (storeInCloud) return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
@@ -421,13 +409,13 @@ class HomeworkRepositoryImpl(
                 id = findLocalTaskId() - 1,
                 homeworkId = homework.id,
                 content = content,
-                done = false
+                isDone = false
             )
             homeworkDao.insertTask(dbHomeworkTask)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        val vppId = vppIdRepository.getVppId(homework.createdBy!!.id.toLong(), homework.classes.school, false) ?: return HomeworkModificationResult.FAILED
+        val vppId = vppIdRepository.getVppId(homework.createdBy!!.id.toLong(), homework.group.school, false) ?: return HomeworkModificationResult.FAILED
 
         val vppIdToken =
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
@@ -444,7 +432,7 @@ class HomeworkRepositoryImpl(
             id = response.id,
             homeworkId = homework.id,
             content = response.content,
-            done = false
+            isDone = false
         )
         homeworkDao.insertTask(dbHomeworkTask)
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
@@ -528,11 +516,11 @@ class HomeworkRepositoryImpl(
     ): HomeworkModificationResult {
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.classes == homework.classes } // fixme: Use vpp.ID provided in parameter; this creates problems when multiple vpp.IDs are connected to the same class
+            .firstOrNull { it.isActive() && it.group == homework.group } // fixme: Use vpp.ID provided in parameter; this creates problems when multiple vpp.IDs are connected to the same class
 
         if (task.id < 0 || vppId == null) {
             val dbHomeworkTask =
-                homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
+                homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(isDone = done)
             homeworkDao.insertTask(dbHomeworkTask)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
@@ -547,7 +535,7 @@ class HomeworkRepositoryImpl(
         )
         return if (result.response == HttpStatusCode.OK) {
             val dbHomeworkTask =
-                homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(done = done)
+                homeworkDao.getHomeworkTaskById(task.id.toInt()).first().copy(isDone = done)
             homeworkDao.insertTask(dbHomeworkTask)
             HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
         } else {
@@ -701,7 +689,7 @@ private data class AddOrChangeTaskRequest(
 )
 
 private data class AddHomeworkRequest(
-    @SerializedName("vp_id") val vpId: Long?,
+    @SerializedName("vp_id") val vpId: Int?,
     @SerializedName("public") val shareWithClass: Boolean,
     @SerializedName("due_to") val until: Long,
     @SerializedName("tasks") val tasks: List<String>

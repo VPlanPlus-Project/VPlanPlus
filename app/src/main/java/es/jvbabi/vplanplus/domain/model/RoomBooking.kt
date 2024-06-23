@@ -8,5 +8,5 @@ data class RoomBooking(
     val bookedBy: VppId?,
     val from: ZonedDateTime,
     val to: ZonedDateTime,
-    val `class`: Classes
+    val `class`: Group
 )

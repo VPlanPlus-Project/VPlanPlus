@@ -6,7 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.AddTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ChangeVisibilityUseCase
@@ -36,12 +36,12 @@ object HomeworkViewModule {
         homeworkRepository: HomeworkRepository,
         profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ): HomeworkUseCases {
         return HomeworkUseCases(
             GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase
+                getCurrentProfileUseCase = getCurrentProfileUseCase
             ), MarkAllDoneUseCase(
                 homeworkRepository = homeworkRepository
             ), MarkSingleDoneUseCase(

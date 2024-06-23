@@ -7,6 +7,8 @@ plugins {
     id("dagger.hilt.android.plugin")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.serialization")
+    id("kotlin-parcelize")
     kotlin("kapt")
 }
 
@@ -104,14 +106,14 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation("androidx.navigation:navigation-compose:2.8.0-beta03")
     implementation("androidx.compose.material:material-icons-extended")
     implementation("androidx.compose.material3:material3-android")
     implementation("com.google.android.material:material:1.12.0")
 
     implementation("androidx.browser:browser:1.8.0")
 
-    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
     implementation("com.google.firebase:firebase-messaging")
 
     // splash screen
@@ -127,6 +129,7 @@ dependencies {
     // parsing
     implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.simpleframework:simple-xml:2.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
     implementation("com.lightspark:compose-qr-code:1.0.1")
 

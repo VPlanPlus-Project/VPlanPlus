@@ -8,7 +8,7 @@ object Room {
         return roomNames.shuffled().take(count)
     }
 
-    fun generateRoom(school: es.jvbabi.vplanplus.domain.model.School = School.generateRandomSchools(1).first()): Room {
+    fun generateRoom(school: es.jvbabi.vplanplus.domain.model.School = SchoolPreview.generateRandomSchools(1).first()): Room {
         return Room(
             roomId = UUID.randomUUID(),
             school = school,

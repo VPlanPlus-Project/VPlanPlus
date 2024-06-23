@@ -9,7 +9,7 @@ class MarkAllDoneUseCase(
 ) {
     suspend operator fun invoke(homework: Homework, done: Boolean): HomeworkModificationResult {
         return homework.tasks.map { task ->
-            task.copy(done = done)
+            task.copy(isDone = done)
         }
             .map { task ->
                 homeworkRepository.setTaskState(homework, task, done)

@@ -23,10 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.data.FcmTokenReloadState
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.DeletePlanDataDialog
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServerDialog
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.PainterSettingsState
@@ -123,7 +123,7 @@ private fun AdvancedSettingsScreenContent(
                         painter = painterResource(id = R.drawable.database),
                         title = stringResource(id = R.string.advancedSettings_settingsServerTitle),
                         subtitle =
-                            if (state.selectedVppIdServer.apiHost == Keys.VPPID_SERVER_DEFAULT) stringResource(id = R.string.advancedSettings_settingsServerDefault)
+                            if (state.selectedVppIdServer.apiHost == servers.first().apiHost) stringResource(id = R.string.advancedSettings_settingsServerDefault)
                             else state.selectedVppIdServer.apiHost,
                         type = SettingsType.FUNCTION,
                         doAction = { onVppIdDialogStateChange(true) },

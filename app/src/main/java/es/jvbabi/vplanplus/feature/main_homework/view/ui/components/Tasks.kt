@@ -60,7 +60,7 @@ fun Tasks(
                 TaskRecord(
                     id = editTask.id,
                     task = editTask.content,
-                    isDone = task?.done ?: false,
+                    isDone = task?.isDone ?: false,
                     isNewTask = false,
                     isEditing = isEditing,
                     onClick = { if (task != null) onTaskClicked(task) },

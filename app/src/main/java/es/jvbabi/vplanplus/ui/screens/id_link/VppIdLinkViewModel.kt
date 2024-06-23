@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import io.ktor.http.HttpStatusCode
@@ -39,7 +39,7 @@ class VppIdLinkViewModel @Inject constructor(
                 state = state.copy(error = true, isLoading = false)
                 return@launch
             }
-            if (response.data.classes == null) {
+            if (response.data.group == null) {
                 // class does not exists
                 state = state.copy(
                     isLoading = false,
@@ -70,7 +70,7 @@ class VppIdLinkViewModel @Inject constructor(
         }
     }
 
-    fun onToggleProfileState(profile: Profile) {
+    fun onToggleProfileState(profile: ClassProfile) {
         state = state.copy(selectedProfiles = state.selectedProfiles.plus(profile to !(state.selectedProfiles[profile] ?: true)))
     }
 }
@@ -81,6 +81,6 @@ data class VppIdLinkState(
     val isLoading: Boolean = true,
     val error: Boolean = false,
     val classNotFound: Boolean = false,
-    val selectedProfiles: Map<Profile, Boolean> = emptyMap(),
+    val selectedProfiles: Map<ClassProfile, Boolean> = emptyMap(),
     val selectedProfileFoundAtStart: Boolean? = null
 )

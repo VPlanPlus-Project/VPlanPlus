@@ -10,7 +10,7 @@ import es.jvbabi.vplanplus.feature.main_grades.domain.model.Year
 data class CInterval(
     @Embedded val interval: DbInterval,
     @Relation(
-        parentColumn = "yearId",
+        parentColumn = "year_id",
         entityColumn = "id"
     ) val year: DbYear
 ) {

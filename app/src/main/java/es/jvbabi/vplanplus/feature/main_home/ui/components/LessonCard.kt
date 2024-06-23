@@ -59,15 +59,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -82,7 +82,7 @@ fun LessonCard(
     modifier: Modifier = Modifier,
     homework: List<Homework>,
     bookings: List<RoomBooking>,
-    onAddHomeworkClicked: (vpId: Long?) -> Unit = {},
+    onAddHomeworkClicked: (vpId: Int?) -> Unit = {},
     onBookRoomClicked: () -> Unit = {},
     lessons: List<Lesson>,
     time: ZonedDateTime,
@@ -229,7 +229,7 @@ private fun buildHomeworkTasksText(tasks: List<HomeworkTask>) = buildAnnotatedSt
     }
     tasks.forEachIndexed { i, task ->
         append("   $DOT ")
-        if (task.done) withStyle(style = SpanStyle(textDecoration = TextDecoration.Companion.LineThrough)) {
+        if (task.isDone) withStyle(style = SpanStyle(textDecoration = TextDecoration.Companion.LineThrough)) {
             append(task.content)
         } else append(task.content)
         if (i != tasks.lastIndex) append("\n")
@@ -248,7 +248,7 @@ fun LessonCardPreview() {
                 lessonNumber = 1,
                 start = ZonedDateTime.now(),
                 end = ZonedDateTime.now().plusHours(1),
-                `class` = ClassesPreview.generateClass(school = null),
+                `class` = GroupPreview.generateGroup(school = null),
                 originalSubject = "Math",
                 rooms = listOf("A1"),
                 teachers = listOf("WMA"),

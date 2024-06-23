@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.domain.usecase.vpp_id
 
-import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
@@ -18,20 +17,23 @@ class TestForMissingVppIdToProfileConnectionsUseCase(
      */
     suspend operator fun invoke(autoFix: Boolean = false): Boolean {
         val vppIds = vppIdRepository.getVppIds().first().filter { it.isActive() }
-        val withProfileConnectedVppIds = profileRepository.getProfiles().first().mapNotNull { it.vppId }.distinctBy { vppId -> vppId.id }
+        val withProfileConnectedVppIds = profileRepository.getProfiles().first()
+            .filterIsInstance<ClassProfile>()
+            .mapNotNull { it.vppId }
+            .distinctBy { vppId -> vppId.id }
         if (autoFix) {
-            val profiles = profileRepository.getProfiles().first().filter { it.type == ProfileType.STUDENT }
-            val resolveMap = mutableMapOf<Profile, VppId>()
+            val profiles = profileRepository.getProfiles().first().filterIsInstance<ClassProfile>()
+            val resolveMap = mutableMapOf<ClassProfile, VppId>()
             vppIds
                 .filter { vppId -> profiles.none { it.vppId == vppId} } // every vppId that is not connected to a profile
                 .forEach { vppId ->
-                    val matchingProfiles = profiles.filter { profile -> profile.referenceId == vppId.classes?.classId && profile.vppId == null }
+                    val matchingProfiles = profiles.filter { profile -> profile.group.groupId == vppId.group?.groupId && profile.vppId == null }
                     if (matchingProfiles.size == 1 && resolveMap[matchingProfiles[0]] == null) {
                         resolveMap[matchingProfiles[0]] = vppId
                     }
                 }
             resolveMap.forEach { (profile, vppId) ->
-                profileRepository.setProfileVppId(profile, vppId)
+                profileRepository.setVppIdForProfile(profile, vppId)
             }
             return invoke(false)
         }

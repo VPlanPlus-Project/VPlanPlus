@@ -37,7 +37,7 @@ class NewsRepositoryImpl(
         return messageDao.getMessage(messageId)
     }
 
-    override suspend fun updateMessages(schoolId: Long?) {
+    override suspend fun updateMessages(schoolId: Int?) {
         val version = getAppVersion(context)?.versionNumber?.toInt()?:0
 
         val url = if (schoolId == null) "/api/$API_VERSION/schools/news?version=$version"

@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.AddTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.DeleteHomeworkTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.EditTaskUseCase
@@ -23,9 +23,9 @@ object HomeworkDetailModule {
     @Singleton
     fun provideHomeworkDetailUseCases(
         homeworkRepository: HomeworkRepository,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ) = HomeworkDetailUseCases(
-        getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+        getCurrentProfileUseCase = getCurrentProfileUseCase,
         getHomeworkByIdUseCase = GetHomeworkByIdUseCase(homeworkRepository),
         taskDoneUseCase = MarkSingleDoneUseCase(homeworkRepository),
         updateDueDateUseCase = UpdateDueDateUseCase(homeworkRepository),

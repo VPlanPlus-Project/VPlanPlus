@@ -40,14 +40,14 @@ class HomeworkReminderUseCase(
         val tomorrow = ZonedDateTime.now().plusDays(1)
         val homeworkForTomorrow = homework.filter {
             it.until.isBefore(tomorrow) &&
-                    it.tasks.any { task -> !task.done }
+                    it.tasks.any { task -> !task.isDone }
         }
 
         if (homeworkForTomorrow.isEmpty()) return
 
         val homeworkForAfterTomorrow = homework.filter {
             it.until.isAfter(tomorrow) &&
-                    it.tasks.any { task -> !task.done }
+                    it.tasks.any { task -> !task.isDone }
         }
 
         val title = stringRepository.getString(R.string.notification_homeworkReminderTitle)

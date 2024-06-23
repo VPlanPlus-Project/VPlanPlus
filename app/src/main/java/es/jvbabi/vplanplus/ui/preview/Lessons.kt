@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.ui.preview
 
-import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.Teacher
@@ -38,69 +38,99 @@ object Lessons {
         return result
     }
 
-    private fun randomClass(): Classes {
-        val school = School.generateRandomSchools(1).first()
+    private fun randomClass(): Group {
+        val school = SchoolPreview.generateRandomSchools(1).first()
         return listOf(
-            Classes(
+            Group(
                 name = "5a",
-                school = school
+                groupId = 1,
+                school = school,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "5b",
-                school = school
+                school = school,
+                groupId = 2,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "5c",
-                school = school
+                school = school,
+                groupId = 3,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "6a",
-                school = school
+                school = school,
+                groupId = 4,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "6b",
-                school = school
+                school = school,
+                groupId = 5,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "6c",
-                school = school
+                school = school,
+                groupId = 6,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "7a",
-                school = school
+                school = school,
+                groupId = 7,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "7b",
-                school = school
+                school = school,
+                groupId = 8,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "7c",
-                school = school
+                school = school,
+                groupId = 9,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "8a",
-                school = school
+                school = school,
+                groupId = 10,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "8b",
-                school = school
+                school = school,
+                groupId = 11,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "8c",
-                school = school
+                school = school,
+                groupId = 12,
+                isClass = true
             ),
 
-            Classes(
+            Group(
                 name = "9a",
-                school = school
+                school = school,
+                groupId = 13,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "9b",
-                school = school
+                school = school,
+                groupId = 14,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "9c",
-                school = school
+                school = school,
+                groupId = 15,
+                isClass = true
             ),
         ).random()
     }
@@ -109,8 +139,8 @@ object Lessons {
         return listOf("MA", "DEU", "ENG", "INF", "CH", "PH", "MU", "KU", "AST").random()
     }
 
-    fun randomTeacher(): MutableList<Teacher> {
-        val school = School.generateRandomSchools(1).first()
+    private fun randomTeacher(): MutableList<Teacher> {
+        val school = SchoolPreview.generateRandomSchools(1).first()
         return listOf(
             Teacher(
                 school = school,
@@ -180,8 +210,8 @@ object Lessons {
         ).randomSubList(2, false)
     }
 
-    fun randomRoom(): MutableList<Room> {
-        val school = School.generateRandomSchools(1).first()
+    private fun randomRoom(): MutableList<Room> {
+        val school = SchoolPreview.generateRandomSchools(1).first()
         return listOf(
             Room(
                 school = school,

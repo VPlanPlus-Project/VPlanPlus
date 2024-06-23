@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -8,8 +9,8 @@ import java.util.UUID
 
 /**
  * Class that represents a holiday.
- * @param holidayId The id of the holiday (auto-generated)
- * @param schoolHolidayRefId The id of the school the holiday belongs to, null if it is a general holiday
+ * @param id The id of the holiday (auto-generated)
+ * @param schoolId The id of the school the holiday belongs to, null if it is a general holiday
  * @param date The date of the holiday
  */
 @Entity(
@@ -17,23 +18,23 @@ import java.util.UUID
     foreignKeys = [
          ForeignKey(
              entity = School::class,
-             parentColumns = ["schoolId"],
-             childColumns = ["schoolHolidayRefId"],
+             parentColumns = ["id"],
+             childColumns = ["school_id"],
              onDelete = ForeignKey.CASCADE
          )
     ],
-    primaryKeys = ["holidayId"],
+    primaryKeys = ["id"],
     indices = [
-        Index("holidayId", unique = true),
-        Index("schoolHolidayRefId")
+        Index("id", unique = true),
+        Index("school_id")
     ]
 )
 data class Holiday(
-    val holidayId: UUID = UUID.randomUUID(),
-    val schoolHolidayRefId: Long?,
-    val date: LocalDate,
+    @ColumnInfo("id") val id: UUID = UUID.randomUUID(),
+    @ColumnInfo("school_id") val schoolId: Long?,
+    @ColumnInfo("date") val date: LocalDate,
 ) {
     override fun toString(): String {
-        return "Holiday(id=$holidayId, schoolId=$schoolHolidayRefId, date=$date)"
+        return "Holiday(id=$id, schoolId=$schoolId, date=$date)"
     }
 }

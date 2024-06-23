@@ -13,7 +13,7 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
@@ -53,12 +53,12 @@ object HomeModule {
         messageRepository: MessageRepository,
         vppIdRepository: VppIdRepository,
         holidayRepository: HolidayRepository,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
         @ApplicationContext context: Context
     ): HomeUseCases {
         return HomeUseCases(
-            getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+            getCurrentProfileUseCase = getCurrentProfileUseCase,
             getCurrentTimeUseCase = getCurrentTimeUseCase,
             getDayUseCase = GetDayUseCase(
                 planRepository = planRepository,
@@ -68,15 +68,13 @@ object HomeModule {
             changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
             getHomeworkUseCase = GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
-                keyValueRepository = keyValueRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-                profileRepository = profileRepository
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
             ),
             getRoomBookingsForTodayUseCase = GetRoomBookingsForTodayUseCase(roomRepository),
             isSyncRunningUseCase = IsSyncRunningUseCase(context),
             getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
             getHideFinishedLessonsUseCase = GetHideFinishedLessonsUseCase(keyValueRepository),
-            getHolidaysUseCase = GetHolidaysUseCase(holidayRepository, getCurrentIdentityUseCase),
+            getHolidaysUseCase = GetHolidaysUseCase(holidayRepository, getCurrentProfileUseCase),
 
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),

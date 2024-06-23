@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -10,33 +11,41 @@ import java.util.UUID
     tableName = "lesson",
     foreignKeys = [
         ForeignKey(
-            entity = DbSchoolEntity::class,
+            entity = DbGroup::class,
             parentColumns = ["id"],
-            childColumns = ["classLessonRefId"],
+            childColumns = ["group_id"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DbRoomBooking::class,
             parentColumns = ["id"],
-            childColumns = ["roomBookingId"],
+            childColumns = ["room_booking_id"],
             onDelete = ForeignKey.SET_NULL
+        ),
+        ForeignKey(
+            entity = DbDefaultLesson::class,
+            parentColumns = ["id"],
+            childColumns = ["default_lesson_id"],
+            onDelete = ForeignKey.CASCADE
         )
     ],
-    primaryKeys = ["lessonId"],
+    primaryKeys = ["id"],
     indices = [
-        Index(value = ["classLessonRefId"]),
-        Index(value = ["lessonId"], unique = true)
+        Index(value = ["id"], unique = true),
+        Index(value = ["group_id"]),
+        Index(value = ["default_lesson_id"]),
+        Index(value = ["room_booking_id"])
     ]
 )
 data class DbLesson(
-    val lessonId: UUID = UUID.randomUUID(),
-    val lessonNumber: Int,
-    val changedSubject: String?,
-    val classLessonRefId: UUID,
-    val defaultLessonId: UUID?,
-    val info: String?,
-    val roomIsChanged: Boolean,
-    val day: ZonedDateTime,
-    val version: Long,
-    val roomBookingId: Long?
+    @ColumnInfo("id") val id: UUID = UUID.randomUUID(),
+    @ColumnInfo("lesson_number") val lessonNumber: Int,
+    @ColumnInfo("changed_subject") val changedSubject: String?,
+    @ColumnInfo("group_id") val groupId: Int,
+    @ColumnInfo("default_lesson_id") val defaultLessonId: UUID?,
+    @ColumnInfo("info") val info: String?,
+    @ColumnInfo("is_room_changed") val isRoomChanged: Boolean,
+    @ColumnInfo("day") val day: ZonedDateTime,
+    @ColumnInfo("version") val version: Long,
+    @ColumnInfo("room_booking_id") val roomBookingId: Long?
 )

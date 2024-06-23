@@ -114,8 +114,8 @@ private fun GradeRecordPreview() {
                 name = "Maria M.",
                 schoolId = 1,
                 school = null,
-                className = "9b",
-                classes = null,
+                groupName = "9b",
+                group = null,
                 email = "maria.muster@mail.com"
             )
         ).grades().random()

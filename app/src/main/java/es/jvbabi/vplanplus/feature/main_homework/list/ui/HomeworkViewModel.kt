@@ -5,12 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
@@ -25,7 +25,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeworkViewModel @Inject constructor(
     private val homeworkUseCases: HomeworkUseCases,
-    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
 ) : ViewModel() {
 
     val state = mutableStateOf(HomeworkState())
@@ -36,27 +36,26 @@ class HomeworkViewModel @Inject constructor(
                 listOf(
                     homeworkUseCases.getHomeworkUseCase(),
                     homeworkUseCases.isUpdateRunningUseCase(),
-                    getCurrentIdentityUseCase(),
+                    getCurrentProfileUseCase(),
                     homeworkUseCases.showHomeworkNotificationBannerUseCase()
                 )
             ) { data ->
                 val homework = data[0] as HomeworkResult
                 val isUpdateRunning = data[1] as Boolean
-                val identity = data[2] as Identity?
+                val profile = data[2] as Profile?
                 val showNotificationBanner = data[3] as Boolean
 
-                if (identity?.profile == null) return@combine state.value
                 state.value.copy(
                     homework = homework
                         .homework
                         .map {
                             it.toViewModel(
-                                isOwner = it.createdBy?.id == identity.profile.vppId?.id,
-                                isEnabled = identity.profile.isDefaultLessonEnabled(it.defaultLesson?.vpId)
+                                isOwner = it.createdBy?.id == (profile as? ClassProfile)?.vppId?.id,
+                                isEnabled = (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true
                             )
                         },
                     wrongProfile = homework.wrongProfile,
-                    identity = identity,
+                    profile = profile,
                     isUpdating = isUpdateRunning,
                     showNotificationBanner = showNotificationBanner
                 )
@@ -295,7 +294,8 @@ class HomeworkViewModel @Inject constructor(
 
     fun onEnableHomework() {
         viewModelScope.launch {
-            homeworkUseCases.updateHomeworkEnabledUseCase(state.value.identity.profile ?: return@launch, true)
+            val profile = state.value.profile as? ClassProfile ?: return@launch
+            homeworkUseCases.updateHomeworkEnabledUseCase(profile, true)
         }
     }
 }
@@ -303,7 +303,7 @@ class HomeworkViewModel @Inject constructor(
 data class HomeworkState(
     val homework: List<HomeworkViewModelHomework> = emptyList(),
     val wrongProfile: Boolean = false,
-    val identity: Identity = Identity(),
+    val profile: Profile? = null,
     val homeworkDeletionRequest: Homework? = null,
     val homeworkChangeVisibilityRequest: Homework? = null,
     val homeworkTaskDeletionRequest: HomeworkTask? = null,
@@ -320,7 +320,7 @@ data class HomeworkState(
 data class HomeworkViewModelHomework(
     val id: Long,
     val createdBy: VppId?,
-    val classes: Classes,
+    val group: Group,
     val createdAt: ZonedDateTime,
     val defaultLesson: DefaultLesson?,
     val isPublic: Boolean,
@@ -337,7 +337,7 @@ data class HomeworkViewModelHomework(
     fun toHomework() = Homework(
         id = id,
         createdBy = createdBy,
-        classes = classes,
+        group = group,
         createdAt = createdAt,
         defaultLesson = defaultLesson,
         isPublic = isPublic,
@@ -365,7 +365,7 @@ private fun Homework.toViewModel(
 ) = HomeworkViewModelHomework(
     id = id,
     createdBy = createdBy,
-    classes = classes,
+    group = group,
     createdAt = createdAt,
     defaultLesson = defaultLesson,
     isPublic = isPublic,
@@ -381,7 +381,7 @@ private fun Homework.toViewModel(
 private fun HomeworkTask.toViewModel() = HomeworkViewModelTask(
     id = id,
     content = content,
-    done = done
+    done = isDone
 )
 
 enum class ErrorOnUpdate {

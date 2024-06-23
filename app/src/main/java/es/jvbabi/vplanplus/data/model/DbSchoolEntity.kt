@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -11,26 +12,25 @@ import java.util.UUID
     primaryKeys = ["id"],
     indices = [
         Index(value = ["id"], unique = true),
-        Index(value = ["schoolId"]),
+        Index(value = ["school_id"]),
     ],
     foreignKeys = [
         ForeignKey(
             entity = School::class,
-            parentColumns = ["schoolId"],
-            childColumns = ["schoolId"],
+            parentColumns = ["id"],
+            childColumns = ["school_id"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class DbSchoolEntity(
-    val id: UUID = UUID.randomUUID(),
-    val name: String,
-    val schoolId: Long,
-    val type: SchoolEntityType
+    @ColumnInfo("id") val id: UUID = UUID.randomUUID(),
+    @ColumnInfo("name") val name: String,
+    @ColumnInfo("school_id") val schoolId: Int,
+    @ColumnInfo("type") val type: SchoolEntityType
 )
 
 enum class SchoolEntityType {
-    CLASS,
     TEACHER,
     ROOM
 }

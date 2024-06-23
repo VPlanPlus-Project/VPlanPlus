@@ -9,16 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.repository.BookResult
-import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.LessonTime
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
-import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
-import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomAbility
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
+import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomAbility
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.CancelBookingResult
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomSearchUseCases
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomState
@@ -35,15 +33,14 @@ import javax.inject.Inject
 class RoomSearchViewModel @Inject constructor(
     private val roomSearchUseCases: RoomSearchUseCases,
     private val getCurrentTimeUseCase: GetCurrentTimeUseCase,
-    private val getClassByProfileUseCase: GetClassByProfileUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(RoomSearchState())
     private var filterJob: Job? = null
 
-    private suspend fun reloadMap(identity: Identity = state.currentIdentity!!): RoomSearchState {
-        val map = roomSearchUseCases.getRoomMapUseCase(identity)
-        val lessonTimes = roomSearchUseCases.getLessonTimesUseCases(identity.profile!!)
+    private suspend fun reloadMap(profile: Profile = state.currentProfile!!): RoomSearchState {
+        val map = roomSearchUseCases.getRoomMapUseCase(profile)
+        val lessonTimes = if (profile is ClassProfile) roomSearchUseCases.getLessonTimesUseCases(profile) else emptyMap()
         return state.copy(
             data = map,
             lessonTimes = lessonTimes
@@ -54,17 +51,16 @@ class RoomSearchViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    roomSearchUseCases.getCurrentIdentityUseCase(),
+                    roomSearchUseCases.getCurrentProfileUseCase(),
                     roomSearchUseCases.canBookRoomUseCase()
                 )
             ) { data ->
-                val identity = data[0] as Identity? ?: return@combine null
+                val profile = data[0] as Profile? ?: return@combine null
                 val canBookRoom = data[1] as BookRoomAbility
 
-                reloadMap(identity).copy(
-                    currentIdentity = identity,
-                    canBookRoom = canBookRoom,
-                    currentClass = if (identity.profile!!.type == ProfileType.STUDENT) getClassByProfileUseCase(identity.profile) else null
+                reloadMap(profile).copy(
+                    currentProfile = profile,
+                    canBookRoom = canBookRoom
                 )
             }.collect {
                 state = it ?: return@collect
@@ -153,7 +149,7 @@ class RoomSearchViewModel @Inject constructor(
                     !state.filterRoomsAvailableNextLessonActive || state.nextLessonTime == null ||
                             it.getOccupiedTimes().none { times -> times.overlaps(state.nextLessonTime!!.toTimeSpan(state.currentTime)) }
 
-                val satisfiesMyBookingsFilter = !state.filterMyBookingsEnabled || it.bookings.any { booking -> (booking.bookedBy?.id ?: -1) == state.currentIdentity?.profile?.vppId?.id }
+                val satisfiesMyBookingsFilter = !state.filterMyBookingsEnabled || it.bookings.any { booking -> (booking.bookedBy?.id ?: -1) == (state.currentProfile as? ClassProfile)?.vppId?.id }
                 it.copy(isExpanded = matchesQuery && satisfiesCurrentLessonFilter && satisfiesNextLessonFilter && satisfiesMyBookingsFilter)
             }
             state = state.copy(data = data)
@@ -232,8 +228,7 @@ class RoomSearchViewModel @Inject constructor(
 }
 
 data class RoomSearchState(
-    val currentIdentity: Identity? = null,
-    val currentClass: Classes? = null,
+    val currentProfile: Profile? = null,
     val currentTime: ZonedDateTime = ZonedDateTime.now(),
     val data: List<RoomState> = emptyList(),
     val lessonTimes: Map<Int, LessonTime> = emptyMap(),

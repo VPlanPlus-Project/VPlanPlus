@@ -10,9 +10,9 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
-import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
 import java.util.UUID
@@ -52,17 +52,17 @@ private fun buildMessageText(homework: Homework): String {
 @Composable
 @Preview(showBackground = true)
 private fun ChangeVisibilityDialogPreview() {
-    val school = School.generateRandomSchools(1).first()
-    val `class` = ClassesPreview.generateClass(school)
+    val school = SchoolPreview.generateRandomSchools(1).first()
+    val group = GroupPreview.generateGroup(school)
     val defaultLesson = DefaultLesson(
         teacher = null,
         defaultLessonId = UUID.randomUUID(),
-        `class` = `class`,
+        `class` = group,
         subject = "IT",
         vpId = 42
     )
-    val createdBy = VppIdPreview.generateVppId(`class`)
-    val profile = ProfilePreview.generateClassProfile(createdBy)
+    val createdBy = VppIdPreview.generateVppId(group)
+    val profile = ProfilePreview.generateClassProfile(group, createdBy)
     ChangeVisibilityDialog(
         homework = Homework(
             id = 1,
@@ -74,15 +74,15 @@ private fun ChangeVisibilityDialogPreview() {
                 HomeworkTask(
                     id = 1,
                     content = "Test 1",
-                    done = false,
+                    isDone = false,
                 ),
                 HomeworkTask(
                     id = 1,
                     content = "Test 2",
-                    done = true,
+                    isDone = true,
                 )
             ),
-            classes = `class`,
+            group = group,
             isPublic = true,
             isHidden = false,
             profile = profile,

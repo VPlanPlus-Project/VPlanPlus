@@ -6,7 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
@@ -26,17 +27,17 @@ class HomeworkDetailViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    homeworkDetailUseCases.getCurrentIdentityUseCase(),
+                    homeworkDetailUseCases.getCurrentProfileUseCase(),
                     homeworkDetailUseCases.getHomeworkByIdUseCase(homeworkId)
                 )
             ) { data ->
-                val identity = data[0] as Identity
+                val profile = data[0] as Profile?
                 val homework = data[1] as Homework? ?: run { onBack(); return@combine state }
                 state.copy(
                     homework = homework,
-                    currentIdentity = identity,
+                    currentProfile = profile,
                     editTasks = homework.tasks.map { EditTask(it.id, it.content) },
-                    canEdit = homework.canBeEdited(identity.profile!!)
+                    canEdit = (profile as? ClassProfile)?.let { homework.canBeEdited(profile) } ?: false
                 )
             }.collect {
                 state = it
@@ -57,7 +58,7 @@ class HomeworkDetailViewModel @Inject constructor(
     fun onAction(action: UiAction) {
         viewModelScope.launch {
             when (action) {
-                is TaskDoneStateToggledAction -> homeworkDetailUseCases.taskDoneUseCase(action.homeworkTask, !action.homeworkTask.done)
+                is TaskDoneStateToggledAction -> homeworkDetailUseCases.taskDoneUseCase(action.homeworkTask, !action.homeworkTask.isDone)
                 is StartEditModeAction -> initEditMode()
                 is ExitEditModeAction -> {
                     if (action is ExitAndSaveHomeworkAction) {
@@ -106,7 +107,7 @@ class HomeworkDetailViewModel @Inject constructor(
 
 data class HomeworkDetailState(
     val homework: Homework? = null,
-    val currentIdentity: Identity? = null,
+    val currentProfile: Profile? = null,
     val canEdit: Boolean = false,
 
     val isEditing: Boolean = false,

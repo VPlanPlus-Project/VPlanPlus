@@ -5,9 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
+import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import kotlinx.coroutines.flow.combine
@@ -18,7 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddHomeworkViewModel @Inject constructor(
     private val addHomeworkUseCases: AddHomeworkUseCases,
-    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
 ) : ViewModel() {
 
     val state = mutableStateOf(AddHomeworkState())
@@ -27,24 +28,23 @@ class AddHomeworkViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    getCurrentIdentityUseCase(),
+                    getCurrentProfileUseCase(),
                     addHomeworkUseCases.isShowNewLayoutBalloonUseCase()
                 )
             ) { data ->
-                val identity = data[0] as Identity?
+                val profile = data[0] as Profile?
                 val showNewLayoutBalloon = data[1] as Boolean
 
-                if (identity?.school == null) return@combine null
-                if (identity.profile == null) return@combine null
+                if (profile == null) return@combine null
 
                 val defaultLessons = addHomeworkUseCases.getDefaultLessonsUseCase()
-                val defaultLessonsFiltered = defaultLessons.any { identity.profile.isDefaultLessonEnabled(it.vpId) }
+                val defaultLessonsFiltered = defaultLessons.any { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.vpId) ?: true }
 
                 state.value.copy(
-                    defaultLessons = defaultLessons.filter { identity.profile.isDefaultLessonEnabled(it.vpId) },
-                    username = identity.profile.vppId?.name,
-                    canUseCloud = identity.profile.vppId != null,
-                    saveType = state.value.saveType ?: if (identity.profile.vppId != null) SaveType.CLOUD else SaveType.LOCAL,
+                    defaultLessons = defaultLessons.filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.vpId) ?: true },
+                    username = (profile as? ClassProfile)?.vppId?.name,
+                    canUseCloud = (profile as? ClassProfile)?.vppId != null,
+                    saveType = state.value.saveType ?: if ((profile as? ClassProfile)?.vppId != null) SaveType.CLOUD else SaveType.LOCAL,
                     canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase(),
                     defaultLessonsFiltered = defaultLessonsFiltered,
                     initDone = true,

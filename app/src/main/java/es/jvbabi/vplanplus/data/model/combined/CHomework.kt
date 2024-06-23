@@ -5,12 +5,12 @@ import android.net.Uri
 import androidx.room.Embedded
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
-import es.jvbabi.vplanplus.data.model.homework.DbHomework
-import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
-import es.jvbabi.vplanplus.data.model.DbProfile
-import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
+import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import java.io.File
 
@@ -19,29 +19,29 @@ data class CHomework(
     @Embedded val homework: DbHomework,
     @Relation(
         parentColumn = "id",
-        entityColumn = "homeworkId",
+        entityColumn = "homework_id",
         entity = DbHomeworkTask::class
     ) val tasks: List<DbHomeworkTask>,
     @Relation(
-        parentColumn = "defaultLessonVpId",
-        entityColumn = "vpId",
+        parentColumn = "default_lesson_vp_id",
+        entityColumn = "vp_id",
         entity = DbDefaultLesson::class
     ) val defaultLessons: List<CDefaultLesson>,
     @Relation(
-        parentColumn = "createdBy",
+        parentColumn = "created_by",
         entityColumn = "id",
         entity = DbVppId::class
     ) val createdBy: CVppId?,
     @Relation(
-        parentColumn = "classes",
+        parentColumn = "group_id",
         entityColumn = "id",
-        entity = DbSchoolEntity::class
-    ) val classes: CSchoolEntity,
+        entity = DbGroup::class
+    ) val classes: CGroup,
     @Relation(
         parentColumn = "profile_id",
-        entityColumn = "profileId",
-        entity = DbProfile::class
-    ) val profile: CProfile,
+        entityColumn = "id",
+        entity = DbClassProfile::class
+    ) val profile: CClassProfile,
     @Relation(
         parentColumn = "id",
         entityColumn = "homework_id",
@@ -53,14 +53,14 @@ data class CHomework(
             id = homework.id,
             createdBy = createdBy?.toModel(),
             createdAt = homework.createdAt,
-            defaultLesson = defaultLessons.firstOrNull { it.`class`.schoolEntity.id == classes.schoolEntity.id }?.toModel(),
+            defaultLesson = defaultLessons.firstOrNull { it.`class`.group.id == classes.group.id }?.toModel(),
             until = homework.until,
             tasks = tasks.map { it.toModel() },
-            classes = classes.toClassModel(),
+            group = classes.toModel(),
             isPublic = homework.isPublic,
-            isHidden = homework.hidden,
+            isHidden = homework.isHidden,
             profile = profile.toModel(),
-            documents = documents.map { Uri.fromFile(File(context.filesDir, "homework_documents/${it.id}.pdf")) }
+            documents = documents.map { Uri.fromFile(File(context.filesDir, "homework_documents/${it.id}.${it.fileType}")) }
         )
     }
 }

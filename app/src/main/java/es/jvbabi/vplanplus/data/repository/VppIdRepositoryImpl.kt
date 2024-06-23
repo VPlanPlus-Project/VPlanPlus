@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.repository
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import com.google.gson.reflect.TypeToken
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
@@ -13,17 +14,17 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
-import es.jvbabi.vplanplus.domain.repository.UsersPerClassResponse
+import es.jvbabi.vplanplus.domain.repository.GroupInfoResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import es.jvbabi.vplanplus.shared.data.API_VERSION
-import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
@@ -35,7 +36,7 @@ import java.time.ZonedDateTime
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
     private val vppIdTokenDao: VppIdTokenDao,
-    private val classRepository: ClassRepository,
+    private val groupRepository: GroupRepository,
     private val roomBookingDao: RoomBookingDao,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
     private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
@@ -77,11 +78,11 @@ class VppIdRepositoryImpl(
                 id = vppId.id,
                 name = vppId.name,
                 schoolId = vppId.schoolId,
-                className = vppId.className,
-                classId = classRepository.getClassBySchoolIdAndClassName(
+                groupName = vppId.groupName,
+                classId = groupRepository.getGroupBySchoolAndName(
                     vppId.schoolId,
-                    vppId.className
-                )?.classId,
+                    vppId.groupName
+                )?.groupId,
                 state = State.ACTIVE,
                 email = vppId.email,
                 cachedAt = ZonedDateTime.now()
@@ -110,7 +111,7 @@ class VppIdRepositoryImpl(
 
         val url = "/api/$API_VERSION/user/find/$id"
 
-        vppIdNetworkRepository.authentication = school.buildAuthentication()
+        vppIdNetworkRepository.authentication = school.buildAccess().buildVppAuthentication()
         val response = vppIdNetworkRepository.doRequest(
             url,
             HttpMethod.Get,
@@ -122,14 +123,14 @@ class VppIdRepositoryImpl(
             DbVppId(
                 id = id.toInt(),
                 name = r.username,
-                className = r.className,
-                schoolId = school.schoolId,
+                groupName = r.className,
+                schoolId = school.id,
                 state = State.CACHE,
                 email = null,
-                classId = classRepository.getClassBySchoolIdAndClassName(
-                    school.schoolId,
+                classId = groupRepository.getGroupBySchoolAndName(
+                    school.id,
                     r.className
-                )?.classId,
+                )?.groupId,
                 cachedAt = ZonedDateTime.now()
             )
         )
@@ -140,7 +141,7 @@ class VppIdRepositoryImpl(
         vppIdTokenDao.insert(
             DbVppIdToken(
                 vppId = vppId.id,
-                token = token,
+                accessToken = token,
                 bsToken = bsToken
             )
         )
@@ -149,7 +150,7 @@ class VppIdRepositoryImpl(
     }
 
     override suspend fun getVppIdToken(vppId: VppId): String? {
-        return vppIdTokenDao.getTokenByVppId(vppId.id)?.token
+        return vppIdTokenDao.getTokenByVppId(vppId.id)?.accessToken
     }
 
     override suspend fun getBsToken(vppId: VppId): String? {
@@ -265,21 +266,14 @@ class VppIdRepositoryImpl(
         }
     }
 
-    override suspend fun fetchUsersPerClass(schoolId: Long, username: String, password: String): DataResponse<UsersPerClassResponse?> {
-        vppIdNetworkRepository.authentication = BasicAuthentication("$username@$schoolId", password)
-        return vppIdNetworkRepository.doRequest(
-            "/api/$API_VERSION/school/$schoolId/classes",
-        ).let {
-            if(it.response != HttpStatusCode.OK) {
-                DataResponse(null, it.response)
-            } else DataResponse(
-                Gson().fromJson(
-                    it.data,
-                    UsersPerClassResponse::class.java
-                ), it.response
-            )
-
-        }
+    override suspend fun fetchUsersPerClass(sp24Access: SchoolSp24Access): List<GroupInfoResponse>? {
+        vppIdNetworkRepository.authentication = sp24Access.buildVppAuthentication()
+        val result = vppIdNetworkRepository.doRequest(
+            "/api/$API_VERSION/school/${sp24Access.schoolId}/group/",
+            queries = mapOf("only_school_classes" to "true")
+        )
+        if (result.response != HttpStatusCode.OK || result.data == null) return null
+        return ResponseDataWrapper.fromJson<List<GroupInfoResponse>>(result.data)
     }
 
     override suspend fun getVersionHints(version: Int, versionBefore: Int): DataResponse<List<VersionHints>> {
@@ -342,5 +336,16 @@ private data class VersionHintResponseItem(
             version = version,
             createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(createdAt)
         )
+    }
+}
+
+data class ResponseDataWrapper<T>(
+    @SerializedName("data") val data: T
+) {
+    companion object {
+        inline fun <reified T> fromJson(json: String, gson: Gson = Gson()): T {
+            val type = object : TypeToken<ResponseDataWrapper<T>>() {}.type
+            return (gson.fromJson(json, type) as ResponseDataWrapper<T>).data
+        }
     }
 }

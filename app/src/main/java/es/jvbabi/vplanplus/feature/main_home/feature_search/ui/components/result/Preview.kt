@@ -2,16 +2,17 @@ package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.resul
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
-import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchResult
 import java.time.ZonedDateTime
 
 @Preview(showBackground = true)
 @Composable
 private fun SearchResultPreview() {
     SearchResult(
-        es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchResult(
+        SearchResult(
             name = "10c",
-            type = SchoolEntityType.CLASS,
+            type = ProfileType.STUDENT,
             school = "Einstein-School",
             lessons = emptyList(),
             bookings = emptyList()

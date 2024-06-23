@@ -25,11 +25,11 @@ abstract class RoomBookingDao {
     abstract fun deleteAll()
 
     @Transaction
-    @Query("SELECT * FROM room_booking WHERE class = :classId")
-    abstract fun getRoomBookingsByClass(classId: UUID): List<CRoomBooking>
+    @Query("SELECT * FROM room_booking WHERE group_id = :classId")
+    abstract fun getRoomBookingsByGroup(classId: Int): List<CRoomBooking>
 
     @Transaction
-    @Query("SELECT * FROM room_booking WHERE roomId = :roomId")
+    @Query("SELECT * FROM room_booking WHERE room_id = :roomId")
     abstract fun getRoomBookingsByRoom(roomId: UUID): List<CRoomBooking>
 
     @Transaction
@@ -40,6 +40,7 @@ abstract class RoomBookingDao {
     @Query("DELETE FROM room_booking WHERE id = :id")
     abstract fun deleteById(id: Long)
 
+    @Transaction
     @Query("SELECT * FROM room_booking")
     abstract fun getAllRoomBookings(): List<CRoomBooking>
 }

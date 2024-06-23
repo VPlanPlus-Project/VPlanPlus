@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
@@ -35,7 +36,10 @@ interface VppIdRepository {
     suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?>
     suspend fun closeSession(session: Session, vppId: VppId): Boolean
 
-    suspend fun fetchUsersPerClass(schoolId: Long, username: String, password: String): DataResponse<UsersPerClassResponse?>
+    /**
+     * @return A map with the class name as key and the number of students in that class as value or null if something went wrong
+     */
+    suspend fun fetchUsersPerClass(sp24Access: SchoolSp24Access): List<GroupInfoResponse>?
 
     suspend fun getVersionHints(version: Int, versionBefore: Int): DataResponse<List<VersionHints>>
 }
@@ -44,16 +48,14 @@ data class VppIdOnlineResponse(
     @SerializedName("id") val id: Int,
     @SerializedName("username") val username: String,
     @SerializedName("email") val email: String,
-    @SerializedName("sp24_school_id") val schoolId: Long,
+    @SerializedName("sp24_school_id") val schoolId: Int,
     @SerializedName("class_name") val className: String,
     @SerializedName("bs_token") val bsToken: String?
 )
 
-data class UsersPerClassResponse(
-    @SerializedName("data") val classes: List<UsersPerClassResponseRecord>
-)
 
-data class UsersPerClassResponseRecord(
-    @SerializedName("class_name") val className: String,
-    @SerializedName("students_count") val users: Int
+data class GroupInfoResponse(
+    @SerializedName("group_name") val className: String,
+    @SerializedName("group_id") val groupId: Int,
+    @SerializedName("members") val users: Int
 )

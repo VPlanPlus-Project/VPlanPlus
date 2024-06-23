@@ -7,27 +7,30 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
-import es.jvbabi.vplanplus.data.model.homework.DbHomework
-import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
+import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbPlanData
-import es.jvbabi.vplanplus.data.model.DbProfile
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
+import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
+import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
+import es.jvbabi.vplanplus.data.model.profile.DbRoomProfile
+import es.jvbabi.vplanplus.data.model.profile.DbTeacherProfile
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
-import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
+import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDocumentDao
@@ -46,14 +49,12 @@ import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
-import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.domain.model.Week
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbGrade
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbInterval
 import es.jvbabi.vplanplus.feature.main_grades.data.model.DbSubject
@@ -68,15 +69,17 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
 @Database(
     entities = [
         DbLesson::class,
-        DbProfile::class,
+        DbClassProfile::class,
+        DbTeacherProfile::class,
+        DbRoomProfile::class,
         School::class,
         KeyValue::class,
         Holiday::class,
-        Week::class,
         LessonTime::class,
         DbDefaultLesson::class,
         DbPlanData::class,
         DbSchoolEntity::class,
+        DbGroup::class,
         Message::class,
         DbVppId::class,
         DbVppIdToken::class,
@@ -96,7 +99,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 31,
+    version = 33,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -117,7 +120,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
 )
 @TypeConverters(
     LocalDateConverter::class,
-    ProfileTypeConverter::class,
     ProfileCalendarTypeConverter::class,
     UuidConverter::class,
     DayDataTypeConverter::class,
@@ -130,10 +132,10 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val profileDao: ProfileDao
     abstract val keyValueDao: KeyValueDao
     abstract val holidayDao: HolidayDao
-    abstract val weekDao: WeekDao
     abstract val lessonDao: LessonDao
     abstract val lessonTimeDao: LessonTimeDao
     abstract val schoolEntityDao: SchoolEntityDao
+    abstract val groupDao: GroupDao
     abstract val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao
     abstract val logRecordDao: LogRecordDao
     abstract val defaultLessonDao: DefaultLessonDao

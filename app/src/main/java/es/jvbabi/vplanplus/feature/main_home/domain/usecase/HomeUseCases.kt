@@ -1,12 +1,12 @@
 package es.jvbabi.vplanplus.feature.main_home.domain.usecase
 
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 
 data class HomeUseCases(
-    val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+    val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     val getCurrentTimeUseCase: GetCurrentTimeUseCase,
     val getProfilesUseCase: GetProfilesUseCase,
     val changeProfileUseCase: ChangeProfileUseCase,

@@ -9,7 +9,7 @@ import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerReposi
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetAppThemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
@@ -36,7 +36,7 @@ object MainModule {
     ): MainUseCases {
         return MainUseCases(
             getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
-            getCurrentIdentity = GetCurrentIdentityUseCase(
+            getCurrentIdentity = GetCurrentProfileUseCase(
                 keyValueRepository = keyValueRepository,
                 profileRepository = profileRepository,
             ),

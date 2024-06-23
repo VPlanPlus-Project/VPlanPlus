@@ -12,7 +12,7 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.repository.AlarmManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BiometricRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.ClassRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.GroupRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.FirebaseCloudMessagingManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
@@ -26,12 +26,10 @@ import es.jvbabi.vplanplus.data.repository.SystemRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
-import es.jvbabi.vplanplus.data.source.database.converter.ProfileTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
@@ -39,7 +37,7 @@ import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -58,12 +56,9 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentSchoolUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -138,7 +133,6 @@ object VppModule {
             .addMigrations(VppDatabase.migration_28_29)
             .addMigrations(VppDatabase.migration_29_30)
             .addTypeConverter(LocalDateConverter())
-            .addTypeConverter(ProfileTypeConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())
@@ -186,6 +180,10 @@ object VppModule {
     ): SchoolRepository {
         return SchoolRepositoryImpl(
             sp24NetworkRepository = provideSP24NetworkRepository(logRecordRepository = logRecordRepository),
+            vppIdNetworkRepository = provideVppIdNetworkRepository(
+                keyValueRepository = KeyValueRepositoryImpl(db.keyValueDao),
+                logRecordRepository = logRecordRepository
+            ),
             schoolDao = db.schoolDao,
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
@@ -203,23 +201,21 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideProfileRepository(
-        db: VppDatabase,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
-    ): ProfileRepository {
+    fun provideProfileRepository(db: VppDatabase, ): ProfileRepository {
         return ProfileRepositoryImpl(
             profileDao = db.profileDao,
-            schoolEntityDao = db.schoolEntityDao,
-            keyValueDao = db.keyValueDao,
             profileDefaultLessonsCrossoverDao = db.profileDefaultLessonsCrossoverDao,
-            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
         )
     }
 
     @Provides
     @Singleton
-    fun provideClassRepository(db: VppDatabase): ClassRepository {
-        return ClassRepositoryImpl(db.schoolEntityDao)
+    fun provideClassRepository(
+        db: VppDatabase,
+        keyValueRepository: KeyValueRepository,
+        logRecordRepository: LogRecordRepository
+    ): GroupRepository {
+        return GroupRepositoryImpl(db.groupDao, provideVppIdNetworkRepository(keyValueRepository, logRecordRepository))
     }
 
     @Provides
@@ -242,12 +238,6 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideWeekRepository(db: VppDatabase): WeekRepository {
-        return WeekRepositoryImpl(db.weekDao)
-    }
-
-    @Provides
-    @Singleton
     fun provideLessonTimeRepository(db: VppDatabase): LessonTimeRepository {
         return LessonTimeRepositoryImpl(db.lessonTimeDao)
     }
@@ -255,19 +245,17 @@ object VppModule {
     @Provides
     @Singleton
     fun provideBaseDataRepository(
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
         lessonTimeRepository: LessonTimeRepository,
         holidayRepository: HolidayRepository,
-        weekRepository: WeekRepository,
         roomRepository: RoomRepository,
         teacherRepository: TeacherRepository,
         sp24NetworkRepository: Sp24NetworkRepository
     ): BaseDataRepository {
         return BaseDataRepositoryImpl(
-            classRepository,
+            groupRepository,
             lessonTimeRepository,
             holidayRepository,
-            weekRepository,
             roomRepository,
             teacherRepository,
             sp24NetworkRepository
@@ -307,12 +295,13 @@ object VppModule {
         db: VppDatabase,
         roomRepository: RoomRepository,
         profileRepository: ProfileRepository,
-        holidayRepository: HolidayRepository
+        holidayRepository: HolidayRepository,
+        groupRepository: GroupRepository
     ): PlanRepository {
         return PlanRepositoryImpl(
             holidayRepository = holidayRepository,
             teacherRepository = provideTeacherRepository(db),
-            classRepository = provideClassRepository(db),
+            groupRepository = groupRepository,
             roomRepository = roomRepository,
             lessonRepository = provideLessonRepository(db, profileRepository),
             planDao = db.planDao
@@ -324,7 +313,7 @@ object VppModule {
     fun provideRoomRepository(
         db: VppDatabase,
         vppIdRepository: VppIdRepository,
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
         logRecordRepository: LogRecordRepository,
         profileRepository: ProfileRepository,
         notificationRepository: NotificationRepository,
@@ -339,7 +328,7 @@ object VppModule {
                 keyValueRepository,
                 logRecordRepository
             ),
-            classRepository = classRepository,
+            groupRepository = groupRepository,
             profileRepository = profileRepository,
             notificationRepository = notificationRepository,
             stringRepository = stringRepository
@@ -349,22 +338,23 @@ object VppModule {
     @Provides
     @Singleton
     fun provideFirebaseCloudMessagingManagerRepository(
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
+        profileRepository: ProfileRepository,
         logRecordRepository: LogRecordRepository,
         keyValueRepository: KeyValueRepository,
         db: VppDatabase
     ): FirebaseCloudMessagingManagerRepository {
         return FirebaseCloudMessagingManagerRepositoryImpl(
-            profileDao = db.profileDao,
             vppIdTokenDao = db.vppIdTokenDao,
             schoolEntityDao = db.schoolEntityDao,
-            classRepository = classRepository,
+            groupRepository = groupRepository,
             vppIdNetworkRepository = provideVppIdNetworkRepository(
                 keyValueRepository,
                 logRecordRepository
             ),
             logRecordRepository = logRecordRepository,
             keyValueRepository = keyValueRepository,
+            profileRepository = profileRepository
         )
     }
 
@@ -387,7 +377,7 @@ object VppModule {
     @Singleton
     fun provideVppIdRepository(
         db: VppDatabase,
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
         keyValueRepository: KeyValueRepository,
         logRecordRepository: LogRecordRepository
@@ -395,7 +385,7 @@ object VppModule {
         return VppIdRepositoryImpl(
             vppIdDao = db.vppIdDao,
             vppIdTokenDao = db.vppIdTokenDao,
-            classRepository = classRepository,
+            groupRepository = groupRepository,
             roomBookingDao = db.roomBookingDao,
             vppIdNetworkRepository = provideVppIdNetworkRepository(
                 keyValueRepository,
@@ -416,7 +406,6 @@ object VppModule {
     @Singleton
     fun provideProfileDefaultLessonsUseCases(
         getProfileByIdUseCase: GetProfileByIdUseCase,
-        getClassByProfileUseCase: GetClassByProfileUseCase,
         defaultLessonRepository: DefaultLessonRepository,
         profileRepository: ProfileRepository
     ): ProfileDefaultLessonsUseCases {
@@ -424,7 +413,6 @@ object VppModule {
         return ProfileDefaultLessonsUseCases(
             getProfileByIdUseCase = getProfileByIdUseCase,
             isInconsistentStateUseCase = IsInconsistentStateUseCase(
-                getClassByProfileUseCase = getClassByProfileUseCase,
                 defaultLessonRepository = defaultLessonRepository
             ),
             changeDefaultLessonUseCase = changeDefaultLessonUseCase,
@@ -439,9 +427,9 @@ object VppModule {
     @Provides
     @Singleton
     fun provideSearchUseCases(
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         schoolRepository: SchoolRepository,
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
         lessonRepository: LessonRepository,
@@ -449,9 +437,9 @@ object VppModule {
     ): SearchUseCases {
         return SearchUseCases(
             queryUseCase = QueryUseCase(
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
                 schoolRepository = schoolRepository,
-                classRepository = classRepository,
+                groupRepository = groupRepository,
                 teacherRepository = teacherRepository,
                 roomRepository = roomRepository,
                 lessonRepository = lessonRepository,
@@ -465,35 +453,11 @@ object VppModule {
     fun provideGetCurrentIdentityUseCase(
         keyValueRepository: KeyValueRepository,
         profileRepository: ProfileRepository
-    ): GetCurrentIdentityUseCase {
-        return GetCurrentIdentityUseCase(
+    ): GetCurrentProfileUseCase {
+        return GetCurrentProfileUseCase(
             keyValueRepository = keyValueRepository,
             profileRepository = profileRepository,
         )
-    }
-
-    @Provides
-    @Singleton
-    fun provideGetCurrentSchoolUseCase(
-        keyValueRepository: KeyValueRepository,
-        profileRepository: ProfileRepository,
-        classRepository: ClassRepository,
-        teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository
-    ): GetCurrentSchoolUseCase {
-        return GetCurrentSchoolUseCase(
-            keyValueRepository = keyValueRepository,
-            profileRepository = profileRepository,
-            classRepository = classRepository,
-            teacherRepository = teacherRepository,
-            roomRepository = roomRepository
-        )
-    }
-
-    @Provides
-    @Singleton
-    fun provideGetClassByProfileUseCase(classRepository: ClassRepository): GetClassByProfileUseCase {
-        return GetClassByProfileUseCase(classRepository)
     }
 
     @Provides
@@ -525,7 +489,7 @@ object VppModule {
         messageRepository: MessageRepository,
         schoolRepository: SchoolRepository,
         roomRepository: RoomRepository,
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
         teacherRepository: TeacherRepository,
         defaultLessonRepository: DefaultLessonRepository,
         lessonTimeRepository: LessonTimeRepository,
@@ -546,7 +510,7 @@ object VppModule {
         messageRepository = messageRepository,
         schoolRepository = schoolRepository,
         roomRepository = roomRepository,
-        classRepository = classRepository,
+        groupRepository = groupRepository,
         teacherRepository = teacherRepository,
         defaultLessonRepository = defaultLessonRepository,
         lessonTimesRepository = lessonTimeRepository,
@@ -573,23 +537,17 @@ object VppModule {
     fun provideProfileSettingsUseCases(
         baseDataRepository: BaseDataRepository,
         profileRepository: ProfileRepository,
-        classRepository: ClassRepository,
-        teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository,
         schoolRepository: SchoolRepository,
         homeworkRepository: HomeworkRepository,
         keyValueRepository: KeyValueRepository,
         calendarRepository: CalendarRepository,
         notificationRepository: NotificationRepository,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         updateCalendarUseCase: UpdateCalendarUseCase
     ): ProfileSettingsUseCases {
         return ProfileSettingsUseCases(
             getProfilesUseCase = GetProfilesUseCase(
                 profileRepository = profileRepository,
-                classRepository = classRepository,
-                teacherRepository = teacherRepository,
-                roomRepository = roomRepository
             ),
             deleteSchoolUseCase = DeleteSchoolUseCase(
                 schoolRepository = schoolRepository,
@@ -618,7 +576,7 @@ object VppModule {
                 profileRepository = profileRepository,
                 schoolRepository = schoolRepository,
                 keyValueRepository = keyValueRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
                 notificationRepository = notificationRepository,
                 updateCalendarUseCase = updateCalendarUseCase
             ),
@@ -641,15 +599,9 @@ object VppModule {
     @Singleton
     fun provideGetProfilesUseCase(
         profileRepository: ProfileRepository,
-        classRepository: ClassRepository,
-        teacherRepository: TeacherRepository,
-        roomRepository: RoomRepository
     ): GetProfilesUseCase {
         return GetProfilesUseCase(
             profileRepository = profileRepository,
-            classRepository = classRepository,
-            teacherRepository = teacherRepository,
-            roomRepository = roomRepository
         )
     }
 
@@ -680,7 +632,7 @@ object VppModule {
     @Singleton
     fun provideVppIdLinkUseCases(
         vppIdRepository: VppIdRepository,
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
         gradeRepository: GradeRepository,
         profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository
@@ -689,10 +641,10 @@ object VppModule {
         return VppIdLinkUseCases(
             getVppIdDetailsUseCase = GetVppIdDetailsUseCase(
                 vppIdRepository = vppIdRepository,
-                classRepository = classRepository,
+                groupRepository = groupRepository,
                 gradeRepository = gradeRepository
             ),
-            getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository, classRepository),
+            getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository),
             setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, testForMissingVppIdToProfileConnectionsUseCase),
             updateMissingLinksStateUseCase = UpdateMissingLinksStateUseCase(
                 keyValueRepository = keyValueRepository,

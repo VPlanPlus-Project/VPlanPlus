@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase
 
-import es.jvbabi.vplanplus.data.model.SchoolEntityType
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 
 class SearchUseCase(
-    private val classRepository: ClassRepository,
+    private val groupRepository: GroupRepository,
     private val teacherRepository: TeacherRepository,
     private val roomRepository: RoomRepository,
     private val planRepository: PlanRepository,
@@ -20,7 +20,7 @@ class SearchUseCase(
 ) {
     suspend operator fun invoke(query: String, date: LocalDate): List<SearchResult> {
         val version = keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: 0L
-        val classes = classRepository
+        val classes = groupRepository
             .getAll()
             .filter { it.name.lowercase().contains(query.lowercase()) }
             .sortedBy { it.name }
@@ -39,8 +39,8 @@ class SearchUseCase(
         val firstTeacher = teachers.firstOrNull()
         val firstRoom = rooms.firstOrNull()
 
-        val firstClassPlan = if (firstClass != null) planRepository.getDayForClass(
-            firstClass.classId,
+        val firstClassPlan = if (firstClass != null) planRepository.getDayForGroup(
+            firstClass.groupId,
             date,
             version
         ).first().lessons else null
@@ -59,7 +59,7 @@ class SearchUseCase(
 
         val firstClassResult = if (firstClass != null) SearchResult(
             firstClass.name,
-            SchoolEntityType.CLASS,
+            ProfileType.STUDENT,
             firstClass.school.name,
             firstClassPlan,
             roomRepository.getRoomBookings(date).filter { it.`class` == firstClass && it.from.toLocalDate().isEqual(date) }
@@ -67,7 +67,7 @@ class SearchUseCase(
 
         val firstTeacherResult = if (firstTeacher != null) SearchResult(
             firstTeacher.acronym,
-            SchoolEntityType.TEACHER,
+            ProfileType.TEACHER,
             firstTeacher.school.name,
             firstTeacherPlan,
             emptyList()
@@ -75,18 +75,18 @@ class SearchUseCase(
 
         val firstRoomResult = if (firstRoom != null) SearchResult(
             firstRoom.name,
-            SchoolEntityType.ROOM,
+            ProfileType.ROOM,
             firstRoom.school.name,
             firstRoomPlan,
             roomRepository.getRoomBookings(date).filter { it.room == firstRoom && it.from.toLocalDate().isEqual(date) }
         ) else null
 
         return listOfNotNull(firstClassResult, firstTeacherResult, firstRoomResult) + classes.drop(1).map {
-            SearchResult(it.name, SchoolEntityType.CLASS, it.school.name, null, emptyList())
+            SearchResult(it.name, ProfileType.STUDENT, it.school.name, null, emptyList())
         } + teachers.drop(1).map {
-            SearchResult(it.acronym, SchoolEntityType.TEACHER, it.school.name, null, emptyList())
+            SearchResult(it.acronym, ProfileType.TEACHER, it.school.name, null, emptyList())
         } + rooms.drop(1).map {
-            SearchResult(it.name, SchoolEntityType.ROOM, it.school.name, null, emptyList())
+            SearchResult(it.name, ProfileType.ROOM, it.school.name, null, emptyList())
         }
     }
 }

@@ -46,7 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCard
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkDisabled
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.NoHomework
@@ -59,6 +59,7 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.InputDialog
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.time.LocalDate
@@ -179,7 +180,7 @@ private fun HomeworkScreenContent(
         },
         bottomBar = { navBar(!keyboardAsState().value) },
         floatingActionButton = {
-            if (state.identity.profile?.isHomeworkEnabled == true) AnimatedVisibility(
+            if ((state.profile as? ClassProfile)?.isHomeworkEnabled == true) AnimatedVisibility(
                 visible = !keyboardAsState().value,
                 enter = expandIn(tween(250)),
                 exit = shrinkOut(tween(250))
@@ -199,7 +200,7 @@ private fun HomeworkScreenContent(
                 return@Column
             }
 
-            if (state.identity.profile?.isHomeworkEnabled == false) {
+            if ((state.profile as? ClassProfile)?.isHomeworkEnabled == false) {
                 HomeworkDisabled(modifier = Modifier.fillMaxSize(), onEnableHomework = onEnableHomework)
                 return@Scaffold
             }
@@ -401,11 +402,12 @@ private fun HomeworkScreenContent(
 @Composable
 @Preview(showBackground = true)
 fun HomeworkScreenPreview() {
+    val group = GroupPreview.generateGroup()
     HomeworkScreenContent(
         state = HomeworkState(
             wrongProfile = false,
             homework = listOf(),
-            identity = Identity(null, ProfilePreview.generateClassProfile())
+            profile = ProfilePreview.generateClassProfile(group)
         ),
         onHomeworkClicked = {}
     )

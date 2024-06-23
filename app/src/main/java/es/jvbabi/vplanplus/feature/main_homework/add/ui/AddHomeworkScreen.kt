@@ -120,7 +120,7 @@ import java.time.format.DateTimeFormatter
 fun AddHomeworkScreen(
     navHostController: NavHostController,
     viewModel: AddHomeworkViewModel = hiltViewModel(),
-    vpId: Long? = null
+    vpId: Int? = null
 ) {
     val context = LocalContext.current
 

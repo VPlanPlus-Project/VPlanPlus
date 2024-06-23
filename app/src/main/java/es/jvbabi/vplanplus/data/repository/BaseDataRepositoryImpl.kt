@@ -5,16 +5,15 @@ import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
-import es.jvbabi.vplanplus.domain.repository.WeekRepository
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.ClassBaseData
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.RoomBaseData
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.TeacherBaseData
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.WeekBaseData
+import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
+import es.jvbabi.vplanplus.domain.model.xml.RoomBaseData
+import es.jvbabi.vplanplus.domain.model.xml.TeacherBaseData
+import es.jvbabi.vplanplus.domain.model.xml.WeekBaseData
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
@@ -23,29 +22,27 @@ import io.ktor.http.HttpStatusCode
 import java.time.LocalDate
 
 class BaseDataRepositoryImpl(
-    private val classRepository: ClassRepository,
+    private val groupRepository: GroupRepository,
     private val lessonTimeRepository: LessonTimeRepository,
     private val holidayRepository: HolidayRepository,
-    private val weekRepository: WeekRepository,
     private val roomRepository: RoomRepository,
     private val teacherRepository: TeacherRepository,
     private val sp24NetworkRepository: Sp24NetworkRepository
 ) : BaseDataRepository {
 
-    override suspend fun processBaseData(schoolId: Long, baseData: XmlBaseData) {
-        classRepository.deleteClassesBySchoolId(schoolId)
-        classRepository.insertClasses(schoolId, baseData.classNames)
-        holidayRepository.replaceHolidays(baseData.holidays)
-        weekRepository.replaceWeeks(baseData.weeks.map { it.toWeek(schoolId) })
+    override suspend fun processBaseData(schoolId: Int, baseData: XmlBaseData) {
+        groupRepository.deleteGroupsBySchoolId(schoolId)
+        /*groupRepository.insertGroup(schoolId, baseData.classNames)*/ // TODO
+        /*holidayRepository.replaceHolidays(baseData.holidays)*/ // TODO
         baseData.lessonTimes.forEach { entry ->
-            val `class` = classRepository.getClassBySchoolIdAndClassName(schoolId, entry.key)!!
+            val `class` = groupRepository.getGroupBySchoolAndName(schoolId, entry.key)!!
             lessonTimeRepository.deleteLessonTimes(`class`)
             entry.value.forEach { lessonTime ->
                 val from = "${lessonTime.value.first}:00".toZonedDateTime().atBeginningOfTheWorld()
                 val to = "${lessonTime.value.second}:00".toZonedDateTime().atBeginningOfTheWorld()
                 lessonTimeRepository.insertLessonTime(
                     LessonTime(
-                        classLessonTimeRefId = `class`.classId,
+                        groupId = `class`.groupId,
                         lessonNumber = lessonTime.key,
                         from = (from.hour * 60L * 60L) + (from.minute * 60L),
                         to = (to.hour * 60L * 60L) + (to.minute * 60L)
@@ -65,22 +62,22 @@ class BaseDataRepositoryImpl(
     }
 
     override suspend fun getFullBaseData(
-        schoolId: Long,
+        sp24SchoolId: Int,
         username: String,
         password: String
     ): DataResponse<XmlBaseData?> {
         sp24NetworkRepository.authentication = BasicAuthentication(username, password)
         val classesResponse = sp24NetworkRepository.doRequest(
-            "/$schoolId/wplan/wdatenk/SPlanKl_Basis.xml"
+            "/$sp24SchoolId/wplan/wdatenk/SPlanKl_Basis.xml"
         )
         val teachersResponse = sp24NetworkRepository.doRequest(
-            "/$schoolId/wplan/wdatenl/SPlanLe_Basis.xml",
+            "/$sp24SchoolId/wplan/wdatenl/SPlanLe_Basis.xml",
         )
         val roomsResponse = sp24NetworkRepository.doRequest(
-            "/$schoolId/wplan/wdatenr/SPlanRa_Basis.xml",
+            "/$sp24SchoolId/wplan/wdatenr/SPlanRa_Basis.xml",
         )
         val weeksResponse = sp24NetworkRepository.doRequest(
-            "/$schoolId/wplan/wdatenk/SPlanKl_Sw1.xml",
+            "/$sp24SchoolId/wplan/wdatenk/SPlanKl_Sw1.xml",
         )
         if (classesResponse.response != HttpStatusCode.OK) return DataResponse(null, classesResponse.response)
 
@@ -101,17 +98,16 @@ class BaseDataRepositoryImpl(
                 classBaseData.holidays.map {
                     Holiday(
                         date = LocalDate.of(it.first.first, it.first.second, it.first.third),
-                        schoolHolidayRefId = if (it.second) null else schoolId
+                        schoolId = if (it.second) null else sp24SchoolId.toLong()
                     )
                 },
-                classBaseData.schoolWeeks,
                 weekBaseData.times
             ),
             HttpStatusCode.OK
         )
     }
 
-    override suspend fun checkCredentials(schoolId: Long, username: String, password: String): DataResponse<Boolean?> {
+    override suspend fun checkCredentials(schoolId: Int, username: String, password: String): DataResponse<Boolean?> {
         sp24NetworkRepository.authentication = BasicAuthentication(username, password)
         val response = sp24NetworkRepository.doRequest("/$schoolId/wplan/wdatenk/SPlanKl_Basis.xml")
         return DataResponse(response.response == HttpStatusCode.OK, response.response)

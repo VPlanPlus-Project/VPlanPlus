@@ -8,8 +8,8 @@ import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 data class CProfileDefaultLesson(
     @Embedded val profileDefaultLesson: DbProfileDefaultLesson,
     @Relation(
-        parentColumn = "defaultLessonVpId",
-        entityColumn = "vpId",
+        parentColumn = "vp_id",
+        entityColumn = "vp_id",
         entity = DbDefaultLesson::class
     ) val defaultLessons: List<CDefaultLesson>
 )

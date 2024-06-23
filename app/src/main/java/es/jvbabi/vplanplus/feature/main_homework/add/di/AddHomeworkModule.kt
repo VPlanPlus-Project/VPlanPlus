@@ -6,8 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.CanShowVppIdBannerUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.GetDefaultLessonsUseCase
@@ -25,8 +24,7 @@ object AddHomeworkModule {
     @Provides
     @Singleton
     fun provideAddHomeworkUseCases(
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-        getClassByProfileUseCase: GetClassByProfileUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         defaultLessonRepository: DefaultLessonRepository,
         keyValueRepository: KeyValueRepository,
         homeworkRepository: HomeworkRepository
@@ -34,8 +32,7 @@ object AddHomeworkModule {
         return AddHomeworkUseCases(
             getDefaultLessonsUseCase = GetDefaultLessonsUseCase(
                 defaultLessonRepository = defaultLessonRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-                getClassByProfileUseCase = getClassByProfileUseCase
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
             ),
             canShowVppIdBannerUseCase = CanShowVppIdBannerUseCase(
                 keyValueRepository = keyValueRepository
@@ -45,8 +42,7 @@ object AddHomeworkModule {
             ),
             saveHomeworkUseCase = SaveHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-                getClassByProfileUseCase = getClassByProfileUseCase
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
             ),
 
             isShowNewLayoutBalloonUseCase = IsShowNewLayoutBalloonUseCase(keyValueRepository),

@@ -1,9 +1,9 @@
 package es.jvbabi.vplanplus.feature.room_search.domain.usecase
 
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 
 data class BookRoomUseCases(
-    val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+    val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     val getRoomByNameUseCase: GetRoomByNameUseCase,
     val getLessonTimesUseCase: GetLessonTimesUseCase,
     val showRoomBookingDisclaimerBannerUseCase: IsShowRoomBookingDisclaimerBannerUseCase,

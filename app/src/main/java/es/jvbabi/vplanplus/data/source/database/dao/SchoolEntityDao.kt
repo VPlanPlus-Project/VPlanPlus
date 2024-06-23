@@ -14,12 +14,12 @@ import java.util.UUID
 abstract class SchoolEntityDao {
 
     @Transaction
-    @Query("SELECT * FROM school_entity WHERE schoolId = :schoolId AND type = :type")
-    abstract suspend fun getSchoolEntities(schoolId: Long, type: SchoolEntityType): List<CSchoolEntity>
+    @Query("SELECT * FROM school_entity WHERE school_id = :schoolId AND type = :type")
+    abstract suspend fun getSchoolEntities(schoolId: Int, type: SchoolEntityType): List<CSchoolEntity>
 
     @Transaction
-    @Query("SELECT * FROM school_entity WHERE schoolId = :schoolId AND name = :name AND type = :type")
-    abstract suspend fun getSchoolEntityByName(schoolId: Long, name: String, type: SchoolEntityType): CSchoolEntity?
+    @Query("SELECT * FROM school_entity WHERE school_id = :schoolId AND name = :name AND type = :type")
+    abstract suspend fun getSchoolEntityByName(schoolId: Int, name: String, type: SchoolEntityType): CSchoolEntity?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     abstract suspend fun insertSchoolEntity(schoolEntity: DbSchoolEntity)
@@ -35,8 +35,8 @@ abstract class SchoolEntityDao {
     @Transaction
     abstract suspend fun getSchoolEntityById(schoolEntityId: UUID): CSchoolEntity?
 
-    @Query("DELETE FROM school_entity WHERE schoolId = :schoolId AND type = :type")
-    abstract suspend fun deleteSchoolEntitiesBySchoolId(schoolId: Long, type: SchoolEntityType)
+    @Query("DELETE FROM school_entity WHERE school_id = :schoolId AND type = :type")
+    abstract suspend fun deleteSchoolEntitiesBySchoolId(schoolId: Int, type: SchoolEntityType)
 
     @Transaction
     @Query("SELECT * FROM school_entity WHERE type = :type")

@@ -10,7 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_grades.data.repository.GradeRepositoryImpl
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.CanShowEnableBiometricBannerUseCase
@@ -63,7 +63,7 @@ object GradeModule {
     @Provides
     @Singleton
     fun provideGradeUseCases(
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         vppIdRepository: VppIdRepository,
         gradeRepository: GradeRepository,
         keyValueRepository: KeyValueRepository,
@@ -72,11 +72,11 @@ object GradeModule {
     ): GradeUseCases {
         return GradeUseCases(
             isEnabledUseCase = IsEnabledUseCase(
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
                 vppIdRepository = vppIdRepository
             ),
             getGradesUseCase = GetGradesUseCase(
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
                 gradeRepository = gradeRepository
             ),
             showBannerUseCase = ShowBannerUseCase(keyValueRepository),

@@ -56,9 +56,9 @@ import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
-import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
@@ -171,7 +171,7 @@ private fun HomeworkDetailScreenContent(
                 Column {
                     ProgressCard(
                         tasks = state.homework?.tasks?.size ?: 0,
-                        done = state.homework?.tasks?.count { it.done } ?: 0)
+                        done = state.homework?.tasks?.count { it.isDone } ?: 0)
                     Spacer8Dp()
                 }
             }
@@ -223,10 +223,10 @@ private fun HomeworkDetailScreenContent(
 @Preview
 @Composable
 fun HomeworkDetailScreenPreview() {
-    val school = School.generateRandomSchools(1).first()
-    val clazz = ClassesPreview.generateClass(school)
-    val vppId = VppIdPreview.generateVppId(clazz)
-    val profile = ProfilePreview.generateClassProfile(vppId)
+    val school = SchoolPreview.generateRandomSchools(1).first()
+    val group = GroupPreview.generateGroup(school)
+    val vppId = VppIdPreview.generateVppId(group)
+    val profile = ProfilePreview.generateClassProfile(group, vppId)
     val teacher = TeacherPreview.teacher(school)
     HomeworkDetailScreenContent(
         state = HomeworkDetailState(
@@ -235,17 +235,17 @@ fun HomeworkDetailScreenPreview() {
                 createdBy = vppId,
                 documents = emptyList(),
                 tasks = listOf(
-                    HomeworkTask(id = 1, content = "Task 1", done = false),
-                    HomeworkTask(id = 2, content = "Task 2", done = true),
-                    HomeworkTask(id = 3, content = "Task 3", done = false)
+                    HomeworkTask(id = 1, content = "Task 1", isDone = false),
+                    HomeworkTask(id = 2, content = "Task 2", isDone = true),
+                    HomeworkTask(id = 3, content = "Task 3", isDone = false)
                 ),
                 profile = profile,
-                classes = clazz,
+                group = group,
                 createdAt = ZonedDateTime.now(),
                 until = ZonedDateTime.now().plusDays(1),
                 defaultLesson = DefaultLesson(
                     defaultLessonId = UUID.randomUUID(),
-                    `class` = clazz,
+                    `class` = group,
                     vpId = 1,
                     subject = "DEU",
                     teacher = teacher

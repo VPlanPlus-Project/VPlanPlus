@@ -1,32 +1,38 @@
 package es.jvbabi.vplanplus.data.model.homework
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
+import androidx.room.Index
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 
 @Entity(
     tableName = "homework_task",
     primaryKeys = ["id"],
+    indices = [
+        Index(value = ["id"], unique = true),
+        Index(value = ["homework_id"])
+    ],
     foreignKeys = [
         ForeignKey(
             entity = DbHomework::class,
             parentColumns = ["id"],
-            childColumns = ["homeworkId"],
+            childColumns = ["homework_id"],
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
 data class DbHomeworkTask(
-    val id: Long,
-    val homeworkId: Long,
-    val content: String,
-    val done: Boolean,
+    @ColumnInfo("id") val id: Long,
+    @ColumnInfo("homework_id") val homeworkId: Long,
+    @ColumnInfo("content") val content: String,
+    @ColumnInfo("is_done") val isDone: Boolean,
 ) {
     fun toModel(): HomeworkTask {
         return HomeworkTask(
             id = id,
             content = content,
-            done = done
+            isDone = isDone
         )
     }
 }

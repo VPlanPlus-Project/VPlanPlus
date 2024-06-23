@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.model.combined
 
 import androidx.room.Embedded
 import androidx.room.Relation
+import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
@@ -12,16 +13,17 @@ import java.time.ZoneId
 data class CRoomBooking(
     @Embedded val roomBooking: DbRoomBooking,
     @Relation(
-        parentColumn = "class",
+        parentColumn = "group_id",
         entityColumn = "id",
-        entity = DbSchoolEntity::class
-    ) val classes: CSchoolEntity,
+        entity = DbGroup::class
+    ) val classes: CGroup,
     @Relation(
-        parentColumn = "bookedBy",
-        entityColumn = "id"
-    ) val vppId: DbVppId?,
+        parentColumn = "booked_by",
+        entityColumn = "id",
+        entity = DbVppId::class
+    ) val vppId: CVppId?,
     @Relation(
-        parentColumn = "roomId",
+        parentColumn = "room_id",
         entityColumn = "id",
         entity = DbSchoolEntity::class
     ) val room: CSchoolEntity
@@ -33,7 +35,7 @@ data class CRoomBooking(
             bookedBy = vppId?.toModel(),
             from = roomBooking.from.toZonedLocalDateTime().atZone(ZoneId.systemDefault()),
             to = roomBooking.to.toZonedLocalDateTime().atZone(ZoneId.systemDefault()),
-            `class` = classes.toClassModel()
+            `class` = classes.toModel()
         )
     }
 }

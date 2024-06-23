@@ -8,7 +8,6 @@ class ChangeDefaultLessonUseCase(
     private val profileRepository: ProfileRepository
 ) {
     suspend operator fun invoke(profile: Profile, defaultLesson: DefaultLesson, enabled: Boolean) {
-        if (enabled) profileRepository.enableDefaultLesson(profileId = profile.id, vpId = defaultLesson.vpId)
-        else profileRepository.disableDefaultLesson(profileId = profile.id, vpId = defaultLesson.vpId)
+        profileRepository.setDefaultLessonActivationState(profile.id, defaultLesson.vpId, enabled)
     }
 }

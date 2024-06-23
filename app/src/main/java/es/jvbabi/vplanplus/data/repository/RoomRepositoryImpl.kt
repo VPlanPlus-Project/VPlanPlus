@@ -6,16 +6,16 @@ import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
-import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
-import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -37,12 +37,12 @@ class RoomRepositoryImpl(
     private val roomBookingDao: RoomBookingDao,
     private val vppIdRepository: VppIdRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
-    private val classRepository: ClassRepository,
+    private val groupRepository: GroupRepository,
     private val profileRepository: ProfileRepository,
     private val notificationRepository: NotificationRepository,
     private val stringRepository: StringRepository
 ) : RoomRepository {
-    override suspend fun getRooms(schoolId: Long): List<Room> {
+    override suspend fun getRooms(schoolId: Int): List<Room> {
         return schoolEntityDao.getSchoolEntities(schoolId, SchoolEntityType.ROOM)
             .map { it.toRoomModel() }
     }
@@ -56,7 +56,7 @@ class RoomRepositoryImpl(
             DbSchoolEntity(
                 id = room.roomId,
                 name = room.name,
-                schoolId = room.school.schoolId,
+                schoolId = room.school.id,
                 type = SchoolEntityType.ROOM
             )
         )
@@ -69,11 +69,11 @@ class RoomRepositoryImpl(
     ): Room? {
         if (name == "&amp;nbsp;" || name == "&nbsp;") return null
         val room =
-            schoolEntityDao.getSchoolEntityByName(school.schoolId, name, SchoolEntityType.ROOM)
+            schoolEntityDao.getSchoolEntityByName(school.id, name, SchoolEntityType.ROOM)
         if (room == null && createIfNotExists) {
             val dbRoom = DbSchoolEntity(
                 id = UUID.randomUUID(),
-                schoolId = school.schoolId,
+                schoolId = school.id,
                 name = name,
                 type = SchoolEntityType.ROOM
             )
@@ -90,11 +90,11 @@ class RoomRepositoryImpl(
         }
     }
 
-    override suspend fun deleteRoomsBySchoolId(schoolId: Long) {
+    override suspend fun deleteRoomsBySchoolId(schoolId: Int) {
         schoolEntityDao.deleteSchoolEntitiesBySchoolId(schoolId, SchoolEntityType.ROOM)
     }
 
-    override suspend fun insertRoomsByName(schoolId: Long, rooms: List<String>) {
+    override suspend fun insertRoomsByName(schoolId: Int, rooms: List<String>) {
         schoolEntityDao.insertSchoolEntities(
             rooms.map {
                 DbSchoolEntity(
@@ -108,15 +108,15 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun getRoomsBySchool(school: School): List<Room> {
-        return schoolEntityDao.getSchoolEntities(school.schoolId, SchoolEntityType.ROOM)
+        return schoolEntityDao.getSchoolEntities(school.id, SchoolEntityType.ROOM)
             .map { it.toRoomModel() }
     }
 
     override suspend fun getRoomBookingsByClass(
-        classes: Classes,
+        group: Group,
         date: LocalDate
     ): List<RoomBooking> {
-        return roomBookingDao.getRoomBookingsByClass(classes.classId).map { it.toModel() }
+        return roomBookingDao.getRoomBookingsByGroup(group.groupId).map { it.toModel() }
             .filter { it.from.toLocalDate().isEqual(date) }
     }
 
@@ -126,10 +126,10 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun fetchRoomBookings(school: School) {
-        vppIdNetworkRepository.authentication = school.buildAuthentication()
+        vppIdNetworkRepository.authentication = school.buildAccess().buildVppAuthentication()
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${API_VERSION}/school/${school.schoolId}/booking",
+            "/api/${API_VERSION}/school/${school.id}/booking",
             HttpMethod.Get,
             null
         )
@@ -147,8 +147,8 @@ class RoomRepositoryImpl(
             RoomBookingResponse::class.java
         )
 
-        val classes = classRepository.getClassesBySchool(school)
-        val rooms = getRooms(school.schoolId)
+        val classes = groupRepository.getGroupsBySchool(school)
+        val rooms = getRooms(school.id)
 
         // cache vpp.IDs if necessary
         roomBookings
@@ -168,7 +168,7 @@ class RoomRepositoryImpl(
                     bookedBy = bookingResponse.bookedBy,
                     from = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.start),
                     to = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.end),
-                    `class` = classes.firstOrNull { it.name == bookingResponse.`class` }?.classId ?: return@mapNotNull null
+                    groupId = classes.firstOrNull { it.name == bookingResponse.`class` }?.groupId ?: return@mapNotNull null
                 )
             }
         )
@@ -176,8 +176,8 @@ class RoomRepositoryImpl(
         // send notifications for bookings that are relevant to the user
         val profileClasses = profileRepository
             .getProfiles().first()
-            .filter { it.type == ProfileType.STUDENT }
-            .mapNotNull { profile -> classes.firstOrNull { it.classId == profile.referenceId }?.name }
+            .filterIsInstance<ClassProfile>()
+            .mapNotNull { profile -> classes.firstOrNull { it.groupId == profile.group.groupId }?.name }
 
         roomBookings.bookings
             .filter profileClass@{ booking -> booking.`class` in profileClasses }

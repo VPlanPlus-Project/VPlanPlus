@@ -6,7 +6,7 @@ class CheckCredentialsUseCase(
     private val baseDataRepository: BaseDataRepository
 ) {
     suspend operator fun invoke(
-        schoolId: Long,
+        schoolId: Int,
         username: String,
         password: String
     ): Boolean? {

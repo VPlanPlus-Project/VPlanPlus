@@ -1,19 +1,18 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository
 
 import android.net.Uri
-import es.jvbabi.vplanplus.domain.model.Classes
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PreferredHomeworkNotificationTime
 import kotlinx.coroutines.flow.Flow
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
-import java.util.UUID
 
 interface HomeworkRepository {
 
-    suspend fun getHomeworkByClassId(classId: UUID): Flow<List<Homework>>
+    suspend fun getHomeworkByGroupId(groupId: Int): Flow<List<Homework>>
 
     suspend fun getHomeworkById(homeworkId: Int): Flow<Homework?>
 
@@ -21,9 +20,9 @@ interface HomeworkRepository {
 
     suspend fun insertHomework(
         id: Long? = null,
-        profile: Profile,
-        `class`: Classes,
-        defaultLessonVpId: Long?,
+        profile: ClassProfile,
+        group: Group,
+        defaultLessonVpId: Int?,
         storeInCloud: Boolean,
         shareWithClass: Boolean,
         until: ZonedDateTime,

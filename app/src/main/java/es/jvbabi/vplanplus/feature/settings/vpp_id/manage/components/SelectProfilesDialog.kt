@@ -25,7 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
 
@@ -33,11 +33,11 @@ import es.jvbabi.vplanplus.ui.common.ComposableDialog
 @Composable
 fun SelectProfilesDialog(
     vppId: VppId,
-    profiles: List<Profile>,
+    profiles: List<ClassProfile>,
     onDismiss: () -> Unit,
-    onOk: (result: Map<Profile, Boolean>) -> Unit
+    onOk: (result: Map<ClassProfile, Boolean>) -> Unit
 ) {
-    var selectedProfiles by rememberSaveable { mutableStateOf(emptyMap<Profile, Boolean>()) }
+    var selectedProfiles by rememberSaveable { mutableStateOf(emptyMap<ClassProfile, Boolean>()) }
     LaunchedEffect(key1 = profiles, key2 = vppId) {
         selectedProfiles = profiles
             .sortedBy { it.displayName }

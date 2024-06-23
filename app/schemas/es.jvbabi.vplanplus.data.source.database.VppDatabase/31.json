@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 31,
-    "identityHash": "48474a4aeb72d18877e7c8c936d39195",
+    "identityHash": "2f2163e0ff20db4fddfb1c136495cd44",
     "entities": [
       {
         "tableName": "lesson",
@@ -1443,12 +1443,24 @@
       },
       {
         "tableName": "homework_document",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `homework_id` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`homework_id`) REFERENCES `homework`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `file_name` TEXT NOT NULL, `file_type` TEXT NOT NULL, `homework_id` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`homework_id`) REFERENCES `homework`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
         "fields": [
           {
             "fieldPath": "id",
             "columnName": "id",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileName",
+            "columnName": "file_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "fileType",
+            "columnName": "file_type",
+            "affinity": "TEXT",
             "notNull": true
           },
           {
@@ -1849,7 +1861,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '48474a4aeb72d18877e7c8c936d39195')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2f2163e0ff20db4fddfb1c136495cd44')"
     ]
   }
 }

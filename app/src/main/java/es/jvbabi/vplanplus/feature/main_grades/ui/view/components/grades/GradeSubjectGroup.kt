@@ -36,7 +36,7 @@ import es.jvbabi.vplanplus.feature.main_grades.domain.model.Subject
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.Teacher
 import es.jvbabi.vplanplus.feature.main_grades.ui.view.SubjectGradeCollection
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.math.RoundingMode
 import java.time.LocalDate
@@ -140,7 +140,7 @@ private fun GradeSubjectGroupPreview() {
         firstname = "Max",
         lastname = "Mustermann"
     )
-    val classes = ClassesPreview.generateClass(null)
+    val classes = GroupPreview.generateGroup(null)
     val vppId = VppIdPreview.generateVppId(classes)
     GradeSubjectGroup(
         withIntervals = setOf(ExampleInterval.interval2(false)),

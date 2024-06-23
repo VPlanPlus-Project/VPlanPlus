@@ -35,15 +35,15 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.id_link.components.AutoConnectToProfile
 import es.jvbabi.vplanplus.ui.screens.id_link.components.LinkNoProfiles
 import io.ktor.http.HttpStatusCode
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
-import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
+import es.jvbabi.vplanplus.ui.preview.GroupPreview as PreviewClasses
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview as PreviewSchool
 
 @Composable
 fun VppIdLinkScreen(
@@ -95,7 +95,7 @@ private fun VppIdLinkScreenContent(
     onOk: () -> Unit = {},
     onRetry: () -> Unit = {},
     onContactUs: (userId: Int?, className: String?) -> Unit = { _, _ -> },
-    onToggleProfile: (profile: Profile) -> Unit = {},
+    onToggleProfile: (profile: ClassProfile) -> Unit = {},
     state: VppIdLinkState
 ) {
     Box(
@@ -125,7 +125,7 @@ private fun VppIdLinkScreenContent(
                     textAlign = TextAlign.Center
                 )
                 Text(
-                    text = stringResource(id = R.string.vppIdLink_invalidClassText, state.vppId?.className ?: "unknown"),
+                    text = stringResource(id = R.string.vppIdLink_invalidClassText, state.vppId?.groupName ?: "unknown"),
                     textAlign = TextAlign.Center
                 )
                 Row(
@@ -141,7 +141,7 @@ private fun VppIdLinkScreenContent(
                             .padding(end = 8.dp)
                     ) { Text(text = stringResource(id = R.string.back)) }
                     Button(
-                        onClick = { onContactUs(state.vppId?.id, state.vppId?.className) },
+                        onClick = { onContactUs(state.vppId?.id, state.vppId?.groupName) },
                         modifier = Modifier
                             .weight(1f)
                             .padding(start = 8.dp)
@@ -155,7 +155,7 @@ private fun VppIdLinkScreenContent(
                     }
                 }
             }
-        } else if (state.error || state.vppId!!.classes == null) {
+        } else if (state.error || state.vppId!!.group == null) {
             Column {
                 Text(text = "Error")
                 Button(onClick = onRetry) {
@@ -181,8 +181,8 @@ private fun VppIdLinkScreenContent(
                 Text(
                     text = stringResource(
                         id = R.string.vppidlink_message,
-                        state.vppId.classes!!.school.name,
-                        state.vppId.classes.name
+                        state.vppId.group!!.school.name,
+                        state.vppId.group.name
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -194,7 +194,7 @@ private fun VppIdLinkScreenContent(
                 } else if (state.selectedProfiles.isEmpty()) {
                     LinkNoProfiles(
                         modifier = Modifier.padding(vertical = 8.dp),
-                        className = state.vppId.classes.name
+                        className = state.vppId.group.name
                     )
                 } else {
                     Column(Modifier.padding(vertical = 8.dp)) {
@@ -243,14 +243,14 @@ private fun VppIdLinkScreenInvalidClassPreview() {
 @Composable
 private fun VppIdLinkScreenAutoLinkPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first()
-    val classes = PreviewClasses.generateClass(school)
+    val group = PreviewClasses.generateGroup(school)
     val vppId = VppId(
         id = 1,
         name = "Maria Musterfrau",
-        schoolId = school.schoolId,
+        schoolId = school.id,
         school = school,
-        className = classes.name,
-        classes = classes,
+        groupName = group.name,
+        group = group,
         email = "maria.musterfrau@email.com"
     )
     VppIdLinkScreenContent(
@@ -259,7 +259,7 @@ private fun VppIdLinkScreenAutoLinkPreview() {
             response = HttpStatusCode.OK,
             selectedProfileFoundAtStart = true,
             selectedProfiles = mapOf(
-                ProfilePreview.generateClassProfile(vppId) to true
+                ProfilePreview.generateClassProfile(group, vppId) to true
             ),
             vppId = vppId,
         )
@@ -270,14 +270,15 @@ private fun VppIdLinkScreenAutoLinkPreview() {
 @Composable
 private fun VppIdLinkScreenPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first()
-    val classes = PreviewClasses.generateClass(school)
+    val group = PreviewClasses.generateGroup(school)
+    val group2 = PreviewClasses.generateGroup(school)
     val vppId = VppId(
         id = 1,
         name = "Maria Musterfrau",
-        schoolId = school.schoolId,
+        schoolId = school.id,
         school = school,
-        className = classes.name,
-        classes = classes,
+        groupName = group.name,
+        group = group,
         email = "maria.musterfrau@email.com"
     )
     VppIdLinkScreenContent(
@@ -286,8 +287,8 @@ private fun VppIdLinkScreenPreview() {
             response = HttpStatusCode.OK,
             selectedProfileFoundAtStart = false,
             selectedProfiles = mapOf(
-                ProfilePreview.generateClassProfile(vppId) to true,
-                ProfilePreview.generateClassProfile() to false
+                ProfilePreview.generateClassProfile(group, vppId) to true,
+                ProfilePreview.generateClassProfile(group2) to false
             ),
             vppId = vppId,
         )

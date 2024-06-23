@@ -56,6 +56,9 @@ import es.jvbabi.vplanplus.feature.settings.profile.ui.components.SchoolCard
 import es.jvbabi.vplanplus.feature.settings.profile.ui.components.UpdateCredentialsDialog
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.launch
 
@@ -81,7 +84,7 @@ fun ProfileManagementScreen(
         onNewSchoolProfileClicked = { school ->
             scope.launch {
                 onNewProfileClicked(school)
-                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.schoolId}") {
+                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.id}") {
                     popUpTo(Screen.SettingsProfileScreen.route)
                 }
             }
@@ -118,7 +121,7 @@ fun ProfileManagementScreenContent(
     onDeleteSchoolDismiss: () -> Unit = {},
     onCloseShareDialog: () -> Unit = {},
     onShareSchool: (school: School) -> Unit = {},
-    onUpdateCredentialsRequest: (schoolId: Long) -> Unit = {},
+    onUpdateCredentialsRequest: (schoolId: Int) -> Unit = {},
     onResetUpdateCredentialsValidity: () -> Unit = {},
     onCheckCredentialsValidity: (username: String, password: String) -> Unit = { _, _ -> },
     onUpdateCredentials: (username: String, password: String) -> Unit = { _, _ -> },
@@ -230,7 +233,7 @@ fun ProfileManagementScreenContent(
                             onProfileClicked = onProfileClicked,
                             onDeleteRequest = { onDeleteSchoolOpenDialog(school) },
                             onShareRequest = { onShareSchool(school) },
-                            onUpdateCredentialsRequest = { onUpdateCredentialsRequest(school.schoolId) }
+                            onUpdateCredentialsRequest = { onUpdateCredentialsRequest(school.id) }
                         )
                     }
                 }
@@ -243,11 +246,15 @@ fun ProfileManagementScreenContent(
 @Composable
 @Preview(showBackground = true)
 fun ProfileManagementScreenPreview() {
+    val school1 = SchoolPreview.generateRandomSchools(1).first()
+    val school2 = SchoolPreview.generateRandomSchools(1).first()
+    val group1 = GroupPreview.generateGroup(school1)
+    val group2 = GroupPreview.generateGroup(school2)
     ProfileManagementScreenContent(
         state = ProfileManagementState(
             profiles = mapOf(
-                es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.ProfilePreview.generateClassProfile()),
-                es.jvbabi.vplanplus.ui.preview.School.generateRandomSchools(1).first() to listOf(es.jvbabi.vplanplus.ui.preview.ProfilePreview.generateClassProfile())
+                school1 to listOf(ProfilePreview.generateClassProfile(group1)),
+                school2 to listOf(ProfilePreview.generateClassProfile(group2))
             )
         )
     )
@@ -283,7 +290,7 @@ fun Modifier.dashedBorder(strokeWidth: Dp, color: Color, cornerRadiusDp: Dp): Mo
 
 sealed class ProfileManagementTask(val name: String)
 
-class UpdateCredentialsTask(val schoolId: Long) : ProfileManagementTask(NAME) {
+class UpdateCredentialsTask(val schoolId: Int) : ProfileManagementTask(NAME) {
     companion object {
         const val NAME = "update_credentials"
     }

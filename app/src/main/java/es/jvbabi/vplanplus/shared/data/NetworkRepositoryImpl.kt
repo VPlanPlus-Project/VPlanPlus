@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.shared.domain.repository.NetworkRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.android.Android
@@ -201,7 +202,7 @@ class NewsNetworkRepository(
     logRepository: LogRecordRepository?,
     keyValueRepository: KeyValueRepository
 ) : NetworkRepositoryImpl(
-    server = keyValueRepository.getOnMainThread(Keys.VPPID_SERVER) ?: Keys.VPPID_SERVER_DEFAULT,
+    server = keyValueRepository.getOnMainThread(Keys.VPPID_SERVER) ?: servers.first().apiHost,
     userAgent = userAgent,
     logRepository = logRepository
 )
@@ -220,7 +221,7 @@ class VppIdNetworkRepository(
     logRepository: LogRecordRepository?,
     keyValueRepository: KeyValueRepository
 ) : NetworkRepositoryImpl(
-    server = keyValueRepository.getOnMainThread(Keys.VPPID_SERVER) ?: Keys.VPPID_SERVER_DEFAULT,
+    server = keyValueRepository.getOnMainThread(Keys.VPPID_SERVER) ?: servers.first().apiHost,
     userAgent = userAgent,
     logRepository = logRepository
 )

@@ -11,6 +11,6 @@ abstract class VppIdTokenDao {
     @Upsert
     abstract suspend fun insert(token: DbVppIdToken)
 
-    @Query("SELECT * FROM vpp_id_token WHERE vppId = :vppId")
+    @Query("SELECT * FROM vpp_id_token WHERE vpp_id = :vppId")
     abstract suspend fun getTokenByVppId(vppId: Int): DbVppIdToken?
 }

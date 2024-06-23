@@ -4,44 +4,51 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
-import es.jvbabi.vplanplus.data.model.DbProfile
-import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import androidx.room.Index
+import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
 import java.time.ZonedDateTime
 import java.util.UUID
 
 @Entity(
     tableName = "homework",
     primaryKeys = ["id"],
+    indices = [
+        Index(value = ["id"], unique = true),
+        Index(value = ["created_by"]),
+        Index(value = ["group_id"]),
+        Index(value = ["profile_id"]),
+    ],
     foreignKeys = [
         ForeignKey(
             entity = DbVppId::class,
             parentColumns = ["id"],
-            childColumns = ["createdBy"],
+            childColumns = ["created_by"],
             onDelete = CASCADE
         ),
         ForeignKey(
-            entity = DbSchoolEntity::class,
+            entity = DbGroup::class,
             parentColumns = ["id"],
-            childColumns = ["classes"],
+            childColumns = ["group_id"],
             onDelete = CASCADE
         ),
         ForeignKey(
-            entity = DbProfile::class,
-            parentColumns = ["profileId"],
+            entity = DbClassProfile::class,
+            parentColumns = ["id"],
             childColumns = ["profile_id"],
             onDelete = CASCADE,
         )
     ]
 )
 data class DbHomework(
-    val id: Long,
-    val createdBy: Int?,
-    val classes: UUID,
-    @ColumnInfo(defaultValue = "false") val isPublic: Boolean = false,
-    val createdAt: ZonedDateTime,
-    val defaultLessonVpId: Long?,
-    val until: ZonedDateTime,
-    @ColumnInfo(defaultValue = "false") val hidden: Boolean = false,
-    @ColumnInfo(name = "profile_id") val profileId: UUID
+    @ColumnInfo("id") val id: Long,
+    @ColumnInfo("created_by") val createdBy: Int?,
+    @ColumnInfo("group_id") val groupId: Int,
+    @ColumnInfo("is_public", defaultValue = "false") val isPublic: Boolean = false,
+    @ColumnInfo("created_at") val createdAt: ZonedDateTime,
+    @ColumnInfo("default_lesson_vp_id") val defaultLessonVpId: Int?,
+    @ColumnInfo("until") val until: ZonedDateTime,
+    @ColumnInfo("is_hidden", defaultValue = "false") val isHidden: Boolean = false,
+    @ColumnInfo("profile_id") val profileId: UUID
 )

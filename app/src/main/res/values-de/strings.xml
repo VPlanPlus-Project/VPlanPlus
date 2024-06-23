@@ -12,7 +12,7 @@
     <string name="onboarding_credentialsText">Gib deinen Benutzernamen (vermutlich \'schueler\') und dein Passwort an. Diese Zugangsdaten werden über deine Institution bekannt gegeben.</string>
     <string name="username">Benutzername</string>
     <string name="password">Passwort</string>
-    <string name="unknownError">Ein unbekannter Fehler ist aufgetreten</string>
+    <string name="unknownError">Ein unbekannter Fehler ist aufgetreten.</string>
     <string name="onboarding_credentialsUnauthorized">Diese Zugangsdaten sind nicht korrekt</string>
     <string name="noInternet">Es konnte keine Serververbindung hergestellt werden. Bitte prüfe deine Internetverbindung.</string>
     <string name="onboarding_firstProfileTitle">Wähle dein erstes Profil</string>
@@ -51,7 +51,7 @@
     <string name="yesterday">Gestern</string>
     <string name="onboarding_teacherChooseTeacherCantFindProfile">Mein Kürzel wird nicht angezeigt</string>
     <string name="info">Information</string>
-    <string name="onboarding_firstProfileTeacherDialogText">Manchmal sind die Basisdaten deiner Schule nicht auf dem neuesten Stand. Die App fügt Ihr Kürzel automatisch hinzu, sobald es Daten über dich gibt. Wähle vorerst ein anderes Profil und lade die Daten dieser Woche herunter. Wenn du diese Woche Unterricht gibst, kannst du dich in den Einstellungen hinzufügen.</string>
+    <string name="onboarding_firstProfileTeacherDialogText">Manchmal sind die Basisdaten deiner Schule nicht auf dem neuesten Stand. Die App fügt dein Kürzel automatisch hinzu, sobald es Daten über dich gibt. Wähle vorerst ein anderes Profil und lade die Daten dieser Woche herunter. Wenn du diese Woche Unterricht gibst, kannst du dich in den Einstellungen hinzufügen.</string>
     <string name="notification_newPlanTitle">Neuer Plan verfügbar!</string>
     <string name="notification_newPlanText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
     <string name="notification_accessNotGranted">Du wirst keine Benachrichtigungen erhalten, wenn es eine Planänderung für dich gibt.</string>
@@ -689,5 +689,6 @@
     <string name="addHomework_addDocumentChooseDocumentSubtitle">Wähle ein Dokument auf deinem Gerät aus.</string>
     <string name="addHomework_addDocumentScanDocumentSubtitle">Nutze deine Kamera, um ein Dokument einzuscannen.</string>
     <string name="addHomework_addDocumentScanDocumentTitle">Dokument scannen</string>
+    <string name="please_try_again">Bitte versuche es erneut.</string>
 
 </resources>
