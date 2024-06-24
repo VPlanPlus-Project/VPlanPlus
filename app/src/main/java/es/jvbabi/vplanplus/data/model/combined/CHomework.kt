@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
+import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import java.io.File
 
@@ -60,7 +61,13 @@ data class CHomework(
             isPublic = homework.isPublic,
             isHidden = homework.isHidden,
             profile = profile.toModel(),
-            documents = documents.map { Uri.fromFile(File(context.filesDir, "homework_documents/${it.id}.${it.fileType}")) }
+            documents = documents.associate {
+                Uri.fromFile(File(context.filesDir, "homework_documents/${it.id}")) to when (it.fileType) {
+                    "pdf" -> HomeworkDocumentType.PDF
+                    "jpg" -> HomeworkDocumentType.JPG
+                    else -> throw IllegalArgumentException("Unknown document type")
+                }
+            }
         )
     }
 }

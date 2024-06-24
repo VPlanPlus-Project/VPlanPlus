@@ -15,6 +15,9 @@ abstract class HomeworkDocumentDao {
     @Query("SELECT * FROM homework_document")
     abstract fun getAllHomeworkDocuments(): Flow<List<DbHomeworkDocument>>
 
+    @Query("SELECT * FROM homework_document WHERE id = :id")
+    abstract fun getHomeworkDocumentById(id: Int): DbHomeworkDocument?
+
     @Query("SELECT * FROM homework_document WHERE homework_id = :homeworkId")
     abstract fun getHomeworkDocumentsByHomeworkId(homeworkId: Long): Flow<List<DbHomeworkDocument>>
 

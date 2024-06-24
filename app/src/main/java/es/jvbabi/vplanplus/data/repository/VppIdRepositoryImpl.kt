@@ -24,7 +24,6 @@ import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerReposi
 import es.jvbabi.vplanplus.domain.repository.GroupInfoResponse
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
-import es.jvbabi.vplanplus.domain.repository.VppIdOnlineResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import es.jvbabi.vplanplus.shared.data.API_VERSION
@@ -91,14 +90,13 @@ class VppIdRepositoryImpl(
 
         if (vppId?.isActive() == true && getVppIdToken(vppId) != null) {
             vppIdNetworkRepository.authentication = BearerAuthentication(getVppIdToken(vppId)!!)
-            val response = vppIdNetworkRepository.doRequest("/api/$API_VERSION/user/me", HttpMethod.Get, null).let {
-                if(it.response != HttpStatusCode.OK) return null
-                Gson().fromJson(it.data, VppIdOnlineResponse::class.java)
-            }?: return null
+            val meResponse = vppIdNetworkRepository.doRequest("/api/$API_VERSION/user/me", HttpMethod.Get)
+            if (meResponse.response != HttpStatusCode.OK || meResponse.data == null) return null
+            val data = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)
             vppIdDao.update(
                 vppId = vppId.id,
-                name = response.username,
-                email = response.email,
+                name = data.username,
+                email = data.email,
                 cachedAt = ZonedDateTime.now()
             )
             return vppIdDao.getVppId(id)?.toModel()

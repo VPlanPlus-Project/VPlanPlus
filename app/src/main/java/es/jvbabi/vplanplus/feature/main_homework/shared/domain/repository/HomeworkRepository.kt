@@ -2,13 +2,13 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository
 
 import android.net.Uri
 import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PreferredHomeworkNotificationTime
 import kotlinx.coroutines.flow.Flow
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
+import java.util.UUID
 
 interface HomeworkRepository {
 
@@ -21,7 +21,6 @@ interface HomeworkRepository {
     suspend fun insertHomework(
         id: Long? = null,
         profile: ClassProfile,
-        group: Group,
         defaultLessonVpId: Int?,
         storeInCloud: Boolean,
         shareWithClass: Boolean,
@@ -29,31 +28,36 @@ interface HomeworkRepository {
         tasks: List<NewTaskRecord>,
         isHidden: Boolean,
         createdAt: ZonedDateTime = ZonedDateTime.now(),
-        documentUris: List<Uri>
+        documentUris: List<Document>
     ): HomeworkModificationResult
 
     suspend fun addNewTask(
+        profile: ClassProfile,
         homework: Homework,
         content: String,
     ): HomeworkModificationResult
 
     suspend fun setTaskState(
+        profile: ClassProfile,
         homework: Homework,
         task: HomeworkTask,
         done: Boolean
     ): HomeworkModificationResult
 
     suspend fun editTaskContent(
+        profile: ClassProfile,
         task: HomeworkTask,
         newContent: String
     ): HomeworkModificationResult
 
     suspend fun removeOrHideHomework(
+        profile: ClassProfile,
         homework: Homework,
         task: DeleteTask
     ): HomeworkModificationResult
 
     suspend fun deleteTask(
+        profile: ClassProfile,
         task: HomeworkTask
     ): HomeworkModificationResult
 
@@ -65,9 +69,9 @@ interface HomeworkRepository {
 
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
 
-    suspend fun changeShareStatus(homework: Homework): HomeworkModificationResult
+    suspend fun changeShareStatus(profile: ClassProfile, homework: Homework): HomeworkModificationResult
 
-    suspend fun updateDueDate(homework: Homework, newDate: ZonedDateTime): HomeworkModificationResult
+    suspend fun updateDueDate(profile: ClassProfile, homework: Homework, newDate: ZonedDateTime): HomeworkModificationResult
 
     suspend fun clearCache()
 
@@ -95,3 +99,10 @@ enum class DeleteTask {
     HIDE,
     FORCE_DELETE_LOCALLY
 }
+
+
+data class Document(
+    val uri: Uri,
+    val name: String = UUID.randomUUID().toString(),
+    val extension: String
+)

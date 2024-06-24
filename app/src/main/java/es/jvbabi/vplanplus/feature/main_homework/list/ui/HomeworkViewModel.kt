@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
@@ -332,7 +333,7 @@ data class HomeworkViewModelHomework(
     val isLoadingNewTask: Boolean = false,
     val isEnabled: Boolean = true,
     val profile: Profile,
-    val documentUris: List<Uri>
+    val documentUris: Map<Uri, HomeworkDocumentType>
 ) {
     fun toHomework() = Homework(
         id = id,

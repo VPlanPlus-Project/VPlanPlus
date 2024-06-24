@@ -27,10 +27,10 @@ object HomeworkDetailModule {
     ) = HomeworkDetailUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
         getHomeworkByIdUseCase = GetHomeworkByIdUseCase(homeworkRepository),
-        taskDoneUseCase = MarkSingleDoneUseCase(homeworkRepository),
-        updateDueDateUseCase = UpdateDueDateUseCase(homeworkRepository),
-        deleteHomeworkTaskUseCase = DeleteHomeworkTaskUseCase(homeworkRepository),
-        editTaskUseCase = EditTaskUseCase(homeworkRepository),
-        addTaskUseCase = AddTaskUseCase(homeworkRepository)
+        taskDoneUseCase = MarkSingleDoneUseCase(homeworkRepository, getCurrentProfileUseCase),
+        updateDueDateUseCase = UpdateDueDateUseCase(homeworkRepository, getCurrentProfileUseCase),
+        deleteHomeworkTaskUseCase = DeleteHomeworkTaskUseCase(homeworkRepository, getCurrentProfileUseCase),
+        editTaskUseCase = EditTaskUseCase(homeworkRepository, getCurrentProfileUseCase),
+        addTaskUseCase = AddTaskUseCase(homeworkRepository, getCurrentProfileUseCase)
     )
 }

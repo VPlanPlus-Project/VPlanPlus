@@ -13,11 +13,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 
 @Composable
 fun Documents(
-    documents: List<Uri>,
+    documents: Map<Uri, HomeworkDocumentType>,
     isEditing: Boolean
 ) {
     Column(
@@ -41,8 +42,8 @@ fun Documents(
                 )
             }
         } else {
-            documents.forEach { documentUri ->
-                DocumentRecord(documentUri, isEditing)
+            documents.forEach { (documentUri, type) ->
+                DocumentRecord(documentUri, type, isEditing)
             }
         }
     }
@@ -51,5 +52,5 @@ fun Documents(
 @Composable
 @Preview(showBackground = true)
 private fun NoDocumentsPreview() {
-    Documents(documents = emptyList(), false)
+    Documents(documents = emptyMap(), false)
 }

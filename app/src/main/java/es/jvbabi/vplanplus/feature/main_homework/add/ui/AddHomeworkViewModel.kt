@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
+import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -98,6 +99,7 @@ class AddHomeworkViewModel @Inject constructor(
             is UpdateSaveType -> setSaveType(event.saveType)
             is UpdateUntil -> updateDueTo(event.until)
             is AddDocument -> addDocument(event.documentUri)
+            is AddImage -> addImage(event.imageUri)
             is RemoveDocument -> removeDocument(event.documentUri)
         }
     }
@@ -126,11 +128,15 @@ class AddHomeworkViewModel @Inject constructor(
     }
 
     private fun addDocument(documentUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents + documentUri)
+        state.value = state.value.copy(documents = state.value.documents + (documentUri to HomeworkDocumentType.PDF))
+    }
+
+    private fun addImage(imageUri: Uri) {
+        state.value = state.value.copy(documents = state.value.documents + (imageUri to HomeworkDocumentType.JPG))
     }
 
     private fun removeDocument(documentUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents.toMutableList().apply { remove(documentUri) })
+        state.value = state.value.copy(documents = state.value.documents.toMutableMap().apply { remove(documentUri) })
     }
 
     private fun updateDueTo(dueTo: LocalDate) {
@@ -161,7 +167,7 @@ data class AddHomeworkState(
 
     val showNewSaveButtonLocationBalloon: Boolean = false,
 
-    val documents: List<Uri> = emptyList()
+    val documents: Map<Uri, HomeworkDocumentType> = emptyMap()
 ) {
     val canSubmit: Boolean
         get() = until != null && tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
@@ -186,4 +192,5 @@ data class UpdateSaveType(val saveType: SaveType) : AddHomeworkUiEvent()
 data class UpdateUntil(val until: LocalDate) : AddHomeworkUiEvent()
 
 data class AddDocument(val documentUri: Uri) : AddHomeworkUiEvent()
+data class AddImage(val imageUri: Uri) : AddHomeworkUiEvent()
 data class RemoveDocument(val documentUri: Uri) : AddHomeworkUiEvent()

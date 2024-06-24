@@ -25,6 +25,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.parameters
 import io.ktor.util.toByteArray
+import io.ktor.utils.io.ByteReadChannel
 import java.net.ConnectException
 import java.net.UnknownHostException
 
@@ -80,7 +81,10 @@ open class NetworkRepositoryImpl(
                 }
                 queries.forEach { (key, value) -> parameter(key, value) }
 
-                if (requestMethod != HttpMethod.Get) setBody(requestBody ?: "{}")
+                if (requestMethod != HttpMethod.Get) {
+                    if (requestBody is ByteArray) setBody(ByteReadChannel(requestBody))
+                    else if (requestBody != null) setBody(requestBody)
+                }
             }
             if (!listOf(
                     HttpStatusCode.OK,

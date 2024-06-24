@@ -42,33 +42,45 @@ object HomeworkViewModule {
             GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase
-            ), MarkAllDoneUseCase(
-                homeworkRepository = homeworkRepository
-            ), MarkSingleDoneUseCase(
-                homeworkRepository = homeworkRepository
-            ), AddTaskUseCase(
-                homeworkRepository = homeworkRepository
-            ), DeleteHomeworkUseCase(
-                homeworkRepository = homeworkRepository
-            ), ChangeVisibilityUseCase(
-                homeworkRepository = homeworkRepository
-            ), DeleteHomeworkTaskUseCase(
-                homeworkRepository = homeworkRepository
-            ), EditTaskUseCase(
-                homeworkRepository = homeworkRepository
-            ), IsUpdateRunningUseCase(
-                keyValueRepository = keyValueRepository
-            ), UpdateUseCase(
-                homeworkRepository = homeworkRepository
-            ), HideHomeworkUseCase(
-                homeworkRepository = homeworkRepository
-            ), ShowHomeworkNotificationBannerUseCase(
-                keyValueRepository = keyValueRepository
-            ), HideHomeworkNotificationBannerUseCase(
-                keyValueRepository = keyValueRepository
             ),
-            UpdateDueDateUseCase(homeworkRepository),
-            UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository)
+            MarkAllDoneUseCase(homeworkRepository, getCurrentProfileUseCase),
+            MarkSingleDoneUseCase(
+                homeworkRepository = homeworkRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            ),
+            addTaskUseCase = AddTaskUseCase(
+                homeworkRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            ),
+            deleteHomeworkUseCase = DeleteHomeworkUseCase(
+                homeworkRepository = homeworkRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            ),
+            changeVisibilityUseCase = ChangeVisibilityUseCase(
+                homeworkRepository = homeworkRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            ),
+            deleteHomeworkTaskUseCase = DeleteHomeworkTaskUseCase(
+                homeworkRepository = homeworkRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            ),
+            editTaskUseCase = EditTaskUseCase(
+                homeworkRepository = homeworkRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            ),
+            isUpdateRunningUseCase = IsUpdateRunningUseCase(keyValueRepository),
+            updateUseCase = UpdateUseCase(homeworkRepository),
+            hideHomeworkUseCase = HideHomeworkUseCase(
+                homeworkRepository = homeworkRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            ),
+            showHomeworkNotificationBannerUseCase = ShowHomeworkNotificationBannerUseCase(keyValueRepository),
+            hideHomeworkNotificationBannerUseCase = HideHomeworkNotificationBannerUseCase(keyValueRepository),
+            updateDueDateUseCase = UpdateDueDateUseCase(
+                homeworkRepository = homeworkRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            ),
+            updateHomeworkEnabledUseCase = UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository)
         )
     }
 }

@@ -133,14 +133,14 @@ fun AddHomeworkScreen(
     val takePhotoLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { isSaved ->
-            if (isSaved) viewModel.onUiAction(AddDocument(fileFromContentUri(context, uri).toUri()))
+            if (isSaved) viewModel.onUiAction(AddImage(fileFromContentUri(context, uri).toUri()))
         }
     )
 
     val pickPhotosLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
         onResult = {
-            it.forEach { uri -> viewModel.onUiAction(AddDocument(fileFromContentUri(context, uri).toUri())) }
+            it.forEach { uri -> viewModel.onUiAction(AddImage(fileFromContentUri(context, uri).toUri())) }
         }
     )
 
@@ -570,8 +570,8 @@ private fun AddHomeworkContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item { Spacer8Dp() }
-                items(state.documents, key = { it.hashCode() }) { documentUri ->
-                    DocumentView(uri = documentUri) { onAction(RemoveDocument(documentUri)) }
+                items(state.documents.toList(), key = { it.first.hashCode() }) { documentUri ->
+                    DocumentView(uri = documentUri.first) { onAction(RemoveDocument(documentUri.first)) }
                     VerticalDivider()
                 }
                 item {

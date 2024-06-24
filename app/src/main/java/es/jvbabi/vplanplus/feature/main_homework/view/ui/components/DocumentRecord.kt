@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_homework.view.ui.components
 
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.ParcelFileDescriptor
@@ -45,6 +46,7 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toFile
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
 import es.jvbabi.vplanplus.ui.common.HorizontalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
@@ -53,25 +55,39 @@ import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
 @Composable
 fun DocumentRecord(
     uri: Uri?,
+    type: HomeworkDocumentType,
     isEditing: Boolean
 ) {
     var isLoading by remember(uri) { mutableStateOf(true) }
     val context = LocalContext.current
-    var bitmap = remember<Bitmap?>(uri) { null }
+    var bitmap: Bitmap? by remember(uri) { mutableStateOf(null) }
     var pageCount by remember(uri) { mutableIntStateOf(0) }
     var documentSize by remember(uri) { mutableLongStateOf(0) }
     LaunchedEffect(key1 = uri) {
-        if (uri != null) {
-            val file = uri.toFile()
-            val pdfRenderer = PdfRenderer(
-                ParcelFileDescriptor.open(file, MODE_READ_ONLY)
-            )
-            pdfRenderer.openPage(0).use {
-                bitmap = createBitmap(it.width, it.height)
-                it.render(bitmap!!, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+        if (uri == null) {
+            isLoading = false
+            return@LaunchedEffect
+        }
+        when (type) {
+            HomeworkDocumentType.PDF -> {
+                val file = uri.toFile()
+                val pdfRenderer = PdfRenderer(
+                    ParcelFileDescriptor.open(file, MODE_READ_ONLY)
+                )
+                pdfRenderer.openPage(0).use {
+                    bitmap = createBitmap(it.width, it.height)
+                    it.render(bitmap!!, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                }
+                pageCount = pdfRenderer.pageCount
+                documentSize = file.length()
             }
-            pageCount = pdfRenderer.pageCount
-            documentSize = file.length()
+            HomeworkDocumentType.JPG -> {
+                val file = uri.toFile()
+                bitmap = context.contentResolver.openInputStream(uri)?.use {
+                    it.use { stream -> Bitmap.createBitmap(BitmapFactory.decodeStream(stream)) }
+                }
+                documentSize = file.length()
+            }
         }
         isLoading = false
     }
@@ -87,7 +103,10 @@ fun DocumentRecord(
                     context.packageName + ".fileprovider",
                     file
                 )
-                intent.setDataAndType(newUri, "application/pdf")
+                when (type) {
+                    HomeworkDocumentType.PDF -> intent.setDataAndType(newUri, "application/pdf")
+                    HomeworkDocumentType.JPG -> intent.setDataAndType(newUri, "image/*")
+                }
                 intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 context.startActivity(intent)
             }
@@ -110,11 +129,16 @@ fun DocumentRecord(
                 modifier = Modifier.fillMaxSize()
             )
         }
+
         AnimatedVisibility(visible = !isLoading) {
             RowVerticalCenterSpaceBetweenFill {
                 Column {
-                    Text(
+                    if (type == HomeworkDocumentType.PDF) Text(
                         text = pluralStringResource(id = R.plurals.homework_detailViewDocumentPages, count = pageCount, pageCount),
+                        style = MaterialTheme.typography.labelMedium
+                    )
+                    if (type == HomeworkDocumentType.JPG) Text(
+                        text = bitmap?.width.toString() + "x" + bitmap?.height.toString(),
                         style = MaterialTheme.typography.labelMedium
                     )
                     Text(
@@ -135,11 +159,11 @@ fun DocumentRecord(
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordPreview() {
-    DocumentRecord(null, false)
+    DocumentRecord(null, HomeworkDocumentType.PDF, false)
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordEditingPreview() {
-    DocumentRecord(null, true)
+    DocumentRecord(null, HomeworkDocumentType.PDF, true)
 }

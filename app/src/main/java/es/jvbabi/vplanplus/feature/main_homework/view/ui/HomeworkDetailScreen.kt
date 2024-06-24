@@ -215,7 +215,7 @@ private fun HomeworkDetailScreenContent(
                 }
             )
             Spacer8Dp()
-            Documents(documents = state.homework?.documents ?: emptyList(), isEditing = state.isEditing)
+            Documents(documents = state.homework?.documents ?: emptyMap(), isEditing = state.isEditing)
         }
     }
 }
@@ -233,7 +233,7 @@ fun HomeworkDetailScreenPreview() {
             homework = Homework(
                 id = 1,
                 createdBy = vppId,
-                documents = emptyList(),
+                documents = emptyMap(),
                 tasks = listOf(
                     HomeworkTask(id = 1, content = "Task 1", isDone = false),
                     HomeworkTask(id = 2, content = "Task 2", isDone = true),

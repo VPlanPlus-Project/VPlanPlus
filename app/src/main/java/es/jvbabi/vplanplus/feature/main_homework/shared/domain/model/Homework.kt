@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -20,7 +21,7 @@ open class Homework(
     val tasks: List<HomeworkTask>,
     val isHidden: Boolean,
     val profile: Profile,
-    val documents: List<Uri>
+    val documents: Map<Uri, HomeworkDocumentType>
 ) {
     fun isOverdue(date: LocalDate): Boolean {
         return until.toLocalDate().isBefore(date) && tasks.any { !it.isDone }

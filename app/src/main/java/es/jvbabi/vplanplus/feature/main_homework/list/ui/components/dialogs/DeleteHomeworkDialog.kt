@@ -81,7 +81,7 @@ private fun DeleteHomeworkDialogPreview() {
             isPublic = true,
             isHidden = false,
             profile = profile,
-            documents = emptyList()
+            documents = emptyMap()
         ),
         onConfirm = {},
         onDismiss = {}
