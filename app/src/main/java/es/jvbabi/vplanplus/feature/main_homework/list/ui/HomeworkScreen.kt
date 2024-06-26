@@ -35,6 +35,10 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -47,6 +51,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCard
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkDisabled
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.NoHomework
@@ -76,7 +81,6 @@ fun HomeworkScreen(
     HomeworkScreenContent(
         onBack = { navHostController.popBackStack() },
         onEnableHomework = viewModel::onEnableHomework,
-        onAddHomework = { navHostController.navigate(Screen.AddHomeworkScreen.route) },
         onMarkAllDone = viewModel::markAllDone,
         onMarkSingleDone = viewModel::markSingleDone,
         onAddTask = viewModel::onAddTask,
@@ -110,7 +114,6 @@ private fun HomeworkScreenContent(
     onBack: () -> Unit = {},
     onHomeworkClicked: (homework: Homework) -> Unit,
     onEnableHomework: () -> Unit = {},
-    onAddHomework: () -> Unit = {},
     onMarkAllDone: (homework: HomeworkViewModelHomework, done: Boolean) -> Unit = { _, _ -> },
     onMarkSingleDone: (homeworkTask: HomeworkViewModelTask, done: Boolean) -> Unit = { _, _ -> },
     onAddTask: (homework: HomeworkViewModelHomework, task: String) -> Unit = { _, _ -> },
@@ -135,6 +138,11 @@ private fun HomeworkScreenContent(
     state: HomeworkState,
     navBar: @Composable (expanded: Boolean) -> Unit = {},
 ) {
+    var isAddHomeworkSheetOpen by rememberSaveable { mutableStateOf(false) }
+    if (isAddHomeworkSheetOpen) {
+        AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false })
+    }
+
     if (state.homeworkDeletionRequest != null) {
         DeleteHomeworkDialog(
             homework = state.homeworkDeletionRequest,
@@ -185,7 +193,7 @@ private fun HomeworkScreenContent(
                 enter = expandIn(tween(250)),
                 exit = shrinkOut(tween(250))
             ) {
-                if (!state.wrongProfile) FloatingActionButton(onClick = onAddHomework) {
+                if (!state.wrongProfile) FloatingActionButton(onClick = { isAddHomeworkSheetOpen = true }) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = stringResource(id = R.string.add)
