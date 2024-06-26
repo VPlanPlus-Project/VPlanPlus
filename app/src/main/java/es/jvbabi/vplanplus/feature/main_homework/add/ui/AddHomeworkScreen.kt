@@ -1,16 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.ui
 
-import android.Manifest
-import android.app.Activity
-import android.app.Activity.RESULT_OK
-import android.content.Context
-import android.net.Uri
-import android.util.Log
-import android.webkit.MimeTypeMap
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
-import androidx.activity.result.PickVisualMediaRequest
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
@@ -71,21 +60,13 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
-import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_PDF
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
-import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
 import com.skydoves.balloon.ArrowPositionRules
 import com.skydoves.balloon.BalloonAnimation
 import com.skydoves.balloon.BalloonSizeSpec
@@ -94,8 +75,6 @@ import com.skydoves.balloon.compose.rememberBalloonBuilder
 import com.skydoves.balloon.compose.setBackgroundColor
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddDocumentButton
-import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddImageButton
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.DocumentView
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.default_lesson_dialog.SelectDefaultLessonSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.due_to.SetDueToModal
@@ -109,11 +88,6 @@ import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.blendColor
 import kotlinx.coroutines.delay
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.InputStream
-import java.io.OutputStream
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -122,64 +96,6 @@ fun AddHomeworkScreen(
     viewModel: AddHomeworkViewModel = hiltViewModel(),
     vpId: Int? = null
 ) {
-    val context = LocalContext.current
-
-    val imageFile = context.createImageFile()
-    val uri = FileProvider.getUriForFile(
-        context,
-        context.packageName + ".fileprovider",
-        imageFile
-    )
-    val takePhotoLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.TakePicture(),
-        onResult = { isSaved ->
-            if (isSaved) viewModel.onUiAction(AddImage(fileFromContentUri(context, uri).toUri()))
-        }
-    )
-
-    val pickPhotosLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.PickMultipleVisualMedia(),
-        onResult = {
-            it.forEach { uri -> viewModel.onUiAction(AddImage(fileFromContentUri(context, uri).toUri())) }
-        }
-    )
-
-    val pickDocumentLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetMultipleContents(),
-        onResult = {
-            it.forEach { uri -> viewModel.onUiAction(AddDocument(fileFromContentUri(context, uri).toUri())) }
-        }
-    )
-
-    val permissionLauncher = rememberLauncherForActivityResult(contract = ActivityResultContracts.RequestPermission()) {
-        if (it) takePhotoLauncher.launch(uri)
-        else Log.e("AddHomeworkScreen", "Permission denied")
-    }
-
-    val scannerOptions = remember {
-        GmsDocumentScannerOptions.Builder()
-            .setScannerMode(GmsDocumentScannerOptions.SCANNER_MODE_FULL)
-            .setGalleryImportAllowed(true)
-            .setPageLimit(3)
-            .setResultFormats(RESULT_FORMAT_PDF)
-            .build()
-    }
-
-    val scanner = remember {
-        GmsDocumentScanning.getClient(scannerOptions)
-    }
-
-    val scannerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult()
-    ) {
-        if (it.resultCode == RESULT_OK) {
-            val result = GmsDocumentScanningResult.fromActivityResultIntent(it.data)
-            Log.d("AddHomeworkScreen", "Scanned ${result?.pages?.size} pages")
-            if (result?.pdf?.uri == null) return@rememberLauncherForActivityResult
-            viewModel.onUiAction(AddDocument(result.pdf?.uri ?: return@rememberLauncherForActivityResult))
-        }
-    }
-
     val state = viewModel.state.value
     LaunchedEffect(vpId, state.initDone) {
         if (vpId == null) return@LaunchedEffect
@@ -189,31 +105,8 @@ fun AddHomeworkScreen(
         onBack = { navHostController.popBackStack() },
         onSetDefaultLesson = { viewModel.setDefaultLesson(it) },
         onOpenVppIdSettings = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
-        onTakePhoto = {
-            val permissionCheckResult = ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA)
-            if (permissionCheckResult == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-                takePhotoLauncher.launch(uri)
-            } else {
-                permissionLauncher.launch(Manifest.permission.CAMERA)
-            }
-        },
-        onPickPhotos = {
-            pickPhotosLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
-        },
-        onPickDocuments = {
-            pickDocumentLauncher.launch("application/pdf")
-        },
-        onSave = viewModel::requestSave,
+        onSave = { viewModel.save {} },
         onAction = viewModel::onUiAction,
-        onScanDocument = {
-            scanner.getStartScanIntent(context as Activity)
-                .addOnSuccessListener {
-                    scannerLauncher.launch(IntentSenderRequest.Builder(it).build())
-                }
-                .addOnFailureListener {
-                    Log.e("AddHomeworkScreen", "Failed to start scanning", it)
-                }
-        },
         state = state
     )
 
@@ -235,10 +128,6 @@ private fun AddHomeworkContent(
     onOpenVppIdSettings: () -> Unit = {},
     onSave: () -> Unit = {},
     onAction: (action: AddHomeworkUiEvent) -> Unit = { _ -> },
-    onTakePhoto: () -> Unit = {},
-    onPickPhotos: () -> Unit = {},
-    onScanDocument: () -> Unit = {},
-    onPickDocuments: () -> Unit = {},
     state: AddHomeworkState
 ) {
 
@@ -306,14 +195,14 @@ private fun AddHomeworkContent(
                     ) { balloonWindow ->
                         LaunchedEffect(key1 = state.showNewSaveButtonLocationBalloon) {
                             delay(100)
-                            if (state.showNewSaveButtonLocationBalloon && state.canSubmit) {
+                            if (state.showNewSaveButtonLocationBalloon && state.canSave) {
                                 balloonWindow.showAlignBottom()
                                 onAction(NewLayoutBalloonDismissed)
                             }
                         }
                         TextButton(
                             onClick = onSave,
-                            enabled = state.canSubmit
+                            enabled = state.canSave
                         ) {
                             Text(text = stringResource(id = R.string.save))
                         }
@@ -330,74 +219,6 @@ private fun AddHomeworkContent(
         ) {
             val colorScheme = MaterialTheme.colorScheme
             val focusRequester = remember { FocusRequester() }
-            var taskIndexToFocus: Int? by remember { mutableStateOf(null) }
-            state.tasks.forEachIndexed { i, task ->
-                var selection: TextRange by remember { mutableStateOf(TextRange.Zero) }
-                var textFieldValueState by remember(i, task, selection) { mutableStateOf(TextFieldValue(text = task, selection = selection)) }
-
-                TextField(
-                    value = textFieldValueState,
-                    onValueChange = {
-                        selection = it.selection
-                        onAction(UpdateTask(i, it.text))
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .then(if (i == taskIndexToFocus) Modifier.focusRequester(focusRequester) else Modifier),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = MaterialTheme.colorScheme.surface,
-                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    placeholder = { Text(text = stringResource(id = R.string.addHomework_taskPlaceholder, i + 1)) },
-                    leadingIcon = {
-                        Box(
-                            Modifier
-                                .drawWithContent {
-                                    drawCircle(
-                                        color = colorScheme.outline,
-                                        center = center,
-                                        radius = 10.dp.toPx()
-                                    )
-                                    drawCircle(
-                                        color = colorScheme.background,
-                                        center = center,
-                                        radius = 8.dp.toPx()
-                                    )
-                                }
-                        ) {}
-                    },
-                    trailingIcon = {
-                        IconButton(onClick = { onAction(DeleteTask(i)) }) {
-                            Icon(imageVector = Icons.Default.Close, contentDescription = null)
-                        }
-                    }
-                )
-                LaunchedEffect(key1 = taskIndexToFocus) {
-                    if (taskIndexToFocus != i) return@LaunchedEffect
-                    focusRequester.requestFocus()
-                    textFieldValueState = TextFieldValue(text = task, selection = TextRange(1))
-                    taskIndexToFocus = null
-                }
-            }
-            TextField(
-                value = "",
-                onValueChange = {
-                    if (it.isBlank()) return@TextField
-                    onAction(CreateTask(it))
-                    taskIndexToFocus = state.tasks.size
-                },
-                modifier = Modifier.fillMaxWidth(),
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
-                ),
-                placeholder = { Text(text = stringResource(id = R.string.addHomework_newTask)) },
-                leadingIcon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
-            )
 
             RowVerticalCenterSpaceBetweenFill(
                 modifier = Modifier
@@ -489,6 +310,75 @@ private fun AddHomeworkContent(
                 }
             }
 
+            var taskIndexToFocus: Int? by remember { mutableStateOf(null) }
+            state.tasks.forEachIndexed { i, task ->
+                var selection: TextRange by remember { mutableStateOf(TextRange.Zero) }
+                var textFieldValueState by remember(i, task, selection) { mutableStateOf(TextFieldValue(text = task, selection = selection)) }
+
+                TextField(
+                    value = textFieldValueState,
+                    onValueChange = {
+                        selection = it.selection
+                        onAction(UpdateTask(i, it.text))
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .then(if (i == taskIndexToFocus) Modifier.focusRequester(focusRequester) else Modifier),
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                    placeholder = { Text(text = stringResource(id = R.string.addHomework_taskPlaceholder, i + 1)) },
+                    leadingIcon = {
+                        Box(
+                            Modifier
+                                .drawWithContent {
+                                    drawCircle(
+                                        color = colorScheme.outline,
+                                        center = center,
+                                        radius = 10.dp.toPx()
+                                    )
+                                    drawCircle(
+                                        color = colorScheme.background,
+                                        center = center,
+                                        radius = 8.dp.toPx()
+                                    )
+                                }
+                        ) {}
+                    },
+                    trailingIcon = {
+                        IconButton(onClick = { onAction(DeleteTask(i)) }) {
+                            Icon(imageVector = Icons.Default.Close, contentDescription = null)
+                        }
+                    }
+                )
+                LaunchedEffect(key1 = taskIndexToFocus) {
+                    if (taskIndexToFocus != i) return@LaunchedEffect
+                    focusRequester.requestFocus()
+                    textFieldValueState = TextFieldValue(text = task, selection = TextRange(1))
+                    taskIndexToFocus = null
+                }
+            }
+            TextField(
+                value = "",
+                onValueChange = {
+                    if (it.isBlank()) return@TextField
+                    onAction(CreateTask(it))
+                    taskIndexToFocus = state.tasks.size
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                placeholder = { Text(text = stringResource(id = R.string.addHomework_newTask)) },
+                leadingIcon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
+            )
+
             Text(
                 text = stringResource(id = R.string.addHomework_storeTitle),
                 modifier = Modifier.padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 4.dp)
@@ -574,12 +464,6 @@ private fun AddHomeworkContent(
                     DocumentView(uri = documentUri.first) { onAction(RemoveDocument(documentUri.first)) }
                     VerticalDivider()
                 }
-                item {
-                    Column {
-                        AddImageButton(onOpenCamera = onTakePhoto, onOpenGallery = onPickPhotos)
-                        AddDocumentButton(onScanDocument, onPickDocuments)
-                    }
-                }
             }
         }
     }
@@ -596,50 +480,4 @@ private fun AddHomeworkScreenPreview() {
             canShowCloudInfoBanner = true
         )
     )
-}
-
-private fun Context.createImageFile(): File {
-    val timestamp = System.currentTimeMillis().toString()
-    val folder = File(cacheDir, "homework_documents")
-    if (!folder.exists()) folder.mkdirs()
-    val image = File.createTempFile("JPEG_${timestamp}_", ".jpg", folder)
-    return image
-}
-
-private fun fileFromContentUri(context: Context, contentUri: Uri): File {
-
-    val fileExtension = getFileExtension(context, contentUri)
-    val fileName = "temporary_file" + contentUri.pathSegments.last() + if (fileExtension != null) ".$fileExtension" else ""
-
-    val tempFile = File(context.cacheDir, fileName)
-    tempFile.createNewFile()
-
-    try {
-        val oStream = FileOutputStream(tempFile)
-        val inputStream = context.contentResolver.openInputStream(contentUri)
-
-        inputStream?.let {
-            copy(inputStream, oStream)
-        }
-
-        oStream.flush()
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-
-    return tempFile
-}
-
-private fun getFileExtension(context: Context, uri: Uri): String? {
-    val fileType: String? = context.contentResolver.getType(uri)
-    return MimeTypeMap.getSingleton().getExtensionFromMimeType(fileType)
-}
-
-@Throws(IOException::class)
-private fun copy(source: InputStream, target: OutputStream) {
-    val buf = ByteArray(8192)
-    var length: Int
-    while (source.read(buf).also { length = it } > 0) {
-        target.write(buf, 0, length)
-    }
 }

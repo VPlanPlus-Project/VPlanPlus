@@ -25,6 +25,10 @@ class AddHomeworkViewModel @Inject constructor(
 
     val state = mutableStateOf(AddHomeworkState())
 
+    fun init() {
+        state.value = AddHomeworkState()
+    }
+
     init {
         viewModelScope.launch {
             combine(
@@ -71,9 +75,9 @@ class AddHomeworkViewModel @Inject constructor(
     /**
      * Request to save the homework, will return if not all requirements are met
      */
-    fun requestSave() {
+    fun save(onSuccess: () -> Unit) {
         viewModelScope.launch {
-            if (!state.value.canSubmit) return@launch
+            if (!state.value.canSave) return@launch
             state.value = state.value.copy(isLoading = true)
             state.value = state.value.copy(
                 result = addHomeworkUseCases.saveHomeworkUseCase(
@@ -86,6 +90,9 @@ class AddHomeworkViewModel @Inject constructor(
                 ),
                 isLoading = false
             )
+            if (state.value.result == HomeworkModificationResult.SUCCESS_OFFLINE || state.value.result == HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE) {
+                onSuccess()
+            }
         }
     }
 
@@ -169,7 +176,7 @@ data class AddHomeworkState(
 
     val documents: Map<Uri, HomeworkDocumentType> = emptyMap()
 ) {
-    val canSubmit: Boolean
+    val canSave: Boolean
         get() = until != null && tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
 
     val isInvalidSaveTypeSelected: Boolean

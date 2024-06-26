@@ -690,5 +690,8 @@
     <string name="addHomework_addDocumentScanDocumentSubtitle">Nutze deine Kamera, um ein Dokument einzuscannen.</string>
     <string name="addHomework_addDocumentScanDocumentTitle">Dokument scannen</string>
     <string name="please_try_again">Bitte versuche es erneut.</string>
+    <string name="addHomework_unsavedChangesDialogTitle">Hausaufgabe verwerfen?</string>
+    <string name="addHomework_unsavedChangesDialogText">Möchtest du diese Hausaufgabe verwerfen?</string>
+    <string name="discard">Verwerfen</string>
 
 </resources>

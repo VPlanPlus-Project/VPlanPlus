@@ -56,7 +56,8 @@ import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
 fun DocumentRecord(
     uri: Uri?,
     type: HomeworkDocumentType,
-    isEditing: Boolean
+    isEditing: Boolean,
+    onRemove: () -> Unit = {}
 ) {
     var isLoading by remember(uri) { mutableStateOf(true) }
     val context = LocalContext.current
@@ -147,7 +148,7 @@ fun DocumentRecord(
                     )
                 }
                 HorizontalExpandAnimatedAndFadingVisibility(visible = isEditing) {
-                    IconButton(onClick = { /*TODO*/ }) {
+                    IconButton(onClick = onRemove) {
                         Icon(imageVector = Icons.Default.Delete, contentDescription = null)
                     }
                 }

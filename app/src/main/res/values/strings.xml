@@ -693,5 +693,8 @@
     <string name="addHomework_addDocumentScanDocumentSubtitle">Use your camera to scan a document.</string>
     <string name="addHomework_addDocumentScanDocumentTitle">Scan document</string>
     <string name="please_try_again">Please try again</string>
+    <string name="addHomework_unsavedChangesDialogTitle">Discard homework?</string>
+    <string name="addHomework_unsavedChangesDialogText">Do you want to discard this homework?</string>
+    <string name="discard">Discard</string>
 
 </resources>

@@ -32,7 +32,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
@@ -63,6 +65,7 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredential
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
@@ -174,6 +177,12 @@ fun HomeScreenContent(
         onCloseUntilNextVersion = { onVersionHintsClosed(true) }
     )
 
+    var isAddHomeworkSheetOpen by rememberSaveable { mutableStateOf(false) }
+    if (isAddHomeworkSheetOpen) {
+        AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false } )
+    }
+
+
     val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2)
     val lazyListState = rememberLazyListState()
 
@@ -244,7 +253,7 @@ fun HomeScreenContent(
                         modifier = Modifier.padding(vertical = 16.dp),
                         nextSchoolDayWithData = state.nextSchoolDayWithData,
                         selectedDate = state.selectedDate,
-                        onNewHomeworkClicked = { onAddHomework(null) },
+                        onNewHomeworkClicked = { /*onAddHomework(null)*/ isAddHomeworkSheetOpen = true },
                         onFindAvailableRoomClicked = onBookRoomClicked,
                         onPrepareNextDayClicked = { onSetSelectedDate(state.nextSchoolDayWithData ?: state.currentTime.toLocalDate().plusDays(1L)) },
                         onSendFeedback = onSendFeedback,
