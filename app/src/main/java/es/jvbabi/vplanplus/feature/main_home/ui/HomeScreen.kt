@@ -179,7 +179,7 @@ fun HomeScreenContent(
 
     var isAddHomeworkSheetOpen by rememberSaveable { mutableStateOf(false) }
     if (isAddHomeworkSheetOpen) {
-        AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false } )
+        AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false })
     }
 
 

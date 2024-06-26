@@ -108,6 +108,7 @@ class AddHomeworkViewModel @Inject constructor(
             is AddDocument -> addDocument(event.documentUri)
             is AddImage -> addImage(event.imageUri)
             is RemoveDocument -> removeDocument(event.documentUri)
+            is SaveHomework -> save(event.onSuccess)
         }
     }
 
@@ -201,3 +202,5 @@ data class UpdateUntil(val until: LocalDate) : AddHomeworkUiEvent()
 data class AddDocument(val documentUri: Uri) : AddHomeworkUiEvent()
 data class AddImage(val imageUri: Uri) : AddHomeworkUiEvent()
 data class RemoveDocument(val documentUri: Uri) : AddHomeworkUiEvent()
+
+data class SaveHomework(val onSuccess: () -> Unit) : AddHomeworkUiEvent()
