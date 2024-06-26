@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_DOCUMENT_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
@@ -34,11 +35,11 @@ class AddHomeworkViewModel @Inject constructor(
             combine(
                 listOf(
                     getCurrentProfileUseCase(),
-                    addHomeworkUseCases.isShowNewLayoutBalloonUseCase()
+                    addHomeworkUseCases.isBalloonUseCase(HOMEWORK_DOCUMENT_BALLOON, true)
                 )
             ) { data ->
                 val profile = data[0] as Profile?
-                val showNewLayoutBalloon = data[1] as Boolean
+                val showDocumentBalloon = data[1] as Boolean
 
                 if (profile == null) return@combine null
 
@@ -50,21 +51,13 @@ class AddHomeworkViewModel @Inject constructor(
                     username = (profile as? ClassProfile)?.vppId?.name,
                     canUseCloud = (profile as? ClassProfile)?.vppId != null,
                     saveType = state.value.saveType ?: if ((profile as? ClassProfile)?.vppId != null) SaveType.CLOUD else SaveType.LOCAL,
-                    canShowCloudInfoBanner = addHomeworkUseCases.canShowVppIdBannerUseCase(),
                     defaultLessonsFiltered = defaultLessonsFiltered,
                     initDone = true,
-                    showNewSaveButtonLocationBalloon = showNewLayoutBalloon
+                    showDocumentsBalloon = showDocumentBalloon
                 )
             }.collect {
                 if (it != null) state.value = it
             }
-        }
-    }
-
-    private fun hideCloudInfoBanner() {
-        viewModelScope.launch {
-            addHomeworkUseCases.hideVppIdBannerUseCase()
-            state.value = state.value.copy(canShowCloudInfoBanner = false)
         }
     }
 
@@ -98,8 +91,6 @@ class AddHomeworkViewModel @Inject constructor(
 
     fun onUiAction(event: AddHomeworkUiEvent) {
         when (event) {
-            is NewLayoutBalloonDismissed -> dismissNewLayoutBalloon()
-            is HideNoVppIdBanner -> hideCloudInfoBanner()
             is DeleteTask -> removeTask(event.index)
             is CreateTask -> addTask(event.content)
             is UpdateTask -> updateTask(event.index, event.content)
@@ -109,13 +100,10 @@ class AddHomeworkViewModel @Inject constructor(
             is AddImage -> addImage(event.imageUri)
             is RemoveDocument -> removeDocument(event.documentUri)
             is SaveHomework -> save(event.onSuccess)
-        }
-    }
 
-    private fun dismissNewLayoutBalloon() {
-        viewModelScope.launch {
-            addHomeworkUseCases.hideShowNewLayoutBalloonUseCase()
-            state.value = state.value.copy(showNewSaveButtonLocationBalloon = false)
+            HideDocumentBalloon -> viewModelScope.launch {
+                addHomeworkUseCases.setBalloonUseCase(HOMEWORK_DOCUMENT_BALLOON, false)
+            }
         }
     }
 
@@ -156,7 +144,6 @@ data class AddHomeworkState(
     val initDone: Boolean = false,
 
     val canUseCloud: Boolean = true,
-    val canShowCloudInfoBanner: Boolean = false,
     val username: String? = null,
 
     val defaultLessonsFiltered: Boolean = false,
@@ -173,7 +160,8 @@ data class AddHomeworkState(
     val result: HomeworkModificationResult? = null,
     val isLoading: Boolean = false,
 
-    val showNewSaveButtonLocationBalloon: Boolean = false,
+    val showVppIdStorageBalloon: Boolean = false,
+    val showDocumentsBalloon: Boolean = false,
 
     val documents: Map<Uri, HomeworkDocumentType> = emptyMap()
 ) {
@@ -190,8 +178,6 @@ enum class SaveType {
 
 sealed class AddHomeworkUiEvent
 
-data object NewLayoutBalloonDismissed : AddHomeworkUiEvent()
-data object HideNoVppIdBanner : AddHomeworkUiEvent()
 data class DeleteTask(val index: Int): AddHomeworkUiEvent()
 data class CreateTask(val content: String): AddHomeworkUiEvent()
 data class UpdateTask(val index: Int, val content: String) : AddHomeworkUiEvent()
@@ -204,3 +190,5 @@ data class AddImage(val imageUri: Uri) : AddHomeworkUiEvent()
 data class RemoveDocument(val documentUri: Uri) : AddHomeworkUiEvent()
 
 data class SaveHomework(val onSuccess: () -> Unit) : AddHomeworkUiEvent()
+
+data object HideDocumentBalloon : AddHomeworkUiEvent()

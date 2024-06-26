@@ -87,7 +87,6 @@ import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.blendColor
-import kotlinx.coroutines.delay
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -190,16 +189,9 @@ private fun AddHomeworkContent(
                             setBalloonAnimation(BalloonAnimation.FADE)
                         },
                         balloonContent = {
-                            Text(text = stringResource(id = R.string.addHomework_newDesignInfo), color = colorScheme.onPrimaryContainer)
+                            Text(text = stringResource(id = R.string.addHomework_addDocumentsBalloon), color = colorScheme.onPrimaryContainer)
                         }
-                    ) { balloonWindow ->
-                        LaunchedEffect(key1 = state.showNewSaveButtonLocationBalloon) {
-                            delay(100)
-                            if (state.showNewSaveButtonLocationBalloon && state.canSave) {
-                                balloonWindow.showAlignBottom()
-                                onAction(NewLayoutBalloonDismissed)
-                            }
-                        }
+                    ) {
                         TextButton(
                             onClick = onSave,
                             enabled = state.canSave
@@ -477,7 +469,6 @@ private fun AddHomeworkScreenPreview() {
             username = "John Doe",
             tasks = listOf("Task 1", "Task 2", "Task 3"),
             canUseCloud = true,
-            canShowCloudInfoBanner = true
         )
     )
 }

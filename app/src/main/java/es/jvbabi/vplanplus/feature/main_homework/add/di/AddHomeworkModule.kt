@@ -7,12 +7,10 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsBalloonUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
-import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.CanShowVppIdBannerUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.GetDefaultLessonsUseCase
-import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HideShowNewLayoutBalloonUseCase
-import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HideVppIdBannerUseCase
-import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.IsShowNewLayoutBalloonUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.SaveHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
@@ -34,19 +32,16 @@ object AddHomeworkModule {
                 defaultLessonRepository = defaultLessonRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
             ),
-            canShowVppIdBannerUseCase = CanShowVppIdBannerUseCase(
-                keyValueRepository = keyValueRepository
-            ),
-            hideVppIdBannerUseCase = HideVppIdBannerUseCase(
-                keyValueRepository = keyValueRepository
-            ),
             saveHomeworkUseCase = SaveHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
             ),
-
-            isShowNewLayoutBalloonUseCase = IsShowNewLayoutBalloonUseCase(keyValueRepository),
-            hideShowNewLayoutBalloonUseCase = HideShowNewLayoutBalloonUseCase(keyValueRepository)
+            isBalloonUseCase = IsBalloonUseCase(
+                keyValueRepository = keyValueRepository,
+            ),
+            setBalloonUseCase = SetBalloonUseCase(
+                keyValueRepository = keyValueRepository,
+            ),
         )
     }
 }

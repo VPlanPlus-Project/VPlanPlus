@@ -643,7 +643,7 @@
     <string name="homework_disabledText">Du kannst Hausaufgaben erstellen und mit deinen Mitschülern teilen, wenn du eine vpp.ID verwendest. Alternativ kannst du auch deine Aufgaben lokal auf dem Gerät anlegen und deinen Fortschrit verwalten. Beginne, indem du Hausaufgaben für dieses Profil aktivierst.</string>
     <string name="homework_enable">Hausaufgaben aktivieren</string>
     <string name="save">Speichern</string>
-    <string name="addHomework_newDesignInfo">Wir haben das Layout etwas umgestaltet, du speicherst nun hier.</string>
+    <string name="addHomework_addDocumentsBalloon">Du kannst jetzt Bilder und Dokumente und Bilder an deine Hausaufgaben anfügen.</string>
     <string name="addHomework_storeTitle">Speichern und Freigeben</string>
     <string name="addHomework_storeOnThisDevice">Dieses Gerät</string>
     <string name="addHomework_shareWithClass">Mit Klasse teilen</string>

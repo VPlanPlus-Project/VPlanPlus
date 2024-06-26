@@ -66,6 +66,12 @@ import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_PDF
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
+import com.skydoves.balloon.ArrowPositionRules
+import com.skydoves.balloon.BalloonAnimation
+import com.skydoves.balloon.BalloonSizeSpec
+import com.skydoves.balloon.compose.Balloon
+import com.skydoves.balloon.compose.rememberBalloonBuilder
+import com.skydoves.balloon.compose.setBackgroundColor
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddDocumentModal
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddImageModel
@@ -248,7 +254,6 @@ fun AddHomeworkSheetContent(
             for (i in 0..state.tasks.size) {
                 BasicInputField(
                     modifier = Modifier
-                        .padding(horizontal = 8.dp)
                         .fillMaxWidth(),
                     value = state.tasks.getOrElse(i) { "" },
                     onValueChange = {
@@ -320,12 +325,33 @@ fun AddHomeworkSheetContent(
         }
 
         RowVerticalCenterSpaceBetweenFill(modifier = Modifier.padding(8.dp)) {
-            RowVerticalCenter {
-                IconButton(onClick = { isAddDocumentModalOpen = true }) {
-                    Icon(imageVector = Icons.Outlined.FileOpen, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+            val colorScheme = MaterialTheme.colorScheme
+            Balloon(
+                builder = rememberBalloonBuilder {
+                    setArrowSize(10)
+                    setArrowPosition(0.5f)
+                    setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
+                    setWidth(BalloonSizeSpec.WRAP)
+                    setHeight(BalloonSizeSpec.WRAP)
+                    setPadding(12)
+                    setMarginHorizontal(12)
+                    setCornerRadius(16f)
+                    setBackgroundColor(colorScheme.primaryContainer)
+                    setBalloonAnimation(BalloonAnimation.FADE)
+                },
+                balloonContent = {
+                    Text(text = stringResource(id = R.string.addHomework_addDocumentsBalloon), color = colorScheme.onPrimaryContainer)
                 }
-                IconButton(onClick = { isAddPhotoModalOpen = true }) {
-                    Icon(imageVector = Icons.Outlined.AddPhotoAlternate, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+            ) { balloonWindow ->
+                if (state.showDocumentsBalloon) balloonWindow.showAlignTop()
+                balloonWindow.setOnBalloonDismissListener { viewModel.onUiAction(HideDocumentBalloon) }
+                RowVerticalCenter {
+                    IconButton(onClick = { isAddDocumentModalOpen = true }) {
+                        Icon(imageVector = Icons.Outlined.FileOpen, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                    }
+                    IconButton(onClick = { isAddPhotoModalOpen = true }) {
+                        Icon(imageVector = Icons.Outlined.AddPhotoAlternate, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                    }
                 }
             }
             if (state.documents.isEmpty()) SaveButton(canSave = state.canSave, isLoading = state.isLoading, onSave = { viewModel.onUiAction(SaveHomework { onClose() }) })

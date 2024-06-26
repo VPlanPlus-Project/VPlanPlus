@@ -646,7 +646,7 @@
     <string name="homework_disabledText">You can create and share homework with all your classmates if you\'re using a vpp.ID or just create and keeping track of your tasks locally. Start now by enabling homework for this profile.</string>
     <string name="homework_enable">Enable homework</string>
     <string name="save">Save</string>
-    <string name="addHomework_newDesignInfo">The save button is now up here!</string>
+    <string name="addHomework_addDocumentsBalloon">Now you can attach documents and images to your homework.</string>
     <string name="addHomework_storeTitle">Store &amp; Share</string>
     <string name="addHomework_storeOnThisDevice">This device</string>
     <string name="addHomework_shareWithClass">Sharing with classmates</string>
