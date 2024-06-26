@@ -654,8 +654,8 @@
     <string name="addHomework_saveThisDevice">Locally</string>
     <string name="addHomework_saveVppId">vpp.ID</string>
     <string name="addHomework_saveVppIdNoVppId">You\'re not logged in to your vpp.ID. Head to the settings so you can get cloud synchronisation and more!</string>
-    <string name="addHomework_saveVppIdSharedTitle">Shared</string>
-    <string name="addHomework_saveVppIdSharedDescription">You classmates will see this homework.</string>
+    <string name="addHomework_saveVppIdSharedTitle">vpp.ID • Shared</string>
+    <string name="addHomework_saveVppIdSharedDescription">Save this homework in your vpp.ID\nYou classmates will see this homework.</string>
     <string name="addHomework_saveThisDeviceText">This homework will be stored locally and thus cannot be seen by others.</string>
     <string name="addHomework_saveVppIdText">This homework will be saved in your vpp.ID. Its information and progress will be synchronized with all devices you use with your vpp.ID.</string>
     <string name="addHomework_taskPlaceholder">Task %1$d</string>
@@ -696,5 +696,7 @@
     <string name="addHomework_unsavedChangesDialogTitle">Discard homework?</string>
     <string name="addHomework_unsavedChangesDialogText">Do you want to discard this homework?</string>
     <string name="discard">Discard</string>
+    <string name="addHomework_saveTypeBalloonText">Your homework will be saved in your vpp.ID by default from now on. You can now share homework with your class.</string>
+    <string name="addHomework_saveTypeBalloonTitle">vpp.ID added!</string>
 
 </resources>

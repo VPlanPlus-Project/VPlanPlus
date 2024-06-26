@@ -8,8 +8,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.usecase.general.Balloon
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_DOCUMENT_BALLOON
+import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_VPPID_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
@@ -35,11 +37,13 @@ class AddHomeworkViewModel @Inject constructor(
             combine(
                 listOf(
                     getCurrentProfileUseCase(),
-                    addHomeworkUseCases.isBalloonUseCase(HOMEWORK_DOCUMENT_BALLOON, true)
+                    addHomeworkUseCases.isBalloonUseCase(HOMEWORK_DOCUMENT_BALLOON, true),
+                    addHomeworkUseCases.isBalloonUseCase(HOMEWORK_VPPID_BALLOON, false)
                 )
             ) { data ->
                 val profile = data[0] as Profile?
                 val showDocumentBalloon = data[1] as Boolean
+                val showVppIdStorageBalloon = data[2] as Boolean
 
                 if (profile == null) return@combine null
 
@@ -53,7 +57,8 @@ class AddHomeworkViewModel @Inject constructor(
                     saveType = state.value.saveType ?: if ((profile as? ClassProfile)?.vppId != null) SaveType.CLOUD else SaveType.LOCAL,
                     defaultLessonsFiltered = defaultLessonsFiltered,
                     initDone = true,
-                    showDocumentsBalloon = showDocumentBalloon
+                    showDocumentsBalloon = showDocumentBalloon && !showVppIdStorageBalloon,
+                    showVppIdStorageBalloon = showVppIdStorageBalloon
                 )
             }.collect {
                 if (it != null) state.value = it
@@ -101,9 +106,8 @@ class AddHomeworkViewModel @Inject constructor(
             is RemoveDocument -> removeDocument(event.documentUri)
             is SaveHomework -> save(event.onSuccess)
 
-            HideDocumentBalloon -> viewModelScope.launch {
-                addHomeworkUseCases.setBalloonUseCase(HOMEWORK_DOCUMENT_BALLOON, false)
-            }
+            is HideDocumentBalloon -> hideBalloon(HOMEWORK_DOCUMENT_BALLOON)
+            is HideVppIdStorageBalloon -> hideBalloon(HOMEWORK_VPPID_BALLOON)
         }
     }
 
@@ -137,6 +141,12 @@ class AddHomeworkViewModel @Inject constructor(
 
     private fun updateDueTo(dueTo: LocalDate) {
         state.value = state.value.copy(until = dueTo)
+    }
+
+    private fun hideBalloon(balloon: Balloon) {
+        viewModelScope.launch {
+            addHomeworkUseCases.setBalloonUseCase(balloon, false)
+        }
     }
 }
 
@@ -192,3 +202,4 @@ data class RemoveDocument(val documentUri: Uri) : AddHomeworkUiEvent()
 data class SaveHomework(val onSuccess: () -> Unit) : AddHomeworkUiEvent()
 
 data object HideDocumentBalloon : AddHomeworkUiEvent()
+data object HideVppIdStorageBalloon : AddHomeworkUiEvent()

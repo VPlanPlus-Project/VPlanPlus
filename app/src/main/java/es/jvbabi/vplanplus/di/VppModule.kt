@@ -60,6 +60,7 @@ import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
 import es.jvbabi.vplanplus.domain.usecase.profile.GetLessonTimesForClassUseCase
@@ -201,7 +202,7 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideProfileRepository(db: VppDatabase, ): ProfileRepository {
+    fun provideProfileRepository(db: VppDatabase): ProfileRepository {
         return ProfileRepositoryImpl(
             profileDao = db.profileDao,
             profileDefaultLessonsCrossoverDao = db.profileDefaultLessonsCrossoverDao,
@@ -639,7 +640,7 @@ object VppModule {
     ): VppIdLinkUseCases {
         val testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
         return VppIdLinkUseCases(
-            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository),
+            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository, SetBalloonUseCase(keyValueRepository)),
             getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository),
             setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, testForMissingVppIdToProfileConnectionsUseCase),
             updateMissingLinksStateUseCase = UpdateMissingLinksStateUseCase(

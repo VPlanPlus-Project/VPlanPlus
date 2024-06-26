@@ -7,8 +7,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -66,7 +66,7 @@ fun StoreSaveModal(
                 Divider()
                 Option(
                     title = stringResource(id = R.string.addHomework_saveVppId),
-                    subtitle = null,
+                    subtitle = stringResource(id = R.string.addHomework_saveVppIdText),
                     icon = Icons.Default.CloudQueue,
                     state = currentState == SaveType.CLOUD,
                     onClick = { onSubmit(SaveType.CLOUD); onDismissRequest() }
@@ -104,7 +104,7 @@ private fun Option(
         Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .height(56.dp)
+            .defaultMinSize(minHeight = 56.dp)
             .background(background)
             .padding(vertical = 8.dp, horizontal = 16.dp)) {
         Icon(

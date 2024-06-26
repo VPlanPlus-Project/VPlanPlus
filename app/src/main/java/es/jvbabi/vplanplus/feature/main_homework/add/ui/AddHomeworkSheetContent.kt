@@ -66,12 +66,7 @@ import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions
 import com.google.mlkit.vision.documentscanner.GmsDocumentScannerOptions.RESULT_FORMAT_PDF
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanning
 import com.google.mlkit.vision.documentscanner.GmsDocumentScanningResult
-import com.skydoves.balloon.ArrowPositionRules
-import com.skydoves.balloon.BalloonAnimation
-import com.skydoves.balloon.BalloonSizeSpec
 import com.skydoves.balloon.compose.Balloon
-import com.skydoves.balloon.compose.rememberBalloonBuilder
-import com.skydoves.balloon.compose.setBackgroundColor
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddDocumentModal
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddImageModel
@@ -80,9 +75,12 @@ import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.default_lesso
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.due_to.SetDueToModal
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DocumentRecord
 import es.jvbabi.vplanplus.ui.common.BasicInputField
+import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
+import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.rememberDefaultBalloon
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
 import java.io.File
@@ -304,22 +302,34 @@ fun AddHomeworkSheetContent(
             if (state.canUseCloud) {
                 item { VerticalDivider(Modifier.height(32.dp)) }
                 item {
-                    AssistChip(
-                        onClick = { isSaveLocationModalOpen = true },
-                        label = { Text(text = when (state.saveType ?: SaveType.LOCAL) {
-                            SaveType.LOCAL -> stringResource(id = R.string.addHomework_saveThisDevice)
-                            SaveType.CLOUD -> stringResource(id = R.string.addHomework_saveVppId)
-                            SaveType.SHARED -> stringResource(id = R.string.addHomework_saveVppIdSharedTitle)
-                        }) },
-                        leadingIcon = {
-                            Icon(imageVector = when (state.saveType ?: SaveType.LOCAL) {
-                                SaveType.LOCAL -> Icons.Default.PhoneAndroid
-                                SaveType.CLOUD -> Icons.Default.CloudQueue
-                                SaveType.SHARED -> Icons.Default.Share
-                            }, contentDescription = null)
-                        },
-                        trailingIcon = { Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null) }
-                    )
+                    Balloon(
+                        builder = rememberDefaultBalloon(),
+                        balloonContent = {
+                            Column {
+                                DefaultBalloonTitle(text = stringResource(id = R.string.addHomework_saveTypeBalloonTitle))
+                                DefaultBalloonDescription(text = stringResource(id = R.string.addHomework_saveTypeBalloonText))
+                            }
+                        }
+                    ) { balloonWindow ->
+                        if (state.showVppIdStorageBalloon) balloonWindow.showAlignTop()
+                        balloonWindow.setOnBalloonDismissListener { viewModel.onUiAction(HideVppIdStorageBalloon) }
+                        AssistChip(
+                            onClick = { isSaveLocationModalOpen = true },
+                            label = { Text(text = when (state.saveType ?: SaveType.LOCAL) {
+                                SaveType.LOCAL -> stringResource(id = R.string.addHomework_saveThisDevice)
+                                SaveType.CLOUD -> stringResource(id = R.string.addHomework_saveVppId)
+                                SaveType.SHARED -> stringResource(id = R.string.addHomework_saveVppIdSharedTitle)
+                            }) },
+                            leadingIcon = {
+                                Icon(imageVector = when (state.saveType ?: SaveType.LOCAL) {
+                                    SaveType.LOCAL -> Icons.Default.PhoneAndroid
+                                    SaveType.CLOUD -> Icons.Default.CloudQueue
+                                    SaveType.SHARED -> Icons.Default.Share
+                                }, contentDescription = null)
+                            },
+                            trailingIcon = { Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null) }
+                        )
+                    }
                 }
             }
         }
@@ -327,18 +337,7 @@ fun AddHomeworkSheetContent(
         RowVerticalCenterSpaceBetweenFill(modifier = Modifier.padding(8.dp)) {
             val colorScheme = MaterialTheme.colorScheme
             Balloon(
-                builder = rememberBalloonBuilder {
-                    setArrowSize(10)
-                    setArrowPosition(0.5f)
-                    setArrowPositionRules(ArrowPositionRules.ALIGN_ANCHOR)
-                    setWidth(BalloonSizeSpec.WRAP)
-                    setHeight(BalloonSizeSpec.WRAP)
-                    setPadding(12)
-                    setMarginHorizontal(12)
-                    setCornerRadius(16f)
-                    setBackgroundColor(colorScheme.primaryContainer)
-                    setBalloonAnimation(BalloonAnimation.FADE)
-                },
+                builder = rememberDefaultBalloon(),
                 balloonContent = {
                     Text(text = stringResource(id = R.string.addHomework_addDocumentsBalloon), color = colorScheme.onPrimaryContainer)
                 }

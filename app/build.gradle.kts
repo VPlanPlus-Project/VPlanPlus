@@ -20,7 +20,7 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 206
+        versionCode = 207
         versionName = "20240626_534"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -158,7 +158,7 @@ dependencies {
     implementation("io.coil-kt:coil-compose:2.5.0")
 
     // Local unit tests
-    testImplementation("androidx.test:core:1.5.0")
+    testImplementation("androidx.test:core:1.6.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("androidx.arch.core:core-testing:2.2.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
@@ -173,10 +173,10 @@ dependencies {
     androidTestImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.8.0")
     androidTestImplementation("androidx.arch.core:core-testing:2.2.0")
     androidTestImplementation("com.google.truth:truth:1.1.3")
-    androidTestImplementation("androidx.test.ext:junit:1.1.5")
-    androidTestImplementation("androidx.test:core-ktx:1.5.0")
+    androidTestImplementation("androidx.test.ext:junit:1.2.0")
+    androidTestImplementation("androidx.test:core-ktx:1.6.0")
     androidTestImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    androidTestImplementation("androidx.test:runner:1.5.2")
+    androidTestImplementation("androidx.test:runner:1.6.0")
 
     implementation("com.github.ireward:compose-html:1.0.2")
 }

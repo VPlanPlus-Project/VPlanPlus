@@ -18,7 +18,7 @@
     <string name="onboarding_firstProfileTitle">Wähle dein erstes Profil</string>
     <string name="onboarding_firstProfileText">Abhängig von deiner Rolle an deiner Schule musst du hier auswählen, ob du die Datenansicht für Schüler oder Lehrer sehen möchtest. Du kannst aber trotzdem später nach den jeweils anderen Daten suchen.</string>
     <string name="onboarding_firstProfileStudentTitle">Schüler</string>
-    <string name="onboarding_firstProfileStudentText">Wähle dieses Profil, um standartmäßig Klassenpläne angezeigt zu bekommen. Falls du ein Elternteil bist, wähle auch dieses Profil.</string>
+    <string name="onboarding_firstProfileStudentText">Wähle dieses Profil, um standardmäßig Klassenpläne angezeigt zu bekommen. Falls du ein Elternteil bist, wähle auch dieses Profil.</string>
     <string name="onboarding_firstProfileTeacherTitle">Lehrer</string>
     <string name="onboarding_firstProfileTeacherText">Falls du eine Lehrkraft bist, wähle dieses Profil.</string>
     <string name="onboarding_studentChooseClassText">Falls du mehrere Klassen hinzufügen musst, kannst du später in den Einstellungen ein neues Profil anlegen.</string>
@@ -105,7 +105,7 @@
     <string name="profileManagement_defaultLessonsTitle">Standard-Unterrichtseinheiten</string>
     <string name="home_lessonsHidden">%1$d Stunden ausgeblendet</string>
     <string name="settings_profileDefaultLessonDifferentDefaultLessonsTitle">Inkonsistenter Datenstand</string>
-    <string name="settings_profileDefaultLessonDifferentDefaultLessonsText">Es gibt Abweichungen bei den Standartstunden des Profils und seiner Klasse. Das Beheben des Problemes erfordert einen Reset deiner Einstellungen unterhalb.</string>
+    <string name="settings_profileDefaultLessonDifferentDefaultLessonsText">Es gibt Abweichungen bei den Standardstunden des Profils und seiner Klasse. Das Beheben des Problemes erfordert einen Reset deiner Einstellungen unterhalb.</string>
     <string name="fix">Beheben</string>
     <string name="home_noData">Keine Daten</string>
     <string name="home_noDataText">Für dieses Datum sind noch keine Daten verfügbar. Entweder, es gibt noch keinen Vertretungsplan für dich, oder das Datum liegt zu weit in  der Zukunft. Du kannst die Anzahl der Tage, die nach dem heutigen Tag synchronisiert werden in den Einstellungen ändern.</string>
@@ -651,10 +651,10 @@
     <string name="addHomework_saveThisDevice">Lokal</string>
     <string name="addHomework_saveVppId">vpp.ID</string>
     <string name="addHomework_saveVppIdNoVppId">Du bist nicht in deiner vpp.ID angemeldet. Gehe zu den Einstellungen um dich anzumelden und die Cloudsynchronisierung und vieles mehr nutzen zu können.</string>
-    <string name="addHomework_saveVppIdSharedTitle">Geteilt</string>
-    <string name="addHomework_saveVppIdSharedDescription">Deine Klasse kann diese Hausaufgabe sehen.</string>
+    <string name="addHomework_saveVppIdSharedTitle">vpp.ID • Geteilt</string>
+    <string name="addHomework_saveVppIdSharedDescription">Diese Hausaufgabe wird in deiner vpp.ID gespeichert. Deine Klasse kann diese Hausaufgabe sehen.</string>
     <string name="addHomework_saveThisDeviceText">Diese Hausaufgabe wird auf diesem Gerät gespeichert und ist somit für andere nicht einsehbar.</string>
-    <string name="addHomework_saveVppIdText">Diese Hausaufgabe wird in deiner vpp.ID gespeichert, Alle Informationen und der Fortschritt der Aufgaben wird auf jedes Gerät synchronisiert, in welchem du mit deiner vpp.ID angemeldet bist.</string>
+    <string name="addHomework_saveVppIdText">Diese Hausaufgabe wird in deiner vpp.ID gespeichert. Alle Informationen und der Fortschritt der Aufgaben wird auf jedes Gerät synchronisiert, in welchem du mit deiner vpp.ID angemeldet bist.</string>
     <string name="addHomework_taskPlaceholder">Aufgabe %1$d</string>
 
     <plurals name="homework_documentCount">
@@ -693,5 +693,7 @@
     <string name="addHomework_unsavedChangesDialogTitle">Hausaufgabe verwerfen?</string>
     <string name="addHomework_unsavedChangesDialogText">Möchtest du diese Hausaufgabe verwerfen?</string>
     <string name="discard">Verwerfen</string>
+    <string name="addHomework_saveTypeBalloonText">Deine Hausaufgaben werden nun standardmäßig in deiner vpp.ID gespeichert. Du kannst ab sofort auch Hausaufgaben mit deiner Klasse teilen.</string>
+    <string name="addHomework_saveTypeBalloonTitle">vpp.ID hinzugefügt!</string>
 
 </resources>

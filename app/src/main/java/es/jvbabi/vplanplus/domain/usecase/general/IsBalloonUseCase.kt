@@ -18,3 +18,4 @@ data class Balloon(
 )
 
 val HOMEWORK_DOCUMENT_BALLOON = Balloon("homework_document_balloon")
+val HOMEWORK_VPPID_BALLOON = Balloon("homework_vppid_balloon")
