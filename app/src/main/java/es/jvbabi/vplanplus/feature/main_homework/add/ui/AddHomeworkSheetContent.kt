@@ -257,8 +257,10 @@ fun AddHomeworkSheetContent(
                         .fillMaxWidth(),
                     value = state.tasks.getOrElse(i) { "" },
                     onValueChange = {
-                        if (it.isBlank()) return@BasicInputField
-                        if (state.tasks.getOrNull(i) == null) viewModel.onUiAction(CreateTask(it))
+                        if (state.tasks.getOrNull(i) == null) {
+                            if (it.isBlank()) return@BasicInputField
+                            viewModel.onUiAction(CreateTask(it))
+                        }
                         else viewModel.onUiAction(UpdateTask(i, it))
                         onChanged()
                     },
