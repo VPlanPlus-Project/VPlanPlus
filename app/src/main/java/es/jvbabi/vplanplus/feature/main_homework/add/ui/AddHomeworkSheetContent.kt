@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CloudQueue
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Tag
@@ -74,13 +75,16 @@ import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.AddImageModel
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.StoreSaveModal
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.default_lesson_dialog.SelectDefaultLessonSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.due_to.SetDueToModal
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DocumentRecord
 import es.jvbabi.vplanplus.ui.common.BasicInputField
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
 import es.jvbabi.vplanplus.ui.common.rememberDefaultBalloon
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
@@ -119,9 +123,7 @@ fun AddHomeworkSheetContent(
         }
     )
 
-    val scanner = remember {
-        GmsDocumentScanning.getClient(scannerOptions)
-    }
+    val scanner = remember { GmsDocumentScanning.getClient(scannerOptions) }
 
     val scannerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
@@ -134,12 +136,13 @@ fun AddHomeworkSheetContent(
         }
     }
 
-    val imageFile = context.createImageFile()
+    val imageFile = remember(state.documents.size) { context.createImageFile() }
     val uri = FileProvider.getUriForFile(
         context,
         context.packageName + ".fileprovider",
         imageFile
     )
+
     val takePhotoLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { isSaved ->
@@ -243,12 +246,12 @@ fun AddHomeworkSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .animateContentSize()
             .verticalScroll(rememberScrollState())
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .animateContentSize()
                 .padding(8.dp)
         ) tasks@{
             for (i in 0..state.tasks.size) {
@@ -376,6 +379,15 @@ fun AddHomeworkSheetContent(
             horizontalAlignment = Alignment.End
         ) {
             SaveButton(canSave = state.canSave, isLoading = state.isLoading, onSave = { viewModel.onUiAction(SaveHomework { onClose() }) })
+        }
+        VerticalExpandVisibility(visible = state.result == HomeworkModificationResult.FAILED, modifier = Modifier.padding(horizontal = 8.dp)) {
+            InfoCard(
+                imageVector = Icons.Default.Error,
+                title = stringResource(id = R.string.something_went_wrong),
+                text = stringResource(id = R.string.addHomework_saveFailedOnlineText),
+                textColor = MaterialTheme.colorScheme.onErrorContainer,
+                backgroundColor = MaterialTheme.colorScheme.errorContainer
+            )
         }
     }
 
