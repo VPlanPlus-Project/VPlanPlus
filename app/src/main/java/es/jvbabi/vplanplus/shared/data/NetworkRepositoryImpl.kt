@@ -14,6 +14,8 @@ import io.ktor.client.network.sockets.ConnectTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.UserAgent
+import io.ktor.client.plugins.onDownload
+import io.ktor.client.plugins.onUpload
 import io.ktor.client.request.forms.submitForm
 import io.ktor.client.request.headers
 import io.ktor.client.request.parameter
@@ -65,7 +67,9 @@ open class NetworkRepositoryImpl(
         path: String,
         requestMethod: HttpMethod,
         requestBody: Any?,
-        queries: Map<String, String>
+        queries: Map<String, String>,
+        onUploading: (bytesSentTotal: Long, contentLength: Long) -> Unit,
+        onDownloading: (bytesReceivedTotal: Long, contentLength: Long) -> Unit
     ): DataResponse<String?> {
         try {
             logRepository?.log("Network", "Requesting ${requestMethod.value} $server$path")
@@ -85,6 +89,9 @@ open class NetworkRepositoryImpl(
                     if (requestBody is ByteArray) setBody(ByteReadChannel(requestBody))
                     else if (requestBody != null) setBody(requestBody)
                 }
+
+                onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
+                onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
             }
             if (!listOf(
                     HttpStatusCode.OK,
@@ -120,7 +127,9 @@ open class NetworkRepositoryImpl(
         path: String,
         requestMethod: HttpMethod,
         requestBody: Any?,
-        queries: Map<String, String>
+        queries: Map<String, String>,
+        onUploading: (bytesSentTotal: Long, contentLength: Long) -> Unit,
+        onDownloading: (bytesReceivedTotal: Long, contentLength: Long) -> Unit
     ): DataResponse<ByteArray?> {
         try {
             logRepository?.log("Network", "Requesting ${requestMethod.value} $server$path")
@@ -137,6 +146,9 @@ open class NetworkRepositoryImpl(
                 queries.forEach { (key, value) -> parameter(key, value) }
 
                 if (requestMethod != HttpMethod.Get) setBody(requestBody ?: "{}")
+
+                onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
+                onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
             }
             if (!listOf(
                     HttpStatusCode.OK,
@@ -172,7 +184,9 @@ open class NetworkRepositoryImpl(
         path: String,
         requestMethod: HttpMethod,
         form: Map<String, String>,
-        queries: Map<String, String>
+        queries: Map<String, String>,
+        onUploading: (bytesSentTotal: Long, contentLength: Long) -> Unit,
+        onDownloading: (bytesReceivedTotal: Long, contentLength: Long) -> Unit
     ): DataResponse<String?> {
         try {
             logRepository?.log("Network", "Requesting ${requestMethod.value} $server$path")
@@ -192,6 +206,9 @@ open class NetworkRepositoryImpl(
                     if (requestMethod != HttpMethod.Get) append("Content-Type", "application/json")
                 }
                 queries.forEach { (key, value) -> parameter(key, value) }
+
+                onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
+                onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
             }
             if (!listOf(
                     HttpStatusCode.OK,

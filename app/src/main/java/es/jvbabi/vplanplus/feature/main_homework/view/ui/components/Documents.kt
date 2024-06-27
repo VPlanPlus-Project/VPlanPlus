@@ -43,7 +43,12 @@ fun Documents(
             }
         } else {
             documents.forEach { (documentUri, type) ->
-                DocumentRecord(documentUri, type, isEditing)
+                DocumentRecord(
+                    uri = documentUri,
+                    type = type,
+                    progress = null,
+                    isEditing = isEditing
+                )
             }
         }
     }

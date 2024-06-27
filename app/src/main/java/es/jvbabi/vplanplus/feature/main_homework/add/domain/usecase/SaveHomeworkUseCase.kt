@@ -16,7 +16,7 @@ import java.time.ZonedDateTime
 
 class SaveHomeworkUseCase(
     private val homeworkRepository: HomeworkRepository,
-    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
 ) {
     suspend operator fun invoke(
         until: LocalDate,
@@ -24,7 +24,8 @@ class SaveHomeworkUseCase(
         storeInCloud: Boolean,
         defaultLesson: DefaultLesson?,
         tasks: List<String>,
-        documentUris: Map<Uri, HomeworkDocumentType>
+        documentUris: Map<Uri, HomeworkDocumentType>,
+        onDocumentUploadProgress: (Uri, Float) -> Unit
     ): HomeworkModificationResult {
         val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return HomeworkModificationResult.FAILED
 
@@ -47,7 +48,8 @@ class SaveHomeworkUseCase(
                         HomeworkDocumentType.PDF -> "pdf"
                     },
                 )
-            }
+            },
+            onDocumentUploadProgressChanges = onDocumentUploadProgress
         )
     }
 }

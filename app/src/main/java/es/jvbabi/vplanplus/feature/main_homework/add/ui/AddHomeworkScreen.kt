@@ -452,8 +452,8 @@ private fun AddHomeworkContent(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 item { Spacer8Dp() }
-                items(state.documents.toList(), key = { it.first.hashCode() }) { documentUri ->
-                    DocumentView(uri = documentUri.first) { onAction(RemoveDocument(documentUri.first)) }
+                items(state.documents.toList(), key = { it.uri.hashCode() }) { document ->
+                    DocumentView(uri = document.uri) { onAction(RemoveDocument(document.uri)) }
                     VerticalDivider()
                 }
             }

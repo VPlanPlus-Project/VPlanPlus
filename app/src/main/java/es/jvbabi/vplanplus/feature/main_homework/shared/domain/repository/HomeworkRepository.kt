@@ -28,7 +28,8 @@ interface HomeworkRepository {
         tasks: List<NewTaskRecord>,
         isHidden: Boolean,
         createdAt: ZonedDateTime = ZonedDateTime.now(),
-        documentUris: List<Document>
+        documentUris: List<Document>,
+        onDocumentUploadProgressChanges: (Uri, Float) -> Unit = { _, _ -> }
     ): HomeworkModificationResult
 
     suspend fun addNewTask(

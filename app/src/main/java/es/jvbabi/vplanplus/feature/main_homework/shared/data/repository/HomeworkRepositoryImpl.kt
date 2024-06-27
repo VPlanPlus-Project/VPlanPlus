@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.data.repository
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.MainActivity
@@ -264,7 +265,8 @@ class HomeworkRepositoryImpl(
         tasks: List<NewTaskRecord>,
         isHidden: Boolean,
         createdAt: ZonedDateTime,
-        documentUris: List<Document>
+        documentUris: List<Document>,
+        onDocumentUploadProgressChanges: (Uri, Float) -> Unit
     ): HomeworkModificationResult {
 
         var homeworkId = id ?: (findLocalId() - 1L)
@@ -329,7 +331,10 @@ class HomeworkRepositoryImpl(
             val binary = inputStream.readBytes()
             val documentId =
                 if (storeInCloud) {
-                    uploadDocument(profile, homeworkId, document.name + "." + document.extension, binary) ?: return@document
+                    uploadDocument(profile, homeworkId, document.name + "." + document.extension, binary, onProgress = { bytesSentTotal, contentLength ->
+                        onDocumentUploadProgressChanges(document.uri, (bytesSentTotal.toFloat() / contentLength).run { if (this.isNaN()) return@run 0f else this })
+
+                    }) ?: return@document
                 } else findLocalDocumentId() - 1
             val outputFile = File(folder, "$documentId")
             val outputStream = FileOutputStream(outputFile)
@@ -349,13 +354,15 @@ class HomeworkRepositoryImpl(
         profile: ClassProfile,
         homeworkId: Long,
         fileName: String,
-        byteArray: ByteArray
+        byteArray: ByteArray,
+        onProgress: (bytesSentTotal: Long, contentLength: Long) -> Unit = { _, _ -> }
     ): Int? {
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${profile.group.school.id}/group/${profile.group.groupId}/homework/$homeworkId/document/",
             requestBody = byteArray,
             requestMethod = HttpMethod.Post,
-            queries = mapOf("file_name" to fileName)
+            queries = mapOf("file_name" to fileName),
+            onUploading = onProgress
         )
         if (response.response?.isSuccess() != true) return null
         val data = response.data ?: return null

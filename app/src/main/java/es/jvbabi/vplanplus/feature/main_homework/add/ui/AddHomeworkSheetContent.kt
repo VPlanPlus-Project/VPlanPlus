@@ -363,12 +363,13 @@ fun AddHomeworkSheetContent(
             if (state.documents.isEmpty()) SaveButton(canSave = state.canSave, isLoading = state.isLoading, onSave = { viewModel.onUiAction(SaveHomework { onClose() }) })
         }
         Column {
-            state.documents.entries.forEach { (uri, type) ->
+            state.documents.forEach { document ->
                 DocumentRecord(
-                    uri = uri,
-                    type = type,
+                    uri = document.uri,
+                    type = document.type,
                     isEditing = true,
-                    onRemove = { viewModel.onUiAction(RemoveDocument(uri)) }
+                    progress = document.uploadProgress,
+                    onRemove = { viewModel.onUiAction(RemoveDocument(document.uri)) }
                 )
             }
         }
@@ -392,8 +393,7 @@ fun AddHomeworkSheetContent(
     }
 
     LaunchedEffect(key1 = Unit) {
-        focusRequester.requestFocus()
-        Log.d("AddHomeworkSheetContent", "Focus requested")
+        try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
     }
 }
 

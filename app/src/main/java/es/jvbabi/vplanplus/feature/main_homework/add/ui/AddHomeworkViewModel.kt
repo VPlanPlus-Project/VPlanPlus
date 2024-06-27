@@ -84,7 +84,14 @@ class AddHomeworkViewModel @Inject constructor(
                     tasks = state.value.tasks,
                     shareWithClass = state.value.saveType == SaveType.SHARED,
                     storeInCloud = state.value.saveType != SaveType.LOCAL,
-                    documentUris = state.value.documents
+                    documentUris = state.value.documents.associate { it.uri to it.type },
+                    onDocumentUploadProgress = { uri, progress ->
+                        state.value = state.value.copy(
+                            documents = state.value.documents.map {
+                                if (it.uri == uri) it.copy(uploadProgress = progress) else it
+                            }
+                        )
+                    }
                 ),
                 isLoading = false
             )
@@ -128,15 +135,15 @@ class AddHomeworkViewModel @Inject constructor(
     }
 
     private fun addDocument(documentUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents + (documentUri to HomeworkDocumentType.PDF))
+        state.value = state.value.copy(documents = state.value.documents + HomeworkDocument(documentUri, HomeworkDocumentType.PDF))
     }
 
     private fun addImage(imageUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents + (imageUri to HomeworkDocumentType.JPG))
+        state.value = state.value.copy(documents = state.value.documents + HomeworkDocument(imageUri, HomeworkDocumentType.JPG))
     }
 
     private fun removeDocument(documentUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents.toMutableMap().apply { remove(documentUri) })
+        state.value = state.value.copy(documents = state.value.documents.toMutableList().apply { removeIf { it.uri == documentUri } })
     }
 
     private fun updateDueTo(dueTo: LocalDate) {
@@ -173,7 +180,7 @@ data class AddHomeworkState(
     val showVppIdStorageBalloon: Boolean = false,
     val showDocumentsBalloon: Boolean = false,
 
-    val documents: Map<Uri, HomeworkDocumentType> = emptyMap()
+    val documents: List<HomeworkDocument> = emptyList()
 ) {
     val canSave: Boolean
         get() = until != null && tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
@@ -185,6 +192,12 @@ data class AddHomeworkState(
 enum class SaveType {
     LOCAL, CLOUD, SHARED
 }
+
+data class HomeworkDocument(
+    val uri: Uri,
+    val type: HomeworkDocumentType,
+    val uploadProgress: Float? = null
+)
 
 sealed class AddHomeworkUiEvent
 

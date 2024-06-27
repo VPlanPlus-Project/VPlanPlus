@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,12 +51,14 @@ import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocu
 import es.jvbabi.vplanplus.ui.common.HorizontalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
+import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
 
 @Composable
 fun DocumentRecord(
     uri: Uri?,
     type: HomeworkDocumentType,
+    progress: Float? = null,
     isEditing: Boolean,
     onRemove: () -> Unit = {}
 ) {
@@ -146,6 +149,12 @@ fun DocumentRecord(
                         text = storageToHumanReadableFormat(documentSize),
                         style = MaterialTheme.typography.labelSmall
                     )
+                    VerticalExpandAnimatedAndFadingVisibility(visible = progress != null) {
+                        LinearProgressIndicator(
+                            progress = { progress ?: 0f },
+                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        )
+                    }
                 }
                 HorizontalExpandAnimatedAndFadingVisibility(visible = isEditing) {
                     IconButton(onClick = onRemove) {
@@ -160,11 +169,11 @@ fun DocumentRecord(
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordPreview() {
-    DocumentRecord(null, HomeworkDocumentType.PDF, false)
+    DocumentRecord(null, HomeworkDocumentType.PDF, 0.3f, false)
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordEditingPreview() {
-    DocumentRecord(null, HomeworkDocumentType.PDF, true)
+    DocumentRecord(null, HomeworkDocumentType.PDF, null, true)
 }
