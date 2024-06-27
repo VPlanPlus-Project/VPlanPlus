@@ -11,6 +11,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -242,6 +243,7 @@ fun AddHomeworkSheetContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .animateContentSize()
             .verticalScroll(rememberScrollState())
     ) {
         Column(
