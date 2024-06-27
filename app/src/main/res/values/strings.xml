@@ -698,5 +698,6 @@
     <string name="discard">Discard</string>
     <string name="addHomework_saveTypeBalloonText">Your homework will be saved in your vpp.ID by default from now on. You can now share homework with your class.</string>
     <string name="addHomework_saveTypeBalloonTitle">vpp.ID added!</string>
+    <string name="addHomework_noDefaultLessonsFound">There are no subjects available at the moment.</string>
 
 </resources>

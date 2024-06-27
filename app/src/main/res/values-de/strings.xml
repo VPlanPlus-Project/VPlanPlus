@@ -695,5 +695,6 @@
     <string name="discard">Verwerfen</string>
     <string name="addHomework_saveTypeBalloonText">Deine Hausaufgaben werden nun standardmäßig in deiner vpp.ID gespeichert. Du kannst ab sofort auch Hausaufgaben mit deiner Klasse teilen.</string>
     <string name="addHomework_saveTypeBalloonTitle">vpp.ID hinzugefügt!</string>
+    <string name="addHomework_noDefaultLessonsFound">Momentan sind keine Fächer verfügbar.</string>
 
 </resources>
