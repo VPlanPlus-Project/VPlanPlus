@@ -42,9 +42,6 @@ class SetUpUseCase(
         val currentVersion = BuildConfig.VERSION_CODE
 
         if (previousVersion == currentVersion) return
-        if (previousVersion == 197 && currentVersion > 197) { // new homework update
-            keyValueRepository.set(Keys.ADD_HOMEWORK_SHOW_NEW_LAYOUT_BALLOON, "true")
-        }
 
         keyValueRepository.set(Keys.LAST_KNOWN_APP_VERSION, currentVersion.toString())
     }

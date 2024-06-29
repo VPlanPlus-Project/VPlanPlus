@@ -288,7 +288,9 @@ class VppIdRepositoryImpl(
     }
 
     override suspend fun useOAuthCode(code: String): VppId? {
+        val LOG_TAG = "VppIdRepository.useOAuthCode"
         vppIdNetworkRepository.authentication = null
+        Log.d(LOG_TAG, "using code: ${code.take(8)}${"*".repeat(code.length-8)}")
         val response = vppIdNetworkRepository.doRequestForm(
             "/api/$API_VERSION/auth/token",
             form = mapOf(
@@ -300,7 +302,11 @@ class VppIdRepositoryImpl(
             ),
             requestMethod = HttpMethod.Post
         )
-        if (response.response != HttpStatusCode.OK || response.data == null) return null
+        if (response.response != HttpStatusCode.OK || response.data == null) {
+            if (response.data == null) Log.i(LOG_TAG, "response data is null")
+            else Log.i(LOG_TAG, "response data: ${response.data}")
+            return null
+        }
         val oAuthResponse = Gson().fromJson(response.data, OAuthResponse::class.java)
 
         vppIdNetworkRepository.authentication = BearerAuthentication(oAuthResponse.accessToken)
@@ -309,12 +315,18 @@ class VppIdRepositoryImpl(
             HttpMethod.Get
         )
 
-        if (meResponse.response != HttpStatusCode.OK || meResponse.data == null) return null
+        if (meResponse.response != HttpStatusCode.OK || meResponse.data == null) {
+            Log.e(LOG_TAG, "meResponse not OK")
+            return null
+        }
         val me = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)
 
         deleteVppId(me.id)
 
-        val group = groupRepository.getGroupById(me.groupId) ?: return null
+        val group = groupRepository.getGroupById(me.groupId) ?: run {
+            Log.e(LOG_TAG, "group with id ${me.groupId} not found")
+            return null
+        }
         val dbEntity = DbVppId(
             id = me.id,
             name = me.username,
@@ -334,7 +346,10 @@ class VppIdRepositoryImpl(
             id = UUID.randomUUID(),
             bsToken = me.schulverwalterAccessToken
         ))
-        return getVppId(me.id)
+        return getVppId(me.id) ?: run {
+            Log.w(LOG_TAG, "getVppId returned null")
+            null
+        }
     }
 }
 
