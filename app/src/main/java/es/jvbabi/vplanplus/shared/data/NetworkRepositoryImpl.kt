@@ -88,10 +88,9 @@ open class NetworkRepositoryImpl(
                 if (requestMethod != HttpMethod.Get) {
                     if (requestBody is ByteArray) setBody(ByteReadChannel(requestBody))
                     else if (requestBody != null) setBody(requestBody)
+                    onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
+                    onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
                 }
-
-                onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
-                onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
             }
             if (!listOf(
                     HttpStatusCode.OK,
@@ -111,6 +110,7 @@ open class NetworkRepositoryImpl(
                 "Network",
                 "error when requesting $server$path (${e.javaClass.name}):\n${e.localizedMessage}"
             )
+            e.printStackTrace()
             return when (e) {
                 is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(
                     null,
@@ -168,6 +168,7 @@ open class NetworkRepositoryImpl(
                 "Network",
                 "error when requesting $server$path (${e.javaClass.name}):\n${e.localizedMessage}"
             )
+            e.printStackTrace()
             return when (e) {
                 is ConnectTimeoutException, is HttpRequestTimeoutException -> DataResponse(
                     null,

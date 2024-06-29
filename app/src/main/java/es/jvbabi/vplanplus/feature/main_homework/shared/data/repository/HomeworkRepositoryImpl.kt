@@ -4,6 +4,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.MainActivity
@@ -86,15 +87,20 @@ class HomeworkRepositoryImpl(
 
                 val response = vppIdNetworkRepository.doRequest("/api/$API_VERSION/school/${profile.group.school.id}/group/${profile.group.groupId}/homework")
 
-                if (response.response != HttpStatusCode.OK || response.data == null) return@forEach
+                if (response.response != HttpStatusCode.OK || response.data == null) {
+                    Log.w("HomeworkRepository.fetchHomework", "Failed to fetch homework for ${profile.displayName} (${profile.id}): Response code ${response.response?.value}")
+                    return@forEach
+                }
                 val data = ResponseDataWrapper.fromJson<List<HomeworkResponse>>(response.data)
+
+                Log.d("HomeworkRepository.fetchHomework", "Response for ${profile.displayName} (${profile.id}) contains ${data.size} homework")
 
                 homeworkDao
                     .getAll()
                     .first()
-                    .filter { data.none { nd -> nd.id == it.homework.id } }
-                    .filter { it.homework.id > 0 }
-                    .filter { it.classes.group.name == profile.group.name }
+                    .filter { data.none { nd -> nd.id == it.homework.id } } // homework that isn't present in the response anymore
+                    .filter { it.homework.id > 0 } // only delete non-local homework
+                    .filter { it.classes.group.id == profile.group.groupId } // only delete homework for the current group
                     .map { it.homework.id }
                     .forEach { homeworkDao.deleteHomework(it) }
 
