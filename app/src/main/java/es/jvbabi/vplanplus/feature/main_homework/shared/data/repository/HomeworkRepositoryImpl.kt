@@ -331,9 +331,8 @@ class HomeworkRepositoryImpl(
             val binary = inputStream.readBytes()
             val documentId =
                 if (storeInCloud) {
-                    uploadDocument(profile, homeworkId, document.name + "." + document.extension, binary, onProgress = { bytesSentTotal, contentLength ->
-                        onDocumentUploadProgressChanges(document.uri, (bytesSentTotal.toFloat() / contentLength).run { if (this.isNaN()) return@run 0f else this })
-
+                    uploadDocument(profile, homeworkId, document.name + "." + document.extension, binary, onProgress = { bytesSentTotal, _ ->
+                        onDocumentUploadProgressChanges(document.uri, (bytesSentTotal.toFloat() / binary.size).run { if (this.isNaN()) return@run 0f else this })
                     }) ?: return@document
                 } else findLocalDocumentId() - 1
             val outputFile = File(folder, "$documentId")

@@ -119,6 +119,8 @@ fun AddHomeworkSheetContent(
     val pickDocumentLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetMultipleContents(),
         onResult = {
+            if (it.isEmpty()) return@rememberLauncherForActivityResult
+            onChanged()
             it.forEach { uri -> viewModel.onUiAction(AddDocument(fileFromContentUri(context, uri).toUri())) }
         }
     )
@@ -133,6 +135,7 @@ fun AddHomeworkSheetContent(
             Log.d("AddHomeworkScreen", "Scanned ${result?.pages?.size} pages")
             if (result?.pdf?.uri == null) return@rememberLauncherForActivityResult
             viewModel.onUiAction(AddDocument(result.pdf?.uri ?: return@rememberLauncherForActivityResult))
+            onChanged()
         }
     }
 
@@ -146,13 +149,18 @@ fun AddHomeworkSheetContent(
     val takePhotoLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture(),
         onResult = { isSaved ->
-            if (isSaved) viewModel.onUiAction(AddImage(fileFromContentUri(context, uri).toUri()))
+            if (isSaved) {
+                onChanged()
+                viewModel.onUiAction(AddImage(fileFromContentUri(context, uri).toUri()))
+            }
         }
     )
 
     val pickPhotosLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickMultipleVisualMedia(),
         onResult = {
+            if (it.isEmpty()) return@rememberLauncherForActivityResult
+            onChanged()
             it.forEach { uri -> viewModel.onUiAction(AddImage(fileFromContentUri(context, uri).toUri())) }
         }
     )
