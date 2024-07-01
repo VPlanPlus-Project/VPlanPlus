@@ -145,10 +145,12 @@ open class NetworkRepositoryImpl(
                 }
                 queries.forEach { (key, value) -> parameter(key, value) }
 
-                if (requestMethod != HttpMethod.Get) setBody(requestBody ?: "{}")
-
-                onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
-                onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
+                if (requestMethod != HttpMethod.Get) {
+                    if (requestBody is ByteArray) setBody(ByteReadChannel(requestBody))
+                    else if (requestBody != null) setBody(requestBody)
+                    onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
+                    onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
+                }
             }
             if (!listOf(
                     HttpStatusCode.OK,
