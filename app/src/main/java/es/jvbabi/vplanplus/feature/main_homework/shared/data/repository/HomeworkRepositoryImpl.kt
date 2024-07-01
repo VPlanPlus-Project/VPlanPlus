@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDocumentDao
 import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -29,6 +30,7 @@ import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.DeleteTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.Document
@@ -37,6 +39,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.Homewo
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.NewTaskRecord
 import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
+import es.jvbabi.vplanplus.shared.data.Response
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
@@ -682,6 +685,82 @@ class HomeworkRepositoryImpl(
             emit(times.map { it.toModel() })
         }
     }
+
+    override suspend fun addDocumentToHomework(vppId: VppId?, homework: Homework, content: ByteArray, name: String, type: HomeworkDocumentType, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?> {
+        val documentId: Int
+        val successResult: HomeworkModificationResult
+        if (vppId != null && homework.id > 0) {
+            val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
+            if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
+            vppIdNetworkRepository.authentication = BearerAuthentication(token)
+            val response = vppIdNetworkRepository.doRequest(
+                path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homework.id}/document/",
+                requestBody = content,
+                requestMethod = HttpMethod.Post,
+                queries = mapOf("file_name" to name),
+                onUploading = { sent, total -> onUploading(sent, total) }
+            )
+            if (response.response?.isSuccess() != true) return Response(HomeworkModificationResult.FAILED, null)
+            val data = response.data ?: return Response(HomeworkModificationResult.FAILED, null)
+            documentId = ResponseDataWrapper.fromJson<UploadDocumentResponse>(data).id
+            successResult = HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+        } else {
+            documentId = findLocalDocumentId() - 1
+            successResult = HomeworkModificationResult.SUCCESS_OFFLINE
+        }
+        homeworkDocumentDao.insertHomeworkDocument(
+            DbHomeworkDocument(
+                documentId,
+                fileName = name,
+                homeworkId = homework.id,
+                fileType = type.extension
+            )
+        )
+        return Response(successResult, documentId)
+    }
+
+    override suspend fun editDocument(vppId: VppId?, homeworkDocument: es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument, newName: String?): HomeworkModificationResult {
+        if (vppId != null) {
+            val token = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+            if (vppId.group?.school == null) return HomeworkModificationResult.FAILED
+            vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        }
+
+        if (newName != null) {
+            if (vppId != null) {
+                val response = vppIdNetworkRepository.doRequest(
+                    path = "/api/$API_VERSION/school/${vppId.group!!.school.id}/group/${vppId.group.groupId}/homework/${homeworkDocument.homeworkId}/document/${homeworkDocument.documentId}/name",
+                    requestBody = Gson().toJson(RenameDocumentRequest(newName)),
+                    requestMethod = HttpMethod.Patch
+                )
+                if (response.response != HttpStatusCode.OK) return HomeworkModificationResult.FAILED
+            }
+            homeworkDocumentDao.updateHomeworkDocumentFileName(homeworkDocument.documentId, newName)
+        }
+
+        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+    }
+
+    override suspend fun deleteDocument(vppId: VppId?, homeworkDocument: es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument): HomeworkModificationResult {
+        if (vppId != null && homeworkDocument.homeworkId > 0) {
+            val token = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+            if (vppId.group?.school == null) return HomeworkModificationResult.FAILED
+            vppIdNetworkRepository.authentication = BearerAuthentication(token)
+
+            val response = vppIdNetworkRepository.doRequest(
+                path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homeworkDocument.homeworkId}/document/${homeworkDocument.documentId}",
+                requestMethod = HttpMethod.Delete
+            )
+            if (arrayOf(HttpStatusCode.OK, HttpStatusCode.NotFound).contains(response.response)) return HomeworkModificationResult.FAILED
+        }
+
+        homeworkDocumentDao.deleteHomeworkDocumentById(homeworkDocument.documentId)
+        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
+    }
+
+    override suspend fun getDocumentById(id: Int): es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument? {
+        return homeworkDocumentDao.getHomeworkDocumentById(id)?.toModel(context)
+    }
 }
 
 private data class UploadDocumentResponse(
@@ -776,3 +855,7 @@ private data class HomeworkDocument(
         return result
     }
 }
+
+private data class RenameDocumentRequest(
+    @SerializedName("file_name") val name: String
+)

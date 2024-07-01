@@ -304,3 +304,8 @@ class VppIdNetworkRepository(
     userAgent = userAgent,
     logRepository = logRepository
 )
+
+data class Response<C, V>(
+    val code: C,
+    val value: V
+)

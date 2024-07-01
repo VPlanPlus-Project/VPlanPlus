@@ -23,4 +23,7 @@ abstract class HomeworkDocumentDao {
 
     @Query("DELETE FROM homework_document WHERE id = :id")
     abstract fun deleteHomeworkDocumentById(id: Int)
+
+    @Query("UPDATE homework_document SET file_name = :fileName WHERE id = :id")
+    abstract fun updateHomeworkDocumentFileName(id: Int, fileName: String)
 }

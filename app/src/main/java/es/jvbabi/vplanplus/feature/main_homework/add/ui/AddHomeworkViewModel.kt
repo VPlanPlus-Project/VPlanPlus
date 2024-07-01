@@ -13,7 +13,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_DOCUMENT_BALLOON
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_VPPID_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
-import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
@@ -135,11 +135,11 @@ class AddHomeworkViewModel @Inject constructor(
     }
 
     private fun addDocument(documentUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents + HomeworkDocument(documentUri, HomeworkDocumentType.PDF))
+        state.value = state.value.copy(documents = state.value.documents + NewHomeworkDocument(documentUri, HomeworkDocumentType.PDF, name = null))
     }
 
     private fun addImage(imageUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents + HomeworkDocument(imageUri, HomeworkDocumentType.JPG))
+        state.value = state.value.copy(documents = state.value.documents + NewHomeworkDocument(imageUri, HomeworkDocumentType.JPG, name = null))
     }
 
     private fun removeDocument(documentUri: Uri) {
@@ -180,7 +180,7 @@ data class AddHomeworkState(
     val showVppIdStorageBalloon: Boolean = false,
     val showDocumentsBalloon: Boolean = false,
 
-    val documents: List<HomeworkDocument> = emptyList()
+    val documents: List<NewHomeworkDocument> = emptyList()
 ) {
     val canSave: Boolean
         get() = until != null && tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
@@ -193,9 +193,10 @@ enum class SaveType {
     LOCAL, CLOUD, SHARED
 }
 
-data class HomeworkDocument(
+data class NewHomeworkDocument(
     val uri: Uri,
     val type: HomeworkDocumentType,
+    val name: String? = null,
     val uploadProgress: Float? = null
 )
 

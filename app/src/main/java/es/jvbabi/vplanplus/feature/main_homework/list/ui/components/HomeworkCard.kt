@@ -297,7 +297,7 @@ private fun HomeworkCardPreview() {
             isHidden = true,
             isEnabled = false,
             profile = profile,
-            documentUris = emptyMap()
+            documentUris = emptyList()
         ),
         isOwner = true,
         allDone = {},

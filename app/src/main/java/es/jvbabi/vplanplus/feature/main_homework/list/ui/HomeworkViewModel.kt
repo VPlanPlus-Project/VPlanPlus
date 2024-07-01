@@ -1,22 +1,21 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui
 
-import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
-import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkResult
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkUseCases
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -333,7 +332,7 @@ data class HomeworkViewModelHomework(
     val isLoadingNewTask: Boolean = false,
     val isEnabled: Boolean = true,
     val profile: Profile,
-    val documentUris: Map<Uri, HomeworkDocumentType>
+    val documentUris: List<HomeworkDocument>
 ) {
     fun toHomework() = Homework(
         id = id,

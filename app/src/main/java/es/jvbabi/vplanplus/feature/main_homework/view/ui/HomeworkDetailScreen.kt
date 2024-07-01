@@ -194,28 +194,22 @@ private fun HomeworkDetailScreenContent(
             Tasks(
                 tasks = state.homework?.tasks ?: emptyList(),
                 isEditing = state.isEditing,
-                editTasks = state.editTasks,
                 newTasks = state.newTasks,
-                onAddTask = { newTaskId, content -> onAction(AddTaskAction(newTaskId, content)) },
+                editTasks = state.editedTasks,
+                deletedTasks = state.tasksToDelete,
+                onAddTask = { newTask -> onAction(AddTaskAction(newTask)) },
                 onTaskClicked = { onAction(TaskDoneStateToggledAction(it)) },
-                onDeleteExistingTask = { onAction(DeleteExistingTaskAction(it.id)) },
-                onDeleteNewTask = { onAction(DeleteNewTaskAction(it)) },
-                onUpdateExistingTask = { existingTaskId, content ->
-                    onAction(
-                        UpdateExistingTaskContentAction(existingTaskId, content)
-                    )
-                },
-                onUpdateNewTask = { newTaskId, content ->
-                    onAction(
-                        UpdateNewTaskContentAction(
-                            newTaskId,
-                            content
-                        )
-                    )
-                }
+                onDeleteTask = { onAction(DeleteTaskAction(it)) },
+                onUpdateTask = { task -> onAction(UpdateTaskContentAction(task)) }
             )
             Spacer8Dp()
-            Documents(documents = state.homework?.documents ?: emptyMap(), isEditing = state.isEditing)
+            Documents(
+                documents = state.homework?.documents ?: emptyList(),
+                markedAsRemoveUris = state.documentsToDelete.map { it.uri },
+                isEditing = state.isEditing,
+                onRename = { onAction(RenameDocumentAction(it)) },
+                onRemove = { onAction(DeleteDocumentAction(it)) }
+            )
         }
     }
 }
@@ -233,7 +227,7 @@ fun HomeworkDetailScreenPreview() {
             homework = Homework(
                 id = 1,
                 createdBy = vppId,
-                documents = emptyMap(),
+                documents = emptyList(),
                 tasks = listOf(
                     HomeworkTask(id = 1, content = "Task 1", isDone = false),
                     HomeworkTask(id = 2, content = "Task 2", isDone = true),

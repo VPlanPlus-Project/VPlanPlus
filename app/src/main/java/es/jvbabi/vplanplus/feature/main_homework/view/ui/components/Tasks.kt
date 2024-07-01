@@ -27,20 +27,21 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.noRippleClickable
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
-import es.jvbabi.vplanplus.feature.main_homework.view.ui.EditTask
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.EditedTask
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.NewTask
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.TaskUpdate
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 
 @Composable
 fun Tasks(
     tasks: List<HomeworkTask>,
-    editTasks: List<EditTask>,
-    newTasks: List<EditTask>,
+    editTasks: List<EditedTask>,
+    newTasks: List<NewTask>,
+    deletedTasks: List<HomeworkTask>,
     onTaskClicked: (HomeworkTask) -> Unit,
-    onAddTask: (newTaskId: Long, content: String) -> Unit,
-    onUpdateExistingTask: (existingTaskId: Long, content: String) -> Unit,
-    onUpdateNewTask: (newTaskId: Long, content: String) -> Unit,
-    onDeleteExistingTask: (HomeworkTask) -> Unit,
-    onDeleteNewTask: (newTaskId: Long) -> Unit,
+    onAddTask: (newTask: NewTask) -> Unit,
+    onUpdateTask: (task: TaskUpdate) -> Unit,
+    onDeleteTask: (task: TaskUpdate) -> Unit,
     isEditing: Boolean
 ) {
     Column(
@@ -55,31 +56,36 @@ fun Tasks(
             modifier = Modifier.padding(bottom = 4.dp)
         )
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            editTasks.forEach { editTask ->
-                val task = tasks.firstOrNull { it.id == editTask.id }
-                TaskRecord(
-                    id = editTask.id,
-                    task = editTask.content,
-                    isDone = task?.isDone ?: false,
-                    isNewTask = false,
-                    isEditing = isEditing,
-                    onClick = { if (task != null) onTaskClicked(task) },
-                    onUpdateTask = { if (task != null) onUpdateExistingTask(task.id, it) },
-                    onDelete = { if (task != null) onDeleteExistingTask(task) }
-                )
-            }
-            newTasks.forEach { newTask ->
-                TaskRecord(
-                    id = newTask.id,
-                    task = newTask.content,
-                    isDone = false,
-                    isEditing = isEditing,
-                    isNewTask = true,
-                    onClick = {},
-                    onUpdateTask = { onUpdateNewTask(newTask.id, it) },
-                    onDelete = { onDeleteNewTask(newTask.id) },
-                )
-            }
+            tasks
+                .filter { deletedTasks.none { dt -> dt.id == it.id } }
+                .forEach { originalTask ->
+                    val content = editTasks.find { it.id == originalTask.id }?.content ?: originalTask.content
+                    val updateTask = EditedTask(originalTask.id, content)
+                    TaskRecord(
+                        id = originalTask.id,
+                        task = content,
+                        isDone = originalTask.isDone,
+                        isNewTask = false,
+                        isEditing = isEditing,
+                        onClick = { onTaskClicked(originalTask) },
+                        onUpdateTask = { onUpdateTask(EditedTask(originalTask.id, it)) },
+                        onDelete = { onDeleteTask(updateTask) }
+                    )
+                }
+            newTasks
+                .forEach { newTask ->
+                    val updateTask = NewTask(newTask.id, newTask.content)
+                    TaskRecord(
+                        id = newTask.id,
+                        task = newTask.content,
+                        isDone = false,
+                        isEditing = isEditing,
+                        isNewTask = true,
+                        onClick = {},
+                        onUpdateTask = { onUpdateTask(NewTask(newTask.id, it)) },
+                        onDelete = { onDeleteTask(updateTask) },
+                    )
+                }
             AnimatedVisibility(
                 visible = isEditing,
                 enter = expandVertically(),
@@ -108,9 +114,9 @@ fun Tasks(
                                     .fillMaxWidth()
                                     .focusRequester(focusRequester),
                                 value = "",
-                                onValueChange = {
-                                    if (it.isBlank()) return@BasicTextField
-                                    onAddTask((newTasks.maxOfOrNull { newTask -> newTask.id } ?: 0) + 1, it)
+                                onValueChange = { content ->
+                                    if (content.isBlank()) return@BasicTextField
+                                    onAddTask(NewTask(content = content))
                                 }
                             )
                         }
@@ -130,14 +136,13 @@ private fun TasksPreview() {
             HomeworkTask(2, "Task 2", true),
             HomeworkTask(3, "Task 3", false),
         ),
-        onAddTask = { _, _ -> },
         onTaskClicked = {},
-        onUpdateExistingTask = { _, _ -> },
-        onUpdateNewTask = { _, _ -> },
-        onDeleteExistingTask = {},
-        onDeleteNewTask = {},
-        newTasks = emptyList(),
         editTasks = emptyList(),
+        newTasks = emptyList(),
+        deletedTasks = emptyList(),
+        onAddTask = {},
+        onUpdateTask = {},
+        onDeleteTask = {},
         isEditing = false
     )
 }

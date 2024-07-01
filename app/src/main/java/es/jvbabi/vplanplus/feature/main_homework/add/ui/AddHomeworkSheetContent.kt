@@ -76,7 +76,7 @@ import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.StoreSaveModa
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.default_lesson_dialog.SelectDefaultLessonSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.due_to.SetDueToModal
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
-import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DocumentRecord
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.document_record.DocumentRecord
 import es.jvbabi.vplanplus.ui.common.BasicInputField
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
@@ -375,6 +375,7 @@ fun AddHomeworkSheetContent(
                 DocumentRecord(
                     uri = document.uri,
                     type = document.type,
+                    name = document.name,
                     isEditing = true,
                     progress = document.uploadProgress,
                     onRemove = { viewModel.onUiAction(RemoveDocument(document.uri)) }

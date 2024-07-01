@@ -44,7 +44,7 @@ import es.jvbabi.vplanplus.util.toTransparent
 
 @Composable
 fun TaskRecord(
-    id: Long,
+    id: Any,
     task: String,
     isDone: Boolean,
     isEditing: Boolean,
@@ -64,7 +64,7 @@ fun TaskRecord(
     }
     LaunchedEffect(key1 = isNewTask) {
         if (isNewTask) {
-            focusRequester.requestFocus()
+            try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
             textFieldValueState = textFieldValueState.copy(selection = TextRange(1))
         }
     }

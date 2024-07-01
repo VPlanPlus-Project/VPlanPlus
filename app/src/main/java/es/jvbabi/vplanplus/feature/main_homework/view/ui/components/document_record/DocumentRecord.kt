@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_homework.view.ui.components
+package es.jvbabi.vplanplus.feature.main_homework.view.ui.components.document_record
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,32 +35,36 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toFile
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.ui.common.HorizontalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
-import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
 
 @Composable
 fun DocumentRecord(
     uri: Uri?,
+    name: String?,
     type: HomeworkDocumentType,
     progress: Float? = null,
     isEditing: Boolean,
+    onRename: (to: String) -> Unit = {},
     onRemove: () -> Unit = {}
 ) {
     var isLoading by remember(uri) { mutableStateOf(true) }
@@ -95,6 +100,16 @@ fun DocumentRecord(
         }
         isLoading = false
     }
+
+    var showEditFilenameDialog by rememberSaveable { mutableStateOf(false) }
+    if (showEditFilenameDialog) {
+        RenameDialog(
+            currentValue = name,
+            onDismiss = { showEditFilenameDialog = false },
+            onOk = { showEditFilenameDialog = false; onRename(it) }
+        )
+    }
+
     RowVerticalCenter(
         modifier = Modifier
             .fillMaxWidth()
@@ -135,8 +150,14 @@ fun DocumentRecord(
         }
 
         AnimatedVisibility(visible = !isLoading) {
-            RowVerticalCenterSpaceBetweenFill {
-                Column {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(Modifier.align(Alignment.CenterStart)) {
+                    if (name != null) Text(
+                        text = name,
+                        style = MaterialTheme.typography.labelLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
                     if (type == HomeworkDocumentType.PDF) Text(
                         text = pluralStringResource(id = R.plurals.homework_detailViewDocumentPages, count = pageCount, pageCount),
                         style = MaterialTheme.typography.labelMedium
@@ -152,13 +173,28 @@ fun DocumentRecord(
                     VerticalExpandAnimatedAndFadingVisibility(visible = progress != null) {
                         LinearProgressIndicator(
                             progress = { progress ?: 0f },
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
                         )
                     }
                 }
-                HorizontalExpandAnimatedAndFadingVisibility(visible = isEditing) {
-                    IconButton(onClick = onRemove) {
-                        Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                HorizontalExpandAnimatedAndFadingVisibility(
+                    visible = isEditing,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .shadow(4.dp, RoundedCornerShape(50))
+                        .clip(RoundedCornerShape(50))
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .padding(4.dp)
+                ) {
+                    RowVerticalCenter {
+                        IconButton(onClick = { showEditFilenameDialog = true }) {
+                            Icon(imageVector = Icons.Default.Edit, contentDescription = null)
+                        }
+                        IconButton(onClick = onRemove) {
+                            Icon(imageVector = Icons.Default.Delete, contentDescription = null)
+                        }
                     }
                 }
             }
@@ -169,11 +205,11 @@ fun DocumentRecord(
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordPreview() {
-    DocumentRecord(null, HomeworkDocumentType.PDF, 0.3f, false)
+    DocumentRecord(null, null, HomeworkDocumentType.PDF, 0.3f, false)
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordEditingPreview() {
-    DocumentRecord(null, HomeworkDocumentType.PDF, null, true)
+    DocumentRecord(null, "A file", HomeworkDocumentType.PDF, null, true)
 }

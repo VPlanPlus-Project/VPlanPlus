@@ -14,5 +14,7 @@ data class HomeworkDetailUseCases(
     val updateDueDateUseCase: UpdateDueDateUseCase,
     val deleteHomeworkTaskUseCase: DeleteHomeworkTaskUseCase,
     val editTaskUseCase: EditTaskUseCase,
-    val addTaskUseCase: AddTaskUseCase
+    val addTaskUseCase: AddTaskUseCase,
+
+    val updateDocumentsUseCase: UpdateDocumentsUseCase,
 )

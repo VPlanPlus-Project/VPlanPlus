@@ -13,18 +13,24 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.HomeworkDocumentType
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
+import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.DocumentUpdate
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.document_record.DocumentRecord
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 
 @Composable
 fun Documents(
-    documents: Map<Uri, HomeworkDocumentType>,
-    isEditing: Boolean
+    documents: List<HomeworkDocument>,
+    markedAsRemoveUris: List<Uri>,
+    isEditing: Boolean,
+    onRename: (updated: DocumentUpdate) -> Unit,
+    onRemove: (removed: DocumentUpdate) -> Unit
 ) {
     Column(
         Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)) {
+            .padding(horizontal = 16.dp)
+    ) {
         Text(
             text = stringResource(id = R.string.homework_detailViewDocumentsTitle),
             style = MaterialTheme.typography.titleSmall,
@@ -42,14 +48,18 @@ fun Documents(
                 )
             }
         } else {
-            documents.forEach { (documentUri, type) ->
-                DocumentRecord(
-                    uri = documentUri,
-                    type = type,
-                    progress = null,
-                    isEditing = isEditing
-                )
-            }
+            documents
+                .filter { document -> document.uri !in markedAsRemoveUris }
+                .forEach { document ->
+                    DocumentRecord(
+                        uri = document.uri,
+                        type = document.type,
+                        name = document.name,
+                        isEditing = isEditing,
+                        onRename = { to -> onRename(DocumentUpdate.EditedDocument(document.uri, to)) },
+                        onRemove = { onRemove(DocumentUpdate.EditedDocument(document.uri)) }
+                    )
+                }
         }
     }
 }
@@ -57,5 +67,11 @@ fun Documents(
 @Composable
 @Preview(showBackground = true)
 private fun NoDocumentsPreview() {
-    Documents(documents = emptyMap(), false)
+    Documents(
+        documents = emptyList(),
+        markedAsRemoveUris = emptyList(),
+        isEditing = false,
+        onRename = {},
+        onRemove = {}
+    )
 }

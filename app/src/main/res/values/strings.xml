@@ -699,5 +699,8 @@
     <string name="addHomework_saveTypeBalloonText">Your homework will be saved in your vpp.ID by default from now on. You can now share homework with your class.</string>
     <string name="addHomework_saveTypeBalloonTitle">vpp.ID added!</string>
     <string name="addHomework_noDefaultLessonsFound">There are no subjects available at the moment.</string>
+    <string name="homework_detailViewEditRenameDialogTitle">Rename file</string>
+    <string name="homework_detailViewEditRenameDialogPlaceholder">Enter a file name</string>
+    <string name="homework_detailViewEditRenameDialogMessage">You can rename this file however you like, even special characters are allowed. All references to this file will still work afterwards.</string>
 
 </resources>

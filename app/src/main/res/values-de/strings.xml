@@ -696,5 +696,8 @@
     <string name="addHomework_saveTypeBalloonText">Deine Hausaufgaben werden nun standardmäßig in deiner vpp.ID gespeichert. Du kannst ab sofort auch Hausaufgaben mit deiner Klasse teilen.</string>
     <string name="addHomework_saveTypeBalloonTitle">vpp.ID hinzugefügt!</string>
     <string name="addHomework_noDefaultLessonsFound">Momentan sind keine Fächer verfügbar.</string>
+    <string name="homework_detailViewEditRenameDialogTitle">Datei umbenennen</string>
+    <string name="homework_detailViewEditRenameDialogPlaceholder">Dateinamen eingeben</string>
+    <string name="homework_detailViewEditRenameDialogMessage">Du kannst die Datei benennen, wie du möchtest, selbst Sonderzeichen sind erlaubt. Alle Referenzen auf diese Datei werden nach wie vor funktionieren,</string>
 
 </resources>
