@@ -37,11 +37,7 @@ data class DbHomeworkDocument(
             documentId = id,
             homeworkId = homeworkId.toInt(),
             uri = Uri.fromFile(File(context.filesDir, "homework_documents/${id}")),
-            type = when (fileType) {
-                "pdf" -> HomeworkDocumentType.PDF
-                "jpg" -> HomeworkDocumentType.JPG
-                else -> throw IllegalArgumentException("Unknown document type")
-            },
+            type = HomeworkDocumentType.fromExtension(fileType),
             name = fileName
         )
     }

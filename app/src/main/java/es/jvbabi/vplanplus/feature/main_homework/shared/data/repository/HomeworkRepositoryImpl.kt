@@ -235,6 +235,12 @@ class HomeworkRepositoryImpl(
         )
         if (response.response?.isSuccess() != true || response.data == null) return null
         val data = ResponseDataWrapper.fromJson<HomeworkDocumentResponse>(response.data)
+        try {
+            HomeworkDocumentType.fromExtension(data.extension)
+        } catch (e: IllegalArgumentException) {
+            Log.e("HomeworkRepository.getHomeworkDocument", "Unknown or unsupported extension: ${data.extension}")
+            return null
+        }
         val contentResponse = vppIdNetworkRepository.doRequestRaw(
             path = "/api/$API_VERSION/school/$schoolId/group/$groupId/homework/$homeworkId/document/$documentId/content",
             requestMethod = HttpMethod.Get
@@ -697,7 +703,7 @@ class HomeworkRepositoryImpl(
                 path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homework.id}/document/",
                 requestBody = content,
                 requestMethod = HttpMethod.Post,
-                queries = mapOf("file_name" to name),
+                queries = mapOf("file_name" to name + "." + type.extension),
                 onUploading = { sent, total -> onUploading(sent, total) }
             )
             if (response.response?.isSuccess() != true) return Response(HomeworkModificationResult.FAILED, null)
