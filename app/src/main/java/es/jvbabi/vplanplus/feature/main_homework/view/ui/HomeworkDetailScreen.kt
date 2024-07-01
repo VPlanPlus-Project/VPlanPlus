@@ -1,6 +1,11 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui
 
+import android.app.Activity
+import android.util.Log
 import androidx.activity.compose.BackHandler
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +39,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,7 +48,13 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.pickDocumentLauncher
+import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.rememberPickPhotoLauncher
+import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.rememberScanner
+import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.rememberTakePhotoLauncher
+import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.DocumentUpdate
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DefaultLessonCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.Documents
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DueToCard
@@ -72,9 +84,27 @@ fun HomeworkDetailScreen(
 ) {
     LaunchedEffect(key1 = homeworkId) { viewModel.init(homeworkId) { navHostController.popBackStack() } }
     val state = viewModel.state
+    val context = LocalContext.current
+
+    val pickDocumentLauncher = pickDocumentLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.PDF.extension))) }
+    val (scanner, scannerLauncher) = rememberScanner { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.PDF.extension))) }
+
+    val takePhotoLauncher = rememberTakePhotoLauncher(key1 = state.newDocuments.size) { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
+    val pickPhotosLauncher = rememberPickPhotoLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
+
     HomeworkDetailScreenContent(
         onBack = { navHostController.popBackStack() },
         onAction = viewModel::onAction,
+        onTakePhotoClicked = { takePhotoLauncher.launch(android.Manifest.permission.CAMERA) },
+        onPickPhotoClicked = { pickPhotosLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+        onScanDocumentClicked = { scanner.getStartScanIntent(context as Activity)
+            .addOnSuccessListener {
+                scannerLauncher.launch(IntentSenderRequest.Builder(it).build())
+            }
+            .addOnFailureListener {
+                Log.e("AddHomeworkScreen", "Failed to start scanning", it)
+            } },
+        onPickDocumentClicked = { pickDocumentLauncher.launch("application/pdf") },
         state = state
     )
 }
@@ -84,6 +114,10 @@ fun HomeworkDetailScreen(
 private fun HomeworkDetailScreenContent(
     onBack: () -> Unit = {},
     onAction: (action: UiAction) -> Unit = {},
+    onTakePhotoClicked: () -> Unit = {},
+    onPickPhotoClicked: () -> Unit = {},
+    onScanDocumentClicked: () -> Unit = {},
+    onPickDocumentClicked: () -> Unit = {},
     state: HomeworkDetailState
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -205,10 +239,15 @@ private fun HomeworkDetailScreenContent(
             Spacer8Dp()
             Documents(
                 documents = state.homework?.documents ?: emptyList(),
+                newDocuments = state.newDocuments,
                 markedAsRemoveUris = state.documentsToDelete.map { it.uri },
                 isEditing = state.isEditing,
                 onRename = { onAction(RenameDocumentAction(it)) },
-                onRemove = { onAction(DeleteDocumentAction(it)) }
+                onRemove = { onAction(DeleteDocumentAction(it)) },
+                onPickPhotoClicked = onPickPhotoClicked,
+                onTakePhotoClicked = onTakePhotoClicked,
+                onPickDocumentClicked = onPickDocumentClicked,
+                onScanDocumentClicked = onScanDocumentClicked
             )
         }
     }

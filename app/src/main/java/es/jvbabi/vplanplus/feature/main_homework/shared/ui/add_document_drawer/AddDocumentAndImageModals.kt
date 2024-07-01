@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_homework.add.ui.components
+package es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddAPhoto
