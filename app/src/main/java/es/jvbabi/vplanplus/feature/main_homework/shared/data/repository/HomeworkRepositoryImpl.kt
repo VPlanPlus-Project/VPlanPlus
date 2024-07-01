@@ -751,7 +751,7 @@ class HomeworkRepositoryImpl(
                 path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homeworkDocument.homeworkId}/document/${homeworkDocument.documentId}",
                 requestMethod = HttpMethod.Delete
             )
-            if (arrayOf(HttpStatusCode.OK, HttpStatusCode.NotFound).contains(response.response)) return HomeworkModificationResult.FAILED
+            if (response.response !in arrayOf(HttpStatusCode.OK, HttpStatusCode.NotFound)) return HomeworkModificationResult.FAILED
         }
 
         homeworkDocumentDao.deleteHomeworkDocumentById(homeworkDocument.documentId)
