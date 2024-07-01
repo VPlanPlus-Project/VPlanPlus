@@ -54,7 +54,6 @@ open class NetworkRepositoryImpl(
 
     private val client = HttpClient(Android) {
         install(HttpTimeout) {
-            requestTimeoutMillis = 10000
             connectTimeoutMillis = 10000
             socketTimeoutMillis = 10000
         }
@@ -81,7 +80,12 @@ open class NetworkRepositoryImpl(
                         append(key, value)
                     }
                     globalHeaders.forEach { (key, value) -> append(key, value) }
-                    if (requestMethod != HttpMethod.Get) append("Content-Type", "application/json")
+                    if (requestMethod != HttpMethod.Get && requestBody != null) {
+                        append("Content-Type", when (requestBody) {
+                            is ByteArray -> "application/octet-stream"
+                            else -> "application/json"
+                        })
+                    }
                 }
                 queries.forEach { (key, value) -> parameter(key, value) }
 

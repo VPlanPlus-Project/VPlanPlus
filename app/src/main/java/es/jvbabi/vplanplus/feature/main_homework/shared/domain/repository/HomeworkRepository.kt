@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository
 import android.net.Uri
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.AddHomeworkResponse
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
@@ -22,6 +23,7 @@ interface HomeworkRepository {
 
     suspend fun getAll(): Flow<List<Homework>>
 
+    @Deprecated("Use split up methods instead instead")
     suspend fun insertHomework(
         id: Long? = null,
         profile: ClassProfile,
@@ -36,6 +38,7 @@ interface HomeworkRepository {
         onDocumentUploadProgressChanges: (Uri, Float) -> Unit = { _, _ -> }
     ): HomeworkModificationResult
 
+    @Deprecated("Use split up methods instead instead")
     suspend fun addNewTask(
         profile: ClassProfile,
         homework: Homework,
@@ -86,18 +89,6 @@ interface HomeworkRepository {
     suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek)
     fun getPreferredHomeworkNotificationTimes(): Flow<List<PreferredHomeworkNotificationTime>>
 
-    /**
-     * Adds a document to a homework. This will not save the document to the device, it will only register it in the database and upload it to the cloud if the homework is not local. Creating the actual document is the responsibility of the caller.
-     * @author Julius Babies
-     * @param vppId The VPP ID of the homework. If null, the homework is assumed to be a local homework and the document will be stored locally.
-     * @param homework The homework to which the document should be added.
-     * @param content The content of the document. (See [es.jvbabi.vplanplus.data.repository.FileRepository.readBytes] for reading from a [Uri])
-     * @param name The name of the document without the extension.
-     * @param type The type of the document (only pdf and jpg is supported at the moment)
-     * @param onUploading A callback that is called when the document is being uploaded. The first parameter is the number of bytes sent, the second is the total number of bytes. This will only be called if the document is uploaded to the cloud.
-     * @return A [Response] with the result of the operation. The first parameter is the result, the second is the ID of the document if the operation was successful.
-     */
-    suspend fun addDocumentToHomework(vppId: VppId? = null, homework: Homework, content: ByteArray, name: String, type: HomeworkDocumentType, onUploading: (sent: Long, total: Long) -> Unit = { _, _ ->}): Response<HomeworkModificationResult, Int?>
     suspend fun editDocument(vppId: VppId? = null, homeworkDocument: HomeworkDocument, newName: String?): HomeworkModificationResult
 
     /**
@@ -108,6 +99,62 @@ interface HomeworkRepository {
      */
     suspend fun deleteDocument(vppId: VppId? = null, homeworkDocument: HomeworkDocument): HomeworkModificationResult
     suspend fun getDocumentById(id: Int): HomeworkDocument?
+
+    /**
+     * Adds a document to the database. This will not upload the document to the cloud, it will only save it to the device. Uploading the document is the responsibility of the caller.
+     * @param documentId The ID of the document. If null, the next available local ID will be used.
+     * @param homeworkId The ID of the homework to which the document belongs.
+     * @param name The name of the document.
+     * @param type The type of the document.
+     * @return The ID of the document, either the one provided or the next available local ID.
+     */
+    suspend fun addDocumentToDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId
+
+    /**
+     * Uploads a document to the cloud. This will not save the document to the device, it will only upload it to the cloud. Creating the actual document is the responsibility of the caller.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param name The name of the document without the extension
+     * @param type The type of the document
+     * @param content The content of the document
+     * @param onUploading A callback that is called when the document is being uploaded. The first parameter is the number of bytes sent, the second is the total number of bytes.
+     * @return A [Response] containing the result of the operation and the ID of the document if it was successful.
+     */
+    suspend fun uploadDocument(vppId: VppId, name: String, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?>
+
+    /**
+     * Adds a homework to the database. This will not upload the homework to the cloud, it will only save it to the device. Uploading the homework is the responsibility of the caller.
+     * @param homeworkId The ID of the homework. If null, the next available local ID will be used.
+     * @param clazzProfile The class profile to which the homework belongs.
+     * @param defaultLessonVpId The ID of the default lesson. If null, the default lesson will be set to null.
+     * @param dueTo The due date of the homework.
+     * @param vppId The VPP ID of the homeworks creator. Can be null if it's a local homework or the creator hasn't been cached yet.
+     * @param isHidden Whether the homework is hidden
+     * @param isPublic Whether the homework is public
+     * @param createdAt The creation date of the homework.
+     * @return The ID of the homework, either the one provided or the next available local ID.
+     */
+    suspend fun addHomeworkToDb(homeworkId: Int? = null, clazzProfile: ClassProfile, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isHidden: Boolean = false, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId
+
+    /**
+     * Uploads a homework to the cloud. This will not save the homework to the device, it will only upload it to the cloud. Creating the actual homework is the responsibility of the caller.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param dueTo The due date of the homework.
+     * @param tasks The tasks of the homework.
+     * @param vpId The ID of the default lesson. If null, the default lesson will be set to null.
+     * @param isPublic Whether the homework is public
+     * @return A [Response] containing the result of the operation and the ID of the homework if it was successful.
+     */
+    suspend fun uploadHomework(vppId: VppId, dueTo: ZonedDateTime, tasks: List<String>, vpId: Int? = null, isPublic: Boolean): Response<HomeworkModificationResult, AddHomeworkResponse?>
+
+    /**
+     * Adds a homework task to the database. This will not upload the task to the cloud, it will only save it to the device. Uploading the task is the responsibility of the caller.
+     * @param homeworkId The ID of the homework to which the task belongs.
+     * @param taskId The ID of the task. If null, the next available local ID will be used.
+     * @param isDone Whether the task is done.
+     * @param content The content of the task.
+     * @return The ID of the task, either the one provided or the next available local ID.
+     */
+    suspend fun addHomeworkTaskToDb(homeworkId: Int, taskId: Int?, isDone: Boolean = false, content: String): HomeworkTaskId
 }
 
 enum class HomeworkModificationResult {
@@ -134,3 +181,7 @@ data class Document(
     val name: String = UUID.randomUUID().toString(),
     val extension: String
 )
+
+typealias HomeworkDocumentId = Int
+typealias HomeworkTaskId = Int
+typealias HomeworkId = Int

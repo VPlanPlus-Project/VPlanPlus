@@ -80,9 +80,14 @@ fun DocumentRecord(
         when (type) {
             HomeworkDocumentType.PDF -> {
                 val file = uri.toFile()
-                val pdfRenderer = PdfRenderer(
-                    ParcelFileDescriptor.open(file, MODE_READ_ONLY)
-                )
+                val pdfRenderer = try {
+                    PdfRenderer(
+                        ParcelFileDescriptor.open(file, MODE_READ_ONLY)
+                    )
+                } catch (e: Exception) {
+                    isLoading = false
+                    return@LaunchedEffect
+                }
                 pdfRenderer.openPage(0).use {
                     bitmap = createBitmap(it.width, it.height)
                     it.render(bitmap!!, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
@@ -90,6 +95,7 @@ fun DocumentRecord(
                 pageCount = pdfRenderer.pageCount
                 documentSize = file.length()
             }
+
             HomeworkDocumentType.JPG -> {
                 val file = uri.toFile()
                 bitmap = context.contentResolver.openInputStream(uri)?.use {

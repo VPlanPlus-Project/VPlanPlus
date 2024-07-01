@@ -19,16 +19,34 @@ class UpdateDocumentsUseCase(
 ) {
     suspend operator fun invoke(
         homework: Homework,
-        newDocuments: List<DocumentUpdate.NewDocument>,
-        editedDocuments: List<DocumentUpdate.EditedDocument>,
-        documentsToDelete: List<HomeworkDocument>
+        newDocuments: Collection<DocumentUpdate.NewDocument>,
+        editedDocuments: Collection<DocumentUpdate.EditedDocument>,
+        documentsToDelete: Collection<HomeworkDocument>,
+        onUploading: (uri: Uri, uploadProgress: Float) -> Unit
     ) {
         val vppId = (getCurrentProfileUseCase().first() as? ClassProfile ?: return).vppId
         if (homework.id > 0 && vppId == null) throw IllegalStateException("Profile must be a class profile to edit homework")
         newDocuments.forEach { newDocument ->
             val content = fileRepository.readBytes(newDocument.uri) ?: return@forEach
-            val id = homeworkRepository.addDocumentToHomework(vppId, homework, content, newDocument.name, HomeworkDocumentType.fromExtension(newDocument.extension)).value ?: return@forEach
-            fileRepository.writeBytes("homework_documents", id.toString(), content)
+            var documentId: Int? = null
+            if (homework.id > 0 && vppId != null) {
+                documentId = homeworkRepository.uploadDocument(
+                    vppId = vppId,
+                    name = newDocument.name,
+                    type = HomeworkDocumentType.fromExtension(newDocument.extension),
+                    content = content,
+                    onUploading = { sent, of ->
+                        onUploading(newDocument.uri, (sent.toFloat() / of))
+                    }
+                ).value ?: return@forEach
+            }
+            documentId = homeworkRepository.addDocumentToDb(
+                documentId = documentId,
+                homeworkId = homework.id.toInt(),
+                name = newDocument.name,
+                type = HomeworkDocumentType.fromExtension(newDocument.extension),
+            )
+            fileRepository.writeBytes("homework_documents", documentId.toString(), content)
         }
         editedDocuments.forEach { editedDocument ->
             val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().toInt()) ?: return@forEach

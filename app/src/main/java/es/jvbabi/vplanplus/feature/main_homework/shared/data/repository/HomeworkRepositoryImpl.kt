@@ -34,8 +34,11 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDoc
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.DeleteTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.Document
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkDocumentId
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkId
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkTaskId
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.NewTaskRecord
 import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
@@ -270,6 +273,7 @@ class HomeworkRepositoryImpl(
         return homeworkDao.getById(homeworkId).map { it?.toModel(context) }
     }
 
+    @Deprecated("Use split up methods instead instead")
     override suspend fun insertHomework(
         id: Long?,
         profile: ClassProfile,
@@ -308,11 +312,11 @@ class HomeworkRepositoryImpl(
             if (result.response != HttpStatusCode.Created || result.data == null) return HomeworkModificationResult.FAILED
             val response = ResponseDataWrapper.fromJson<AddHomeworkResponse>(result.data)
 
-            homeworkId = response.id
+            homeworkId = response.id.toLong()
             response.tasks.forEach { responseTask ->
                 homeworkTasks.replaceAll { task ->
                     if (task.content.sha256().lowercase() != responseTask.content) return@replaceAll task
-                    else task.copy(id = responseTask.id)
+                    else task.copy(id = responseTask.id.toLong())
                 }
             }
         }
@@ -431,6 +435,7 @@ class HomeworkRepositoryImpl(
         }
     }
 
+    @Deprecated("Use split up methods instead instead")
     override suspend fun addNewTask(
         profile: ClassProfile,
         homework: Homework,
@@ -692,37 +697,80 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun addDocumentToHomework(vppId: VppId?, homework: Homework, content: ByteArray, name: String, type: HomeworkDocumentType, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?> {
-        val documentId: Int
-        val successResult: HomeworkModificationResult
-        if (vppId != null && homework.id > 0) {
-            val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
-            if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
-            vppIdNetworkRepository.authentication = BearerAuthentication(token)
-            val response = vppIdNetworkRepository.doRequest(
-                path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homework.id}/document/",
-                requestBody = content,
-                requestMethod = HttpMethod.Post,
-                queries = mapOf("file_name" to name + "." + type.extension),
-                onUploading = { sent, total -> onUploading(sent, total) }
-            )
-            if (response.response?.isSuccess() != true) return Response(HomeworkModificationResult.FAILED, null)
-            val data = response.data ?: return Response(HomeworkModificationResult.FAILED, null)
-            documentId = ResponseDataWrapper.fromJson<UploadDocumentResponse>(data).id
-            successResult = HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
-        } else {
-            documentId = findLocalDocumentId() - 1
-            successResult = HomeworkModificationResult.SUCCESS_OFFLINE
-        }
+    override suspend fun addDocumentToDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId {
+        val id = documentId ?: (findLocalDocumentId() - 1)
         homeworkDocumentDao.insertHomeworkDocument(
             DbHomeworkDocument(
-                documentId,
+                id,
                 fileName = name,
-                homeworkId = homework.id,
+                homeworkId = homeworkId.toLong(),
                 fileType = type.extension
             )
         )
-        return Response(successResult, documentId)
+        return id
+    }
+
+    override suspend fun uploadDocument(vppId: VppId, name: String, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?> {
+        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
+        if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
+        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        val response = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/document/",
+            requestBody = content,
+            requestMethod = HttpMethod.Post,
+            queries = mapOf("file_name" to name + "." + type.extension),
+            onUploading = { sent, of -> onUploading(sent, of) }
+        )
+        if (response.response?.isSuccess() != true) return Response(HomeworkModificationResult.FAILED, null)
+        val data = response.data ?: return Response(HomeworkModificationResult.FAILED, null)
+        return Response(HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE, ResponseDataWrapper.fromJson<UploadDocumentResponse>(data).id)
+    }
+
+    override suspend fun addHomeworkToDb(homeworkId: Int?, clazzProfile: ClassProfile, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isHidden: Boolean, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId {
+        val id = homeworkId ?: (findLocalId().toInt() - 1)
+        homeworkDao.insert(DbHomework(
+            id = id.toLong(),
+            groupId = clazzProfile.group.groupId,
+            defaultLessonVpId = defaultLessonVpId,
+            until = dueTo,
+            isHidden = isHidden,
+            isPublic = isPublic,
+            profileId = clazzProfile.id,
+            createdBy = vppId?.id,
+            createdAt = createdAt
+        ))
+        return id
+    }
+
+    override suspend fun uploadHomework(vppId: VppId, dueTo: ZonedDateTime, tasks: List<String>, vpId: Int?, isPublic: Boolean): Response<HomeworkModificationResult, AddHomeworkResponse?> {
+        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
+        if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
+        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        val response = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/",
+            requestBody = Gson().toJson(
+                AddHomeworkRequest(
+                    vpId = vpId,
+                    shareWithClass = isPublic,
+                    until = ZonedDateTimeConverter().zonedDateTimeToTimestamp(dueTo),
+                    tasks = tasks
+                )
+            ),
+            requestMethod = HttpMethod.Post
+        )
+        if (response.response?.isSuccess() != true || response.data == null) return Response(HomeworkModificationResult.FAILED, null)
+        return Response(HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE, ResponseDataWrapper.fromJson<AddHomeworkResponse>(response.data))
+    }
+
+    override suspend fun addHomeworkTaskToDb(homeworkId: Int, taskId: Int?, isDone: Boolean, content: String): HomeworkTaskId {
+        val id = taskId ?: (findLocalTaskId().toInt() - 1)
+        homeworkDao.insertTask(DbHomeworkTask(
+            id = id.toLong(),
+            homeworkId = homeworkId.toLong(),
+            content = content,
+            isDone = isDone
+        ))
+        return id
     }
 
     override suspend fun editDocument(vppId: VppId?, homeworkDocument: es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument, newName: String?): HomeworkModificationResult {
@@ -805,13 +853,13 @@ private data class AddHomeworkRequest(
     @SerializedName("tasks") val tasks: List<String>
 )
 
-private data class AddHomeworkResponse(
-    @SerializedName("id") val id: Long,
+data class AddHomeworkResponse(
+    @SerializedName("id") val id: Int,
     @SerializedName("tasks") val tasks: List<AddHomeworkResponseTask>,
 )
 
-private data class AddHomeworkResponseTask(
-    @SerializedName("id") val id: Long,
+data class AddHomeworkResponseTask(
+    @SerializedName("id") val id: Int,
     @SerializedName("content") val content: String
 )
 

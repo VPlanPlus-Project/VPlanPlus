@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -55,7 +54,7 @@ class HomeworkDetailViewModel @Inject constructor(
             newTasks = emptyList(),
             editedTasks = emptyList(),
             tasksToDelete = emptyList(),
-            newDocuments = emptyList(),
+            newDocuments = emptyMap(),
             editedDocuments = emptyList(),
             documentsToDelete = emptyList(),
             hasEdited = false
@@ -69,16 +68,22 @@ class HomeworkDetailViewModel @Inject constructor(
                 is StartEditModeAction -> initEditMode()
                 is ExitEditModeAction -> {
                     if (action is ExitAndSaveHomeworkAction) {
+                        state = state.copy(isLoading = true)
                         if (state.editDueDate != null) homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, state.editDueDate!!)
 
-                        Log.d("HomeworkDetailViewModel", "E/A/D: ${state.editedTasks.size}/${state.newTasks.size}/${state.tasksToDelete.size}")
-
                         val changeDocuments = state.documentsToDelete.isNotEmpty() || state.newDocuments.isNotEmpty() || state.editedDocuments.isNotEmpty()
-                        if (changeDocuments) homeworkDetailUseCases.updateDocumentsUseCase(state.homework!!, state.newDocuments, state.editedDocuments, state.documentsToDelete)
+                        if (changeDocuments) homeworkDetailUseCases.updateDocumentsUseCase(
+                            homework = state.homework!!,
+                            newDocuments = state.newDocuments.keys,
+                            editedDocuments = state.editedDocuments,
+                            documentsToDelete = state.documentsToDelete,
+                            onUploading = { uri, progress -> state = state.copy(newDocuments = state.newDocuments + (state.newDocuments.keys.first { it.uri == uri } to progress)) }
+                        )
 
                         state.editedTasks.forEach { homeworkDetailUseCases.editTaskUseCase(state.homework!!.getTaskById(it.id)!!, it.content) }
                         state.newTasks.forEach { newTask -> homeworkDetailUseCases.addTaskUseCase(state.homework!!, newTask.content) }
                         state.tasksToDelete.forEach { homeworkDetailUseCases.deleteHomeworkTaskUseCase(it) }
+                        state = state.copy(isLoading = false)
                     }
                     initEditMode(false)
                 }
@@ -112,12 +117,12 @@ class HomeworkDetailViewModel @Inject constructor(
 
                 is AddDocumentAction -> {
                     val newDocument = DocumentUpdate.NewDocument(action.newDocument.uri, extension = action.newDocument.extension)
-                    state = state.copy(newDocuments = state.newDocuments + newDocument, hasEdited = true)
+                    state = state.copy(newDocuments = state.newDocuments + (newDocument to null), hasEdited = true)
                 }
 
                 is RenameDocumentAction -> {
                     state = when (action.document) {
-                        is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments.map { if (it.uri == action.document.uri) action.document else it }, hasEdited = true)
+                        is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments + (action.document to null), hasEdited = true)
                         is DocumentUpdate.EditedDocument -> {
                             if (state.editedDocuments.none { it.uri == action.document.uri }) state.copy(editedDocuments = state.editedDocuments + action.document, hasEdited = true)
                             else state.copy(editedDocuments = state.editedDocuments.map { if (it.uri == action.document.uri) action.document else it }, hasEdited = true)
@@ -127,7 +132,7 @@ class HomeworkDetailViewModel @Inject constructor(
 
                 is DeleteDocumentAction -> {
                     state = when (action.document) {
-                        is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments.filter { it.uri != action.document.uri }, hasEdited = true)
+                        is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments.filter { it.key.uri != action.document.uri }, hasEdited = true)
                         is DocumentUpdate.EditedDocument -> {
                             state.copy(
                                 documentsToDelete = state.documentsToDelete + state.homework!!.documents.first { it.uri == action.document.uri },
@@ -149,6 +154,7 @@ data class HomeworkDetailState(
 
 
     val isEditing: Boolean = false,
+    val isLoading: Boolean = false,
     val hasEdited: Boolean = false,
     val editDueDate: LocalDate? = null,
 
@@ -157,7 +163,7 @@ data class HomeworkDetailState(
     val editedTasks: List<EditedTask> = emptyList(),
 
     val documentsToDelete: List<HomeworkDocument> = emptyList(),
-    val newDocuments: List<DocumentUpdate.NewDocument> = emptyList(),
+    val newDocuments: Map<DocumentUpdate.NewDocument, Float?> = emptyMap(), // Document to Upload progress
     val editedDocuments: List<DocumentUpdate.EditedDocument> = emptyList()
 )
 

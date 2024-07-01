@@ -39,7 +39,7 @@ import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExp
 @Composable
 fun Documents(
     documents: List<HomeworkDocument>,
-    newDocuments: List<DocumentUpdate.NewDocument>,
+    newDocuments: Map<DocumentUpdate.NewDocument, Float?>,
     markedAsRemoveUris: List<Uri>,
     isEditing: Boolean,
     onRename: (updated: DocumentUpdate) -> Unit,
@@ -108,14 +108,15 @@ fun Documents(
                 }
         }
 
-        newDocuments.forEach {
+        newDocuments.forEach { (document, progress) ->
             DocumentRecord(
-                uri = it.uri,
-                type = HomeworkDocumentType.fromExtension(it.extension),
-                name = it.name,
+                uri = document.uri,
+                type = HomeworkDocumentType.fromExtension(document.extension),
+                progress = progress,
+                name = document.name,
                 isEditing = isEditing,
-                onRename = { to -> onRename(DocumentUpdate.NewDocument(it.uri, to, it.extension)) },
-                onRemove = { onRemove(it) }
+                onRename = { to -> onRename(DocumentUpdate.NewDocument(document.uri, to, document.extension)) },
+                onRemove = { onRemove(document) }
             )
         }
 
@@ -154,7 +155,7 @@ fun Documents(
 private fun NoDocumentsPreview() {
     Documents(
         documents = emptyList(),
-        newDocuments = emptyList(),
+        newDocuments = emptyMap(),
         markedAsRemoveUris = emptyList(),
         isEditing = true,
         onRename = {},
