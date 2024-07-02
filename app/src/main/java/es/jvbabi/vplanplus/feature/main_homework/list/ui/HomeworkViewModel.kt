@@ -105,11 +105,7 @@ class HomeworkViewModel @Inject constructor(
                     else it
                 }
             )
-            if (homeworkUseCases.addTaskUseCase(
-                    homework.toHomework(),
-                    task
-                ) == HomeworkModificationResult.FAILED
-            ) {
+            if (homeworkUseCases.addTaskUseCase(homework.toHomework(), task).not()) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.ADD_TASK to task,
                     errorVisible = true

@@ -76,6 +76,7 @@ class HomeworkRepositoryImpl(
 
     private var isUpdateRunning = false
 
+    @Deprecated("don't do this")
     override suspend fun fetchHomework(sendNotification: Boolean) {
         if (isUpdateRunning) return
         isUpdateRunning = true
@@ -435,46 +436,6 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    @Deprecated("Use split up methods instead instead")
-    override suspend fun addNewTask(
-        profile: ClassProfile,
-        homework: Homework,
-        content: String
-    ): HomeworkModificationResult {
-        if (homework.id < 0) {
-            val dbHomeworkTask = DbHomeworkTask(
-                id = findLocalTaskId() - 1,
-                homeworkId = homework.id,
-                content = content,
-                isDone = false
-            )
-            homeworkDao.insertTask(dbHomeworkTask)
-            return HomeworkModificationResult.SUCCESS_OFFLINE
-        }
-
-        val vppId = vppIdRepository.getVppId(homework.createdBy!!.id.toLong(), homework.group.school, false) ?: return HomeworkModificationResult.FAILED
-
-        val vppIdToken =
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
-        vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
-        val result = vppIdNetworkRepository.doRequest(
-            path = "/api/$API_VERSION/school/${profile.group.school.id}/group/${profile.group.groupId}/homework/${homework.id}/task/",
-            requestBody = Gson().toJson(AddOrChangeTaskRequest(content = content)),
-            requestMethod = HttpMethod.Post
-        )
-
-        if (result.response != HttpStatusCode.Created || result.data == null) return HomeworkModificationResult.FAILED
-        val response = ResponseDataWrapper.fromJson<AddTaskResponse>(result.data)
-        val dbHomeworkTask = DbHomeworkTask(
-            id = response.id,
-            homeworkId = homework.id,
-            content = content,
-            isDone = false
-        )
-        homeworkDao.insertTask(dbHomeworkTask)
-        return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
-    }
-
     override suspend fun deleteTask(
         profile: ClassProfile,
         task: HomeworkTask
@@ -602,6 +563,7 @@ class HomeworkRepositoryImpl(
         return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel(context)
     }
 
+    @Deprecated("Use split up methods instead instead")
     override suspend fun changeShareStatus(
         profile: ClassProfile,
         homework: Homework
@@ -629,6 +591,7 @@ class HomeworkRepositoryImpl(
         }
     }
 
+    @Deprecated("Use split up methods instead instead")
     override suspend fun updateDueDate(
         profile: ClassProfile,
         homework: Homework,
@@ -773,6 +736,20 @@ class HomeworkRepositoryImpl(
         return id
     }
 
+    override suspend fun uploadHomeworkTask(vppId: VppId, homeworkId: Int, content: String): Response<HomeworkModificationResult, Int?> {
+        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
+        if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
+        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        val response = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/$homeworkId/task",
+            requestBody = Gson().toJson(AddOrChangeTaskRequest(content)),
+            requestMethod = HttpMethod.Post
+        )
+        if (response.response?.isSuccess() != true || response.data == null) return Response(HomeworkModificationResult.FAILED, null)
+        return Response(HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE, ResponseDataWrapper.fromJson<AddTaskResponse>(response.data).id.toInt())
+    }
+
+    @Deprecated("Use split up methods instead instead")
     override suspend fun editDocument(vppId: VppId?, homeworkDocument: es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument, newName: String?): HomeworkModificationResult {
         if (vppId != null) {
             val token = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
@@ -795,6 +772,7 @@ class HomeworkRepositoryImpl(
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
     }
 
+    @Deprecated("Use split up methods instead instead")
     override suspend fun deleteDocument(vppId: VppId?, homeworkDocument: es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument): HomeworkModificationResult {
         if (vppId != null && homeworkDocument.homeworkId > 0) {
             val token = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED

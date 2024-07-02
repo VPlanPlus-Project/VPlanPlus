@@ -38,13 +38,6 @@ interface HomeworkRepository {
         onDocumentUploadProgressChanges: (Uri, Float) -> Unit = { _, _ -> }
     ): HomeworkModificationResult
 
-    @Deprecated("Use split up methods instead instead")
-    suspend fun addNewTask(
-        profile: ClassProfile,
-        homework: Homework,
-        content: String,
-    ): HomeworkModificationResult
-
     suspend fun setTaskState(
         profile: ClassProfile,
         homework: Homework,
@@ -73,12 +66,15 @@ interface HomeworkRepository {
     suspend fun findLocalTaskId(): Long
     suspend fun findLocalDocumentId(): Int
 
+    @Deprecated("don't do this")
     suspend fun fetchHomework(sendNotification: Boolean)
 
     suspend fun getHomeworkByTask(task: HomeworkTask): Homework
 
+    @Deprecated("Use split up methods instead instead")
     suspend fun changeShareStatus(profile: ClassProfile, homework: Homework): HomeworkModificationResult
 
+    @Deprecated("Use split up methods instead instead")
     suspend fun updateDueDate(profile: ClassProfile, homework: Homework, newDate: ZonedDateTime): HomeworkModificationResult
 
     suspend fun clearCache()
@@ -89,6 +85,7 @@ interface HomeworkRepository {
     suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek)
     fun getPreferredHomeworkNotificationTimes(): Flow<List<PreferredHomeworkNotificationTime>>
 
+    @Deprecated("Use split up methods instead instead")
     suspend fun editDocument(vppId: VppId? = null, homeworkDocument: HomeworkDocument, newName: String?): HomeworkModificationResult
 
     /**
@@ -97,6 +94,7 @@ interface HomeworkRepository {
      * @param homeworkDocument The document to be deleted.
      * @return A [HomeworkModificationResult] indicating the result of the operation.
      */
+    @Deprecated("Use split up methods instead instead")
     suspend fun deleteDocument(vppId: VppId? = null, homeworkDocument: HomeworkDocument): HomeworkModificationResult
     suspend fun getDocumentById(id: Int): HomeworkDocument?
 
@@ -156,6 +154,15 @@ interface HomeworkRepository {
      * @return The ID of the task, either the one provided or the next available local ID.
      */
     suspend fun addHomeworkTaskToDb(homeworkId: Int, taskId: Int?, isDone: Boolean = false, content: String): HomeworkTaskId
+
+    /**
+     * Uploads a homework task to the cloud. This will not save the task to the device, it will only upload it to the cloud. Creating the actual task is the responsibility of the caller.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param homeworkId The ID of the homework to which the task belongs.
+     * @param content The content of the task.
+     * @return A [Response] containing the result of the operation and the ID of the task if it was successful.
+     */
+    suspend fun uploadHomeworkTask(vppId: VppId, homeworkId: Int, content: String): Response<HomeworkModificationResult, Int?>
 }
 
 enum class HomeworkModificationResult {
