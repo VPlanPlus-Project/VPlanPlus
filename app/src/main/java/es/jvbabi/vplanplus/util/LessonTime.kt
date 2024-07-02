@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.util
 
 import es.jvbabi.vplanplus.domain.model.LessonTime
-import java.util.UUID
 
 object LessonTime {
     fun fallbackTime(classId: Int, lessonNumber: Int): LessonTime {

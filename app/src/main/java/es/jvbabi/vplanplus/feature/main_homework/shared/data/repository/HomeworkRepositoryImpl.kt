@@ -29,9 +29,11 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.DeleteTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.Document
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkDocumentId
@@ -137,8 +139,8 @@ class HomeworkRepositoryImpl(
                             defaultLessonVpId = responseHomework.vpId,
                             createdBy = createdBy?.id,
                             isPublic = responseHomework.shareWithClass,
-                            isHidden = (existingRecord?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
-                            profileId = profile.id
+                            isHidden = ((existingRecord as? CloudHomework)?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
+                            owningProfileId = null
                         )
                     )
                     responseHomework.tasks.forEach { task ->
@@ -331,7 +333,7 @@ class HomeworkRepositoryImpl(
             createdBy = if (storeInCloud) profile.vppId?.id else null,
             isPublic = shareWithClass,
             isHidden = isHidden,
-            profileId = profile.id
+            owningProfileId = if (storeInCloud) null else profile.id
         )
         homeworkDao.insert(dbHomework)
         homeworkTasks.forEach {
@@ -401,10 +403,10 @@ class HomeworkRepositoryImpl(
             }
 
             DeleteTask.DELETE -> {
-                if (homework.id > 0) {
+                if (homework is CloudHomework) {
                     val vppId = vppIdRepository
                         .getVppIds().first()
-                        .firstOrNull { it.isActive() && it.id == homework.createdBy?.id }
+                        .firstOrNull { it.isActive() && it.id == homework.createdBy.id }
                         ?: return HomeworkModificationResult.FAILED
                     val vppIdToken =
                         vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
@@ -440,7 +442,7 @@ class HomeworkRepositoryImpl(
         profile: ClassProfile,
         task: HomeworkTask
     ): HomeworkModificationResult {
-        val parent = getHomeworkByTask(task)
+        val parent = getHomeworkByTask(task.id.toInt())
 
         if (task.id < 0) {
             homeworkDao.deleteTask(task.id)
@@ -449,10 +451,11 @@ class HomeworkRepositoryImpl(
             }
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
+        (parent as? CloudHomework) ?: throw IllegalStateException("A homework or task with an id greater than 0 should always be a cloud homework or task")
 
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
+            .firstOrNull { it.isActive() && it.id == parent.createdBy.id }
             ?: return HomeworkModificationResult.FAILED
 
         val vppIdToken =
@@ -486,10 +489,11 @@ class HomeworkRepositoryImpl(
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
 
-        val parent = getHomeworkByTask(task)
+        val parent = getHomeworkByTask(task.id.toInt()) as? CloudHomework
+            ?: throw IllegalStateException("A homework or task with an id greater than 0 should always be a cloud homework or task")
         val vppId = vppIdRepository
             .getVppIds().first()
-            .firstOrNull { it.isActive() && it.id == parent.createdBy?.id }
+            .firstOrNull { it.isActive() && it.id == parent.createdBy.id }
             ?: return HomeworkModificationResult.FAILED
 
         val vppIdToken =
@@ -511,6 +515,7 @@ class HomeworkRepositoryImpl(
         }
     }
 
+    @Deprecated("Use split up methods instead instead")
     override suspend fun setTaskState(
         profile: ClassProfile,
         homework: Homework,
@@ -558,19 +563,18 @@ class HomeworkRepositoryImpl(
         return homeworkDocumentDao.getAllHomeworkDocuments().first().minByOrNull { it.id }?.id ?: 0
     }
 
-    override suspend fun getHomeworkByTask(task: HomeworkTask): Homework {
-        val homeworkId = homeworkDao.getHomeworkTaskById(task.id.toInt()).first().homeworkId
+    override suspend fun getHomeworkByTask(taskId: Int): Homework {
+        val homeworkId = homeworkDao.getHomeworkTaskById(taskId).first().homeworkId
         return homeworkDao.getById(homeworkId.toInt()).first()!!.toModel(context)
     }
 
     @Deprecated("Use split up methods instead instead")
     override suspend fun changeShareStatus(
         profile: ClassProfile,
-        homework: Homework
+        homework: CloudHomework
     ): HomeworkModificationResult {
         if (homework.id < 0) throw UnsupportedOperationException("Cannot change visibility of local homework")
         val vppId = homework.createdBy
-            ?: throw UnsupportedOperationException("Cannot change visibility of homework without creator")
 
         val vppIdToken =
             vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
@@ -597,14 +601,13 @@ class HomeworkRepositoryImpl(
         homework: Homework,
         newDate: ZonedDateTime
     ): HomeworkModificationResult {
-        if (homework.id < 0) {
+        if (homework is LocalHomework) {
             homeworkDao.updateDueDate(homework.id, newDate)
             return HomeworkModificationResult.SUCCESS_OFFLINE
         }
+        (homework as? CloudHomework) ?: throw IllegalStateException("A homework with an id greater than 0 should always be a cloud homework")
         val vppId = homework.createdBy
-            ?: throw UnsupportedOperationException("Cannot change due date of homework without creator")
-        val vppIdToken =
-            vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
+        val vppIdToken = vppIdRepository.getVppIdToken(vppId) ?: return HomeworkModificationResult.FAILED
         vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${profile.group.school.id}/group/${profile.group.groupId}/homework/${homework.id}/",
@@ -698,7 +701,7 @@ class HomeworkRepositoryImpl(
             until = dueTo,
             isHidden = isHidden,
             isPublic = isPublic,
-            profileId = clazzProfile.id,
+            owningProfileId = if (vppId == null) clazzProfile.id else null,
             createdBy = vppId?.id,
             createdAt = createdAt
         ))
@@ -747,6 +750,25 @@ class HomeworkRepositoryImpl(
         )
         if (response.response?.isSuccess() != true || response.data == null) return Response(HomeworkModificationResult.FAILED, null)
         return Response(HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE, ResponseDataWrapper.fromJson<AddTaskResponse>(response.data).id.toInt())
+    }
+
+    override suspend fun uploadTaskState(vppId: VppId, homeworkTaskId: Int, isDone: Boolean): Response<HomeworkModificationResult, Unit?> {
+        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
+        if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
+        val homework = getHomeworkByTask(homeworkTaskId)
+        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        val response = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homework.id}/task/$homeworkTaskId",
+            requestBody = Gson().toJson(MarkDoneRequest(isDone)),
+            requestMethod = HttpMethod.Patch
+        )
+        return if (response.response?.isSuccess() == true) Response(HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE, Unit)
+        else Response(HomeworkModificationResult.FAILED, null)
+    }
+
+    override suspend fun setTaskStateToDb(homeworkTaskId: Int, isDone: Boolean) {
+        val task = homeworkDao.getHomeworkTaskById(homeworkTaskId).first()
+        homeworkDao.insertTask(task.copy(isDone = isDone))
     }
 
     @Deprecated("Use split up methods instead instead")

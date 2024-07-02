@@ -7,11 +7,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
-import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
@@ -35,7 +35,7 @@ fun ChangeVisibilityDialog(
 
 @Composable
 private fun buildTitleText(homework: Homework): String {
-    if (homework.isPublic) {
+    if ((homework as? CloudHomework)?.isPublic == true) {
         return stringResource(id = R.string.homework_changeVisibilityTitleToPrivate)
     }
     return stringResource(id = R.string.homework_changeVisibilityTitleToPublic)
@@ -43,7 +43,7 @@ private fun buildTitleText(homework: Homework): String {
 
 @Composable
 private fun buildMessageText(homework: Homework): String {
-    if (homework.isPublic) {
+    if ((homework as? CloudHomework)?.isPublic == true) {
         return stringResource(id = R.string.homework_changeVisibilityTextToPrivate)
     }
     return stringResource(id = R.string.homework_changeVisibilityTextToPublic)
@@ -62,9 +62,8 @@ private fun ChangeVisibilityDialogPreview() {
         vpId = 42
     )
     val createdBy = VppIdPreview.generateVppId(group)
-    val profile = ProfilePreview.generateClassProfile(group, createdBy)
     ChangeVisibilityDialog(
-        homework = Homework(
+        homework = CloudHomework(
             id = 1,
             createdBy = createdBy,
             createdAt = ZonedDateTime.now(),
@@ -85,7 +84,6 @@ private fun ChangeVisibilityDialogPreview() {
             group = group,
             isPublic = true,
             isHidden = false,
-            profile = profile,
             documents = emptyList()
         ),
         onConfirm = {},

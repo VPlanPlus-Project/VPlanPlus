@@ -8,9 +8,11 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.DocumentUpdate
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
 import kotlinx.coroutines.flow.combine
@@ -39,7 +41,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 state.copy(
                     homework = homework,
                     currentProfile = profile,
-                    canEdit = (profile as? ClassProfile)?.let { homework.canBeEdited(profile) } ?: false
+                    canEdit = (profile as? ClassProfile)?.let { homework is LocalHomework || (homework is CloudHomework && homework.createdBy == it.vppId) } ?: false
                 )
             }.collect {
                 state = it

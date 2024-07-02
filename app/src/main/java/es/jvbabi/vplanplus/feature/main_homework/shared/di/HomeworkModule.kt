@@ -14,15 +14,27 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.HomeworkRepositoryImpl
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
 object HomeworkModule {
+
+    @Provides
+    @Singleton
+    fun provideChangeTaskDoneStateUseCase(
+        homeworkRepository: HomeworkRepository,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
+    ) = ChangeTaskDoneStateUseCase(
+        homeworkRepository = homeworkRepository,
+        getCurrentProfileUseCase = getCurrentProfileUseCase
+    )
 
     @Provides
     @Singleton

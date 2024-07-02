@@ -59,7 +59,10 @@ import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.WrongProfile
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.dialogs.ChangeVisibilityDialog
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.dialogs.DeleteHomeworkDialog
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.dialogs.DeleteHomeworkTaskDialog
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.InputDialog
@@ -114,19 +117,19 @@ private fun HomeworkScreenContent(
     onBack: () -> Unit = {},
     onHomeworkClicked: (homework: Homework) -> Unit,
     onEnableHomework: () -> Unit = {},
-    onMarkAllDone: (homework: HomeworkViewModelHomework, done: Boolean) -> Unit = { _, _ -> },
-    onMarkSingleDone: (homeworkTask: HomeworkViewModelTask, done: Boolean) -> Unit = { _, _ -> },
-    onAddTask: (homework: HomeworkViewModelHomework, task: String) -> Unit = { _, _ -> },
-    onHomeworkDeleteRequest: (homework: HomeworkViewModelHomework?) -> Unit = {},
+    onMarkAllDone: (homework: Homework, done: Boolean) -> Unit = { _, _ -> },
+    onMarkSingleDone: (homeworkTask: HomeworkTask, done: Boolean) -> Unit = { _, _ -> },
+    onAddTask: (homework: Homework, task: String) -> Unit = { _, _ -> },
+    onHomeworkDeleteRequest: (homework: Homework?) -> Unit = {},
     onHomeworkDeleteRequestConfirm: () -> Unit = {},
-    onHomeworkChangeVisibilityRequest: (homework: HomeworkViewModelHomework?) -> Unit = {},
+    onHomeworkChangeVisibilityRequest: (homework: Homework?) -> Unit = {},
     onHomeworkChangeVisibilityRequestConfirm: () -> Unit = {},
-    onHomeworkTaskDeleteRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
+    onHomeworkTaskDeleteRequest: (homeworkTask: HomeworkTask?) -> Unit = {},
     onHomeworkTaskDeleteRequestConfirm: () -> Unit = {},
-    onHomeworkTaskEditRequest: (homeworkTask: HomeworkViewModelTask?) -> Unit = {},
+    onHomeworkTaskEditRequest: (homeworkTask: HomeworkTask?) -> Unit = {},
     onHomeworkTaskEditRequestConfirm: (newContent: String?) -> Unit = {},
-    onHomeworkHide: (homework: HomeworkViewModelHomework) -> Unit = {},
-    onUpdateDueDate: (homework: HomeworkViewModelHomework, newDate: LocalDate) -> Unit = { _, _ -> },
+    onHomeworkHide: (homework: Homework) -> Unit = {},
+    onUpdateDueDate: (homework: Homework, newDate: LocalDate) -> Unit = { _, _ -> },
     onOpenHomeworkSettings: () -> Unit = {},
     onHideHomeworkNotificationBanner: () -> Unit = {},
     onResetError: () -> Unit = {},
@@ -273,7 +276,7 @@ private fun HomeworkScreenContent(
                                     Text(
                                         text = stringResource(
                                             id = R.string.homework_filterShowHidden,
-                                            state.homework.count { it.isHidden })
+                                            state.homework.count { (it as? CloudHomework)?.isHidden ?: false })
                                     )
                                 },
                                 leadingIcon = {
@@ -364,9 +367,9 @@ private fun HomeworkScreenContent(
                             HomeworkCard(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                                 homework = homeworkForDay,
-                                isOwner = homeworkForDay.isOwner,
+                                isOwner = (homeworkForDay is LocalHomework) || (homeworkForDay is CloudHomework && (state.profile as? ClassProfile)?.vppId == (homeworkForDay as? CloudHomework)?.createdBy),
+                                isLoading = state.loadingHomeworkIds.contains(homeworkForDay.id.toInt()),
                                 showHidden = state.showHidden,
-                                showDisabled = state.showDisabled,
                                 showDone = state.showDone,
                                 allDone = { onMarkAllDone(homeworkForDay, it) },
                                 singleDone = { task, done ->
@@ -386,13 +389,12 @@ private fun HomeworkScreenContent(
                                 onEditTaskRequest = { onHomeworkTaskEditRequest(it) },
                                 onHomeworkHide = { onHomeworkHide(homeworkForDay) },
                                 onUpdateDueDate = { onUpdateDueDate(homeworkForDay, it) },
-                                onClick = { onHomeworkClicked(homeworkForDay.toHomework()) }
+                                onClick = { onHomeworkClicked(homeworkForDay) }
                             )
                         }
                         if (state.homework.none {
-                                (it.isEnabled || state.showDisabled) &&
-                                        (!it.isHidden || state.showHidden) &&
-                                        (it.tasks.any { task -> !task.done } || state.showDone)
+                                        (it is CloudHomework && (!it.isHidden || state.showHidden)) &&
+                                        (it.tasks.any { task -> !task.isDone } || state.showDone)
                             }) {
                             item { NoHomework() }
                         }

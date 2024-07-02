@@ -63,8 +63,8 @@ import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
-import es.jvbabi.vplanplus.ui.common.TimePickerSettings
 import es.jvbabi.vplanplus.ui.common.TimePickerDialog
+import es.jvbabi.vplanplus.ui.common.TimePickerSettings
 import es.jvbabi.vplanplus.ui.common.grayScale
 import es.jvbabi.vplanplus.util.toBlackAndWhite
 import java.time.DayOfWeek

@@ -34,7 +34,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.SessionType
 import es.jvbabi.vplanplus.feature.settings.vpp_id.manage.components.RetrySessions

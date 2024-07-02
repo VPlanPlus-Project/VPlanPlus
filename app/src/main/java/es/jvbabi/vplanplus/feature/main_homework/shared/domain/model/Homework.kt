@@ -8,31 +8,54 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
-open class Homework(
+abstract class Homework(
     val id: Long,
-    val createdBy: VppId?,
     val group: Group,
     val createdAt: ZonedDateTime,
     val defaultLesson: DefaultLesson?,
-    val isPublic: Boolean,
     val until: ZonedDateTime,
     val tasks: List<HomeworkTask>,
-    val isHidden: Boolean,
-    val profile: Profile,
     val documents: List<HomeworkDocument>
 ) {
     fun isOverdue(date: LocalDate): Boolean {
         return until.toLocalDate().isBefore(date) && tasks.any { !it.isDone }
     }
 
-    fun canBeEdited(profile: ClassProfile): Boolean {
-        if (this.profile.id == profile.id && this.id < 0) return true // is local and created by the profile
-        if (profile.vppId != null && this.createdBy?.id == profile.vppId.id) return true // is remote and created by the profiles vpp.ID
-        return false
-    }
-
     fun getTaskById(id: Long): HomeworkTask? {
         return tasks.find { it.id == id }
+    }
+}
+
+class CloudHomework(
+    id: Long,
+    group: Group,
+    createdAt: ZonedDateTime,
+    defaultLesson: DefaultLesson?,
+    val isPublic: Boolean,
+    until: ZonedDateTime,
+    tasks: List<HomeworkTask>,
+    val isHidden: Boolean,
+    documents: List<HomeworkDocument>,
+    val createdBy: VppId
+) : Homework(id, group, createdAt, defaultLesson, until, tasks, documents) {
+    init {
+        require(id > 0)
+    }
+}
+
+class LocalHomework(
+    id: Long,
+    group: Group,
+    createdAt: ZonedDateTime,
+    defaultLesson: DefaultLesson?,
+    until: ZonedDateTime,
+    tasks: List<HomeworkTask>,
+    documents: List<HomeworkDocument>,
+    val profile: Profile
+) : Homework(id, group, createdAt, defaultLesson, until, tasks, documents) {
+    init {
+        require(id < 0)
+        require(profile is ClassProfile)
     }
 }
 

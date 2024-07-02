@@ -10,7 +10,9 @@ import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 
 
 data class CHomework(
@@ -47,18 +49,36 @@ data class CHomework(
     ) val documents: List<DbHomeworkDocument>
 ) {
     fun toModel(context: Context): Homework {
-        return Homework(
-            id = homework.id,
-            createdBy = createdBy?.toModel(),
-            createdAt = homework.createdAt,
-            defaultLesson = defaultLessons.firstOrNull { it.`class`.group.id == classes.group.id }?.toModel(),
-            until = homework.until,
-            tasks = tasks.map { it.toModel() },
-            group = classes.toModel(),
-            isPublic = homework.isPublic,
-            isHidden = homework.isHidden,
-            profile = profile.toModel(),
-            documents = documents.map { it.toModel(context) }
-        )
+        val id = homework.id
+        val cratedAt = homework.createdAt
+        val until = homework.until
+        val defaultLesson = defaultLessons.firstOrNull { it.`class`.group.id == classes.group.id }?.toModel()
+        val group = classes.toModel()
+        val documents = documents.map { it.toModel(context) }
+        return if (homework.id > 0) {
+            CloudHomework(
+                id = id,
+                group = group,
+                createdAt = cratedAt,
+                defaultLesson = defaultLesson,
+                until = until,
+                tasks = tasks.map { it.toModel() },
+                documents = documents,
+                createdBy = createdBy!!.toModel(),
+                isPublic = homework.isPublic,
+                isHidden = homework.isHidden
+            )
+        } else {
+            LocalHomework(
+                id = id,
+                group = group,
+                createdAt = cratedAt,
+                defaultLesson = defaultLesson,
+                until = until,
+                tasks = tasks.map { it.toModel() },
+                documents = documents,
+                profile = profile.toModel()
+            )
+        }
     }
 }

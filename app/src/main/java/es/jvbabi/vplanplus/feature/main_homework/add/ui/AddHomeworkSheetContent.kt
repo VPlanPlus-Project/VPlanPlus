@@ -149,7 +149,7 @@ fun AddHomeworkSheetContent(
     )
     if (isSaveLocationModalOpen) StoreSaveModal(
         sheetState = saveLocationModalSheetState,
-        currentState = state.saveType ?: SaveType.LOCAL,
+        currentState = state.saveType,
         onSubmit = { viewModel.onUiAction(UpdateSaveType(it)) },
         onDismissRequest = { isSaveLocationModalOpen = false },
     )
@@ -257,13 +257,13 @@ fun AddHomeworkSheetContent(
                         balloonWindow.setOnBalloonDismissListener { viewModel.onUiAction(HideVppIdStorageBalloon) }
                         AssistChip(
                             onClick = { isSaveLocationModalOpen = true },
-                            label = { Text(text = when (state.saveType ?: SaveType.LOCAL) {
+                            label = { Text(text = when (state.saveType) {
                                 SaveType.LOCAL -> stringResource(id = R.string.addHomework_saveThisDevice)
                                 SaveType.CLOUD -> stringResource(id = R.string.addHomework_saveVppId)
                                 SaveType.SHARED -> stringResource(id = R.string.addHomework_saveVppIdSharedTitle)
                             }) },
                             leadingIcon = {
-                                Icon(imageVector = when (state.saveType ?: SaveType.LOCAL) {
+                                Icon(imageVector = when (state.saveType) {
                                     SaveType.LOCAL -> Icons.Default.PhoneAndroid
                                     SaveType.CLOUD -> Icons.Default.CloudQueue
                                     SaveType.SHARED -> Icons.Default.Share

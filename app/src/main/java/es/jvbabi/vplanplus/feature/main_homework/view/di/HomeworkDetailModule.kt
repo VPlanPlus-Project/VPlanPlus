@@ -9,9 +9,9 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.AddTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.DeleteHomeworkTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.EditTaskUseCase
-import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.MarkSingleDoneUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.UpdateDueDateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.GetHomeworkByIdUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.UpdateDocumentsUseCase
@@ -26,11 +26,12 @@ object HomeworkDetailModule {
     fun provideHomeworkDetailUseCases(
         homeworkRepository: HomeworkRepository,
         fileRepository: FileRepository,
+        changeTaskDoneStateUseCase: ChangeTaskDoneStateUseCase,
         getCurrentProfileUseCase: GetCurrentProfileUseCase
     ) = HomeworkDetailUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
         getHomeworkByIdUseCase = GetHomeworkByIdUseCase(homeworkRepository),
-        taskDoneUseCase = MarkSingleDoneUseCase(homeworkRepository, getCurrentProfileUseCase),
+        taskDoneUseCase = changeTaskDoneStateUseCase,
         updateDueDateUseCase = UpdateDueDateUseCase(homeworkRepository, getCurrentProfileUseCase),
         deleteHomeworkTaskUseCase = DeleteHomeworkTaskUseCase(homeworkRepository, getCurrentProfileUseCase),
         editTaskUseCase = EditTaskUseCase(homeworkRepository, getCurrentProfileUseCase),

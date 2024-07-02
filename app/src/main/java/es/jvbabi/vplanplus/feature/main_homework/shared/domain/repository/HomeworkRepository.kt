@@ -4,6 +4,7 @@ import android.net.Uri
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.AddHomeworkResponse
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
@@ -38,6 +39,7 @@ interface HomeworkRepository {
         onDocumentUploadProgressChanges: (Uri, Float) -> Unit = { _, _ -> }
     ): HomeworkModificationResult
 
+    @Deprecated("Use split up methods instead instead")
     suspend fun setTaskState(
         profile: ClassProfile,
         homework: Homework,
@@ -69,10 +71,10 @@ interface HomeworkRepository {
     @Deprecated("don't do this")
     suspend fun fetchHomework(sendNotification: Boolean)
 
-    suspend fun getHomeworkByTask(task: HomeworkTask): Homework
+    suspend fun getHomeworkByTask(taskId: Int): Homework
 
     @Deprecated("Use split up methods instead instead")
-    suspend fun changeShareStatus(profile: ClassProfile, homework: Homework): HomeworkModificationResult
+    suspend fun changeShareStatus(profile: ClassProfile, homework: CloudHomework): HomeworkModificationResult
 
     @Deprecated("Use split up methods instead instead")
     suspend fun updateDueDate(profile: ClassProfile, homework: Homework, newDate: ZonedDateTime): HomeworkModificationResult
@@ -123,10 +125,10 @@ interface HomeworkRepository {
     /**
      * Adds a homework to the database. This will not upload the homework to the cloud, it will only save it to the device. Uploading the homework is the responsibility of the caller.
      * @param homeworkId The ID of the homework. If null, the next available local ID will be used.
-     * @param clazzProfile The class profile to which the homework belongs.
+     * @param clazzProfile The class profile to which the homework belongs. Ignored if vppID is set since the homework isn't tied to a profile at that point.
      * @param defaultLessonVpId The ID of the default lesson. If null, the default lesson will be set to null.
      * @param dueTo The due date of the homework.
-     * @param vppId The VPP ID of the homeworks creator. Can be null if it's a local homework or the creator hasn't been cached yet.
+     * @param vppId The VPP ID of the homeworks creator. Can be null if it's a local homework.
      * @param isHidden Whether the homework is hidden
      * @param isPublic Whether the homework is public
      * @param createdAt The creation date of the homework.
@@ -163,6 +165,17 @@ interface HomeworkRepository {
      * @return A [Response] containing the result of the operation and the ID of the task if it was successful.
      */
     suspend fun uploadHomeworkTask(vppId: VppId, homeworkId: Int, content: String): Response<HomeworkModificationResult, Int?>
+
+    /**
+     * Uploads the state of a homework task to the cloud. This will not save the state to the device, it will only upload it to the cloud. Saving the state is the responsibility of the caller.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param homeworkTaskId The ID of the task.
+     * @param isDone Whether the task is done.
+     * @return A [Response] containing the result of the operation and null if it was not successful.
+     */
+    suspend fun uploadTaskState(vppId: VppId, homeworkTaskId: Int, isDone: Boolean): Response<HomeworkModificationResult, Unit?>
+
+    suspend fun setTaskStateToDb(homeworkTaskId: Int, isDone: Boolean)
 }
 
 enum class HomeworkModificationResult {

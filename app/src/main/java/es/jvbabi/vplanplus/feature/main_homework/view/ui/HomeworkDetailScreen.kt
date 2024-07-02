@@ -49,7 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.pickDocumentLauncher
@@ -71,7 +71,6 @@ import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
-import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
@@ -262,11 +261,10 @@ fun HomeworkDetailScreenPreview() {
     val school = SchoolPreview.generateRandomSchools(1).first()
     val group = GroupPreview.generateGroup(school)
     val vppId = VppIdPreview.generateVppId(group)
-    val profile = ProfilePreview.generateClassProfile(group, vppId)
     val teacher = TeacherPreview.teacher(school)
     HomeworkDetailScreenContent(
         state = HomeworkDetailState(
-            homework = Homework(
+            homework = CloudHomework(
                 id = 1,
                 createdBy = vppId,
                 documents = emptyList(),
@@ -275,7 +273,6 @@ fun HomeworkDetailScreenPreview() {
                     HomeworkTask(id = 2, content = "Task 2", isDone = true),
                     HomeworkTask(id = 3, content = "Task 3", isDone = false)
                 ),
-                profile = profile,
                 group = group,
                 createdAt = ZonedDateTime.now(),
                 until = ZonedDateTime.now().plusDays(1),

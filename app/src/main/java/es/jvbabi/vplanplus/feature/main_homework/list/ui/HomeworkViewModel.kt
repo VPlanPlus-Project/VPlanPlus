@@ -5,21 +5,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkResult
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @HiltViewModel
@@ -46,14 +41,7 @@ class HomeworkViewModel @Inject constructor(
                 val showNotificationBanner = data[3] as Boolean
 
                 state.value.copy(
-                    homework = homework
-                        .homework
-                        .map {
-                            it.toViewModel(
-                                isOwner = it.createdBy?.id == (profile as? ClassProfile)?.vppId?.id,
-                                isEnabled = (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true
-                            )
-                        },
+                    homework = homework.homework,
                     wrongProfile = homework.wrongProfile,
                     profile = profile,
                     isUpdating = isUpdateRunning,
@@ -65,14 +53,10 @@ class HomeworkViewModel @Inject constructor(
         }
     }
 
-    fun markAllDone(homework: HomeworkViewModelHomework, done: Boolean) {
+    fun markAllDone(homework: Homework, done: Boolean) {
         viewModelScope.launch {
-            setHomeworkLoading(homework.id, true)
-            if (homeworkUseCases.markAllDoneUseCase(
-                    homework.toHomework(),
-                    done
-                ) == HomeworkModificationResult.FAILED
-            ) {
+            setHomeworkLoading(homework, true)
+            if (homeworkUseCases.markAllDoneUseCase(homework, done).not()) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_STATE to done,
                     errorVisible = true
@@ -81,64 +65,57 @@ class HomeworkViewModel @Inject constructor(
         }
     }
 
-    fun markSingleDone(homeworkTask: HomeworkViewModelTask, done: Boolean) {
+    fun markSingleDone(homeworkTask: HomeworkTask, done: Boolean) {
+        val homework = state.value.homework.find { it.tasks.any { task -> task.id == homeworkTask.id } } ?: return
         viewModelScope.launch {
-            setTaskLoading(homeworkTask.id, true)
-            if (homeworkUseCases.markSingleDoneUseCase(
-                    homeworkTask.toTask(),
-                    done
-                ) == HomeworkModificationResult.FAILED
-            ) {
+            setHomeworkLoading(homework, true)
+            if (homeworkUseCases.markSingleDoneUseCase(homeworkTask, done) == HomeworkModificationResult.FAILED) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.CHANGE_TASK_STATE to done,
                     errorVisible = true
                 )
             }
+            setHomeworkLoading(homework, false)
         }
     }
 
-    fun onAddTask(homework: HomeworkViewModelHomework, task: String) {
+    private fun setHomeworkLoading(homework: Homework, isLoading: Boolean) {
+        if (isLoading) state.value = state.value.copy(loadingHomeworkIds = state.value.loadingHomeworkIds + homework.id.toInt())
+        else state.value = state.value.copy(loadingHomeworkIds = state.value.loadingHomeworkIds - homework.id.toInt())
+    }
+
+    fun onAddTask(homework: Homework, task: String) {
         viewModelScope.launch {
-            state.value = state.value.copy(
-                homework = state.value.homework.map {
-                    if (it.id == homework.id) it.copy(isLoadingNewTask = true)
-                    else it
-                }
-            )
-            if (homeworkUseCases.addTaskUseCase(homework.toHomework(), task).not()) {
+            setHomeworkLoading(homework, true)
+            if (homeworkUseCases.addTaskUseCase(homework, task).not()) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.ADD_TASK to task,
                     errorVisible = true
                 )
             }
-            state.value = state.value.copy(
-                homework = state.value.homework.map {
-                    if (it.id == homework.id) it.copy(isLoadingNewTask = false)
-                    else it
-                }
-            )
+            setHomeworkLoading(homework, false)
         }
     }
 
-    fun onHomeworkDeleteRequest(homework: HomeworkViewModelHomework?) {
-        state.value = state.value.copy(homeworkDeletionRequest = homework?.toHomework())
+    fun onHomeworkDeleteRequest(homework: Homework?) {
+        state.value = state.value.copy(homeworkDeletionRequest = homework)
     }
 
-    fun onHomeworkChangeVisibilityRequest(homework: HomeworkViewModelHomework?) {
-        state.value = state.value.copy(homeworkChangeVisibilityRequest = homework?.toHomework())
+    fun onHomeworkChangeVisibilityRequest(homework: Homework?) {
+        state.value = state.value.copy(homeworkChangeVisibilityRequest = homework)
     }
 
     fun onConfirmHomeworkDeleteRequest() {
         state.value.homeworkDeletionRequest?.let {
             viewModelScope.launch {
-                setHomeworkLoading(it.id, true)
+                setHomeworkLoading(it, true)
                 onHomeworkDeleteRequest(null)
                 if (homeworkUseCases.deleteHomeworkUseCase(it) == HomeworkModificationResult.FAILED) {
                     state.value = state.value.copy(
                         errorResponse = ErrorOnUpdate.DELETE_HOMEWORK to null,
                         errorVisible = true
                     )
-                    setHomeworkLoading(it.id, false)
+                    setHomeworkLoading(it, false)
                 }
             }
         }
@@ -147,62 +124,41 @@ class HomeworkViewModel @Inject constructor(
     fun onConfirmHomeworkChangeVisibilityRequest() {
         state.value.homeworkChangeVisibilityRequest?.let {
             viewModelScope.launch {
-                setHomeworkLoading(it.id, true)
+                setHomeworkLoading(it, true)
                 onHomeworkChangeVisibilityRequest(null)
                 if (homeworkUseCases.changeVisibilityUseCase(it) == HomeworkModificationResult.FAILED) {
                     state.value = state.value.copy(
                         errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_VISIBILITY to null,
                         errorVisible = true
                     )
-                    setHomeworkLoading(it.id, false)
+                    setHomeworkLoading(it, false)
                 }
             }
         }
     }
 
-    fun onHomeworkTaskDeleteRequest(homeworkTask: HomeworkViewModelTask?) {
-        state.value = state.value.copy(homeworkTaskDeletionRequest = homeworkTask?.toTask())
+    fun onHomeworkTaskDeleteRequest(homeworkTask: HomeworkTask?) {
+        state.value = state.value.copy(homeworkTaskDeletionRequest = homeworkTask)
     }
 
     fun onHomeworkTaskDeleteRequestConfirm() {
         val homeworkTask = state.value.homeworkTaskDeletionRequest ?: return
+        val homework = state.value.homework.find { it.tasks.any { task -> task.id == homeworkTask.id } } ?: return
         viewModelScope.launch {
-            setTaskLoading(homeworkTask.id, true)
+            setHomeworkLoading(homework, true)
             onHomeworkTaskDeleteRequest(null)
             if (homeworkUseCases.deleteHomeworkTaskUseCase(homeworkTask) == HomeworkModificationResult.FAILED) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.DELETE_TASK to null,
                     errorVisible = true
                 )
-                setTaskLoading(homeworkTask.id, false)
             }
+            setHomeworkLoading(homework, false)
         }
     }
 
-    private fun setTaskLoading(taskId: Long, loading: Boolean) {
-        state.value = state.value.copy(
-            homework = state.value.homework.map {
-                it.copy(
-                    tasks = it.tasks.map { task ->
-                        if (task.id == taskId) task.copy(isLoading = loading)
-                        else task
-                    }
-                )
-            }
-        )
-    }
-
-    private fun setHomeworkLoading(homeworkId: Long, loading: Boolean) {
-        state.value = state.value.copy(
-            homework = state.value.homework.map {
-                if (it.id == homeworkId) it.copy(isLoading = loading)
-                else it
-            }
-        )
-    }
-
-    fun onHomeworkTaskEditRequest(homeworkTask: HomeworkViewModelTask?) {
-        state.value = state.value.copy(editHomeworkTask = homeworkTask?.toTask())
+    fun onHomeworkTaskEditRequest(homeworkTask: HomeworkTask?) {
+        state.value = state.value.copy(editHomeworkTask = homeworkTask)
     }
 
     fun onHomeworkTaskEditRequestConfirm(newContent: String?) {
@@ -210,23 +166,20 @@ class HomeworkViewModel @Inject constructor(
             onHomeworkTaskEditRequest(null)
             return
         }
+        val homework = state.value.homework.find { it.tasks.any { task -> task.id == state.value.editHomeworkTask?.id } } ?: return
         state.value.editHomeworkTask?.let {
             if (newContent == it.content) return@let
             if (newContent.isBlank()) return@let
             viewModelScope.launch {
-                setTaskLoading(it.id, true)
+                setHomeworkLoading(homework, true)
                 onHomeworkTaskEditRequest(null)
-                if (homeworkUseCases.editTaskUseCase(
-                        it,
-                        newContent
-                    ) == HomeworkModificationResult.FAILED
-                ) {
+                if (homeworkUseCases.editTaskUseCase(it, newContent) == HomeworkModificationResult.FAILED) {
                     state.value = state.value.copy(
                         errorResponse = ErrorOnUpdate.EDIT_TASK to newContent,
                         errorVisible = true
                     )
-                    setTaskLoading(it.id, false)
                 }
+                setHomeworkLoading(homework, false)
             }
         }
     }
@@ -242,15 +195,11 @@ class HomeworkViewModel @Inject constructor(
         }
     }
 
-    fun onHomeworkHideToggle(homework: HomeworkViewModelHomework) {
+    fun onHomeworkHideToggle(homework: Homework) {
         viewModelScope.launch {
-            state.value = state.value.copy(
-                homework = state.value.homework.map {
-                    if (it.id == homework.id) it.copy(isHidden = true)
-                    else it
-                }
-            )
-            homeworkUseCases.hideHomeworkUseCase(homework.toHomework())
+            setHomeworkLoading(homework, true)
+            homeworkUseCases.hideHomeworkUseCase(homework)
+            setHomeworkLoading(homework, false)
         }
     }
 
@@ -272,14 +221,10 @@ class HomeworkViewModel @Inject constructor(
         }
     }
 
-    fun onUpdateDueDate(homework: HomeworkViewModelHomework, newDate: LocalDate) {
+    fun onUpdateDueDate(homework: Homework, newDate: LocalDate) {
         viewModelScope.launch {
-            setHomeworkLoading(homework.id, true)
-            if (homeworkUseCases.updateDueDateUseCase(
-                    homework.toHomework(),
-                    newDate
-                ) == HomeworkModificationResult.FAILED
-            ) {
+            setHomeworkLoading(homework, true)
+            if (homeworkUseCases.updateDueDateUseCase(homework, newDate) == HomeworkModificationResult.FAILED) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_STATE to newDate,
                     errorVisible = true
@@ -297,7 +242,7 @@ class HomeworkViewModel @Inject constructor(
 }
 
 data class HomeworkState(
-    val homework: List<HomeworkViewModelHomework> = emptyList(),
+    val homework: List<Homework> = emptyList(),
     val wrongProfile: Boolean = false,
     val profile: Profile? = null,
     val homeworkDeletionRequest: Homework? = null,
@@ -310,74 +255,9 @@ data class HomeworkState(
     val showHidden: Boolean = false,
     val showDisabled: Boolean = false,
     val showDone: Boolean = false,
-    val showNotificationBanner: Boolean = false
-)
+    val showNotificationBanner: Boolean = false,
 
-data class HomeworkViewModelHomework(
-    val id: Long,
-    val createdBy: VppId?,
-    val group: Group,
-    val createdAt: ZonedDateTime,
-    val defaultLesson: DefaultLesson?,
-    val isPublic: Boolean,
-    val until: ZonedDateTime,
-    val tasks: List<HomeworkViewModelTask>,
-    val isOwner: Boolean,
-    val isHidden: Boolean,
-    val isLoading: Boolean = false,
-    val isLoadingNewTask: Boolean = false,
-    val isEnabled: Boolean = true,
-    val profile: Profile,
-    val documentUris: List<HomeworkDocument>
-) {
-    fun toHomework() = Homework(
-        id = id,
-        createdBy = createdBy,
-        group = group,
-        createdAt = createdAt,
-        defaultLesson = defaultLesson,
-        isPublic = isPublic,
-        until = until,
-        tasks = tasks.map { it.toTask() },
-        isHidden = isHidden,
-        profile = profile,
-        documents = documentUris
-    )
-
-}
-
-data class HomeworkViewModelTask(
-    val id: Long,
-    val content: String,
-    val done: Boolean,
-    val isLoading: Boolean = false
-) {
-    fun toTask() = HomeworkTask(id, content, done)
-}
-
-private fun Homework.toViewModel(
-    isOwner: Boolean,
-    isEnabled: Boolean
-) = HomeworkViewModelHomework(
-    id = id,
-    createdBy = createdBy,
-    group = group,
-    createdAt = createdAt,
-    defaultLesson = defaultLesson,
-    isPublic = isPublic,
-    until = until,
-    tasks = tasks.map { it.toViewModel() },
-    isOwner = isOwner,
-    isHidden = isHidden,
-    isEnabled = isEnabled,
-    profile = profile,
-    documentUris = documents
-)
-
-private fun HomeworkTask.toViewModel() = HomeworkViewModelTask(
-    id = id,
-    content = content,
-    done = isDone
+    val loadingHomeworkIds: List<Int> = emptyList(),
 )
 
 enum class ErrorOnUpdate {

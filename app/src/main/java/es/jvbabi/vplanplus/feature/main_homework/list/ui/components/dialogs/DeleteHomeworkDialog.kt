@@ -7,11 +7,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
-import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
@@ -35,9 +36,9 @@ fun DeleteHomeworkDialog(
 
 @Composable
 private fun buildDialogMessage(homework: Homework): String {
-    return if (homework.id < 0) {
+    return if (homework is LocalHomework) {
         stringResource(id = R.string.homework_deleteHomeworkTextLocal)
-    } else if (homework.isPublic) {
+    } else if ((homework as? CloudHomework)?.isPublic == true) {
         stringResource(id = R.string.homework_deleteHomeworkTextPublic)
     } else {
         stringResource(id = R.string.homework_deleteHomeworkTextPrivate)
@@ -57,9 +58,8 @@ private fun DeleteHomeworkDialogPreview() {
         vpId = 42
     )
     val createdBy = VppIdPreview.generateVppId(group)
-    val profile = ProfilePreview.generateClassProfile(group, createdBy)
     DeleteHomeworkDialog(
-        homework = Homework(
+        homework = CloudHomework(
             id = 1,
             createdBy = createdBy,
             createdAt = ZonedDateTime.now(),
@@ -80,7 +80,6 @@ private fun DeleteHomeworkDialogPreview() {
             group = group,
             isPublic = true,
             isHidden = false,
-            profile = profile,
             documents = emptyList()
         ),
         onConfirm = {},

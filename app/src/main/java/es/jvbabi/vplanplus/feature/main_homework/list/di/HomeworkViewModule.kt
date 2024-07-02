@@ -7,7 +7,6 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.AddTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ChangeVisibilityUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.DeleteHomeworkTaskUseCase
@@ -19,10 +18,11 @@ import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HideHomewor
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.IsUpdateRunningUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.MarkAllDoneUseCase
-import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.MarkSingleDoneUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ShowHomeworkNotificationBannerUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.UpdateDueDateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.UpdateUseCase
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
 import javax.inject.Singleton
 
@@ -36,18 +36,16 @@ object HomeworkViewModule {
         homeworkRepository: HomeworkRepository,
         profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
-        getCurrentProfileUseCase: GetCurrentProfileUseCase
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
+        changeTaskDoneStateUseCase: ChangeTaskDoneStateUseCase
     ): HomeworkUseCases {
         return HomeworkUseCases(
             GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase
             ),
-            MarkAllDoneUseCase(homeworkRepository, getCurrentProfileUseCase),
-            MarkSingleDoneUseCase(
-                homeworkRepository = homeworkRepository,
-                getCurrentProfileUseCase = getCurrentProfileUseCase
-            ),
+            MarkAllDoneUseCase(changeTaskDoneStateUseCase),
+            changeTaskDoneStateUseCase,
             addTaskUseCase = AddTaskUseCase(
                 homeworkRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase

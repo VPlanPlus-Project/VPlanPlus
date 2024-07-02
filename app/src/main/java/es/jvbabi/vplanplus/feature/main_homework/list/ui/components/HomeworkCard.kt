@@ -58,18 +58,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.feature.main_homework.list.ui.HomeworkViewModelHomework
-import es.jvbabi.vplanplus.feature.main_homework.list.ui.HomeworkViewModelTask
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.homeworkcard.AddHomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.homeworkcard.DraggableHost
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.homeworkcard.HomeworkProgressBar
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.homeworkcard.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
-import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.util.DateUtils
@@ -83,18 +84,18 @@ import java.util.UUID
 @Composable
 fun HomeworkCard(
     modifier: Modifier = Modifier,
-    homework: HomeworkViewModelHomework,
+    homework: Homework,
+    isLoading: Boolean,
     isOwner: Boolean,
     showHidden: Boolean,
-    showDisabled: Boolean,
     showDone: Boolean,
     allDone: (Boolean) -> Unit,
-    singleDone: (HomeworkViewModelTask, Boolean) -> Unit,
+    singleDone: (HomeworkTask, Boolean) -> Unit,
     onAddTask: (String) -> Unit,
     onDeleteRequest: () -> Unit,
     onChangePublicVisibility: () -> Unit,
-    onDeleteTaskRequest: (HomeworkViewModelTask) -> Unit,
-    onEditTaskRequest: (HomeworkViewModelTask) -> Unit,
+    onDeleteTaskRequest: (HomeworkTask) -> Unit,
+    onEditTaskRequest: (HomeworkTask) -> Unit,
     onUpdateDueDate: (LocalDate) -> Unit,
     onHomeworkHide: () -> Unit,
     onClick: () -> Unit
@@ -102,8 +103,8 @@ fun HomeworkCard(
     var isAdding by rememberSaveable { mutableStateOf(false) }
 
     val mainCheckboxState =
-        if (homework.tasks.all { it.done }) ToggleableState.On
-        else if (homework.tasks.all { !it.done }) ToggleableState.Off
+        if (homework.tasks.all { it.isDone }) ToggleableState.On
+        else if (homework.tasks.all { !it.isDone }) ToggleableState.Off
         else ToggleableState.Indeterminate
 
     val datePickerState = rememberDatePickerState(selectableDates = object : SelectableDates {
@@ -137,13 +138,13 @@ fun HomeworkCard(
     }
 
     AnimatedVisibility(
-        visible = (showHidden || !homework.isHidden) && (showDisabled || homework.isEnabled) && (showDone || homework.tasks.any { !it.done }),
+        visible = (showHidden || (homework is CloudHomework && !homework.isHidden))  && (showDone || homework.tasks.any { !it.isDone }),
         enter = expandVertically(tween(250)),
         exit = shrinkVertically(tween(250))
     ) {
         Box(modifier.clickable { onClick() }) {
             DraggableHost(
-                iconLeft = if (isOwner || homework.createdBy == null) Icons.Outlined.Delete else Icons.Outlined.VisibilityOff,
+                iconLeft = if (isOwner || homework is LocalHomework) Icons.Outlined.Delete else Icons.Outlined.VisibilityOff,
                 iconRight = if (mainCheckboxState == ToggleableState.On) Icons.Outlined.CheckBoxOutlineBlank else Icons.Outlined.CheckBox,
                 background = MaterialTheme.colorScheme.background,
                 colorLeft = MaterialTheme.colorScheme.error,
@@ -151,7 +152,7 @@ fun HomeworkCard(
                 colorRight = Color.Gray,
                 onColorRight = MaterialTheme.colorScheme.onError,
                 onDragToLeft = {
-                    if (isOwner || homework.createdBy == null) onDeleteRequest()
+                    if (isOwner || homework is LocalHomework) onDeleteRequest()
                     else onHomeworkHide()
                 },
                 onDragToRight = { allDone(mainCheckboxState != ToggleableState.On) },
@@ -165,17 +166,17 @@ fun HomeworkCard(
                         Title(
                             subject = homework.defaultLesson?.subject,
                             tasks = homework.tasks.size,
-                            documents = homework.documentUris.size,
+                            documents = homework.documents.size,
                             homeworkTaskState = mainCheckboxState,
                             onAllDone = allDone,
-                            isLoading = homework.isLoading || homework.tasks.any { it.isLoading }
+                            isLoading = isLoading
                         )
                         HeaderActions(
-                            isLoading = homework.isLoading || homework.tasks.any { it.isLoading },
-                            isHomeworkHidden = homework.isHidden,
-                            isHomeworkPublic = homework.isPublic,
-                            userCanEditHomework = isOwner || (homework.createdBy == null && homework.id < 0),
-                            isLocalHomework = homework.createdBy == null && homework.id < 0,
+                            isLoading = isLoading,
+                            isHomeworkHidden = (homework as? CloudHomework)?.isHidden ?: false,
+                            isHomeworkPublic = (homework as? CloudHomework)?.isPublic ?: false,
+                            userCanEditHomework = isOwner || homework is LocalHomework,
+                            isLocalHomework = homework is LocalHomework,
                             onAddTaskClicked = { isAdding = true },
                             onChangeDateClicked = { isChangeDateDialogOpen = true },
                             onDeleteClicked = onDeleteRequest,
@@ -186,15 +187,15 @@ fun HomeworkCard(
                     HomeworkProgressBar(
                         modifier = Modifier.padding(bottom = 4.dp, top = 8.dp),
                         tasks = homework.tasks.size,
-                        tasksDone = homework.tasks.count { it.done }
+                        tasksDone = homework.tasks.count { it.isDone }
                     )
                     homework.tasks.forEach { task ->
                         HomeworkTask(
                             content = task.content,
-                            isLoading = task.isLoading || homework.isLoading,
-                            isDone = task.done,
-                            userCanEditThisTask = isOwner || homework.createdBy == null,
-                            onToggleDone = { singleDone(task, !task.done) },
+                            isLoading = isLoading,
+                            isDone = task.isDone,
+                            userCanEditThisTask = isOwner || homework is LocalHomework,
+                            onToggleDone = { singleDone(task, !task.isDone) },
                             onDeleteClicked = { onDeleteTaskRequest(task) },
                             onEditClicked = { onEditTaskRequest(task) },
                             modifier = Modifier.padding(start = 8.dp)
@@ -202,7 +203,7 @@ fun HomeworkCard(
                     }
                     AddHomeworkTask(
                         isVisible = isAdding,
-                        isEnabled = !homework.isLoadingNewTask,
+                        isEnabled = !isLoading,
                         onCloseClicked = { isAdding = false },
                         onAddTask = onAddTask
                     )
@@ -213,7 +214,7 @@ fun HomeworkCard(
                         val resource = homework.until.toLocalDate().getRelativeStringResource(LocalDate.now())
                         val untilText = buildAnnotatedString {
                             var style = MaterialTheme.typography.labelSmall.toSpanStyle()
-                            if (homework.toHomework().isOverdue(LocalDate.now())) style = style.copy(color = MaterialTheme.colorScheme.error)
+                            if (homework.isOverdue(LocalDate.now())) style = style.copy(color = MaterialTheme.colorScheme.error)
                             withStyle(style) {
                                 append(
                                     stringResource(
@@ -221,7 +222,7 @@ fun HomeworkCard(
                                         else stringResource(resource)
                                     )
                                 )
-                                if (homework.toHomework().isOverdue(LocalDate.now())) {
+                                if (homework.isOverdue(LocalDate.now())) {
                                     append(" $DOT ")
                                     append(stringResource(id = R.string.homework_overdue))
                                 }
@@ -237,16 +238,15 @@ fun HomeworkCard(
                                     append(homework.createdAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
                                     append(" $DOT ")
                                     withStyle(style.copy(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
-                                        if (homework.id < 0) append(stringResource(id = R.string.homework_thisDevice))
+                                        if (homework is LocalHomework) append(stringResource(id = R.string.homework_thisDevice))
                                         else if (isOwner) append(stringResource(id = R.string.homework_you))
-                                        else if (homework.createdBy == null) append(stringResource(id = R.string.unknownVppId))
-                                        else append(homework.createdBy.name)
+                                        else append((homework as CloudHomework).createdBy.name)
                                     }
                                 }
                             }
                             Text(text)
-                            if (isOwner && homework.isPublic) Icon(modifier = Modifier.size(12.dp), imageVector = Icons.Default.Share, contentDescription = null)
-                            if (homework.isHidden) Icon(modifier = Modifier.size(12.dp), imageVector = Icons.Default.VisibilityOff, contentDescription = null)
+                            if (isOwner && (homework as? CloudHomework)?.isPublic == true) Icon(modifier = Modifier.size(12.dp), imageVector = Icons.Default.Share, contentDescription = null)
+                            if ((homework as? CloudHomework)?.isHidden == true) Icon(modifier = Modifier.size(12.dp), imageVector = Icons.Default.VisibilityOff, contentDescription = null)
                         }
                     }
                 }
@@ -261,7 +261,6 @@ private fun HomeworkCardPreview() {
     val school = SchoolPreview.generateRandomSchools(1).first()
     val group = GroupPreview.generateGroup(school)
     val creator = VppIdPreview.generateVppId(group)
-    val profile = ProfilePreview.generateClassProfile(group, creator)
     val defaultLesson = DefaultLesson(
         teacher = null,
         defaultLessonId = UUID.randomUUID(),
@@ -270,34 +269,28 @@ private fun HomeworkCardPreview() {
         vpId = 42
     )
     HomeworkCard(
-        homework = HomeworkViewModelHomework(
+        homework = CloudHomework(
             id = 1,
             createdBy = creator,
             createdAt = ZonedDateTime.now(),
             defaultLesson = defaultLesson,
             until = ZonedDateTime.now(),
             tasks = listOf(
-                HomeworkViewModelTask(
+                HomeworkTask(
                     id = 1,
                     content = "Test 1",
-                    done = true,
+                    isDone = true
                 ),
-                HomeworkViewModelTask(
-                    id = 1,
+                HomeworkTask(
+                    id = 2,
                     content = "Test 2",
-                    done = true,
-                    isLoading = false
-                )
+                    isDone = true
+                ),
             ),
             group = group,
             isPublic = true,
-            isOwner = true,
-            isLoading = false,
-            isLoadingNewTask = true,
             isHidden = true,
-            isEnabled = false,
-            profile = profile,
-            documentUris = emptyList()
+            documents = emptyList()
         ),
         isOwner = true,
         allDone = {},
@@ -310,8 +303,8 @@ private fun HomeworkCardPreview() {
         onHomeworkHide = {},
         onUpdateDueDate = {},
         showHidden = true,
-        showDisabled = true,
         showDone = true,
+        isLoading = true,
         onClick = {}
     )
 }
