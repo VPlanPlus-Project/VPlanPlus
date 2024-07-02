@@ -54,7 +54,7 @@ class AddHomeworkViewModel @Inject constructor(
                     defaultLessons = defaultLessons.filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.vpId) ?: true },
                     username = (profile as? ClassProfile)?.vppId?.name,
                     canUseCloud = (profile as? ClassProfile)?.vppId != null,
-                    saveType = state.value.saveType ?: if ((profile as? ClassProfile)?.vppId != null) SaveType.CLOUD else SaveType.LOCAL,
+                    saveType = state.value.saveType,
                     defaultLessonsFiltered = defaultLessonsFiltered,
                     initDone = true,
                     showDocumentsBalloon = showDocumentBalloon && !showVppIdStorageBalloon,
@@ -169,7 +169,7 @@ data class AddHomeworkState(
 
     val until: LocalDate? = null,
 
-    val saveType: SaveType? = null,
+    val saveType: SaveType = SaveType.LOCAL,
 
     val tasks: List<String> = emptyList(),
     val newTask: String = "",

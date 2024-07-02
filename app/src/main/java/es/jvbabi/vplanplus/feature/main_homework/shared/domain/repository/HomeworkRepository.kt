@@ -114,12 +114,13 @@ interface HomeworkRepository {
      * Uploads a document to the cloud. This will not save the document to the device, it will only upload it to the cloud. Creating the actual document is the responsibility of the caller.
      * @param vppId The vpp.ID as which the request shall be executed
      * @param name The name of the document without the extension
+     * @param homeworkId The ID of the homework to which the document belongs
      * @param type The type of the document
      * @param content The content of the document
      * @param onUploading A callback that is called when the document is being uploaded. The first parameter is the number of bytes sent, the second is the total number of bytes.
      * @return A [Response] containing the result of the operation and the ID of the document if it was successful.
      */
-    suspend fun uploadDocument(vppId: VppId, name: String, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?>
+    suspend fun uploadDocument(vppId: VppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?>
 
     /**
      * Adds a homework to the database. This will not upload the homework to the cloud, it will only save it to the device. Uploading the homework is the responsibility of the caller.

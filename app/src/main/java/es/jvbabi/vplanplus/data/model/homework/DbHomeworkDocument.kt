@@ -22,7 +22,7 @@ import java.io.File
             entity = DbHomework::class,
             parentColumns = ["id"],
             childColumns = ["homework_id"],
-            onDelete = ForeignKey.SET_NULL
+            onDelete = ForeignKey.CASCADE
         )
     ]
 )

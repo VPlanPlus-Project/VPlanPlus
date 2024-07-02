@@ -4,16 +4,16 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
+import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
+import es.jvbabi.vplanplus.domain.model.xml.RoomBaseData
+import es.jvbabi.vplanplus.domain.model.xml.TeacherBaseData
+import es.jvbabi.vplanplus.domain.model.xml.WeekBaseData
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
-import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
-import es.jvbabi.vplanplus.domain.model.xml.RoomBaseData
-import es.jvbabi.vplanplus.domain.model.xml.TeacherBaseData
-import es.jvbabi.vplanplus.domain.model.xml.WeekBaseData
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
@@ -79,13 +79,13 @@ class BaseDataRepositoryImpl(
         val weeksResponse = sp24NetworkRepository.doRequest(
             "/$sp24SchoolId/wplan/wdatenk/SPlanKl_Sw1.xml",
         )
-        if (classesResponse.response != HttpStatusCode.OK) return DataResponse(null, classesResponse.response)
+        if (classesResponse.response != HttpStatusCode.OK || arrayOf(classesResponse.data, weeksResponse.data).any { it == null }) return DataResponse(null, classesResponse.response)
 
         val fullySupported = teachersResponse.response == HttpStatusCode.OK && roomsResponse.response == HttpStatusCode.OK && weeksResponse.response == HttpStatusCode.OK
 
         val classBaseData = ClassBaseData(classesResponse.data!!)
-        val teacherBaseData = if (fullySupported) TeacherBaseData(teachersResponse.data!!) else null
-        val roomBaseData = if (fullySupported) RoomBaseData(roomsResponse.data!!) else null
+        val teacherBaseData = if (fullySupported && teachersResponse.data != null) TeacherBaseData(teachersResponse.data) else null
+        val roomBaseData = if (fullySupported && roomsResponse.data != null) RoomBaseData(roomsResponse.data) else null
         val weekBaseData = WeekBaseData(weeksResponse.data!!)
 
         return DataResponse(

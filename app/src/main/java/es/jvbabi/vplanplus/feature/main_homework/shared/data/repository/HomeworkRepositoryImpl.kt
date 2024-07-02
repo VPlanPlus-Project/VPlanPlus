@@ -315,7 +315,7 @@ class HomeworkRepositoryImpl(
             homeworkId = response.id.toLong()
             response.tasks.forEach { responseTask ->
                 homeworkTasks.replaceAll { task ->
-                    if (task.content.sha256().lowercase() != responseTask.content) return@replaceAll task
+                    if (task.content.sha256().lowercase() != responseTask.contentSHA256) return@replaceAll task
                     else task.copy(id = responseTask.id.toLong())
                 }
             }
@@ -710,12 +710,12 @@ class HomeworkRepositoryImpl(
         return id
     }
 
-    override suspend fun uploadDocument(vppId: VppId, name: String, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?> {
+    override suspend fun uploadDocument(vppId: VppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?> {
         val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
         if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
         vppIdNetworkRepository.authentication = BearerAuthentication(token)
         val response = vppIdNetworkRepository.doRequest(
-            path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/document/",
+            path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/$homeworkId/document",
             requestBody = content,
             requestMethod = HttpMethod.Post,
             queries = mapOf("file_name" to name + "." + type.extension),
@@ -747,7 +747,7 @@ class HomeworkRepositoryImpl(
         if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
         vppIdNetworkRepository.authentication = BearerAuthentication(token)
         val response = vppIdNetworkRepository.doRequest(
-            path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/",
+            path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework",
             requestBody = Gson().toJson(
                 AddHomeworkRequest(
                     vpId = vpId,
@@ -860,7 +860,7 @@ data class AddHomeworkResponse(
 
 data class AddHomeworkResponseTask(
     @SerializedName("id") val id: Int,
-    @SerializedName("content") val content: String
+    @SerializedName("hash") val contentSHA256: String
 )
 
 private data class AddTaskResponse(

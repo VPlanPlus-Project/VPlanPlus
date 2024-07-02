@@ -41,8 +41,8 @@ class SaveHomeworkUseCase(
         if (storeInCloud && profile.vppId != null) {
             val ids = homeworkRepository.uploadHomework(profile.vppId, isPublic = shareWithClass, vpId = defaultLesson?.vpId, dueTo = dueTo, tasks = tasks).value ?: return HomeworkModificationResult.FAILED
             homeworkId = ids.id
-            ids.tasks.forEach { (id, contentHash) ->
-                taskMap += tasks.first { it.sha256() == contentHash } to id
+            ids.tasks.forEach { (id, contentSHA256) ->
+                taskMap += tasks.first { it.sha256() == contentSHA256 } to id
             }
         } else {
             tasks.forEach { taskMap += it to null }
@@ -75,6 +75,7 @@ class SaveHomeworkUseCase(
                 documentId = homeworkRepository.uploadDocument(
                     vppId = profile.vppId,
                     name = name,
+                    homeworkId = homeworkId,
                     content = content,
                     type = type,
                     onUploading = { sent, _ -> onDocumentUploadProgress(uri, sent.toFloat() / content.size) }

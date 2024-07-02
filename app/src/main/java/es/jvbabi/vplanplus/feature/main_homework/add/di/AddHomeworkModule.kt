@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.data.repository.FileRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
@@ -25,7 +26,8 @@ object AddHomeworkModule {
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         defaultLessonRepository: DefaultLessonRepository,
         keyValueRepository: KeyValueRepository,
-        homeworkRepository: HomeworkRepository
+        homeworkRepository: HomeworkRepository,
+        fileRepository: FileRepository
     ): AddHomeworkUseCases {
         return AddHomeworkUseCases(
             getDefaultLessonsUseCase = GetDefaultLessonsUseCase(
@@ -35,6 +37,7 @@ object AddHomeworkModule {
             saveHomeworkUseCase = SaveHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
+                fileRepository = fileRepository
             ),
             isBalloonUseCase = IsBalloonUseCase(
                 keyValueRepository = keyValueRepository,

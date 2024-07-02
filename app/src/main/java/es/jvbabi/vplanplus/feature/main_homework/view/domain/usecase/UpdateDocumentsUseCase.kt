@@ -34,6 +34,7 @@ class UpdateDocumentsUseCase(
                     vppId = vppId,
                     name = newDocument.name,
                     type = HomeworkDocumentType.fromExtension(newDocument.extension),
+                    homeworkId = homework.id.toInt(),
                     content = content,
                     onUploading = { sent, of ->
                         onUploading(newDocument.uri, (sent.toFloat() / of))
