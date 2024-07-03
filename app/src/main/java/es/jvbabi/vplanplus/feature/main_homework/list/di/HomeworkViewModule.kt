@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
@@ -35,6 +36,7 @@ object HomeworkViewModule {
     fun provideHomeworkUseCases(
         homeworkRepository: HomeworkRepository,
         profileRepository: ProfileRepository,
+        fileRepository: FileRepository,
         keyValueRepository: KeyValueRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         changeTaskDoneStateUseCase: ChangeTaskDoneStateUseCase
@@ -52,6 +54,7 @@ object HomeworkViewModule {
             ),
             deleteHomeworkUseCase = DeleteHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
+                fileRepository = fileRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase
             ),
             changeVisibilityUseCase = ChangeVisibilityUseCase(
@@ -68,10 +71,7 @@ object HomeworkViewModule {
             ),
             isUpdateRunningUseCase = IsUpdateRunningUseCase(keyValueRepository),
             updateUseCase = UpdateUseCase(homeworkRepository),
-            hideHomeworkUseCase = HideHomeworkUseCase(
-                homeworkRepository = homeworkRepository,
-                getCurrentProfileUseCase = getCurrentProfileUseCase
-            ),
+            hideHomeworkUseCase = HideHomeworkUseCase(homeworkRepository),
             showHomeworkNotificationBannerUseCase = ShowHomeworkNotificationBannerUseCase(keyValueRepository),
             hideHomeworkNotificationBannerUseCase = HideHomeworkNotificationBannerUseCase(keyValueRepository),
             updateDueDateUseCase = UpdateDueDateUseCase(

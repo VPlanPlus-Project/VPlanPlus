@@ -1,8 +1,8 @@
-package es.jvbabi.vplanplus.domain.repository
+package es.jvbabi.vplanplus.data.repository
 
 import android.content.Context
 import android.net.Uri
-import es.jvbabi.vplanplus.data.repository.FileRepository
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import java.io.File
 
 class FileRepositoryImpl(

@@ -13,7 +13,7 @@ import es.jvbabi.vplanplus.data.repository.AlarmManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BiometricRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
-import es.jvbabi.vplanplus.data.repository.FileRepository
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.data.repository.FirebaseCloudMessagingManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.GroupRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
@@ -39,7 +39,7 @@ import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
-import es.jvbabi.vplanplus.domain.repository.FileRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.FileRepositoryImpl
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository

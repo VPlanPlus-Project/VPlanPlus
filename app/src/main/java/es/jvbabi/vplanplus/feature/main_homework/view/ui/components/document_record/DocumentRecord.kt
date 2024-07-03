@@ -56,6 +56,7 @@ import es.jvbabi.vplanplus.ui.common.HorizontalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
+import okio.FileNotFoundException
 
 @Composable
 fun DocumentRecord(
@@ -98,9 +99,11 @@ fun DocumentRecord(
 
             HomeworkDocumentType.JPG -> {
                 val file = uri.toFile()
-                bitmap = context.contentResolver.openInputStream(uri)?.use {
-                    it.use { stream -> Bitmap.createBitmap(BitmapFactory.decodeStream(stream)) }
-                }
+                bitmap = try {
+                    context.contentResolver.openInputStream(uri)?.use {
+                        it.use { stream -> Bitmap.createBitmap(BitmapFactory.decodeStream(stream)) }
+                    }
+                } catch (_: FileNotFoundException) { null }
                 documentSize = file.length()
             }
         }

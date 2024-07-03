@@ -198,6 +198,7 @@ class HomeworkViewModel @Inject constructor(
     }
 
     fun onHomeworkHideToggle(homework: Homework) {
+        if (homework !is CloudHomework) return
         viewModelScope.launch {
             setHomeworkLoading(homework, true)
             homeworkUseCases.hideHomeworkUseCase(homework)

@@ -41,7 +41,7 @@ data class CHomework(
         parentColumn = "profile_id",
         entityColumn = "id",
         entity = DbClassProfile::class
-    ) val profile: CClassProfile,
+    ) val profile: CClassProfile?,
     @Relation(
         parentColumn = "id",
         entityColumn = "homework_id",
@@ -77,7 +77,7 @@ data class CHomework(
                 until = until,
                 tasks = tasks.map { it.toModel() },
                 documents = documents,
-                profile = profile.toModel()
+                profile = profile!!.toModel()
             )
         }
     }

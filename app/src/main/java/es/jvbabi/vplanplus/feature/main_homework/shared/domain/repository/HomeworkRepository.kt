@@ -47,18 +47,14 @@ interface HomeworkRepository {
         done: Boolean
     ): HomeworkModificationResult
 
+    @Deprecated("Use split up methods instead instead")
     suspend fun editTaskContent(
         profile: ClassProfile,
         task: HomeworkTask,
         newContent: String
     ): HomeworkModificationResult
 
-    suspend fun removeOrHideHomework(
-        profile: ClassProfile,
-        homework: Homework,
-        task: DeleteTask
-    ): HomeworkModificationResult
-
+    @Deprecated("Use split up methods instead instead")
     suspend fun deleteTask(
         profile: ClassProfile,
         task: HomeworkTask
@@ -74,9 +70,6 @@ interface HomeworkRepository {
     suspend fun getHomeworkByTask(taskId: Int): Homework
 
     @Deprecated("Use split up methods instead instead")
-    suspend fun changeShareStatus(profile: ClassProfile, homework: CloudHomework): HomeworkModificationResult
-
-    @Deprecated("Use split up methods instead instead")
     suspend fun updateDueDate(profile: ClassProfile, homework: Homework, newDate: ZonedDateTime): HomeworkModificationResult
 
     suspend fun clearCache()
@@ -87,17 +80,6 @@ interface HomeworkRepository {
     suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek)
     fun getPreferredHomeworkNotificationTimes(): Flow<List<PreferredHomeworkNotificationTime>>
 
-    @Deprecated("Use split up methods instead instead")
-    suspend fun editDocument(vppId: VppId? = null, homeworkDocument: HomeworkDocument, newName: String?): HomeworkModificationResult
-
-    /**
-     * Removes a document from the database and cloud if necessary. This will not delete the document from the device, it will only remove it from the database and cloud if the homework is not local. Deleting the actual document is the responsibility of the caller.
-     * @param vppId The VPP ID of the homework. If null, the homework is assumed to be a local homework and no vpp.ID API calls will be made.
-     * @param homeworkDocument The document to be deleted.
-     * @return A [HomeworkModificationResult] indicating the result of the operation.
-     */
-    @Deprecated("Use split up methods instead instead")
-    suspend fun deleteDocument(vppId: VppId? = null, homeworkDocument: HomeworkDocument): HomeworkModificationResult
     suspend fun getDocumentById(id: Int): HomeworkDocument?
 
     /**
@@ -175,7 +157,86 @@ interface HomeworkRepository {
      */
     suspend fun uploadTaskState(vppId: VppId, homeworkTaskId: Int, isDone: Boolean): Response<HomeworkModificationResult, Unit?>
 
+    /**
+     * Updates the state of a homework task in the database.
+     * @param homeworkTaskId The ID of the task.
+     * @param isDone Whether the task is done.
+     */
     suspend fun setTaskStateToDb(homeworkTaskId: Int, isDone: Boolean)
+
+    /**
+     * Updates the name of a document in the cloud. This will not save the name to the device, it will only upload it to the cloud. Saving the name is the responsibility of the caller.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param homeworkDocument The document to be renamed.
+     * @param newName The new name of the document.
+     */
+    suspend fun uploadNewDocumentName(vppId: VppId, homeworkDocument: HomeworkDocument, newName: String): Response<HomeworkModificationResult, Unit?>
+
+    /**
+     * Updates the name of a document in the database.
+     * @param homeworkDocument The document to be renamed.
+     * @param newName The new name of the document.
+     * @return The ID of the document.
+     * @see [uploadNewDocumentName]
+     */
+    suspend fun renameDocumentInDb(homeworkDocument: HomeworkDocument, newName: String)
+
+    /**
+     * Deletes a document from the cloud. Be sure to delete the actual file before since this method won't remove it.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param homeworkDocument The document to be deleted.
+     * @return A [Response] containing the result of the operation and null if it was not successful.
+     * @see [deleteDocumentFromDb]
+     */
+    suspend fun deleteDocumentFromCloud(vppId: VppId, homeworkDocument: HomeworkDocument): Response<HomeworkModificationResult, Unit?>
+
+    /**
+     * Deletes a document from the database. Be sure to delete the actual file before since this method won't remove it.
+     * @param homeworkDocument The document to be deleted.
+     * @see [deleteDocumentFromCloud]
+     */
+    suspend fun deleteDocumentFromDb(homeworkDocument: HomeworkDocument)
+
+    /**
+     * Update the sharing status of a homework in the database.
+     * @param homework The homework to be updated.
+     * @param isPublic Whether the homework is public.
+     * @see [uploadNewSharingStatus]
+     */
+    suspend fun editSharingStatusInDb(homework: CloudHomework, isPublic: Boolean)
+
+    /**
+     * Uploads the sharing status of a homework to the cloud. This will not save the sharing status to the device, it will only upload it to the cloud. Saving the sharing status is the responsibility of the caller.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param homework The homework to be updated.
+     * @param isPublic Whether the homework is public.
+     * @return A [Response] containing the result of the operation and null if it was not successful.
+     * @see [editSharingStatusInDb]
+     */
+    suspend fun uploadNewSharingStatus(vppId: VppId, homework: CloudHomework, isPublic: Boolean): Response<HomeworkModificationResult, Unit?>
+
+    /**
+     * Updates the due date of a homework in the database.
+     * @param homework The homework to be updated.
+     * @param hide Whether the homework is hidden.
+     */
+    suspend fun editHidingStatusInDb(homework: CloudHomework, hide: Boolean)
+
+    /**
+     * Deletes a homework from the database. Be sure to delete all related documents before since this method won't remove them.
+     * @param homework The homework to be deleted.
+     * @see [deleteHomeworkFromCloud]
+     */
+    suspend fun deleteHomeworkFromDb(homework: Homework)
+
+    /**
+     * Deletes a homework from the cloud. Be sure to delete all related documents before since this method won't remove them.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param homework The homework to be deleted.
+     * @return A [Response] containing the result of the operation and null if it was not successful.
+     * @see [deleteHomeworkFromDb]
+     */
+    suspend fun deleteHomeworkFromCloud(vppId: VppId, homework: CloudHomework): Response<HomeworkModificationResult, Unit?>
 }
 
 enum class HomeworkModificationResult {
@@ -189,13 +250,6 @@ data class NewTaskRecord(
     val done: Boolean = false,
     val id: Long? = null
 )
-
-enum class DeleteTask {
-    DELETE,
-    HIDE,
-    FORCE_DELETE_LOCALLY
-}
-
 
 data class Document(
     val uri: Uri,

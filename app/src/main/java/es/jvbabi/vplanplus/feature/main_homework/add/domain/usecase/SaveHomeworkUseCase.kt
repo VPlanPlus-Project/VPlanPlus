@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase
 
 import android.net.Uri
-import es.jvbabi.vplanplus.data.repository.FileRepository
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase

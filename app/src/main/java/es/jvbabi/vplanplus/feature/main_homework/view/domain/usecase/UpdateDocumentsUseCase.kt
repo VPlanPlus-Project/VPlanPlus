@@ -1,13 +1,13 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase
 
 import android.net.Uri
-import es.jvbabi.vplanplus.data.repository.FileRepository
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.first
 import java.util.UUID
@@ -51,10 +51,16 @@ class UpdateDocumentsUseCase(
         }
         editedDocuments.forEach { editedDocument ->
             val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().toInt()) ?: return@forEach
-            homeworkRepository.editDocument(vppId, document, editedDocument.name)
+            if (homework is CloudHomework && vppId != null) {
+                homeworkRepository.uploadNewDocumentName(vppId, document, editedDocument.name).value ?: return@forEach
+            }
+            homeworkRepository.renameDocumentInDb(document, editedDocument.name)
         }
         documentsToDelete.forEach { document ->
-            if (homeworkRepository.deleteDocument(vppId, document) == HomeworkModificationResult.FAILED) return@forEach
+            if (homework is CloudHomework && vppId != null) {
+                homeworkRepository.deleteDocumentFromCloud(vppId, document).value ?: return@forEach
+            }
+            homeworkRepository.deleteDocumentFromDb(document)
             fileRepository.deleteFile("homework_documents", document.documentId.toString())
         }
     }
