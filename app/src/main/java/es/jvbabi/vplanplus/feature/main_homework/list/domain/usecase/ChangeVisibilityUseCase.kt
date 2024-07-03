@@ -14,8 +14,8 @@ class ChangeVisibilityUseCase(
 
     suspend operator fun invoke(homework: CloudHomework): HomeworkModificationResult {
         val vppId = (getCurrentProfileUseCase().first() as? ClassProfile)?.vppId ?: return HomeworkModificationResult.FAILED
-        homeworkRepository.uploadNewSharingStatus(vppId, homework, !homework.isPublic).value ?: return HomeworkModificationResult.FAILED
-        homeworkRepository.editSharingStatusInDb(homework, !homework.isPublic)
+        homeworkRepository.changeHomeworkSharingCloud(vppId, homework, !homework.isPublic).value ?: return HomeworkModificationResult.FAILED
+        homeworkRepository.changeHomeworkSharingDb(homework, !homework.isPublic)
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
     }
 }

@@ -22,7 +22,7 @@ abstract class Homework(
     }
 
     fun getTaskById(id: Long): HomeworkTask? {
-        return tasks.find { it.id == id }
+        return tasks.find { it.id == id.toInt() }
     }
 }
 
@@ -60,7 +60,8 @@ class LocalHomework(
 }
 
 data class HomeworkTask(
-    val id: Long,
+    val id: Int,
     val content: String,
     val isDone: Boolean,
+    val homeworkId: Int
 )

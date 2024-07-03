@@ -39,38 +39,14 @@ interface HomeworkRepository {
         onDocumentUploadProgressChanges: (Uri, Float) -> Unit = { _, _ -> }
     ): HomeworkModificationResult
 
-    @Deprecated("Use split up methods instead instead")
-    suspend fun setTaskState(
-        profile: ClassProfile,
-        homework: Homework,
-        task: HomeworkTask,
-        done: Boolean
-    ): HomeworkModificationResult
-
-    @Deprecated("Use split up methods instead instead")
-    suspend fun editTaskContent(
-        profile: ClassProfile,
-        task: HomeworkTask,
-        newContent: String
-    ): HomeworkModificationResult
-
-    @Deprecated("Use split up methods instead instead")
-    suspend fun deleteTask(
-        profile: ClassProfile,
-        task: HomeworkTask
-    ): HomeworkModificationResult
-
-    suspend fun findLocalId(): Long
-    suspend fun findLocalTaskId(): Long
+    suspend fun findLocalId(): Int
+    suspend fun findLocalTaskId(): Int
     suspend fun findLocalDocumentId(): Int
 
     @Deprecated("don't do this")
     suspend fun fetchHomework(sendNotification: Boolean)
 
     suspend fun getHomeworkByTask(taskId: Int): Homework
-
-    @Deprecated("Use split up methods instead instead")
-    suspend fun updateDueDate(profile: ClassProfile, homework: Homework, newDate: ZonedDateTime): HomeworkModificationResult
 
     suspend fun clearCache()
 
@@ -90,7 +66,7 @@ interface HomeworkRepository {
      * @param type The type of the document.
      * @return The ID of the document, either the one provided or the next available local ID.
      */
-    suspend fun addDocumentToDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId
+    suspend fun addDocumentDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId
 
     /**
      * Uploads a document to the cloud. This will not save the document to the device, it will only upload it to the cloud. Creating the actual document is the responsibility of the caller.
@@ -102,7 +78,7 @@ interface HomeworkRepository {
      * @param onUploading A callback that is called when the document is being uploaded. The first parameter is the number of bytes sent, the second is the total number of bytes.
      * @return A [Response] containing the result of the operation and the ID of the document if it was successful.
      */
-    suspend fun uploadDocument(vppId: VppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?>
+    suspend fun addDocumentCloud(vppId: VppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<HomeworkModificationResult, Int?>
 
     /**
      * Adds a homework to the database. This will not upload the homework to the cloud, it will only save it to the device. Uploading the homework is the responsibility of the caller.
@@ -116,7 +92,7 @@ interface HomeworkRepository {
      * @param createdAt The creation date of the homework.
      * @return The ID of the homework, either the one provided or the next available local ID.
      */
-    suspend fun addHomeworkToDb(homeworkId: Int? = null, clazzProfile: ClassProfile, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isHidden: Boolean = false, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId
+    suspend fun addHomeworkDb(homeworkId: Int? = null, clazzProfile: ClassProfile, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isHidden: Boolean = false, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId
 
     /**
      * Uploads a homework to the cloud. This will not save the homework to the device, it will only upload it to the cloud. Creating the actual homework is the responsibility of the caller.
@@ -127,7 +103,7 @@ interface HomeworkRepository {
      * @param isPublic Whether the homework is public
      * @return A [Response] containing the result of the operation and the ID of the homework if it was successful.
      */
-    suspend fun uploadHomework(vppId: VppId, dueTo: ZonedDateTime, tasks: List<String>, vpId: Int? = null, isPublic: Boolean): Response<HomeworkModificationResult, AddHomeworkResponse?>
+    suspend fun addHomeworkCloud(vppId: VppId, dueTo: ZonedDateTime, tasks: List<String>, vpId: Int? = null, isPublic: Boolean): Response<HomeworkModificationResult, AddHomeworkResponse?>
 
     /**
      * Adds a homework task to the database. This will not upload the task to the cloud, it will only save it to the device. Uploading the task is the responsibility of the caller.
@@ -137,7 +113,7 @@ interface HomeworkRepository {
      * @param content The content of the task.
      * @return The ID of the task, either the one provided or the next available local ID.
      */
-    suspend fun addHomeworkTaskToDb(homeworkId: Int, taskId: Int?, isDone: Boolean = false, content: String): HomeworkTaskId
+    suspend fun addTaskDb(homeworkId: Int, taskId: Int?, isDone: Boolean = false, content: String): HomeworkTaskId
 
     /**
      * Uploads a homework task to the cloud. This will not save the task to the device, it will only upload it to the cloud. Creating the actual task is the responsibility of the caller.
@@ -146,7 +122,7 @@ interface HomeworkRepository {
      * @param content The content of the task.
      * @return A [Response] containing the result of the operation and the ID of the task if it was successful.
      */
-    suspend fun uploadHomeworkTask(vppId: VppId, homeworkId: Int, content: String): Response<HomeworkModificationResult, Int?>
+    suspend fun addTaskCloud(vppId: VppId, homeworkId: Int, content: String): Response<HomeworkModificationResult, Int?>
 
     /**
      * Uploads the state of a homework task to the cloud. This will not save the state to the device, it will only upload it to the cloud. Saving the state is the responsibility of the caller.
@@ -155,14 +131,14 @@ interface HomeworkRepository {
      * @param isDone Whether the task is done.
      * @return A [Response] containing the result of the operation and null if it was not successful.
      */
-    suspend fun uploadTaskState(vppId: VppId, homeworkTaskId: Int, isDone: Boolean): Response<HomeworkModificationResult, Unit?>
+    suspend fun changeTaskStateCloud(vppId: VppId, homeworkTaskId: Int, isDone: Boolean): Response<HomeworkModificationResult, Unit?>
 
     /**
      * Updates the state of a homework task in the database.
      * @param homeworkTaskId The ID of the task.
      * @param isDone Whether the task is done.
      */
-    suspend fun setTaskStateToDb(homeworkTaskId: Int, isDone: Boolean)
+    suspend fun changeTaskStateDb(homeworkTaskId: Int, isDone: Boolean)
 
     /**
      * Updates the name of a document in the cloud. This will not save the name to the device, it will only upload it to the cloud. Saving the name is the responsibility of the caller.
@@ -170,40 +146,40 @@ interface HomeworkRepository {
      * @param homeworkDocument The document to be renamed.
      * @param newName The new name of the document.
      */
-    suspend fun uploadNewDocumentName(vppId: VppId, homeworkDocument: HomeworkDocument, newName: String): Response<HomeworkModificationResult, Unit?>
+    suspend fun changeDocumentNameCloud(vppId: VppId, homeworkDocument: HomeworkDocument, newName: String): Response<HomeworkModificationResult, Unit?>
 
     /**
      * Updates the name of a document in the database.
      * @param homeworkDocument The document to be renamed.
      * @param newName The new name of the document.
      * @return The ID of the document.
-     * @see [uploadNewDocumentName]
+     * @see [changeDocumentNameCloud]
      */
-    suspend fun renameDocumentInDb(homeworkDocument: HomeworkDocument, newName: String)
+    suspend fun changeDocumentNameDb(homeworkDocument: HomeworkDocument, newName: String)
 
     /**
      * Deletes a document from the cloud. Be sure to delete the actual file before since this method won't remove it.
      * @param vppId The vpp.ID as which the request shall be executed
      * @param homeworkDocument The document to be deleted.
      * @return A [Response] containing the result of the operation and null if it was not successful.
-     * @see [deleteDocumentFromDb]
+     * @see [deleteDocumentDb]
      */
-    suspend fun deleteDocumentFromCloud(vppId: VppId, homeworkDocument: HomeworkDocument): Response<HomeworkModificationResult, Unit?>
+    suspend fun deleteDocumentCloud(vppId: VppId, homeworkDocument: HomeworkDocument): Response<HomeworkModificationResult, Unit?>
 
     /**
      * Deletes a document from the database. Be sure to delete the actual file before since this method won't remove it.
      * @param homeworkDocument The document to be deleted.
-     * @see [deleteDocumentFromCloud]
+     * @see [deleteDocumentCloud]
      */
-    suspend fun deleteDocumentFromDb(homeworkDocument: HomeworkDocument)
+    suspend fun deleteDocumentDb(homeworkDocument: HomeworkDocument)
 
     /**
      * Update the sharing status of a homework in the database.
      * @param homework The homework to be updated.
      * @param isPublic Whether the homework is public.
-     * @see [uploadNewSharingStatus]
+     * @see [changeHomeworkSharingCloud]
      */
-    suspend fun editSharingStatusInDb(homework: CloudHomework, isPublic: Boolean)
+    suspend fun changeHomeworkSharingDb(homework: CloudHomework, isPublic: Boolean)
 
     /**
      * Uploads the sharing status of a homework to the cloud. This will not save the sharing status to the device, it will only upload it to the cloud. Saving the sharing status is the responsibility of the caller.
@@ -211,32 +187,84 @@ interface HomeworkRepository {
      * @param homework The homework to be updated.
      * @param isPublic Whether the homework is public.
      * @return A [Response] containing the result of the operation and null if it was not successful.
-     * @see [editSharingStatusInDb]
+     * @see [changeHomeworkSharingDb]
      */
-    suspend fun uploadNewSharingStatus(vppId: VppId, homework: CloudHomework, isPublic: Boolean): Response<HomeworkModificationResult, Unit?>
+    suspend fun changeHomeworkSharingCloud(vppId: VppId, homework: CloudHomework, isPublic: Boolean): Response<HomeworkModificationResult, Unit?>
 
     /**
      * Updates the due date of a homework in the database.
      * @param homework The homework to be updated.
      * @param hide Whether the homework is hidden.
      */
-    suspend fun editHidingStatusInDb(homework: CloudHomework, hide: Boolean)
+    suspend fun changeHomeworkVisibilityDb(homework: CloudHomework, hide: Boolean)
 
     /**
      * Deletes a homework from the database. Be sure to delete all related documents before since this method won't remove them.
      * @param homework The homework to be deleted.
-     * @see [deleteHomeworkFromCloud]
+     * @see [deleteHomeworkCloud]
      */
-    suspend fun deleteHomeworkFromDb(homework: Homework)
+    suspend fun deleteHomeworkDb(homework: Homework)
 
     /**
      * Deletes a homework from the cloud. Be sure to delete all related documents before since this method won't remove them.
      * @param vppId The vpp.ID as which the request shall be executed
      * @param homework The homework to be deleted.
      * @return A [Response] containing the result of the operation and null if it was not successful.
-     * @see [deleteHomeworkFromDb]
+     * @see [deleteHomeworkDb]
      */
-    suspend fun deleteHomeworkFromCloud(vppId: VppId, homework: CloudHomework): Response<HomeworkModificationResult, Unit?>
+    suspend fun deleteHomeworkCloud(vppId: VppId, homework: CloudHomework): Response<HomeworkModificationResult, Unit?>
+
+    /**
+     * Updates the content of a homework task in the cloud. This will not save the content to the device, it will only upload it to the cloud. Saving the content is the responsibility of the caller.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param homeworkTask The task to be updated.
+     * @param newContent The new content of the task.
+     * @return A [Response] containing the result of the operation and null if it was not successful.
+     * @see [changeTaskContentDb]
+     */
+    suspend fun changeTaskContentCloud(vppId: VppId, homeworkTask: HomeworkTask, newContent: String): Response<HomeworkModificationResult, Unit?>
+
+    /**
+     * Updates the content of a homework task in the database. This will only save the content to the device, it will not upload it to the cloud.
+     * @param homeworkTask The task to be updated.
+     * @param newContent The new content of the task.
+     * @see [changeTaskContentCloud]
+     */
+    suspend fun changeTaskContentDb(homeworkTask: HomeworkTask, newContent: String)
+
+    /**
+     * Deletes a homework task from the cloud. This won't delete it from the local database.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param task The task to be deleted.
+     * @return A [Response] containing the result of the operation and null if it was not successful.
+     * @see [deleteTaskDb]
+     */
+    suspend fun deleteTaskCloud(vppId: VppId, task: HomeworkTask): Response<HomeworkModificationResult, Unit?>
+
+    /**
+     * Deletes a homework task from the database. This won't delete it from the cloud.
+     * @param task The task to be deleted.
+     * @see [deleteTaskCloud]
+     */
+    suspend fun deleteTaskDb(task: HomeworkTask)
+
+    /**
+     * Updates the due date of a homework in the database. This will not upload the due date to the cloud, it will only save it to the device. Uploading the due date is the responsibility of the caller.
+     * @param homework The homework to be updated.
+     * @param newDate The new due date of the homework.
+     * @see [changeDueDateCloud]
+     */
+    suspend fun changeDueDateDb(homework: Homework, newDate: ZonedDateTime)
+
+    /**
+     * Updates the due date of a homework in the cloud. This will not save the due date to the device, it will only upload it to the cloud. Saving the due date is the responsibility of the caller.
+     * @param vppId The vpp.ID as which the request shall be executed
+     * @param homework The homework to be updated.
+     * @param newDate The new due date of the homework.
+     * @return A [Response] containing the result of the operation and null if it was not successful.
+     * @see [changeDueDateDb]
+     */
+    suspend fun changeDueDateCloud(vppId: VppId, homework: Homework, newDate: ZonedDateTime): Response<HomeworkModificationResult, Unit?>
 }
 
 enum class HomeworkModificationResult {

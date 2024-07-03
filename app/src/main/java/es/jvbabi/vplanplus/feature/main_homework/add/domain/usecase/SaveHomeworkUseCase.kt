@@ -39,7 +39,7 @@ class SaveHomeworkUseCase(
         val createdAt = ZonedDateTime.now()
 
         if (storeInCloud && profile.vppId != null) {
-            val ids = homeworkRepository.uploadHomework(profile.vppId, isPublic = shareWithClass, vpId = defaultLesson?.vpId, dueTo = dueTo, tasks = tasks).value ?: return HomeworkModificationResult.FAILED
+            val ids = homeworkRepository.addHomeworkCloud(profile.vppId, isPublic = shareWithClass, vpId = defaultLesson?.vpId, dueTo = dueTo, tasks = tasks).value ?: return HomeworkModificationResult.FAILED
             homeworkId = ids.id
             ids.tasks.forEach { (id, contentSHA256) ->
                 taskMap += tasks.first { it.sha256() == contentSHA256 } to id
@@ -48,7 +48,7 @@ class SaveHomeworkUseCase(
             tasks.forEach { taskMap += it to null }
         }
 
-        homeworkId = homeworkRepository.addHomeworkToDb(
+        homeworkId = homeworkRepository.addHomeworkDb(
             homeworkId = homeworkId,
             isPublic = shareWithClass,
             createdAt = createdAt,
@@ -60,7 +60,7 @@ class SaveHomeworkUseCase(
         )
 
         taskMap.forEach { task ->
-            homeworkRepository.addHomeworkTaskToDb(
+            homeworkRepository.addTaskDb(
                 homeworkId = homeworkId,
                 content = task.key,
                 taskId = task.value
@@ -72,7 +72,7 @@ class SaveHomeworkUseCase(
             val name = UUID.randomUUID().toString()
             var documentId: Int? = null
             if (storeInCloud && profile.vppId != null) {
-                documentId = homeworkRepository.uploadDocument(
+                documentId = homeworkRepository.addDocumentCloud(
                     vppId = profile.vppId,
                     name = name,
                     homeworkId = homeworkId,
@@ -81,7 +81,7 @@ class SaveHomeworkUseCase(
                     onUploading = { sent, _ -> onDocumentUploadProgress(uri, sent.toFloat() / content.size) }
                 ).value ?: return HomeworkModificationResult.FAILED
             }
-            documentId = homeworkRepository.addDocumentToDb(
+            documentId = homeworkRepository.addDocumentDb(
                 documentId = documentId,
                 homeworkId = homeworkId,
                 name = name,

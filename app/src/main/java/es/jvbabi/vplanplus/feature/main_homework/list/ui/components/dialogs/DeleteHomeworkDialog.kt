@@ -70,11 +70,13 @@ private fun DeleteHomeworkDialogPreview() {
                     id = 1,
                     content = "Test 1",
                     isDone = false,
+                    homeworkId = 1
                 ),
                 HomeworkTask(
                     id = 1,
                     content = "Test 2",
                     isDone = true,
+                    homeworkId = 1
                 )
             ),
             group = group,

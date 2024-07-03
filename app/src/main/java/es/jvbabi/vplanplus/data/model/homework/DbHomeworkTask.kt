@@ -23,8 +23,8 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTas
     ]
 )
 data class DbHomeworkTask(
-    @ColumnInfo("id") val id: Long,
-    @ColumnInfo("homework_id") val homeworkId: Long,
+    @ColumnInfo("id") val id: Int,
+    @ColumnInfo("homework_id") val homeworkId: Int,
     @ColumnInfo("content") val content: String,
     @ColumnInfo("is_done") val isDone: Boolean,
 ) {
@@ -32,7 +32,8 @@ data class DbHomeworkTask(
         return HomeworkTask(
             id = id,
             content = content,
-            isDone = isDone
+            isDone = isDone,
+            homeworkId = homeworkId
         )
     }
 }

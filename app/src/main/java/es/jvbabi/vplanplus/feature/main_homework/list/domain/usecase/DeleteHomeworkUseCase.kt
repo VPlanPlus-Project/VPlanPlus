@@ -21,9 +21,9 @@ class DeleteHomeworkUseCase(
             fileRepository.deleteFile("homework_documents", document.documentId.toString())
         }
         if (homework is CloudHomework && profile.vppId != null) {
-            homeworkRepository.deleteHomeworkFromCloud(profile.vppId, homework).value ?: return HomeworkModificationResult.FAILED
+            homeworkRepository.deleteHomeworkCloud(profile.vppId, homework).value ?: return HomeworkModificationResult.FAILED
         }
-        homeworkRepository.deleteHomeworkFromDb(homework)
+        homeworkRepository.deleteHomeworkDb(homework)
         return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
     }
 }

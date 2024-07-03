@@ -30,7 +30,7 @@ class UpdateDocumentsUseCase(
             val content = fileRepository.readBytes(newDocument.uri) ?: return@forEach
             var documentId: Int? = null
             if (homework.id > 0 && vppId != null) {
-                documentId = homeworkRepository.uploadDocument(
+                documentId = homeworkRepository.addDocumentCloud(
                     vppId = vppId,
                     name = newDocument.name,
                     type = HomeworkDocumentType.fromExtension(newDocument.extension),
@@ -41,7 +41,7 @@ class UpdateDocumentsUseCase(
                     }
                 ).value ?: return@forEach
             }
-            documentId = homeworkRepository.addDocumentToDb(
+            documentId = homeworkRepository.addDocumentDb(
                 documentId = documentId,
                 homeworkId = homework.id.toInt(),
                 name = newDocument.name,
@@ -52,15 +52,15 @@ class UpdateDocumentsUseCase(
         editedDocuments.forEach { editedDocument ->
             val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().toInt()) ?: return@forEach
             if (homework is CloudHomework && vppId != null) {
-                homeworkRepository.uploadNewDocumentName(vppId, document, editedDocument.name).value ?: return@forEach
+                homeworkRepository.changeDocumentNameCloud(vppId, document, editedDocument.name).value ?: return@forEach
             }
-            homeworkRepository.renameDocumentInDb(document, editedDocument.name)
+            homeworkRepository.changeDocumentNameDb(document, editedDocument.name)
         }
         documentsToDelete.forEach { document ->
             if (homework is CloudHomework && vppId != null) {
-                homeworkRepository.deleteDocumentFromCloud(vppId, document).value ?: return@forEach
+                homeworkRepository.deleteDocumentCloud(vppId, document).value ?: return@forEach
             }
-            homeworkRepository.deleteDocumentFromDb(document)
+            homeworkRepository.deleteDocumentDb(document)
             fileRepository.deleteFile("homework_documents", document.documentId.toString())
         }
     }

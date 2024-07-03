@@ -133,8 +133,8 @@ class HomeworkViewModel @Inject constructor(
                         errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_VISIBILITY to null,
                         errorVisible = true
                     )
-                    setHomeworkLoading(it, false)
                 }
+                setHomeworkLoading(it, false)
             }
         }
     }
@@ -149,7 +149,7 @@ class HomeworkViewModel @Inject constructor(
         viewModelScope.launch {
             setHomeworkLoading(homework, true)
             onHomeworkTaskDeleteRequest(null)
-            if (homeworkUseCases.deleteHomeworkTaskUseCase(homeworkTask) == HomeworkModificationResult.FAILED) {
+            if (homeworkUseCases.deleteHomeworkTaskUseCase(homeworkTask).not()) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.DELETE_TASK to null,
                     errorVisible = true
@@ -175,7 +175,7 @@ class HomeworkViewModel @Inject constructor(
             viewModelScope.launch {
                 setHomeworkLoading(homework, true)
                 onHomeworkTaskEditRequest(null)
-                if (homeworkUseCases.editTaskUseCase(it, newContent) == HomeworkModificationResult.FAILED) {
+                if (homeworkUseCases.editTaskUseCase(it, newContent).not()) {
                     state.value = state.value.copy(
                         errorResponse = ErrorOnUpdate.EDIT_TASK to newContent,
                         errorVisible = true
@@ -227,7 +227,7 @@ class HomeworkViewModel @Inject constructor(
     fun onUpdateDueDate(homework: Homework, newDate: LocalDate) {
         viewModelScope.launch {
             setHomeworkLoading(homework, true)
-            if (homeworkUseCases.updateDueDateUseCase(homework, newDate) == HomeworkModificationResult.FAILED) {
+            if (homeworkUseCases.updateDueDateUseCase(homework, newDate).not()) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.CHANGE_HOMEWORK_STATE to newDate,
                     errorVisible = true

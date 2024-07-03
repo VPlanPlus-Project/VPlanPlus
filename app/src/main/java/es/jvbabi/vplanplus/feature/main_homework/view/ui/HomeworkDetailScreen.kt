@@ -269,9 +269,9 @@ fun HomeworkDetailScreenPreview() {
                 createdBy = vppId,
                 documents = emptyList(),
                 tasks = listOf(
-                    HomeworkTask(id = 1, content = "Task 1", isDone = false),
-                    HomeworkTask(id = 2, content = "Task 2", isDone = true),
-                    HomeworkTask(id = 3, content = "Task 3", isDone = false)
+                    HomeworkTask(id = 1, content = "Task 1", isDone = false, homeworkId = 1),
+                    HomeworkTask(id = 2, content = "Task 2", isDone = true, homeworkId = 1),
+                    HomeworkTask(id = 3, content = "Task 3", isDone = false, homeworkId = 1)
                 ),
                 group = group,
                 createdAt = ZonedDateTime.now(),

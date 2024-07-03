@@ -15,9 +15,9 @@ class ChangeTaskDoneStateUseCase(
         if (homeworkTask.isDone == done) return true
         val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
         if (profile.vppId != null) {
-            homeworkRepository.uploadTaskState(profile.vppId, homeworkTask.id.toInt(), done).value ?: return false
+            homeworkRepository.changeTaskStateCloud(profile.vppId, homeworkTask.id, done).value ?: return false
         }
-        homeworkRepository.setTaskStateToDb(homeworkTask.id.toInt(), done)
+        homeworkRepository.changeTaskStateDb(homeworkTask.id, done)
         return true
     }
 }

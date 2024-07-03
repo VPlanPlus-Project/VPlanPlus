@@ -17,10 +17,10 @@ class AddTaskUseCase(
         val profile = getCurrentProfileUseCase().first() as? ClassProfile ?: return false
         var taskId: Int? = null
         if (homework.id > 0 && profile.vppId != null) {
-            taskId = homeworkRepository.uploadHomeworkTask(profile.vppId, homework.id.toInt(), content).value ?: return false
+            taskId = homeworkRepository.addTaskCloud(profile.vppId, homework.id.toInt(), content).value ?: return false
         }
 
-        homeworkRepository.addHomeworkTaskToDb(homeworkId = homework.id.toInt(), content = content, taskId = taskId)
+        homeworkRepository.addTaskDb(homeworkId = homework.id.toInt(), content = content, taskId = taskId)
         return true
     }
 }

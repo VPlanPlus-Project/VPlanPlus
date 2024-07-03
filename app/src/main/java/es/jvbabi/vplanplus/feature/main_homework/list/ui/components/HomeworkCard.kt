@@ -138,7 +138,7 @@ fun HomeworkCard(
     }
 
     AnimatedVisibility(
-        visible = (showHidden || (homework is CloudHomework && !homework.isHidden))  && (showDone || homework.tasks.any { !it.isDone }),
+        visible = (showHidden || ((homework as? CloudHomework)?.isHidden == false) || homework is LocalHomework)  && (showDone || homework.tasks.any { !it.isDone }),
         enter = expandVertically(tween(250)),
         exit = shrinkVertically(tween(250))
     ) {
@@ -279,12 +279,14 @@ private fun HomeworkCardPreview() {
                 HomeworkTask(
                     id = 1,
                     content = "Test 1",
-                    isDone = true
+                    isDone = true,
+                    homeworkId = 1
                 ),
                 HomeworkTask(
                     id = 2,
                     content = "Test 2",
-                    isDone = true
+                    isDone = true,
+                    homeworkId = 1
                 ),
             ),
             group = group,

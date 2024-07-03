@@ -59,8 +59,8 @@ fun Tasks(
             tasks
                 .filter { deletedTasks.none { dt -> dt.id == it.id } }
                 .forEach { originalTask ->
-                    val content = editTasks.find { it.id == originalTask.id }?.content ?: originalTask.content
-                    val updateTask = EditedTask(originalTask.id, content)
+                    val content = editTasks.find { it.id.toInt() == originalTask.id }?.content ?: originalTask.content
+                    val updateTask = EditedTask(originalTask.id.toLong(), content)
                     TaskRecord(
                         id = originalTask.id,
                         task = content,
@@ -68,7 +68,7 @@ fun Tasks(
                         isNewTask = false,
                         isEditing = isEditing,
                         onClick = { onTaskClicked(originalTask) },
-                        onUpdateTask = { onUpdateTask(EditedTask(originalTask.id, it)) },
+                        onUpdateTask = { onUpdateTask(EditedTask(originalTask.id.toLong(), it)) },
                         onDelete = { onDeleteTask(updateTask) }
                     )
                 }
@@ -132,9 +132,9 @@ fun Tasks(
 private fun TasksPreview() {
     Tasks(
         tasks = listOf(
-            HomeworkTask(1, "Task 1", false),
-            HomeworkTask(2, "Task 2", true),
-            HomeworkTask(3, "Task 3", false),
+            HomeworkTask(1, "Task 1", false, 1),
+            HomeworkTask(2, "Task 2", true, 1),
+            HomeworkTask(3, "Task 3", false, 1),
         ),
         onTaskClicked = {},
         editTasks = emptyList(),

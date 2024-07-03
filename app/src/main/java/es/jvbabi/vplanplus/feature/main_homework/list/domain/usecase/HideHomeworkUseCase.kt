@@ -8,6 +8,6 @@ class HideHomeworkUseCase(
 ) {
 
     suspend operator fun invoke(homework: CloudHomework) {
-        homeworkRepository.editHidingStatusInDb(homework, !homework.isHidden)
+        homeworkRepository.changeHomeworkVisibilityDb(homework, !homework.isHidden)
     }
 }
