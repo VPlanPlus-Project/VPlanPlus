@@ -9,6 +9,7 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.di.VppModule
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -20,6 +21,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import javax.inject.Singleton
 
 @Module
@@ -38,13 +40,28 @@ object HomeworkModule {
 
     @Provides
     @Singleton
+    fun provideUpdateHomeworkUseCase(
+        profileRepository: ProfileRepository,
+        homeworkRepository: HomeworkRepository,
+        fileRepository: FileRepository,
+        vppIdRepository: VppIdRepository,
+        notificationRepository: NotificationRepository,
+        stringRepository: StringRepository
+    ) = UpdateHomeworkUseCase(
+        profileRepository = profileRepository,
+        homeworkRepository = homeworkRepository,
+        fileRepository = fileRepository,
+        vppIdRepository = vppIdRepository,
+        notificationRepository = notificationRepository,
+        stringRepository = stringRepository
+    )
+
+    @Provides
+    @Singleton
     fun provideHomeworkRepository(
         db: VppDatabase,
         vppIdRepository: VppIdRepository,
-        profileRepository: ProfileRepository,
         logRecordRepository: LogRecordRepository,
-        notificationRepository: NotificationRepository,
-        stringRepository: StringRepository,
         defaultLessonRepository: DefaultLessonRepository,
         keyValueRepository: KeyValueRepository,
         @ApplicationContext context: Context
@@ -54,12 +71,8 @@ object HomeworkModule {
             homeworkNotificationTimeDao = db.homeworkNotificationTimeDao,
             homeworkDocumentDao = db.homeworkDocumentDao,
             vppIdRepository = vppIdRepository,
-            profileRepository = profileRepository,
             vppIdNetworkRepository = VppModule.provideVppIdNetworkRepository(keyValueRepository, logRecordRepository),
-            notificationRepository = notificationRepository,
-            stringRepository = stringRepository,
             defaultLessonRepository = defaultLessonRepository,
-            keyValueRepository = keyValueRepository,
             context = context
         )
     }

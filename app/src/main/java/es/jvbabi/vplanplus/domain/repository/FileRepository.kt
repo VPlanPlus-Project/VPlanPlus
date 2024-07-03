@@ -19,4 +19,6 @@ interface FileRepository {
      * @param fileName The name of the file
      */
     fun deleteFile(folder: String, fileName: String)
+
+    fun exists(folder: String, fileName: String): Boolean
 }

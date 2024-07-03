@@ -1,10 +1,7 @@
 package es.jvbabi.vplanplus.domain.usecase.sync
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
@@ -28,6 +25,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_SYSTEM_NOTIFICATION_ID
+import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -39,7 +37,7 @@ import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools
@@ -69,14 +67,14 @@ class DoSyncUseCase(
     private val lessonTimesRepository: LessonTimeRepository,
     private val profileRepository: ProfileRepository,
     private val lessonRepository: LessonRepository,
-    private val homeworkRepository: HomeworkRepository,
     private val vPlanRepository: VPlanRepository,
     private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val planRepository: PlanRepository,
     private val systemRepository: SystemRepository,
     private val notificationRepository: NotificationRepository,
     private val gradeRepository: GradeRepository,
-    private val updateCalendarUseCase: UpdateCalendarUseCase
+    private val updateCalendarUseCase: UpdateCalendarUseCase,
+    private val updateHomeworkUseCase: UpdateHomeworkUseCase
 ) {
     suspend operator fun invoke(): Boolean {
 
@@ -88,7 +86,7 @@ class DoSyncUseCase(
             keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: -1L
 
         logRecordRepository.log("Sync.Homework", "Syncing homework")
-        homeworkRepository.fetchHomework(currentVersion != -1L)
+        updateHomeworkUseCase(currentVersion != -1L)
 
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
@@ -101,16 +99,6 @@ class DoSyncUseCase(
         logRecordRepository.log("Sync.Grades", "Syncing grades")
         val newGrades = gradeRepository.updateGrades()
 
-        val pendingIntent = Intent(context, MainActivity::class.java)
-            .putExtra("screen", "grades")
-            .let { intent ->
-                PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-            }
         if (newGrades.isNotEmpty()) {
             val msg = if (newGrades.size == 1) {
                 if (newGrades.first().actualValue != null) context.getString(
@@ -133,7 +121,7 @@ class DoSyncUseCase(
                 context.getString(R.string.notification_newGradesTitle),
                 msg,
                 R.drawable.vpp,
-                pendingIntent,
+                OpenScreenTask(Screen.GradesScreen.route),
             )
         }
 
@@ -169,14 +157,13 @@ class DoSyncUseCase(
                     Log.d("Sync.VPlan", "Unauthorized")
                     schoolRepository.updateCredentialsValid(school, false)
                     val notificationId = CHANNEL_SYSTEM_NOTIFICATION_ID + 100 + school.id
-                    val intent = buildSchoolCredentialsFixIntent(context, notificationId, school.id)
                     notificationRepository.sendNotification(
                         channelId = CHANNEL_ID_SYSTEM,
                         id = notificationId,
                         title = context.getString(R.string.notification_syncErrorCredentialsIncorrectTitle),
                         message = context.getString(R.string.notification_syncErrorCredentialsIncorrectText, school.username, school.sp24SchoolId, school.name),
                         icon = R.drawable.vpp,
-                        pendingIntent = intent
+                        OpenScreenTask("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${school.id}")
                     )
                     return@school
                 }
@@ -484,9 +471,6 @@ class DoSyncUseCase(
 
     private suspend fun sendNewPlanNotification(notificationData: NotificationData) {
 
-        val intent = Intent(context, MainActivity::class.java)
-            .putExtra("screen", "plan/${notificationData.profile.id}/${notificationData.date}")
-
         Log.d(
             "SyncWorker.Notification",
             "Sending ${notificationData.notificationType} for ${notificationData.profile.displayName} at ${
@@ -499,16 +483,6 @@ class DoSyncUseCase(
                 notificationData.profile.id.hashCode(),
                 "${notificationData.date.dayOfMonth}${notificationData.date.monthValue}".toInt()
             )
-        )
-
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            MathTools.cantor(
-                notificationData.profile.id.hashCode(),
-                notificationData.date.toString().replace("-", "").toInt()
-            ),
-            intent,
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val message = when (notificationData.notificationType) {
@@ -545,19 +519,7 @@ class DoSyncUseCase(
             ),
             message,
             R.drawable.vpp,
-            pendingIntent
-        )
-    }
-
-    private fun buildSchoolCredentialsFixIntent(context: Context, notificationId: Int, schoolId: Int): PendingIntent {
-        val intent = Intent(context, MainActivity::class.java)
-            .putExtra("screen", "${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=$schoolId")
-
-        return PendingIntent.getActivity(
-            context,
-            notificationId,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            OpenScreenTask(route = "plan/${notificationData.profile.id}/${notificationData.date}")
         )
     }
 

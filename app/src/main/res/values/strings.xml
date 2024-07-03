@@ -339,7 +339,12 @@
     <string name="notification_homeworkName">Homework</string>
     <string name="notification_homeworkDescription">When someone shared or changed a homework in your class you\'ll get a notification.</string>
     <string name="notification_homeworkNewHomeworkOneTitle">New homework</string>
-    <string name="notification_homeworkNewHomeworkOneContent">%1$s created a homework in %2$s with %3$d tasks due to %4$s</string>
+    <string name="notification_homeworkNewHomeworkOneContent">%1$s created a homework with %2$s due to %4$s</string>
+    <string name="notification_homeworkNewHomeworkOneContentPrefix">%1$s: %2$s</string>
+    <plurals name="notification_homeworkNewHomeworkOneContentTasks">
+        <item quantity="one">one task</item>
+        <item quantity="other">%1$d tasks</item>
+    </plurals>
     <string name="notification_homeworkNewHomeworkMultipleTitle">New homework</string>
     <string name="notification_homeworkNewHomeworkMultipleContent">There are %1$d new homework</string>
     <string name="notification_homeworkChangedHomeworkTitle">Homework</string>

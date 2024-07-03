@@ -78,6 +78,7 @@ sealed class DocumentUpdate(
 
     class EditedDocument(
         uri: Uri,
-        name: String = UUID.randomUUID().toString()
+        name: String = UUID.randomUUID().toString(),
+        val documentId: Int
     ) : DocumentUpdate(uri, name)
 }

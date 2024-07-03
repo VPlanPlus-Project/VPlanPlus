@@ -137,7 +137,7 @@ class HomeworkDetailViewModel @Inject constructor(
                         is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments.filter { it.key.uri != action.document.uri }, hasEdited = true)
                         is DocumentUpdate.EditedDocument -> {
                             state.copy(
-                                documentsToDelete = state.documentsToDelete + state.homework!!.documents.first { it.uri == action.document.uri },
+                                documentsToDelete = state.documentsToDelete + state.homework!!.documents.first { it.documentId == action.document.documentId },
                                 editedDocuments = state.editedDocuments.filter { it.uri != action.document.uri },
                                 hasEdited = true
                             )

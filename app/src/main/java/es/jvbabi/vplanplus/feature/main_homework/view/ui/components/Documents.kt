@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui.components
 
-import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -33,6 +32,7 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.SegmentedButtonItem
 import es.jvbabi.vplanplus.ui.common.SegmentedButtons
 import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
+import es.jvbabi.vplanplus.ui.common.buildUri
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +40,7 @@ import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExp
 fun Documents(
     documents: List<HomeworkDocument>,
     newDocuments: Map<DocumentUpdate.NewDocument, Float?>,
-    markedAsRemoveUris: List<Uri>,
+    markedAsRemoveIds: List<Int>,
     isEditing: Boolean,
     onRename: (updated: DocumentUpdate) -> Unit,
     onRemove: (removed: DocumentUpdate) -> Unit,
@@ -49,7 +49,6 @@ fun Documents(
     onPickDocumentClicked: () -> Unit,
     onScanDocumentClicked: () -> Unit
 ) {
-
     var isAddImageDrawerOpen by rememberSaveable { mutableStateOf(false) }
     val addImageDrawerSheetState = rememberModalBottomSheetStateWithoutFullExpansion()
     if (isAddImageDrawerOpen) {
@@ -95,15 +94,16 @@ fun Documents(
             }
         } else {
             documents
-                .filter { document -> document.uri !in markedAsRemoveUris }
+                .filter { document -> document.documentId !in markedAsRemoveIds }
                 .forEach { document ->
+                    val uri = document.buildUri()
                     DocumentRecord(
-                        uri = document.uri,
+                        uri = uri,
                         type = document.type,
                         name = document.name,
                         isEditing = isEditing,
-                        onRename = { to -> onRename(DocumentUpdate.EditedDocument(document.uri, to)) },
-                        onRemove = { onRemove(DocumentUpdate.EditedDocument(document.uri)) }
+                        onRename = { to -> onRename(DocumentUpdate.EditedDocument(uri, to, document.documentId)) },
+                        onRemove = { onRemove(DocumentUpdate.EditedDocument(uri, documentId = document.documentId)) }
                     )
                 }
         }
@@ -156,7 +156,7 @@ private fun NoDocumentsPreview() {
     Documents(
         documents = emptyList(),
         newDocuments = emptyMap(),
-        markedAsRemoveUris = emptyList(),
+        markedAsRemoveIds = emptyList(),
         isEditing = true,
         onRename = {},
         onRemove = {},

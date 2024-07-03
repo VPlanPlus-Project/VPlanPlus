@@ -4,10 +4,14 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.core.app.NotificationCompat
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.repository.DoActionTask
 import es.jvbabi.vplanplus.domain.repository.NotificationAction
+import es.jvbabi.vplanplus.domain.repository.NotificationOnClickTask
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
@@ -15,6 +19,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ROOM_BOOKINGS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYNC
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
+import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 
 class NotificationRepositoryImpl(
@@ -27,11 +32,27 @@ class NotificationRepositoryImpl(
         title: String,
         message: String,
         icon: Int,
-        pendingIntent: PendingIntent?,
+        onClickTask: NotificationOnClickTask?,
         priority: Int,
         actions: List<NotificationAction>
     ) {
         logRepository.log("Notification", "Sending $id to $channelId: $title")
+
+        val pendingIntent = when (onClickTask) {
+            is OpenScreenTask -> {
+                val intent = Intent(appContext, MainActivity::class.java)
+                    .putExtra("screen", onClickTask.route)
+
+                PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+            is DoActionTask -> {
+                val intent = Intent(appContext, MainActivity::class.java)
+                    .putExtra("tag", onClickTask.tag)
+
+                PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+            }
+            else -> null
+        }
 
         val builder = NotificationCompat.Builder(appContext, channelId)
             .setContentTitle(title)

@@ -242,7 +242,7 @@ private fun HomeworkDetailScreenContent(
             Documents(
                 documents = state.homework?.documents ?: emptyList(),
                 newDocuments = state.newDocuments,
-                markedAsRemoveUris = state.documentsToDelete.map { it.uri },
+                markedAsRemoveIds = state.documentsToDelete.map { it.documentId },
                 isEditing = state.isEditing,
                 onRename = { onAction(RenameDocumentAction(it)) },
                 onRemove = { onAction(DeleteDocumentAction(it)) },

@@ -70,6 +70,34 @@ object DateUtils {
         }
     }
 
+    fun relativeDateStringResource(contextDate: LocalDate, date: LocalDate): Int? {
+        return when (date) {
+            contextDate -> {
+                R.string.today
+            }
+
+            contextDate.plusDays(1) -> {
+                R.string.tomorrow
+            }
+
+            contextDate.plusDays(2) -> {
+                R.string.day_after_tomorrow
+            }
+
+            contextDate.minusDays(1) -> {
+                R.string.yesterday
+            }
+
+            contextDate.minusDays(2) -> {
+                R.string.day_before_yesterday
+            }
+
+            else -> {
+                null
+            }
+        }
+    }
+
     fun String.toZonedDateTime(zoneId: ZoneId = ZoneId.systemDefault()): ZonedDateTime {
         val localDateTime = try {
             LocalDateTime.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))

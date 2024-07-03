@@ -28,4 +28,8 @@ class FileRepositoryImpl(
         val file = File(context.filesDir, "$folder/$fileName")
         file.delete()
     }
+
+    override fun exists(folder: String, fileName: String): Boolean {
+        return File(context.filesDir, "$folder/$fileName").exists()
+    }
 }

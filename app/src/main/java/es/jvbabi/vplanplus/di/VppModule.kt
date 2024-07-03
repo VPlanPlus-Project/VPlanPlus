@@ -95,6 +95,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.CheckCredentialsUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.UpdateCredentialsUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasProfileLocalHomeworkUseCase
@@ -512,8 +513,8 @@ object VppModule {
         systemRepository: SystemRepository,
         notificationRepository: NotificationRepository,
         gradeRepository: GradeRepository,
-        homeworkRepository: HomeworkRepository,
-        updateCalendarUseCase: UpdateCalendarUseCase
+        updateCalendarUseCase: UpdateCalendarUseCase,
+        updateHomeworkUseCase: UpdateHomeworkUseCase
     ) = DoSyncUseCase(
         context = context,
         keyValueRepository = keyValueRepository,
@@ -533,8 +534,8 @@ object VppModule {
         systemRepository = systemRepository,
         notificationRepository = notificationRepository,
         gradeRepository = gradeRepository,
-        homeworkRepository = homeworkRepository,
-        updateCalendarUseCase = updateCalendarUseCase
+        updateCalendarUseCase = updateCalendarUseCase,
+        updateHomeworkUseCase = updateHomeworkUseCase
     )
 
     @Provides

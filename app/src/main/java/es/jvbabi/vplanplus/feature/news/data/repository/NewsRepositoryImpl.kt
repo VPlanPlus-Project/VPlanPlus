@@ -61,7 +61,6 @@ class NewsRepositoryImpl(
             message = context.resources.getQuantityString(R.plurals.notification_criticalNewsText, criticalNew.size, criticalNew.size, criticalNew.joinToString { "\n - ${it.title}" }),
             id = 20,
             icon = R.drawable.vpp,
-            pendingIntent = null
         )
 
         criticalNew.forEach {

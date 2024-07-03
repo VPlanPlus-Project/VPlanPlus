@@ -1,11 +1,8 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.domain.model
 
-import android.net.Uri
-
-data class HomeworkDocument(
+open class HomeworkDocument(
     val documentId: Int,
     val homeworkId: Int,
-    val uri: Uri,
     val type: HomeworkDocumentType,
     val name: String?
 )

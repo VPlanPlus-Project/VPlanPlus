@@ -341,7 +341,12 @@
     <string name="notification_homeworkName">Hausaufgaben</string>
     <string name="notification_homeworkDescription">Wenn jemand in deiner Klasse eine Hausaufgabe teilt oder bearbeitet, erhälst du eine Benachrichtigung.</string>
     <string name="notification_homeworkNewHomeworkOneTitle">Neue Hausaufgabe</string>
-    <string name="notification_homeworkNewHomeworkOneContent">%1$s hat eine Hausaufgabe in %2$s mit %3$d Aufgaben, welche bis zum %4$s zu erledigen sind, erstellt.</string>
+    <string name="notification_homeworkNewHomeworkOneContent">%1$s hat eine Hausaufgabe mit %2$s erstellt, welche bis %3$s fällig ist.</string>
+    <string name="notification_homeworkNewHomeworkOneContentPrefix">%1$s: %2$s</string>
+    <plurals name="notification_homeworkNewHomeworkOneContentTasks">
+        <item quantity="one">einer Aufgabe</item>
+        <item quantity="other">%1$d Aufgaben</item>
+    </plurals>
     <string name="notification_homeworkNewHomeworkMultipleTitle">Neue Hausaufgaben</string>
     <string name="notification_homeworkNewHomeworkMultipleContent">Es gibt %1$d neue Hausaufgaben</string>
     <string name="notification_homeworkChangedHomeworkTitle">Hausaufgaben</string>

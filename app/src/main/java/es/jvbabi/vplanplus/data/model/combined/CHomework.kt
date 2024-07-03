@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.data.model.combined
 
-import android.content.Context
 import androidx.room.Embedded
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
@@ -48,13 +47,13 @@ data class CHomework(
         entity = DbHomeworkDocument::class
     ) val documents: List<DbHomeworkDocument>
 ) {
-    fun toModel(context: Context): Homework {
+    fun toModel(): Homework {
         val id = homework.id
         val cratedAt = homework.createdAt
         val until = homework.until
         val defaultLesson = defaultLessons.firstOrNull { it.`class`.group.id == classes.group.id }?.toModel()
         val group = classes.toModel()
-        val documents = documents.map { it.toModel(context) }
+        val documents = documents.map { it.toModel() }
         return if (homework.id > 0) {
             CloudHomework(
                 id = id,

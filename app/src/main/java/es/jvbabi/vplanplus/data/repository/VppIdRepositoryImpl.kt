@@ -102,7 +102,7 @@ class VppIdRepositoryImpl(
             return vppIdDao.getVppId(id)?.toModel()
         }
 
-        val url = "/api/$API_VERSION/user/find/$id"
+        val url = "/api/$API_VERSION/school/${school.id}/user/find/$id"
 
         vppIdNetworkRepository.authentication = school.buildAccess().buildVppAuthentication()
         val response = vppIdNetworkRepository.doRequest(
@@ -110,20 +110,18 @@ class VppIdRepositoryImpl(
             HttpMethod.Get,
             null
         )
-        if (response.response != HttpStatusCode.OK) return null
-        val r = Gson().fromJson(response.data, UserNameResponse::class.java)
+        if (response.response != HttpStatusCode.OK || response.data == null) return null
+        val r = ResponseDataWrapper.fromJson<UserNameResponse>(response.data)
+        val group = groupRepository.getGroupById(r.groupId) ?: return null
         vppIdDao.upsert(
             DbVppId(
                 id = id.toInt(),
                 name = r.username,
-                groupName = r.className,
+                groupName = group.name,
                 schoolId = school.id,
                 state = State.CACHE,
                 email = null,
-                classId = groupRepository.getGroupBySchoolAndName(
-                    school.id,
-                    r.className
-                )?.groupId,
+                classId = group.groupId,
                 cachedAt = ZonedDateTime.now()
             )
         )
@@ -383,7 +381,7 @@ enum class BookResult {
 
 private data class UserNameResponse(
     @SerializedName("name") val username: String,
-    @SerializedName("school_class") val className: String,
+    @SerializedName("group_id") val groupId: Int,
 )
 
 private data class VersionHintResponse(

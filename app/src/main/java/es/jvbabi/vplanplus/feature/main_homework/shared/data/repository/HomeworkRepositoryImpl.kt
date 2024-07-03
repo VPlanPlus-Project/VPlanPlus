@@ -1,14 +1,10 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.data.repository
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import es.jvbabi.vplanplus.MainActivity
-import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
@@ -18,15 +14,9 @@ import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDocumentDao
 import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
-import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.repository.Keys
-import es.jvbabi.vplanplus.domain.repository.NotificationRepository
-import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK
-import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
-import es.jvbabi.vplanplus.domain.repository.ProfileRepository
-import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
@@ -44,8 +34,6 @@ import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.Response
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
-import es.jvbabi.vplanplus.util.DateUtils
-import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
 import es.jvbabi.vplanplus.util.sha256
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -58,224 +46,105 @@ import java.io.File
 import java.io.FileOutputStream
 import java.time.DayOfWeek
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 class HomeworkRepositoryImpl(
     private val homeworkDao: HomeworkDao,
     private val homeworkDocumentDao: HomeworkDocumentDao,
     private val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao,
     private val vppIdRepository: VppIdRepository,
-    private val profileRepository: ProfileRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
-    private val notificationRepository: NotificationRepository,
-    private val stringRepository: StringRepository,
     private val defaultLessonRepository: DefaultLessonRepository,
-    private val keyValueRepository: KeyValueRepository,
     private val context: Context
 ) : HomeworkRepository {
 
     private var isUpdateRunning = false
 
-    @Deprecated("don't do this")
-    override suspend fun fetchHomework(sendNotification: Boolean) {
-        if (isUpdateRunning) return
-        isUpdateRunning = true
-        keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "true")
-        profileRepository
-            .getProfiles()
-            .first()
-            .filterIsInstance<ClassProfile>()
-            .filter { it.isHomeworkEnabled }
-            .forEach { profile ->
-                if (profile.vppId != null) {
-                    val token = vppIdRepository.getVppIdToken(profile.vppId) ?: return@forEach
-                    vppIdNetworkRepository.authentication = BearerAuthentication(token)
-                } else vppIdNetworkRepository.authentication = profile.group.school.buildAccess().buildVppAuthentication()
-
-                val response = vppIdNetworkRepository.doRequest("/api/$API_VERSION/school/${profile.group.school.id}/group/${profile.group.groupId}/homework")
-
-                if (response.response != HttpStatusCode.OK || response.data == null) {
-                    Log.w("HomeworkRepository.fetchHomework", "Failed to fetch homework for ${profile.displayName} (${profile.id}): Response code ${response.response?.value}")
-                    return@forEach
-                }
-                val data = ResponseDataWrapper.fromJson<List<HomeworkResponse>>(response.data)
-
-                Log.d("HomeworkRepository.fetchHomework", "Response for ${profile.displayName} (${profile.id}) contains ${data.size} homework")
-
-                homeworkDao
-                    .getAll()
-                    .first()
-                    .filter { data.none { nd -> nd.id == it.homework.id } } // homework that isn't present in the response anymore
-                    .filter { it.homework.id > 0 } // only delete non-local homework
-                    .filter { it.classes.group.id == profile.group.groupId } // only delete homework for the current group
-                    .map { it.homework.id }
-                    .forEach { homeworkDao.deleteHomework(it) }
-
-                val existingHomework = getAll().first().filter { it.group == profile.group }
-                val newHomework = data
-                    .filter { profile.isDefaultLessonEnabled(it.vpId) }
-                    .filter { !existingHomework.any { eh -> eh.id == it.id } }
-                    .filter { it.createdBy != profile.vppId?.id?.toLong() }
-
-                data.forEach forEachHomework@{ responseHomework ->
-                    val isNewHomework = existingHomework.none { it.id == responseHomework.id }
-                    val homeworkId = responseHomework.id
-                    val createdBy = vppIdRepository.getVppId(responseHomework.createdBy, profile.getSchool(), false)
-                    val until = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.until)
-
-                    val existingRecord = homeworkDao
-                        .getById(responseHomework.id.toInt()).first()
-                        ?.toModel(context)
-                    homeworkDao.deleteTasksForHomework(responseHomework.id)
-
-                    homeworkDao.insert(
-                        DbHomework(
-                            id = homeworkId,
-                            groupId = profile.group.groupId,
-                            createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(responseHomework.createdAt),
-                            until = until,
-                            defaultLessonVpId = responseHomework.vpId,
-                            createdBy = createdBy?.id,
-                            isPublic = responseHomework.shareWithClass,
-                            isHidden = ((existingRecord as? CloudHomework)?.isHidden ?: (isNewHomework && until.isBefore(ZonedDateTime.now())) && createdBy?.id != profile.vppId?.id),
-                            owningProfileId = null
-                        )
-                    )
-                    responseHomework.tasks.forEach { task ->
-                        homeworkDao.insertTask(
-                            DbHomeworkTask(
-                                id = task.id,
-                                homeworkId = homeworkId.toInt(),
-                                content = task.content,
-                                isDone = task.done ?: until.isBefore(ZonedDateTime.now())
-                            )
-                        )
-                    }
-
-                    val documentFolder = File(context.filesDir, "homework_documents")
-                    if (!documentFolder.exists()) documentFolder.mkdirs()
-                    responseHomework.documentIds.forEach document@{ documentId ->
-                        val file = File(documentFolder, documentId.toString())
-                        if (file.exists() && homeworkDocumentDao.getHomeworkDocumentById(documentId) != null) return@document
-                        val document = getHomeworkDocument(profile.group.school.id, profile.group.groupId, homeworkId, documentId) ?: return@document
-                        val outputStream = FileOutputStream(file)
-                        outputStream.write(document.content)
-                        outputStream.close()
-                        homeworkDocumentDao.insertHomeworkDocument(DbHomeworkDocument(documentId, document.name, document.extension, homeworkId))
-                    }
-                }
-
-                if (sendNotification) {
-                    val showNewNotification = keyValueRepository.getOrDefault(
-                        Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK,
-                        Keys.SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT
-                    ).toBoolean()
-                    val pendingIntent = Intent(context, MainActivity::class.java)
-                        .putExtra("screen", "homework")
-                        .let { intent ->
-                            PendingIntent.getActivity(
-                                context,
-                                0,
-                                intent,
-                                PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                            )
-                        }
-
-                    val notificationRelevantNewHomework = newHomework.filter { ZonedDateTimeConverter().timestampToZonedDateTime(it.until).isAfter(ZonedDateTime.now()) }
-
-                    if (notificationRelevantNewHomework.size == 1 && showNewNotification) {
-                        val defaultLessons =
-                            defaultLessonRepository.getDefaultLessonByGroupId(profile.group.groupId)
-
-                        val dateResourceId = DateUtils
-                            .getDateFromTimestamp(notificationRelevantNewHomework.first().until)
-                            .getRelativeStringResource()
-
-                        val dateString =
-                            if (dateResourceId != null) stringRepository.getString(dateResourceId)
-                            else DateUtils.getDateFromTimestamp(notificationRelevantNewHomework.first().until).format(
-                                DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
-                            )
-
-                        notificationRepository.sendNotification(
-                            CHANNEL_ID_HOMEWORK,
-                            notificationRelevantNewHomework.first().id.toInt(),
-                            stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
-                            stringRepository.getString(
-                                R.string.notification_homeworkNewHomeworkOneContent,
-                                vppIdRepository.getVppId(notificationRelevantNewHomework.first().createdBy, profile.group.school, false)?.name
-                                    ?: "Unknown",
-                                defaultLessons.firstOrNull { it.vpId == notificationRelevantNewHomework.first().vpId }?.subject
-                                    ?: "Unknown",
-                                notificationRelevantNewHomework.first().tasks.size,
-                                dateString
-                            ),
-                            R.drawable.vpp,
-                            pendingIntent,
-                        )
-                    } else if (notificationRelevantNewHomework.isNotEmpty() && showNewNotification) {
-                        notificationRepository.sendNotification(
-                            CHANNEL_ID_HOMEWORK,
-                            CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK,
-                            stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
-                            stringRepository.getString(
-                                R.string.notification_homeworkNewHomeworkMultipleContent,
-                                notificationRelevantNewHomework.size
-                            ),
-                            R.drawable.vpp,
-                            pendingIntent,
-                        )
-                    }
-                }
+    override suspend fun downloadHomework(vppId: VppId?, group: Group): List<CloudHomework>? {
+        if (vppId == null) vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
+        else {
+            val token = vppIdRepository.getVppIdToken(vppId) ?: return null
+            vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        }
+        val response = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework",
+            requestMethod = HttpMethod.Get
+        )
+        if (response.response != HttpStatusCode.OK || response.data == null) return null
+        val data = ResponseDataWrapper.fromJson<List<HomeworkResponse>>(response.data)
+        return data.mapNotNull homework@{ homework ->
+            val createdBy = vppIdRepository.getVppId(homework.createdBy, group.school, false) ?: run {
+                Log.e("HomeworkRepository.downloadHomework", "Failed to get VppId for id ${homework.createdBy}")
+                return@homework null
             }
-        keyValueRepository.set(Keys.IS_HOMEWORK_UPDATE_RUNNING, "false")
-        isUpdateRunning = false
+            CloudHomework(
+                id = homework.id,
+                createdBy = createdBy,
+                until = ZonedDateTimeConverter().timestampToZonedDateTime(homework.until),
+                isHidden = false,
+                isPublic = homework.shareWithClass,
+                createdAt = ZonedDateTimeConverter().timestampToZonedDateTime(homework.createdAt),
+                group = group,
+                defaultLesson = defaultLessonRepository.getDefaultLessonByGroupId(group.groupId).firstOrNull { it.vpId == homework.vpId },
+                tasks = homework.tasks.map { HomeworkTask(it.id, it.content, it.done ?: false, homework.id.toInt()) },
+                documents = homework.documentIds.mapNotNull documents@{ documentId ->
+                    downloadHomeworkDocumentMetadata(vppId, group, homework.id.toInt(), documentId) ?: return@documents null
+                }
+            )
+        }
     }
 
-    private suspend fun getHomeworkDocument(schoolId: Int, groupId: Int, homeworkId: Long, documentId: Int): HomeworkDocument? {
-        val response = vppIdNetworkRepository.doRequest(
-            path = "/api/$API_VERSION/school/$schoolId/group/$groupId/homework/$homeworkId/document/$documentId",
-            requestMethod = HttpMethod.Get
-        )
-        if (response.response?.isSuccess() != true || response.data == null) return null
-        val data = ResponseDataWrapper.fromJson<HomeworkDocumentResponse>(response.data)
-        try {
-            HomeworkDocumentType.fromExtension(data.extension)
-        } catch (e: IllegalArgumentException) {
-            Log.e("HomeworkRepository.getHomeworkDocument", "Unknown or unsupported extension: ${data.extension}")
-            return null
+    override suspend fun downloadHomeworkDocument(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray? {
+        if (vppId == null) vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
+        else {
+            val token = vppIdRepository.getVppIdToken(vppId) ?: return null
+            vppIdNetworkRepository.authentication = BearerAuthentication(token)
         }
-        val contentResponse = vppIdNetworkRepository.doRequestRaw(
-            path = "/api/$API_VERSION/school/$schoolId/group/$groupId/homework/$homeworkId/document/$documentId/content",
+        val response = vppIdNetworkRepository.doRequestRaw(
+            path = "/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework/$homeworkId/document/$homeworkDocumentId/content",
             requestMethod = HttpMethod.Get
         )
-        if (contentResponse.response?.isSuccess() != true || contentResponse.data == null) return null
-        return HomeworkDocument(
-            content = contentResponse.data,
+        if (response.response != HttpStatusCode.OK || response.data == null) return null
+        return response.data
+    }
+
+    override suspend fun downloadHomeworkDocumentMetadata(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument? {
+        if (vppId == null) vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
+        else {
+            val token = vppIdRepository.getVppIdToken(vppId) ?: return null
+            vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        }
+        val response = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework/$homeworkId/document/$homeworkDocumentId",
+            requestMethod = HttpMethod.Get
+        )
+        if (response.response != HttpStatusCode.OK || response.data == null) return null
+        val data = ResponseDataWrapper.fromJson<HomeworkDocumentResponse>(response.data)
+        return es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument(
             name = data.name,
-            extension = data.extension,
-            id = documentId
+            type = HomeworkDocumentType.fromExtension(data.extension),
+            documentId = homeworkDocumentId,
+            homeworkId = homeworkId
         )
     }
 
     override suspend fun getHomeworkByGroupId(groupId: Int): Flow<List<Homework>> {
         return homeworkDao.getByGroupId(groupId).map {
-            it.map { homework -> homework.toModel(context) }
+            it.map { homework -> homework.toModel() }
         }
     }
 
     override suspend fun getAll(): Flow<List<Homework>> {
         return homeworkDao.getAll().map {
-            it.map { homework -> homework.toModel(context) }
+            it.map { homework -> homework.toModel() }
         }
     }
 
     override suspend fun getHomeworkById(homeworkId: Int): Flow<Homework?> {
-        return homeworkDao.getById(homeworkId).map { it?.toModel(context) }
+        return homeworkDao.getById(homeworkId).map { it?.toModel() }
     }
 
     @Deprecated("Use split up methods instead instead")
-    override suspend fun insertHomework(
+    suspend fun insertHomework(
         id: Long?,
         profile: ClassProfile,
         defaultLessonVpId: Int?,
@@ -426,7 +295,7 @@ class HomeworkRepositoryImpl(
 
     override suspend fun getHomeworkByTask(taskId: Int): Homework {
         val homeworkId = homeworkDao.getHomeworkTaskById(taskId).first().homeworkId
-        return homeworkDao.getById(homeworkId).first()!!.toModel(context)
+        return homeworkDao.getById(homeworkId).first()!!.toModel()
     }
 
     override suspend fun clearCache() {
@@ -498,16 +367,16 @@ class HomeworkRepositoryImpl(
         return Response(HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE, ResponseDataWrapper.fromJson<UploadDocumentResponse>(data).id)
     }
 
-    override suspend fun addHomeworkDb(homeworkId: Int?, clazzProfile: ClassProfile, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isHidden: Boolean, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId {
+    override suspend fun addHomeworkDb(homeworkId: Int?, clazzProfile: ClassProfile?, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isHidden: Boolean, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId {
         val id = homeworkId ?: (findLocalId() - 1)
         homeworkDao.insert(DbHomework(
             id = id.toLong(),
-            groupId = clazzProfile.group.groupId,
+            groupId = if (vppId == null) clazzProfile!!.group.groupId else vppId.group!!.groupId,
             defaultLessonVpId = defaultLessonVpId,
             until = dueTo,
             isHidden = isHidden,
             isPublic = isPublic,
-            owningProfileId = if (vppId == null) clazzProfile.id else null,
+            owningProfileId = if (vppId == null) clazzProfile!!.id else null,
             createdBy = vppId?.id,
             createdAt = createdAt
         ))
@@ -688,7 +557,7 @@ class HomeworkRepositoryImpl(
     }
 
     override suspend fun getDocumentById(id: Int): es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument? {
-        return homeworkDocumentDao.getHomeworkDocumentById(id)?.toModel(context)
+        return homeworkDocumentDao.getHomeworkDocumentById(id)?.toModel()
     }
 }
 
@@ -755,35 +624,6 @@ private data class HomeworkDocumentResponse(
     @SerializedName("file_type") val extension: String,
     @SerializedName("id") val id: Int
 )
-
-private data class HomeworkDocument(
-    val content: ByteArray,
-    val name: String,
-    val extension: String,
-    val id: Int
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as HomeworkDocument
-
-        if (!content.contentEquals(other.content)) return false
-        if (name != other.name) return false
-        if (extension != other.extension) return false
-        if (id != other.id) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = content.contentHashCode()
-        result = 31 * result + name.hashCode()
-        result = 31 * result + extension.hashCode()
-        result = 31 * result + id
-        return result
-    }
-}
 
 private data class RenameDocumentRequest(
     @SerializedName("file_name") val name: String

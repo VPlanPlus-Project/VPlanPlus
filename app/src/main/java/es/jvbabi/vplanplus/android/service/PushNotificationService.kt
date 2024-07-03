@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -43,6 +44,9 @@ class PushNotificationService : FirebaseMessagingService() {
     @Inject
     lateinit var doSyncUseCase: DoSyncUseCase
 
+    @Inject
+    lateinit var updateHomeworkUseCase: UpdateHomeworkUseCase
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -68,7 +72,7 @@ class PushNotificationService : FirebaseMessagingService() {
                         roomRepository.fetchRoomBookings(school)
                     }
                 }
-                prefix + PushNotificationType.HOMEWORK_CHANGE -> homeworkRepository.fetchHomework(true)
+                prefix + PushNotificationType.HOMEWORK_CHANGE -> updateHomeworkUseCase(true)
                 prefix + PushNotificationType.UPDATE_PLAN -> doSyncUseCase()
             }
         }

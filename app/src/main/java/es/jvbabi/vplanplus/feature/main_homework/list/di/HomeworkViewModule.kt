@@ -24,6 +24,7 @@ import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.UpdateDueDa
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.UpdateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
 import javax.inject.Singleton
 
@@ -39,7 +40,8 @@ object HomeworkViewModule {
         fileRepository: FileRepository,
         keyValueRepository: KeyValueRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
-        changeTaskDoneStateUseCase: ChangeTaskDoneStateUseCase
+        changeTaskDoneStateUseCase: ChangeTaskDoneStateUseCase,
+        updateHomeworkUseCase: UpdateHomeworkUseCase
     ): HomeworkUseCases {
         return HomeworkUseCases(
             GetHomeworkUseCase(
@@ -70,7 +72,7 @@ object HomeworkViewModule {
                 getCurrentProfileUseCase = getCurrentProfileUseCase
             ),
             isUpdateRunningUseCase = IsUpdateRunningUseCase(keyValueRepository),
-            updateUseCase = UpdateUseCase(homeworkRepository),
+            updateUseCase = UpdateUseCase(updateHomeworkUseCase),
             hideHomeworkUseCase = HideHomeworkUseCase(homeworkRepository),
             showHomeworkNotificationBannerUseCase = ShowHomeworkNotificationBannerUseCase(keyValueRepository),
             hideHomeworkNotificationBannerUseCase = HideHomeworkNotificationBannerUseCase(keyValueRepository),

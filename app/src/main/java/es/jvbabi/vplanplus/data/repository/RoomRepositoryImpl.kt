@@ -201,7 +201,6 @@ class RoomRepositoryImpl(
                         )
                     ),
                     icon = R.drawable.vpp,
-                    pendingIntent = null
                 )
             }
     }

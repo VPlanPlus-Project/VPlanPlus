@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository
 
 import android.net.Uri
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.AddHomeworkResponse
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
@@ -24,27 +25,23 @@ interface HomeworkRepository {
 
     suspend fun getAll(): Flow<List<Homework>>
 
-    @Deprecated("Use split up methods instead instead")
-    suspend fun insertHomework(
-        id: Long? = null,
-        profile: ClassProfile,
-        defaultLessonVpId: Int?,
-        storeInCloud: Boolean,
-        shareWithClass: Boolean,
-        until: ZonedDateTime,
-        tasks: List<NewTaskRecord>,
-        isHidden: Boolean,
-        createdAt: ZonedDateTime = ZonedDateTime.now(),
-        documentUris: List<Document>,
-        onDocumentUploadProgressChanges: (Uri, Float) -> Unit = { _, _ -> }
-    ): HomeworkModificationResult
-
     suspend fun findLocalId(): Int
     suspend fun findLocalTaskId(): Int
     suspend fun findLocalDocumentId(): Int
 
-    @Deprecated("don't do this")
-    suspend fun fetchHomework(sendNotification: Boolean)
+    /**
+     * Downloads the homework from the cloud and returns it. This won't save anything to the database. Use [downloadHomeworkDocument] to download the actual documents.
+     * @param vppId The vpp.ID as which the request shall be executed. Null if only public homeworks should be downloaded.
+     * @param group The group for which the homework should be downloaded.
+     * @return A list of [CloudHomework] if the download was successful, null otherwise.
+     * @see [downloadHomeworkDocument]
+     * @see [addHomeworkDb]
+     */
+    suspend fun downloadHomework(vppId: VppId?, group: Group): List<CloudHomework>?
+
+    suspend fun downloadHomeworkDocument(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray?
+
+    suspend fun downloadHomeworkDocumentMetadata(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument?
 
     suspend fun getHomeworkByTask(taskId: Int): Homework
 
@@ -92,7 +89,7 @@ interface HomeworkRepository {
      * @param createdAt The creation date of the homework.
      * @return The ID of the homework, either the one provided or the next available local ID.
      */
-    suspend fun addHomeworkDb(homeworkId: Int? = null, clazzProfile: ClassProfile, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isHidden: Boolean = false, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId
+    suspend fun addHomeworkDb(homeworkId: Int? = null, clazzProfile: ClassProfile? = null, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isHidden: Boolean = false, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId
 
     /**
      * Uploads a homework to the cloud. This will not save the homework to the device, it will only upload it to the cloud. Creating the actual homework is the responsibility of the caller.
