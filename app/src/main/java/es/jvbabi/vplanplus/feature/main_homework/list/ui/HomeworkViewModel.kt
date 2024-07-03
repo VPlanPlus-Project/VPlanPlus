@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkResult
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkUseCases
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
@@ -69,7 +70,7 @@ class HomeworkViewModel @Inject constructor(
         val homework = state.value.homework.find { it.tasks.any { task -> task.id == homeworkTask.id } } ?: return
         viewModelScope.launch {
             setHomeworkLoading(homework, true)
-            if (homeworkUseCases.markSingleDoneUseCase(homeworkTask, done) == HomeworkModificationResult.FAILED) {
+            if (homeworkUseCases.markSingleDoneUseCase(homeworkTask, done).not()) {
                 state.value = state.value.copy(
                     errorResponse = ErrorOnUpdate.CHANGE_TASK_STATE to done,
                     errorVisible = true
@@ -124,6 +125,7 @@ class HomeworkViewModel @Inject constructor(
     fun onConfirmHomeworkChangeVisibilityRequest() {
         state.value.homeworkChangeVisibilityRequest?.let {
             viewModelScope.launch {
+                if (it !is CloudHomework) return@launch
                 setHomeworkLoading(it, true)
                 onHomeworkChangeVisibilityRequest(null)
                 if (homeworkUseCases.changeVisibilityUseCase(it) == HomeworkModificationResult.FAILED) {

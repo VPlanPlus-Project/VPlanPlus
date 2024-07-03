@@ -47,7 +47,7 @@ class ProfileSettingsViewModel @Inject constructor(
                 profileSettingsUseCases.getProfileByIdUseCase(profileId),
                 profileSettingsUseCases.getCalendarsUseCase()
             ) { profile, calendars ->
-                if (profile == null) return@combine _state.value.copy(initDone = true)
+                if (profile !is ClassProfile) return@combine _state.value.copy(initDone = true)
                 _state.value.copy(
                     profile = profile,
                     calendars = calendars,

@@ -10,7 +10,7 @@ fun <E> Collection<E>.randomSubList(size: Int = 5, forceSize: Boolean = true): M
     var i = 0
     while (i < rSize) {
         val r = this.random()
-        if (result.contains(r)) continue
+        if (result.any { r == it }) continue
         result.add(r)
         i += 1
     }
