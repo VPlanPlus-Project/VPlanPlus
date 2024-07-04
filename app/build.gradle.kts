@@ -1,3 +1,5 @@
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
@@ -20,8 +22,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 34
-        versionCode = 209
-        versionName = "20240701_534"
+        versionCode = 210
+        versionName = "${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}_534"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

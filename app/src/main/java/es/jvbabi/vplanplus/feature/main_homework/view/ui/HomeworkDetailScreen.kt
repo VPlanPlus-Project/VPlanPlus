@@ -63,6 +63,7 @@ import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.DueToCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.ProgressCard
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.Tasks
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.UnsavedChangesDialog
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.visibility.VisibilityCard
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.FadeAnimatedVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
@@ -214,7 +215,7 @@ private fun HomeworkDetailScreenContent(
             RowVerticalCenter(
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 DefaultLessonCard(defaultLesson = state.homework?.defaultLesson)
@@ -226,7 +227,15 @@ private fun HomeworkDetailScreenContent(
                     isEditModeActive = state.isEditing
                 )
             }
-            HorizontalDivider(Modifier.padding(vertical = 8.dp, horizontal = 16.dp))
+            RowVerticalCenter(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
+                if (state.homework == null) return@RowVerticalCenter
+                VisibilityCard(
+                    isEditModeActive = state.isEditing,
+                    homework = state.homework,
+                    isOwner = state.canEdit, // todo allow editing for non-owners (visibility)
+                )
+            }
+            HorizontalDivider(Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             Tasks(
                 tasks = state.homework?.tasks ?: emptyList(),
                 isEditing = state.isEditing,

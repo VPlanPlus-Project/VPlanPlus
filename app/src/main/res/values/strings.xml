@@ -707,5 +707,16 @@
     <string name="homework_detailViewEditRenameDialogTitle">Rename file</string>
     <string name="homework_detailViewEditRenameDialogPlaceholder">Enter a file name</string>
     <string name="homework_detailViewEditRenameDialogMessage">You can rename this file however you like, even special characters are allowed. All references to this file will still work afterwards.</string>
+    <string name="homework_detailViewVisibility">Visibility</string>
+    <string name="homework_detailViewVisibilityPublic">Shared with class</string>
+    <string name="homework_detailViewVisibilityPrivate">Private</string>
+    <string name="homework_detailViewVisibilityHidden">Hidden</string>
+    <string name="homework_detailViewVisibilityLocal">Local</string>
+    <string name="homework_detailViewVisibilityLocalSheetTitle">Local visibility</string>
+    <string name="homework_detailViewVisibilityLocalSheetHide">Hidden</string>
+    <string name="homework_detailViewVisibilityLocalSheetShow">Visible</string>
+    <string name="homework_detailViewVisibilityCloudSharedSheetTitle">Class-wide visbility</string>
+    <string name="homework_detailViewVisibilityCloudSharedSheetShare">Shared with class</string>
+    <string name="homework_detailViewVisibilityCloudSharedSheetPrivate">Private</string>
 
 </resources>
