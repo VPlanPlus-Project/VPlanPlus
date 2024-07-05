@@ -14,7 +14,7 @@ import es.jvbabi.vplanplus.ui.common.SelectDialog
  * The first server in the list is the default server.
  */
 val servers = listOf(
-    VppIdServer("https://vpp.test.jvbabi.es"), // TODO change order
+    VppIdServer("https://julius.familie-babies.de"), // TODO change order
     VppIdServer("https://vplan.plus"),
 )
 

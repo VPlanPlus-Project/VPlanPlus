@@ -258,7 +258,7 @@ class VppIdRepositoryImpl(
     override suspend fun fetchUsersPerClass(sp24Access: SchoolSp24Access): List<GroupInfoResponse>? {
         vppIdNetworkRepository.authentication = sp24Access.buildVppAuthentication()
         val result = vppIdNetworkRepository.doRequest(
-            "/api/$API_VERSION/school/${sp24Access.schoolId}/group/",
+            "/api/$API_VERSION/school/${sp24Access.schoolId}/group",
             queries = mapOf("only_school_classes" to "true")
         )
         if (result.response != HttpStatusCode.OK || result.data == null) return null
