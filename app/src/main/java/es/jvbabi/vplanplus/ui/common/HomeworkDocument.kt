@@ -14,6 +14,6 @@ fun HomeworkDocument.buildUri(): Uri {
 }
 
 fun HomeworkDocument.buildUri(context: Context): Uri {
-    val file = File(context.filesDir, "homework_document/${documentId}")
+    val file = File(context.filesDir, "homework_documents/${documentId}")
     return Uri.fromFile(file)
 }
