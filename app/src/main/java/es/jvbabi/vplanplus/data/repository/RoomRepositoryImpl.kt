@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
 import android.util.Log
-import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbRoom
@@ -125,12 +124,12 @@ class RoomRepositoryImpl(
         vppIdNetworkRepository.authentication = school.buildAccess().buildVppAuthentication()
 
         val response = vppIdNetworkRepository.doRequest(
-            "/api/${API_VERSION}/school/${school.id}/booking",
+            "/api/${API_VERSION}/school/${school.id}/room/booking",
             HttpMethod.Get,
             null
         )
 
-        if (response.response != HttpStatusCode.OK) {
+        if (response.response != HttpStatusCode.OK || response.data == null) {
             Log.e(
                 "RoomRepositoryImpl",
                 "Error fetching room bookings: ${response.response}\n\n${response.data}\n\n"
@@ -138,17 +137,12 @@ class RoomRepositoryImpl(
             return
         }
 
-        val roomBookings = Gson().fromJson(
-            response.data,
-            RoomBookingResponse::class.java
-        )
+        val roomBookings = ResponseDataWrapper.fromJson<List<RoomBookingResponseItem>>(response.data)
 
         val classes = groupRepository.getGroupsBySchool(school)
-        val rooms = getRooms(school.id)
 
         // cache vpp.IDs if necessary
         roomBookings
-            .bookings
             .map { it.bookedBy }
             .forEach { vppId -> vppIdRepository.getVppId(vppId.toLong(), school, false) }
 
@@ -157,10 +151,10 @@ class RoomRepositoryImpl(
         // insert new bookings
         roomBookingDao.deleteAll()
         roomBookingDao.upsertAll(
-            roomBookings.bookings.mapNotNull { bookingResponse ->
+            roomBookings.mapNotNull { bookingResponse ->
                 DbRoomBooking(
                     id = bookingResponse.id,
-                    roomId = rooms.firstOrNull { room -> bookingResponse.roomName == room.name }?.roomId ?: return@mapNotNull null,
+                    roomId = getRoomById(bookingResponse.roomId)?.roomId ?: return@mapNotNull null,
                     bookedBy = bookingResponse.bookedBy,
                     from = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.start),
                     to = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.end),
@@ -174,8 +168,8 @@ class RoomRepositoryImpl(
             .filterIsInstance<ClassProfile>()
             .mapNotNull { profile -> classes.firstOrNull { it.groupId == profile.group.groupId }?.name }
 
-        roomBookings.bookings
-            .filter profileClass@{ booking -> booking.`class` in profileClasses }
+        roomBookings
+            .filter profileClass@{ booking -> vppIdRepository.getVppId(booking.bookedBy)?.group?.name in profileClasses }
             .filter notInPast@{ booking -> DateUtils.getDateTimeFromTimestamp(booking.end).isAfter(LocalDateTime.now()) }
             .filter notBookedByCurrentUser@{ booking -> !(vppIdRepository.getVppId(booking.bookedBy.toLong(), school, false)?.isActive() ?: false) }
             .filter isNewInDatabase@{ booking -> !existingBookings.contains(booking.id) }
@@ -187,7 +181,7 @@ class RoomRepositoryImpl(
                     message = stringRepository.getString(
                         R.string.notification_roomBookingContent,
                         vppIdRepository.getVppId(booking.bookedBy.toLong(), school, false)?.name ?: stringRepository.getString(R.string.unknownVppId),
-                        booking.roomName,
+                        getRoomById(booking.roomId)?.name ?: "unknown",
                         DateUtils.getDateTimeFromTimestamp(booking.start).toLocalTime().format(
                             DateTimeFormatter.ofPattern("HH:mm")
                         ),
@@ -209,17 +203,12 @@ class RoomRepositoryImpl(
     }
 }
 
-private data class RoomBookingResponse(
-    @SerializedName("bookings") val bookings: List<RoomBookingResponseItem>
-)
-
 private data class RoomBookingResponseItem(
     @SerializedName("id") val id: Long,
-    @SerializedName("school_class") val `class`: String,
-    @SerializedName("room_name") val roomName: String,
+    @SerializedName("room_id") val roomId: Int,
     @SerializedName("booked_by") val bookedBy: Int,
-    @SerializedName("from") val start: Long,
-    @SerializedName("to") val end: Long
+    @SerializedName("start") val start: Long,
+    @SerializedName("end") val end: Long
 )
 
 private data class RoomLookupResponse(

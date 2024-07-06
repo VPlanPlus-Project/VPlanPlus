@@ -625,7 +625,6 @@
     <string name="searchAvailableRoom_cancelBookingDialogTitle">Buchung zurücknehmen?</string>
     <string name="searchAvailableRoom_cancelBookingDialogText">Dadurch können andere Klassen diesen Raum reservieren, solange keine Unterrichtsstunde in diesen Raum verlegt wird.</string>
     <string name="searchAvailableRoom_cancelBookingSuccess">Buchung zurückgenommen</string>
-    <string name="searchAvailableRoom_cancelBookingNotFound">Buchung nicht gefunden</string>
     <string name="notification_systemName">System</string>
     <string name="notification_systemDescription">Dieser Kanal wird Benachrichtigungen bezüglich der App oder wichtige Probleme, welche Nutzerinteraktion erfordern, aussenden. Wir empfehlen das Deaktivieren dieses Kanales nicht.</string>
     <string name="notification_syncErrorCredentialsIncorrectTitle">Falsche Zugangsdaten</string>

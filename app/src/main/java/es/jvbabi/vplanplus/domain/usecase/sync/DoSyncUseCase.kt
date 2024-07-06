@@ -278,7 +278,7 @@ class DoSyncUseCase(
                 if (this != null) return@run this
                 if (!groupRepository.insertGroup(school.buildAccess(), null, it.schoolClass, true)) return@run null
                 groupRepository.getGroupBySchoolAndName(
-                    vPlanData.sp24SchoolId,
+                    school.id,
                     it.schoolClass
                 )!!
             } ?: return

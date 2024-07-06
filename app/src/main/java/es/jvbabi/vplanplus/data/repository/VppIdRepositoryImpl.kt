@@ -187,15 +187,15 @@ class VppIdRepositoryImpl(
     ): BookResult {
         val currentToken = getVppIdToken(vppId) ?: return BookResult.OTHER
         vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
-        val url = "/api/$API_VERSION/school/${vppId.schoolId}/booking"
+        val url = "/api/$API_VERSION/school/${vppId.schoolId}/room/booking"
         val response = vppIdNetworkRepository.doRequest(
             url,
             HttpMethod.Post,
             Gson().toJson(
                 BookRoomRequest(
-                    roomName = room.name,
-                    from = ZonedDateTimeConverter().zonedDateTimeToTimestamp(from),
-                    to = ZonedDateTimeConverter().zonedDateTimeToTimestamp(to)
+                    roomId = room.roomId,
+                    start = ZonedDateTimeConverter().zonedDateTimeToTimestamp(from),
+                    end = ZonedDateTimeConverter().zonedDateTimeToTimestamp(to)
                 )
             )
         )
@@ -208,8 +208,8 @@ class VppIdRepositoryImpl(
         return BookResult.SUCCESS
     }
 
-    override suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode? {
-        val url = "/api/$API_VERSION/school/${roomBooking.bookedBy!!.schoolId}/booking/${roomBooking.id}"
+    override suspend fun cancelRoomBooking(roomBooking: RoomBooking): Boolean? {
+        val url = "/api/$API_VERSION/school/${roomBooking.bookedBy!!.schoolId}/room/booking/${roomBooking.id}"
         val currentToken = getVppIdToken(roomBooking.bookedBy) ?: return null
         vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
 
@@ -218,14 +218,13 @@ class VppIdRepositoryImpl(
             HttpMethod.Delete,
             null
         )
-        if (response.response == HttpStatusCode.OK || response.response == HttpStatusCode.NotFound) roomBookingDao.deleteById(roomBooking.id)
-
-        if (response.response != HttpStatusCode.OK) {
+        if (response.response == HttpStatusCode.NoContent || response.response == HttpStatusCode.NotFound) roomBookingDao.deleteById(roomBooking.id)
+        else {
             Log.d("CancelBooking", "status not ok: ${response.response}")
-            return response.response
+            return false
         }
 
-        return response.response
+        return true
     }
 
     override suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?> {
@@ -361,9 +360,9 @@ private data class MeResponse(
 )
 
 private data class BookRoomRequest(
-    @SerializedName("room_name") val roomName: String,
-    @SerializedName("from") val from: Long,
-    @SerializedName("to") val to: Long,
+    @SerializedName("room_id") val roomId: Int,
+    @SerializedName("start") val start: Long,
+    @SerializedName("end") val end: Long,
 )
 
 enum class BookResult {

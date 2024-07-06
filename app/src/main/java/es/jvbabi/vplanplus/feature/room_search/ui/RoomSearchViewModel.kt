@@ -207,7 +207,6 @@ class RoomSearchViewModel @Inject constructor(
                 context,
                 when (result) {
                     CancelBookingResult.SUCCESS -> R.string.searchAvailableRoom_cancelBookingSuccess
-                    CancelBookingResult.BOOKING_NOT_FOUND -> R.string.searchAvailableRoom_cancelBookingNotFound
                     CancelBookingResult.NO_INTERNET -> R.string.noInternet
                     else -> R.string.unknownError
                 },

@@ -628,7 +628,6 @@
     <string name="searchAvailableRoom_cancelBookingDialogTitle">Cancel booking?</string>
     <string name="searchAvailableRoom_cancelBookingDialogText">This will allow other classes to reserve this room as long as no lesson gets moved to this room.</string>
     <string name="searchAvailableRoom_cancelBookingSuccess">Booking cancelled</string>
-    <string name="searchAvailableRoom_cancelBookingNotFound">Booking not found</string>
     <string name="notification_systemName">System</string>
     <string name="notification_systemDescription">This channel will post messages regarding important information about the app or problems that require user action. We do not recommend to disable this one.</string>
     <string name="notification_syncErrorCredentialsIncorrectTitle">Credentials incorrect</string>
