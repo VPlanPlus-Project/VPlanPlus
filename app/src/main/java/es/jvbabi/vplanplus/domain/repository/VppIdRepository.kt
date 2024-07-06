@@ -45,18 +45,8 @@ interface VppIdRepository {
      */
     suspend fun fetchUsersPerClass(sp24Access: SchoolSp24Access): List<GroupInfoResponse>?
 
-    suspend fun getVersionHints(version: Int, versionBefore: Int): DataResponse<List<VersionHints>>
+    suspend fun getVersionHint(version: Int): DataResponse<VersionHints?>
 }
-
-data class VppIdOnlineResponse(
-    @SerializedName("id") val id: Int,
-    @SerializedName("username") val username: String,
-    @SerializedName("email") val email: String,
-    @SerializedName("sp24_school_id") val schoolId: Int,
-    @SerializedName("class_name") val className: String,
-    @SerializedName("bs_token") val bsToken: String?
-)
-
 
 data class GroupInfoResponse(
     @SerializedName("group_name") val className: String,

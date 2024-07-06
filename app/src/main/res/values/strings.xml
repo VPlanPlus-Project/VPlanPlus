@@ -718,5 +718,6 @@
     <string name="homework_detailViewVisibilityCloudSharedSheetTitle">Class-wide visbility</string>
     <string name="homework_detailViewVisibilityCloudSharedSheetShare">Shared with class</string>
     <string name="homework_detailViewVisibilityCloudSharedSheetPrivate">Private</string>
+    <string name="upload_homework_document_service">Upload files</string>
 
 </resources>

@@ -49,19 +49,19 @@ class UpdateDocumentsUseCase(
             )
             fileRepository.writeBytes("homework_documents", documentId.toString(), content)
         }
-        editedDocuments.forEach { editedDocument ->
-            val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().toInt()) ?: return@forEach
-            if (homework is CloudHomework && vppId != null) {
-                homeworkRepository.changeDocumentNameCloud(vppId, document, editedDocument.name).value ?: return@forEach
-            }
-            homeworkRepository.changeDocumentNameDb(document, editedDocument.name)
-        }
         documentsToDelete.forEach { document ->
             if (homework is CloudHomework && vppId != null) {
                 homeworkRepository.deleteDocumentCloud(vppId, document).value ?: return@forEach
             }
             homeworkRepository.deleteDocumentDb(document)
             fileRepository.deleteFile("homework_documents", document.documentId.toString())
+        }
+        editedDocuments.forEach { editedDocument ->
+            val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().toInt()) ?: return@forEach
+            if (homework is CloudHomework && vppId != null) {
+                homeworkRepository.changeDocumentNameCloud(vppId, document, editedDocument.name).value ?: return@forEach
+            }
+            homeworkRepository.changeDocumentNameDb(document, editedDocument.name)
         }
     }
 }

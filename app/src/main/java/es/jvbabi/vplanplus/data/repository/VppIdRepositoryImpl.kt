@@ -265,22 +265,16 @@ class VppIdRepositoryImpl(
         return ResponseDataWrapper.fromJson<List<GroupInfoResponse>>(result.data)
     }
 
-    override suspend fun getVersionHints(version: Int, versionBefore: Int): DataResponse<List<VersionHints>> {
+    override suspend fun getVersionHint(version: Int): DataResponse<VersionHints?> {
         vppIdNetworkRepository.authentication = null
         val response = vppIdNetworkRepository.doRequest(
             "/api/$API_VERSION/app/version_hints/$version",
-            HttpMethod.Get,
-            queries = mapOf("beforeVersion" to versionBefore.toString())
+            HttpMethod.Get
         )
-        if (response.response != HttpStatusCode.OK) return DataResponse(emptyList(), response.response)
+        if (response.response != HttpStatusCode.OK || response.data == null) return DataResponse(null, response.response)
 
         return DataResponse(
-            Gson().fromJson(
-                response.data,
-                VersionHintResponse::class.java
-            )
-                .data
-                .map { it.toModel() },
+            ResponseDataWrapper.fromJson<VersionHintResponse>(response.data).toModel(),
             response.response
         )
     }
@@ -385,13 +379,9 @@ private data class UserNameResponse(
 )
 
 private data class VersionHintResponse(
-    @SerializedName("data") val data: List<VersionHintResponseItem>
-)
-
-private data class VersionHintResponseItem(
     @SerializedName("version_code") val version: Int,
     @SerializedName("title") val header: String,
-    @SerializedName("content") val content: String,
+    @SerializedName("message") val content: String,
     @SerializedName("create_at") val createdAt: Long
 ) {
     fun toModel(): VersionHints {

@@ -4,13 +4,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SystemUpdate
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,12 +31,10 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun VersionHintsInformation(
     currentVersion: String,
-    hints: List<VersionHints>,
+    hint: VersionHints,
     onCloseUntilNextTime: () -> Unit = {},
     onCloseUntilNextVersion: () -> Unit = {}
 ) {
-    if (hints.isEmpty()) return
-
     ComposableDialog(
         icon = Icons.Default.SystemUpdate,
         title = stringResource(id = R.string.homeVersionHints_title),
@@ -59,35 +55,25 @@ fun VersionHintsInformation(
                 Spacer(modifier = Modifier.size(10.dp))
                 val context = LocalContext.current
 
-                hints.forEachIndexed { i, hint ->
-                    Text(text = hint.header, style = MaterialTheme.typography.headlineMedium)
-                    Text(
-                        text = DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
-                            .format(hint.createdAt),
-                        style = MaterialTheme.typography.labelMedium,
+                Text(text = hint.header, style = MaterialTheme.typography.headlineMedium)
+                Text(
+                    text = DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy")
+                        .format(hint.createdAt),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+                HtmlText(
+                    text = hint.content,
+                    linkClicked = { link ->
+                        openLink(context, link)
+                    },
+                    style = TextStyle.Default.copy(
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    ),
+                    URLSpanStyle = SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline
                     )
-                    HtmlText(
-                        text = hint.content,
-                        linkClicked = { link ->
-                            openLink(context, link)
-                        },
-                        style = TextStyle.Default.copy(
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        ),
-                        URLSpanStyle = SpanStyle(
-                            color = MaterialTheme.colorScheme.primary,
-                            textDecoration = TextDecoration.Underline
-                        )
-                    )
-
-
-                    if (i != hints.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    }
-                }
+                )
             }
         },
         onCancel = onCloseUntilNextTime,
@@ -102,13 +88,11 @@ fun VersionHintsInformation(
 private fun VersionHintsInformationPreview() {
     VersionHintsInformation(
         "v1.1",
-        listOf(
-            VersionHints(
-                "Version A",
-                "This is some <b>HTML</b> content",
-                200,
-                ZonedDateTime.now().minusDays(3)
-            )
+        VersionHints(
+            "Version A",
+            "This is some <b>HTML</b> content",
+            200,
+            ZonedDateTime.now().minusDays(3)
         )
     )
 }

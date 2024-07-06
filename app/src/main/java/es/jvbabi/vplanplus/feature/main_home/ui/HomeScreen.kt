@@ -170,9 +170,9 @@ fun HomeScreenContent(
 ) {
     if (state.currentProfile == null) return
 
-    if (state.isVersionHintsDialogOpen) VersionHintsInformation(
+    if (state.isVersionHintsDialogOpen && state.versionHint != null) VersionHintsInformation(
         currentVersion = state.currentVersion,
-        hints = state.versionHints,
+        hint = state.versionHint,
         onCloseUntilNextTime = { onVersionHintsClosed(false) },
         onCloseUntilNextVersion = { onVersionHintsClosed(true) }
     )

@@ -45,12 +45,12 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch oneTimeData@{
-            val hints = homeUseCases.getVersionHintsUseCase()
+            val hint = homeUseCases.getVersionHintsUseCase()
             val versionName = BuildConfig.VERSION_NAME
 
             state = state.copy(
-                versionHints = hints,
-                isVersionHintsDialogOpen = hints.isNotEmpty(),
+                versionHint = hint,
+                isVersionHintsDialogOpen = hint != null,
                 currentVersion = versionName
             )
         }
@@ -206,7 +206,7 @@ data class HomeState(
     val hideFinishedLessons: Boolean = false,
     val holidays: List<LocalDate> = emptyList(),
 
-    val versionHints: List<VersionHints> = emptyList(),
+    val versionHint: VersionHints? = null,
     val isVersionHintsDialogOpen: Boolean = false,
     val currentVersion: String = "Loading...",
 
