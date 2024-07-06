@@ -33,7 +33,7 @@ class ProfileRepositoryImpl(
             val profiles = mutableListOf<Profile>()
             classProfiles.filter { it.group.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
             teacherProfiles.filter { it.schoolEntity.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
-            roomProfiles.filter { it.schoolEntity.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
+            roomProfiles.filter { it.room.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
             profiles
         }.collect {
             emit(it)

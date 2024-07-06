@@ -26,7 +26,7 @@ object ProfilePreview {
     }
 
     fun generateRoomProfile(room: es.jvbabi.vplanplus.domain.model.Room): RoomProfile {
-        val name = Room.generateRoomNames(1)
+        val name = RoomPreview.generateRoomNames(1)
         return RoomProfile(
             id = UUID.randomUUID(),
             originalName = name.first(),

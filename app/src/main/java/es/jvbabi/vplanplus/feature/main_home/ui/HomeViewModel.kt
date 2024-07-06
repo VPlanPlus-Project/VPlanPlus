@@ -87,7 +87,7 @@ class HomeViewModel @Inject constructor(
                 val hasMissingVppIdToProfileLinks = data[10] as Boolean
                 val holidays = data[11] as List<LocalDate>
 
-                val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter { it.`class`.groupId == (currentProfile as? ClassProfile)?.group?.groupId }
+                val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter { it.bookedBy?.group?.groupId == (currentProfile as? ClassProfile)?.group?.groupId }
 
                 state.copy(
                     currentProfile = currentProfile,

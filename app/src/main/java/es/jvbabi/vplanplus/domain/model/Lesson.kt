@@ -10,7 +10,7 @@ data class Lesson(
     val changedSubject: String?,
     val teachers: List<String>,
     val teacherIsChanged: Boolean,
-    val rooms: List<String>,
+    val rooms: List<Room>,
     val roomIsChanged: Boolean,
     val info: String?,
     val start: ZonedDateTime,
@@ -28,7 +28,4 @@ data class Lesson(
 
     val displaySubject: String
         get() = changedSubject ?: originalSubject ?: "-"
-
-    val subjectIsChanged: Boolean
-        get() = changedSubject != null
 }

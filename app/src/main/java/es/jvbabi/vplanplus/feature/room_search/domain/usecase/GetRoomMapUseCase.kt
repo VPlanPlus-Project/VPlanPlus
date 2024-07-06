@@ -25,13 +25,12 @@ class GetRoomMapUseCase(
         val rooms = roomRepository.getRooms(profile.getSchool().id).sortedBy { it.name }
         val version = keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
         val lessons = lessonRepository.getLessonsForSchoolByDate(profile.getSchool().id, date, version).first()
-        val bookings = roomRepository.getRoomBookings(date).filter { it.`class`.school == profile.getSchool() }
+        val bookings = roomRepository.getRoomBookings(date).filter { it.bookedBy?.group?.school == profile.getSchool() }
 
         val result = mutableListOf<RoomState>()
         rooms.forEach { room -> result.add(RoomState(room, emptyList(), emptyList())) }
         lessons.forEach { lesson ->
-            lesson.rooms.forEach room@{ roomName ->
-                val room = rooms.firstOrNull { it.name == roomName } ?: return@room
+            lesson.rooms.forEach room@{ room ->
                 val roomState = result.first { it.room == room }
                 val index = result.indexOf(roomState)
                 result[index] = roomState.copy(lessons = roomState.lessons + lesson)

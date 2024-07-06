@@ -13,7 +13,7 @@ import es.jvbabi.vplanplus.data.repository.AlarmManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BaseDataRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.BiometricRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.DefaultLessonRepositoryImpl
-import es.jvbabi.vplanplus.domain.repository.FileRepository
+import es.jvbabi.vplanplus.data.repository.FileRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.FirebaseCloudMessagingManagerRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.GroupRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.HolidayRepositoryImpl
@@ -39,7 +39,7 @@ import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
 import es.jvbabi.vplanplus.domain.repository.BiometricRepository
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
-import es.jvbabi.vplanplus.data.repository.FileRepositoryImpl
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -255,19 +255,9 @@ object VppModule {
     @Provides
     @Singleton
     fun provideBaseDataRepository(
-        groupRepository: GroupRepository,
-        lessonTimeRepository: LessonTimeRepository,
-        holidayRepository: HolidayRepository,
-        roomRepository: RoomRepository,
-        teacherRepository: TeacherRepository,
         sp24NetworkRepository: Sp24NetworkRepository
     ): BaseDataRepository {
         return BaseDataRepositoryImpl(
-            groupRepository,
-            lessonTimeRepository,
-            holidayRepository,
-            roomRepository,
-            teacherRepository,
             sp24NetworkRepository
         )
     }
@@ -331,7 +321,7 @@ object VppModule {
         keyValueRepository: KeyValueRepository
     ): RoomRepository {
         return RoomRepositoryImpl(
-            schoolEntityDao = db.schoolEntityDao,
+            roomDao = db.roomDao,
             roomBookingDao = db.roomBookingDao,
             vppIdRepository = vppIdRepository,
             vppIdNetworkRepository = provideVppIdNetworkRepository(

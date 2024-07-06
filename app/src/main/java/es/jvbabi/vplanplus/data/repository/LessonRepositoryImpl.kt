@@ -51,7 +51,7 @@ class LessonRepositoryImpl(
             }
     }
 
-    override fun getLessonsForRoom(roomId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?> {
+    override fun getLessonsForRoom(roomId: Int, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         val timestamp = converter.zonedDateTimeToTimestamp(ZonedDateTime.of(date, LocalTime.MIN, ZoneId.of("UTC")))
         return lessonDao.getLessonsByRoom(roomId, timestamp, version)
             .map { lessons ->

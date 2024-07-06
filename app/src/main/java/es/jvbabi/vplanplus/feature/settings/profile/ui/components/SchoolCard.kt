@@ -38,7 +38,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
-import es.jvbabi.vplanplus.ui.preview.Room
+import es.jvbabi.vplanplus.ui.preview.RoomPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview as PreviewProfile
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview as PreviewSchool
 
@@ -145,7 +145,7 @@ fun SchoolCard(
 @Composable
 private fun SchoolCardPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first().copy(credentialsValid = false)
-    val room = Room.generateRoom(school)
+    val room = RoomPreview.generateRoom(school)
     val group = GroupPreview.generateGroup(school)
     SchoolCard(
         school = school,

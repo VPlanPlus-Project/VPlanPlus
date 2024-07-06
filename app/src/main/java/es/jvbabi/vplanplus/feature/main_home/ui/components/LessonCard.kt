@@ -68,7 +68,9 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTas
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
+import es.jvbabi.vplanplus.ui.common.unknownVppId
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.RoomPreview
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -127,7 +129,7 @@ fun LessonCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) header@{
                 SubjectText(lesson.displaySubject, lesson.changedSubject != null)
-                RoomText(lesson.rooms, booking, changed = lesson.roomIsChanged)
+                RoomText(lesson.rooms.map { it.name }, booking, changed = lesson.roomIsChanged)
                 TeacherText(lesson.teachers, changed = lesson.teacherIsChanged)
                 if (displayType != ProfileType.STUDENT) ClassText(lesson.`class`.name)
             }
@@ -158,7 +160,7 @@ fun LessonCard(
             RowRecord(
                 expand = booking != null,
                 icon = Icons.Outlined.MeetingRoom,
-                text = stringResource(id = R.string.home_activeBookedBy, booking?.bookedBy?.name ?: "Unknown", booking?.`class`?.name ?: "--")
+                text = stringResource(id = R.string.home_activeBookedBy, booking?.bookedBy?.name ?: unknownVppId(), booking?.bookedBy?.group?.name ?: "--")
             )
 
             val showBookRoomAssistChip = lesson.rooms.isEmpty() && booking == null && time.isBefore(lesson.end)
@@ -251,7 +253,7 @@ fun LessonCardPreview() {
                 end = ZonedDateTime.now().plusHours(1),
                 `class` = GroupPreview.generateGroup(school = null),
                 originalSubject = "Math",
-                rooms = listOf("A1"),
+                rooms = listOf(RoomPreview.generateRoom()),
                 teachers = listOf("WMA"),
                 info = "This is an information about this lesson.\nIt also supports multiline.",
                 changedSubject = null,

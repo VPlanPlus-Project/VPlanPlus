@@ -6,10 +6,11 @@ import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbLesson
+import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
-import es.jvbabi.vplanplus.data.model.SchoolEntityType
-import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 
@@ -29,13 +30,23 @@ data class CLesson(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(
-            value = LessonSchoolEntityCrossover::class,
+            value = LessonTeacherCrossover::class,
             parentColumn = "lesson_id",
             entityColumn = "school_entity_id"
         ),
         entity = DbSchoolEntity::class
     )
-    val schoolEntities: List<CSchoolEntity>,
+    val teachers: List<CSchoolEntity>,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "id",
+        associateBy = Junction(
+            value = LessonRoomCrossover::class,
+            parentColumn = "lesson_id",
+            entityColumn = "room_id"
+        ),
+        entity = DbRoom::class
+    ) val rooms: List<CRoom>,
     @Relation(
         parentColumn = "group_id",
         entityColumn = "group_id",
@@ -56,11 +67,9 @@ data class CLesson(
             lessonNumber = lesson.lessonNumber,
             originalSubject = defaultLesson?.defaultLesson?.subject,
             changedSubject = lesson.changedSubject,
-            teachers = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.TEACHER }.map { it.toTeacherModel().acronym },
-            teacherIsChanged = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.TEACHER }.map { it.toTeacherModel().teacherId }.sorted() != listOf(
-                defaultLesson?.defaultLesson?.teacherId
-            ),
-            rooms = schoolEntities.filter { it.schoolEntity.type == SchoolEntityType.ROOM }.map { it.toRoomModel().name },
+            teachers = teachers.map { it.toTeacherModel().acronym },
+            teacherIsChanged = teachers.map { it.toTeacherModel().teacherId }.sorted() != listOf(defaultLesson?.defaultLesson?.teacherId),
+            rooms = rooms.map { it.toModel() },
             roomIsChanged = lesson.isRoomChanged,
             info = lesson.info,
             start =

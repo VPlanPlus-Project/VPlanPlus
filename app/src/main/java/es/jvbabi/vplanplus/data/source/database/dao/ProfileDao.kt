@@ -32,7 +32,7 @@ abstract class ProfileDao {
     abstract fun createTeacherProfile(id: UUID, name: String, customName: String, calendarMode: ProfileCalendarType, calendarId: Long?, teacherId: UUID)
 
     @Query("INSERT INTO profile_room (id, name, custom_name, calendar_mode, calendar_id, room_id) VALUES (:id, :name, :customName, :calendarMode, :calendarId, :roomId)")
-    abstract fun createRoomProfile(id: UUID, name: String, customName: String, calendarMode: ProfileCalendarType, calendarId: Long?, roomId: UUID)
+    abstract fun createRoomProfile(id: UUID, name: String, customName: String, calendarMode: ProfileCalendarType, calendarId: Long?, roomId: Int)
 
     @Query("UPDATE profile_class SET vpp_id = :vppId WHERE id = :profileId")
     abstract fun setVppIdForClassProfile(profileId: UUID, vppId: Int?)

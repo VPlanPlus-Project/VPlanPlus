@@ -28,7 +28,7 @@ class QueryUseCase(
         rawQuery: String,
         selectedClassIds: List<Int>,
         selectedTeacherIds: List<UUID>,
-        selectedRoomIds: List<UUID>
+        selectedRoomIds: List<Int>
     ): List<ResultGroup> {
         val query = rawQuery.lowercase()
         val currentSchool = getCurrentProfileUseCase().first()?.getSchool()?: return emptyList()
@@ -87,7 +87,7 @@ data class ResultGroup(
     val searchResults: List<SearchResult>,
     var selectedClassId: Int? = null,
     var selectedTeacherId: UUID? = null,
-    var selectedRoomId: UUID? = null
+    var selectedRoomId: Int? = null
 )
 
 sealed class SearchResult(
@@ -108,7 +108,7 @@ class TeacherSearchResult(
 ) : SearchResult(name, lessons)
 
 class RoomSearchResult(
-    val id: UUID,
+    val id: Int,
     name: String,
     lessons: List<Lesson>,
 ) : SearchResult(name, lessons)

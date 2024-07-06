@@ -374,7 +374,7 @@ private fun TimeInfoPreview() {
     val profile = ProfilePreview.generateClassProfile(group, vppId)
     TimeInfo(
         data = RoomState(
-            room = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
+            room = es.jvbabi.vplanplus.ui.preview.RoomPreview.generateRoom(school),
             lessons = Lessons.generateLessons(2, true),
             bookings = emptyList()
         ),

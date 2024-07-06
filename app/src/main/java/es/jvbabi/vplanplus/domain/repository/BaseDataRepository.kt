@@ -5,8 +5,6 @@ import es.jvbabi.vplanplus.domain.model.XmlBaseData
 
 interface BaseDataRepository {
 
-    suspend fun processBaseData(schoolId: Int, baseData: XmlBaseData)
-
     suspend fun getFullBaseData(
         sp24SchoolId: Int,
         username: String,

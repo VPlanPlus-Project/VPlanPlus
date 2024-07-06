@@ -1,16 +1,16 @@
 package es.jvbabi.vplanplus.ui.preview
 
 import es.jvbabi.vplanplus.domain.model.Room
-import java.util.UUID
+import kotlin.random.Random
 
-object Room {
+object RoomPreview {
     fun generateRoomNames(count: Int): List<String> {
         return roomNames.shuffled().take(count)
     }
 
     fun generateRoom(school: es.jvbabi.vplanplus.domain.model.School = SchoolPreview.generateRandomSchools(1).first()): Room {
         return Room(
-            roomId = UUID.randomUUID(),
+            roomId = Random.nextInt(),
             school = school,
             name = roomNames.random(),
         )

@@ -4,12 +4,11 @@ import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
-import es.jvbabi.vplanplus.data.model.DbSchoolEntity
-import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
-import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
+import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Room
@@ -30,10 +29,9 @@ import kotlinx.coroutines.flow.first
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 
 class RoomRepositoryImpl(
-    private val schoolEntityDao: SchoolEntityDao,
+    private val roomDao: RoomDao,
     private val roomBookingDao: RoomBookingDao,
     private val vppIdRepository: VppIdRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
@@ -43,21 +41,19 @@ class RoomRepositoryImpl(
     private val stringRepository: StringRepository
 ) : RoomRepository {
     override suspend fun getRooms(schoolId: Int): List<Room> {
-        return schoolEntityDao.getSchoolEntities(schoolId, SchoolEntityType.ROOM)
-            .map { it.toRoomModel() }
+        return roomDao.getRoomsBySchoolId(schoolId).first().map { it.toModel() }
     }
 
-    override suspend fun getRoomById(roomId: UUID): Room? {
-        return schoolEntityDao.getSchoolEntityById(roomId)?.toRoomModel()
+    override suspend fun getRoomById(roomId: Int): Room? {
+        return roomDao.getRoomById(roomId)?.toModel()
     }
 
     override suspend fun createRoom(room: Room) {
-        schoolEntityDao.insertSchoolEntity(
-            DbSchoolEntity(
+        roomDao.insertRoom(
+            DbRoom(
                 id = room.roomId,
                 name = room.name,
                 schoolId = room.school.id,
-                type = SchoolEntityType.ROOM
             )
         )
     }
@@ -68,19 +64,13 @@ class RoomRepositoryImpl(
         createIfNotExists: Boolean
     ): Room? {
         if (name == "&amp;nbsp;" || name == "&nbsp;") return null
-        val room =
-            schoolEntityDao.getSchoolEntityByName(school.id, name, SchoolEntityType.ROOM)
+        val getRoom: suspend () -> Room? = { roomDao.getAllRooms().first().firstOrNull { it.school.id == school.id && it.room.name == name }?.toModel() }
+        val room = getRoom()
         if (room == null && createIfNotExists) {
-            val dbRoom = DbSchoolEntity(
-                id = UUID.randomUUID(),
-                schoolId = school.id,
-                name = name,
-                type = SchoolEntityType.ROOM
-            )
-            schoolEntityDao.insertSchoolEntity(dbRoom)
-            return schoolEntityDao.getSchoolEntityById(dbRoom.id)!!.toRoomModel()
+            if (!insertRoomsByName(school, listOf(name))) return null
+            return getRoom()
         }
-        return room?.toRoomModel()
+        return room
     }
 
     override suspend fun getRoomBookings(date: LocalDate): List<RoomBooking> {
@@ -91,25 +81,31 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun deleteRoomsBySchoolId(schoolId: Int) {
-        schoolEntityDao.deleteSchoolEntitiesBySchoolId(schoolId, SchoolEntityType.ROOM)
+        roomDao.deleteRoomsBySchoolId(schoolId)
     }
 
-    override suspend fun insertRoomsByName(schoolId: Int, rooms: List<String>) {
-        schoolEntityDao.insertSchoolEntities(
-            rooms.map {
-                DbSchoolEntity(
-                    id = UUID.randomUUID(),
-                    schoolId = schoolId,
-                    name = it,
-                    type = SchoolEntityType.ROOM
-                )
-            }
-        )
+    override suspend fun insertRoomsByName(school: School, rooms: List<String>): Boolean {
+        rooms.forEach { room ->
+            vppIdNetworkRepository.authentication = school.buildAccess().buildVppAuthentication()
+            val response = vppIdNetworkRepository.doRequest(
+                path = "/api/${API_VERSION}/school/${school.id}/room/by-name/$room",
+                requestMethod = HttpMethod.Get,
+                queries = mapOf("allow_creation" to "true")
+            )
+            if (response.response != HttpStatusCode.OK || response.data == null) return false
+            val data = ResponseDataWrapper.fromJson<RoomLookupResponse>(response.data)
+            val dbRoom = DbRoom(
+                id = data.id,
+                schoolId = school.id,
+                name = data.name,
+            )
+            roomDao.insertRoom(dbRoom)
+        }
+        return true
     }
 
     override suspend fun getRoomsBySchool(school: School): List<Room> {
-        return schoolEntityDao.getSchoolEntities(school.id, SchoolEntityType.ROOM)
-            .map { it.toRoomModel() }
+        return roomDao.getRoomsBySchoolId(school.id).first().map { it.toModel() }
     }
 
     override suspend fun getRoomBookingsByClass(
@@ -168,7 +164,6 @@ class RoomRepositoryImpl(
                     bookedBy = bookingResponse.bookedBy,
                     from = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.start),
                     to = ZonedDateTimeConverter().timestampToZonedDateTime(bookingResponse.end),
-                    groupId = classes.firstOrNull { it.name == bookingResponse.`class` }?.groupId ?: return@mapNotNull null
                 )
             }
         )
@@ -206,7 +201,7 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun getAll(): List<Room> {
-        return schoolEntityDao.getSchoolEntitiesByType(SchoolEntityType.ROOM).map { it.toRoomModel() }
+        return roomDao.getAllRooms().first().map { it.toModel() }
     }
 
     override suspend fun deleteAllRoomBookings() {
@@ -225,4 +220,9 @@ private data class RoomBookingResponseItem(
     @SerializedName("booked_by") val bookedBy: Int,
     @SerializedName("from") val start: Long,
     @SerializedName("to") val end: Long
+)
+
+private data class RoomLookupResponse(
+    @SerializedName("id") val id: Int,
+    @SerializedName("name") val name: String
 )

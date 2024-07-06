@@ -107,7 +107,7 @@ class SetupUseCase(
                 }
             }
             val classes = groupRepository.getGroupsBySchool(school).filter { it.isClass }
-            roomRepository.insertRoomsByName(schoolId, roomNames)
+            roomRepository.insertRoomsByName(school, roomNames)
             holidayRepository.deleteHolidaysBySchoolId(schoolId)
             holidays.forEach { holidayRepository.insertHoliday(schoolId = schoolId, date = it.date) }
             defaultLessons.forEach { defaultLesson ->

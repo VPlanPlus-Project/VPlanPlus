@@ -4,6 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
+import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
@@ -38,8 +39,8 @@ data class CRoomProfile(
     @Relation(
         parentColumn = "room_id",
         entityColumn = "id",
-        entity = DbSchoolEntity::class
-    ) val schoolEntity: CSchoolEntity
+        entity = DbRoom::class
+    ) val room: CRoom
 ) {
     fun toModel(): RoomProfile {
         return RoomProfile(
@@ -48,7 +49,7 @@ data class CRoomProfile(
             displayName = roomProfile.customName,
             calendarType = roomProfile.calendarMode,
             calendarId = roomProfile.calendarId,
-            room = schoolEntity.toRoomModel()
+            room = room.toModel()
         )
     }
 }

@@ -15,18 +15,18 @@ object Lessons {
     fun generateLessons(count: Int = 4, isCurrentLesson: Boolean = false): List<Lesson> {
         val result = mutableListOf<Lesson>()
         val start = if (isCurrentLesson) "${LocalDateTime.now().hour}:15" else "08:00"
-        val end = if (isCurrentLesson) "${LocalDateTime.now().hour+1}:30" else "08:45"
+        val end = if (isCurrentLesson) "${LocalDateTime.now().hour + 1}:30" else "08:45"
 
         repeat(count) { index ->
             result.add(
                 Lesson(
-                    rooms = randomRoom().map { it.name },
+                    rooms = randomRoom(),
                     teacherIsChanged = Random.nextBoolean(),
                     teachers = randomTeacher().map { it.acronym },
                     start = DateUtils.zonedDateFromTimeStringAndDate(start, LocalDate.now()),
                     end = DateUtils.zonedDateFromTimeStringAndDate(end, LocalDate.now()),
                     info = "Info",
-                    lessonNumber = index+1,
+                    lessonNumber = index + 1,
                     roomIsChanged = Random.nextBoolean(),
                     `class` = randomClass(),
                     originalSubject = randomSubject(),
@@ -215,63 +215,78 @@ object Lessons {
         return listOf(
             Room(
                 school = school,
-                name = "A1.01"
+                name = "A1.01",
+                roomId = 1
             ),
             Room(
                 school = school,
-                name = "A1.02"
+                name = "A1.02",
+                roomId = 2
             ),
             Room(
                 school = school,
-                name = "A1.03"
+                name = "A1.03",
+                roomId = 3
             ),
             Room(
                 school = school,
-                name = "101"
+                name = "101",
+                roomId = 4
             ),
             Room(
                 school = school,
-                name = "102"
+                name = "102",
+                roomId = 5
             ),
             Room(
                 school = school,
-                name = "103"
+                name = "103",
+                roomId = 6
             ),
             Room(
                 school = school,
-                name = "104"
+                name = "104",
+                roomId = 7
             ),
             Room(
                 school = school,
-                name = "201"
+                name = "201",
+                roomId = 8
             ),
             Room(
                 school = school,
-                name = "202"
+                name = "202",
+                roomId = 9
             ),
             Room(
                 school = school,
-                name = "203"
+                name = "203",
+                roomId = 10
             ),
             Room(
                 school = school,
-                name = "204"
+                name = "204",
+                roomId = 11
             ),
             Room(
                 school = school,
-                name = "K25"
+                name = "K25",
+                roomId = 12
             ),
             Room(
                 school = school,
-                name = "K26"
+                name = "K26",
+                roomId = 13
             ),
             Room(
                 school = school,
-                name = "TH 1"
+                name = "TH 1",
+                roomId = 14
             ),
             Room(
                 school = school,
-                name = "TH 2"
+                name = "TH 2",
+                roomId = 15
             ),
         ).randomSubList(2, false)
     }

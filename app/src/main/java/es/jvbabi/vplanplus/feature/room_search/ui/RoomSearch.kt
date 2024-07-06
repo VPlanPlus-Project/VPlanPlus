@@ -68,6 +68,7 @@ import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
 import es.jvbabi.vplanplus.feature.room_search.ui.components.dialogs.CancelBookingDialog
 import es.jvbabi.vplanplus.feature.room_search.ui.components.dialogs.RoomBookingRequestDialogHost
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.unknownVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.atDate
@@ -386,7 +387,7 @@ private fun RoomSearchContent(
                                     size = Size(width, 48.dp.toPx())
                                 )
 
-                                val classText = buildAnnotatedString { append(booking.`class`.name) }
+                                val classText = buildAnnotatedString { append(booking.bookedBy?.group?.name ?: unknownVppId(context)) }
                                 val measuredClass = textMeasurer.measure(
                                     classText,
                                     style = typography.bodyMedium
@@ -541,7 +542,7 @@ private fun RoomSearchPreview() {
     val school = SchoolPreview.generateRandomSchools(1).first()
     RoomSearchContent(
         state = RoomSearchState(
-            selectedRoom = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
+            selectedRoom = es.jvbabi.vplanplus.ui.preview.RoomPreview.generateRoom(school),
             selectedTime = ZonedDateTime.now()
         )
     )

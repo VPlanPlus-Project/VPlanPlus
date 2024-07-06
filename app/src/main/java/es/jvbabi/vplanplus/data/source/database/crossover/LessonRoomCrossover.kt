@@ -5,15 +5,15 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import es.jvbabi.vplanplus.data.model.DbLesson
-import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.DbRoom
 import java.util.UUID
 
 @Entity(
-    tableName = "lesson_se_crossover",
-    primaryKeys = ["lesson_id", "school_entity_id"],
+    tableName = "lesson_room_crossover",
+    primaryKeys = ["lesson_id", "room_id"],
     indices = [
         Index(value = ["lesson_id"]),
-        Index(value = ["school_entity_id"]),
+        Index(value = ["room_id"]),
     ],
     foreignKeys = [
         ForeignKey(
@@ -23,14 +23,14 @@ import java.util.UUID
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
-            entity = DbSchoolEntity::class,
+            entity = DbRoom::class,
             parentColumns = ["id"],
-            childColumns = ["school_entity_id"],
+            childColumns = ["room_id"],
             onDelete = ForeignKey.CASCADE
         ),
     ]
 )
-data class LessonSchoolEntityCrossover(
+data class LessonRoomCrossover(
     @ColumnInfo("lesson_id") val lessonId: UUID,
-    @ColumnInfo("school_entity_id") val schoolEntityId: UUID
+    @ColumnInfo("room_id") val roomId: Int
 )

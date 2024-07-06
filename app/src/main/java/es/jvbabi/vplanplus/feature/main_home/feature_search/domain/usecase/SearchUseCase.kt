@@ -62,7 +62,7 @@ class SearchUseCase(
             ProfileType.STUDENT,
             firstClass.school.name,
             firstClassPlan,
-            roomRepository.getRoomBookings(date).filter { it.`class` == firstClass && it.from.toLocalDate().isEqual(date) }
+            roomRepository.getRoomBookings(date).filter { it.bookedBy?.group?.groupId == firstClass.groupId && it.from.toLocalDate().isEqual(date) }
         ) else null
 
         val firstTeacherResult = if (firstTeacher != null) SearchResult(

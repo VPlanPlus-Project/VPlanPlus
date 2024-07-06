@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.RoomBooking
+import es.jvbabi.vplanplus.ui.common.unknownVppId
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.ZonedDateTime
@@ -62,7 +63,7 @@ fun SearchResultBooking(
                 Text(
                     text = when (resultType) {
                         ProfileType.TEACHER -> "?"
-                        ProfileType.ROOM -> booking.`class`.name
+                        ProfileType.ROOM -> booking.bookedBy?.group?.name ?: unknownVppId()
                         ProfileType.STUDENT -> booking.room.name
                     }, style = MaterialTheme.typography.titleMedium
                 )

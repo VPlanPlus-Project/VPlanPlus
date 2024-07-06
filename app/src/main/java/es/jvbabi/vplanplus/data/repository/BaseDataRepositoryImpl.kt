@@ -2,64 +2,20 @@ package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Holiday
-import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.XmlBaseData
 import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.model.xml.RoomBaseData
 import es.jvbabi.vplanplus.domain.model.xml.TeacherBaseData
 import es.jvbabi.vplanplus.domain.model.xml.WeekBaseData
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
-import es.jvbabi.vplanplus.domain.repository.GroupRepository
-import es.jvbabi.vplanplus.domain.repository.HolidayRepository
-import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
-import es.jvbabi.vplanplus.domain.repository.RoomRepository
-import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
-import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
-import es.jvbabi.vplanplus.util.DateUtils.toZonedDateTime
 import io.ktor.http.HttpStatusCode
 import java.time.LocalDate
 
 class BaseDataRepositoryImpl(
-    private val groupRepository: GroupRepository,
-    private val lessonTimeRepository: LessonTimeRepository,
-    private val holidayRepository: HolidayRepository,
-    private val roomRepository: RoomRepository,
-    private val teacherRepository: TeacherRepository,
     private val sp24NetworkRepository: Sp24NetworkRepository
 ) : BaseDataRepository {
-
-    override suspend fun processBaseData(schoolId: Int, baseData: XmlBaseData) {
-        groupRepository.deleteGroupsBySchoolId(schoolId)
-        /*groupRepository.insertGroup(schoolId, baseData.classNames)*/ // TODO
-        /*holidayRepository.replaceHolidays(baseData.holidays)*/ // TODO
-        baseData.lessonTimes.forEach { entry ->
-            val `class` = groupRepository.getGroupBySchoolAndName(schoolId, entry.key)!!
-            lessonTimeRepository.deleteLessonTimes(`class`)
-            entry.value.forEach { lessonTime ->
-                val from = "${lessonTime.value.first}:00".toZonedDateTime().atBeginningOfTheWorld()
-                val to = "${lessonTime.value.second}:00".toZonedDateTime().atBeginningOfTheWorld()
-                lessonTimeRepository.insertLessonTime(
-                    LessonTime(
-                        groupId = `class`.groupId,
-                        lessonNumber = lessonTime.key,
-                        from = (from.hour * 60L * 60L) + (from.minute * 60L),
-                        to = (to.hour * 60L * 60L) + (to.minute * 60L)
-                    )
-                )
-            }
-        }
-        if (baseData.roomNames != null) {
-            roomRepository.deleteRoomsBySchoolId(schoolId)
-            roomRepository.insertRoomsByName(schoolId, baseData.roomNames)
-        }
-
-        if (baseData.teacherShorts != null) {
-            teacherRepository.deleteTeachersBySchoolId(schoolId)
-            teacherRepository.insertTeachersByAcronym(schoolId, baseData.teacherShorts)
-        }
-    }
 
     override suspend fun getFullBaseData(
         sp24SchoolId: Int,

@@ -11,7 +11,6 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
@@ -251,7 +250,7 @@ class DoSyncUseCase(
 
         // lists to collect data for bulk insert
         val insertLessons = mutableListOf<DbLesson>()
-        val roomCrossovers = mutableListOf<Pair<UUID, UUID>>()
+        val roomCrossovers = mutableListOf<Pair<UUID, Int>>()
         val teacherCrossovers = mutableListOf<Pair<UUID, UUID>>()
 
         // get rooms and teachers
@@ -344,14 +343,7 @@ class DoSyncUseCase(
                     )
                 }
 
-                addRooms.forEach { room ->
-                    roomRepository.createRoom(
-                        room = Room(
-                            school = school,
-                            name = room
-                        )
-                    )
-                }
+                if (addRooms.isNotEmpty()) roomRepository.insertRoomsByName(school, addRooms)
 
                 if (addTeachers.isNotEmpty()) teachers =
                     teacherRepository.getTeachersBySchoolId(school.id)
@@ -443,14 +435,15 @@ class DoSyncUseCase(
         }
 
         lessonRepository.insertLessons(insertLessons)
-        lessonSchoolEntityCrossoverDao.insertCrossovers(
+        lessonSchoolEntityCrossoverDao.insertRoomCrossovers(
             roomCrossovers.map { crossover ->
                 Pair(crossover.first, crossover.second)
-            }.plus(
-                teacherCrossovers.map { crossover ->
-                    Pair(crossover.first, crossover.second)
-                }
-            )
+            }
+        )
+        lessonSchoolEntityCrossoverDao.insertTeacherCrossovers(
+            teacherCrossovers.map { crossover ->
+                Pair(crossover.first, crossover.second)
+            }
         )
 
         planRepository.createPlan(

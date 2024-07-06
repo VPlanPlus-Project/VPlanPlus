@@ -19,7 +19,7 @@ class GroupRepositoryImpl(
     override suspend fun insertGroup(schoolSp24Access: SchoolSp24Access, groupId: Int?, groupName: String, isClass: Boolean): Boolean {
         val id = groupId ?: run {
             vppIdNetworkRepository.authentication = schoolSp24Access.buildVppAuthentication()
-            val response = vppIdNetworkRepository.doRequest("/api/$API_VERSION/school/${schoolSp24Access.schoolId}/group/")
+            val response = vppIdNetworkRepository.doRequest("/api/$API_VERSION/school/${schoolSp24Access.schoolId}/group")
             if (response.response != HttpStatusCode.OK || response.data == null) return false
             val group = ResponseDataWrapper.fromJson<GroupInfoResponse>(response.data)
             group.groupId

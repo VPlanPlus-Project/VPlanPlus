@@ -79,7 +79,7 @@ class PlanRepositoryImpl(
             }
     }
 
-    override fun getDayForRoom(roomId: UUID, date: LocalDate, version: Long) = flow {
+    override fun getDayForRoom(roomId: Int, date: LocalDate, version: Long) = flow {
         val room = roomRepository.getRoomById(roomId)!!
         val school = room.school
 
@@ -112,7 +112,7 @@ class PlanRepositoryImpl(
         val dayType = holidayRepository.getDayType(school.id, date)
         val lessonsWithBookings = lessons?.map { lesson ->
             val booking = bookings.firstOrNull { roomBooking ->
-                roomBooking.`class` == lesson.`class` &&
+                roomBooking.bookedBy?.group == lesson.`class` &&
                         lesson.start.isEqual(roomBooking.from) &&
                         lesson.end.isEqual(roomBooking.to.plusSeconds(1)) &&
                         date == roomBooking.from.toLocalDate()

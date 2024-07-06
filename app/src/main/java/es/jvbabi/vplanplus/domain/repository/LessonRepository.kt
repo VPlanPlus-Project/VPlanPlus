@@ -10,7 +10,7 @@ import java.util.UUID
 interface LessonRepository {
     fun getLessonsForTeacher(teacherId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
     fun getLessonsForGroup(classId: Int, date: LocalDate, version: Long): Flow<List<Lesson>?>
-    fun getLessonsForRoom(roomId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
+    fun getLessonsForRoom(roomId: Int, date: LocalDate, version: Long): Flow<List<Lesson>?>
     fun getLessonsForSchoolByDate(schoolId: Int, date: LocalDate, version: Long): Flow<List<Lesson>>
     suspend fun getLessonsForProfile(profileId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
 

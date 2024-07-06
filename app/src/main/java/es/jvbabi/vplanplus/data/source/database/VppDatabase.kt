@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
+import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
@@ -28,7 +29,8 @@ import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeCon
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
-import es.jvbabi.vplanplus.data.source.database.crossover.LessonSchoolEntityCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
@@ -45,6 +47,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificatio
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
+import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
@@ -79,12 +82,14 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbDefaultLesson::class,
         DbPlanData::class,
         DbSchoolEntity::class,
+        DbRoom::class,
         DbGroup::class,
         Message::class,
         DbVppId::class,
         DbVppIdToken::class,
         DbRoomBooking::class,
-        LessonSchoolEntityCrossover::class,
+        LessonTeacherCrossover::class,
+        LessonRoomCrossover::class,
         DbProfileDefaultLesson::class,
         LogRecord::class,
 
@@ -99,7 +104,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 33,
+    version = 34,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -145,6 +150,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val vppIdDao: VppIdDao
     abstract val vppIdTokenDao: VppIdTokenDao
     abstract val roomBookingDao: RoomBookingDao
+    abstract val roomDao: RoomDao
 
     abstract val homeworkDao: HomeworkDao
     abstract val homeworkDocumentDao: HomeworkDocumentDao
