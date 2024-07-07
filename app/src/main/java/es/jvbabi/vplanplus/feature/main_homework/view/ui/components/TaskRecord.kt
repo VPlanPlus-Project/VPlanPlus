@@ -200,7 +200,11 @@ fun TaskRecord(
             else Text(
                 text = task,
                 style = MaterialTheme.typography.bodyMedium,
-                color = colorScheme.onSurface
+                color = blendColor(
+                    colorScheme.onSurface,
+                    colorScheme.onSurfaceVariant,
+                    loadingBlendValue
+                )
             )
         }
     }
