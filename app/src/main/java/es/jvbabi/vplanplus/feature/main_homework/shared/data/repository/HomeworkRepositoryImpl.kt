@@ -579,7 +579,7 @@ private data class HomeworkResponse(
 private data class HomeRecordTask @JvmOverloads constructor(
     @SerializedName("id") val id: Int,
     @SerializedName("description") val content: String,
-    @SerializedName("done") val done: Boolean? = null
+    @SerializedName("is_done") val done: Boolean? = null
 )
 
 private data class MarkDoneRequest(
