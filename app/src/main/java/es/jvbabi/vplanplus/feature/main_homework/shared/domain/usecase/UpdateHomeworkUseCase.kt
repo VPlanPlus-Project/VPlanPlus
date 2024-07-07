@@ -36,6 +36,11 @@ class UpdateHomeworkUseCase(
      * Updates the homework in the database.
      */
     suspend operator fun invoke(allowNotifications: Boolean = true): Boolean {
+        val stopUpdate: (withSuccess: Boolean) -> Boolean = { withSuccess ->
+            isUpdateRunning = false
+            withSuccess
+        }
+
         if (isUpdateRunning) return true
         isUpdateRunning = true
         val vppIds = vppIdRepository.getActiveVppIds().first()
@@ -52,7 +57,7 @@ class UpdateHomeworkUseCase(
         val existing = homeworkRepository.getAll().first().filterIsInstance<CloudHomework>()
 
         profiles.forEach { (group, vppId) ->
-            val new = (homeworkRepository.downloadHomework(vppId, group) ?: return false).filter { it.id !in homework.map { hw -> hw.homework.id } }
+            val new = (homeworkRepository.downloadHomework(vppId, group) ?: return stopUpdate(false)).filter { it.id !in homework.map { hw -> hw.homework.id } }
             Log.d("UpdateHomeworkUseCase", "New homework for group ${group.name} (${group.groupId}): ${new.size}")
             homework.addAll(new.map { homework ->
                 if (!homework.isPublic && vppId != null) AddHomeworkItem.PrivateHomework(vppId, homework)
@@ -125,13 +130,13 @@ class UpdateHomeworkUseCase(
 
         Log.d("UpdateHomeworkUseCase", "Homework updated")
 
-        if (!allowNotifications) return true
+        if (!allowNotifications) return stopUpdate(true)
 
         val notificationNewHomeworkItems = homework
             .filter { it.homework.id !in existing.map { hw -> hw.id } } // is new
             .filter { it.homework.createdBy.id !in vppIds.map { vppId -> vppId.id } } // is not created by current user
 
-        if (notificationNewHomeworkItems.isEmpty()) return true
+        if (notificationNewHomeworkItems.isEmpty()) return stopUpdate(true)
         if (notificationNewHomeworkItems.size == 1) { // detailed notification
             val notificationHomework = notificationNewHomeworkItems.first().homework
 
@@ -151,7 +156,7 @@ class UpdateHomeworkUseCase(
                 message = message,
                 onClickTask = OpenScreenTask(Screen.HomeworkDetailScreen.route + "/${notificationHomework.id}")
             )
-            return true
+            return stopUpdate(true)
         }
 
         val message = stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleContent, notificationNewHomeworkItems.size)
@@ -166,7 +171,7 @@ class UpdateHomeworkUseCase(
             onClickTask = OpenScreenTask(Screen.HomeworkScreen.route)
         )
 
-        return true
+        return stopUpdate(true)
     }
 }
 
