@@ -31,21 +31,18 @@ class HomeworkViewModel @Inject constructor(
             combine(
                 listOf(
                     homeworkUseCases.getHomeworkUseCase(),
-                    homeworkUseCases.isUpdateRunningUseCase(),
                     getCurrentProfileUseCase(),
                     homeworkUseCases.showHomeworkNotificationBannerUseCase()
                 )
             ) { data ->
                 val homework = data[0] as HomeworkResult
-                val isUpdateRunning = data[1] as Boolean
-                val profile = data[2] as Profile?
-                val showNotificationBanner = data[3] as Boolean
+                val profile = data[1] as Profile?
+                val showNotificationBanner = data[2] as Boolean
 
                 state.value.copy(
                     homework = homework.homework,
                     wrongProfile = homework.wrongProfile,
                     profile = profile,
-                    isUpdating = isUpdateRunning,
                     showNotificationBanner = showNotificationBanner
                 )
             }.collect {
@@ -193,7 +190,9 @@ class HomeworkViewModel @Inject constructor(
     fun refresh() {
         if (state.value.isUpdating) return
         viewModelScope.launch {
+            state.value = state.value.copy(isUpdating = true)
             homeworkUseCases.updateUseCase()
+            state.value = state.value.copy(isUpdating = false)
         }
     }
 

@@ -17,7 +17,6 @@ import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.GetHomework
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HideHomeworkNotificationBannerUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HideHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkUseCases
-import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.IsUpdateRunningUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.MarkAllDoneUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ShowHomeworkNotificationBannerUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.UpdateDueDateUseCase
@@ -71,7 +70,6 @@ object HomeworkViewModule {
                 homeworkRepository = homeworkRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase
             ),
-            isUpdateRunningUseCase = IsUpdateRunningUseCase(keyValueRepository),
             updateUseCase = UpdateUseCase(updateHomeworkUseCase),
             hideHomeworkUseCase = HideHomeworkUseCase(homeworkRepository),
             showHomeworkNotificationBannerUseCase = ShowHomeworkNotificationBannerUseCase(keyValueRepository),

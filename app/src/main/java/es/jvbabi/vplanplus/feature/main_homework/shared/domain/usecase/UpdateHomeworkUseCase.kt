@@ -29,10 +29,15 @@ class UpdateHomeworkUseCase(
     private val stringRepository: StringRepository
 ) {
 
+    var isUpdateRunning: Boolean = false
+        private set
+
     /**
      * Updates the homework in the database.
      */
     suspend operator fun invoke(allowNotifications: Boolean = true): Boolean {
+        if (isUpdateRunning) return true
+        isUpdateRunning = true
         val vppIds = vppIdRepository.getActiveVppIds().first()
         val profiles = profileRepository
             .getProfiles()
@@ -41,11 +46,14 @@ class UpdateHomeworkUseCase(
             .map { it.group to it.vppId }
             .distinct()
 
+        Log.d("UpdateHomeworkUseCase", "Updating homework for ${profiles.size} profiles")
+
         val homework = mutableListOf<AddHomeworkItem>()
         val existing = homeworkRepository.getAll().first().filterIsInstance<CloudHomework>()
 
         profiles.forEach { (group, vppId) ->
             val new = (homeworkRepository.downloadHomework(vppId, group) ?: return false).filter { it.id !in homework.map { hw -> hw.homework.id } }
+            Log.d("UpdateHomeworkUseCase", "New homework for group ${group.name} (${group.groupId}): ${new.size}")
             homework.addAll(new.map { homework ->
                 if (!homework.isPublic && vppId != null) AddHomeworkItem.PrivateHomework(vppId, homework)
                 else AddHomeworkItem.PublicHomework(homework)
@@ -79,6 +87,7 @@ class UpdateHomeworkUseCase(
 
             item.homework.documents.forEach forEachDocument@{ document ->
                 if (!fileRepository.exists("homework_documents", document.documentId.toString())) {
+                    Log.d("UpdateHomeworkUseCase", "Downloading document ${document.documentId}")
                     val content =
                         when (item) {
                             is AddHomeworkItem.PublicHomework -> homeworkRepository.downloadHomeworkDocument(null, item.homework.group, item.homework.id.toInt(), document.documentId)
@@ -100,6 +109,21 @@ class UpdateHomeworkUseCase(
                 fileRepository.deleteFile("homework_documents", document.documentId.toString())
             }
         }
+
+        val homeworkToDelete = existing.filter { it.id !in homework.map { hw -> hw.homework.id } }
+        Log.d("UpdateHomeworkUseCase", "Deleting ${homeworkToDelete.size} homework items")
+        homeworkToDelete.forEach { homeworkToDeleteItem ->
+            homeworkToDeleteItem.tasks.forEach { task ->
+                homeworkRepository.deleteTaskDb(task)
+            }
+            homeworkToDeleteItem.documents.forEach { document ->
+                homeworkRepository.deleteDocumentDb(document)
+                fileRepository.deleteFile("homework_documents", document.documentId.toString())
+            }
+            homeworkRepository.deleteHomeworkDb(homeworkToDeleteItem)
+        }
+
+        Log.d("UpdateHomeworkUseCase", "Homework updated")
 
         if (!allowNotifications) return true
 

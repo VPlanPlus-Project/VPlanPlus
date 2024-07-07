@@ -221,11 +221,9 @@ private fun HomeworkScreenContent(
                 if (state.isUpdating) pullRefreshState.startRefresh()
                 else pullRefreshState.endRefresh()
             }
-            if (pullRefreshState.isRefreshing) {
-                LaunchedEffect(key1 = Unit, block = {
-                    refresh()
-                })
-            }
+            LaunchedEffect(key1 = pullRefreshState.isRefreshing, block = {
+                if (pullRefreshState.isRefreshing) refresh()
+            })
 
             Box(
                 modifier = Modifier
