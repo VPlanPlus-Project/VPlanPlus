@@ -331,6 +331,7 @@ fun AddHomeworkSheetContent(
     }
 
     LaunchedEffect(key1 = Unit) {
+        if (state.showDocumentsBalloon || state.showVppIdStorageBalloon) return@LaunchedEffect
         try { focusRequester.requestFocus() } catch (_: IllegalStateException) {}
     }
 }
