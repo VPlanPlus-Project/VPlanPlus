@@ -250,6 +250,7 @@ private fun HomeworkDetailScreenContent(
             Spacer8Dp()
             Documents(
                 documents = state.homework?.documents ?: emptyList(),
+                changedDocuments = state.editedDocuments,
                 newDocuments = state.newDocuments,
                 markedAsRemoveIds = state.documentsToDelete.map { it.documentId },
                 isEditing = state.isEditing && state.canEditOrigin,

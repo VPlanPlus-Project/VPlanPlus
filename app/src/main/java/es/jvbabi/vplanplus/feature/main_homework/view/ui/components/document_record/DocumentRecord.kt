@@ -44,6 +44,9 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -62,6 +65,7 @@ import okio.FileNotFoundException
 fun DocumentRecord(
     uri: Uri?,
     name: String?,
+    newName: String? = null,
     type: HomeworkDocumentType,
     progress: Float? = null,
     isEditing: Boolean,
@@ -161,12 +165,23 @@ fun DocumentRecord(
         AnimatedVisibility(visible = !isLoading) {
             Box(modifier = Modifier.fillMaxWidth()) {
                 Column(Modifier.align(Alignment.CenterStart)) {
-                    if (name != null) Text(
-                        text = name,
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    if (name != null) {
+                        if (newName != null) {
+                            Text(
+                                text = newName,
+                                style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                        val nameStyle = if (newName == null) MaterialTheme.typography.labelLarge else MaterialTheme.typography.labelLarge.copy(textDecoration = TextDecoration.LineThrough, fontWeight = FontWeight.Light, fontStyle = FontStyle.Italic)
+                        Text(
+                            text = name,
+                            style = nameStyle,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    }
                     if (type == HomeworkDocumentType.PDF) Text(
                         text = pluralStringResource(id = R.plurals.homework_detailViewDocumentPages, count = pageCount, pageCount),
                         style = MaterialTheme.typography.labelMedium
@@ -214,11 +229,11 @@ fun DocumentRecord(
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordPreview() {
-    DocumentRecord(null, null, HomeworkDocumentType.PDF, 0.3f, false)
+    DocumentRecord(null, null, null, HomeworkDocumentType.PDF, 0.3f, false)
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordEditingPreview() {
-    DocumentRecord(null, "A file", HomeworkDocumentType.PDF, null, true)
+    DocumentRecord(null, "A file", null, HomeworkDocumentType.PDF, null, true)
 }

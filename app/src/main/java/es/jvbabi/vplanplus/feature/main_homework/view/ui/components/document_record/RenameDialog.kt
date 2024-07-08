@@ -19,11 +19,17 @@ fun RenameDialog(
     onDismiss: () -> Unit = {},
 ) {
     val name by rememberSaveable(currentValue) {
-        mutableStateOf(currentValue?.split(".")?.dropLast(1)?.joinToString(".") ?: "")
+        mutableStateOf(
+            if ("." !in currentValue.orEmpty()) currentValue.orEmpty()
+            else currentValue?.split(".")?.dropLast(1)?.joinToString(".") ?: ""
+        )
     }
 
     val extension by rememberSaveable(currentValue) {
-        mutableStateOf(currentValue?.split(".")?.lastOrNull() ?: "")
+        mutableStateOf(
+            if ("." !in currentValue.orEmpty()) ""
+            else currentValue?.split(".")?.lastOrNull() ?: ""
+        )
     }
     InputDialog(
         icon = Icons.Default.Edit,
@@ -35,7 +41,7 @@ fun RenameDialog(
         message = stringResource(id = R.string.homework_detailViewEditRenameDialogMessage),
         onOk = {
             if (it.isNullOrBlank()) onDismiss()
-            else onOk(it)
+            else onOk("$it.$extension")
         }
     )
 }

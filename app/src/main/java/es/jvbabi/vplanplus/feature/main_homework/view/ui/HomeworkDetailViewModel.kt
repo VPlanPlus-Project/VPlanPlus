@@ -129,7 +129,11 @@ class HomeworkDetailViewModel @Inject constructor(
 
                 is RenameDocumentAction -> {
                     state = when (action.document) {
-                        is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments + (action.document to null), hasEdited = true)
+                        is DocumentUpdate.NewDocument -> {
+                            val newDocumentItem = state.newDocuments.toList().indexOfFirst { it.first.uri == action.document.uri }
+                            val newList = if(newDocumentItem == -1) state.newDocuments + (action.document to null) else state.newDocuments.toList().mapIndexed { index, pair -> if (index == newDocumentItem) action.document to pair.second else pair }.toMap()
+                            state.copy(newDocuments = newList, hasEdited = true)
+                        }
                         is DocumentUpdate.EditedDocument -> {
                             if (state.editedDocuments.none { it.uri == action.document.uri }) state.copy(editedDocuments = state.editedDocuments + action.document, hasEdited = true)
                             else state.copy(editedDocuments = state.editedDocuments.map { if (it.uri == action.document.uri) action.document else it }, hasEdited = true)

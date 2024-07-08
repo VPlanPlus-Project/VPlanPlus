@@ -29,8 +29,7 @@ class UpdateHomeworkUseCase(
     private val stringRepository: StringRepository
 ) {
 
-    var isUpdateRunning: Boolean = false
-        private set
+    private var isUpdateRunning: Boolean = false
 
     /**
      * Updates the homework in the database.
@@ -91,6 +90,12 @@ class UpdateHomeworkUseCase(
             }
 
             item.homework.documents.forEach forEachDocument@{ document ->
+                homeworkRepository.addDocumentDb(
+                    documentId = document.documentId,
+                    homeworkId = item.homework.id.toInt(),
+                    type = document.type,
+                    name = document.name ?: "Untitled"
+                )
                 if (!fileRepository.exists("homework_documents", document.documentId.toString())) {
                     Log.d("UpdateHomeworkUseCase", "Downloading document ${document.documentId}")
                     val content =
@@ -99,12 +104,6 @@ class UpdateHomeworkUseCase(
                             is AddHomeworkItem.PrivateHomework -> homeworkRepository.downloadHomeworkDocument(item.vppId, item.homework.group, item.homework.id.toInt(), document.documentId)
                         } ?: return@forEachDocument
                     fileRepository.writeBytes("homework_documents", document.documentId.toString(), content)
-                    homeworkRepository.addDocumentDb(
-                        documentId = document.documentId,
-                        homeworkId = item.homework.id.toInt(),
-                        type = document.type,
-                        name = document.name ?: "Untitled"
-                    )
                 }
             }
 
