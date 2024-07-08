@@ -16,20 +16,26 @@ import androidx.compose.material.icons.filled.Repeat
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
@@ -156,30 +162,43 @@ fun InputDialog(
     message: String? = null,
     placeholder: String? = null,
     value: String? = null,
+    postfixText: String? = null,
+    selectContent: Boolean = false,
     onOk: (String?) -> Unit = {},
 ) {
-    var input by remember { mutableStateOf(value ?: "") }
     Box(
         modifier = Modifier
             .fillMaxSize()
     ) {
+        var text by remember {
+            val textRange = if (selectContent) TextRange(0, value?.length ?: 0) else TextRange(value?.length ?: 0)
+            mutableStateOf(TextFieldValue(text = value ?: "", selection = textRange))
+        }
+        val focusRequester = remember { FocusRequester() }
         AlertDialog(
             title = { if (title != null) Text(text = title) },
             text = {
                 Column {
                     if (message != null) Text(text = message)
                     TextField(
-                        value = input,
-                        onValueChange = { input = it },
+                        value = text,
+                        onValueChange = { text = it },
                         placeholder = { if (placeholder != null) Text(text = placeholder) },
-                        modifier = Modifier.padding(top = 16.dp)
+                        trailingIcon = {
+                            RowVerticalCenter {
+                                if (postfixText != null) Text(text = postfixText, color = MaterialTheme.colorScheme.outlineVariant)
+                            }
+                        },
+                        modifier = Modifier
+                            .padding(top = 16.dp)
+                            .focusRequester(focusRequester)
                     )
                 }
             },
             icon = { Icon(imageVector = icon, contentDescription = null) },
             onDismissRequest = { onOk(null) },
             confirmButton = {
-                TextButton(onClick = { onOk(input) }) {
+                TextButton(onClick = { onOk(text.text) }) {
                     Text(text = stringResource(id = android.R.string.ok))
                 }
             },
@@ -189,6 +208,7 @@ fun InputDialog(
                 }
             },
         )
+        LaunchedEffect(key1 = Unit) { focusRequester.requestFocus() }
     }
 }
 
