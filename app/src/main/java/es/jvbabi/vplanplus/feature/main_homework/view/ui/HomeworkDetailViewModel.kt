@@ -41,7 +41,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 state.copy(
                     homework = homework,
                     currentProfile = profile,
-                    canEdit = (profile as? ClassProfile)?.let { homework is LocalHomework || (homework is CloudHomework && homework.createdBy == it.vppId) } ?: false
+                    canEditOrigin = (profile as? ClassProfile)?.let { homework is LocalHomework || (homework is CloudHomework && homework.createdBy == it.vppId) } ?: false
                 )
             }.collect {
                 state = it
@@ -59,7 +59,8 @@ class HomeworkDetailViewModel @Inject constructor(
             newDocuments = emptyMap(),
             editedDocuments = emptyList(),
             documentsToDelete = emptyList(),
-            hasEdited = false
+            hasEdited = false,
+            editVisibility = null
         )
     }
 
@@ -71,7 +72,10 @@ class HomeworkDetailViewModel @Inject constructor(
                 is ExitEditModeAction -> {
                     if (action is ExitAndSaveHomeworkAction) {
                         state = state.copy(isLoading = true)
+                        val homework = state.homework
+                        val editVisibility = state.editVisibility
                         if (state.editDueDate != null) homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, state.editDueDate!!)
+                        if (editVisibility != null && homework is CloudHomework) homeworkDetailUseCases.updateHomeworkVisibilityUseCase(homework, editVisibility)
 
                         val changeDocuments = state.documentsToDelete.isNotEmpty() || state.newDocuments.isNotEmpty() || state.editedDocuments.isNotEmpty()
                         if (changeDocuments) homeworkDetailUseCases.updateDocumentsUseCase(
@@ -91,6 +95,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 }
 
                 is UpdateDueDateAction -> state = state.copy(editDueDate = action.date, hasEdited = true)
+                is ChangeVisibilityAction -> state = state.copy(editVisibility = action.isPublicOrVisible, hasEdited = true)
                 is AddTaskAction -> {
                     val newTask = NewTask(content = action.newTask.content)
                     state = state.copy(newTasks = state.newTasks + newTask, hasEdited = true)
@@ -152,13 +157,17 @@ class HomeworkDetailViewModel @Inject constructor(
 data class HomeworkDetailState(
     val homework: Homework? = null,
     val currentProfile: Profile? = null,
-    val canEdit: Boolean = false,
+    val canEditOrigin: Boolean = false,
 
 
     val isEditing: Boolean = false,
     val isLoading: Boolean = false,
     val hasEdited: Boolean = false,
     val editDueDate: LocalDate? = null,
+    /**
+     * Null if nothing should be changed, true if the homework should become public or visible, false if it should be hidden or private
+     */
+    val editVisibility: Boolean? = null,
 
     val tasksToDelete: List<HomeworkTask> = emptyList(),
     val newTasks: List<NewTask> = emptyList(),
@@ -177,6 +186,7 @@ sealed class ExitEditModeAction : UiAction()
 data object ExitAndSaveHomeworkAction : ExitEditModeAction()
 data object ExitAndDiscardChangesAction : ExitEditModeAction()
 data class UpdateDueDateAction(val date: LocalDate) : UiAction()
+data class ChangeVisibilityAction(val isPublicOrVisible: Boolean) : UiAction()
 data class DeleteTaskAction(val task: TaskUpdate) : UiAction()
 data class UpdateTaskContentAction(val task: TaskUpdate) : UiAction()
 

@@ -571,7 +571,7 @@ private data class HomeworkResponse(
     @SerializedName("due_to") val until: Long,
     @SerializedName("created_by") val createdBy: Long,
     @SerializedName("created_at") val createdAt: Long,
-    @SerializedName("public") val shareWithClass: Boolean,
+    @SerializedName("is_public") val shareWithClass: Boolean,
     @SerializedName("tasks") val tasks: List<HomeRecordTask>,
     @SerializedName("documents") val documentIds: List<Int>
 )

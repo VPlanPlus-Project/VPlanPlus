@@ -707,7 +707,7 @@
     <string name="homework_detailViewVisibilityPublic">Mit Klasse geteilt</string>
     <string name="homework_detailViewVisibilityPrivate">Privat</string>
     <string name="homework_detailViewVisibilityHidden">Ausgeblendet</string>
-    <string name="homework_detailViewVisibilityLocal">Lokal</string>
+    <string name="homework_detailViewVisibilityVisible">Eingeblendet</string>
     <string name="homework_detailViewVisibilityLocalSheetTitle">Sichtbarkeit</string>
     <string name="homework_detailViewVisibilityLocalSheetHide">Ausgeblendet</string>
     <string name="homework_detailViewVisibilityLocalSheetShow">Eingeblendet</string>

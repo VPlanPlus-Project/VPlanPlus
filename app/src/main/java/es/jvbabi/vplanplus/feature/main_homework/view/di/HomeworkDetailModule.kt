@@ -15,6 +15,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTas
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.GetHomeworkByIdUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.UpdateDocumentsUseCase
+import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.UpdateHomeworkVisibilityUseCase
 import javax.inject.Singleton
 
 @Module
@@ -36,6 +37,7 @@ object HomeworkDetailModule {
         deleteHomeworkTaskUseCase = DeleteHomeworkTaskUseCase(homeworkRepository, getCurrentProfileUseCase),
         editTaskUseCase = EditTaskUseCase(homeworkRepository, getCurrentProfileUseCase),
         addTaskUseCase = AddTaskUseCase(homeworkRepository, getCurrentProfileUseCase),
+        updateHomeworkVisibilityUseCase = UpdateHomeworkVisibilityUseCase(homeworkRepository, getCurrentProfileUseCase),
         updateDocumentsUseCase = UpdateDocumentsUseCase(homeworkRepository, fileRepository, getCurrentProfileUseCase)
     )
 }

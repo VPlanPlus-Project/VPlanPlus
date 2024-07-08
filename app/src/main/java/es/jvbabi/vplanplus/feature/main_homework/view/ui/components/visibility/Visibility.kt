@@ -12,8 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cloud
-import androidx.compose.material.icons.filled.PhoneAndroid
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -30,47 +30,48 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.BigCard
-import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
-import es.jvbabi.vplanplus.ui.preview.GroupPreview
-import es.jvbabi.vplanplus.ui.preview.ProfilePreview
-import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.util.blendColor
 import es.jvbabi.vplanplus.util.toTransparent
-import java.time.ZonedDateTime
 
+/**
+ * A card that displays the visibility of a [Homework].
+ * @param isEditModeActive Whether the user is currently in edit mode.
+ * @param isCurrentlyVisibleOrPublic Whether the [Homework] is currently visible or public.
+ * @param willBeVisibleOrPublic Whether the [Homework] will be visible or public after applying changes made in edit mode.
+ * @param canModifyOrigin Whether the user can modify the sharing status or just the local visibility.
+ * @param onChangeVisibility A callback that is called when the visibility is changed during edit mode.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RowScope.VisibilityCard(
     isEditModeActive: Boolean,
-    homework: Homework,
-    isOwner: Boolean = false
+    isCurrentlyVisibleOrPublic: Boolean,
+    willBeVisibleOrPublic: Boolean? = null,
+    canModifyOrigin: Boolean = false,
+    onChangeVisibility: (isPublicOrVisible: Boolean) -> Unit
 ) {
-    val isLocal = homework is LocalHomework
     val blendValue =
-        animateFloatAsState(targetValue = if (isEditModeActive && !isLocal) 1f else 0f, label = "blendValue")
+        animateFloatAsState(targetValue = if (isEditModeActive) 1f else 0f, label = "blendValue")
     val color = blendColor(
         MaterialTheme.colorScheme.surfaceVariant.toTransparent(),
         MaterialTheme.colorScheme.surfaceVariant,
         blendValue.value
     )
 
+    val displayIsPublicOrShared = if (isEditModeActive) willBeVisibleOrPublic ?: isCurrentlyVisibleOrPublic else isCurrentlyVisibleOrPublic
+
     val sheetState = rememberModalBottomSheetStateWithoutFullExpansion()
     var isSheetVisible by rememberSaveable { mutableStateOf(false) }
     if (isSheetVisible) Sheet(
         sheetState = sheetState,
         onDismiss = { isSheetVisible = false },
-        isOwner = isOwner,
-        isShownOrShared = when (homework) {
-            is CloudHomework -> if (isOwner) homework.isPublic else !homework.isHidden
-            else -> false
-        },
-        onShowOrShare = { /*TODO*/ },
-        onHideOrPrivate = { /*TODO*/ }
+        isOwner = canModifyOrigin,
+        isShownOrShared = displayIsPublicOrShared,
+        onShowOrShare = { onChangeVisibility(true) },
+        onHideOrPrivate = { onChangeVisibility(false) }
     )
 
     Box(
@@ -79,7 +80,7 @@ fun RowScope.VisibilityCard(
             .weight(1f, true)
             .clip(RoundedCornerShape(8.dp))
             .background(color)
-            .then(if (isEditModeActive && !isLocal) Modifier.clickable { isSheetVisible = true } else Modifier)
+            .then(if (isEditModeActive) Modifier.clickable { isSheetVisible = true } else Modifier)
             .padding(8.dp),
         contentAlignment = Alignment.CenterStart
     ) {
@@ -87,18 +88,14 @@ fun RowScope.VisibilityCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .scale(1f - (0.1f * blendValue.value)),
-            icon = when (homework) {
-                is CloudHomework -> if (homework.isHidden) Icons.Default.VisibilityOff else if (homework.isPublic) Icons.Default.Share else Icons.Default.Cloud
-                else -> Icons.Default.PhoneAndroid
+            icon = when (canModifyOrigin) {
+                true -> if (displayIsPublicOrShared) Icons.Default.Share else Icons.Default.Cloud
+                false -> if (displayIsPublicOrShared) Icons.Default.Visibility else Icons.Default.VisibilityOff
             },
             title = stringResource(id = R.string.homework_detailViewVisibility),
-            subtitle = when (homework) {
-                is CloudHomework ->
-                    if (homework.isPublic) {
-                        stringResource(id = R.string.homework_detailViewVisibilityPublic) + if (homework.isHidden) " $DOT " + stringResource(id = R.string.homework_detailViewVisibilityHidden) else ""
-                    }
-                    else stringResource(id = R.string.homework_detailViewVisibilityPrivate)
-                else -> stringResource(id = R.string.homework_detailViewVisibilityLocal)
+            subtitle = when (canModifyOrigin) {
+                true -> if (displayIsPublicOrShared) stringResource(id = R.string.homework_detailViewVisibilityPublic) else stringResource(id = R.string.homework_detailViewVisibilityPrivate)
+                false -> if (displayIsPublicOrShared) stringResource(id = R.string.homework_detailViewVisibilityVisible) else stringResource(id = R.string.homework_detailViewVisibilityHidden)
             }
         )
     }
@@ -107,24 +104,12 @@ fun RowScope.VisibilityCard(
 @Composable
 @Preview
 fun VisibilityCardPrivatePreview() {
-    val group = GroupPreview.generateGroup()
-    val creator = VppIdPreview.generateVppId(group)
     Row {
         VisibilityCard(
             isEditModeActive = true,
-            homework = CloudHomework(
-                id = 1,
-                group = group,
-                until = ZonedDateTime.now(),
-                documents = emptyList(),
-                createdAt = ZonedDateTime.now(),
-                isPublic = false,
-                isHidden = false,
-                defaultLesson = null,
-                createdBy = creator,
-                tasks = emptyList()
-            ),
-            isOwner = true
+            isCurrentlyVisibleOrPublic = false,
+            willBeVisibleOrPublic = false,
+            onChangeVisibility = {}
         )
     }
 }
@@ -132,24 +117,12 @@ fun VisibilityCardPrivatePreview() {
 @Composable
 @Preview(showBackground = true)
 fun VisibilityCardPublicPreview() {
-    val group = GroupPreview.generateGroup()
-    val creator = VppIdPreview.generateVppId(group)
     Row {
         VisibilityCard(
             isEditModeActive = false,
-            homework = CloudHomework(
-                id = 1,
-                group = group,
-                until = ZonedDateTime.now(),
-                documents = emptyList(),
-                createdAt = ZonedDateTime.now(),
-                isPublic = true,
-                isHidden = false,
-                defaultLesson = null,
-                createdBy = creator,
-                tasks = emptyList()
-            ),
-            isOwner = true
+            isCurrentlyVisibleOrPublic = true,
+            willBeVisibleOrPublic = null,
+            onChangeVisibility = {}
         )
     }
 }
@@ -157,24 +130,12 @@ fun VisibilityCardPublicPreview() {
 @Composable
 @Preview(showBackground = true)
 fun VisibilityCardPublicHiddenPreview() {
-    val group = GroupPreview.generateGroup()
-    val creator = VppIdPreview.generateVppId(group)
     Row {
         VisibilityCard(
             isEditModeActive = false,
-            homework = CloudHomework(
-                id = 1,
-                group = group,
-                until = ZonedDateTime.now(),
-                documents = emptyList(),
-                createdAt = ZonedDateTime.now(),
-                isPublic = true,
-                isHidden = true,
-                defaultLesson = null,
-                createdBy = creator,
-                tasks = emptyList()
-            ),
-            isOwner = true
+            isCurrentlyVisibleOrPublic = true,
+            willBeVisibleOrPublic = false,
+            onChangeVisibility = {}
         )
     }
 }
@@ -182,22 +143,12 @@ fun VisibilityCardPublicHiddenPreview() {
 @Composable
 @Preview(showBackground = true)
 fun VisibilityCardLocalPreview() {
-    val group = GroupPreview.generateGroup()
-    val creator = ProfilePreview.generateClassProfile(group)
     Row {
         VisibilityCard(
             isEditModeActive = false,
-            homework = LocalHomework(
-                id = 1,
-                group = group,
-                until = ZonedDateTime.now(),
-                documents = emptyList(),
-                createdAt = ZonedDateTime.now(),
-                defaultLesson = null,
-                tasks = emptyList(),
-                profile = creator
-            ),
-            isOwner = false
+            isCurrentlyVisibleOrPublic = false,
+            willBeVisibleOrPublic = null,
+            onChangeVisibility = {}
         )
     }
 }

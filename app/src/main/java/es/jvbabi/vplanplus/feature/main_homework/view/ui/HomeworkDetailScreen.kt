@@ -143,13 +143,11 @@ private fun HomeworkDetailScreenContent(
                         title = { Text(stringResource(id = R.string.homework_detailViewTitle)) },
                         navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
                         actions = {
-                            if (state.canEdit) {
-                                IconButton(onClick = { onAction(StartEditModeAction) }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Edit,
-                                        contentDescription = stringResource(id = R.string.homework_detailViewEditTitle)
-                                    )
-                                }
+                            IconButton(onClick = { onAction(StartEditModeAction) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Edit,
+                                    contentDescription = stringResource(id = R.string.homework_detailViewEditTitle)
+                                )
                             }
                         },
                         scrollBehavior = scrollBehavior
@@ -224,21 +222,23 @@ private fun HomeworkDetailScreenContent(
                     until = (if (state.isEditing) state.editDueDate else null)
                         ?: state.homework?.until?.toLocalDate(),
                     onUpdateDueDate = { onAction(UpdateDueDateAction(it)) },
-                    isEditModeActive = state.isEditing
+                    isEditModeActive = state.isEditing && state.canEditOrigin
                 )
             }
             RowVerticalCenter(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                if (state.homework == null) return@RowVerticalCenter
+                if (state.homework == null || state.homework !is CloudHomework) return@RowVerticalCenter
                 VisibilityCard(
                     isEditModeActive = state.isEditing,
-                    homework = state.homework,
-                    isOwner = state.canEdit, // todo allow editing for non-owners (visibility)
+                    isCurrentlyVisibleOrPublic = (state.canEditOrigin && state.homework.isPublic) || (!state.canEditOrigin && !state.homework.isHidden),
+                    willBeVisibleOrPublic = state.editVisibility,
+                    canModifyOrigin = state.canEditOrigin,
+                    onChangeVisibility = { onAction(ChangeVisibilityAction(it)) }
                 )
             }
             HorizontalDivider(Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             Tasks(
                 tasks = state.homework?.tasks ?: emptyList(),
-                isEditing = state.isEditing,
+                isEditing = state.isEditing && state.canEditOrigin,
                 newTasks = state.newTasks,
                 editTasks = state.editedTasks,
                 deletedTasks = state.tasksToDelete,
@@ -252,7 +252,7 @@ private fun HomeworkDetailScreenContent(
                 documents = state.homework?.documents ?: emptyList(),
                 newDocuments = state.newDocuments,
                 markedAsRemoveIds = state.documentsToDelete.map { it.documentId },
-                isEditing = state.isEditing,
+                isEditing = state.isEditing && state.canEditOrigin,
                 onRename = { onAction(RenameDocumentAction(it)) },
                 onRemove = { onAction(DeleteDocumentAction(it)) },
                 onPickPhotoClicked = onPickPhotoClicked,
@@ -295,7 +295,7 @@ fun HomeworkDetailScreenPreview() {
                 isHidden = false,
                 isPublic = true
             ),
-            canEdit = true,
+            canEditOrigin = true,
             isEditing = true,
             isLoading = true,
         )

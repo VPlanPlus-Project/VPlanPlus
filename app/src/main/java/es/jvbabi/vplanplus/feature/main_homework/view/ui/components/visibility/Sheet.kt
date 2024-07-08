@@ -34,8 +34,8 @@ fun Sheet(
         onDismissRequest = onDismiss
     ) {
         Column(Modifier.padding(16.dp)) {
-            if (isOwner) OwnCloudHomeworkSheetContent(isShownOrShared, { onDoAction(onShowOrShare) }, { onDoAction(onHideOrPrivate) })
-            else ForeignCloudHomeworkSheetContent(!isShownOrShared, { onDoAction(onHideOrPrivate) }, { onDoAction(onShowOrShare) })
+            if (isOwner) OwnCloudHomeworkSheetContent(isShownOrShared, { onDoAction(onShowOrShare); onDismiss() }, { onDoAction(onHideOrPrivate); onDismiss() })
+            else ForeignCloudHomeworkSheetContent(!isShownOrShared, { onDoAction(onHideOrPrivate); onDismiss() }, { onDoAction(onShowOrShare); onDismiss() })
         }
     }
 }

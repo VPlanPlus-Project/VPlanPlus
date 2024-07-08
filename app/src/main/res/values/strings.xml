@@ -710,7 +710,7 @@
     <string name="homework_detailViewVisibilityPublic">Shared with class</string>
     <string name="homework_detailViewVisibilityPrivate">Private</string>
     <string name="homework_detailViewVisibilityHidden">Hidden</string>
-    <string name="homework_detailViewVisibilityLocal">Local</string>
+    <string name="homework_detailViewVisibilityVisible">Visible</string>
     <string name="homework_detailViewVisibilityLocalSheetTitle">Local visibility</string>
     <string name="homework_detailViewVisibilityLocalSheetHide">Hidden</string>
     <string name="homework_detailViewVisibilityLocalSheetShow">Visible</string>
