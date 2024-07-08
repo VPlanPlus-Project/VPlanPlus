@@ -48,14 +48,14 @@ class UpdateDocumentsUseCase(
                 name = newDocument.name,
                 type = HomeworkDocumentType.fromExtension(newDocument.extension),
             )
-            fileRepository.writeBytes("homework_documents", documentId.toString(), content)
+            fileRepository.writeBytes("homework_documents", "$documentId.${newDocument.extension}", content)
         }
         documentsToDelete.forEach { document ->
             if (homework is CloudHomework && vppId != null) {
                 homeworkRepository.deleteDocumentCloud(vppId, document).value ?: return@forEach
             }
             homeworkRepository.deleteDocumentDb(document)
-            fileRepository.deleteFile("homework_documents", document.documentId.toString())
+            fileRepository.deleteFile("homework_documents", "${document.documentId}.${document.type.extension}")
         }
         editedDocuments.forEach { editedDocument ->
             val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().toInt()) ?: return@forEach

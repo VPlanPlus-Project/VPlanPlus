@@ -224,7 +224,7 @@ class HomeworkRepositoryImpl(
                         onDocumentUploadProgressChanges(document.uri, (bytesSentTotal.toFloat() / binary.size).run { if (this.isNaN()) return@run 0f else this })
                     }) ?: return@document
                 } else findLocalDocumentId() - 1
-            val outputFile = File(folder, "$documentId")
+            val outputFile = File(folder, "$documentId.${document.extension}")
             val outputStream = FileOutputStream(outputFile)
             outputStream.write(binary)
 

@@ -18,7 +18,7 @@ class DeleteHomeworkUseCase(
     suspend operator fun invoke(homework: Homework): HomeworkModificationResult {
         val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return HomeworkModificationResult.FAILED
         homework.documents.forEach { document ->
-            fileRepository.deleteFile("homework_documents", document.documentId.toString())
+            fileRepository.deleteFile("homework_documents", "${document.documentId}.${document.type.extension}")
         }
         if (homework is CloudHomework && profile.vppId != null) {
             homeworkRepository.deleteHomeworkCloud(profile.vppId, homework).value ?: return HomeworkModificationResult.FAILED

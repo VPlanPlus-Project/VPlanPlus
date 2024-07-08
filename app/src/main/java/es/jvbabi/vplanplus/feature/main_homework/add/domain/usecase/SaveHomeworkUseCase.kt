@@ -87,7 +87,7 @@ class SaveHomeworkUseCase(
                 name = name,
                 type = type
             )
-            fileRepository.writeBytes("homework_documents", documentId.toString(), content)
+            fileRepository.writeBytes("homework_documents", "$documentId.${type.extension}", content)
         }
 
         return if (storeInCloud) HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE else HomeworkModificationResult.SUCCESS_OFFLINE

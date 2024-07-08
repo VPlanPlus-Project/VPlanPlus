@@ -96,21 +96,21 @@ class UpdateHomeworkUseCase(
                     type = document.type,
                     name = document.name ?: "Untitled"
                 )
-                if (!fileRepository.exists("homework_documents", document.documentId.toString())) {
+                if (!fileRepository.exists("homework_documents", "${document.documentId}.${document.type.extension}")) {
                     Log.d("UpdateHomeworkUseCase", "Downloading document ${document.documentId}")
                     val content =
                         when (item) {
                             is AddHomeworkItem.PublicHomework -> homeworkRepository.downloadHomeworkDocument(null, item.homework.group, item.homework.id.toInt(), document.documentId)
                             is AddHomeworkItem.PrivateHomework -> homeworkRepository.downloadHomeworkDocument(item.vppId, item.homework.group, item.homework.id.toInt(), document.documentId)
                         } ?: return@forEachDocument
-                    fileRepository.writeBytes("homework_documents", document.documentId.toString(), content)
+                    fileRepository.writeBytes("homework_documents", "${document.documentId}.${document.type.extension}", content)
                 }
             }
 
             val documentsToDelete = existingItem?.documents.orEmpty().filter { document -> item.homework.documents.none { it.documentId == document.documentId } }
             documentsToDelete.forEach { document ->
                 homeworkRepository.deleteDocumentDb(document)
-                fileRepository.deleteFile("homework_documents", document.documentId.toString())
+                fileRepository.deleteFile("homework_documents", "${document.documentId}.${document.type.extension}")
             }
         }
 
@@ -122,7 +122,7 @@ class UpdateHomeworkUseCase(
             }
             homeworkToDeleteItem.documents.forEach { document ->
                 homeworkRepository.deleteDocumentDb(document)
-                fileRepository.deleteFile("homework_documents", document.documentId.toString())
+                fileRepository.deleteFile("homework_documents", "${document.documentId}.${document.type.extension}")
             }
             homeworkRepository.deleteHomeworkDb(homeworkToDeleteItem)
         }
