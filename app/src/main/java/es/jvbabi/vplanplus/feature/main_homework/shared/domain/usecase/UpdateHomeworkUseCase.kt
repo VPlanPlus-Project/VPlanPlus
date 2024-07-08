@@ -68,7 +68,7 @@ class UpdateHomeworkUseCase(
             val existingItem = existing.find { it.id == item.homework.id }
             homeworkRepository.addHomeworkDb(
                 homeworkId = item.homework.id.toInt(),
-                isHidden = item.homework.isHidden, // todo
+                isHidden = vppIds.none { it.id == item.homework.createdBy.id } && item.homework.isOverdue(LocalDate.now()) && existingItem == null,
                 createdAt = item.homework.createdAt,
                 vppId = item.homework.createdBy,
                 isPublic = item.homework.isPublic,

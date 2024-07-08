@@ -231,7 +231,7 @@ class HomeworkRepositoryImpl(
             inputStream.close()
             outputStream.close()
 
-            homeworkDocumentDao.insertHomeworkDocument(DbHomeworkDocument(documentId, document.name, document.extension, homeworkId))
+            homeworkDocumentDao.upsertHomeworkDocument(DbHomeworkDocument(documentId, document.name, document.extension, homeworkId))
         }
 
         if (storeInCloud) return HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE
@@ -340,7 +340,7 @@ class HomeworkRepositoryImpl(
 
     override suspend fun addDocumentDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId {
         val id = documentId ?: (findLocalDocumentId() - 1)
-        homeworkDocumentDao.insertHomeworkDocument(
+        homeworkDocumentDao.upsertHomeworkDocument(
             DbHomeworkDocument(
                 id,
                 fileName = name,
