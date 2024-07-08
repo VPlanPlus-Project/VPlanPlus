@@ -147,7 +147,7 @@ fun AddHomeworkSheetContent(
         skipPartiallyExpanded = true,
         confirmValueChange = { it != SheetValue.PartiallyExpanded }
     )
-    if (isSaveLocationModalOpen) StoreSaveModal(
+    if (isSaveLocationModalOpen && state.saveType != null) StoreSaveModal(
         sheetState = saveLocationModalSheetState,
         currentState = state.saveType,
         onSubmit = { viewModel.onUiAction(UpdateSaveType(it)) },
@@ -261,8 +261,10 @@ fun AddHomeworkSheetContent(
                                 SaveType.LOCAL -> stringResource(id = R.string.addHomework_saveThisDevice)
                                 SaveType.CLOUD -> stringResource(id = R.string.addHomework_saveVppId)
                                 SaveType.SHARED -> stringResource(id = R.string.addHomework_saveVppIdSharedTitle)
+                                null -> ""
                             }) },
                             leadingIcon = {
+                                if (state.saveType == null) return@AssistChip
                                 Icon(imageVector = when (state.saveType) {
                                     SaveType.LOCAL -> Icons.Default.PhoneAndroid
                                     SaveType.CLOUD -> Icons.Default.CloudQueue
