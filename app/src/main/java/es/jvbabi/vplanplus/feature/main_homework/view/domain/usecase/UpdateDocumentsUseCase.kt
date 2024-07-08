@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase
 
 import android.net.Uri
+import androidx.core.net.toFile
 import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
@@ -27,7 +28,7 @@ class UpdateDocumentsUseCase(
         val vppId = (getCurrentProfileUseCase().first() as? ClassProfile ?: return).vppId
         if (homework.id > 0 && vppId == null) throw IllegalStateException("Profile must be a class profile to edit homework")
         newDocuments.forEach { newDocument ->
-            val content = fileRepository.readBytes(newDocument.uri) ?: return@forEach
+            val content = fileRepository.readBytes(newDocument.uri.toFile()) ?: return@forEach
             var documentId: Int? = null
             if (homework.id > 0 && vppId != null) {
                 documentId = homeworkRepository.addDocumentCloud(
@@ -72,7 +73,7 @@ sealed class DocumentUpdate(
 ) {
     class NewDocument(
         uri: Uri,
-        name: String = UUID.randomUUID().toString(),
+        name: String = uri.toFile().name,
         val extension: String
     ) : DocumentUpdate(uri, name)
 

@@ -1,9 +1,10 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase
 
 import android.net.Uri
-import es.jvbabi.vplanplus.domain.repository.FileRepository
+import androidx.core.net.toFile
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
@@ -14,7 +15,6 @@ import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.UUID
 
 class SaveHomeworkUseCase(
     private val homeworkRepository: HomeworkRepository,
@@ -68,8 +68,8 @@ class SaveHomeworkUseCase(
         }
 
         documentUris.forEach { (uri, type) ->
-            val content = fileRepository.readBytes(uri) ?: return HomeworkModificationResult.FAILED
-            val name = UUID.randomUUID().toString()
+            val content = fileRepository.readBytes(uri.toFile()) ?: return HomeworkModificationResult.FAILED
+            val name = uri.toFile().name
             var documentId: Int? = null
             if (storeInCloud && profile.vppId != null) {
                 documentId = homeworkRepository.addDocumentCloud(

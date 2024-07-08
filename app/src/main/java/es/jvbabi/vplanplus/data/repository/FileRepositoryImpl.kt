@@ -1,15 +1,23 @@
 package es.jvbabi.vplanplus.data.repository
 
 import android.content.Context
-import android.net.Uri
+import androidx.core.net.toUri
 import es.jvbabi.vplanplus.domain.repository.FileRepository
 import java.io.File
 
 class FileRepositoryImpl(
     private val context: Context
 ) : FileRepository {
-    override fun readBytes(uri: Uri): ByteArray? {
+    override fun readBytes(path: String): ByteArray? {
+        val uri = context.filesDir.resolve(path).toUri()
         val inputStream = context.contentResolver.openInputStream(uri) ?: return null
+        val bytes = inputStream.readBytes()
+        inputStream.close()
+        return bytes
+    }
+
+    override fun readBytes(file: File): ByteArray {
+        val inputStream = file.inputStream()
         val bytes = inputStream.readBytes()
         inputStream.close()
         return bytes

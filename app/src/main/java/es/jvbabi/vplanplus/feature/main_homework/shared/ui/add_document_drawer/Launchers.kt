@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer
 import android.app.Activity.RESULT_OK
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import android.util.Log
 import android.webkit.MimeTypeMap
 import androidx.activity.compose.ManagedActivityResultLauncher
@@ -113,7 +114,7 @@ fun rememberPickPhotoLauncher(
 private fun fileFromContentUri(context: Context, contentUri: Uri): File {
 
     val fileExtension = getFileExtension(context, contentUri)
-    val fileName = "temporary_file" + contentUri.pathSegments.last() + if (fileExtension != null) ".$fileExtension" else ""
+    val fileName = contentUri.getName(context) ?: ("unknown" + if (fileExtension != null) ".$fileExtension" else "")
 
     val tempFile = File(context.cacheDir, fileName)
     tempFile.createNewFile()
@@ -154,4 +155,13 @@ private fun Context.createImageFile(): File {
     if (!folder.exists()) folder.mkdirs()
     val image = File.createTempFile("JPEG_${timestamp}_", ".jpg", folder)
     return image
+}
+
+fun Uri.getName(context: Context): String? {
+    val returnCursor = context.contentResolver.query(this, null, null, null, null) ?: return null
+    val nameIndex = returnCursor.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+    returnCursor.moveToFirst()
+    val fileName = returnCursor.getString(nameIndex)
+    returnCursor.close()
+    return fileName
 }

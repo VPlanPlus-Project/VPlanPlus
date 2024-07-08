@@ -1,9 +1,10 @@
 package es.jvbabi.vplanplus.domain.repository
 
-import android.net.Uri
+import java.io.File
 
 interface FileRepository {
-    fun readBytes(uri: Uri): ByteArray?
+    fun readBytes(path: String): ByteArray?
+    fun readBytes(file: File): ByteArray?
 
     /**
      * Writes the given bytes to the file at the given path.
