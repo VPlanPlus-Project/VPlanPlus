@@ -8,11 +8,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.DocumentUpdate
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
 import kotlinx.coroutines.flow.combine
@@ -41,7 +39,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 state.copy(
                     homework = homework,
                     currentProfile = profile,
-                    canEditOrigin = (profile as? ClassProfile)?.let { homework is LocalHomework || (homework is CloudHomework && homework.createdBy == it.vppId) } ?: false
+                    canEditOrigin = (profile as? ClassProfile)?.let { homework is Homework.LocalHomework || (homework is Homework.CloudHomework && homework.createdBy == it.vppId) } ?: false
                 )
             }.collect {
                 state = it
@@ -75,7 +73,7 @@ class HomeworkDetailViewModel @Inject constructor(
                         val homework = state.homework
                         val editVisibility = state.editVisibility
                         if (state.editDueDate != null) homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, state.editDueDate!!)
-                        if (editVisibility != null && homework is CloudHomework) homeworkDetailUseCases.updateHomeworkVisibilityUseCase(homework, editVisibility)
+                        if (editVisibility != null && homework is Homework.CloudHomework) homeworkDetailUseCases.updateHomeworkVisibilityUseCase(homework, editVisibility)
 
                         val changeDocuments = state.documentsToDelete.isNotEmpty() || state.newDocuments.isNotEmpty() || state.editedDocuments.isNotEmpty()
                         if (changeDocuments) homeworkDetailUseCases.updateDocumentsUseCase(

@@ -11,7 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.relativeDateStringResource
@@ -53,7 +53,7 @@ class UpdateHomeworkUseCase(
         Log.d("UpdateHomeworkUseCase", "Updating homework for ${profiles.size} profiles")
 
         val homework = mutableListOf<AddHomeworkItem>()
-        val existing = homeworkRepository.getAll().first().filterIsInstance<CloudHomework>()
+        val existing = homeworkRepository.getAll().first().filterIsInstance<Homework.CloudHomework>()
 
         profiles.forEach { (group, vppId) ->
             val new = (homeworkRepository.downloadHomework(vppId, group) ?: return stopUpdate(false)).filter { it.id !in homework.map { hw -> hw.homework.id } }
@@ -175,11 +175,11 @@ class UpdateHomeworkUseCase(
 }
 
 private sealed class AddHomeworkItem(
-    val homework: CloudHomework
+    val homework: Homework.CloudHomework
 ) {
-    class PublicHomework(homework: CloudHomework) : AddHomeworkItem(homework)
+    class PublicHomework(homework: Homework.CloudHomework) : AddHomeworkItem(homework)
     class PrivateHomework(
         val vppId: VppId,
-        homework: CloudHomework
+        homework: Homework.CloudHomework
     ) : AddHomeworkItem(homework)
 }

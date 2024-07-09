@@ -715,5 +715,12 @@
     <string name="homework_detailViewVisibilityCloudSharedSheetShare">Mit Klasse geteilt</string>
     <string name="homework_detailViewVisibilityCloudSharedSheetPrivate">Privat</string>
     <string name="upload_homework_document_service">Dateien hochladen</string>
+    <string name="homework_authorAndTime">%1$s, %2$s</string>
+    <string name="homework_filterVisibilityName">Sichtbarkeit</string>
+    <string name="homework_filterVisibilityVisible">Nur sichtbare</string>
+    <string name="homework_filterVisibilityHidden">Nur versteckte</string>
+    <string name="homework_filterCompletionName">Zustand</string>
+    <string name="homework_filterCompletionCompleted">Nur erledigte</string>
+    <string name="homework_filterCompletionUncompleted">Nur unerledigte</string>
 
 </resources>

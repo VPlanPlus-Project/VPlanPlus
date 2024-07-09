@@ -21,7 +21,7 @@ import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
-import es.jvbabi.vplanplus.feature.main_homework.list.ui.HomeworkScreen
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.HomeworkListScreen
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkDetailScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
@@ -295,7 +295,7 @@ private fun NavGraphBuilder.mainScreens(
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
-        HomeworkScreen(
+        HomeworkListScreen(
             navHostController = navController,
             navBar = navBar
         )

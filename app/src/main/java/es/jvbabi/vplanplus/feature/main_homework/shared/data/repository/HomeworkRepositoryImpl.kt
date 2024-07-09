@@ -19,7 +19,6 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
@@ -59,7 +58,7 @@ class HomeworkRepositoryImpl(
 
     private var isUpdateRunning = false
 
-    override suspend fun downloadHomework(vppId: VppId?, group: Group): List<CloudHomework>? {
+    override suspend fun downloadHomework(vppId: VppId?, group: Group): List<Homework.CloudHomework>? {
         if (vppId == null) vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
         else {
             val token = vppIdRepository.getVppIdToken(vppId) ?: return null
@@ -76,7 +75,7 @@ class HomeworkRepositoryImpl(
                 Log.e("HomeworkRepository.downloadHomework", "Failed to get VppId for id ${homework.createdBy}")
                 return@homework null
             }
-            CloudHomework(
+            Homework.CloudHomework(
                 id = homework.id,
                 createdBy = createdBy,
                 until = ZonedDateTimeConverter().timestampToZonedDateTime(homework.until),
@@ -479,11 +478,11 @@ class HomeworkRepositoryImpl(
         homeworkDocumentDao.deleteHomeworkDocumentById(homeworkDocument.documentId)
     }
 
-    override suspend fun changeHomeworkSharingDb(homework: CloudHomework, isPublic: Boolean) {
+    override suspend fun changeHomeworkSharingDb(homework: Homework.CloudHomework, isPublic: Boolean) {
         homeworkDao.changePublic(homework.id, isPublic)
     }
 
-    override suspend fun changeHomeworkSharingCloud(vppId: VppId, homework: CloudHomework, isPublic: Boolean): Response<HomeworkModificationResult, Unit?> {
+    override suspend fun changeHomeworkSharingCloud(vppId: VppId, homework: Homework.CloudHomework, isPublic: Boolean): Response<HomeworkModificationResult, Unit?> {
         val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
         if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
         vppIdNetworkRepository.authentication = BearerAuthentication(token)
@@ -496,7 +495,7 @@ class HomeworkRepositoryImpl(
         else Response(HomeworkModificationResult.FAILED, null)
     }
 
-    override suspend fun changeHomeworkVisibilityDb(homework: CloudHomework, hide: Boolean) {
+    override suspend fun changeHomeworkVisibilityDb(homework: Homework.CloudHomework, hide: Boolean) {
         homeworkDao.changeHidden(homework.id, hide)
     }
 
@@ -504,7 +503,7 @@ class HomeworkRepositoryImpl(
         homeworkDao.deleteHomework(homework.id)
     }
 
-    override suspend fun deleteHomeworkCloud(vppId: VppId, homework: CloudHomework): Response<HomeworkModificationResult, Unit?> {
+    override suspend fun deleteHomeworkCloud(vppId: VppId, homework: Homework.CloudHomework): Response<HomeworkModificationResult, Unit?> {
         val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(HomeworkModificationResult.FAILED, null)
         if (vppId.group?.school == null) return Response(HomeworkModificationResult.FAILED, null)
         vppIdNetworkRepository.authentication = BearerAuthentication(token)

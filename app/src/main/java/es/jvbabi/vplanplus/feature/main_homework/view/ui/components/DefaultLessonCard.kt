@@ -13,13 +13,13 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
-import es.jvbabi.vplanplus.ui.common.getIcon
+import es.jvbabi.vplanplus.ui.common.getSubjectIcon
 
 @Composable
 fun RowScope.DefaultLessonCard(defaultLesson: DefaultLesson?) {
     BigCustomCard(
         modifier = Modifier.weight(1f, true),
-        icon = defaultLesson.getIcon(),
+        icon = defaultLesson.getSubjectIcon(),
         title = stringResource(id = R.string.homework_detailViewSubject),
         content = {
             RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(4.dp)) {

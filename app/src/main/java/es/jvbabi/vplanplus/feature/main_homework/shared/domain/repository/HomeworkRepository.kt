@@ -5,7 +5,6 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.AddHomeworkResponse
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
@@ -33,11 +32,11 @@ interface HomeworkRepository {
      * Downloads the homework from the cloud and returns it. This won't save anything to the database. Use [downloadHomeworkDocument] to download the actual documents.
      * @param vppId The vpp.ID as which the request shall be executed. Null if only public homeworks should be downloaded.
      * @param group The group for which the homework should be downloaded.
-     * @return A list of [CloudHomework] if the download was successful, null otherwise.
+     * @return A list of [Homework.CloudHomework] if the download was successful, null otherwise.
      * @see [downloadHomeworkDocument]
      * @see [addHomeworkDb]
      */
-    suspend fun downloadHomework(vppId: VppId?, group: Group): List<CloudHomework>?
+    suspend fun downloadHomework(vppId: VppId?, group: Group): List<Homework.CloudHomework>?
 
     suspend fun downloadHomeworkDocument(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray?
 
@@ -176,7 +175,7 @@ interface HomeworkRepository {
      * @param isPublic Whether the homework is public.
      * @see [changeHomeworkSharingCloud]
      */
-    suspend fun changeHomeworkSharingDb(homework: CloudHomework, isPublic: Boolean)
+    suspend fun changeHomeworkSharingDb(homework: Homework.CloudHomework, isPublic: Boolean)
 
     /**
      * Uploads the sharing status of a homework to the cloud. This will not save the sharing status to the device, it will only upload it to the cloud. Saving the sharing status is the responsibility of the caller.
@@ -186,14 +185,14 @@ interface HomeworkRepository {
      * @return A [Response] containing the result of the operation and null if it was not successful.
      * @see [changeHomeworkSharingDb]
      */
-    suspend fun changeHomeworkSharingCloud(vppId: VppId, homework: CloudHomework, isPublic: Boolean): Response<HomeworkModificationResult, Unit?>
+    suspend fun changeHomeworkSharingCloud(vppId: VppId, homework: Homework.CloudHomework, isPublic: Boolean): Response<HomeworkModificationResult, Unit?>
 
     /**
      * Updates the due date of a homework in the database.
      * @param homework The homework to be updated.
      * @param hide Whether the homework is hidden.
      */
-    suspend fun changeHomeworkVisibilityDb(homework: CloudHomework, hide: Boolean)
+    suspend fun changeHomeworkVisibilityDb(homework: Homework.CloudHomework, hide: Boolean)
 
     /**
      * Deletes a homework from the database. Be sure to delete all related documents before since this method won't remove them.
@@ -209,7 +208,7 @@ interface HomeworkRepository {
      * @return A [Response] containing the result of the operation and null if it was not successful.
      * @see [deleteHomeworkDb]
      */
-    suspend fun deleteHomeworkCloud(vppId: VppId, homework: CloudHomework): Response<HomeworkModificationResult, Unit?>
+    suspend fun deleteHomeworkCloud(vppId: VppId, homework: Homework.CloudHomework): Response<HomeworkModificationResult, Unit?>
 
     /**
      * Updates the content of a homework task in the cloud. This will not save the content to the device, it will only upload it to the cloud. Saving the content is the responsibility of the caller.

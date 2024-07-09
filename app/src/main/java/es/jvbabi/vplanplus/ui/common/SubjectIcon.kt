@@ -28,14 +28,14 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 
 @Composable
 fun SubjectIcon(subject: String?, modifier: Modifier, tint: Color = Color.Unspecified) {
-    Icon(imageVector = subject.getIcon(), contentDescription = null, modifier = modifier, tint = tint)
+    Icon(imageVector = subject.getSubjectIcon(), contentDescription = null, modifier = modifier, tint = tint)
 }
 
 @Composable
-fun DefaultLesson?.getIcon() = this?.subject?.lowercase().getIcon()
+fun DefaultLesson?.getSubjectIcon() = this?.subject?.lowercase().getSubjectIcon()
 
 @Composable
-private fun String?.getIcon(): ImageVector {
+fun String?.getSubjectIcon(): ImageVector {
     return when(this?.lowercase()) {
         "deutsch", "de", "deu" -> Icons.Default.Book
         "informatik", "inf", "info" -> Icons.Default.Code

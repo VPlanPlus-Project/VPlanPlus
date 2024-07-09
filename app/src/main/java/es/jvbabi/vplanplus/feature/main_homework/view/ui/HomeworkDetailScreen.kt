@@ -49,7 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.pickDocumentLauncher
@@ -226,7 +226,7 @@ private fun HomeworkDetailScreenContent(
                 )
             }
             RowVerticalCenter(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                if (state.homework == null || state.homework !is CloudHomework) return@RowVerticalCenter
+                if (state.homework == null || state.homework !is Homework.CloudHomework) return@RowVerticalCenter
                 VisibilityCard(
                     isEditModeActive = state.isEditing,
                     isCurrentlyVisibleOrPublic = (state.canEditOrigin && state.homework.isPublic) || (!state.canEditOrigin && !state.homework.isHidden),
@@ -274,7 +274,7 @@ fun HomeworkDetailScreenPreview() {
     val teacher = TeacherPreview.teacher(school)
     HomeworkDetailScreenContent(
         state = HomeworkDetailState(
-            homework = CloudHomework(
+            homework = Homework.CloudHomework(
                 id = 1,
                 createdBy = vppId,
                 documents = emptyList(),

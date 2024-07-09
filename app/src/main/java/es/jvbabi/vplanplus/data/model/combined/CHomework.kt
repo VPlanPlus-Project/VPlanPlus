@@ -9,9 +9,7 @@ import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 
 
 data class CHomework(
@@ -55,7 +53,7 @@ data class CHomework(
         val group = classes.toModel()
         val documents = documents.map { it.toModel() }
         return if (homework.id > 0) {
-            CloudHomework(
+            Homework.CloudHomework(
                 id = id,
                 group = group,
                 createdAt = cratedAt,
@@ -68,7 +66,7 @@ data class CHomework(
                 isHidden = homework.isHidden
             )
         } else {
-            LocalHomework(
+            Homework.LocalHomework(
                 id = id,
                 group = group,
                 createdAt = cratedAt,

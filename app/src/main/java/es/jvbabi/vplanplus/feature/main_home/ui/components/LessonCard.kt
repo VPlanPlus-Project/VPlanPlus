@@ -62,7 +62,6 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.RoomBooking
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
 import es.jvbabi.vplanplus.ui.common.DOT
@@ -119,7 +118,7 @@ fun LessonCard(
             val relevantHomeworkTasks = homework
                 .filter { hw -> hw.defaultLesson?.vpId == lesson.vpId }
                 .filter { hw -> hw.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
-                .filter { hw -> (hw as? CloudHomework)?.isHidden != true }
+                .filter { hw -> (hw as? Homework.CloudHomework)?.isHidden != true }
                 .map { it.tasks }
 
             val booking = bookings.firstOrNull { it.from.isEqual(lesson.start) && it.to.isEqual(lesson.end) }

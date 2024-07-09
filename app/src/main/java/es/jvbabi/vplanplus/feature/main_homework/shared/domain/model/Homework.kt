@@ -8,7 +8,7 @@ import es.jvbabi.vplanplus.domain.model.VppId
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
-abstract class Homework(
+sealed class Homework(
     val id: Long,
     val group: Group,
     val createdAt: ZonedDateTime,
@@ -24,38 +24,38 @@ abstract class Homework(
     fun getTaskById(id: Long): HomeworkTask? {
         return tasks.find { it.id == id.toInt() }
     }
-}
 
-class CloudHomework(
-    id: Long,
-    group: Group,
-    createdAt: ZonedDateTime,
-    defaultLesson: DefaultLesson?,
-    val isPublic: Boolean,
-    until: ZonedDateTime,
-    tasks: List<HomeworkTask>,
-    val isHidden: Boolean,
-    documents: List<HomeworkDocument>,
-    val createdBy: VppId
-) : Homework(id, group, createdAt, defaultLesson, until, tasks, documents) {
-    init {
-        require(id > 0)
+    class CloudHomework(
+        id: Long,
+        group: Group,
+        createdAt: ZonedDateTime,
+        defaultLesson: DefaultLesson?,
+        val isPublic: Boolean,
+        until: ZonedDateTime,
+        tasks: List<HomeworkTask>,
+        val isHidden: Boolean,
+        documents: List<HomeworkDocument>,
+        val createdBy: VppId
+    ) : Homework(id, group, createdAt, defaultLesson, until, tasks, documents) {
+        init {
+            require(id > 0)
+        }
     }
-}
 
-class LocalHomework(
-    id: Long,
-    group: Group,
-    createdAt: ZonedDateTime,
-    defaultLesson: DefaultLesson?,
-    until: ZonedDateTime,
-    tasks: List<HomeworkTask>,
-    documents: List<HomeworkDocument>,
-    val profile: Profile
-) : Homework(id, group, createdAt, defaultLesson, until, tasks, documents) {
-    init {
-        require(id < 0)
-        require(profile is ClassProfile)
+    class LocalHomework(
+        id: Long,
+        group: Group,
+        createdAt: ZonedDateTime,
+        defaultLesson: DefaultLesson?,
+        until: ZonedDateTime,
+        tasks: List<HomeworkTask>,
+        documents: List<HomeworkDocument>,
+        val profile: Profile
+    ) : Homework(id, group, createdAt, defaultLesson, until, tasks, documents) {
+        init {
+            require(id < 0)
+            require(profile is ClassProfile)
+        }
     }
 }
 

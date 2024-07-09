@@ -2,34 +2,30 @@ package es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.LocalHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 
 class GetHomeworkUseCase(
-    private val homeworkRepository: HomeworkRepository,
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
+    private val homeworkRepository: HomeworkRepository
 ) {
-    operator fun invoke() = flow {
+
+    suspend operator fun invoke() = flow {
         combine(
-            homeworkRepository.getAll(),
-            getCurrentProfileUseCase()
-        ) { homework, profile ->
-            if (profile !is ClassProfile) HomeworkResult(emptyList(), true)
-            else HomeworkResult(
-                homework = homework.filter { (it is CloudHomework && it.createdBy.group?.groupId == profile.group.groupId) || (it is LocalHomework && it.profile.id == profile.id) },
-                wrongProfile = false
-            )
+            getCurrentProfileUseCase(),
+            homeworkRepository.getAll()
+        ) { profile, homework ->
+            if (profile !is ClassProfile) return@combine emptyList()
+            homework.filter { homeworkItem ->
+                when (homeworkItem) {
+                    is Homework.LocalHomework -> homeworkItem.profile == profile
+                    is Homework.CloudHomework -> homeworkItem.createdBy.group?.groupId == profile.group.groupId
+                }
+            }
         }.collect {
             emit(it)
         }
     }
 }
-
-data class HomeworkResult(
-    val homework: List<Homework>,
-    val wrongProfile: Boolean = false
-)

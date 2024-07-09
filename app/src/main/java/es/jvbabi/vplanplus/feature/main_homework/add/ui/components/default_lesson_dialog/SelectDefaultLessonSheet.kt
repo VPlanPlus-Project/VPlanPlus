@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.ui.common.Option
-import es.jvbabi.vplanplus.ui.common.getIcon
+import es.jvbabi.vplanplus.ui.common.getSubjectIcon
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -115,7 +115,7 @@ fun SelectDefaultLessonSheet(
                     Option(
                         title = defaultLesson.subject,
                         subtitle = defaultLesson.teacher?.acronym ?: stringResource(id = R.string.addHomework_lessonSubtitleNoTeacher),
-                        icon = defaultLesson.getIcon(), state = defaultLesson == selectedDefaultLesson, enabled = true,
+                        icon = defaultLesson.getSubjectIcon(), state = defaultLesson == selectedDefaultLesson, enabled = true,
                         modifier = Modifier.border(width = .25.dp, color = MaterialTheme.colorScheme.outline),
                     ) {
                         onSelectDefaultLesson(defaultLesson)

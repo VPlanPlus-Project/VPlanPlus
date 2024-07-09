@@ -5,7 +5,6 @@ import androidx.core.net.toFile
 import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.CloudHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
@@ -51,7 +50,7 @@ class UpdateDocumentsUseCase(
             fileRepository.writeBytes("homework_documents", "$documentId.${newDocument.extension}", content)
         }
         documentsToDelete.forEach { document ->
-            if (homework is CloudHomework && vppId != null) {
+            if (homework is Homework.CloudHomework && vppId != null) {
                 homeworkRepository.deleteDocumentCloud(vppId, document).value ?: return@forEach
             }
             homeworkRepository.deleteDocumentDb(document)
@@ -59,7 +58,7 @@ class UpdateDocumentsUseCase(
         }
         editedDocuments.forEach { editedDocument ->
             val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().toInt()) ?: return@forEach
-            if (homework is CloudHomework && vppId != null) {
+            if (homework is Homework.CloudHomework && vppId != null) {
                 homeworkRepository.changeDocumentNameCloud(vppId, document, editedDocument.name).value ?: return@forEach
             }
             homeworkRepository.changeDocumentNameDb(document, editedDocument.name)
