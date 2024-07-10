@@ -20,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AttachFile
 import androidx.compose.material.icons.filled.CheckBox
 import androidx.compose.material.icons.filled.DeleteForever
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -80,7 +81,8 @@ fun HomeworkCardItem(
     onClick: () -> Unit,
     onCheckSwiped: () -> Unit,
     onVisibilityOrDeleteSwiped: () -> Unit,
-    resetKey: Any? = null
+    resetKey1: Any? = null,
+    resetKey2: Any? = null
 ) {
     val scope = rememberCoroutineScope()
 
@@ -98,7 +100,7 @@ fun HomeworkCardItem(
         }
     )
 
-    LaunchedEffect(key1 = resetKey) { dismissState.reset() }
+    LaunchedEffect(key1 = resetKey1, key2 = resetKey2) { dismissState.reset() }
 
     if (isDeleteDialogOpen) {
         YesNoDialog(
@@ -142,6 +144,8 @@ fun HomeworkCardItem(
                 },
                 createdAt = homework.createdAt,
                 isSwiping = dismissState.progress != 1f,
+                isHidden = homework is Homework.CloudHomework && homework.isHidden,
+                isPublic = homework is Homework.CloudHomework && homework.isPublic,
                 onClick = onClick
             )
         }
@@ -213,6 +217,8 @@ private fun HomeworkCard(
     tasksDone: Int,
     creator: HomeworkCreator,
     createdAt: ZonedDateTime,
+    isHidden: Boolean,
+    isPublic: Boolean,
     isSwiping: Boolean = false,
     onClick: () -> Unit = {}
 ) {
@@ -258,6 +264,8 @@ private fun HomeworkCard(
                             }
                         },
                     )
+                    if (isHidden) Icon(imageVector = Icons.Default.VisibilityOff, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.outline)
+                    if (isPublic) Icon(imageVector = Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.outline)
                 }
                 RowVerticalCenter taskAndDocumentCount@{
                     Icon(
@@ -323,7 +331,9 @@ private fun HomeworkCardPreview() {
         documentCount = 1,
         tasksDone = 1,
         creator = HomeworkCreator.DeviceCreator,
-        createdAt = ZonedDateTime.now().minusDays(2)
+        createdAt = ZonedDateTime.now().minusDays(2),
+        isHidden = true,
+        isPublic = false
     )
 }
 

@@ -143,7 +143,8 @@ private fun HomeworkListContent(
                         onClick = { onOpenHomework(homework) },
                         onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
                         onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
-                        resetKey = state.homework
+                        resetKey1 = state.homework,
+                        resetKey2 = state.error,
                     )
                 }
             }
