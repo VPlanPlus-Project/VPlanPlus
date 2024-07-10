@@ -4,11 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -25,6 +27,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -35,6 +38,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DoneStateFilterSheet
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.VisibilityFilterSheet
 import es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
@@ -77,6 +81,12 @@ private fun HomeworkListContent(
 
     var showVisibilityFilterSheet by rememberSaveable { mutableStateOf(false) }
     val visibilityFilterSheetState = rememberModalBottomSheetStateWithoutFullExpansion()
+    if (showVisibilityFilterSheet) VisibilityFilterSheet(
+        sheetState = visibilityFilterSheetState,
+        onDismiss = { showVisibilityFilterSheet = false },
+        onUpdateState = { onEvent(HomeworkListEvent.UpdateFilter(HomeworkFilter.VisibilityFilter(it))) },
+        state = (state.filters.first { it is HomeworkFilter.VisibilityFilter } as HomeworkFilter.VisibilityFilter).showVisible
+    )
 
     Scaffold(
         topBar = {
@@ -102,8 +112,11 @@ private fun HomeworkListContent(
                 BadProfileType()
                 return@content
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
                 item {}
+                item {
+                    Icon(imageVector = Icons.Default.FilterAlt, contentDescription = null, modifier = Modifier.size(24.dp))
+                }
                 state.filters.forEach { filter ->
                     item {
                         AssistChip(
@@ -130,7 +143,7 @@ private fun HomeworkListContent(
                         onClick = { onOpenHomework(homework) },
                         onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
                         onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
-                        resetKey = state.error
+                        resetKey = state.homework
                     )
                 }
             }

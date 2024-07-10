@@ -8,8 +8,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.PlaylistAddCheck
-import androidx.compose.material.icons.filled.PlaylistRemove
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
@@ -25,7 +25,7 @@ import es.jvbabi.vplanplus.ui.common.Option
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DoneStateFilterSheet(
+fun VisibilityFilterSheet(
     sheetState: SheetState,
     state: Boolean?,
     onDismiss: () -> Unit,
@@ -46,8 +46,8 @@ fun DoneStateFilterSheet(
         ) {
             listOf(
                 ModalOption(
-                    title = stringResource(id = R.string.homework_filterCompletionSheetDone),
-                    icon = Icons.AutoMirrored.Default.PlaylistAddCheck,
+                    title = stringResource(id = R.string.homework_filterVisibilitySheetVisible),
+                    icon = Icons.Default.Visibility,
                     isEnabled = true,
                     isSelected = state == null || state,
                     onClick = {
@@ -59,8 +59,8 @@ fun DoneStateFilterSheet(
                     }
                 ),
                 ModalOption(
-                    title = stringResource(id = R.string.homework_filterCompletionSheetOpen),
-                    icon = Icons.Default.PlaylistRemove,
+                    title = stringResource(id = R.string.homework_filterVisibilitySheetHidden),
+                    icon = Icons.Default.VisibilityOff,
                     isEnabled = true,
                     isSelected = state == null || !state,
                     onClick = {

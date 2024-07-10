@@ -724,7 +724,9 @@
     <string name="homework_filterCompletionUncompleted">Nur unerledigte</string>
     <string name="homework_errorDelete">Hausaufabe konnte nicht gelöscht werden</string>
     <string name="homework_errorMarkingDone">Hausaufgabe konnte nicht als erledigt markiert werden.</string>
-    <string name="homework_filterCompletionSheetDoneTitle">Erledigte</string>
+    <string name="homework_filterCompletionSheetDone">Erledigte</string>
     <string name="homework_filterCompletionSheetOpen">Offen</string>
+    <string name="homework_filterVisibilitySheetVisible">Sichtbar</string>
+    <string name="homework_filterVisibilitySheetHidden">Ausgeblendet</string>
 
 </resources>

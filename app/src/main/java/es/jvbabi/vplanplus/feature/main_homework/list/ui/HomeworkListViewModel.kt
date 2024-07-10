@@ -93,12 +93,12 @@ sealed interface HomeworkFilter {
     fun filter(homework: Homework): Boolean
 
     /**
-     * @param visible: null to show all, true to show only visible, false to show only hidden
+     * @param showVisible: null to show all, true to show only visible, false to show only hidden
      */
-    data class VisibilityFilter(val visible: Boolean?) : HomeworkFilter {
+    data class VisibilityFilter(val showVisible: Boolean?) : HomeworkFilter {
         @Composable
         override fun buildLabel(): String {
-            return when (visible) {
+            return when (showVisible) {
                 true -> stringResource(id = R.string.homework_filterVisibilityVisible)
                 false -> stringResource(id = R.string.homework_filterVisibilityHidden)
                 null -> stringResource(id = R.string.homework_filterVisibilityName)
@@ -106,10 +106,10 @@ sealed interface HomeworkFilter {
         }
 
         override fun filter(homework: Homework): Boolean {
-            if (visible == null) return true
-            if (visible && homework is Homework.LocalHomework) return true
-            if (visible && homework is Homework.CloudHomework && !homework.isHidden) return true
-            if (!visible && homework is Homework.CloudHomework && homework.isHidden) return true
+            if (showVisible == null) return true
+            if (showVisible && homework is Homework.LocalHomework) return true
+            if (showVisible && homework is Homework.CloudHomework && !homework.isHidden) return true
+            if (!showVisible && homework is Homework.CloudHomework && homework.isHidden) return true
             return false
         }
 
