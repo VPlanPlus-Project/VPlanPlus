@@ -46,13 +46,38 @@ class HomeworkListViewModel @Inject constructor(
             }.collect { state = it }
         }
     }
+
+    fun onEvent(event: HomeworkListEvent) {
+        viewModelScope.launch {
+            if (state.error != null) state = state.copy(error = null) // Clear error state only when an error existed to prevent card resetting
+            when (event) {
+                is HomeworkListEvent.DeleteOrHide -> {
+                    val homework = (event.homework as? Homework.CloudHomework) ?: return@launch
+                    if (homework.createdBy == state.profile?.vppId) {
+                        homeworkListUseCases.deleteHomeworkUseCase(homework).let { success ->
+                            if (!success) state = state.copy(error = HomeworkListError.DeleteOrHideError)
+                        }
+                    }
+                    else homeworkListUseCases.toggleHomeworkHiddenStateUseCase(homework)
+                }
+                is HomeworkListEvent.MarkAsDone -> {
+                    val homework = event.homework
+                    homeworkListUseCases.markHomeworkAsDoneUseCase(homework).let { success ->
+                        if (!success) state = state.copy(error = HomeworkListError.MarkAsDoneError)
+                    }
+                }
+            }
+        }
+    }
 }
 
 data class HomeworkListState(
     val userUsesFalseProfileType: Boolean = false,
     val profile: ClassProfile? = null,
     val homework: List<Homework> = emptyList(),
-    val filters: List<HomeworkFilter> = listOf(HomeworkFilter.VisibilityFilter(true), HomeworkFilter.CompletionFilter(true))
+    val filters: List<HomeworkFilter> = listOf(HomeworkFilter.VisibilityFilter(true), HomeworkFilter.CompletionFilter(false)),
+
+    val error: HomeworkListError? = null
 )
 
 sealed interface HomeworkFilter {
@@ -113,4 +138,14 @@ sealed interface HomeworkFilter {
             return false
         }
     }
+}
+
+sealed class HomeworkListEvent {
+    data class DeleteOrHide(val homework: Homework) : HomeworkListEvent()
+    data class MarkAsDone(val homework: Homework) : HomeworkListEvent()
+}
+
+sealed class HomeworkListError {
+    data object MarkAsDoneError : HomeworkListError()
+    data object DeleteOrHideError : HomeworkListError()
 }

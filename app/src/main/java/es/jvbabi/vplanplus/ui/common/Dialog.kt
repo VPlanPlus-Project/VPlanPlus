@@ -87,7 +87,7 @@ fun YesNoDialog(
 
 @Composable
 @Preview
-fun YesNoDialogPreview() {
+private fun YesNoDialogPreview() {
     YesNoDialog(
         icon = Icons.Default.Delete,
         title = "Deleting stuff",

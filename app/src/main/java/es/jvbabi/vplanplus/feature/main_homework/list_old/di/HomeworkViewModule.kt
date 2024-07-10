@@ -11,11 +11,11 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.AddTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.ChangeVisibilityUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.DeleteHomeworkTaskUseCase
-import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.DeleteHomeworkUseCase
+import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.DeleteHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.EditTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.HideHomeworkNotificationBannerUseCase
-import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.HideHomeworkUseCase
+import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ToggleHomeworkHiddenStateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.HomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.MarkAllDoneUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase.ShowHomeworkNotificationBannerUseCase
@@ -71,7 +71,7 @@ object HomeworkViewModule {
                 getCurrentProfileUseCase = getCurrentProfileUseCase
             ),
             updateUseCase = UpdateUseCase(updateHomeworkUseCase),
-            hideHomeworkUseCase = HideHomeworkUseCase(homeworkRepository),
+            toggleHomeworkHiddenStateUseCase = ToggleHomeworkHiddenStateUseCase(homeworkRepository),
             showHomeworkNotificationBannerUseCase = ShowHomeworkNotificationBannerUseCase(keyValueRepository),
             hideHomeworkNotificationBannerUseCase = HideHomeworkNotificationBannerUseCase(keyValueRepository),
             updateDueDateUseCase = UpdateDueDateUseCase(

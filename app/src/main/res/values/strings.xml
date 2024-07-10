@@ -725,5 +725,7 @@
     <string name="homework_filterCompletionName">State</string>
     <string name="homework_filterCompletionCompleted">Only completed</string>
     <string name="homework_filterCompletionUncompleted">Only uncompleted</string>
+    <string name="homework_errorDelete">Couldn\'t delete homework.</string>
+    <string name="homework_errorMarkingDone">Couldn\'t mark homework as done</string>
 
 </resources>

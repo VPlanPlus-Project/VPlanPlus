@@ -5,4 +5,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 data class HomeworkListUseCases(
     val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     val getHomeworkUseCase: GetHomeworkUseCase,
+    val deleteHomeworkUseCase: DeleteHomeworkUseCase,
+    val toggleHomeworkHiddenStateUseCase: ToggleHomeworkHiddenStateUseCase,
+    val markHomeworkAsDoneUseCase: MarkHomeworkAsDoneUseCase
 )

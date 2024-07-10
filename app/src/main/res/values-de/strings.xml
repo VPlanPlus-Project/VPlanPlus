@@ -722,5 +722,7 @@
     <string name="homework_filterCompletionName">Zustand</string>
     <string name="homework_filterCompletionCompleted">Nur erledigte</string>
     <string name="homework_filterCompletionUncompleted">Nur unerledigte</string>
+    <string name="homework_errorDelete">Hausaufabe konnte nicht gelöscht werden</string>
+    <string name="homework_errorMarkingDone">Hausaufgabe konnte nicht als erledigt markiert werden.</string>
 
 </resources>

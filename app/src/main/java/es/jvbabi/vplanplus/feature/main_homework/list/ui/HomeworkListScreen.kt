@@ -14,10 +14,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -26,7 +31,9 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
 import es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components.HomeworkCardItem
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
 fun HomeworkListScreen(
@@ -35,15 +42,25 @@ fun HomeworkListScreen(
     navBar: @Composable (visible: Boolean) -> Unit
 ) {
     val state = viewModel.state
-    HomeworkListContent(state, { navBar(true) })
+    HomeworkListContent(
+        state = state,
+        navBar = { navBar(true) },
+        onEvent = viewModel::onEvent,
+        onOpenHomework = { homework -> navHostController.navigate(Screen.HomeworkDetailScreen.route + "/${homework.id}") }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeworkListContent(
     state: HomeworkListState,
-    navBar: @Composable () -> Unit = {}
+    navBar: @Composable () -> Unit = {},
+    onEvent: (event: HomeworkListEvent) -> Unit = {},
+    onOpenHomework: (homework: Homework) -> Unit = {}
 ) {
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = stringResource(id = R.string.homework_title)) })
@@ -56,7 +73,8 @@ private fun HomeworkListContent(
                 Text(text = stringResource(id = R.string.home_addHomeworkLabel))
             }
         },
-        bottomBar = navBar
+        bottomBar = navBar,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         Column(
             Modifier
@@ -90,11 +108,26 @@ private fun HomeworkListContent(
             }
 
             LazyColumn {
-                items(state.homework) { homework ->
-                    HomeworkCardItem(homework = homework, currentVppId = state.profile?.vppId)
+                items(state.homework, key = { it.id }) { homework ->
+                    HomeworkCardItem(
+                        homework = homework,
+                        currentVppId = state.profile?.vppId,
+                        isVisible = state.filters.all { it.filter(homework) },
+                        onClick = { onOpenHomework(homework) },
+                        onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
+                        onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
+                        resetKey = state.error
+                    )
                 }
-
             }
+        }
+    }
+
+    LaunchedEffect(key1 = state.error) {
+        when (state.error) {
+            HomeworkListError.DeleteOrHideError -> snackbarHostState.showSnackbar(context.getString(R.string.homework_errorDelete))
+            HomeworkListError.MarkAsDoneError -> snackbarHostState.showSnackbar(context.getString(R.string.homework_errorMarkingDone))
+            null -> Unit
         }
     }
 }

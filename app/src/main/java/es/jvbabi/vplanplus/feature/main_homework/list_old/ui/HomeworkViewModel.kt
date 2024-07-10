@@ -107,7 +107,7 @@ class HomeworkViewModel @Inject constructor(
             viewModelScope.launch {
                 setHomeworkLoading(it, true)
                 onHomeworkDeleteRequest(null)
-                if (homeworkUseCases.deleteHomeworkUseCase(it) == HomeworkModificationResult.FAILED) {
+                if (homeworkUseCases.deleteHomeworkUseCase(it).not()) {
                     state.value = state.value.copy(
                         errorResponse = ErrorOnUpdate.DELETE_HOMEWORK to null,
                         errorVisible = true
@@ -199,7 +199,7 @@ class HomeworkViewModel @Inject constructor(
         if (homework !is Homework.CloudHomework) return
         viewModelScope.launch {
             setHomeworkLoading(homework, true)
-            homeworkUseCases.hideHomeworkUseCase(homework)
+            homeworkUseCases.toggleHomeworkHiddenStateUseCase(homework)
             setHomeworkLoading(homework, false)
         }
     }

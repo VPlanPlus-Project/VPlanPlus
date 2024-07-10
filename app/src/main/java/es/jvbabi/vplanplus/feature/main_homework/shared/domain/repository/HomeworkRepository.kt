@@ -263,6 +263,7 @@ interface HomeworkRepository {
     suspend fun changeDueDateCloud(vppId: VppId, homework: Homework, newDate: ZonedDateTime): Response<HomeworkModificationResult, Unit?>
 }
 
+@Deprecated("Use Boolean instead.")
 enum class HomeworkModificationResult {
     FAILED,
     SUCCESS_OFFLINE,

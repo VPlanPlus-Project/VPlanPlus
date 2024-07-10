@@ -1,9 +1,9 @@
-package es.jvbabi.vplanplus.feature.main_homework.list_old.domain.usecase
+package es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase
 
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 
-class HideHomeworkUseCase(
+class ToggleHomeworkHiddenStateUseCase(
     private val homeworkRepository: HomeworkRepository,
 ) {
 
