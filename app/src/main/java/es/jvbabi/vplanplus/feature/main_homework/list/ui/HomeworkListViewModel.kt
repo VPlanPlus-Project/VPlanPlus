@@ -66,6 +66,12 @@ class HomeworkListViewModel @Inject constructor(
                         if (!success) state = state.copy(error = HomeworkListError.MarkAsDoneError)
                     }
                 }
+                is HomeworkListEvent.UpdateFilter -> {
+                    val filter = event.filter
+                    state = state.copy(filters = state.filters.map {
+                        if (it::class == filter::class) filter else it
+                    })
+                }
             }
         }
     }
@@ -143,6 +149,7 @@ sealed interface HomeworkFilter {
 sealed class HomeworkListEvent {
     data class DeleteOrHide(val homework: Homework) : HomeworkListEvent()
     data class MarkAsDone(val homework: Homework) : HomeworkListEvent()
+    data class UpdateFilter(val filter: HomeworkFilter) : HomeworkListEvent()
 }
 
 sealed class HomeworkListError {

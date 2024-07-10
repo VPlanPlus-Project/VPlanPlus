@@ -20,7 +20,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -30,9 +34,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DoneStateFilterSheet
 import es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
@@ -60,6 +66,17 @@ private fun HomeworkListContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    var showDoneStateFilterSheet by rememberSaveable { mutableStateOf(false) }
+    val doneStateFilterSheetState = rememberModalBottomSheetStateWithoutFullExpansion()
+    if (showDoneStateFilterSheet) DoneStateFilterSheet(
+        sheetState = doneStateFilterSheetState,
+        onDismiss = { showDoneStateFilterSheet = false },
+        onUpdateState = { onEvent(HomeworkListEvent.UpdateFilter(HomeworkFilter.CompletionFilter(it))) },
+        state = (state.filters.first { it is HomeworkFilter.CompletionFilter } as HomeworkFilter.CompletionFilter).showCompleted
+    )
+
+    var showVisibilityFilterSheet by rememberSaveable { mutableStateOf(false) }
+    val visibilityFilterSheetState = rememberModalBottomSheetStateWithoutFullExpansion()
 
     Scaffold(
         topBar = {
@@ -79,7 +96,8 @@ private fun HomeworkListContent(
         Column(
             Modifier
                 .fillMaxSize()
-                .padding(paddingValues)) content@{
+                .padding(paddingValues)
+        ) content@{
             if (state.userUsesFalseProfileType) {
                 BadProfileType()
                 return@content
@@ -91,12 +109,8 @@ private fun HomeworkListContent(
                         AssistChip(
                             onClick = {
                                 when (filter) {
-                                    is HomeworkFilter.VisibilityFilter -> {
-                                        TODO()
-                                    }
-                                    is HomeworkFilter.CompletionFilter -> {
-                                        TODO()
-                                    }
+                                    is HomeworkFilter.VisibilityFilter -> showVisibilityFilterSheet = true
+                                    is HomeworkFilter.CompletionFilter -> showDoneStateFilterSheet = true
                                 }
                             },
                             label = { Text(text = filter.buildLabel()) },
