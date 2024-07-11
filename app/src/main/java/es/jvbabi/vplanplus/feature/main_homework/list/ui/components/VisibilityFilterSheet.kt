@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
@@ -24,6 +25,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.CustomModal
 import es.jvbabi.vplanplus.ui.common.ModalOption
 import es.jvbabi.vplanplus.ui.common.Option
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,6 +39,9 @@ fun VisibilityFilterSheet(
         sheetState = sheetState,
         onDismiss = onDismiss
     ) {
+        val scope = rememberCoroutineScope()
+        val hideDrawer = { scope.launch { sheetState.hide(); onDismiss() } }
+
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -50,7 +55,7 @@ fun VisibilityFilterSheet(
                 icon = Icons.Outlined.Visibility,
                 enabled = true,
                 state = state == null,
-                onClick = { onUpdateState(null) }
+                onClick = { onUpdateState(null); hideDrawer() }
             )
         }
         Column(
@@ -68,14 +73,14 @@ fun VisibilityFilterSheet(
                     icon = Icons.Default.Visibility,
                     isEnabled = true,
                     isSelected = state == true,
-                    onClick = { onUpdateState(true) }
+                    onClick = { onUpdateState(true); hideDrawer() }
                 ),
                 ModalOption(
                     title = stringResource(id = R.string.homework_filterVisibilitySheetHidden),
                     icon = Icons.Default.VisibilityOff,
                     isEnabled = true,
                     isSelected = state == false,
-                    onClick = { onUpdateState(false) }
+                    onClick = { onUpdateState(false); hideDrawer() }
                 )
             ).forEach { entry ->
                 Option(
