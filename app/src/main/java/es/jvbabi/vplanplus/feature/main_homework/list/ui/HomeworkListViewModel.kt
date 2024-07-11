@@ -33,15 +33,18 @@ class HomeworkListViewModel @Inject constructor(
         viewModelScope.launch {
             combine(listOf(
                 homeworkListUseCases.getCurrentProfileUseCase(),
-                homeworkListUseCases.getHomeworkUseCase()
+                homeworkListUseCases.getHomeworkUseCase(),
+                homeworkListUseCases.updateHomeworkUseCase.isUpdateRunning()
             )) { data ->
                 val profile = data[0] as? ClassProfile
                 val homework = data[1] as List<Homework>
+                val isUpdatingHomework = data[2] as Boolean
 
                 state.copy(
                     userUsesFalseProfileType = profile == null,
                     profile = profile,
-                    homework = homework
+                    homework = homework,
+                    isUpdatingHomework = isUpdatingHomework
                 )
             }.collect { state = it }
         }
@@ -73,6 +76,7 @@ class HomeworkListViewModel @Inject constructor(
                     })
                 }
                 is HomeworkListEvent.ResetFilters -> state = state.copy(filters = HomeworkListState().filters)
+                is HomeworkListEvent.RefreshHomework -> homeworkListUseCases.updateHomeworkUseCase()
             }
         }
     }
@@ -83,6 +87,8 @@ data class HomeworkListState(
     val profile: ClassProfile? = null,
     val homework: List<Homework> = emptyList(),
     val filters: List<HomeworkFilter> = listOf(HomeworkFilter.VisibilityFilter(true), HomeworkFilter.CompletionFilter(false)),
+
+    val isUpdatingHomework: Boolean = false,
 
     val error: HomeworkListError? = null
 ) {
@@ -156,6 +162,7 @@ sealed class HomeworkListEvent {
     data class MarkAsDone(val homework: Homework) : HomeworkListEvent()
     data class UpdateFilter(val filter: HomeworkFilter) : HomeworkListEvent()
     data object ResetFilters : HomeworkListEvent()
+    data object RefreshHomework : HomeworkListEvent()
 }
 
 sealed class HomeworkListError {

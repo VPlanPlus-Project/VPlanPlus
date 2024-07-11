@@ -15,7 +15,10 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.relativeDateStringResource
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -30,6 +33,13 @@ class UpdateHomeworkUseCase(
 ) {
 
     private var isUpdateRunning: Boolean = false
+
+    fun isUpdateRunning() = flow {
+        while (true) {
+            emit(isUpdateRunning)
+            delay(200)
+        }
+    }.distinctUntilChanged()
 
     /**
      * Updates the homework in the database.

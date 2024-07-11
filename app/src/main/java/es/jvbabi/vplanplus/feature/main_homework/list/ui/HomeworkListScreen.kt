@@ -8,6 +8,7 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -30,6 +31,8 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,6 +42,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
@@ -53,9 +57,9 @@ import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.AllDone
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DoneStateFilterSheet
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.NoMatchingItems
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.VisibilityFilterSheet
-import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
@@ -113,6 +117,8 @@ private fun HomeworkListContent(
         AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false })
     }
 
+    val pullRefreshState = rememberPullToRefreshState()
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = stringResource(id = R.string.homework_title)) })
@@ -128,99 +134,119 @@ private fun HomeworkListContent(
         bottomBar = navBar,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
-        Column(
+        Box(
             Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-        ) content@{
-            if (state.userUsesFalseProfileType) {
-                BadProfileType()
-                return@content
-            }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) filters@{
-                item {}
-                item {
-                    Icon(imageVector = Icons.Default.FilterAlt, contentDescription = null, modifier = Modifier.size(24.dp))
+                .nestedScroll(pullRefreshState.nestedScrollConnection)
+        ) contentWrapper@{
+            Column(Modifier.fillMaxSize()) content@{
+                if (state.userUsesFalseProfileType) {
+                    BadProfileType()
+                    return@content
                 }
-                state.filters.forEach { filter ->
+                LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) filters@{
+                    item {}
                     item {
-                        AssistChip(
-                            onClick = {
-                                when (filter) {
-                                    is HomeworkFilter.VisibilityFilter -> showVisibilityFilterSheet = true
-                                    is HomeworkFilter.CompletionFilter -> showDoneStateFilterSheet = true
-                                }
-                            },
-                            label = { Text(text = filter.buildLabel()) },
-                            leadingIcon = filter.buildLeadingIcon(),
-                            trailingIcon = filter.buildTrailingIcon()
-                        )
+                        Icon(imageVector = Icons.Default.FilterAlt, contentDescription = null, modifier = Modifier.size(24.dp))
                     }
-                }
-            }
-
-            runComposable placeholders@{
-                val isAllNotHiddenHomeworkDone = state.homework.all { it.isDone() || (it is Homework.CloudHomework && it.isHidden) }
-                val showOnlyUnfinishedHomework = state.getFilter<HomeworkFilter.CompletionFilter>().showCompleted == false
-                val showOnlyVisibleHomework = state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == true
-                val showAllDonePlaceholder = isAllNotHiddenHomeworkDone && showOnlyUnfinishedHomework && showOnlyVisibleHomework
-                androidx.compose.animation.AnimatedVisibility(
-                    visible = showAllDonePlaceholder,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    AllDone()
-                }
-
-                val doesNoHomeworkMatchingToFiltersExists = state.homework.none { homework -> state.filters.all { it.filter(homework) } }
-                if (doesNoHomeworkMatchingToFiltersExists && !showAllDonePlaceholder) {
-                    NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) }
-                }
-            }
-
-            val items = remember(state.homework) { state.homework.groupBy { it.until }.toList() }
-            val homeworkListState = rememberLazyListState()
-            LazyColumn(state = homeworkListState) {
-                items.forEach { (until, homeworkForDay) ->
-                    stickyHeader(key = until) {
-                        AnimatedVisibility(visible = homeworkForDay.any { homework -> state.filters.all { filter -> filter.filter(homework) } }) {
-                            Text(
-                                text = buildAnnotatedString {
-                                    val date = until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy"))
-                                    val relative = DateUtils.localizedRelativeDate(context, until.toLocalDate(), false)
-                                    withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
-                                        append(date)
-                                    }
-                                    if (relative != null) {
-                                        withStyle(MaterialTheme.typography.bodySmall.toSpanStyle()) {
-                                            append("\n($relative)")
-                                        }
+                    state.filters.forEach { filter ->
+                        item {
+                            AssistChip(
+                                onClick = {
+                                    when (filter) {
+                                        is HomeworkFilter.VisibilityFilter -> showVisibilityFilterSheet = true
+                                        is HomeworkFilter.CompletionFilter -> showDoneStateFilterSheet = true
                                     }
                                 },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .background(MaterialTheme.colorScheme.surface.copy(alpha = .5f))
-                                    .padding(16.dp),
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (homeworkForDay.any { it.isOverdue(LocalDate.now()) }) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                label = { Text(text = filter.buildLabel()) },
+                                leadingIcon = filter.buildLeadingIcon(),
+                                trailingIcon = filter.buildTrailingIcon()
                             )
                         }
                     }
-                    items(homeworkForDay) { homework ->
-                        HomeworkCardItem(
-                            homework = homework,
-                            currentVppId = state.profile?.vppId,
-                            isVisible = state.filters.all { it.filter(homework) },
-                            onClick = { onOpenHomework(homework) },
-                            onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
-                            onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
-                            resetKey1 = state.homework,
-                            resetKey2 = state.error,
-                        )
+                }
+
+                val items = remember(state.homework) { state.homework.groupBy { it.until }.toList() }
+                val homeworkListState = rememberLazyListState()
+                LazyColumn(state = homeworkListState) {
+                    item {
+                        runComposable placeholders@{
+                            val isAllNotHiddenHomeworkDone = state.homework.all { it.isDone() || (it is Homework.CloudHomework && it.isHidden) }
+                            val showOnlyUnfinishedHomework = state.getFilter<HomeworkFilter.CompletionFilter>().showCompleted == false
+                            val showOnlyVisibleHomework = state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == true
+                            val showAllDonePlaceholder = isAllNotHiddenHomeworkDone && showOnlyUnfinishedHomework && showOnlyVisibleHomework
+                            androidx.compose.animation.AnimatedVisibility(
+                                visible = showAllDonePlaceholder,
+                                enter = expandVertically() + fadeIn(),
+                                exit = shrinkVertically() + fadeOut()
+                            ) {
+                                AllDone()
+                            }
+
+                            val doesNoHomeworkMatchingToFiltersExists = state.homework.none { homework -> state.filters.all { it.filter(homework) } }
+                            if (doesNoHomeworkMatchingToFiltersExists && !showAllDonePlaceholder) {
+                                NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) }
+                            }
+                        }
+                    }
+                    items.forEach { (until, homeworkForDay) ->
+                        stickyHeader(key = until) {
+                            AnimatedVisibility(visible = homeworkForDay.any { homework -> state.filters.all { filter -> filter.filter(homework) } }) {
+                                Text(
+                                    text = buildAnnotatedString {
+                                        val date = until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy"))
+                                        val relative = DateUtils.localizedRelativeDate(context, until.toLocalDate(), false)
+                                        withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
+                                            append(date)
+                                        }
+                                        if (relative != null) {
+                                            withStyle(MaterialTheme.typography.bodySmall.toSpanStyle()) {
+                                                append("\n($relative)")
+                                            }
+                                        }
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .background(MaterialTheme.colorScheme.surface.copy(alpha = .5f))
+                                        .padding(16.dp),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (homeworkForDay.any { it.isOverdue(LocalDate.now()) }) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+                        items(homeworkForDay) { homework ->
+                            HomeworkCardItem(
+                                homework = homework,
+                                currentVppId = state.profile?.vppId,
+                                isVisible = state.filters.all { it.filter(homework) },
+                                onClick = { onOpenHomework(homework) },
+                                onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
+                                onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
+                                resetKey1 = state.homework,
+                                resetKey2 = state.error,
+                            )
+                        }
                     }
                 }
             }
+            PullToRefreshContainer(
+                state = pullRefreshState,
+                modifier = Modifier
+                    .align(Alignment.TopCenter),
+            )
+        }
+
+        if (pullRefreshState.isRefreshing) {
+            LaunchedEffect(key1 = Unit) {
+                pullRefreshState.startRefresh()
+                onEvent(HomeworkListEvent.RefreshHomework)
+            }
+        }
+        LaunchedEffect(state.isUpdatingHomework) {
+            if(state.isUpdatingHomework) pullRefreshState.startRefresh()
+            else pullRefreshState.endRefresh()
         }
     }
 

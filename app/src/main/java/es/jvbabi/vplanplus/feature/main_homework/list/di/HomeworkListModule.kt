@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ToggleHomew
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkListUseCases
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.MarkHomeworkAsDoneUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import javax.inject.Singleton
 
 @Module
@@ -22,6 +23,7 @@ object HomeworkListModule {
     @Singleton
     fun provideHomeworkListUseCases(
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
+        updateHomeworkUseCase: UpdateHomeworkUseCase,
         homeworkRepository: HomeworkRepository,
         fileRepository: FileRepository
     ) = HomeworkListUseCases(
@@ -40,7 +42,8 @@ object HomeworkListModule {
         ),
         markHomeworkAsDoneUseCase = MarkHomeworkAsDoneUseCase(
             homeworkRepository = homeworkRepository,
-            getCurrentProfileUseCase = getCurrentProfileUseCase
-        )
+            getCurrentProfileUseCase = getCurrentProfileUseCase,
+        ),
+        updateHomeworkUseCase = updateHomeworkUseCase
     )
 }
