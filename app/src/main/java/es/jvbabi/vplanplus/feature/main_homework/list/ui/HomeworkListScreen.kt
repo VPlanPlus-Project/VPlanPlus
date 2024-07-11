@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DoneStateFilterSheet
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.VisibilityFilterSheet
@@ -88,13 +89,18 @@ private fun HomeworkListContent(
         state = (state.filters.first { it is HomeworkFilter.VisibilityFilter } as HomeworkFilter.VisibilityFilter).showVisible
     )
 
+    var isAddHomeworkSheetOpen by rememberSaveable { mutableStateOf(false) }
+    if (isAddHomeworkSheetOpen) {
+        AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false })
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text(text = stringResource(id = R.string.homework_title)) })
         },
         floatingActionButton = {
             if (state.userUsesFalseProfileType) return@Scaffold
-            ExtendedFloatingActionButton(onClick = { /*TODO*/ }) {
+            ExtendedFloatingActionButton(onClick = { isAddHomeworkSheetOpen = true }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 Spacer4Dp()
                 Text(text = stringResource(id = R.string.home_addHomeworkLabel))
