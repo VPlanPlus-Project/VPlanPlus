@@ -46,10 +46,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.AllDone
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DoneStateFilterSheet
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.NoMatchingItems
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.VisibilityFilterSheet
-import es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components.HomeworkCardItem
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
@@ -130,7 +132,7 @@ private fun HomeworkListContent(
                 BadProfileType()
                 return@content
             }
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) filters@{
                 item {}
                 item {
                     Icon(imageVector = Icons.Default.FilterAlt, contentDescription = null, modifier = Modifier.size(24.dp))
@@ -152,6 +154,19 @@ private fun HomeworkListContent(
                 }
             }
 
+            if (
+                state.homework.isEmpty() ||
+                state.homework.none { !it.isDone() && ((it is Homework.CloudHomework && !it.isHidden) || it is Homework.LocalHomework) } &&
+                (state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == true || (state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == null && state.homework.filterIsInstance<Homework.CloudHomework>().none { it.isHidden }))
+            ) {
+                AllDone()
+                return@content
+            }
+            else if (state.homework.none { homework -> state.filters.all { it.filter(homework) } }) {
+                NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) }
+                return@content
+            }
+
             val items = remember(state.homework) { state.homework.groupBy { it.until }.toList() }
             val homeworkListState = rememberLazyListState()
             LazyColumn(state = homeworkListState) {
@@ -171,7 +186,10 @@ private fun HomeworkListContent(
                                         }
                                     }
                                 },
-                                modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface.copy(alpha = .5f)).padding(16.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(MaterialTheme.colorScheme.surface.copy(alpha = .5f))
+                                    .padding(16.dp),
                                 textAlign = TextAlign.Center,
                                 style = MaterialTheme.typography.bodySmall,
                                 color = if (homeworkForDay.any { it.isOverdue(LocalDate.now()) }) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface

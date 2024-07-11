@@ -731,5 +731,8 @@
     <string name="homework_filterCompletionSheetOpen">Open</string>
     <string name="homework_filterVisibilitySheetVisible">Visible</string>
     <string name="homework_filterVisibilitySheetHidden">Hidden</string>
+    <string name="homework_allDone">All tasks are done. Enjoy the moment.</string>
+    <string name="homework_noMatchingItems">There is no homework that matches your filters but some other homework exists. Try again with a different set of filters.</string>
+    <string name="homework_clearFilter">Reset filter</string>
 
 </resources>

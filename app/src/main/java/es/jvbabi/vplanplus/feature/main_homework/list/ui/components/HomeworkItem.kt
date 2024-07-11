@@ -1,6 +1,5 @@
-package es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components
+package es.jvbabi.vplanplus.feature.main_homework.list.ui.components
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.animateFloatAsState
@@ -130,7 +129,6 @@ fun HomeworkCardItem(
             state = dismissState,
             backgroundContent = { SwipeBackground(dismissState, homework is Homework.LocalHomework || (homework is Homework.CloudHomework && homework.createdBy.id == currentVppId?.id), homework is Homework.CloudHomework && homework.isHidden) }
         ) {
-            Log.d("Swiping", "Progress: ${dismissState.progress}")
             HomeworkCard(
                 subject = homework.defaultLesson?.subject,
                 tasks = homework.tasks.map { it.content },

@@ -21,6 +21,10 @@ sealed class Homework(
         return until.toLocalDate().isBefore(date) && tasks.any { !it.isDone }
     }
 
+    fun isDone(): Boolean {
+        return tasks.all { it.isDone }
+    }
+
     fun getTaskById(id: Long): HomeworkTask? {
         return tasks.find { it.id == id.toInt() }
     }

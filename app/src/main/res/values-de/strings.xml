@@ -728,5 +728,8 @@
     <string name="homework_filterCompletionSheetOpen">Offen</string>
     <string name="homework_filterVisibilitySheetVisible">Sichtbar</string>
     <string name="homework_filterVisibilitySheetHidden">Ausgeblendet</string>
+    <string name="homework_allDone">Alle Aufgaben sind erledigt. Genieße den Moment.</string>
+    <string name="homework_noMatchingItems">Für diese Filterkombination gibt es keine Hausaufgaben. Versuche es mit anderen Filtern erneut.</string>
+    <string name="homework_clearFilter">Filter zurücksetzen</string>
 
 </resources>

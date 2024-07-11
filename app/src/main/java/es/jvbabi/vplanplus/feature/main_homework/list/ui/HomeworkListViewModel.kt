@@ -72,6 +72,7 @@ class HomeworkListViewModel @Inject constructor(
                         if (it::class == filter::class) filter else it
                     })
                 }
+                is HomeworkListEvent.ResetFilters -> state = state.copy(filters = HomeworkListState().filters)
             }
         }
     }
@@ -84,7 +85,11 @@ data class HomeworkListState(
     val filters: List<HomeworkFilter> = listOf(HomeworkFilter.VisibilityFilter(true), HomeworkFilter.CompletionFilter(false)),
 
     val error: HomeworkListError? = null
-)
+) {
+    inline fun <reified T: HomeworkFilter> getFilter(): T {
+        return filters.filterIsInstance<T>().first()
+    }
+}
 
 sealed interface HomeworkFilter {
     @Composable fun buildLabel(): String
@@ -150,6 +155,7 @@ sealed class HomeworkListEvent {
     data class DeleteOrHide(val homework: Homework) : HomeworkListEvent()
     data class MarkAsDone(val homework: Homework) : HomeworkListEvent()
     data class UpdateFilter(val filter: HomeworkFilter) : HomeworkListEvent()
+    data object ResetFilters : HomeworkListEvent()
 }
 
 sealed class HomeworkListError {
