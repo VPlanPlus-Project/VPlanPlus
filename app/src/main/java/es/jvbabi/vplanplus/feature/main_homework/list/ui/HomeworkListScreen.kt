@@ -1,6 +1,10 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -57,6 +61,7 @@ import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.runComposable
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -154,17 +159,23 @@ private fun HomeworkListContent(
                 }
             }
 
-            if (
-                state.homework.isEmpty() ||
-                state.homework.none { !it.isDone() && ((it is Homework.CloudHomework && !it.isHidden) || it is Homework.LocalHomework) } &&
-                (state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == true || (state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == null && state.homework.filterIsInstance<Homework.CloudHomework>().none { it.isHidden }))
-            ) {
-                AllDone()
-                return@content
-            }
-            else if (state.homework.none { homework -> state.filters.all { it.filter(homework) } }) {
-                NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) }
-                return@content
+            runComposable placeholders@{
+                val isAllNotHiddenHomeworkDone = state.homework.all { it.isDone() || (it is Homework.CloudHomework && it.isHidden) }
+                val showOnlyUnfinishedHomework = state.getFilter<HomeworkFilter.CompletionFilter>().showCompleted == false
+                val showOnlyVisibleHomework = state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == true
+                val showAllDonePlaceholder = isAllNotHiddenHomeworkDone && showOnlyUnfinishedHomework && showOnlyVisibleHomework
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = showAllDonePlaceholder,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    AllDone()
+                }
+
+                val doesNoHomeworkMatchingToFiltersExists = state.homework.none { homework -> state.filters.all { it.filter(homework) } }
+                if (doesNoHomeworkMatchingToFiltersExists && !showAllDonePlaceholder) {
+                    NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) }
+                }
             }
 
             val items = remember(state.homework) { state.homework.groupBy { it.until }.toList() }
