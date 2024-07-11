@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.AnimationConstants
 import androidx.compose.animation.core.animateFloatAsState
@@ -71,6 +72,7 @@ import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -132,6 +134,7 @@ fun HomeworkCardItem(
             state = dismissState,
             backgroundContent = { SwipeBackground(dismissState, homework is Homework.LocalHomework || (homework is Homework.CloudHomework && homework.createdBy.id == currentVppId?.id), homework is Homework.CloudHomework && homework.isHidden) }
         ) {
+            Log.d("Swiping", "Progress: ${dismissState.progress}")
             HomeworkCard(
                 subject = homework.defaultLesson?.subject,
                 dueTo = homework.until.toLocalDate(),
@@ -143,7 +146,7 @@ fun HomeworkCardItem(
                     is Homework.LocalHomework -> HomeworkCreator.DeviceCreator
                 },
                 createdAt = homework.createdAt,
-                isSwiping = dismissState.progress != 1f,
+                swipingProgress = dismissState.progress,
                 isHidden = homework is Homework.CloudHomework && homework.isHidden,
                 isPublic = homework is Homework.CloudHomework && homework.isPublic,
                 onClick = onClick
@@ -219,19 +222,20 @@ private fun HomeworkCard(
     createdAt: ZonedDateTime,
     isHidden: Boolean,
     isPublic: Boolean,
-    isSwiping: Boolean = false,
+    swipingProgress: Float = 1f,
     onClick: () -> Unit = {}
 ) {
     val context = LocalContext.current
-    val isSwipingModifierValue by animateFloatAsState(targetValue = if (isSwiping) 0f else 1f, label = "isSwipingModifierValue")
+    val isSwipingModifierValue by animateFloatAsState(targetValue = if (swipingProgress == 1f) 0f else 1f, label = "isSwipingModifierValue")
+    val rounding = ((abs(swipingProgress.run { if (this == 1f) return@run 0f else return@run this }).coerceAtMost(0.08f)/0.08f) * 16).dp
     RowVerticalCenter(
         modifier = Modifier
-            .zIndex(if (isSwiping) 1f else 0f)
+            .zIndex(if (swipingProgress != 1f) 0f else 1f)
             .fillMaxWidth()
-            .shadow(((1 - isSwipingModifierValue) * 8).dp, RoundedCornerShape(((1 - isSwipingModifierValue) * 16).dp))
-            .clip(RoundedCornerShape(((1 - isSwipingModifierValue) * 16).dp))
+            .shadow((isSwipingModifierValue * 8).dp, RoundedCornerShape(rounding))
+            .clip(RoundedCornerShape(rounding))
             .background(MaterialTheme.colorScheme.surface)
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(if (rounding == 0.dp) 16.dp else rounding))
             .clickable { onClick() }
             .padding(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
