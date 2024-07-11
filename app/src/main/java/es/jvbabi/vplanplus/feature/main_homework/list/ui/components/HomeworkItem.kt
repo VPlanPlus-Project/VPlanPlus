@@ -246,8 +246,8 @@ private fun HomeworkCard(
                 RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
                         text = buildAnnotatedString {
-                            if (subject != null) withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
-                                append(subject)
+                            withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
+                                append(subject ?: stringResource(id = R.string.homework_noSubject))
                                 append(" ")
                             }
                         },
