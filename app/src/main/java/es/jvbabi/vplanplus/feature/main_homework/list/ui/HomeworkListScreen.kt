@@ -1,13 +1,18 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.FilterAlt
@@ -15,6 +20,7 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -31,6 +37,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,6 +54,9 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.DateUtils
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeworkListScreen(
@@ -61,7 +73,7 @@ fun HomeworkListScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun HomeworkListContent(
     state: HomeworkListState,
@@ -140,18 +152,44 @@ private fun HomeworkListContent(
                 }
             }
 
-            LazyColumn {
-                items(state.homework, key = { it.id }) { homework ->
-                    HomeworkCardItem(
-                        homework = homework,
-                        currentVppId = state.profile?.vppId,
-                        isVisible = state.filters.all { it.filter(homework) },
-                        onClick = { onOpenHomework(homework) },
-                        onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
-                        onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
-                        resetKey1 = state.homework,
-                        resetKey2 = state.error,
-                    )
+            val items = remember(state.homework) { state.homework.groupBy { it.until }.toList() }
+            val homeworkListState = rememberLazyListState()
+            LazyColumn(state = homeworkListState) {
+                items.forEach { (until, homeworkForDay) ->
+                    stickyHeader(key = until) {
+                        AnimatedVisibility(visible = homeworkForDay.any { homework -> state.filters.all { filter -> filter.filter(homework) } }) {
+                            Text(
+                                text = buildAnnotatedString {
+                                    val date = until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy"))
+                                    val relative = DateUtils.localizedRelativeDate(context, until.toLocalDate(), false)
+                                    withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
+                                        append(date)
+                                    }
+                                    if (relative != null) {
+                                        withStyle(MaterialTheme.typography.bodySmall.toSpanStyle()) {
+                                            append("\n($relative)")
+                                        }
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface.copy(alpha = .5f)).padding(16.dp),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (homeworkForDay.any { it.isOverdue(LocalDate.now()) }) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+                    items(homeworkForDay) { homework ->
+                        HomeworkCardItem(
+                            homework = homework,
+                            currentVppId = state.profile?.vppId,
+                            isVisible = state.filters.all { it.filter(homework) },
+                            onClick = { onOpenHomework(homework) },
+                            onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
+                            onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
+                            resetKey1 = state.homework,
+                            resetKey2 = state.error,
+                        )
+                    }
                 }
             }
         }
