@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -8,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.automirrored.filled.PlaylistAddCheck
 import androidx.compose.material.icons.filled.PlaylistRemove
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -35,6 +37,22 @@ fun DoneStateFilterSheet(
         sheetState = sheetState,
         onDismiss = onDismiss
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+        ) {
+            Option(
+                title = stringResource(id = R.string.homework_filterSheetAll),
+                icon = Icons.AutoMirrored.Default.List,
+                enabled = true,
+                state = state == null,
+                onClick = { onUpdateState(null) }
+            )
+        }
         Column(
             Modifier
                 .fillMaxWidth()
@@ -49,27 +67,15 @@ fun DoneStateFilterSheet(
                     title = stringResource(id = R.string.homework_filterCompletionSheetDone),
                     icon = Icons.AutoMirrored.Default.PlaylistAddCheck,
                     isEnabled = true,
-                    isSelected = state == null || state,
-                    onClick = {
-                        when (state) {
-                            true -> Unit
-                            false -> onUpdateState(null)
-                            null -> onUpdateState(false)
-                        }
-                    }
+                    isSelected = state == true,
+                    onClick = { onUpdateState(true) }
                 ),
                 ModalOption(
                     title = stringResource(id = R.string.homework_filterCompletionSheetOpen),
                     icon = Icons.Default.PlaylistRemove,
                     isEnabled = true,
-                    isSelected = state == null || !state,
-                    onClick = {
-                        when (state) {
-                            true -> onUpdateState(null)
-                            false -> Unit
-                            null -> onUpdateState(true)
-                        }
-                    }
+                    isSelected = state == false,
+                    onClick = { onUpdateState(false) }
                 )
             ).forEach { entry ->
                 Option(

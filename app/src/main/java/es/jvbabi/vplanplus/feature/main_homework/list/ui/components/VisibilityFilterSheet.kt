@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -10,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetState
@@ -35,6 +37,22 @@ fun VisibilityFilterSheet(
         sheetState = sheetState,
         onDismiss = onDismiss
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 16.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
+        ) {
+            Option(
+                title = stringResource(id = R.string.homework_filterSheetAll),
+                icon = Icons.Outlined.Visibility,
+                enabled = true,
+                state = state == null,
+                onClick = { onUpdateState(null) }
+            )
+        }
         Column(
             Modifier
                 .fillMaxWidth()
@@ -49,27 +67,15 @@ fun VisibilityFilterSheet(
                     title = stringResource(id = R.string.homework_filterVisibilitySheetVisible),
                     icon = Icons.Default.Visibility,
                     isEnabled = true,
-                    isSelected = state == null || state,
-                    onClick = {
-                        when (state) {
-                            true -> Unit
-                            false -> onUpdateState(null)
-                            null -> onUpdateState(false)
-                        }
-                    }
+                    isSelected = state == true,
+                    onClick = { onUpdateState(true) }
                 ),
                 ModalOption(
                     title = stringResource(id = R.string.homework_filterVisibilitySheetHidden),
                     icon = Icons.Default.VisibilityOff,
                     isEnabled = true,
-                    isSelected = state == null || !state,
-                    onClick = {
-                        when (state) {
-                            true -> onUpdateState(null)
-                            false -> Unit
-                            null -> onUpdateState(true)
-                        }
-                    }
+                    isSelected = state == false,
+                    onClick = { onUpdateState(false) }
                 )
             ).forEach { entry ->
                 Option(
