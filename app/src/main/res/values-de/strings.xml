@@ -732,5 +732,6 @@
     <string name="homework_noMatchingItems">Für diese Filterkombination gibt es keine Hausaufgaben. Versuche es mit anderen Filtern erneut.</string>
     <string name="homework_clearFilter">Filter zurücksetzen</string>
     <string name="homework_filterSheetAll">Alle</string>
+    <string name="homework_addHomework">Neu</string>
 
 </resources>

@@ -735,5 +735,6 @@
     <string name="homework_noMatchingItems">There is no homework that matches your filters but some other homework exists. Try again with a different set of filters.</string>
     <string name="homework_clearFilter">Reset filter</string>
     <string name="homework_filterSheetAll">All</string>
+    <string name="homework_addHomework">Add</string>
 
 </resources>

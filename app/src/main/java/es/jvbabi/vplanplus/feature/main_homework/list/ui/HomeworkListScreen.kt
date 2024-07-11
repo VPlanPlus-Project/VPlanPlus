@@ -129,7 +129,7 @@ private fun HomeworkListContent(
             ExtendedFloatingActionButton(onClick = { isAddHomeworkSheetOpen = true }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 Spacer4Dp()
-                Text(text = stringResource(id = R.string.home_addHomeworkLabel))
+                Text(text = stringResource(id = R.string.homework_addHomework))
             }
         },
         bottomBar = navBar,
