@@ -59,19 +59,15 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components.homeworkcard.HomeworkProgressBar
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.common.getSubjectIcon
-import es.jvbabi.vplanplus.util.DateUtils.getRelativeStringResource
 import es.jvbabi.vplanplus.util.DateUtils.localizedRelativeDate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 import kotlin.math.abs
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -137,7 +133,6 @@ fun HomeworkCardItem(
             Log.d("Swiping", "Progress: ${dismissState.progress}")
             HomeworkCard(
                 subject = homework.defaultLesson?.subject,
-                dueTo = homework.until.toLocalDate(),
                 tasks = homework.tasks.map { it.content },
                 documentCount = homework.documents.size,
                 tasksDone = homework.tasks.count { it.isDone },
@@ -214,7 +209,6 @@ sealed interface HomeworkCreator {
 @Composable
 private fun HomeworkCard(
     subject: String?,
-    dueTo: LocalDate,
     tasks: List<String>,
     documentCount: Int,
     tasksDone: Int,
@@ -257,14 +251,6 @@ private fun HomeworkCard(
                             if (subject != null) withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
                                 append(subject)
                                 append(" ")
-                            }
-
-                            withStyle(MaterialTheme.typography.bodyMedium.toSpanStyle()) {
-                                if (subject != null) append("$DOT ")
-                                append(stringResource(id = R.string.homework_dueTo, dueTo.getRelativeStringResource(LocalDate.now()).run {
-                                    return@run if (this@run == null) dueTo.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
-                                    else stringResource(id = this@run)
-                                }))
                             }
                         },
                     )
@@ -330,7 +316,6 @@ private fun HomeworkCard(
 private fun HomeworkCardPreview() {
     HomeworkCard(
         subject = "MA",
-        dueTo = LocalDate.now(),
         tasks = listOf("Pythagoras Theorem", "Trigonometry"),
         documentCount = 1,
         tasksDone = 1,
