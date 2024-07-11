@@ -179,14 +179,15 @@ private fun HomeworkListContent(
                             androidx.compose.animation.AnimatedVisibility(
                                 visible = showAllDonePlaceholder,
                                 enter = expandVertically() + fadeIn(),
-                                exit = shrinkVertically() + fadeOut()
+                                exit = shrinkVertically() + fadeOut(),
+                                modifier = Modifier.fillParentMaxSize()
                             ) {
                                 AllDone()
                             }
 
                             val doesNoHomeworkMatchingToFiltersExists = state.homework.none { homework -> state.filters.all { it.filter(homework) } }
                             if (doesNoHomeworkMatchingToFiltersExists && !showAllDonePlaceholder) {
-                                NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) }
+                                Box(Modifier.fillParentMaxSize()) { NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) } }
                             }
                         }
                     }
