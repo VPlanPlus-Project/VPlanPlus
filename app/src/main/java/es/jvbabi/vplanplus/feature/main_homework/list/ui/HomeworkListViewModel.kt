@@ -44,7 +44,8 @@ class HomeworkListViewModel @Inject constructor(
                     userUsesFalseProfileType = profile == null,
                     profile = profile,
                     homework = homework,
-                    isUpdatingHomework = isUpdatingHomework
+                    isUpdatingHomework = isUpdatingHomework,
+                    initDone = true
                 )
             }.collect { state = it }
         }
@@ -55,13 +56,17 @@ class HomeworkListViewModel @Inject constructor(
             if (state.error != null) state = state.copy(error = null) // Clear error state only when an error existed to prevent card resetting
             when (event) {
                 is HomeworkListEvent.DeleteOrHide -> {
-                    val homework = (event.homework as? Homework.CloudHomework) ?: return@launch
-                    if (homework.createdBy == state.profile?.vppId) {
-                        homeworkListUseCases.deleteHomeworkUseCase(homework).let { success ->
+                    when (event.homework) {
+                        is Homework.CloudHomework -> {
+                            if (event.homework.createdBy != state.profile?.vppId) homeworkListUseCases.toggleHomeworkHiddenStateUseCase(event.homework)
+                            else homeworkListUseCases.deleteHomeworkUseCase(event.homework).let { success ->
+                                if (!success) state = state.copy(error = HomeworkListError.DeleteOrHideError)
+                            }
+                        }
+                        else -> homeworkListUseCases.deleteHomeworkUseCase(event.homework).let { success ->
                             if (!success) state = state.copy(error = HomeworkListError.DeleteOrHideError)
                         }
                     }
-                    else homeworkListUseCases.toggleHomeworkHiddenStateUseCase(homework)
                 }
                 is HomeworkListEvent.MarkAsDone -> {
                     val homework = event.homework
@@ -83,6 +88,7 @@ class HomeworkListViewModel @Inject constructor(
 }
 
 data class HomeworkListState(
+    val initDone: Boolean = false,
     val userUsesFalseProfileType: Boolean = false,
     val profile: ClassProfile? = null,
     val homework: List<Homework> = emptyList(),

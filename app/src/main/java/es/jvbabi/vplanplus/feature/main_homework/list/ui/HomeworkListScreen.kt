@@ -3,8 +3,8 @@ package es.jvbabi.vplanplus.feature.main_homework.list.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideIn
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -49,6 +49,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -167,70 +168,76 @@ private fun HomeworkListContent(
                     }
                 }
 
-                val items = remember(state.homework) { state.homework.groupBy { it.until }.toList() }
-                val homeworkListState = rememberLazyListState()
-                LazyColumn(state = homeworkListState) {
-                    item {
-                        runComposable placeholders@{
-                            val isAllNotHiddenHomeworkDone = state.homework.all { it.isDone() || (it is Homework.CloudHomework && it.isHidden) }
-                            val showOnlyUnfinishedHomework = state.getFilter<HomeworkFilter.CompletionFilter>().showCompleted == false
-                            val showOnlyVisibleHomework = state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == true
-                            val showAllDonePlaceholder = isAllNotHiddenHomeworkDone && showOnlyUnfinishedHomework && showOnlyVisibleHomework
-                            androidx.compose.animation.AnimatedVisibility(
-                                visible = showAllDonePlaceholder,
-                                enter = expandVertically() + fadeIn(),
-                                exit = shrinkVertically() + fadeOut(),
-                                modifier = Modifier.fillParentMaxSize()
-                            ) {
-                                AllDone()
-                            }
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = state.initDone,
+                    enter = slideIn(initialOffset = { IntOffset(0, 100) }) + fadeIn()
+                ) {
+                    val items = remember(state.homework) { state.homework.groupBy { it.until }.toList() }
+                    val homeworkListState = rememberLazyListState()
+                    LazyColumn(state = homeworkListState) {
+                        item {
+                            runComposable placeholders@{
+                                val isAllNotHiddenHomeworkDone = state.homework.all { it.isDone() || (it is Homework.CloudHomework && it.isHidden) }
+                                val showOnlyUnfinishedHomework = state.getFilter<HomeworkFilter.CompletionFilter>().showCompleted == false
+                                val showOnlyVisibleHomework = state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == true
+                                val showAllDonePlaceholder = isAllNotHiddenHomeworkDone && showOnlyUnfinishedHomework && showOnlyVisibleHomework
+                                androidx.compose.animation.AnimatedVisibility(
+                                    visible = showAllDonePlaceholder,
+                                    enter = expandVertically() + fadeIn(),
+                                    exit = shrinkVertically(),
+                                    modifier = Modifier.fillParentMaxSize()
+                                ) {
+                                    AllDone()
+                                }
 
-                            val doesNoHomeworkMatchingToFiltersExists = state.homework.none { homework -> state.filters.all { it.filter(homework) } }
-                            if (doesNoHomeworkMatchingToFiltersExists && !showAllDonePlaceholder) {
-                                Box(Modifier.fillParentMaxSize()) { NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) } }
+                                val doesNoHomeworkMatchingToFiltersExists = state.homework.none { homework -> state.filters.all { it.filter(homework) } }
+                                if (doesNoHomeworkMatchingToFiltersExists && !showAllDonePlaceholder) {
+                                    Box(Modifier.fillParentMaxSize()) { NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) } }
+                                }
                             }
                         }
-                    }
-                    items.forEach { (until, homeworkForDay) ->
-                        stickyHeader(key = until) {
-                            AnimatedVisibility(visible = homeworkForDay.any { homework -> state.filters.all { filter -> filter.filter(homework) } }) {
-                                Text(
-                                    text = buildAnnotatedString {
-                                        val date = until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy"))
-                                        val relative = DateUtils.localizedRelativeDate(context, until.toLocalDate(), false)
-                                        withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
-                                            append(date)
-                                        }
-                                        if (relative != null) {
-                                            withStyle(MaterialTheme.typography.bodySmall.toSpanStyle()) {
-                                                append("\n($relative)")
+                        items.forEach { (until, homeworkForDay) ->
+                            stickyHeader(key = until) {
+                                AnimatedVisibility(visible = homeworkForDay.any { homework -> state.filters.all { filter -> filter.filter(homework) } }) {
+                                    Text(
+                                        text = buildAnnotatedString {
+                                            val date = until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy"))
+                                            val relative = DateUtils.localizedRelativeDate(context, until.toLocalDate(), false)
+                                            withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
+                                                append(date)
                                             }
-                                        }
-                                    },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .background(MaterialTheme.colorScheme.surface.copy(alpha = .5f))
-                                        .padding(16.dp),
-                                    textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = if (homeworkForDay.any { it.isOverdue(LocalDate.now()) }) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                            if (relative != null) {
+                                                withStyle(MaterialTheme.typography.bodySmall.toSpanStyle()) {
+                                                    append("\n($relative)")
+                                                }
+                                            }
+                                        },
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .background(MaterialTheme.colorScheme.surface.copy(alpha = .5f))
+                                            .padding(16.dp),
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = if (homeworkForDay.any { it.isOverdue(LocalDate.now()) }) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+                            }
+                            items(homeworkForDay) { homework ->
+                                HomeworkCardItem(
+                                    homework = homework,
+                                    currentVppId = state.profile?.vppId,
+                                    isVisible = state.filters.all { it.filter(homework) },
+                                    onClick = { onOpenHomework(homework) },
+                                    onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
+                                    onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
+                                    resetKey1 = state.homework,
+                                    resetKey2 = state.error,
                                 )
                             }
                         }
-                        items(homeworkForDay) { homework ->
-                            HomeworkCardItem(
-                                homework = homework,
-                                currentVppId = state.profile?.vppId,
-                                isVisible = state.filters.all { it.filter(homework) },
-                                onClick = { onOpenHomework(homework) },
-                                onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
-                                onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
-                                resetKey1 = state.homework,
-                                resetKey2 = state.error,
-                            )
-                        }
                     }
                 }
+
             }
             PullToRefreshContainer(
                 state = pullRefreshState,

@@ -90,8 +90,7 @@ fun HomeworkCardItem(
             if (it == SwipeToDismissBoxValue.EndToStart) { // Dismissed to the left (mark as done)
                 onCheckSwiped()
             } else if (it == SwipeToDismissBoxValue.StartToEnd) { // Dismissed to the right (delete)
-                if (homework is Homework.CloudHomework && homework.createdBy.id == currentVppId?.id) isDeleteDialogOpen = true
-                else onVisibilityOrDeleteSwiped()
+                isDeleteDialogOpen = true
             }
             true
         }
