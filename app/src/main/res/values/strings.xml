@@ -736,5 +736,9 @@
     <string name="homework_clearFilter">Reset filter</string>
     <string name="homework_filterSheetAll">All</string>
     <string name="homework_addHomework">Add</string>
+    <string name="homework_hiddenBalloonTitle">Homework hidden</string>
+    <string name="homework_hiddenBalloonDescription">You can use this filter to show it.</string>
+    <string name="homework_hiddenSnackbarMessage">Homework hidden</string>
+    <string name="homework_hiddenSnackbarAction">Undo</string>
 
 </resources>

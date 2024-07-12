@@ -5,7 +5,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.FileRepository
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsBalloonUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.DeleteHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ToggleHomeworkHiddenStateUseCase
@@ -25,7 +28,8 @@ object HomeworkListModule {
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         updateHomeworkUseCase: UpdateHomeworkUseCase,
         homeworkRepository: HomeworkRepository,
-        fileRepository: FileRepository
+        fileRepository: FileRepository,
+        keyValueRepository: KeyValueRepository
     ) = HomeworkListUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
         getHomeworkUseCase = GetHomeworkUseCase(
@@ -44,6 +48,8 @@ object HomeworkListModule {
             homeworkRepository = homeworkRepository,
             getCurrentProfileUseCase = getCurrentProfileUseCase,
         ),
-        updateHomeworkUseCase = updateHomeworkUseCase
+        updateHomeworkUseCase = updateHomeworkUseCase,
+        isBalloonUseCase = IsBalloonUseCase(keyValueRepository),
+        setBalloonUseCase = SetBalloonUseCase(keyValueRepository)
     )
 }

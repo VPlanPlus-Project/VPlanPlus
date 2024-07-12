@@ -15,6 +15,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.usecase.general.Balloon
+import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkListUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import kotlinx.coroutines.flow.combine
@@ -34,18 +36,22 @@ class HomeworkListViewModel @Inject constructor(
             combine(listOf(
                 homeworkListUseCases.getCurrentProfileUseCase(),
                 homeworkListUseCases.getHomeworkUseCase(),
-                homeworkListUseCases.updateHomeworkUseCase.isUpdateRunning()
+                homeworkListUseCases.updateHomeworkUseCase.isUpdateRunning(),
+                homeworkListUseCases.isBalloonUseCase(HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON, true)
             )) { data ->
                 val profile = data[0] as? ClassProfile
                 val homework = data[1] as List<Homework>
                 val isUpdatingHomework = data[2] as Boolean
+                val allowHomeworkHiddenBanner = data[3] as Boolean
 
                 state.copy(
                     userUsesFalseProfileType = profile == null,
                     profile = profile,
                     homework = homework,
                     isUpdatingHomework = isUpdatingHomework,
-                    initDone = true
+                    initDone = true,
+                    allowHomeworkHiddenBanner = allowHomeworkHiddenBanner,
+                    updateCounter = state.updateCounter + 1
                 )
             }.collect { state = it }
         }
@@ -55,10 +61,14 @@ class HomeworkListViewModel @Inject constructor(
         viewModelScope.launch {
             if (state.error != null) state = state.copy(error = null) // Clear error state only when an error existed to prevent card resetting
             when (event) {
+                is HomeworkListEvent.DismissBalloon -> homeworkListUseCases.setBalloonUseCase(event.balloon, false)
                 is HomeworkListEvent.DeleteOrHide -> {
                     when (event.homework) {
                         is Homework.CloudHomework -> {
-                            if (event.homework.createdBy != state.profile?.vppId) homeworkListUseCases.toggleHomeworkHiddenStateUseCase(event.homework)
+                            if (event.homework.createdBy != state.profile?.vppId) {
+                                if (!event.homework.isHidden) state = state.copy(lastHiddenHomeworkId = event.homework.id.toInt())
+                                homeworkListUseCases.toggleHomeworkHiddenStateUseCase(event.homework)
+                            }
                             else homeworkListUseCases.deleteHomeworkUseCase(event.homework).let { success ->
                                 if (!success) state = state.copy(error = HomeworkListError.DeleteOrHideError)
                             }
@@ -94,9 +104,13 @@ data class HomeworkListState(
     val homework: List<Homework> = emptyList(),
     val filters: List<HomeworkFilter> = listOf(HomeworkFilter.VisibilityFilter(true), HomeworkFilter.CompletionFilter(false)),
 
+    val allowHomeworkHiddenBanner: Boolean = false,
+    val lastHiddenHomeworkId: Int? = null,
+
     val isUpdatingHomework: Boolean = false,
 
-    val error: HomeworkListError? = null
+    val error: HomeworkListError? = null,
+    val updateCounter: Int = Int.MIN_VALUE
 ) {
     inline fun <reified T: HomeworkFilter> getFilter(): T {
         return filters.filterIsInstance<T>().first()
@@ -169,6 +183,7 @@ sealed class HomeworkListEvent {
     data class UpdateFilter(val filter: HomeworkFilter) : HomeworkListEvent()
     data object ResetFilters : HomeworkListEvent()
     data object RefreshHomework : HomeworkListEvent()
+    data class DismissBalloon(val balloon: Balloon) : HomeworkListEvent()
 }
 
 sealed class HomeworkListError {

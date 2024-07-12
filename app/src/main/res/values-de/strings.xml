@@ -733,5 +733,9 @@
     <string name="homework_clearFilter">Filter zurücksetzen</string>
     <string name="homework_filterSheetAll">Alle</string>
     <string name="homework_addHomework">Neu</string>
+    <string name="homework_hiddenBalloonTitle">Hausaufgabe ausgeblendet</string>
+    <string name="homework_hiddenBalloonDescription">Du kannst diesen Filter verwenden, um sie wieder anzuzeigen.</string>
+    <string name="homework_hiddenSnackbarMessage">Hausaufgabe ausgeblendet</string>
+    <string name="homework_hiddenSnackbarAction">Rückgängig</string>
 
 </resources>

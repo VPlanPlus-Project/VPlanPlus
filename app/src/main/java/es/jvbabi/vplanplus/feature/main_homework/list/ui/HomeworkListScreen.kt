@@ -27,8 +27,10 @@ import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
@@ -38,6 +40,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,7 +56,9 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.skydoves.balloon.compose.Balloon
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.AllDone
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
@@ -62,7 +67,10 @@ import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCard
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.NoMatchingItems
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.VisibilityFilterSheet
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
+import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.rememberDefaultBalloon
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
@@ -118,6 +126,17 @@ private fun HomeworkListContent(
         AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false })
     }
 
+    LaunchedEffect(key1 = state.lastHiddenHomeworkId) {
+        if (state.lastHiddenHomeworkId == null) return@LaunchedEffect
+        val result = snackbarHostState.showSnackbar(
+            message = context.getString(R.string.homework_hiddenSnackbarMessage),
+            withDismissAction = true,
+            actionLabel = context.getString(R.string.homework_hiddenSnackbarAction),
+            duration = SnackbarDuration.Short
+        )
+        if (result == SnackbarResult.ActionPerformed) onEvent(HomeworkListEvent.DeleteOrHide(state.homework.first { it.id.toInt() == state.lastHiddenHomeworkId }))
+    }
+
     val pullRefreshState = rememberPullToRefreshState()
 
     Scaffold(
@@ -151,20 +170,37 @@ private fun HomeworkListContent(
                     item {
                         Icon(imageVector = Icons.Default.FilterAlt, contentDescription = null, modifier = Modifier.size(24.dp))
                     }
-                    state.filters.forEach { filter ->
-                        item {
+                    item {
+                        val filter = state.getFilter<HomeworkFilter.VisibilityFilter>()
+                        Balloon(
+                            builder = rememberDefaultBalloon(),
+                            balloonContent = {
+                                Column {
+                                    DefaultBalloonTitle(stringResource(id = R.string.homework_hiddenBalloonTitle))
+                                    DefaultBalloonDescription(stringResource(id = R.string.homework_hiddenBalloonDescription))
+                                }
+                            }
+                        ) { balloon ->
+                            LaunchedEffect(key1 = state.lastHiddenHomeworkId) {
+                                if (state.lastHiddenHomeworkId != null && state.allowHomeworkHiddenBanner) balloon.showAlignBottom()
+                            }
+                            balloon.setOnBalloonDismissListener { onEvent(HomeworkListEvent.DismissBalloon(HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON)) }
                             AssistChip(
-                                onClick = {
-                                    when (filter) {
-                                        is HomeworkFilter.VisibilityFilter -> showVisibilityFilterSheet = true
-                                        is HomeworkFilter.CompletionFilter -> showDoneStateFilterSheet = true
-                                    }
-                                },
+                                onClick = { showVisibilityFilterSheet = true },
                                 label = { Text(text = filter.buildLabel()) },
                                 leadingIcon = filter.buildLeadingIcon(),
                                 trailingIcon = filter.buildTrailingIcon()
                             )
                         }
+                    }
+                    item {
+                        val filter = state.getFilter<HomeworkFilter.CompletionFilter>()
+                        AssistChip(
+                            onClick = { showDoneStateFilterSheet = true },
+                            label = { Text(text = filter.buildLabel()) },
+                            leadingIcon = filter.buildLeadingIcon(),
+                            trailingIcon = filter.buildTrailingIcon()
+                        )
                     }
                 }
 
@@ -172,10 +208,10 @@ private fun HomeworkListContent(
                     visible = state.initDone,
                     enter = slideIn(initialOffset = { IntOffset(0, 100) }) + fadeIn()
                 ) {
-                    val items = remember(state.homework) { state.homework.groupBy { it.until }.toList() }
+                    val items = state.homework.groupBy { it.until }.toList()
                     val homeworkListState = rememberLazyListState()
                     LazyColumn(state = homeworkListState) {
-                        item {
+                        item placeholderWrapper@{
                             runComposable placeholders@{
                                 val isAllNotHiddenHomeworkDone = state.homework.all { it.isDone() || (it is Homework.CloudHomework && it.isHidden) }
                                 val showOnlyUnfinishedHomework = state.getFilter<HomeworkFilter.CompletionFilter>().showCompleted == false
@@ -222,7 +258,8 @@ private fun HomeworkListContent(
                                     )
                                 }
                             }
-                            items(homeworkForDay) { homework ->
+                            items(homeworkForDay) { hw ->
+                                val homework by rememberUpdatedState(hw)
                                 HomeworkCardItem(
                                     homework = homework,
                                     currentVppId = state.profile?.vppId,
@@ -230,7 +267,7 @@ private fun HomeworkListContent(
                                     onClick = { onOpenHomework(homework) },
                                     onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
                                     onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
-                                    resetKey1 = state.homework,
+                                    resetKey1 = state.updateCounter,
                                     resetKey2 = state.error,
                                 )
                             }
