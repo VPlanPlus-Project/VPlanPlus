@@ -90,7 +90,8 @@ fun HomeworkCardItem(
             if (it == SwipeToDismissBoxValue.EndToStart) { // Dismissed to the left (mark as done)
                 onCheckSwiped()
             } else if (it == SwipeToDismissBoxValue.StartToEnd) { // Dismissed to the right (delete)
-                isDeleteDialogOpen = true
+                if ((homework is Homework.CloudHomework && homework.createdBy.id == currentVppId?.id) || homework is Homework.LocalHomework) isDeleteDialogOpen = true
+                else onVisibilityOrDeleteSwiped()
             }
             true
         }
@@ -218,7 +219,7 @@ private fun HomeworkCard(
 ) {
     val context = LocalContext.current
     val isSwipingModifierValue by animateFloatAsState(targetValue = if (swipingProgress == 1f) 0f else 1f, label = "isSwipingModifierValue")
-    val rounding = ((abs(swipingProgress.run { if (this == 1f) return@run 0f else return@run this }).coerceAtMost(0.08f)/0.08f) * 16).dp
+    val rounding = ((abs(swipingProgress.run { if (this == 1f) return@run 0f else return@run this }).coerceAtMost(0.08f) / 0.08f) * 16).dp
     RowVerticalCenter(
         modifier = Modifier
             .zIndex(if (swipingProgress != 1f) 0f else 1f)

@@ -66,7 +66,7 @@ class HomeworkListViewModel @Inject constructor(
                     when (event.homework) {
                         is Homework.CloudHomework -> {
                             if (event.homework.createdBy != state.profile?.vppId) {
-                                if (!event.homework.isHidden) state = state.copy(lastHiddenHomeworkId = event.homework.id.toInt())
+                                if (!event.homework.isHidden) state = state.copy(lastHiddenHomework = event.homework)
                                 homeworkListUseCases.toggleHomeworkHiddenStateUseCase(event.homework)
                             }
                             else homeworkListUseCases.deleteHomeworkUseCase(event.homework).let { success ->
@@ -92,6 +92,7 @@ class HomeworkListViewModel @Inject constructor(
                 }
                 is HomeworkListEvent.ResetFilters -> state = state.copy(filters = HomeworkListState().filters)
                 is HomeworkListEvent.RefreshHomework -> homeworkListUseCases.updateHomeworkUseCase()
+                is HomeworkListEvent.ResetLastHiddenHomework -> state = state.copy(lastHiddenHomework = null)
             }
         }
     }
@@ -105,7 +106,7 @@ data class HomeworkListState(
     val filters: List<HomeworkFilter> = listOf(HomeworkFilter.VisibilityFilter(true), HomeworkFilter.CompletionFilter(false)),
 
     val allowHomeworkHiddenBanner: Boolean = false,
-    val lastHiddenHomeworkId: Int? = null,
+    val lastHiddenHomework: Homework? = null,
 
     val isUpdatingHomework: Boolean = false,
 
@@ -184,6 +185,7 @@ sealed class HomeworkListEvent {
     data object ResetFilters : HomeworkListEvent()
     data object RefreshHomework : HomeworkListEvent()
     data class DismissBalloon(val balloon: Balloon) : HomeworkListEvent()
+    data object ResetLastHiddenHomework : HomeworkListEvent()
 }
 
 sealed class HomeworkListError {

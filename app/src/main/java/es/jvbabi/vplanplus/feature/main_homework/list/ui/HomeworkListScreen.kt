@@ -126,15 +126,16 @@ private fun HomeworkListContent(
         AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false })
     }
 
-    LaunchedEffect(key1 = state.lastHiddenHomeworkId) {
-        if (state.lastHiddenHomeworkId == null) return@LaunchedEffect
+    LaunchedEffect(key1 = state.lastHiddenHomework) {
+        if (state.lastHiddenHomework == null) return@LaunchedEffect
         val result = snackbarHostState.showSnackbar(
             message = context.getString(R.string.homework_hiddenSnackbarMessage),
             withDismissAction = true,
             actionLabel = context.getString(R.string.homework_hiddenSnackbarAction),
             duration = SnackbarDuration.Short
         )
-        if (result == SnackbarResult.ActionPerformed) onEvent(HomeworkListEvent.DeleteOrHide(state.homework.first { it.id.toInt() == state.lastHiddenHomeworkId }))
+        if (result == SnackbarResult.ActionPerformed) onEvent(HomeworkListEvent.DeleteOrHide(state.lastHiddenHomework))
+        onEvent(HomeworkListEvent.ResetLastHiddenHomework)
     }
 
     val pullRefreshState = rememberPullToRefreshState()
@@ -181,8 +182,8 @@ private fun HomeworkListContent(
                                 }
                             }
                         ) { balloon ->
-                            LaunchedEffect(key1 = state.lastHiddenHomeworkId) {
-                                if (state.lastHiddenHomeworkId != null && state.allowHomeworkHiddenBanner) balloon.showAlignBottom()
+                            LaunchedEffect(key1 = state.lastHiddenHomework) {
+                                if (state.lastHiddenHomework != null && state.allowHomeworkHiddenBanner) balloon.showAlignBottom()
                             }
                             balloon.setOnBalloonDismissListener { onEvent(HomeworkListEvent.DismissBalloon(HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON)) }
                             AssistChip(
