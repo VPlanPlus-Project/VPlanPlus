@@ -51,7 +51,6 @@ class AddHomeworkViewModel @Inject constructor(
                     username = (profile as? ClassProfile)?.vppId?.name,
                     canUseCloud = (profile as? ClassProfile)?.vppId != null,
                     saveType = state.value.saveType ?: if (profile.vppId != null) SaveType.CLOUD else SaveType.LOCAL,
-                    until = LocalDate.now().plusDays(1),
                     defaultLessonsFiltered = defaultLessonsFiltered,
                     initDone = true,
                     showDocumentsBalloon = showDocumentBalloon && !showVppIdStorageBalloon,
@@ -76,7 +75,7 @@ class AddHomeworkViewModel @Inject constructor(
             state.value = state.value.copy(isLoading = true)
             state.value = state.value.copy(
                 result = addHomeworkUseCases.saveHomeworkUseCase(
-                    until = state.value.until!!,
+                    until = state.value.until,
                     defaultLesson = state.value.selectedDefaultLesson,
                     tasks = state.value.tasks,
                     shareWithClass = state.value.saveType == SaveType.SHARED,
@@ -162,7 +161,7 @@ data class AddHomeworkState(
     val defaultLessons: List<DefaultLesson> = emptyList(),
     val selectedDefaultLesson: DefaultLesson? = null,
 
-    val until: LocalDate? = null,
+    val until: LocalDate = LocalDate.now().plusDays(1),
 
     val saveType: SaveType? = null,
 
@@ -178,7 +177,7 @@ data class AddHomeworkState(
     val documents: List<NewHomeworkDocument> = emptyList()
 ) {
     val canSave: Boolean
-        get() = until != null && tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
+        get() = tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
 
     private val isInvalidSaveTypeSelected: Boolean
         get() = (saveType == SaveType.SHARED || saveType == SaveType.CLOUD) && !canUseCloud

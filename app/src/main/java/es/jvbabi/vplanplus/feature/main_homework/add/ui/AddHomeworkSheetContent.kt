@@ -97,7 +97,7 @@ fun AddHomeworkSheetContent(
     LaunchedEffect(key1 = Unit) {
         viewModel.init()
         if (initialValues.defaultLesson != null) viewModel.setDefaultLesson(initialValues.defaultLesson)
-        if (initialValues.until != null) viewModel.onUiAction(UpdateUntil(initialValues.until))
+        if (initialValues.until != null && !initialValues.until.isBefore(LocalDate.now())) viewModel.onUiAction(UpdateUntil(initialValues.until))
     }
 
     val pickDocumentLauncher = pickDocumentLauncher { viewModel.onUiAction(AddDocument(it)); onChanged() }
@@ -224,10 +224,10 @@ fun AddHomeworkSheetContent(
             item { Spacer4Dp() }
             item {
                 FilterChip(
-                    selected = state.until != null && state.until.isAfter(LocalDate.now().minusDays(1L)),
+                    selected = state.until.isAfter(LocalDate.now().minusDays(1L)),
                     onClick = { isUntilSheetOpen = true },
                     label = {
-                        Text(text = if (state.until == null) stringResource(id = R.string.addHomework_until) else stringResource(id = R.string.homework_dueTo, state.until.getRelativeStringResource().run {
+                        Text(text = stringResource(id = R.string.homework_dueTo, state.until.getRelativeStringResource().run {
                             if (this == null) return@run state.until.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
                             return@run stringResource(id = this)
                         }))

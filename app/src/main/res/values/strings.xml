@@ -298,7 +298,6 @@
     <string name="addHomework_notSelected">Not selected</string>
     <string name="addHomework_lessonSubtitle">%1$s with %2$s</string>
     <string name="addHomework_lessonSubtitleNoTeacher">%1$s</string>
-    <string name="addHomework_until">Until</string>
     <string name="addHomework_shareTitle">Share with other classmates</string>
     <string name="addHomework_shareSubtitleWithSubjectAndTeacher">If enabled, all classmates who have also activated %1$s with %2$s enabled will see this homework.</string>
     <string name="addHomework_shareSubtitleWithSubject">If enabled, all classmates who have also activated %1$s without a teacher will see this homework.</string>
