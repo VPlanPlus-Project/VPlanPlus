@@ -10,7 +10,7 @@ class ChangeTaskDoneStateUseCase(
 
     suspend operator fun invoke(profile: ClassProfile, homeworkTask: HomeworkTaskDone, done: Boolean): Boolean {
         if (homeworkTask.isDone == done) return true
-        if (profile.vppId != null) {
+        if (profile.vppId != null && homeworkTask.id > 0) {
             homeworkRepository.changeTaskStateCloud(profile.vppId, homeworkTask.id, done).value ?: return false
         }
         homeworkRepository.changeTaskStateDb(profile, homeworkTask.id, done)

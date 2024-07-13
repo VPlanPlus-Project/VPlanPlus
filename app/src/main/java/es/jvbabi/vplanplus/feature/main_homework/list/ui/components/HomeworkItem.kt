@@ -128,11 +128,12 @@ fun HomeworkCardItem(
             onNo = { isDeleteDialogOpen = false; scope.launch { dismissState.reset() } },
         )
     }
-    var demoDisplayDirection by remember<MutableState<SwipeToDismissBoxValue?>> { mutableStateOf(SwipeToDismissBoxValue.Settled) }
+    var demoDisplayDirection by remember<MutableState<SwipeToDismissBoxValue?>> { mutableStateOf(null) }
     var demoDisplayOffset by remember { mutableFloatStateOf(0f) }
-    var isDemoRunning by remember { mutableStateOf(true) }
+    var isDemoRunning by remember { mutableStateOf(showDemo) }
 
     if (showDemo) LaunchedEffect(key1 = Unit) {
+        isDemoRunning = true
         while (isDemoRunning) {
             delay(1000)
             demoDisplayDirection = SwipeToDismissBoxValue.EndToStart

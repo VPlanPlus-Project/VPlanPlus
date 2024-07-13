@@ -31,7 +31,7 @@ class HomeworkDetailViewModel @Inject constructor(
                     homeworkDetailUseCases.getHomeworkByIdUseCase(homeworkId)
                 )
             ) { data ->
-                val personalizedHomework = data[0] as PersonalizedHomework? ?: run { onBack(); return@combine state }
+                val personalizedHomework = data[0] ?: run { onBack(); return@combine state }
                 state.copy(
                     personalizedHomework = personalizedHomework,
                 )

@@ -31,7 +31,7 @@ object HomeworkDetailModule {
         getCurrentProfileUseCase: GetCurrentProfileUseCase
     ) = HomeworkDetailUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
-        getHomeworkByIdUseCase = GetHomeworkByIdUseCase(homeworkRepository),
+        getHomeworkByIdUseCase = GetHomeworkByIdUseCase(homeworkRepository, getCurrentProfileUseCase),
         taskDoneUseCase = changeTaskDoneStateUseCase,
         updateDueDateUseCase = UpdateDueDateUseCase(homeworkRepository),
         deleteHomeworkTaskUseCase = DeleteHomeworkTaskUseCase(homeworkRepository),

@@ -78,9 +78,8 @@ class UpdateHomeworkUseCase(
                             vppId = downloadedHomeworkItem.createdBy,
                             defaultLessonVpId = downloadedHomeworkItem.defaultLesson?.vpId,
                         )
-
-                        downloadedHomeworkItems.add(downloadedHomeworkItem)
                     }
+                    downloadedHomeworkItems.add(downloadedHomeworkItem)
 
                     downloadedHomeworkItem.tasks.forEach { task ->
                         homeworkRepository.addTaskDb(
@@ -120,7 +119,7 @@ class UpdateHomeworkUseCase(
             }
 
 
-        val homeworkToDelete = existingHomework.filter { existing -> downloadedHomeworkItems.none { it.id == existing.id } }
+        val homeworkToDelete = initialExisting.filter { existing -> downloadedHomeworkItems.none { it.id == existing.id } }
         Log.d("UpdateHomeworkUseCase", "Deleting ${homeworkToDelete.size} homework items")
         homeworkToDelete.forEach { homeworkToDeleteItem ->
             homeworkToDeleteItem.tasks.forEach { task ->
