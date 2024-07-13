@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.ui
 
+import android.os.Parcelable
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetValue
@@ -9,14 +10,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.unsaved_changes_dialog.Dialog
+import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
+import java.util.UUID
 
+@Parcelize
 data class AddHomeworkSheetInitialValues(
-    val defaultLesson: DefaultLesson? = null,
+    val defaultLessonId: UUID? = null,
     val until: LocalDate? = null,
-)
+) : Parcelable
 
 
 @OptIn(ExperimentalMaterial3Api::class)

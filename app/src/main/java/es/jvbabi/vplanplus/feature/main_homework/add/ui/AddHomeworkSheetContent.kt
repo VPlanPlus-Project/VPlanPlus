@@ -96,7 +96,7 @@ fun AddHomeworkSheetContent(
 
     LaunchedEffect(key1 = Unit) {
         viewModel.init()
-        if (initialValues.defaultLesson != null) viewModel.setDefaultLesson(initialValues.defaultLesson)
+        if (initialValues.defaultLessonId != null) viewModel.setDefaultLesson(state.defaultLessons.firstOrNull { it.defaultLessonId == initialValues.defaultLessonId })
         if (initialValues.until != null && !initialValues.until.isBefore(LocalDate.now())) viewModel.onUiAction(UpdateUntil(initialValues.until))
     }
 

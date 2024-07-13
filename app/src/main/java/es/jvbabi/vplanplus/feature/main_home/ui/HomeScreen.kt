@@ -342,7 +342,7 @@ fun HomeScreenContent(
                                         bookings = state.bookings,
                                         homework = state.homework,
                                         onChangeInfoExpandState = onInfoExpandChange,
-                                        onAddHomework = { defaultLesson -> addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(defaultLesson = defaultLesson) },
+                                        onAddHomework = { defaultLesson -> addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(defaultLessonId = defaultLesson?.defaultLessonId) },
                                         onBookRoomClicked = onBookRoomClicked,
                                         hideFinishedLessons = state.hideFinishedLessons,
                                     )
