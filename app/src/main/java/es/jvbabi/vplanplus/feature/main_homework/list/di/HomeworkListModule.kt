@@ -38,15 +38,13 @@ object HomeworkListModule {
         ),
         deleteHomeworkUseCase = DeleteHomeworkUseCase(
             homeworkRepository = homeworkRepository,
-            fileRepository = fileRepository,
-            getCurrentProfileUseCase = getCurrentProfileUseCase
+            fileRepository = fileRepository
         ),
         toggleHomeworkHiddenStateUseCase = ToggleHomeworkHiddenStateUseCase(
             homeworkRepository = homeworkRepository
         ),
         markHomeworkAsDoneUseCase = MarkHomeworkAsDoneUseCase(
-            homeworkRepository = homeworkRepository,
-            getCurrentProfileUseCase = getCurrentProfileUseCase,
+            homeworkRepository = homeworkRepository
         ),
         updateHomeworkUseCase = updateHomeworkUseCase,
         isBalloonUseCase = IsBalloonUseCase(keyValueRepository),

@@ -19,7 +19,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.Balloon
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_SWIPE_DEMO_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkListUseCases
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -42,7 +42,7 @@ class HomeworkListViewModel @Inject constructor(
                 homeworkListUseCases.isBalloonUseCase(HOMEWORK_SWIPE_DEMO_BALLOON, true)
             )) { data ->
                 val profile = data[0] as? ClassProfile
-                val homework = data[1] as List<Homework>
+                val homework = data[1] as List<PersonalizedHomework>
                 val isUpdatingHomework = data[2] as Boolean
                 val allowHomeworkHiddenBanner = data[3] as Boolean
                 val allowSwipingDemo = data[4] as Boolean
@@ -50,7 +50,7 @@ class HomeworkListViewModel @Inject constructor(
                 state.copy(
                     userUsesFalseProfileType = profile == null,
                     profile = profile,
-                    homework = homework,
+                    personalizedHomeworks = homework,
                     isUpdatingHomework = isUpdatingHomework,
                     initDone = true,
                     allowHomeworkHiddenBanner = allowHomeworkHiddenBanner,
@@ -67,17 +67,17 @@ class HomeworkListViewModel @Inject constructor(
             when (event) {
                 is HomeworkListEvent.DismissBalloon -> homeworkListUseCases.setBalloonUseCase(event.balloon, false)
                 is HomeworkListEvent.DeleteOrHide -> {
-                    when (event.homework) {
-                        is Homework.CloudHomework -> {
-                            if (event.homework.createdBy != state.profile?.vppId) {
-                                if (!event.homework.isHidden) state = state.copy(lastHiddenHomework = event.homework)
-                                homeworkListUseCases.toggleHomeworkHiddenStateUseCase(event.homework)
+                    when (event.personalizedHomework) {
+                        is PersonalizedHomework.CloudHomework -> {
+                            if (event.personalizedHomework.homework.createdBy != state.profile?.vppId) {
+                                if (!event.personalizedHomework.isHidden) state = state.copy(lastHiddenHomework = event.personalizedHomework)
+                                homeworkListUseCases.toggleHomeworkHiddenStateUseCase(event.personalizedHomework)
                             }
-                            else homeworkListUseCases.deleteHomeworkUseCase(event.homework).let { success ->
+                            else homeworkListUseCases.deleteHomeworkUseCase(event.personalizedHomework).let { success ->
                                 if (!success) state = state.copy(error = HomeworkListError.DeleteOrHideError)
                             }
                         }
-                        else -> homeworkListUseCases.deleteHomeworkUseCase(event.homework).let { success ->
+                        else -> homeworkListUseCases.deleteHomeworkUseCase(event.personalizedHomework).let { success ->
                             if (!success) state = state.copy(error = HomeworkListError.DeleteOrHideError)
                         }
                     }
@@ -106,11 +106,11 @@ data class HomeworkListState(
     val initDone: Boolean = false,
     val userUsesFalseProfileType: Boolean = false,
     val profile: ClassProfile? = null,
-    val homework: List<Homework> = emptyList(),
+    val personalizedHomeworks: List<PersonalizedHomework> = emptyList(),
     val filters: List<HomeworkFilter> = listOf(HomeworkFilter.VisibilityFilter(true), HomeworkFilter.CompletionFilter(false)),
 
     val allowHomeworkHiddenBanner: Boolean = false,
-    val lastHiddenHomework: Homework? = null,
+    val lastHiddenHomework: PersonalizedHomework? = null,
 
     val isUpdatingHomework: Boolean = false,
 
@@ -128,7 +128,7 @@ sealed interface HomeworkFilter {
     @Composable fun buildLabel(): String
     @Composable fun buildLeadingIcon(): (@Composable () -> Unit)?
     @Composable fun buildTrailingIcon(): (@Composable () -> Unit)? = { Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null) }
-    fun filter(homework: Homework): Boolean
+    fun filter(homework: PersonalizedHomework): Boolean
 
     /**
      * @param showVisible: null to show all, true to show only visible, false to show only hidden
@@ -143,11 +143,11 @@ sealed interface HomeworkFilter {
             }
         }
 
-        override fun filter(homework: Homework): Boolean {
+        override fun filter(homework: PersonalizedHomework): Boolean {
             if (showVisible == null) return true
-            if (showVisible && homework is Homework.LocalHomework) return true
-            if (showVisible && homework is Homework.CloudHomework && !homework.isHidden) return true
-            if (!showVisible && homework is Homework.CloudHomework && homework.isHidden) return true
+            if (showVisible && homework is PersonalizedHomework.LocalHomework) return true
+            if (showVisible && homework is PersonalizedHomework.CloudHomework && !homework.isHidden) return true
+            if (!showVisible && homework is PersonalizedHomework.CloudHomework && homework.isHidden) return true
             return false
         }
 
@@ -175,7 +175,7 @@ sealed interface HomeworkFilter {
             Icon(imageVector = Icons.Default.Check, contentDescription = null)
         }
 
-        override fun filter(homework: Homework): Boolean {
+        override fun filter(homework: PersonalizedHomework): Boolean {
             if (showCompleted == null) return true
             if (showCompleted && homework.tasks.all { it.isDone }) return true
             if (!showCompleted && homework.tasks.any { !it.isDone }) return true
@@ -185,8 +185,8 @@ sealed interface HomeworkFilter {
 }
 
 sealed class HomeworkListEvent {
-    data class DeleteOrHide(val homework: Homework) : HomeworkListEvent()
-    data class MarkAsDone(val homework: Homework) : HomeworkListEvent()
+    data class DeleteOrHide(val personalizedHomework: PersonalizedHomework) : HomeworkListEvent()
+    data class MarkAsDone(val homework: PersonalizedHomework): HomeworkListEvent()
     data class UpdateFilter(val filter: HomeworkFilter) : HomeworkListEvent()
     data object ResetFilters : HomeworkListEvent()
     data object RefreshHomework : HomeworkListEvent()

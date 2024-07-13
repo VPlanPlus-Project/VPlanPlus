@@ -64,7 +64,8 @@ import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DoneStateFil
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.NoMatchingItems
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.VisibilityFilterSheet
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
@@ -97,7 +98,7 @@ private fun HomeworkListContent(
     state: HomeworkListState,
     navBar: @Composable () -> Unit = {},
     onEvent: (event: HomeworkListEvent) -> Unit = {},
-    onOpenHomework: (homework: Homework) -> Unit = {},
+    onOpenHomework: (homework: HomeworkCore) -> Unit = {},
     onOpenInHome: (date: LocalDate) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -208,14 +209,14 @@ private fun HomeworkListContent(
                     visible = state.initDone,
                     enter = slideIn(initialOffset = { IntOffset(0, 100) }) + fadeIn()
                 ) {
-                    val items = state.homework.groupBy { it.until }.toList()
+                    val items = state.personalizedHomeworks.groupBy { it.homework.until }.toList()
                     val homeworkListState = rememberLazyListState()
 
                     var hasDrawnFirstVisibleHomework = false
                     LazyColumn(state = homeworkListState) {
                         item placeholderWrapper@{
                             runComposable placeholders@{
-                                val isAllNotHiddenHomeworkDone = state.homework.all { it.isDone() || (it is Homework.CloudHomework && it.isHidden) }
+                                val isAllNotHiddenHomeworkDone = state.personalizedHomeworks.all { it.allDone() || (it is PersonalizedHomework.CloudHomework && it.isHidden) }
                                 val showOnlyUnfinishedHomework = state.getFilter<HomeworkFilter.CompletionFilter>().showCompleted == false
                                 val showOnlyVisibleHomework = state.getFilter<HomeworkFilter.VisibilityFilter>().showVisible == true
                                 val showAllDonePlaceholder = isAllNotHiddenHomeworkDone && showOnlyUnfinishedHomework && showOnlyVisibleHomework
@@ -228,7 +229,7 @@ private fun HomeworkListContent(
                                     AllDone()
                                 }
 
-                                val doesNoHomeworkMatchingToFiltersExists = state.homework.none { homework -> state.filters.all { it.filter(homework) } }
+                                val doesNoHomeworkMatchingToFiltersExists = state.personalizedHomeworks.none { homework -> state.filters.all { it.filter(homework) } }
                                 if (doesNoHomeworkMatchingToFiltersExists && !showAllDonePlaceholder) {
                                     Box(Modifier.fillParentMaxSize()) { NoMatchingItems { onEvent(HomeworkListEvent.ResetFilters) } }
                                 }
@@ -245,16 +246,15 @@ private fun HomeworkListContent(
                                 }
                             }
                             items(homeworkForDay) { hw ->
-                                val homework by rememberUpdatedState(hw)
-                                val isVisible = state.filters.all { it.filter(homework) }
+                                val homeworkProfile by rememberUpdatedState(hw)
+                                val isVisible = state.filters.all { it.filter(homeworkProfile) }
                                 val canShowDemo = isVisible && !hasDrawnFirstVisibleHomework && state.allowSwipingDemo
                                 HomeworkCardItem(
-                                    homework = homework,
-                                    currentVppId = state.profile?.vppId,
+                                    personalizedHomework = homeworkProfile,
                                     isVisible = isVisible,
-                                    onClick = { onOpenHomework(homework) },
-                                    onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
-                                    onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
+                                    onClick = { onOpenHomework(homeworkProfile.homework) },
+                                    onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homeworkProfile)) },
+                                    onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homeworkProfile)) },
                                     resetKey1 = state.updateCounter,
                                     resetKey2 = state.error,
                                     showDemo = canShowDemo,

@@ -1,23 +1,21 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase
 
-import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
-import kotlinx.coroutines.flow.first
 
 class UpdateHomeworkVisibilityUseCase(
     private val homeworkRepository: HomeworkRepository,
-    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
 ) {
-    suspend operator fun invoke(homework: Homework.CloudHomework, isPublicOrVisible: Boolean): Boolean {
-        val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
+    suspend operator fun invoke(personalizedHomework: PersonalizedHomework.CloudHomework, isPublicOrVisible: Boolean): Boolean {
+        val profile = personalizedHomework.profile
+        val homework = personalizedHomework.homework
         val isOwner = homework.createdBy.id == profile.vppId?.id
-        if (isOwner && profile.vppId != null) {
-            homeworkRepository.changeHomeworkSharingCloud(profile.vppId, homework, isPublicOrVisible).value ?: return false
+
+        if (isOwner) {
+            homeworkRepository.changeHomeworkSharingCloud(personalizedHomework, isPublicOrVisible).value ?: return false
             homeworkRepository.changeHomeworkSharingDb(homework, isPublicOrVisible)
         } else {
-            homeworkRepository.changeHomeworkVisibilityDb(homework, !isPublicOrVisible)
+            homeworkRepository.changeHomeworkVisibilityDb(personalizedHomework, !isPublicOrVisible)
         }
         return true
     }

@@ -26,7 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.noRippleClickable
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.EditedTask
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.NewTask
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.TaskUpdate
@@ -34,11 +34,11 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 
 @Composable
 fun Tasks(
-    tasks: List<HomeworkTask>,
+    tasks: List<HomeworkTaskDone>,
     editTasks: List<EditedTask>,
     newTasks: List<NewTask>,
-    deletedTasks: List<HomeworkTask>,
-    onTaskClicked: (HomeworkTask) -> Unit,
+    deletedTasks: List<HomeworkTaskDone>,
+    onTaskClicked: (HomeworkTaskDone) -> Unit,
     onAddTask: (newTask: NewTask) -> Unit,
     onUpdateTask: (task: TaskUpdate) -> Unit,
     onDeleteTask: (task: TaskUpdate) -> Unit,
@@ -132,9 +132,9 @@ fun Tasks(
 private fun TasksPreview() {
     Tasks(
         tasks = listOf(
-            HomeworkTask(1, "Task 1", false, 1),
-            HomeworkTask(2, "Task 2", true, 1),
-            HomeworkTask(3, "Task 3", false, 1),
+            HomeworkTaskDone(id = 1, content = "Task 1", isDone = false, homeworkId = 1),
+            HomeworkTaskDone(id = 2, content = "Task 2", isDone = true, homeworkId = 1),
+            HomeworkTaskDone(id = 3, content = "Task 3", homeworkId = 1, isDone = false)
         ),
         onTaskClicked = {},
         editTasks = emptyList(),

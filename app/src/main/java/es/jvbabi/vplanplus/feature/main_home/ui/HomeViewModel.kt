@@ -22,7 +22,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.util.DateUtils.progress
@@ -75,7 +75,7 @@ class HomeViewModel @Inject constructor(
                 )
             ) { data ->
                 val currentProfile = data[0] as Profile?
-                val homework = data[1] as List<Homework>
+                val homework = data[1] as List<PersonalizedHomework>
                 val infoExpanded = data[2] as Boolean
                 val profiles = data[3] as List<Profile>
                 val hasUnreadNews = data[4] as Boolean
@@ -196,7 +196,7 @@ data class HomeState(
     val days: Map<LocalDate, Day> = emptyMap(),
     val selectedDate: LocalDate = LocalDate.now(),
     val bookings: List<RoomBooking> = emptyList(),
-    val homework: List<Homework> = emptyList(),
+    val homework: List<PersonalizedHomework> = emptyList(),
     val infoExpanded: Boolean = false,
     val menuOpened: Boolean = false,
     val profiles: List<Profile> = emptyList(),

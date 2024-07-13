@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase
 import android.util.Log
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK
@@ -11,7 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.relativeDateStringResource
@@ -49,82 +48,78 @@ class UpdateHomeworkUseCase(
             isUpdateRunning = false
             withSuccess
         }
+        val updateExisting: suspend () -> List<HomeworkCore.CloudHomework> = { homeworkRepository.getAll().first().filterIsInstance<HomeworkCore.CloudHomework>() }
 
         if (isUpdateRunning) return true
         isUpdateRunning = true
-        val vppIds = vppIdRepository.getActiveVppIds().first()
-        val profiles = profileRepository
-            .getProfiles()
-            .first()
+
+        val initialExisting = updateExisting()
+        var existingHomework = updateExisting()
+        val downloadedHomeworkItems = mutableListOf<HomeworkCore.CloudHomework>()
+
+        val activeVppIds = vppIdRepository.getActiveVppIds().first()
+
+        profileRepository
+            .getProfiles().first()
             .filterIsInstance<ClassProfile>()
-            .map { it.group to it.vppId }
-            .distinct()
+            .distinctBy { it.id.toString() + it.vppId?.id } // only unique profile/vpp.ID combinations (including profiles without vpp.ID)
+            .sortedBy { it.group.groupId.toString() + if (it.vppId == null) "z" else "a" } // rank profiles with vpp.ID higher
+            .forEach { profile ->
+                val downloadedHomework = homeworkRepository.downloadHomework(profile.vppId, profile.group) ?: return false
+                downloadedHomework.forEach { downloadedHomeworkItem ->
+                    val existingItem = existingHomework.find { it.id == downloadedHomeworkItem.id }
+                    if (existingItem == null) {
+                        homeworkRepository.addHomeworkDb(
+                            homeworkId = downloadedHomeworkItem.id,
+                            isPublic = downloadedHomeworkItem.isPublic,
+                            dueTo = downloadedHomeworkItem.until,
+                            clazzProfile = profile,
+                            createdAt = downloadedHomeworkItem.createdAt,
+                            vppId = downloadedHomeworkItem.createdBy,
+                            defaultLessonVpId = downloadedHomeworkItem.defaultLesson?.vpId,
+                        )
+                    }
+                    downloadedHomeworkItems.add(downloadedHomeworkItem)
 
-        Log.d("UpdateHomeworkUseCase", "Updating homework for ${profiles.size} profiles")
+                    downloadedHomeworkItem.tasks.forEach { task ->
+                        homeworkRepository.addTaskDb(
+                            homeworkId = downloadedHomeworkItem.id,
+                            content = task.content,
+                            taskId = task.id,
+                        )
+                    }
 
-        val homework = mutableListOf<AddHomeworkItem>()
-        val existing = homeworkRepository.getAll().first().filterIsInstance<Homework.CloudHomework>()
+                    downloadedHomeworkItem.documents.forEach { document ->
+                        homeworkRepository.addDocumentDb(
+                            documentId = document.documentId,
+                            homeworkId = downloadedHomeworkItem.id,
+                            type = document.type,
+                            name = document.name ?: "Untitled"
+                        )
 
-        profiles.forEach { (group, vppId) ->
-            val new = (homeworkRepository.downloadHomework(vppId, group) ?: return stopUpdate(false)).filter { it.id !in homework.map { hw -> hw.homework.id } }
-            Log.d("UpdateHomeworkUseCase", "New homework for group ${group.name} (${group.groupId}): ${new.size}")
-            homework.addAll(new.map { homework ->
-                if (!homework.isPublic && vppId != null) AddHomeworkItem.PrivateHomework(vppId, homework)
-                else AddHomeworkItem.PublicHomework(homework)
-            })
-        }
+                        if (!fileRepository.exists("homework_documents", "${document.documentId}.${document.type.extension}")) {
+                            Log.d("UpdateHomeworkUseCase", "Downloading document ${document.documentId}")
+                            val content = homeworkRepository.downloadHomeworkDocument(profile.vppId, profile.group, downloadedHomeworkItem.id, document.documentId) ?: return false
+                            fileRepository.writeBytes("homework_documents", "${document.documentId}.${document.type.extension}", content)
+                        }
+                    }
 
-        homework.forEach { item ->
-            val existingItem = existing.find { it.id == item.homework.id }
-            homeworkRepository.addHomeworkDb(
-                homeworkId = item.homework.id.toInt(),
-                isHidden = vppIds.none { it.id == item.homework.createdBy.id } && item.homework.isOverdue(LocalDate.now()) && existingItem == null,
-                createdAt = item.homework.createdAt,
-                vppId = item.homework.createdBy,
-                isPublic = item.homework.isPublic,
-                dueTo = item.homework.until,
-                defaultLessonVpId = item.homework.defaultLesson?.vpId,
-            )
+                    val tasksToDelete = existingItem?.tasks.orEmpty().filter { task -> downloadedHomeworkItem.tasks.none { it.id == task.id } }
+                    tasksToDelete.forEach { task ->
+                        homeworkRepository.deleteTaskDb(task)
+                    }
 
-            item.homework.tasks.forEach { task ->
-                homeworkRepository.addTaskDb(
-                    homeworkId = item.homework.id.toInt(),
-                    content = task.content,
-                    isDone = task.isDone,
-                    taskId = task.id,
-                )
-            }
-            val tasksToDelete = existingItem?.tasks.orEmpty().filter { task -> item.homework.tasks.none { it.id == task.id } }
-            tasksToDelete.forEach { task ->
-                homeworkRepository.deleteTaskDb(task)
-            }
-
-            item.homework.documents.forEach forEachDocument@{ document ->
-                homeworkRepository.addDocumentDb(
-                    documentId = document.documentId,
-                    homeworkId = item.homework.id.toInt(),
-                    type = document.type,
-                    name = document.name ?: "Untitled"
-                )
-                if (!fileRepository.exists("homework_documents", "${document.documentId}.${document.type.extension}")) {
-                    Log.d("UpdateHomeworkUseCase", "Downloading document ${document.documentId}")
-                    val content =
-                        when (item) {
-                            is AddHomeworkItem.PublicHomework -> homeworkRepository.downloadHomeworkDocument(null, item.homework.group, item.homework.id.toInt(), document.documentId)
-                            is AddHomeworkItem.PrivateHomework -> homeworkRepository.downloadHomeworkDocument(item.vppId, item.homework.group, item.homework.id.toInt(), document.documentId)
-                        } ?: return@forEachDocument
-                    fileRepository.writeBytes("homework_documents", "${document.documentId}.${document.type.extension}", content)
+                    val documentsToDelete = existingItem?.documents.orEmpty().filter { document -> downloadedHomeworkItem.documents.none { it.documentId == document.documentId } }
+                    documentsToDelete.forEach { document ->
+                        homeworkRepository.deleteDocumentDb(document)
+                        fileRepository.deleteFile("homework_documents", "${document.documentId}.${document.type.extension}")
+                    }
                 }
+                existingHomework = updateExisting()
             }
 
-            val documentsToDelete = existingItem?.documents.orEmpty().filter { document -> item.homework.documents.none { it.documentId == document.documentId } }
-            documentsToDelete.forEach { document ->
-                homeworkRepository.deleteDocumentDb(document)
-                fileRepository.deleteFile("homework_documents", "${document.documentId}.${document.type.extension}")
-            }
-        }
 
-        val homeworkToDelete = existing.filter { it.id !in homework.map { hw -> hw.homework.id } }
+        val homeworkToDelete = initialExisting.filter { existing -> downloadedHomeworkItems.none { it.id == existing.id } }
         Log.d("UpdateHomeworkUseCase", "Deleting ${homeworkToDelete.size} homework items")
         homeworkToDelete.forEach { homeworkToDeleteItem ->
             homeworkToDeleteItem.tasks.forEach { task ->
@@ -141,13 +136,13 @@ class UpdateHomeworkUseCase(
 
         if (!allowNotifications) return stopUpdate(true)
 
-        val notificationNewHomeworkItems = homework
-            .filter { it.homework.id !in existing.map { hw -> hw.id } } // is new
-            .filter { it.homework.createdBy.id !in vppIds.map { vppId -> vppId.id } } // is not created by current user
+        val notificationNewHomeworkItems = downloadedHomeworkItems
+            .filter { it.id !in initialExisting.map { existing -> existing.id } } // is new
+            .filter { it.createdBy.id !in activeVppIds.map { vppId -> vppId.id } } // is not created by current user
 
         if (notificationNewHomeworkItems.isEmpty()) return stopUpdate(true)
         if (notificationNewHomeworkItems.size == 1) { // detailed notification
-            val notificationHomework = notificationNewHomeworkItems.first().homework
+            val notificationHomework = notificationNewHomeworkItems.first()
 
             val tasksString = stringRepository.getPlural(R.plurals.notification_homeworkNewHomeworkOneContentTasks, notificationHomework.tasks.size, notificationHomework.tasks.size)
             val relativeDueDateResource = relativeDateStringResource(LocalDate.now(), notificationHomework.until.toLocalDate())
@@ -182,14 +177,4 @@ class UpdateHomeworkUseCase(
 
         return stopUpdate(true)
     }
-}
-
-private sealed class AddHomeworkItem(
-    val homework: Homework.CloudHomework
-) {
-    class PublicHomework(homework: Homework.CloudHomework) : AddHomeworkItem(homework)
-    class PrivateHomework(
-        val vppId: VppId,
-        homework: Homework.CloudHomework
-    ) : AddHomeworkItem(homework)
 }
