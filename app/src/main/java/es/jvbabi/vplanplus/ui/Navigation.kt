@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
@@ -169,14 +170,14 @@ private fun NavGraphBuilder.onboarding(
             OnboardingLoginScreen(navController)
         }
 
-        composable(
-            route = Screen.OnboardingNewProfileScreen.route,
+        composable<Screen.OnboardingNewProfileScreen>(
             enterTransition = enterSlideTransition,
             exitTransition = exitSlideTransition,
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingAddProfileScreen(navController)
+            val args = it.toRoute<Screen.OnboardingNewProfileScreen>()
+            OnboardingAddProfileScreen(navController, schoolId = if (args.schoolId == -1) null else args.schoolId)
         }
 
         composable(

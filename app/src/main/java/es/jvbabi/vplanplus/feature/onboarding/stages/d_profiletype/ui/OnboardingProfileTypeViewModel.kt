@@ -34,6 +34,12 @@ class OnboardingProfileTypeViewModel @Inject constructor(
             }
         }
     }
+
+    fun initForSchool(schoolId: Int) {
+        viewModelScope.launch {
+            onboardingProfileTypeUseCases.prepareNewProfileForSchoolUseCase(schoolId)
+        }
+    }
 }
 
 data class OnboardingProfileTypeState(

@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.repository
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import java.util.UUID
 
@@ -16,6 +17,10 @@ class DefaultLessonRepositoryImpl(
 
     override suspend fun getDefaultLessonByGroupId(groupId: Int): List<DefaultLesson> {
         return defaultLessonDao.getDefaultLessonByGroupId(groupId).map { dl -> dl.toModel() }
+    }
+
+    override suspend fun getDefaultLessonsBySchool(school: School): List<DefaultLesson> {
+        return defaultLessonDao.getDefaultLessonsBySchool(school.id).map { dl -> dl.toModel() }
     }
 
     override suspend fun updateTeacherId(groupId: Int, vpId: Int, teacherId: UUID) {

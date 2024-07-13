@@ -2,5 +2,6 @@ package es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.domain.useca
 
 data class OnboardingProfileTypeUseCases(
     val isFirstProfileForSchoolUseCase: IsFirstProfileForSchoolUseCase,
-    val setProfileTypeUseCase: SetProfileTypeUseCase
+    val setProfileTypeUseCase: SetProfileTypeUseCase,
+    val prepareNewProfileForSchoolUseCase: PrepareNewProfileForSchoolUseCase
 )

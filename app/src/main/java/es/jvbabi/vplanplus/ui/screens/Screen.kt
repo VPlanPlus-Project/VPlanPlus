@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus.ui.screens
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed class Screen(val route: String) {
     data object HomeScreen: Screen("home_screen")
     data object SearchScreen: Screen("home_screen/search")
@@ -10,7 +13,7 @@ sealed class Screen(val route: String) {
     data object OnboardingQrScreen: Screen("onboarding/qr_screen")
     data object OnboardingSchoolIdScreen: Screen("onboarding/school_id_screen")
     data object OnboardingLoginScreen: Screen("onboarding/login_screen")
-    data object OnboardingNewProfileScreen: Screen("onboarding/first_profile_screen") // used for creating another profile
+    @Serializable data class OnboardingNewProfileScreen(val schoolId: Int = -1): Screen("onboarding/first_profile_screen")
     data object OnboardingProfileSelectScreen: Screen("onboarding/profile_options_list_screen")
     data object OnboardingDefaultLessonScreen: Screen("onboarding/default_lesson_screen")
     data object OnboardingPermissionsScreen: Screen("onboarding/permissions_screen")

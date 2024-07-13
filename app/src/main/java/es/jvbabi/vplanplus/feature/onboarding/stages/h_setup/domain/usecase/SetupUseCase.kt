@@ -55,25 +55,25 @@ class SetupUseCase(
     suspend operator fun invoke(): Boolean {
         val json = Json { allowStructuredMapKeys = true }
 
-        val sp24SchoolId = keyValueRepository.get("onboarding.sp24_school_id")!!.toInt()
         val schoolId = keyValueRepository.get("onboarding.school_id")!!.toInt()
-        val name = keyValueRepository.get("onboarding.school_name")!!
-        val username = keyValueRepository.get("onboarding.username")!!
-        val password = keyValueRepository.get("onboarding.password")!!
-        val daysPerWeek = keyValueRepository.get("onboarding.days_per_week")!!.toInt()
-        val fullyCompatible = keyValueRepository.get("onboarding.is_fully_supported")!!.toBoolean()
         val isFirstProfile = keyValueRepository.get("onboarding.is_first_profile")!!.toBoolean()
-        val teacherAcronyms = Json.decodeFromString<List<String>>(keyValueRepository.get("onboarding.teachers")!!)
-        val roomNames = Json.decodeFromString<List<String>>(keyValueRepository.get("onboarding.rooms")!!)
-        val classesData = Json.decodeFromString<List<OnboardingInitClass>>(keyValueRepository.get("onboarding.classes")!!)
-        val holidays = Json.decodeFromString<List<Holiday>>(keyValueRepository.get("onboarding.holidays")!!)
-        val defaultLessons = Json.decodeFromString<List<OnboardingDefaultLesson>>(keyValueRepository.get("onboarding.default_lessons")!!)
         val selectedProfileType = ProfileType.entries[keyValueRepository.get("onboarding.profile_type")!!.toInt()]
         val selectedProfileEntityName = keyValueRepository.get("onboarding.profile")!!
         val selectedDefaultLessons = json.decodeFromString<Map<OnboardingDefaultLesson, Boolean>>(keyValueRepository.get("onboarding.profile_default_lessons")?:"[]")
 
-        var school = schoolRepository.getSchoolBySp24Id(sp24SchoolId)
+        var school = schoolRepository.getSchoolFromId(schoolId)
         if (school == null) {
+            val sp24SchoolId = keyValueRepository.get("onboarding.sp24_school_id")!!.toInt()
+            val name = keyValueRepository.get("onboarding.school_name")!!
+            val username = keyValueRepository.get("onboarding.username")!!
+            val password = keyValueRepository.get("onboarding.password")!!
+            val daysPerWeek = keyValueRepository.get("onboarding.days_per_week")!!.toInt()
+            val fullyCompatible = keyValueRepository.get("onboarding.is_fully_supported")!!.toBoolean()
+            val teacherAcronyms = Json.decodeFromString<List<String>>(keyValueRepository.get("onboarding.teachers")!!)
+            val roomNames = Json.decodeFromString<List<String>>(keyValueRepository.get("onboarding.rooms")!!)
+            val classesData = Json.decodeFromString<List<OnboardingInitClass>>(keyValueRepository.get("onboarding.classes")!!)
+            val holidays = Json.decodeFromString<List<Holiday>>(keyValueRepository.get("onboarding.holidays")!!)
+            val defaultLessons = Json.decodeFromString<List<OnboardingDefaultLesson>>(keyValueRepository.get("onboarding.default_lessons")!!)
             schoolRepository.createSchool(
                 schoolId = schoolId,
                 sp24SchoolId = sp24SchoolId,
@@ -83,11 +83,8 @@ class SetupUseCase(
                 daysPerWeek = daysPerWeek,
                 fullyCompatible = fullyCompatible
             )
-            school = schoolRepository.getSchoolBySp24Id(sp24SchoolId)
-        }
-        school as School
+            school = schoolRepository.getSchoolFromId(schoolId)!!
 
-        if (isFirstProfile) {
             teacherRepository.insertTeachersByAcronym(schoolId, teacherAcronyms)
             val teachers = teacherRepository.getTeachersBySchoolId(school.id)
             classesData.forEach { clazz ->

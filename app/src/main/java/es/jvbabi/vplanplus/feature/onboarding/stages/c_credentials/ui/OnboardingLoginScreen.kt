@@ -50,7 +50,7 @@ fun OnboardingLoginScreen(
         doAction = viewModel::doAction,
         onProceed = {
             viewModel.doAction(OnProceed {
-                navController.navigate(Screen.OnboardingNewProfileScreen.route)
+                navController.navigate(Screen.OnboardingNewProfileScreen())
             })
         },
         goBack = { navController.navigateUp() }

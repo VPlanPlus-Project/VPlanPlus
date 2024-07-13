@@ -19,6 +19,10 @@ abstract class DefaultLessonDao {
     @Transaction
     abstract suspend fun getDefaultLessonByGroupId(groupId: Int): List<CDefaultLesson>
 
+    @Query("SELECT * FROM default_lesson LEFT JOIN `group` ON default_lesson.class_id = `group`.id WHERE `group`.school_id = :schoolId")
+    @Transaction
+    abstract suspend fun getDefaultLessonsBySchool(schoolId: Int): List<CDefaultLesson>
+
     @Query("UPDATE default_lesson SET teacher_id = :teacherId WHERE class_id = :groupId AND vp_id = :vpId")
     abstract suspend fun updateTeacherId(groupId: Int, vpId: Int, teacherId: UUID)
 

@@ -45,7 +45,6 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
                 ?.mapNotNull clazz@{ clazz ->
                     clazz.defaultLessons?.mapNotNull defaultLesson@{ dl ->
                         OnboardingDefaultLesson(
-                            id = dl.defaultLesson?.lessonId ?: return@defaultLesson null,
                             clazz = clazz.schoolClass,
                             subject = dl.defaultLesson?.subjectShort ?: return@defaultLesson null,
                             teacher = dl.defaultLesson?.teacherShort ?: return@defaultLesson null,
@@ -139,10 +138,9 @@ data class OnboardingInit(
 @Serializable
 @Parcelize
 data class OnboardingDefaultLesson(
-    @SerialName("id") val id: Int,
     @SerialName("class") val clazz: String,
     @SerialName("subject") val subject: String,
-    @SerialName("teacher") val teacher: String,
+    @SerialName("teacher") val teacher: String?,
     @SerialName("vp_id") val vpId: Int
 ) : Parcelable
 
