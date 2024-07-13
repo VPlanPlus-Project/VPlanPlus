@@ -22,4 +22,10 @@ interface FileRepository {
     fun deleteFile(folder: String, fileName: String)
 
     fun exists(folder: String, fileName: String): Boolean
+
+    companion object {
+        fun createSafeFileName(fileName: String): String {
+            return fileName.replace(Regex("[^a-zA-Z0-9\\-._]", RegexOption.IGNORE_CASE), "_")
+        }
+    }
 }

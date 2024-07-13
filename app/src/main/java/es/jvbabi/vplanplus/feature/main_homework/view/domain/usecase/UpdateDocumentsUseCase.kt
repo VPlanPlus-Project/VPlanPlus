@@ -55,7 +55,7 @@ class UpdateDocumentsUseCase(
             fileRepository.deleteFile("homework_documents", "${document.documentId}.${document.type.extension}")
         }
         editedDocuments.forEach { editedDocument ->
-            val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().toInt()) ?: return@forEach
+            val document = homeworkRepository.getDocumentById(editedDocument.uri.lastPathSegment.toString().substringBefore(".").toInt()) ?: return@forEach
             if (homework is HomeworkCore.CloudHomework && vppId != null) {
                 homeworkRepository.changeDocumentNameCloud(vppId, document, editedDocument.name).value ?: return@forEach
             }

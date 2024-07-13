@@ -54,12 +54,14 @@ import androidx.core.content.FileProvider
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toFile
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.ui.common.HorizontalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
 import okio.FileNotFoundException
+import java.io.File
 
 @Composable
 fun DocumentRecord(
@@ -129,7 +131,8 @@ fun DocumentRecord(
             .clip(RoundedCornerShape(8.dp))
             .clickable {
                 val intent = Intent(Intent.ACTION_VIEW)
-                val file = uri!!.toFile()
+                val file = File(context.cacheDir, FileRepository.createSafeFileName(name ?: "unknown"))
+                uri!!.toFile().copyTo(file, overwrite = true)
                 val newUri = FileProvider.getUriForFile(
                     context,
                     context.packageName + ".fileprovider",
