@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.main_homework.list.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideIn
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -62,6 +63,7 @@ import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileTy
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DateHeader
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DoneStateFilterSheet
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkDisabled
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.NoMatchingItems
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.VisibilityFilterSheet
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
@@ -146,10 +148,16 @@ private fun HomeworkListContent(
         },
         floatingActionButton = {
             if (state.userUsesFalseProfileType) return@Scaffold
-            ExtendedFloatingActionButton(onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues() }) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = null)
-                Spacer4Dp()
-                Text(text = stringResource(id = R.string.homework_addHomework))
+            AnimatedVisibility(
+                visible = state.profile?.isHomeworkEnabled == true,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                ExtendedFloatingActionButton(onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues() }) {
+                    Icon(imageVector = Icons.Default.Add, contentDescription = null)
+                    Spacer4Dp()
+                    Text(text = stringResource(id = R.string.homework_addHomework))
+                }
             }
         },
         bottomBar = navBar,
@@ -164,6 +172,10 @@ private fun HomeworkListContent(
             Column(Modifier.fillMaxSize()) content@{
                 if (state.userUsesFalseProfileType) {
                     BadProfileType()
+                    return@content
+                }
+                if (state.profile?.isHomeworkEnabled == false) {
+                    HomeworkDisabled { onEvent(HomeworkListEvent.EnableHomework) }
                     return@content
                 }
                 LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) filters@{

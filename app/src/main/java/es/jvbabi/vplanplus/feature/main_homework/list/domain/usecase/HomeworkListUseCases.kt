@@ -14,5 +14,7 @@ data class HomeworkListUseCases(
     val updateHomeworkUseCase: UpdateHomeworkUseCase,
 
     val isBalloonUseCase: IsBalloonUseCase,
-    val setBalloonUseCase: SetBalloonUseCase
+    val setBalloonUseCase: SetBalloonUseCase,
+
+    val setHomeworkEnabledUseCase: SetHomeworkEnabledUseCase
 )

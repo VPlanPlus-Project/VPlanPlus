@@ -97,6 +97,7 @@ class HomeworkListViewModel @Inject constructor(
                 is HomeworkListEvent.ResetFilters -> state = state.copy(filters = HomeworkListState().filters)
                 is HomeworkListEvent.RefreshHomework -> homeworkListUseCases.updateHomeworkUseCase()
                 is HomeworkListEvent.ResetLastHiddenHomework -> state = state.copy(lastHiddenHomework = null)
+                is HomeworkListEvent.EnableHomework -> homeworkListUseCases.setHomeworkEnabledUseCase(state.profile!!)
             }
         }
     }
@@ -192,6 +193,8 @@ sealed class HomeworkListEvent {
     data object RefreshHomework : HomeworkListEvent()
     data class DismissBalloon(val balloon: Balloon) : HomeworkListEvent()
     data object ResetLastHiddenHomework : HomeworkListEvent()
+
+    data object EnableHomework : HomeworkListEvent()
 }
 
 sealed class HomeworkListError {
