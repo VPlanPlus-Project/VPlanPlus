@@ -52,7 +52,6 @@ class SaveHomeworkUseCase(
             isPublic = shareWithClass,
             createdAt = createdAt,
             dueTo = dueTo,
-            isHidden = false,
             defaultLessonVpId = defaultLesson?.vpId,
             vppId = if (storeInCloud) profile.vppId else null,
             clazzProfile = profile

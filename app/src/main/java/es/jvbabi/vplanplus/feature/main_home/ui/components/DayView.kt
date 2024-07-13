@@ -40,7 +40,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.Holiday
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.Weekend
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -56,7 +56,7 @@ fun DayView(
     isInfoExpanded: Boolean?,
     currentProfile: Profile,
     bookings: List<RoomBooking>,
-    homework: List<Homework>,
+    homework: List<PersonalizedHomework>,
     hideFinishedLessons: Boolean,
     showCountdown: Boolean,
     onChangeInfoExpandState: (Boolean) -> Unit,

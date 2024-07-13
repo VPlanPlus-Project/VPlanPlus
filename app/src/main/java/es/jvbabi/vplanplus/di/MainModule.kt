@@ -32,7 +32,8 @@ object MainModule {
         homeworkRepository: HomeworkRepository,
         setUpUseCase: SetUpUseCase,
         profileRepository: ProfileRepository,
-        getProfilesUseCase: GetProfilesUseCase
+        getProfilesUseCase: GetProfilesUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ): MainUseCases {
         return MainUseCases(
             getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
@@ -42,7 +43,7 @@ object MainModule {
             ),
             getProfilesUseCase = getProfilesUseCase,
             setUpUseCase = setUpUseCase,
-            getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
+            getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository, getCurrentProfileUseCase),
             getAppThemeUseCase = GetAppThemeUseCase(keyValueRepository),
             getSyncIntervalMinutesUseCase = GetSyncIntervalMinutesUseCase(keyValueRepository),
             setCurrentProfileUseCase = SetCurrentProfileUseCase(keyValueRepository, profileRepository)

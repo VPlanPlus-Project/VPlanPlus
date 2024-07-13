@@ -49,6 +49,5 @@ data class DbHomework(
     @ColumnInfo("created_at") val createdAt: ZonedDateTime,
     @ColumnInfo("default_lesson_vp_id") val defaultLessonVpId: Int?,
     @ColumnInfo("until") val until: ZonedDateTime,
-    @ColumnInfo("is_hidden", defaultValue = "false") val isHidden: Boolean = false,
     @ColumnInfo("profile_id") val owningProfileId: UUID?
 )

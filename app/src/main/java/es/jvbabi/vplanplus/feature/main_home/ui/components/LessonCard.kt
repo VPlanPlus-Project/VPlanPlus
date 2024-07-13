@@ -63,8 +63,8 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.RoomBooking
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
@@ -83,7 +83,7 @@ private fun headerItemHeight() = MaterialTheme.typography.headlineSmall.lineHeig
 @Composable
 fun LessonCard(
     modifier: Modifier = Modifier,
-    homework: List<Homework>,
+    homework: List<PersonalizedHomework>,
     bookings: List<RoomBooking>,
     onAddHomeworkClicked: (defaultLesson: DefaultLesson?) -> Unit = {},
     onBookRoomClicked: () -> Unit = {},
@@ -117,9 +117,9 @@ fun LessonCard(
     ) {
         lessons.forEachIndexed { i, lesson ->
             val relevantHomeworkTasks = homework
-                .filter { hw -> hw.defaultLesson?.vpId == lesson.defaultLesson?.vpId }
-                .filter { hw -> hw.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
-                .filter { hw -> (hw as? Homework.CloudHomework)?.isHidden != true }
+                .filter { hw -> hw.homework.defaultLesson?.vpId == lesson.defaultLesson?.vpId }
+                .filter { hw -> hw.homework.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
+                .filter { hw -> (hw as? PersonalizedHomework.CloudHomework)?.isHidden != true }
                 .map { it.tasks }
 
             val booking = bookings.firstOrNull { it.from.isEqual(lesson.start) && it.to.isEqual(lesson.end) }
@@ -225,7 +225,7 @@ private fun Expandable(isExpanded: Boolean, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun buildHomeworkTasksText(tasks: List<HomeworkTask>) = buildAnnotatedString {
+private fun buildHomeworkTasksText(tasks: List<HomeworkTaskDone>) = buildAnnotatedString {
     if (tasks.isNotEmpty()) {
         append(stringResource(id = R.string.homework_title))
         append("\n")

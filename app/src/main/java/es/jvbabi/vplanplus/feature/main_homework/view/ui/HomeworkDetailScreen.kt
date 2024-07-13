@@ -49,9 +49,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.pickDocumentLauncher
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.rememberPickPhotoLauncher
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.rememberScanner
@@ -72,6 +74,7 @@ import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
@@ -99,13 +102,15 @@ fun HomeworkDetailScreen(
         onAction = viewModel::onAction,
         onTakePhotoClicked = { takePhotoLauncher.launch(android.Manifest.permission.CAMERA) },
         onPickPhotoClicked = { pickPhotosLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-        onScanDocumentClicked = { scanner.getStartScanIntent(context as Activity)
-            .addOnSuccessListener {
-                scannerLauncher.launch(IntentSenderRequest.Builder(it).build())
-            }
-            .addOnFailureListener {
-                Log.e("AddHomeworkScreen", "Failed to start scanning", it)
-            } },
+        onScanDocumentClicked = {
+            scanner.getStartScanIntent(context as Activity)
+                .addOnSuccessListener {
+                    scannerLauncher.launch(IntentSenderRequest.Builder(it).build())
+                }
+                .addOnFailureListener {
+                    Log.e("AddHomeworkScreen", "Failed to start scanning", it)
+                }
+        },
         onPickDocumentClicked = { pickDocumentLauncher.launch("application/pdf") },
         state = state
     )
@@ -169,7 +174,8 @@ private fun HomeworkDetailScreenContent(
                         navigationIcon = {
                             IconButton(onClick = {
                                 if (state.hasEdited) showUnsavedChangesDialog = true
-                                else onAction(ExitAndDiscardChangesAction) }
+                                else onAction(ExitAndDiscardChangesAction)
+                            }
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Close,
@@ -180,7 +186,7 @@ private fun HomeworkDetailScreenContent(
                         actions = {
                             IconButton(
                                 onClick = { onAction(ExitAndSaveHomeworkAction) },
-                                enabled = state.homework?.tasks?.isNotEmpty() == true && !state.isLoading
+                                enabled = state.personalizedHomework?.tasks?.isNotEmpty() == true && !state.isLoading
                             ) {
                                 if (state.isLoading) CircularProgressIndicator(modifier = Modifier.size(24.dp))
                                 else Icon(
@@ -205,8 +211,8 @@ private fun HomeworkDetailScreenContent(
             VerticalExpandVisibility(visible = !state.isEditing) {
                 Column {
                     ProgressCard(
-                        tasks = state.homework?.tasks?.size ?: 0,
-                        done = state.homework?.tasks?.count { it.isDone } ?: 0)
+                        tasks = state.personalizedHomework?.tasks?.size ?: 0,
+                        done = state.personalizedHomework?.tasks?.count { it.isDone } ?: 0)
                     Spacer8Dp()
                 }
             }
@@ -216,20 +222,20 @@ private fun HomeworkDetailScreenContent(
                     .padding(horizontal = 16.dp, vertical = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                DefaultLessonCard(defaultLesson = state.homework?.defaultLesson)
+                DefaultLessonCard(defaultLesson = state.personalizedHomework?.homework?.defaultLesson)
                 VerticalDivider(Modifier.height(64.dp))
                 DueToCard(
                     until = (if (state.isEditing) state.editDueDate else null)
-                        ?: state.homework?.until?.toLocalDate(),
+                        ?: state.personalizedHomework?.homework?.until?.toLocalDate(),
                     onUpdateDueDate = { onAction(UpdateDueDateAction(it)) },
                     isEditModeActive = state.isEditing && state.canEditOrigin
                 )
             }
             RowVerticalCenter(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                if (state.homework == null || state.homework !is Homework.CloudHomework) return@RowVerticalCenter
+                if (state.personalizedHomework == null || state.personalizedHomework !is PersonalizedHomework.CloudHomework) return@RowVerticalCenter
                 VisibilityCard(
                     isEditModeActive = state.isEditing,
-                    isCurrentlyVisibleOrPublic = (state.canEditOrigin && state.homework.isPublic) || (!state.canEditOrigin && !state.homework.isHidden),
+                    isCurrentlyVisibleOrPublic = (state.canEditOrigin && state.personalizedHomework.homework.isPublic) || (!state.canEditOrigin && !state.personalizedHomework.isHidden),
                     willBeVisibleOrPublic = state.editVisibility,
                     canModifyOrigin = state.canEditOrigin,
                     onChangeVisibility = { onAction(ChangeVisibilityAction(it)) }
@@ -237,7 +243,7 @@ private fun HomeworkDetailScreenContent(
             }
             HorizontalDivider(Modifier.padding(vertical = 4.dp, horizontal = 16.dp))
             Tasks(
-                tasks = state.homework?.tasks ?: emptyList(),
+                tasks = state.personalizedHomework?.tasks ?: emptyList(),
                 isEditing = state.isEditing && state.canEditOrigin,
                 newTasks = state.newTasks,
                 editTasks = state.editedTasks,
@@ -249,7 +255,7 @@ private fun HomeworkDetailScreenContent(
             )
             Spacer8Dp()
             Documents(
-                documents = state.homework?.documents ?: emptyList(),
+                documents = state.personalizedHomework?.homework?.documents ?: emptyList(),
                 changedDocuments = state.editedDocuments,
                 newDocuments = state.newDocuments,
                 markedAsRemoveIds = state.documentsToDelete.map { it.documentId },
@@ -274,29 +280,36 @@ fun HomeworkDetailScreenPreview() {
     val teacher = TeacherPreview.teacher(school)
     HomeworkDetailScreenContent(
         state = HomeworkDetailState(
-            homework = Homework.CloudHomework(
-                id = 1,
-                createdBy = vppId,
-                documents = emptyList(),
-                tasks = listOf(
-                    HomeworkTask(id = 1, content = "Task 1", isDone = false, homeworkId = 1),
-                    HomeworkTask(id = 2, content = "Task 2", isDone = true, homeworkId = 1),
-                    HomeworkTask(id = 3, content = "Task 3", isDone = false, homeworkId = 1)
-                ),
-                group = group,
-                createdAt = ZonedDateTime.now(),
-                until = ZonedDateTime.now().plusDays(1),
-                defaultLesson = DefaultLesson(
-                    defaultLessonId = UUID.randomUUID(),
-                    `class` = group,
-                    vpId = 1,
-                    subject = "DEU",
-                    teacher = teacher
+            personalizedHomework = PersonalizedHomework.CloudHomework(
+                homework = HomeworkCore.CloudHomework(
+                    id = 1,
+                    createdBy = vppId,
+                    documents = emptyList(),
+                    tasks = listOf(
+                        HomeworkTaskCore(id = 1, content = "Task 1", homeworkId = 1),
+                        HomeworkTaskCore(id = 2, content = "Task 2", homeworkId = 1),
+                        HomeworkTaskCore(id = 3, content = "Task 3", homeworkId = 1)
+                    ),
+                    group = group,
+                    createdAt = ZonedDateTime.now(),
+                    until = ZonedDateTime.now().plusDays(1),
+                    defaultLesson = DefaultLesson(
+                        defaultLessonId = UUID.randomUUID(),
+                        `class` = group,
+                        vpId = 1,
+                        subject = "DEU",
+                        teacher = teacher
+                    ),
+                    isPublic = true,
                 ),
                 isHidden = false,
-                isPublic = true
+                tasks = listOf(
+                    HomeworkTaskDone(id = 1, content = "Task 1", isDone = false, homeworkId = 1),
+                    HomeworkTaskDone(id = 2, content = "Task 2", isDone = true, homeworkId = 1),
+                    HomeworkTaskDone(id = 3, content = "Task 3", isDone = false, homeworkId = 1)
+                ),
+                profile = ProfilePreview.generateClassProfile(group, vppId)
             ),
-            canEditOrigin = true,
             isEditing = true,
             isLoading = true,
         )

@@ -59,9 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.skydoves.balloon.compose.Balloon
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components.homeworkcard.HomeworkProgressBar
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
@@ -79,8 +78,7 @@ import kotlin.math.abs
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeworkCardItem(
-    homework: Homework,
-    currentVppId: VppId?,
+    personalizedHomework: PersonalizedHomework,
     isVisible: Boolean,
     onClick: () -> Unit,
     onCheckSwiped: () -> Unit,
@@ -100,7 +98,8 @@ fun HomeworkCardItem(
             if (it == SwipeToDismissBoxValue.EndToStart) { // Dismissed to the left (mark as done)
                 onCheckSwiped()
             } else if (it == SwipeToDismissBoxValue.StartToEnd) { // Dismissed to the right (delete)
-                if ((homework is Homework.CloudHomework && homework.createdBy.id == currentVppId?.id) || homework is Homework.LocalHomework) isDeleteDialogOpen = true
+                val homework = personalizedHomework.homework
+                if ((homework is HomeworkCore.CloudHomework && homework.createdBy.id == personalizedHomework.profile.vppId?.id) || homework is HomeworkCore.LocalHomework) isDeleteDialogOpen = true
                 else onVisibilityOrDeleteSwiped()
             }
             true
@@ -114,9 +113,9 @@ fun HomeworkCardItem(
             icon = Icons.Default.DeleteForever,
             title = stringResource(id = R.string.homework_deleteHomeworkTitle),
             message =
-            when (homework) {
-                is Homework.LocalHomework -> stringResource(id = R.string.homework_deleteHomeworkTextLocal)
-                is Homework.CloudHomework -> if (homework.isPublic) stringResource(id = R.string.homework_deleteHomeworkTextPublic) else stringResource(id = R.string.homework_deleteHomeworkTextPrivate)
+            when (personalizedHomework) {
+                is PersonalizedHomework.CloudHomework -> if (personalizedHomework.homework.isPublic) stringResource(id = R.string.homework_deleteHomeworkTextPublic) else stringResource(id = R.string.homework_deleteHomeworkTextPrivate)
+                is PersonalizedHomework.LocalHomework -> stringResource(id = R.string.homework_deleteHomeworkTextLocal)
             },
             onYes = {
                 isMarkedToDelete = true
@@ -178,27 +177,28 @@ fun HomeworkCardItem(
                 state = dismissState,
                 enableDismissFromEndToStart = !isDemoRunning,
                 enableDismissFromStartToEnd = !isDemoRunning,
-                backgroundContent = { SwipeBackground(demoDisplayDirection ?: dismissState.dismissDirection, homework is Homework.LocalHomework || (homework is Homework.CloudHomework && homework.createdBy.id == currentVppId?.id), homework is Homework.CloudHomework && homework.isHidden) }
+                backgroundContent = { SwipeBackground(demoDisplayDirection ?: dismissState.dismissDirection, personalizedHomework.homework is HomeworkCore.LocalHomework || (personalizedHomework is PersonalizedHomework.CloudHomework && personalizedHomework.homework.createdBy.id == personalizedHomework.profile.vppId?.id), personalizedHomework is PersonalizedHomework.CloudHomework && personalizedHomework.isHidden) }
             ) {
                 val demoOffset = animateFloatAsState(
                     targetValue = demoDisplayOffset,
                     label = "demoOffset",
                     animationSpec = tween(1000)
                 )
+                val homework = personalizedHomework.homework
                 HomeworkCard(
                     modifier = Modifier.offset { IntOffset(demoOffset.value.dp.roundToPx(), 0) },
                     subject = homework.defaultLesson?.subject,
                     tasks = homework.tasks.map { it.content },
                     documentCount = homework.documents.size,
-                    tasksDone = homework.tasks.count { it.isDone },
+                    tasksDone = personalizedHomework.tasks.count { it.isDone },
                     creator = when (homework) {
-                        is Homework.CloudHomework -> HomeworkCreator.VppIdCreator(homework.createdBy.name, homework.createdBy.id == currentVppId?.id)
-                        is Homework.LocalHomework -> HomeworkCreator.DeviceCreator
+                        is HomeworkCore.CloudHomework -> HomeworkCreator.VppIdCreator(homework.createdBy.name, homework.createdBy.id == personalizedHomework.profile.vppId?.id)
+                        else -> HomeworkCreator.DeviceCreator
                     },
                     createdAt = homework.createdAt,
                     swipingProgress = dismissState.progress,
-                    isHidden = homework is Homework.CloudHomework && homework.isHidden,
-                    isPublic = homework is Homework.CloudHomework && homework.isPublic,
+                    isHidden = personalizedHomework is PersonalizedHomework.CloudHomework && personalizedHomework.isHidden,
+                    isPublic = homework is HomeworkCore.CloudHomework && homework.isPublic,
                     onClick = onClick,
                     allowProgressBar = allowProgressBar
                 )

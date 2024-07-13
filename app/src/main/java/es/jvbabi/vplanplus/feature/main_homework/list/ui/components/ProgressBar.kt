@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components.homeworkcard
+package es.jvbabi.vplanplus.feature.main_homework.list.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background

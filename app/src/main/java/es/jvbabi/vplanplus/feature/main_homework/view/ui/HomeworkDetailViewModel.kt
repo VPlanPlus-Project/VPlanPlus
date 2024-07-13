@@ -6,11 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.DocumentUpdate
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
 import kotlinx.coroutines.flow.combine
@@ -30,16 +28,12 @@ class HomeworkDetailViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    homeworkDetailUseCases.getCurrentProfileUseCase(),
                     homeworkDetailUseCases.getHomeworkByIdUseCase(homeworkId)
                 )
             ) { data ->
-                val profile = data[0] as Profile?
-                val homework = data[1] as Homework? ?: run { onBack(); return@combine state }
+                val personalizedHomework = data[0] as PersonalizedHomework? ?: run { onBack(); return@combine state }
                 state.copy(
-                    homework = homework,
-                    currentProfile = profile,
-                    canEditOrigin = (profile as? ClassProfile)?.let { homework is Homework.LocalHomework || (homework is Homework.CloudHomework && homework.createdBy == it.vppId) } ?: false
+                    personalizedHomework = personalizedHomework,
                 )
             }.collect {
                 state = it
@@ -50,7 +44,7 @@ class HomeworkDetailViewModel @Inject constructor(
     private fun initEditMode(editing: Boolean = true) {
         state = state.copy(
             isEditing = editing,
-            editDueDate = state.homework?.until?.toLocalDate(),
+            editDueDate = state.personalizedHomework?.homework?.until?.toLocalDate(),
             newTasks = emptyList(),
             editedTasks = emptyList(),
             tasksToDelete = emptyList(),
@@ -65,28 +59,28 @@ class HomeworkDetailViewModel @Inject constructor(
     fun onAction(action: UiAction) {
         viewModelScope.launch {
             when (action) {
-                is TaskDoneStateToggledAction -> homeworkDetailUseCases.taskDoneUseCase(action.homeworkTask, !action.homeworkTask.isDone)
+                is TaskDoneStateToggledAction -> homeworkDetailUseCases.taskDoneUseCase(state.personalizedHomework!!.profile, action.homeworkTask, !action.homeworkTask.isDone)
                 is StartEditModeAction -> initEditMode()
                 is ExitEditModeAction -> {
                     if (action is ExitAndSaveHomeworkAction) {
                         state = state.copy(isLoading = true)
-                        val homework = state.homework
+                        val homework = state.personalizedHomework
                         val editVisibility = state.editVisibility
-                        if (state.editDueDate != null) homeworkDetailUseCases.updateDueDateUseCase(state.homework!!, state.editDueDate!!)
-                        if (editVisibility != null && homework is Homework.CloudHomework) homeworkDetailUseCases.updateHomeworkVisibilityUseCase(homework, editVisibility)
+                        if (state.editDueDate != null) homeworkDetailUseCases.updateDueDateUseCase(state.personalizedHomework!!, state.editDueDate!!)
+                        if (editVisibility != null && homework is PersonalizedHomework.CloudHomework) homeworkDetailUseCases.updateHomeworkVisibilityUseCase(homework, editVisibility)
 
                         val changeDocuments = state.documentsToDelete.isNotEmpty() || state.newDocuments.isNotEmpty() || state.editedDocuments.isNotEmpty()
                         if (changeDocuments) homeworkDetailUseCases.updateDocumentsUseCase(
-                            homework = state.homework!!,
+                            personalizedHomework = state.personalizedHomework!!,
                             newDocuments = state.newDocuments.keys,
                             editedDocuments = state.editedDocuments,
                             documentsToDelete = state.documentsToDelete,
                             onUploading = { uri, progress -> state = state.copy(newDocuments = state.newDocuments + (state.newDocuments.keys.first { it.uri == uri } to progress)) }
                         )
 
-                        state.editedTasks.forEach { homeworkDetailUseCases.editTaskUseCase(state.homework!!.getTaskById(it.id)!!, it.content) }
-                        state.newTasks.forEach { newTask -> homeworkDetailUseCases.addTaskUseCase(state.homework!!, newTask.content) }
-                        state.tasksToDelete.forEach { homeworkDetailUseCases.deleteHomeworkTaskUseCase(it) }
+                        state.editedTasks.forEach { homeworkDetailUseCases.editTaskUseCase(state.personalizedHomework!!.profile, state.personalizedHomework!!.homework.getTaskById(it.id.toInt())!!, it.content) }
+                        state.newTasks.forEach { newTask -> homeworkDetailUseCases.addTaskUseCase(state.personalizedHomework!!, newTask.content) }
+                        state.tasksToDelete.forEach { homeworkDetailUseCases.deleteHomeworkTaskUseCase(state.personalizedHomework!!, it) }
                         state = state.copy(isLoading = false)
                     }
                     initEditMode(false)
@@ -102,7 +96,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 is DeleteTaskAction -> {
                     state = when (action.task) {
                         is NewTask -> state.copy(newTasks = state.newTasks.filter { it.id != action.task.id }, hasEdited = true)
-                        is EditedTask -> state.copy(tasksToDelete = state.tasksToDelete + state.homework!!.getTaskById(action.task.id)!!, hasEdited = true)
+                        is EditedTask -> state.copy(tasksToDelete = state.tasksToDelete + state.personalizedHomework!!.getTaskById(action.task.id.toInt())!!, hasEdited = true)
                     }
                 }
 
@@ -144,7 +138,7 @@ class HomeworkDetailViewModel @Inject constructor(
                         is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments.filter { it.key.uri != action.document.uri }, hasEdited = true)
                         is DocumentUpdate.EditedDocument -> {
                             state.copy(
-                                documentsToDelete = state.documentsToDelete + state.homework!!.documents.first { it.documentId == action.document.documentId },
+                                documentsToDelete = state.documentsToDelete + state.personalizedHomework!!.homework.documents.first { it.documentId == action.document.documentId },
                                 editedDocuments = state.editedDocuments.filter { it.uri != action.document.uri },
                                 hasEdited = true
                             )
@@ -157,10 +151,7 @@ class HomeworkDetailViewModel @Inject constructor(
 }
 
 data class HomeworkDetailState(
-    val homework: Homework? = null,
-    val currentProfile: Profile? = null,
-    val canEditOrigin: Boolean = false,
-
+    val personalizedHomework: PersonalizedHomework? = null,
 
     val isEditing: Boolean = false,
     val isLoading: Boolean = false,
@@ -171,18 +162,21 @@ data class HomeworkDetailState(
      */
     val editVisibility: Boolean? = null,
 
-    val tasksToDelete: List<HomeworkTask> = emptyList(),
+    val tasksToDelete: List<HomeworkTaskDone> = emptyList(),
     val newTasks: List<NewTask> = emptyList(),
     val editedTasks: List<EditedTask> = emptyList(),
 
     val documentsToDelete: List<HomeworkDocument> = emptyList(),
     val newDocuments: Map<DocumentUpdate.NewDocument, Float?> = emptyMap(), // Document to Upload progress
     val editedDocuments: List<DocumentUpdate.EditedDocument> = emptyList()
-)
+) {
+    val canEditOrigin: Boolean
+        get() = personalizedHomework is PersonalizedHomework.LocalHomework || personalizedHomework is PersonalizedHomework.CloudHomework && personalizedHomework.homework.createdBy == personalizedHomework.profile.vppId
+}
 
 sealed class UiAction
 
-data class TaskDoneStateToggledAction(val homeworkTask: HomeworkTask) : UiAction()
+data class TaskDoneStateToggledAction(val homeworkTask: HomeworkTaskDone) : UiAction()
 data object StartEditModeAction : UiAction()
 sealed class ExitEditModeAction : UiAction()
 data object ExitAndSaveHomeworkAction : ExitEditModeAction()

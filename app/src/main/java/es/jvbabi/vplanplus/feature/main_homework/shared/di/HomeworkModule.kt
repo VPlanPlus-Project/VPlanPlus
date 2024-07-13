@@ -15,7 +15,6 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.HomeworkRepositoryImpl
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
@@ -31,11 +30,9 @@ object HomeworkModule {
     @Provides
     @Singleton
     fun provideChangeTaskDoneStateUseCase(
-        homeworkRepository: HomeworkRepository,
-        getCurrentProfileUseCase: GetCurrentProfileUseCase
+        homeworkRepository: HomeworkRepository
     ) = ChangeTaskDoneStateUseCase(
-        homeworkRepository = homeworkRepository,
-        getCurrentProfileUseCase = getCurrentProfileUseCase
+        homeworkRepository = homeworkRepository
     )
 
     @Provides
@@ -81,12 +78,14 @@ object HomeworkModule {
     @Singleton
     fun provideHomeworkReminderUseCase(
         homeworkRepository: HomeworkRepository,
+        profileRepository: ProfileRepository,
         notificationRepository: NotificationRepository,
         stringRepository: StringRepository,
         keyValueRepository: KeyValueRepository,
         @ApplicationContext context: Context
     ) = HomeworkReminderUseCase(
         homeworkRepository = homeworkRepository,
+        profileRepository = profileRepository,
         notificationRepository = notificationRepository,
         stringRepository = stringRepository,
         keyValueRepository = keyValueRepository,

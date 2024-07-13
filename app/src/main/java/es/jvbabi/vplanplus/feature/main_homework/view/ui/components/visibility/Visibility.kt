@@ -30,17 +30,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.BigCard
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.util.blendColor
 import es.jvbabi.vplanplus.util.toTransparent
 
 /**
- * A card that displays the visibility of a [Homework].
+ * A card that displays the visibility of a homework and allows the user to change it.
  * @param isEditModeActive Whether the user is currently in edit mode.
- * @param isCurrentlyVisibleOrPublic Whether the [Homework] is currently visible or public.
- * @param willBeVisibleOrPublic Whether the [Homework] will be visible or public after applying changes made in edit mode.
+ * @param isCurrentlyVisibleOrPublic Whether the homework is currently visible or public.
+ * @param willBeVisibleOrPublic Whether the homework will be visible or public after applying changes made in edit mode.
  * @param canModifyOrigin Whether the user can modify the sharing status or just the local visibility.
  * @param onChangeVisibility A callback that is called when the visibility is changed during edit mode.
  */

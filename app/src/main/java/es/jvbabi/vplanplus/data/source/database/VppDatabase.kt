@@ -18,7 +18,9 @@ import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkProfileData
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTask
+import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTaskDone
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
 import es.jvbabi.vplanplus.data.model.profile.DbRoomProfile
 import es.jvbabi.vplanplus.data.model.profile.DbTeacherProfile
@@ -94,7 +96,9 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         LogRecord::class,
 
         DbHomework::class,
+        DbHomeworkProfileData::class,
         DbHomeworkTask::class,
+        DbHomeworkTaskDone::class,
         DbHomeworkDocument::class,
         DbPreferredNotificationTime::class,
 
@@ -104,7 +108,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 34,
+    version = 35,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
