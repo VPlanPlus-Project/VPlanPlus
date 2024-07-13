@@ -84,7 +84,7 @@ fun ProfileManagementScreen(
         onNewSchoolProfileClicked = { school ->
             scope.launch {
                 onNewProfileClicked(school)
-                navController.navigate(Screen.OnboardingNewProfileScreen.route + "/${school.id}") {
+                navController.navigate(Screen.OnboardingNewProfileScreen(school.id)) {
                     popUpTo(Screen.SettingsProfileScreen.route)
                 }
             }

@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -34,8 +35,13 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 fun OnboardingAddProfileScreen(
     navController: NavHostController,
     viewModel: OnboardingProfileTypeViewModel = hiltViewModel(),
+    schoolId: Int? = null
 ) {
     val state = viewModel.state
+
+    LaunchedEffect(key1 = schoolId) {
+        if (schoolId != null) viewModel.initForSchool(schoolId)
+    }
 
     AddProfileScreen(
         state = state,

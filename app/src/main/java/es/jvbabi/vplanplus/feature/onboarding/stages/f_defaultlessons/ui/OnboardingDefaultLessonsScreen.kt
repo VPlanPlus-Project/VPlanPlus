@@ -86,14 +86,12 @@ fun OnboardingDefaultLessonScreenPreview() {
                 OnboardingDefaultLesson(
                     subject = "DEU",
                     teacher = "Mul",
-                    id = 1,
                     clazz = "1A",
                     vpId = 0
                 ) to true,
                 OnboardingDefaultLesson(
                     subject = "MAT",
                     teacher = "Wer",
-                    id = 2,
                     clazz = "1A",
                     vpId = 1
                 ) to false,
@@ -117,7 +115,7 @@ fun NoDefaultLessonsAvailable() {
 @Composable
 fun DefaultLessonCard(
     subject: String,
-    teacherAcronym: String,
+    teacherAcronym: String?,
     activated: Boolean,
     onClick: () -> Unit
 ) {
@@ -136,7 +134,7 @@ fun DefaultLessonCard(
             Checkbox(checked = activated, onCheckedChange = { onClick() })
             Text(text = subject, style = MaterialTheme.typography.titleMedium)
             Text(
-                text = if (teacherAcronym == "") stringResource(id = R.string.settings_profileDefaultLessonNoTeacher) else teacherAcronym,
+                text = teacherAcronym ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher),
                 style = MaterialTheme.typography.labelMedium,
                 modifier = Modifier.padding(start = 8.dp)
             )
