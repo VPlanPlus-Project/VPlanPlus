@@ -61,7 +61,6 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.StoreSaveModal
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.default_lesson_dialog.SelectDefaultLessonSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.due_to.SetDueToModal
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.AddDocumentModal
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.AddImageModel
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.pickDocumentLauncher
@@ -90,11 +89,16 @@ fun AddHomeworkSheetContent(
     viewModel: AddHomeworkViewModel = hiltViewModel(),
     onClose: () -> Unit,
     onChanged: () -> Unit,
+    initialValues: AddHomeworkSheetInitialValues = AddHomeworkSheetInitialValues()
 ) {
     val state = viewModel.state.value
     val context = LocalContext.current
 
-    LaunchedEffect(key1 = Unit) { viewModel.init() }
+    LaunchedEffect(key1 = Unit) {
+        viewModel.init()
+        if (initialValues.defaultLesson != null) viewModel.setDefaultLesson(initialValues.defaultLesson)
+        if (initialValues.until != null) viewModel.onUiAction(UpdateUntil(initialValues.until))
+    }
 
     val pickDocumentLauncher = pickDocumentLauncher { viewModel.onUiAction(AddDocument(it)); onChanged() }
     val (scanner, scannerLauncher) = rememberScanner { viewModel.onUiAction(AddDocument(it)); onChanged() }
@@ -261,7 +265,7 @@ fun AddHomeworkSheetContent(
                                 SaveType.LOCAL -> stringResource(id = R.string.addHomework_saveThisDevice)
                                 SaveType.CLOUD -> stringResource(id = R.string.addHomework_saveVppId)
                                 SaveType.SHARED -> stringResource(id = R.string.addHomework_saveVppIdSharedTitle)
-                                null -> ""
+                                null -> stringResource(id = R.string.something_went_wrong)
                             }) },
                             leadingIcon = {
                                 if (state.saveType == null) return@AssistChip
@@ -319,7 +323,7 @@ fun AddHomeworkSheetContent(
         ) {
             SaveButton(canSave = state.canSave, isLoading = state.isLoading, onSave = { viewModel.onUiAction(SaveHomework { onClose() }) })
         }
-        VerticalExpandVisibility(visible = state.result == HomeworkModificationResult.FAILED, modifier = Modifier.padding(horizontal = 8.dp)) {
+        VerticalExpandVisibility(visible = state.result == false, modifier = Modifier.padding(horizontal = 8.dp)) {
             InfoCard(
                 imageVector = Icons.Default.Error,
                 title = stringResource(id = R.string.something_went_wrong),

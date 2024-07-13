@@ -14,7 +14,6 @@ import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_DOCUMENT_BALLOON
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_VPPID_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.AddHomeworkUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -30,9 +29,6 @@ class AddHomeworkViewModel @Inject constructor(
 
     fun init() {
         state.value = AddHomeworkState()
-    }
-
-    init {
         viewModelScope.launch {
             combine(
                 listOf(
@@ -74,7 +70,7 @@ class AddHomeworkViewModel @Inject constructor(
     /**
      * Request to save the homework, will return if not all requirements are met
      */
-    fun save(onSuccess: () -> Unit) {
+    private fun save(onSuccess: () -> Unit) {
         viewModelScope.launch {
             if (!state.value.canSave) return@launch
             state.value = state.value.copy(isLoading = true)
@@ -96,9 +92,7 @@ class AddHomeworkViewModel @Inject constructor(
                 ),
                 isLoading = false
             )
-            if (state.value.result == HomeworkModificationResult.SUCCESS_OFFLINE || state.value.result == HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE) {
-                onSuccess()
-            }
+            if (state.value.result == true) onSuccess()
         }
     }
 
@@ -175,7 +169,7 @@ data class AddHomeworkState(
     val tasks: List<String> = emptyList(),
     val newTask: String = "",
 
-    val result: HomeworkModificationResult? = null,
+    val result: Boolean? = null,
     val isLoading: Boolean = false,
 
     val showVppIdStorageBalloon: Boolean = false,
@@ -186,7 +180,7 @@ data class AddHomeworkState(
     val canSave: Boolean
         get() = until != null && tasks.all { it.isNotBlank() } && tasks.isNotEmpty() && !isLoading && !isInvalidSaveTypeSelected
 
-    val isInvalidSaveTypeSelected: Boolean
+    private val isInvalidSaveTypeSelected: Boolean
         get() = (saveType == SaveType.SHARED || saveType == SaveType.CLOUD) && !canUseCloud
 }
 

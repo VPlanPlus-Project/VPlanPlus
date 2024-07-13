@@ -85,7 +85,7 @@ data class CLesson(
                     es.jvbabi.vplanplus.util.LessonTime.fallbackTime(`class`.group.id, lesson.lessonNumber)
                     .end
                 ).withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
-            vpId = defaultLesson?.defaultLesson?.vpId,
+            defaultLesson = defaultLesson?.toModel(),
             roomBooking = roomBooking?.toModel()
         )
     }

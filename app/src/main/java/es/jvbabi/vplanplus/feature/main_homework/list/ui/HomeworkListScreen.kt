@@ -6,12 +6,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideIn
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -25,7 +23,6 @@ import androidx.compose.material3.AssistChip
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
@@ -37,6 +34,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,9 +46,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -61,8 +56,10 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_SWIPE_DEMO_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.AllDone
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DateHeader
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.DoneStateFilterSheet
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.NoMatchingItems
@@ -71,13 +68,12 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.rememberDefaultBalloon
 import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.runComposable
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeworkListScreen(
@@ -90,7 +86,8 @@ fun HomeworkListScreen(
         state = state,
         navBar = { navBar(true) },
         onEvent = viewModel::onEvent,
-        onOpenHomework = { homework -> navHostController.navigate(Screen.HomeworkDetailScreen.route + "/${homework.id}") }
+        onOpenHomework = { homework -> navHostController.navigate(Screen.HomeworkDetailScreen.route + "/${homework.id}") },
+        onOpenInHome = { date -> navHostController.navigate(Screen.HomeScreen.route + "/$date") }
     )
 }
 
@@ -100,7 +97,8 @@ private fun HomeworkListContent(
     state: HomeworkListState,
     navBar: @Composable () -> Unit = {},
     onEvent: (event: HomeworkListEvent) -> Unit = {},
-    onOpenHomework: (homework: Homework) -> Unit = {}
+    onOpenHomework: (homework: Homework) -> Unit = {},
+    onOpenInHome: (date: LocalDate) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
@@ -122,9 +120,9 @@ private fun HomeworkListContent(
         state = (state.filters.first { it is HomeworkFilter.VisibilityFilter } as HomeworkFilter.VisibilityFilter).showVisible
     )
 
-    var isAddHomeworkSheetOpen by rememberSaveable { mutableStateOf(false) }
-    if (isAddHomeworkSheetOpen) {
-        AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false })
+    var addHomeworkSheetInitialValues by rememberSaveable<MutableState<AddHomeworkSheetInitialValues?>> { mutableStateOf(null) }
+    if (addHomeworkSheetInitialValues != null) {
+        AddHomeworkSheet(onClose = { addHomeworkSheetInitialValues = null }, initialValues = addHomeworkSheetInitialValues ?: AddHomeworkSheetInitialValues())
     }
 
     LaunchedEffect(key1 = state.lastHiddenHomework) {
@@ -147,7 +145,7 @@ private fun HomeworkListContent(
         },
         floatingActionButton = {
             if (state.userUsesFalseProfileType) return@Scaffold
-            ExtendedFloatingActionButton(onClick = { isAddHomeworkSheetOpen = true }) {
+            ExtendedFloatingActionButton(onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues() }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
                 Spacer4Dp()
                 Text(text = stringResource(id = R.string.homework_addHomework))
@@ -239,26 +237,10 @@ private fun HomeworkListContent(
                         items.forEach { (until, homeworkForDay) ->
                             stickyHeader(key = until) {
                                 AnimatedVisibility(visible = homeworkForDay.any { homework -> state.filters.all { filter -> filter.filter(homework) } }) {
-                                    Text(
-                                        text = buildAnnotatedString {
-                                            val date = until.format(DateTimeFormatter.ofPattern("EEEE, dd.MM.yyyy"))
-                                            val relative = DateUtils.localizedRelativeDate(context, until.toLocalDate(), false)
-                                            withStyle(MaterialTheme.typography.bodyLarge.toSpanStyle()) {
-                                                append(date)
-                                            }
-                                            if (relative != null) {
-                                                withStyle(MaterialTheme.typography.bodySmall.toSpanStyle()) {
-                                                    append("\n($relative)")
-                                                }
-                                            }
-                                        },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .background(MaterialTheme.colorScheme.surface.copy(alpha = .5f))
-                                            .padding(16.dp),
-                                        textAlign = TextAlign.Center,
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = if (homeworkForDay.any { it.isOverdue(LocalDate.now()) }) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                    DateHeader(
+                                        date = until.toLocalDate(),
+                                        onAddHomework = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = until.toLocalDate()) },
+                                        onOpenInHome = { onOpenInHome(until.toLocalDate()) }
                                     )
                                 }
                             }
@@ -276,10 +258,12 @@ private fun HomeworkListContent(
                                     resetKey1 = state.updateCounter,
                                     resetKey2 = state.error,
                                     showDemo = canShowDemo,
-                                    onDemoEnd = { onEvent(HomeworkListEvent.DismissBalloon(HOMEWORK_SWIPE_DEMO_BALLOON)) }
+                                    onDemoEnd = { onEvent(HomeworkListEvent.DismissBalloon(HOMEWORK_SWIPE_DEMO_BALLOON)) },
+                                    allowProgressBar = state.getFilter<HomeworkFilter.CompletionFilter>().showCompleted == null
                                 )
                                 if (canShowDemo) hasDrawnFirstVisibleHomework = true
                             }
+                            item { Spacer8Dp() }
                         }
                     }
                 }
@@ -308,7 +292,7 @@ private fun HomeworkListContent(
         when (state.error) {
             HomeworkListError.DeleteOrHideError -> snackbarHostState.showSnackbar(context.getString(R.string.homework_errorDelete))
             HomeworkListError.MarkAsDoneError -> snackbarHostState.showSnackbar(context.getString(R.string.homework_errorMarkingDone))
-            null -> Unit
+            else -> Unit
         }
     }
 }

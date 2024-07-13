@@ -15,7 +15,7 @@ data class Lesson(
     val info: String?,
     val start: ZonedDateTime,
     val end: ZonedDateTime,
-    val vpId: Int?,
+    val defaultLesson: DefaultLesson?,
     val roomBooking: RoomBooking? = null
 ) {
     fun toHash(): String {

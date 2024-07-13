@@ -31,7 +31,7 @@ object Lessons {
                     `class` = randomClass(),
                     originalSubject = randomSubject(),
                     changedSubject = if (Random.nextBoolean()) randomSubject() else null,
-                    vpId = null
+                    defaultLesson = null
                 )
             )
         }

@@ -88,7 +88,8 @@ fun HomeworkCardItem(
     resetKey1: Any? = null,
     resetKey2: Any? = null,
     showDemo: Boolean = false,
-    onDemoEnd: () -> Unit = {}
+    onDemoEnd: () -> Unit = {},
+    allowProgressBar: Boolean = true
 ) {
     val scope = rememberCoroutineScope()
 
@@ -198,7 +199,8 @@ fun HomeworkCardItem(
                     swipingProgress = dismissState.progress,
                     isHidden = homework is Homework.CloudHomework && homework.isHidden,
                     isPublic = homework is Homework.CloudHomework && homework.isPublic,
-                    onClick = onClick
+                    onClick = onClick,
+                    allowProgressBar = allowProgressBar
                 )
             }
         }
@@ -273,7 +275,8 @@ private fun HomeworkCard(
     isHidden: Boolean,
     isPublic: Boolean,
     swipingProgress: Float = 1f,
-    onClick: () -> Unit = {}
+    onClick: () -> Unit = {},
+    allowProgressBar: Boolean = true
 ) {
     val context = LocalContext.current
     val isSwipingModifierValue by animateFloatAsState(targetValue = if (swipingProgress == 1f) 0f else 1f, label = "isSwipingModifierValue")
@@ -357,7 +360,7 @@ private fun HomeworkCard(
                 overflow = TextOverflow.Ellipsis
             )
             androidx.compose.animation.AnimatedVisibility(
-                visible = tasksDone > 0,
+                visible = allowProgressBar,
                 enter = expandVertically(),
                 exit = shrinkVertically()
             ) {

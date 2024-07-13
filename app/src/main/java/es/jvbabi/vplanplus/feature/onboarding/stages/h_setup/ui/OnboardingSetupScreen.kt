@@ -60,7 +60,7 @@ fun OnboardingSetupScreen(
     ) {
         StartAppScreen(
             onClick = {
-                navHostController.navigate(Screen.HomeScreen.route) {
+                navHostController.navigate(Screen.HomeScreen) {
                     popUpTo(0)
                 }
             },

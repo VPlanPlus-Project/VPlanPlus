@@ -30,6 +30,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -66,6 +67,7 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLin
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
@@ -97,7 +99,6 @@ fun HomeScreen(
     HomeScreenContent(
         navBar = navBar,
         state = state,
-        onAddHomework = { vpId -> navHostController.navigate(Screen.AddHomeworkScreen.route + "?vpId=$vpId") },
         onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) },
         onOpenMenu = homeViewModel::onMenuOpenedChange,
         onSetSelectedDate = homeViewModel::setSelectedDate,
@@ -145,7 +146,6 @@ fun HomeScreenContent(
     onOpenMenu: (state: Boolean) -> Unit = {},
     onSetSelectedDate: (date: LocalDate) -> Unit = {},
     onInfoExpandChange: (to: Boolean) -> Unit = {},
-    onAddHomework: (vpId: Int?) -> Unit,
     onBookRoomClicked: () -> Unit,
     onOpenSearch: () -> Unit = {},
 
@@ -177,9 +177,12 @@ fun HomeScreenContent(
         onCloseUntilNextVersion = { onVersionHintsClosed(true) }
     )
 
-    var isAddHomeworkSheetOpen by rememberSaveable { mutableStateOf(false) }
-    if (isAddHomeworkSheetOpen) {
-        AddHomeworkSheet(onClose = { isAddHomeworkSheetOpen = false })
+    var addHomeworkSheetInitialValues by rememberSaveable<MutableState<AddHomeworkSheetInitialValues?>> { mutableStateOf(null) }
+    if (addHomeworkSheetInitialValues != null) {
+        AddHomeworkSheet(
+            onClose = { addHomeworkSheetInitialValues = null },
+            initialValues = addHomeworkSheetInitialValues ?: AddHomeworkSheetInitialValues()
+        )
     }
 
 
@@ -253,7 +256,7 @@ fun HomeScreenContent(
                         modifier = Modifier.padding(vertical = 16.dp),
                         nextSchoolDayWithData = state.nextSchoolDayWithData,
                         selectedDate = state.selectedDate,
-                        onNewHomeworkClicked = { /*onAddHomework(null)*/ isAddHomeworkSheetOpen = true },
+                        onNewHomeworkClicked = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues() },
                         onFindAvailableRoomClicked = onBookRoomClicked,
                         onPrepareNextDayClicked = { onSetSelectedDate(state.nextSchoolDayWithData ?: state.currentTime.toLocalDate().plusDays(1L)) },
                         onSendFeedback = onSendFeedback,
@@ -339,7 +342,7 @@ fun HomeScreenContent(
                                         bookings = state.bookings,
                                         homework = state.homework,
                                         onChangeInfoExpandState = onInfoExpandChange,
-                                        onAddHomework = onAddHomework,
+                                        onAddHomework = { defaultLesson -> addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(defaultLesson = defaultLesson) },
                                         onBookRoomClicked = onBookRoomClicked,
                                         hideFinishedLessons = state.hideFinishedLessons,
                                     )
@@ -387,7 +390,6 @@ private fun HomeScreenPreview() {
             hasMissingVppIdToProfileLinks = true,
             lastSync = ZonedDateTime.now().minusDays(1L)
         ),
-        onAddHomework = {},
         onBookRoomClicked = {},
         onOpenMenu = {},
         onSetSelectedDate = {},

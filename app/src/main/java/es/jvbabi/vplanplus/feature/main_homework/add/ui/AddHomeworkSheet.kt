@@ -9,13 +9,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.unsaved_changes_dialog.Dialog
+import java.time.LocalDate
+
+data class AddHomeworkSheetInitialValues(
+    val defaultLesson: DefaultLesson? = null,
+    val until: LocalDate? = null,
+)
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHomeworkSheet(
-    onClose: () -> Unit
+    onClose: () -> Unit,
+    initialValues: AddHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(),
 ) {
     var hasChanged by rememberSaveable { mutableStateOf(false) }
 
@@ -42,7 +50,8 @@ fun AddHomeworkSheet(
     ) {
         AddHomeworkSheetContent(
             onClose = onClose,
-            onChanged = { hasChanged = true }
+            onChanged = { hasChanged = true },
+            initialValues = initialValues,
         )
     }
 }

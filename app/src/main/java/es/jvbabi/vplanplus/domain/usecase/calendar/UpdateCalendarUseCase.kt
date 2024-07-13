@@ -37,7 +37,7 @@ class UpdateCalendarUseCase(
             }.forEach { day ->
                 if (profile.calendarType == ProfileCalendarType.LESSON) {
                     day.lessons
-                        .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.vpId) ?: true }
+                        .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                         .filter { it.displaySubject != "-" }
                         .forEach { lesson ->
                             calendarRepository.insertEvent(
@@ -61,14 +61,14 @@ class UpdateCalendarUseCase(
                             calendarId = calendar.id,
                             startTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
                                 day.lessons
-                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.vpId) ?: true }
+                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                                     .filter { it.displaySubject != "-" }
                                     .sortedBy { it.lessonNumber }
                                     .first { it.displaySubject != "-" }.start
                             ),
                             endTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
                                 day.lessons
-                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.vpId) ?: true }
+                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                                     .filter { it.displaySubject != "-" }
                                     .sortedBy { it.lessonNumber }
                                     .last { it.displaySubject != "-" }.end

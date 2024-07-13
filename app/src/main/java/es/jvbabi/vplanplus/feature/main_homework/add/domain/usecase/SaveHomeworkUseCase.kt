@@ -7,7 +7,6 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkModificationResult
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.util.sha256
 import kotlinx.coroutines.flow.first
@@ -29,9 +28,9 @@ class SaveHomeworkUseCase(
         tasks: List<String>,
         documentUris: Map<Uri, HomeworkDocumentType>,
         onDocumentUploadProgress: (Uri, Float) -> Unit
-    ): HomeworkModificationResult {
-        if (tasks.isEmpty()) return HomeworkModificationResult.FAILED
-        val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return HomeworkModificationResult.FAILED
+    ): Boolean {
+        if (tasks.isEmpty()) return false
+        val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
         val dueTo = ZonedDateTime.of(until, LocalTime.of(0, 0, 0), ZoneId.of("UTC"))
         var homeworkId: Int? = null
@@ -39,7 +38,7 @@ class SaveHomeworkUseCase(
         val createdAt = ZonedDateTime.now()
 
         if (storeInCloud && profile.vppId != null) {
-            val ids = homeworkRepository.addHomeworkCloud(profile.vppId, isPublic = shareWithClass, vpId = defaultLesson?.vpId, dueTo = dueTo, tasks = tasks).value ?: return HomeworkModificationResult.FAILED
+            val ids = homeworkRepository.addHomeworkCloud(profile.vppId, isPublic = shareWithClass, vpId = defaultLesson?.vpId, dueTo = dueTo, tasks = tasks).value ?: return false
             homeworkId = ids.id
             ids.tasks.forEach { (id, contentSHA256) ->
                 taskMap += tasks.first { it.sha256() == contentSHA256 } to id
@@ -68,7 +67,7 @@ class SaveHomeworkUseCase(
         }
 
         documentUris.forEach { (uri, type) ->
-            val content = fileRepository.readBytes(uri.toFile()) ?: return HomeworkModificationResult.FAILED
+            val content = fileRepository.readBytes(uri.toFile()) ?: return false
             val name = uri.toFile().name
             var documentId: Int? = null
             if (storeInCloud && profile.vppId != null) {
@@ -79,7 +78,7 @@ class SaveHomeworkUseCase(
                     content = content,
                     type = type,
                     onUploading = { sent, _ -> onDocumentUploadProgress(uri, sent.toFloat() / content.size) }
-                ).value ?: return HomeworkModificationResult.FAILED
+                ).value ?: return false
             }
             documentId = homeworkRepository.addDocumentDb(
                 documentId = documentId,
@@ -90,6 +89,6 @@ class SaveHomeworkUseCase(
             fileRepository.writeBytes("homework_documents", "$documentId.${type.extension}", content)
         }
 
-        return if (storeInCloud) HomeworkModificationResult.SUCCESS_ONLINE_AND_OFFLINE else HomeworkModificationResult.SUCCESS_OFFLINE
+        return true
     }
 }

@@ -147,7 +147,7 @@ class DoSyncUseCase(
                     profileDataBefore[profile] =
                         lessonRepository.getLessonsForProfile(profile.id, date, currentVersion)
                             .first()
-                            ?.filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.vpId) ?: true }
+                            ?.filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
                             ?.toList() ?: emptyList()
                 }
 
@@ -186,7 +186,7 @@ class DoSyncUseCase(
                     val day =
                         planRepository.getDayForProfile(profile, date, currentVersion + 1).first()
                     val importantLessons = day.lessons
-                        .filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.vpId) ?: true }
+                        .filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
                     val changedLessons = importantLessons.filter { l ->
                         !profileDataBefore[profile]!!.map { prevData -> prevData.toHash() }
                             .contains(l.toHash())

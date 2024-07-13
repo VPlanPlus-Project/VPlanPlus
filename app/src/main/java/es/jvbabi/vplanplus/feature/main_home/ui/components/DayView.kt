@@ -35,6 +35,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayType
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.Holiday
@@ -59,7 +60,7 @@ fun DayView(
     hideFinishedLessons: Boolean,
     showCountdown: Boolean,
     onChangeInfoExpandState: (Boolean) -> Unit,
-    onAddHomework: (vpId: Int?) -> Unit,
+    onAddHomework: (defaultLesson: DefaultLesson?) -> Unit,
     onBookRoomClicked: () -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -76,7 +77,7 @@ fun DayView(
 
                 val lastActualLesson = day
                     .lessons
-                    .filter { (currentProfile as? ClassProfile)?.isDefaultLessonEnabled(it.vpId) ?: true && it.displaySubject != "-" }
+                    .filter { (currentProfile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true && it.displaySubject != "-" }
                     .maxByOrNull { it.end }
 
                 val uiWillShowHiddenLessonsCard = hideFinishedLessons && !ignoreAutoHideFinishedLessons && day.lessons.any { currentTime.progress(it.start, it.end) >= 1 }
@@ -201,7 +202,7 @@ fun DayView(
                             }
                         ) {
                             LessonCard(
-                                lessons = lessons.filter { (currentProfile as? ClassProfile)?.isDefaultLessonEnabled(it.vpId) ?: true },
+                                lessons = lessons.filter { (currentProfile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true },
                                 bookings = bookings,
                                 time = currentTime,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp, start = padding, end = 8.dp),

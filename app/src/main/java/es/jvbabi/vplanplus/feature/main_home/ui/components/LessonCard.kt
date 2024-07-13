@@ -59,6 +59,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.RoomBooking
@@ -84,7 +85,7 @@ fun LessonCard(
     modifier: Modifier = Modifier,
     homework: List<Homework>,
     bookings: List<RoomBooking>,
-    onAddHomeworkClicked: (vpId: Int?) -> Unit = {},
+    onAddHomeworkClicked: (defaultLesson: DefaultLesson?) -> Unit = {},
     onBookRoomClicked: () -> Unit = {},
     lessons: List<Lesson>,
     time: ZonedDateTime,
@@ -116,7 +117,7 @@ fun LessonCard(
     ) {
         lessons.forEachIndexed { i, lesson ->
             val relevantHomeworkTasks = homework
-                .filter { hw -> hw.defaultLesson?.vpId == lesson.vpId }
+                .filter { hw -> hw.defaultLesson?.vpId == lesson.defaultLesson?.vpId }
                 .filter { hw -> hw.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
                 .filter { hw -> (hw as? Homework.CloudHomework)?.isHidden != true }
                 .map { it.tasks }
@@ -194,7 +195,7 @@ fun LessonCard(
                                 exit = shrinkHorizontally(tween(250))
                             ) {
                                 AssistChip(
-                                    onClick = { onAddHomeworkClicked(lesson.vpId) },
+                                    onClick = { onAddHomeworkClicked(lesson.defaultLesson) },
                                     label = { Text(text = stringResource(id = R.string.home_addHomeworkLabel)) },
                                     leadingIcon = {
                                         Icon(Icons.AutoMirrored.Outlined.MenuBook, null)
@@ -246,7 +247,7 @@ fun LessonCardPreview() {
         bookings = emptyList(),
         lessons = listOf(
             Lesson(
-                vpId = 1,
+                defaultLesson = null,
                 lessonNumber = 1,
                 start = ZonedDateTime.now(),
                 end = ZonedDateTime.now().plusHours(1),
