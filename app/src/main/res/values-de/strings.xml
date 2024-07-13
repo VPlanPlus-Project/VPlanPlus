@@ -300,6 +300,7 @@
     <string name="addHomework_notSelected">Nicht ausgewählt</string>
     <string name="addHomework_lessonSubtitle">%1$s mit %2$s</string>
     <string name="addHomework_lessonSubtitleNoTeacher">%1$s ohne Lehrer</string>
+    <string name="addHomework_until">Fällig bis</string>
     <string name="addHomework_shareTitle">Mit Klassenkameraden teilen</string>
     <string name="addHomework_shareSubtitleWithSubjectAndTeacher">Wenn diese Option aktiviert ist, sehen alle Mitschüler, die auch %1$s mit %2$s aktiviert haben, diese Hausaufgabe.</string>
     <string name="addHomework_shareSubtitleWithSubject">Wenn diese Option aktiviert ist, sehen alle Mitschüler, die auch %1$s ohne Lehrer aktiviert haben, diese Hausaufgabe.</string>
