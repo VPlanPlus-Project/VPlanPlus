@@ -59,6 +59,7 @@ import androidx.navigation.NavHostController
 import com.skydoves.balloon.compose.Balloon
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON
+import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_SWIPE_DEMO_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.AllDone
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.BadProfileType
@@ -211,6 +212,8 @@ private fun HomeworkListContent(
                 ) {
                     val items = state.homework.groupBy { it.until }.toList()
                     val homeworkListState = rememberLazyListState()
+
+                    var hasDrawnFirstVisibleHomework = false
                     LazyColumn(state = homeworkListState) {
                         item placeholderWrapper@{
                             runComposable placeholders@{
@@ -261,16 +264,21 @@ private fun HomeworkListContent(
                             }
                             items(homeworkForDay) { hw ->
                                 val homework by rememberUpdatedState(hw)
+                                val isVisible = state.filters.all { it.filter(homework) }
+                                val canShowDemo = isVisible && !hasDrawnFirstVisibleHomework && state.allowSwipingDemo
                                 HomeworkCardItem(
                                     homework = homework,
                                     currentVppId = state.profile?.vppId,
-                                    isVisible = state.filters.all { it.filter(homework) },
+                                    isVisible = isVisible,
                                     onClick = { onOpenHomework(homework) },
                                     onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homework)) },
                                     onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homework)) },
                                     resetKey1 = state.updateCounter,
                                     resetKey2 = state.error,
+                                    showDemo = canShowDemo,
+                                    onDemoEnd = { onEvent(HomeworkListEvent.DismissBalloon(HOMEWORK_SWIPE_DEMO_BALLOON)) }
                                 )
+                                if (canShowDemo) hasDrawnFirstVisibleHomework = true
                             }
                         }
                     }
@@ -291,7 +299,7 @@ private fun HomeworkListContent(
             }
         }
         LaunchedEffect(state.isUpdatingHomework) {
-            if(state.isUpdatingHomework) pullRefreshState.startRefresh()
+            if (state.isUpdatingHomework) pullRefreshState.startRefresh()
             else pullRefreshState.endRefresh()
         }
     }

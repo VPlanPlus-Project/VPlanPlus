@@ -17,6 +17,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.usecase.general.Balloon
 import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON
+import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_SWIPE_DEMO_BALLOON
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkListUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
 import kotlinx.coroutines.flow.combine
@@ -37,12 +38,14 @@ class HomeworkListViewModel @Inject constructor(
                 homeworkListUseCases.getCurrentProfileUseCase(),
                 homeworkListUseCases.getHomeworkUseCase(),
                 homeworkListUseCases.updateHomeworkUseCase.isUpdateRunning(),
-                homeworkListUseCases.isBalloonUseCase(HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON, true)
+                homeworkListUseCases.isBalloonUseCase(HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON, true),
+                homeworkListUseCases.isBalloonUseCase(HOMEWORK_SWIPE_DEMO_BALLOON, true)
             )) { data ->
                 val profile = data[0] as? ClassProfile
                 val homework = data[1] as List<Homework>
                 val isUpdatingHomework = data[2] as Boolean
                 val allowHomeworkHiddenBanner = data[3] as Boolean
+                val allowSwipingDemo = data[4] as Boolean
 
                 state.copy(
                     userUsesFalseProfileType = profile == null,
@@ -51,7 +54,8 @@ class HomeworkListViewModel @Inject constructor(
                     isUpdatingHomework = isUpdatingHomework,
                     initDone = true,
                     allowHomeworkHiddenBanner = allowHomeworkHiddenBanner,
-                    updateCounter = state.updateCounter + 1
+                    updateCounter = state.updateCounter + 1,
+                    allowSwipingDemo = allowSwipingDemo
                 )
             }.collect { state = it }
         }
@@ -111,7 +115,9 @@ data class HomeworkListState(
     val isUpdatingHomework: Boolean = false,
 
     val error: HomeworkListError? = null,
-    val updateCounter: Int = Int.MIN_VALUE
+    val updateCounter: Int = Int.MIN_VALUE,
+
+    val allowSwipingDemo: Boolean = false
 ) {
     inline fun <reified T: HomeworkFilter> getFilter(): T {
         return filters.filterIsInstance<T>().first()

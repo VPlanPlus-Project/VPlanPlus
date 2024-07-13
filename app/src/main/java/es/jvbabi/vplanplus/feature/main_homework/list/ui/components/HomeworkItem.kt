@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,13 +29,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SwipeToDismissBox
-import androidx.compose.material3.SwipeToDismissBoxState
 import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,17 +54,22 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.skydoves.balloon.compose.Balloon
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.main_homework.list_old.ui.components.homeworkcard.HomeworkProgressBar
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
+import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.common.getSubjectIcon
+import es.jvbabi.vplanplus.ui.common.rememberDefaultBalloon
 import es.jvbabi.vplanplus.util.DateUtils.localizedRelativeDate
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -79,7 +86,9 @@ fun HomeworkCardItem(
     onCheckSwiped: () -> Unit,
     onVisibilityOrDeleteSwiped: () -> Unit,
     resetKey1: Any? = null,
-    resetKey2: Any? = null
+    resetKey2: Any? = null,
+    showDemo: Boolean = false,
+    onDemoEnd: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
 
@@ -119,31 +128,79 @@ fun HomeworkCardItem(
             onNo = { isDeleteDialogOpen = false; scope.launch { dismissState.reset() } },
         )
     }
+    var demoDisplayDirection by remember<MutableState<SwipeToDismissBoxValue?>> { mutableStateOf(SwipeToDismissBoxValue.Settled) }
+    var demoDisplayOffset by remember { mutableFloatStateOf(0f) }
+    var isDemoRunning by remember { mutableStateOf(true) }
+
+    if (showDemo) LaunchedEffect(key1 = Unit) {
+        while (isDemoRunning) {
+            delay(1000)
+            demoDisplayDirection = SwipeToDismissBoxValue.EndToStart
+            demoDisplayOffset = -64f
+            delay(1000)
+            demoDisplayOffset = 64f
+            delay(500)
+            demoDisplayDirection = SwipeToDismissBoxValue.StartToEnd
+            delay(500)
+            demoDisplayOffset = 0f
+            delay(500)
+            demoDisplayDirection = SwipeToDismissBoxValue.Settled
+        }
+    }
 
     AnimatedVisibility(
         visible = !isMarkedToDelete && isVisible,
         enter = expandVertically(),
         exit = shrinkVertically(tween()),
     ) {
-        SwipeToDismissBox(
-            state = dismissState,
-            backgroundContent = { SwipeBackground(dismissState, homework is Homework.LocalHomework || (homework is Homework.CloudHomework && homework.createdBy.id == currentVppId?.id), homework is Homework.CloudHomework && homework.isHidden) }
-        ) {
-            HomeworkCard(
-                subject = homework.defaultLesson?.subject,
-                tasks = homework.tasks.map { it.content },
-                documentCount = homework.documents.size,
-                tasksDone = homework.tasks.count { it.isDone },
-                creator = when (homework) {
-                    is Homework.CloudHomework -> HomeworkCreator.VppIdCreator(homework.createdBy.name, homework.createdBy.id == currentVppId?.id)
-                    is Homework.LocalHomework -> HomeworkCreator.DeviceCreator
-                },
-                createdAt = homework.createdAt,
-                swipingProgress = dismissState.progress,
-                isHidden = homework is Homework.CloudHomework && homework.isHidden,
-                isPublic = homework is Homework.CloudHomework && homework.isPublic,
-                onClick = onClick
-            )
+        Balloon(
+            builder = rememberDefaultBalloon(),
+            balloonContent = {
+                Column {
+                    DefaultBalloonTitle(text = stringResource(id = R.string.homework_swipeDemoTitle))
+                    DefaultBalloonDescription(text = stringResource(id = R.string.homework_swipeDemoDescription))
+                }
+            },
+        ) { balloon ->
+            LaunchedEffect(key1 = showDemo) {
+                if (!showDemo) return@LaunchedEffect
+                delay(500)
+                balloon.showAlignBottom()
+                balloon.setOnBalloonDismissListener {
+                    onDemoEnd()
+                    demoDisplayDirection = null
+                    demoDisplayOffset = 0f
+                    isDemoRunning = false
+                }
+            }
+            SwipeToDismissBox(
+                state = dismissState,
+                enableDismissFromEndToStart = !isDemoRunning,
+                enableDismissFromStartToEnd = !isDemoRunning,
+                backgroundContent = { SwipeBackground(demoDisplayDirection ?: dismissState.dismissDirection, homework is Homework.LocalHomework || (homework is Homework.CloudHomework && homework.createdBy.id == currentVppId?.id), homework is Homework.CloudHomework && homework.isHidden) }
+            ) {
+                val demoOffset = animateFloatAsState(
+                    targetValue = demoDisplayOffset,
+                    label = "demoOffset",
+                    animationSpec = tween(1000)
+                )
+                HomeworkCard(
+                    modifier = Modifier.offset { IntOffset(demoOffset.value.dp.roundToPx(), 0) },
+                    subject = homework.defaultLesson?.subject,
+                    tasks = homework.tasks.map { it.content },
+                    documentCount = homework.documents.size,
+                    tasksDone = homework.tasks.count { it.isDone },
+                    creator = when (homework) {
+                        is Homework.CloudHomework -> HomeworkCreator.VppIdCreator(homework.createdBy.name, homework.createdBy.id == currentVppId?.id)
+                        is Homework.LocalHomework -> HomeworkCreator.DeviceCreator
+                    },
+                    createdAt = homework.createdAt,
+                    swipingProgress = dismissState.progress,
+                    isHidden = homework is Homework.CloudHomework && homework.isHidden,
+                    isPublic = homework is Homework.CloudHomework && homework.isPublic,
+                    onClick = onClick
+                )
+            }
         }
     }
 }
@@ -151,12 +208,12 @@ fun HomeworkCardItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeBackground(
-    swipeDismissState: SwipeToDismissBoxState,
+    direction: SwipeToDismissBoxValue,
     canDelete: Boolean,
     isHidden: Boolean = false,
 ) {
     val color =
-        when (swipeDismissState.dismissDirection) {
+        when (direction) {
             SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.primaryContainer
             SwipeToDismissBoxValue.StartToEnd -> MaterialTheme.colorScheme.errorContainer
             else -> Color.Transparent
@@ -167,10 +224,10 @@ private fun SwipeBackground(
             .fillMaxSize()
             .background(color)
             .padding(16.dp),
-        contentAlignment = if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) CenterEnd else CenterStart
+        contentAlignment = if (direction == SwipeToDismissBoxValue.EndToStart) CenterEnd else CenterStart
     ) {
         Icon(
-            imageVector = if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+            imageVector = if (direction == SwipeToDismissBoxValue.EndToStart) {
                 Icons.Default.CheckBox
             } else if (canDelete) {
                 Icons.Default.DeleteForever
@@ -180,7 +237,7 @@ private fun SwipeBackground(
                 Icons.Default.Visibility
             },
             contentDescription = null,
-            tint = if (swipeDismissState.dismissDirection == SwipeToDismissBoxValue.EndToStart) {
+            tint = if (direction == SwipeToDismissBoxValue.EndToStart) {
                 MaterialTheme.colorScheme.primary
             } else {
                 MaterialTheme.colorScheme.error
@@ -206,6 +263,7 @@ sealed interface HomeworkCreator {
 
 @Composable
 private fun HomeworkCard(
+    modifier: Modifier = Modifier,
     subject: String?,
     tasks: List<String>,
     documentCount: Int,
@@ -221,7 +279,7 @@ private fun HomeworkCard(
     val isSwipingModifierValue by animateFloatAsState(targetValue = if (swipingProgress == 1f) 0f else 1f, label = "isSwipingModifierValue")
     val rounding = ((abs(swipingProgress.run { if (this == 1f) return@run 0f else return@run this }).coerceAtMost(0.08f) / 0.08f) * 16).dp
     RowVerticalCenter(
-        modifier = Modifier
+        modifier = modifier
             .zIndex(if (swipingProgress != 1f) 0f else 1f)
             .fillMaxWidth()
             .shadow((isSwipingModifierValue * 8).dp, RoundedCornerShape(rounding))

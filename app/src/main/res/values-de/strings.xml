@@ -737,5 +737,7 @@
     <string name="homework_hiddenBalloonDescription">Du kannst diesen Filter verwenden, um sie wieder anzuzeigen.</string>
     <string name="homework_hiddenSnackbarMessage">Hausaufgabe ausgeblendet</string>
     <string name="homework_hiddenSnackbarAction">Rückgängig</string>
+    <string name="homework_swipeDemoTitle">Entdecke Wischgesten</string>
+    <string name="homework_swipeDemoDescription">Du kannst Hausaufgaben verstecken oder löschen (abhängig, ob du die HA erstellt hast) order alle Aufgaben als erledigt markieren,</string>
 
 </resources>
