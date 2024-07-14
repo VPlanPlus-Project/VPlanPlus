@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.GradeDa
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.TeacherDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.DownloadedGrade
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Interval
@@ -109,19 +110,29 @@ class GradeRepositoryImpl(
         gradeDao.dropAll()
     }
 
-    override suspend fun downloadYears(vppId: VppId.ActiveVppId): List<Year> {
-        bsNetworkRepository.authentication = BearerAuthentication(vppId.schulverwalterToken ?: return emptyList())
+    override suspend fun downloadYears(vppId: VppId.ActiveVppId): Map<Year, List<Interval>> {
+        bsNetworkRepository.authentication = BearerAuthentication(vppId.schulverwalterToken ?: return emptyMap())
         val years = bsNetworkRepository.doRequest("/api/years").let {
             if (it.response == HttpStatusCode.Unauthorized) throw BsUnauthorizedException()
             if (it.response != HttpStatusCode.OK) throw BsRequestFailedException(it.response)
             Gson().fromJson(it.data, BsSchoolYearResponse::class.java).years
-        }.map {
+        }.associate { year ->
             Year(
-                id = it.id,
-                name = it.name,
-                from = it.start,
-                to = it.end,
-            )
+                id = year.id,
+                name = year.name,
+                from = year.start,
+                to = year.end,
+            ) to year.intervals.map { interval ->
+                Interval(
+                    id = interval.id,
+                    name = interval.name,
+                    type = interval.type,
+                    from = interval.start,
+                    to = interval.end,
+                    includedIntervalId = interval.includedIntervalId,
+                    yearId = interval.id
+                )
+            }
         }
         return years
     }
@@ -135,45 +146,6 @@ class GradeRepositoryImpl(
                 to = year.to
             )
         )
-    }
-
-    /**
-     * Updates the years and intervals in the database
-     * @author Julius Babies
-     * @param token the token to use for the request
-     * @throws BsUnauthorizedException if the token is invalid
-     * @throws BsRequestFailedException if the request failed
-     */
-    private suspend fun updateYears(token: String) {
-        bsNetworkRepository.authentication = BearerAuthentication(token)
-        val years = bsNetworkRepository.doRequest("/api/years").let {
-            if (it.response == HttpStatusCode.Unauthorized) throw BsUnauthorizedException()
-            if (it.response != HttpStatusCode.OK) throw BsRequestFailedException(it.response)
-            Gson().fromJson(it.data, BsSchoolYearResponse::class.java).years
-        }
-        years.forEach year@{ year ->
-            yearDao.upsert(
-                DbYear(
-                    id = year.id,
-                    name = year.name,
-                    from = year.start,
-                    to = year.end
-                )
-            )
-            year.intervals.forEach interval@{ interval ->
-                yearDao.upsertInterval(
-                    DbInterval(
-                        id = interval.id,
-                        name = interval.name,
-                        type = interval.type,
-                        from = interval.start,
-                        to = interval.end,
-                        includedIntervalId = interval.includedIntervalId,
-                        yearId = year.id
-                    )
-                )
-            }
-        }
     }
 
     override suspend fun upsertInterval(year: Year, interval: Interval) {
@@ -190,7 +162,7 @@ class GradeRepositoryImpl(
         )
     }
 
-    override suspend fun downloadGrades(activeVppId: VppId.ActiveVppId): Response<SchulverwalterResponse, List<Grade>?> {
+    override suspend fun downloadGrades(activeVppId: VppId.ActiveVppId): Response<SchulverwalterResponse, List<DownloadedGrade>?> {
         val token = activeVppId.schulverwalterToken ?: return Response(SchulverwalterResponse.UNAUTHORIZED, null)
         bsNetworkRepository.authentication = BearerAuthentication(token)
         val result = bsNetworkRepository.doRequest("/api/grades?include=collection")
@@ -198,8 +170,7 @@ class GradeRepositoryImpl(
         if (result.response != HttpStatusCode.OK) return Response(SchulverwalterResponse.OTHER, null)
         return Response(SchulverwalterResponse.SUCCESS, Gson().fromJson(result.data, BsGradesResponse::class.java).data.map {
             val (gradeNumber, gradeModifier) = explodeGrade(it.value)
-            val interval = yearDao.getIntervalById(it.collection.intervalId).toModel()
-            Grade(
+            DownloadedGrade(
                 id = it.id,
                 value = gradeNumber.toFloat(),
                 modifier = gradeModifier,
@@ -208,8 +179,7 @@ class GradeRepositoryImpl(
                 givenBy = Teacher(it.teacher.id, it.teacher.firstname, it.teacher.short, it.teacher.lastname),
                 vppId = activeVppId,
                 type = it.collection.type,
-                interval = interval.first,
-                year = interval.second,
+                intervalId = it.collection.intervalId.toInt(),
                 comment = it.collection.name
             )
         })
@@ -217,38 +187,6 @@ class GradeRepositoryImpl(
 
     override suspend fun upsertSubject(subject: Subject) {
         subjectDao.insert(DbSubject(subject.id, subject.short, subject.name))
-    }
-
-    /**
-     * Adds a [BsSubject] to the database
-     * @param id the id of the subject
-     * @param short the short name of the subject
-     * @param name the name of the subject
-     * @return the [Subject] object that was added to the database
-     * @see Subject
-     * @author Julius Babies
-     */
-    private fun addBsSubjectToDb(id: Long, short: String, name: String): Subject {
-        val obj = DbSubject(id, short, name)
-        subjectDao.insert(obj)
-        return obj.toModel()
-    }
-
-
-    /**
-     * Adds a [BsTeacher] to the database
-     * @param id the id of the teacher
-     * @param short the short name of the teacher
-     * @param firstname the first name of the teacher
-     * @param lastname the last name of the teacher
-     * @return the [Teacher] object that was added to the database
-     * @see Teacher
-     * @author Julius Babies
-     */
-    private fun addBsTeacherToDb(id: Long, short: String, firstname: String, lastname: String): Teacher {
-        val obj = DbTeacher(id, short, firstname, lastname)
-        teacherDao.insert(obj)
-        return obj.toModel()
     }
 
     override suspend fun upsertTeacher(teacher: Teacher) {

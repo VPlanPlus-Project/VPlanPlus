@@ -29,6 +29,7 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
+import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
 import es.jvbabi.vplanplus.shared.data.Response
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
@@ -46,7 +47,8 @@ class VppIdRepositoryImpl(
     private val profileRepository: ProfileRepository,
     private val roomBookingDao: RoomBookingDao,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
-    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
+    private val schulverwalterNetworkRepository: BsNetworkRepository
 ) : VppIdRepository {
     override fun getVppIds(): Flow<List<VppId>> {
         return vppIdDao.getAll().map { list ->
@@ -270,11 +272,8 @@ class VppIdRepositoryImpl(
     override suspend fun testSchulverwalterToken(token: String): Boolean? {
         if (token.isEmpty()) return false
         val LOG_TAG = "VppIdRepository.useOAuthCode"
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
-        val response = vppIdNetworkRepository.doRequest(
-            "/api/$API_VERSION/user/me",
-            HttpMethod.Get
-        )
+        schulverwalterNetworkRepository.authentication = BearerAuthentication(token)
+        val response = schulverwalterNetworkRepository.doRequest("/api/me")
         if (response.response == HttpStatusCode.Unauthorized) {
             Log.e(LOG_TAG, "Token not valid")
             return false

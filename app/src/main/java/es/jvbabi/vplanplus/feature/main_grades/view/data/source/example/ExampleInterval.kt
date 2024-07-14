@@ -11,7 +11,8 @@ object ExampleInterval {
             type = if (isSek2) "Sek II" else "Sek I",
             from = LocalDate.parse("2021-08-01"),
             to = LocalDate.parse("2021-12-31"),
-            includedIntervalId = 2
+            includedIntervalId = 2,
+            yearId = 1
         )
     }
 
@@ -22,7 +23,8 @@ object ExampleInterval {
             type = if (isSek2) "Sek II" else "Sek I",
             from = LocalDate.parse("2022-01-01"),
             to = LocalDate.parse("2022-07-31"),
-            includedIntervalId = 1
+            includedIntervalId = 1,
+            yearId = 1
         )
     }
 }

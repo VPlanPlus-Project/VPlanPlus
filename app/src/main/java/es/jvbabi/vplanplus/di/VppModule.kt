@@ -102,6 +102,7 @@ import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasPr
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.SetProfileVppIdUseCase
+import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -381,7 +382,8 @@ object VppModule {
         profileRepository: ProfileRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
         keyValueRepository: KeyValueRepository,
-        logRecordRepository: LogRecordRepository
+        logRecordRepository: LogRecordRepository,
+        schulverwalterNetworkRepository: BsNetworkRepository
     ): VppIdRepository {
         return VppIdRepositoryImpl(
             vppIdDao = db.vppIdDao,
@@ -393,7 +395,8 @@ object VppModule {
                 logRecordRepository
             ),
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            schulverwalterNetworkRepository = schulverwalterNetworkRepository
         )
     }
 

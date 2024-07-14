@@ -98,6 +98,7 @@ class DoSyncUseCase(
 
         logRecordRepository.log("Sync.Grades", "Syncing grades")
 
+        updateGradesUseCase()
         val newGrades = emptyList<Grade>()
         if (newGrades.isNotEmpty()) {
             val msg = if (newGrades.size == 1) {

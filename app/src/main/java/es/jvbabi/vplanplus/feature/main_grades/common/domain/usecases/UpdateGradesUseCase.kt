@@ -7,6 +7,8 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchulverwalterTokenResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Interval
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Year
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.SchulverwalterResponse
 import kotlinx.coroutines.flow.first
@@ -26,15 +28,19 @@ class UpdateGradesUseCase(
                 var vppId = profile.vppId ?: return@forEachProfile
                 var isDone = false
 
+                Log.d("SyncGradesUseCase", "${profile.toLogString()}: Syncing grades")
+
                 val refreshTokenAndUpdateDb: suspend () -> VppId.ActiveVppId? = {
                     val (response, token) = vppIdRepository.requestCurrentSchulverwalterToken(vppId)
                     when (response) {
                         SchulverwalterTokenResponse.NO_TOKENS -> {
                             unhealthyProfiles.add(profile)
+                            Log.e("SyncGradesUseCase", "${profile.toLogString()}: No tokens")
                             null
                         }
                         SchulverwalterTokenResponse.NETWORK_ERROR -> null
                         SchulverwalterTokenResponse.SUCCESS -> {
+                            Log.i("SyncGradesUseCase", "${profile.toLogString()}: Token refreshed")
                             vppIdRepository.setSchulverwalterToken(vppId, token!!)
                             vppIdRepository.getVppId(vppId.id.toLong(), vppId.school!!, false) as VppId.ActiveVppId
                         }
@@ -43,14 +49,19 @@ class UpdateGradesUseCase(
 
                 val newGrades = mutableListOf<Grade>()
 
-                repeat(2) updateGrades@{
+                repeat(2) updateGrades@{ cycle ->
                     if (isDone) return@updateGrades
+                    Log.d("SyncGradesUseCase", "${profile.toLogString()}:   Cycle $cycle")
                     when (vppIdRepository.testSchulverwalterToken(vppId.schulverwalterToken ?: "")) {
                         false -> vppId = refreshTokenAndUpdateDb() ?: return@updateGrades
                         null -> return@forEachProfile
                         else -> Unit
                     }
-                    updateYears(vppId)
+
+                    Log.d("SyncGradesUseCase", "${profile.toLogString()}:   Updating years")
+                    val years = updateYears(vppId)
+
+                    Log.d("SyncGradesUseCase", "${profile.toLogString()}:   Downloading grades")
                     val (rawGradesCode, rawGrades) = gradeRepository.downloadGrades(vppId)
                     when (rawGradesCode) {
                         SchulverwalterResponse.OTHER, SchulverwalterResponse.NO_INTERNET -> return@forEachProfile
@@ -62,11 +73,19 @@ class UpdateGradesUseCase(
                     }
 
                     val existing = gradeRepository.getGradesByUser(vppId).first()
-                    rawGrades.forEach { gradeRepository.upsertGrade(it) }
+                    Log.d("SyncGradesUseCase", "${profile.toLogString()}:   Existing grades: ${existing.size}, new grades: ${rawGrades.size}")
+                    val builtGrades = rawGrades.map { grade ->
+                        val (year, intervals) = years.filter { (_, intervals) ->
+                            intervals.any { it.id.toInt() == grade.intervalId }
+                        }.toList().first()
+                        val builtGrade = grade.toGrade(year, intervals.first { it.id.toInt() == grade.intervalId })
+                        gradeRepository.upsertGrade(builtGrade)
+                        builtGrade
+                    }
 
-                    (existing - rawGrades).forEach delete@{ gradeRepository.deleteGrade(it) }
+                    (existing - builtGrades.toSet()).forEach delete@{ gradeRepository.deleteGrade(it) }
 
-                    newGrades.addAll(rawGrades - existing.toSet())
+                    newGrades.addAll(builtGrades - existing.toSet())
                     isDone = true
                 }
 
@@ -80,8 +99,12 @@ class UpdateGradesUseCase(
         }
     }
 
-    private suspend fun updateYears(vppId: VppId.ActiveVppId) {
-        val years = gradeRepository.downloadYears(vppId)
-        years.forEach { year -> gradeRepository.upsertYear(year) }
+    private suspend fun updateYears(vppId: VppId.ActiveVppId): Map<Year, List<Interval>> {
+        return gradeRepository
+            .downloadYears(vppId)
+            .onEach { (year, intervals) ->
+                gradeRepository.upsertYear(year)
+                intervals.forEach { gradeRepository.upsertInterval(year, it) }
+            }
     }
 }

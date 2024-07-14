@@ -5,7 +5,6 @@ import androidx.room.Query
 import androidx.room.Upsert
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbInterval
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbYear
-import es.jvbabi.vplanplus.feature.main_grades.view.data.model.combined.CInterval
 
 @Dao
 abstract class YearDao {
@@ -20,5 +19,5 @@ abstract class YearDao {
     abstract fun upsertInterval(interval: DbInterval)
 
     @Query("SELECT * FROM bs_intervals WHERE id = :id")
-    abstract fun getIntervalById(id: Long): CInterval
+    abstract fun getIntervalById(id: Long): DbInterval
 }

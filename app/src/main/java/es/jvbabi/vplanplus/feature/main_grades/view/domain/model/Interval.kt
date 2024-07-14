@@ -9,4 +9,5 @@ data class Interval(
     val from: LocalDate,
     val to: LocalDate,
     val includedIntervalId: Long?,
+    val yearId: Long,
 )

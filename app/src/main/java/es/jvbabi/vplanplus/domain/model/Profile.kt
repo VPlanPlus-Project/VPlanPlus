@@ -18,6 +18,10 @@ sealed class Profile(
     }
 
     abstract fun getSchool(): School
+
+    fun toLogString(): String {
+        return "${getType()} $displayName ($originalName) [$id]"
+    }
 }
 
 class TeacherProfile(

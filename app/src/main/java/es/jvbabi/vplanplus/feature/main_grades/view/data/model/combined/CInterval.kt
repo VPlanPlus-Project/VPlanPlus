@@ -21,7 +21,8 @@ data class CInterval(
             type = interval.type,
             from = interval.from,
             to = interval.to,
-            includedIntervalId = interval.includedIntervalId
+            includedIntervalId = interval.includedIntervalId,
+            yearId = interval.yearId
         ) to year.toModel()
     }
 }
