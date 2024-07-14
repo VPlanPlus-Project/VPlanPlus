@@ -21,7 +21,7 @@ android {
     defaultConfig {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 219
         versionName = "${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}_534"
 
