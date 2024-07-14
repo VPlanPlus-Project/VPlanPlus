@@ -62,7 +62,7 @@ class AdvancedSettingsViewModel @Inject constructor(
         }
     }
 
-    fun deleteCache() {
+    private fun deleteCache() {
         viewModelScope.launch {
             advancedSettingsUseCases.deleteCacheUseCase()
         }
@@ -84,10 +84,13 @@ class AdvancedSettingsViewModel @Inject constructor(
     }
 
     fun onEvent(event: AdvancedSettingsEvent) {
-        when (event) {
-            is AdvancedSettingsEvent.DeleteCache -> deleteCache()
-            is AdvancedSettingsEvent.SetVppIdServer -> setVppIdServer(event.server)
-            is AdvancedSettingsEvent.UpdateFcmToken -> onUpdateFcmToken()
+        viewModelScope.launch {
+            when (event) {
+                is AdvancedSettingsEvent.DeleteCache -> deleteCache()
+                is AdvancedSettingsEvent.SetVppIdServer -> setVppIdServer(event.server)
+                is AdvancedSettingsEvent.UpdateFcmToken -> onUpdateFcmToken()
+                is AdvancedSettingsEvent.ResetBalloons -> advancedSettingsUseCases.resetBalloonsUseCase()
+            }
         }
     }
 }
@@ -104,4 +107,5 @@ sealed class AdvancedSettingsEvent {
     data object DeleteCache : AdvancedSettingsEvent()
     data class SetVppIdServer(val server: String?) : AdvancedSettingsEvent()
     data object UpdateFcmToken : AdvancedSettingsEvent()
+    data object ResetBalloons : AdvancedSettingsEvent()
 }

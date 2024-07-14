@@ -6,5 +6,6 @@ data class AdvancedSettingsUseCases(
     val deleteCacheUseCase: DeleteCacheUseCase,
     val getVppIdServerUseCase: GetVppIdServerUseCase,
     val setVppIdServerUseCase: SetVppIdServerUseCase,
-    val updateFcmTokenUseCase: UpdateFcmTokenUseCase
+    val updateFcmTokenUseCase: UpdateFcmTokenUseCase,
+    val resetBalloonsUseCase: ResetBalloonsUseCase
 )

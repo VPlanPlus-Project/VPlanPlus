@@ -154,6 +154,7 @@ private fun AdvancedSettingsScreenContent(
                         type = SettingsType.FUNCTION,
                         enabled = true,
                         isLoading = false,
+                        doAction = { onEvent(AdvancedSettingsEvent.ResetBalloons) }
                     )
                 )
             }
