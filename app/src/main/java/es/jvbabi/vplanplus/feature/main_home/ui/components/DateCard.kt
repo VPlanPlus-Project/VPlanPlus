@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.feature.main_home.ui.components
 import android.annotation.SuppressLint
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -13,28 +12,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.util.blendColor
 import es.jvbabi.vplanplus.util.toBlackAndWhite
 import java.time.LocalDate
@@ -50,12 +41,6 @@ fun DateCard(
     isHoliday: Boolean,
     onClick: (date: LocalDate) -> Unit
 ) {
-    val drawable by rememberSaveable {
-        mutableStateOf(
-            if (isEaster(date)) listOf(R.drawable.easter0, R.drawable.easter1).random()
-            else null
-        )
-    }
 
     val selectedModifier by animateFloatAsState(
         targetValue = if (isSelected) 1f else 0f,
@@ -99,26 +84,6 @@ fun DateCard(
                 .size(60.dp)
                 .clickable { onClick(date) }
         ) {
-            if (drawable != null) Image(
-                painter = painterResource(drawable!!),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .height(80.dp)
-                    .width(60.dp)
-                    .drawWithContent {
-                        drawContent()
-                        drawRect(
-                            Brush.verticalGradient(
-                                0f to background,
-                                0.5f to background,
-                                1f to background.copy(alpha = 0f)
-                            ),
-                            size = size
-                        )
-                    }
-            )
             Column(
                 modifier = Modifier.align(Alignment.Center),
                 verticalArrangement = Arrangement.Center,
@@ -158,10 +123,6 @@ fun DateCard(
         )
         else Box(Modifier.height((MaterialTheme.typography.labelSmall.lineHeight.value * 2).dp + 4.dp))
     }
-}
-
-fun isEaster(date: LocalDate): Boolean {
-    return date.isAfter(LocalDate.of(2024, 3, 27)) && date.isBefore(LocalDate.of(2024, 4, 8))
 }
 
 @Composable

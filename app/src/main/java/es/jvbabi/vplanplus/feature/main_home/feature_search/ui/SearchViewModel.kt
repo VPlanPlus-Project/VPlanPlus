@@ -4,10 +4,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.RoomBooking
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase.SearchUseCases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
@@ -28,17 +28,17 @@ class SearchViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    searchUseCases.getCurrentIdentityUseCase(),
+                    searchUseCases.getCurrentProfileUseCase(),
                     searchUseCases.isSyncRunningUseCase(),
                     searchUseCases.getCurrentTimeUseCase()
                 )
             ) { data ->
-                val currentIdentity = data[0] as Identity?
+                val currentProfile = data[0] as Profile?
                 val isSyncRunning = data[1] as Boolean
                 val time = data[2] as ZonedDateTime
 
                 state.value.copy(
-                    identity = currentIdentity,
+                    currentProfile = currentProfile,
                     isSyncRunning = isSyncRunning,
                     time = time
                 )
@@ -79,7 +79,7 @@ class SearchViewModel @Inject constructor(
 data class SearchState(
     val selectedDate: LocalDate = LocalDate.now(),
     val query: String = "",
-    val identity: Identity? = null,
+    val currentProfile: Profile? = null,
     val isSyncRunning: Boolean = false,
     val results: List<SearchResult> = emptyList(),
     val isSearchRunning: Boolean = false,
@@ -88,7 +88,7 @@ data class SearchState(
 
 data class SearchResult(
     val name: String,
-    val type: SchoolEntityType,
+    val type: ProfileType,
     val school: String,
     val lessons: List<Lesson>?,
     val bookings: List<RoomBooking>

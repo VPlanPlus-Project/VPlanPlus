@@ -59,6 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.feature.room_search.ui.components.FilterRow
@@ -67,7 +68,8 @@ import es.jvbabi.vplanplus.feature.room_search.ui.components.TimeInfo
 import es.jvbabi.vplanplus.feature.room_search.ui.components.dialogs.CancelBookingDialog
 import es.jvbabi.vplanplus.feature.room_search.ui.components.dialogs.RoomBookingRequestDialogHost
 import es.jvbabi.vplanplus.ui.common.BackIcon
-import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.common.unknownVppId
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.atDate
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
@@ -171,7 +173,7 @@ private fun RoomSearchContent(
     if (state.newRoomBookingRequest != null) {
         RoomBookingRequestDialogHost(
             bookingAbility = state.canBookRoom,
-            classes = state.currentClass,
+            group = (state.currentProfile as? ClassProfile)?.group,
             bookingRequest = state.newRoomBookingRequest,
             onConfirmBooking = { onConfirmBooking(context) },
             onCancelBooking = onCancelBookingProgress
@@ -385,7 +387,7 @@ private fun RoomSearchContent(
                                     size = Size(width, 48.dp.toPx())
                                 )
 
-                                val classText = buildAnnotatedString { append(booking.`class`.name) }
+                                val classText = buildAnnotatedString { append(booking.bookedBy?.group?.name ?: unknownVppId(context)) }
                                 val measuredClass = textMeasurer.measure(
                                     classText,
                                     style = typography.bodyMedium
@@ -520,7 +522,7 @@ private fun RoomSearchContent(
                         selectedTime = state.selectedTime,
                         selectedLessonTime = state.selectedLessonTime,
                         currentTime = ZonedDateTime.now(),
-                        currentIdentity = state.currentIdentity ?: return@wrapper,
+                        currentProfile = state.currentProfile ?: return@wrapper,
                         data = state.data.firstOrNull { it.room == state.selectedRoom } ?: return@wrapper,
                         isBookingRelatedOperationInProgress = state.isBookingRelatedOperationInProgress,
                         onClosed = { onTapOnMatrix(null, null) },
@@ -537,10 +539,10 @@ private fun RoomSearchContent(
 @Composable
 @Preview
 private fun RoomSearchPreview() {
-    val school = School.generateRandomSchools(1).first()
+    val school = SchoolPreview.generateRandomSchools(1).first()
     RoomSearchContent(
         state = RoomSearchState(
-            selectedRoom = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
+            selectedRoom = es.jvbabi.vplanplus.ui.preview.RoomPreview.generateRoom(school),
             selectedTime = ZonedDateTime.now()
         )
     )

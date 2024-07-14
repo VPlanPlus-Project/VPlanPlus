@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.feature.room_search.domain.usecase
 
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.LessonTime
-import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -21,10 +21,9 @@ class GetLessonTimesUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
     /**
-     * @return A map of [LessonTime] to a boolean indicating if the lesson time is available.
+     * @return A map of [LessonTime] to a boolean indicating if the room is available at that time.
      */
-    suspend operator fun invoke(profile: Profile, room: Room, date: LocalDate = LocalDate.now()): Map<LessonTime, CurrentRoomState> {
-        if (profile.vppId?.classes == null) return emptyMap()
+    suspend operator fun invoke(profile: ClassProfile, room: Room, date: LocalDate = LocalDate.now()): Map<LessonTime, CurrentRoomState> {
 
         val bookings = roomRepository
             .getRoomBookings(date = date)
@@ -32,7 +31,7 @@ class GetLessonTimesUseCase(
 
         val lessons = lessonRepository.getLessonsForRoom(room.roomId, date, keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()).first() ?: emptyList()
 
-        return lessonTimeRepository.getLessonTimesByClass(profile.vppId.classes).values.associateWith { lessonTime ->
+        return lessonTimeRepository.getLessonTimesByGroup(profile.group).values.associateWith { lessonTime ->
             val lessonTimeFrom = lessonTime.start.atBeginningOfTheWorld()
             val lessonTimeTo = lessonTime.end.atBeginningOfTheWorld()
             return@associateWith if (bookings.any { booking ->

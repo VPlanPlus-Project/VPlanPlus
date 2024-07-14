@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.domain.usecase.home
 
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessaging
+import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -26,6 +27,7 @@ class SetUpUseCase(
 
     suspend operator fun invoke() {
         try {
+            postUpdateTasks()
             testForInvalidSessions()
             keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, testForMissingVppIdToProfileConnectionsUseCase(true).toString())
             updateFirebaseTokens()
@@ -33,6 +35,15 @@ class SetUpUseCase(
         } catch (e: IOException) {
             Log.i("SetUpUseCase", "Error, Firebase services might not be available at the moment: ${e.message}")
         }
+    }
+
+    private suspend fun postUpdateTasks() {
+        val previousVersion = keyValueRepository.get(Keys.LAST_KNOWN_APP_VERSION)?.toIntOrNull() ?: 197 // 197 is the first version that supports this feature and therefore makes use of it
+        val currentVersion = BuildConfig.VERSION_CODE
+
+        if (previousVersion == currentVersion) return
+
+        keyValueRepository.set(Keys.LAST_KNOWN_APP_VERSION, currentVersion.toString())
     }
 
     private suspend fun testForInvalidSessions() {

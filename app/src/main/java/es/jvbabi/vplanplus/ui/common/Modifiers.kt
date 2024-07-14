@@ -9,8 +9,8 @@ import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 
-fun Modifier.grayScale(): Modifier {
-    val saturationMatrix = ColorMatrix().apply { setToSaturation(0f) }
+fun Modifier.grayScale(saturation: Float = 0f): Modifier {
+    val saturationMatrix = ColorMatrix().apply { setToSaturation(saturation) }
     val saturationFilter = ColorFilter.colorMatrix(saturationMatrix)
     val paint = Paint().apply { colorFilter = saturationFilter }
     return this.then(

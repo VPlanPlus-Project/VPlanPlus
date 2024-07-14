@@ -4,13 +4,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCase
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.BookRoomUseCases
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.CanBookRoomUseCase
@@ -47,12 +47,12 @@ object RoomSearchModule {
     fun provideBookRoomUseCase(
         vppIdRepository: VppIdRepository,
         roomRepository: RoomRepository,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ): BookRoomUseCase {
         return BookRoomUseCase(
             vppIdRepository = vppIdRepository,
             roomRepository = roomRepository,
-            getCurrentIdentityUseCase = getCurrentIdentityUseCase
+            getCurrentProfileUseCase = getCurrentProfileUseCase
         )
     }
 
@@ -67,28 +67,28 @@ object RoomSearchModule {
     @Provides
     @Singleton
     fun provideCanBookRoomUseCase(
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ): CanBookRoomUseCase {
-        return CanBookRoomUseCase(getCurrentIdentityUseCase = getCurrentIdentityUseCase)
+        return CanBookRoomUseCase(getCurrentProfileUseCase = getCurrentProfileUseCase)
     }
 
     @Provides
     @Singleton
     fun provideRoomSearchUseCases(
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
         lessonTimeRepository: LessonTimeRepository,
         getRoomMapUseCase: GetRoomMapUseCase,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         canBookRoomUseCase: CanBookRoomUseCase,
         bookRoomUseCase: BookRoomUseCase,
         cancelBookingUseCase: CancelBookingUseCase
     ): RoomSearchUseCases {
         return RoomSearchUseCases(
-            getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+            getCurrentProfileUseCase = getCurrentProfileUseCase,
             getRoomMapUseCase = getRoomMapUseCase,
             getLessonTimesUseCases = GetClassLessonTimesUseCase(
                 lessonTimeRepository,
-                classRepository
+                groupRepository
             ),
             canBookRoomUseCase = canBookRoomUseCase,
             bookRoomUseCase = bookRoomUseCase,
@@ -104,11 +104,11 @@ object RoomSearchModule {
         lessonTimeRepository: LessonTimeRepository,
         lessonRepository: LessonRepository,
         bookRoomUseCase: BookRoomUseCase,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
     ): BookRoomUseCases {
         return BookRoomUseCases(
             getRoomByNameUseCase = GetRoomByNameUseCase(roomRepository),
-            getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+            getCurrentProfileUseCase = getCurrentProfileUseCase,
             getLessonTimesUseCase = GetLessonTimesUseCase(lessonTimeRepository, lessonRepository, roomRepository, keyValueRepository),
             hideRoomBookingDisclaimerBannerUseCase = HideRoomBookingDisclaimerBannerUseCase(keyValueRepository),
             showRoomBookingDisclaimerBannerUseCase = IsShowRoomBookingDisclaimerBannerUseCase(keyValueRepository),

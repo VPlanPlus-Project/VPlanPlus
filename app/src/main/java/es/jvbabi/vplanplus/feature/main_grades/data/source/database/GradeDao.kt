@@ -19,7 +19,7 @@ abstract class GradeDao {
     abstract fun getAllGrades(): Flow<List<CGrade>>
 
     @Transaction
-    @Query("SELECT * FROM grade WHERE vppId = :vppId")
+    @Query("SELECT * FROM grade WHERE vpp_id = :vppId")
     abstract fun getGradesByUser(vppId: Int): Flow<List<CGrade>>
 
     @Transaction

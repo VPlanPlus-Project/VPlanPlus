@@ -12,7 +12,7 @@ interface NotificationRepository {
         title: String,
         message: String,
         icon: Int,
-        pendingIntent: PendingIntent?,
+        onClickTask: NotificationOnClickTask? = null,
         priority: Int = NotificationCompat.PRIORITY_DEFAULT,
         actions: List<NotificationAction> = emptyList()
     )
@@ -33,6 +33,7 @@ interface NotificationRepository {
         const val CHANNEL_ID_HOMEWORK = "homework"
 
         const val CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK = 7000
+        const val CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK = CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK + 1
         const val CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID = 8000
         const val CHANNEL_SYSTEM_NOTIFICATION_ID = 100000
     }
@@ -42,3 +43,8 @@ data class NotificationAction(
     val title: String,
     val intent: PendingIntent
 )
+
+interface NotificationOnClickTask
+
+class OpenScreenTask(val route: String) : NotificationOnClickTask
+class DoActionTask(val tag: String): NotificationOnClickTask

@@ -57,6 +57,7 @@ import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 
 @Composable
@@ -311,7 +312,8 @@ private fun ButtonRowPreview() {
 @Composable
 @Preview
 private fun MenuPreview() {
-    val profile = ProfilePreview.generateClassProfile()
+    val group = GroupPreview.generateGroup()
+    val profile = ProfilePreview.generateClassProfile(group)
     Menu(isVisible = true, isSyncing = true, profiles = listOf(profile), selectedProfile = profile, hasUnreadNews = true)
 }
 

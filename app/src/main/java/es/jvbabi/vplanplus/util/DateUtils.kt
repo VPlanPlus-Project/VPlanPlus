@@ -1,6 +1,9 @@
 package es.jvbabi.vplanplus.util
 
 import android.content.Context
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.util.DateUtils.between
 import es.jvbabi.vplanplus.util.DateUtils.isAfterOrEqual
@@ -13,6 +16,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.format.FormatStyle
+import java.time.temporal.ChronoUnit
 
 
 object DateUtils {
@@ -67,6 +71,34 @@ object DateUtils {
             localDate.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
         } else {
             result
+        }
+    }
+
+    fun relativeDateStringResource(contextDate: LocalDate, date: LocalDate): Int? {
+        return when (date) {
+            contextDate -> {
+                R.string.today
+            }
+
+            contextDate.plusDays(1) -> {
+                R.string.tomorrow
+            }
+
+            contextDate.plusDays(2) -> {
+                R.string.day_after_tomorrow
+            }
+
+            contextDate.minusDays(1) -> {
+                R.string.yesterday
+            }
+
+            contextDate.minusDays(2) -> {
+                R.string.day_before_yesterday
+            }
+
+            else -> {
+                null
+            }
         }
     }
 
@@ -154,5 +186,13 @@ data class TimeSpan(
     fun overlaps(other: TimeSpan): Boolean {
         return (this.start.between(other.start, other.end) || this.end.between(other.start, other.end)) ||
                 (this.start.isBeforeOrEqual(other.start) && this.end.isAfterOrEqual(other.end))
+    }
+}
+
+@Composable
+fun LocalDate.formatDayDuration(compareTo: LocalDate): String {
+    return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false) ?: run {
+        if (compareTo.isAfter(this)) return stringResource(id = R.string.home_inNDays, this.until(compareTo, ChronoUnit.DAYS))
+        else return stringResource(id = R.string.home_NdaysAgo, compareTo.until(this, ChronoUnit.DAYS))
     }
 }

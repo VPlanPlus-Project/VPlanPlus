@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.room_search.ui.components
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.exponentialDecay
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -60,26 +61,26 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.LessonTime
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.room_search.domain.usecase.RoomState
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.common.unknownVppId
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
-import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.util.DateUtils.isBeforeOrEqual
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import kotlinx.coroutines.launch
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 import kotlin.math.roundToInt
 
 private enum class DragValue { Center, End }
@@ -92,7 +93,7 @@ fun TimeInfo(
     selectedTime: ZonedDateTime,
     selectedLessonTime: LessonTime? = null,
     currentTime: ZonedDateTime = ZonedDateTime.now(),
-    currentIdentity: Identity,
+    currentProfile: Profile,
     data: RoomState,
     isBookingRelatedOperationInProgress: Boolean = false,
     onClosed: () -> Unit,
@@ -108,11 +109,12 @@ fun TimeInfo(
 
     val dragState = remember {
         AnchoredDraggableState(
-            anchors = anchors,
             initialValue = DragValue.Center,
             positionalThreshold = { totalDistance: Float -> totalDistance * 0.5f },
             velocityThreshold = { height.toFloat() },
-            animationSpec = tween()
+            snapAnimationSpec = tween(),
+            decayAnimationSpec = exponentialDecay(0.9f),
+            confirmValueChange = { it == DragValue.End },
         ).apply {
             updateAnchors(anchors)
         }
@@ -319,7 +321,7 @@ fun TimeInfo(
                     exit = shrinkVertically(),
                 ) {
                     val currentBooking = data.bookings.firstOrNull { time.progress(it.from, it.to) in 0f..1f }
-                    val userCanCancelBooking = data.bookings.any { time.progress(it.from, it.to) in 0f..1f && (it.bookedBy?.id ?: -1) == currentIdentity.profile?.vppId?.id }
+                    val userCanCancelBooking = data.bookings.any { time.progress(it.from, it.to) in 0f..1f && (it.bookedBy?.id ?: -1) == (currentProfile as? ClassProfile)?.vppId?.id }
                     OutlinedButton(
                         onClick = {
                             if (userCanCancelBooking) onRequestBookingForCancellation(currentBooking ?: return@OutlinedButton)
@@ -366,22 +368,22 @@ fun TimeInfo(
 @Preview(showBackground = true)
 @Composable
 private fun TimeInfoPreview() {
-    val school = School.generateRandomSchools(1).first()
-    val `class` = ClassesPreview.generateClass(school)
-    val vppId = VppIdPreview.generateVppId(`class`)
-    val profile = ProfilePreview.generateClassProfile(vppId)
+    val school = SchoolPreview.generateRandomSchools(1).first()
+    val group = GroupPreview.generateGroup(school)
+    val vppId = VppIdPreview.generateVppId(group)
+    val profile = ProfilePreview.generateClassProfile(group, vppId)
     TimeInfo(
         data = RoomState(
-            room = es.jvbabi.vplanplus.ui.preview.Room.generateRoom(school),
+            room = es.jvbabi.vplanplus.ui.preview.RoomPreview.generateRoom(school),
             lessons = Lessons.generateLessons(2, true),
             bookings = emptyList()
         ),
         selectedTime = ZonedDateTime.now().withHour(19).withMinute(31),
-        selectedLessonTime = es.jvbabi.vplanplus.util.LessonTime.fallbackTime(UUID.randomUUID(), 1),
+        selectedLessonTime = es.jvbabi.vplanplus.util.LessonTime.fallbackTime(0, 1),
         onClosed = {},
         isBookingRelatedOperationInProgress = true,
         onRequestBookingForSelectedContext = {},
-        currentIdentity = Identity(school, profile),
+        currentProfile = profile,
         onRequestBookingForCancellation = { _ -> }
     )
 }

@@ -33,8 +33,8 @@ data class Session(
 
     val type: SessionType
         get() = when (typeParam) {
-            "A" -> SessionType.VPLANPLUS
-            "W" -> SessionType.WEB
+            "a" -> SessionType.VPLANPLUS
+            "w" -> SessionType.WEB
             else -> throw IllegalArgumentException("Unknown session type: $typeParam")
         }
 }

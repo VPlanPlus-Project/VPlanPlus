@@ -11,15 +11,15 @@ class GetVersionHintsUseCase(
     private val vppIdRepository: VppIdRepository
 ) {
 
-    suspend operator fun invoke(): List<VersionHints> {
+    suspend operator fun invoke(): VersionHints? {
         val currentVersion = BuildConfig.VERSION_CODE
         val lastVersion = keyValueRepository
             .getOrDefault(Keys.LAST_VERSION_HINTS_VERSION, (currentVersion-1).toString())
             .toInt()
 
-        if (currentVersion <= lastVersion) return emptyList()
+        if (lastVersion >= currentVersion) return null
 
-        val hints = vppIdRepository.getVersionHints(currentVersion, lastVersion)
+        val hints = vppIdRepository.getVersionHint(currentVersion)
 
         return hints.data
     }

@@ -26,18 +26,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.DOT
-import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
+import es.jvbabi.vplanplus.util.formatDayDuration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 @Composable
@@ -146,12 +144,4 @@ fun PlanHeader(
 @Composable
 private fun PlanHeaderPreview() {
     PlanHeader(selectedDate = LocalDate.now().plusDays(1L), currentDate = LocalDate.now())
-}
-
-@Composable
-private fun LocalDate.formatDayDuration(compareTo: LocalDate): String {
-    return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false) ?: run {
-        if (compareTo.isAfter(this)) return stringResource(id = R.string.home_inNDays, this.until(compareTo, ChronoUnit.DAYS))
-        else return stringResource(id = R.string.home_NdaysAgo, compareTo.until(this, ChronoUnit.DAYS))
-    }
 }

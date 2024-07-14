@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
@@ -36,7 +37,7 @@ class VppIdManagementViewModel @Inject constructor(
         }
     }
 
-    fun onSetLinkedProfiles(profiles: Map<Profile, Boolean>) {
+    fun onSetLinkedProfiles(profiles: Map<ClassProfile, Boolean>) {
         viewModelScope.launch {
             accountSettingsUseCases.setProfileVppIdUseCase(profiles, state.value.vppId ?: return@launch)
             state.value = state.value.copy(profiles = accountSettingsUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(state.value.vppId ?: return@launch))

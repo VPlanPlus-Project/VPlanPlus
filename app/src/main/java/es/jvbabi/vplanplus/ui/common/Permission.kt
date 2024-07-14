@@ -19,7 +19,7 @@ data class Permission(
     val description: Int
 ) {
     companion object {
-        val permissions = listOfNotNull(
+        val onboardingPermissions = listOfNotNull(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
                 Permission(
                     type = Manifest.permission.POST_NOTIFICATIONS,
@@ -33,5 +33,9 @@ data class Permission(
             return (ContextCompat.checkSelfPermission(context, type)
                     == PackageManager.PERMISSION_GRANTED)
         }
+    }
+
+    fun isGranted(context: Context): Boolean {
+        return isGranted(context, type)
     }
 }

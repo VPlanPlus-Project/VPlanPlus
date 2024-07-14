@@ -29,6 +29,7 @@
         <activity
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize"
+            android:launchMode="singleTop"
             android:exported="true"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.VPlanPlus.Splash"
@@ -59,6 +60,17 @@
                 <data android:pathPrefix="/android" />
             </intent-filter>
 
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="vplanplus" />
+                <data android:host="android" />
+                <data android:pathPrefix="/" />
+            </intent-filter>
+
         </activity>
 
         <service
@@ -72,6 +84,16 @@
             android:authorities="${applicationId}.androidx-startup"
             android:name="androidx.startup.InitializationProvider"
             tools:node="remove" />
+
+        <provider
+            android:authorities="${applicationId}.fileprovider"
+            android:name="androidx.core.content.FileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <receiver
             android:name=".android.receiver.LanguageChangedReceiver"

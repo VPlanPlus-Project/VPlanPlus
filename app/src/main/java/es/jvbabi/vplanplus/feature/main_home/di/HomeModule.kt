@@ -13,23 +13,23 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetCurrentDataVersionUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetDayUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHolidaysUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetRoomBookingsForTodayUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetVersionHintsUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasUnreadNewsUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHolidaysUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasInvalidVppIdSessionUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasMissingVppIdToProfileLinksUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasUnreadNewsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IgnoreInvalidVppIdSessionsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IsInfoExpandedUseCase
@@ -53,12 +53,12 @@ object HomeModule {
         messageRepository: MessageRepository,
         vppIdRepository: VppIdRepository,
         holidayRepository: HolidayRepository,
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
         @ApplicationContext context: Context
     ): HomeUseCases {
         return HomeUseCases(
-            getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+            getCurrentProfileUseCase = getCurrentProfileUseCase,
             getCurrentTimeUseCase = getCurrentTimeUseCase,
             getDayUseCase = GetDayUseCase(
                 planRepository = planRepository,
@@ -68,15 +68,13 @@ object HomeModule {
             changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
             getHomeworkUseCase = GetHomeworkUseCase(
                 homeworkRepository = homeworkRepository,
-                keyValueRepository = keyValueRepository,
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
-                profileRepository = profileRepository
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
             ),
             getRoomBookingsForTodayUseCase = GetRoomBookingsForTodayUseCase(roomRepository),
             isSyncRunningUseCase = IsSyncRunningUseCase(context),
             getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
             getHideFinishedLessonsUseCase = GetHideFinishedLessonsUseCase(keyValueRepository),
-            getHolidaysUseCase = GetHolidaysUseCase(holidayRepository, getCurrentIdentityUseCase),
+            getHolidaysUseCase = GetHolidaysUseCase(holidayRepository, getCurrentProfileUseCase),
 
             setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),

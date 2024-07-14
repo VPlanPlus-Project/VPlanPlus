@@ -32,32 +32,35 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.DayType
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.Holiday
 import es.jvbabi.vplanplus.feature.main_home.ui.components.views.Weekend
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.CollapsableInfoCard
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 @Composable
 fun DayView(
     day: Day?,
     currentTime: ZonedDateTime,
     isInfoExpanded: Boolean?,
-    currentIdentity: Identity,
+    currentProfile: Profile,
     bookings: List<RoomBooking>,
-    homework: List<Homework>,
+    homework: List<PersonalizedHomework>,
     hideFinishedLessons: Boolean,
     showCountdown: Boolean,
     onChangeInfoExpandState: (Boolean) -> Unit,
-    onAddHomework: (vpId: Long?) -> Unit,
+    onAddHomework: (defaultLesson: DefaultLesson?) -> Unit,
     onBookRoomClicked: () -> Unit,
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -68,13 +71,13 @@ fun DayView(
         DayType.NORMAL -> {
             if (day.lessons.isEmpty()) return
             Column {
-                val allLessonsDone = day.anyLessonsLeft(currentTime, currentIdentity.profile!!)
+                val allLessonsDone = day.anyLessonsLeft(currentTime, currentProfile)
                 val markerCircleRadius = 18f
                 val markerLineWidth = 3f
 
                 val lastActualLesson = day
                     .lessons
-                    .filter { currentIdentity.profile.isDefaultLessonEnabled(it.vpId) && it.displaySubject != "-" }
+                    .filter { (currentProfile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true && it.displaySubject != "-" }
                     .maxByOrNull { it.end }
 
                 val uiWillShowHiddenLessonsCard = hideFinishedLessons && !ignoreAutoHideFinishedLessons && day.lessons.any { currentTime.progress(it.start, it.end) >= 1 }
@@ -144,7 +147,7 @@ fun DayView(
                     }
                 }
 
-                val filteredLessons = day.getEnabledLessons(currentIdentity.profile).sortedBy { it.lessonNumber }
+                val filteredLessons = day.getEnabledLessons(currentProfile).sortedBy { it.lessonNumber }
 
                 val displayLessonGroups = filteredLessons.groupBy { it.lessonNumber }.toList()
 
@@ -199,17 +202,15 @@ fun DayView(
                             }
                         ) {
                             LessonCard(
-                                lessons = lessons.filter {
-                                    currentIdentity.profile.isDefaultLessonEnabled(it.vpId)
-                                },
+                                lessons = lessons.filter { (currentProfile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true },
                                 bookings = bookings,
                                 time = currentTime,
                                 modifier = Modifier.padding(top = 4.dp, bottom = 8.dp, start = padding, end = 8.dp),
                                 homework = homework,
-                                allowHomeworkQuickAction = currentIdentity.profile.isHomeworkEnabled,
-                                onAddHomeworkClicked = { if (currentIdentity.profile.isHomeworkEnabled) onAddHomework(it) },
+                                allowHomeworkQuickAction = (currentProfile as? ClassProfile)?.isHomeworkEnabled ?: false,
+                                onAddHomeworkClicked = { if ((currentProfile as? ClassProfile)?.isHomeworkEnabled == true) onAddHomework(it) },
                                 onBookRoomClicked = onBookRoomClicked,
-                                displayType = currentIdentity.profile.type
+                                displayType = currentProfile.getType()
                             )
                         }
                     }
@@ -262,5 +263,5 @@ private fun formatDuration(seconds: Long): String {
     val hours = seconds / 3600
     val minutes = (seconds % 3600) / 60
     val remainingSeconds = seconds % 60
-    return String.format("%02d:%02d:%02d", hours, minutes, remainingSeconds)
+    return String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, remainingSeconds)
 }

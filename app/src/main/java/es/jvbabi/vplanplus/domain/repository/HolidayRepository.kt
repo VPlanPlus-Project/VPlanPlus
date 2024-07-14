@@ -6,11 +6,10 @@ import java.time.LocalDate
 
 interface HolidayRepository {
 
-    suspend fun getHolidaysBySchoolId(schoolId: Long): List<Holiday>
-    suspend fun getTodayHoliday(schoolId: Long): Holiday?
-    suspend fun insertHoliday(holiday: Holiday)
-    suspend fun replaceHolidays(holidays: List<Holiday>)
-    suspend fun deleteHolidaysBySchoolId(schoolId: Long)
-    suspend fun isHoliday(schoolId: Long, date: LocalDate): Boolean
-    suspend fun getDayType(schoolId: Long, date: LocalDate): DayType
+    suspend fun getHolidaysBySchoolId(schoolId: Int): List<Holiday>
+    suspend fun getTodayHoliday(schoolId: Int): Holiday?
+    suspend fun insertHoliday(schoolId: Int?, date: LocalDate)
+    suspend fun deleteHolidaysBySchoolId(schoolId: Int)
+    suspend fun isHoliday(schoolId: Int, date: LocalDate): Boolean
+    suspend fun getDayType(schoolId: Int, date: LocalDate): DayType
 }

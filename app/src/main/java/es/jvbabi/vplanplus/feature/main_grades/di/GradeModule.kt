@@ -10,11 +10,11 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.data.repository.GradeRepositoryImpl
 import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.CanShowEnableBiometricBannerUseCase
-import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.SetBiometricUseCase
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.GetGradesUseCase
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.GradeUseCases
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.HideBannerUseCase
@@ -23,8 +23,8 @@ import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.IsBiometricEnabled
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.IsBiometricSetUpUseCase
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.IsEnabledUseCase
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.RequestBiometricUseCase
+import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.SetBiometricUseCase
 import es.jvbabi.vplanplus.feature.main_grades.domain.usecase.ShowBannerUseCase
-import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
 import javax.inject.Singleton
 
@@ -63,7 +63,7 @@ object GradeModule {
     @Provides
     @Singleton
     fun provideGradeUseCases(
-        getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
         vppIdRepository: VppIdRepository,
         gradeRepository: GradeRepository,
         keyValueRepository: KeyValueRepository,
@@ -72,11 +72,11 @@ object GradeModule {
     ): GradeUseCases {
         return GradeUseCases(
             isEnabledUseCase = IsEnabledUseCase(
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
                 vppIdRepository = vppIdRepository
             ),
             getGradesUseCase = GetGradesUseCase(
-                getCurrentIdentityUseCase = getCurrentIdentityUseCase,
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
                 gradeRepository = gradeRepository
             ),
             showBannerUseCase = ShowBannerUseCase(keyValueRepository),

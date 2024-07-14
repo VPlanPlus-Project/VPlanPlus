@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.FeedbackError
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.SupportUseCases
 import kotlinx.coroutines.flow.combine
@@ -21,13 +22,16 @@ class SupportScreenViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    supportUseCases.getEmailForSupportUseCase()
+                    supportUseCases.getEmailForSupportUseCase(),
+                    supportUseCases.getCurrentProfileUseCase()
                 )
             ) { data ->
-                val vppEmail = data[0]
+                val vppEmail = data[0] as String
+                val profile = data[1] as Profile
 
                 state.value.copy(
-                    email = vppEmail
+                    email = vppEmail,
+                    profile = profile,
                 )
             }.collect {
                 state.value = it
@@ -60,10 +64,12 @@ class SupportScreenViewModel @Inject constructor(
         viewModelScope.launch {
             state.value = state.value.copy(
                 sendState = if (supportUseCases.sendFeedbackUseCase(
-                    state.value.email,
-                    state.value.feedback,
-                    state.value.attachSystemDetails
-                )) FeedbackSendState.SUCCESS else FeedbackSendState.ERROR,
+                        state.value.email,
+                        state.value.profile ?: return@launch,
+                        state.value.feedback,
+                        state.value.attachSystemDetails
+                    )
+                ) FeedbackSendState.SUCCESS else FeedbackSendState.ERROR,
                 isLoading = false
             )
         }
@@ -71,6 +77,7 @@ class SupportScreenViewModel @Inject constructor(
 }
 
 data class SupportScreenState(
+    val profile: Profile? = null,
     val feedback: String = "",
     val email: String? = null,
     val emailValid: Boolean = true,

@@ -1,9 +1,10 @@
 package es.jvbabi.vplanplus.domain.usecase.calendar
 
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -29,7 +30,6 @@ class UpdateCalendarUseCase(
         calendarRepository.deleteAppEvents()
         profiles.forEach { profile ->
             val calendar = calendarRepository.getCalendarById(profile.calendarId!!) ?: return@forEach
-            val school = profileRepository.getSchoolFromProfile(profile)
 
             calendarRepository.deleteAppEvents(calendar)
             dates.map {
@@ -37,7 +37,7 @@ class UpdateCalendarUseCase(
             }.forEach { day ->
                 if (profile.calendarType == ProfileCalendarType.LESSON) {
                     day.lessons
-                        .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                        .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                         .filter { it.displaySubject != "-" }
                         .forEach { lesson ->
                             calendarRepository.insertEvent(
@@ -50,7 +50,7 @@ class UpdateCalendarUseCase(
                                     ),
                                     title = stringRepository.getString(R.string.calendarRecord_title, lesson.displaySubject, lesson.lessonNumber),
                                     calendarId = calendar.id,
-                                    location = stringRepository.getString(R.string.calendarRecord_location, lesson.rooms.joinToString(", "), school.name),
+                                    location = stringRepository.getString(R.string.calendarRecord_location, lesson.rooms.joinToString(", "), profile.getSchool().name),
                                     timeZone = TimeZone.getTimeZone("UTC"),
                                 )
                             )
@@ -61,20 +61,20 @@ class UpdateCalendarUseCase(
                             calendarId = calendar.id,
                             startTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
                                 day.lessons
-                                    .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                                     .filter { it.displaySubject != "-" }
                                     .sortedBy { it.lessonNumber }
                                     .first { it.displaySubject != "-" }.start
                             ),
                             endTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
                                 day.lessons
-                                    .filter { profile.isDefaultLessonEnabled(it.vpId) }
+                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                                     .filter { it.displaySubject != "-" }
                                     .sortedBy { it.lessonNumber }
                                     .last { it.displaySubject != "-" }.end
                             ),
                             info = day.info,
-                            location = school.name,
+                            location = profile.getSchool().name,
                             title = stringRepository.getString(R.string.calendarRecord_dayTitle, profile.displayName),
                             timeZone = TimeZone.getTimeZone("UTC")
                         )

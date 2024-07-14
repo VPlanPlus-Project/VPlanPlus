@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.feature.settings.support.data.repository
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.BuildConfig
-import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.support.domain.repository.FeedbackRepository
 import es.jvbabi.vplanplus.shared.data.API_VERSION
@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.first
 
 class FeedbackRepositoryImpl(
     private val vppIdRepository: VppIdRepository,
-    private val profileRepository: ProfileRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository
 ) : FeedbackRepository {
     override suspend fun sendFeedback(
+        profile: Profile,
         email: String?,
         feedback: String,
         attachSystemDetails: Boolean
@@ -29,7 +29,7 @@ class FeedbackRepositoryImpl(
             else null
 
         val systemDetails = if (attachSystemDetails) buildSystemDetails() else null
-        val profileInformation = buildProfileInformation()
+        val profileInformation = buildProfileInformation(profile)
 
         val token = if (vppId != null) vppIdRepository.getVppIdToken(vppId) else null
         if (token != null) vppIdNetworkRepository.authentication = BearerAuthentication(token)
@@ -75,18 +75,14 @@ class FeedbackRepositoryImpl(
         """.trimIndent()
     }
 
-    private suspend fun buildProfileInformation(): String {
-        val activeProfile = profileRepository.getActiveProfile().first()!!
-
-        val school = profileRepository.getSchoolFromProfile(activeProfile)
-
+    private fun buildProfileInformation(profile: Profile): String {
         return """
             Profile details:
-            Reference name: ${activeProfile.originalName}
-            Profile type: ${activeProfile.type}
-            School name: ${school.name}
-            School id: ${school.schoolId}
-            School Credentials: ${school.username}:${school.password}
+            Reference name: ${profile.originalName}
+            Profile type: ${profile.getType()}
+            School name: ${profile.getSchool().name}
+            School id (sp24): ${profile.getSchool().sp24SchoolId}
+            School id (vpp.ID): ${profile.getSchool().id}
         """.trimIndent()
     }
 }

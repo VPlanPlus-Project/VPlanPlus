@@ -8,7 +8,7 @@ import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
 
-class VPlanData(val xml: String, val schoolId: Long) {
+class VPlanData(val xml: String, val sp24SchoolId: Int) {
     val wPlanDataObject: VpMobilVpXml
     init {
         val serializer: Serializer = Persister()

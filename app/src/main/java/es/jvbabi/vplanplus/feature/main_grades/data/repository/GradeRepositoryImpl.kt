@@ -72,7 +72,7 @@ class GradeRepositoryImpl(
                             value = gradeNumber.toFloat(),
                             modifier = gradeModifier,
                             subject = subjects.first { it.id == dataGrade.subject.id }.id,
-                            givenBy = teachers.first { it.id == dataGrade.teacher.id }.id,
+                            teacherId = teachers.first { it.id == dataGrade.teacher.id }.id,
                             givenAt = LocalDate.parse(dataGrade.givenAt),
                             type = dataGrade.collection.type,
                             comment = dataGrade.collection.name,

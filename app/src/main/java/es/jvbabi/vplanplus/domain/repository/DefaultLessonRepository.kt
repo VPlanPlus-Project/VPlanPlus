@@ -2,14 +2,16 @@ package es.jvbabi.vplanplus.domain.repository
 
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.model.School
 import java.util.UUID
 
 interface DefaultLessonRepository {
     suspend fun insert(defaultLesson: DbDefaultLesson): UUID
 
-    @Deprecated("Insecure")
-    suspend fun getDefaultLessonByVpId(vpId: Long): DefaultLesson?
-    suspend fun getDefaultLessonByClassId(classId: UUID): List<DefaultLesson>
-    suspend fun updateTeacherId(classId: UUID, vpId: Long, teacherId: UUID)
+    suspend fun getDefaultLessonByGroupId(groupId: Int): List<DefaultLesson>
+    suspend fun getDefaultLessonsBySchool(school: School): List<DefaultLesson>
+    suspend fun updateTeacherId(groupId: Int, vpId: Int, teacherId: UUID)
     suspend fun deleteDefaultLesson(id: UUID)
+
+    suspend fun insertDefaultLesson(groupId: Int, vpId: Int, subject: String, teacherId: UUID)
 }

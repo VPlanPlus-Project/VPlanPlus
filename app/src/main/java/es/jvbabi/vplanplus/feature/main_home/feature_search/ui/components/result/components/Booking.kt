@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.result.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -22,17 +21,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import es.jvbabi.vplanplus.data.model.SchoolEntityType
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.RoomBooking
+import es.jvbabi.vplanplus.ui.common.unknownVppId
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchResultBooking(
-    booking: RoomBooking, resultType: SchoolEntityType, currentTime: ZonedDateTime
+    booking: RoomBooking, resultType: ProfileType, currentTime: ZonedDateTime
 ) {
     Box(
         modifier = Modifier
@@ -63,9 +62,9 @@ fun SearchResultBooking(
             ) {
                 Text(
                     text = when (resultType) {
-                        SchoolEntityType.TEACHER -> "?"
-                        SchoolEntityType.ROOM -> booking.`class`.name
-                        SchoolEntityType.CLASS -> booking.room.name
+                        ProfileType.TEACHER -> "?"
+                        ProfileType.ROOM -> booking.bookedBy?.group?.name ?: unknownVppId()
+                        ProfileType.STUDENT -> booking.room.name
                     }, style = MaterialTheme.typography.titleMedium
                 )
                 Text(

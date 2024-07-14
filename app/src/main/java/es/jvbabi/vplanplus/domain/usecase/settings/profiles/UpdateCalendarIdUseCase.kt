@@ -9,9 +9,7 @@ class UpdateCalendarIdUseCase(
     private val updateCalendarUseCase: UpdateCalendarUseCase
 ) {
     suspend operator fun invoke(profile: Profile, calendarId: Long?) {
-        profileRepository.updateProfile(
-            profileRepository.getDbProfileById(profileId = profile.id)!!.copy(calendarId = calendarId)
-        )
+        profileRepository.setCalendarIdForProfile(profile, calendarId)
         updateCalendarUseCase()
     }
 }

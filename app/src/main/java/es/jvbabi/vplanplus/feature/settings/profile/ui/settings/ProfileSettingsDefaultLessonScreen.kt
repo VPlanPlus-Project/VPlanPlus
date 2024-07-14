@@ -32,6 +32,7 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import java.util.UUID
 
@@ -121,8 +122,9 @@ fun ProfileSettingsDefaultLessonContent(
 @Preview(showBackground = true)
 @Composable
 fun ProfileSettingsDefaultLessonScreenPreview() {
+    val group = GroupPreview.generateGroup()
     ProfileSettingsDefaultLessonContent(
-        state = ProfileSettingsDefaultLessonsState(differentDefaultLessons = true, profile = ProfilePreview.generateClassProfile()),
+        state = ProfileSettingsDefaultLessonsState(differentDefaultLessons = true, profile = ProfilePreview.generateClassProfile(group)),
         onBackClicked = {},
         onDefaultLessonChanged = { _, _ -> },
         onFixLessons = {}

@@ -9,8 +9,8 @@ import es.jvbabi.vplanplus.domain.model.School
 data class CPlanData(
     @Embedded val planData: DbPlanData,
     @Relation(
-        parentColumn = "schoolId",
-        entityColumn = "schoolId",
+        parentColumn = "school_id",
+        entityColumn = "id",
         entity = School::class
     ) val school: School
 ) {

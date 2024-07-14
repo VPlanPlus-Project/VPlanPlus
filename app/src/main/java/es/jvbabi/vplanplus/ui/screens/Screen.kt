@@ -1,18 +1,19 @@
 package es.jvbabi.vplanplus.ui.screens
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 sealed class Screen(val route: String) {
     data object HomeScreen: Screen("home_screen")
     data object SearchScreen: Screen("home_screen/search")
     data object SearchAvailableRoomScreen: Screen("home_screen/available_room")
-    data object AddHomeworkScreen: Screen("home_screen/add_homework")
 
     data object Onboarding: Screen("onboarding")
     data object OnboardingWelcomeScreen: Screen("onboarding/welcome_screen")
     data object OnboardingQrScreen: Screen("onboarding/qr_screen")
     data object OnboardingSchoolIdScreen: Screen("onboarding/school_id_screen")
     data object OnboardingLoginScreen: Screen("onboarding/login_screen")
-    data object OnboardingNewProfileScreen: Screen("onboarding/first_profile_screen") // used for creating another profile
-    data object OnboardingFirstProfileScreen: Screen("onboarding/first_profile_screen") // used for creating the first profile
+    @Serializable data class OnboardingNewProfileScreen(val schoolId: Int = -1): Screen("onboarding/first_profile_screen")
     data object OnboardingProfileSelectScreen: Screen("onboarding/profile_options_list_screen")
     data object OnboardingDefaultLessonScreen: Screen("onboarding/default_lesson_screen")
     data object OnboardingPermissionsScreen: Screen("onboarding/permissions_screen")
@@ -21,6 +22,7 @@ sealed class Screen(val route: String) {
     data object AccountAddedScreen: Screen("account_added_screen")
 
     data object HomeworkScreen: Screen("homework_screen")
+    data object HomeworkDetailScreen : Screen("homework_detail_screen")
 
     data object GradesScreen: Screen("grades")
     data object GradesCalculatorScreen: Screen("grades/calculator")

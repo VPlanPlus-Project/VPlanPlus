@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
@@ -41,7 +42,7 @@ class AccountSettingsViewModel @Inject constructor(
                 val profiles = data[2] as List<Profile>
 
                 _state.value.copy(
-                    accounts = accounts.map { vppId -> VppIdSettingsRecord(vppId = vppId, linkedProfiles = profiles.filter { it.vppId == vppId }) },
+                    accounts = accounts.map { vppId -> VppIdSettingsRecord(vppId = vppId, linkedProfiles = profiles.filter { (it as? ClassProfile)?.vppId == vppId }) },
                     server = server
                 )
             }.collect {

@@ -124,7 +124,7 @@ fun SearchViewContent(
             }
 
             if (state.query.isBlank()) {
-                SearchPlaceholder(fullyCompatible = state.identity?.school?.fullyCompatible ?: true)
+                SearchPlaceholder(fullyCompatible = state.currentProfile?.getSchool()?.fullyCompatible ?: true)
                 return@Scaffold
             }
             if (state.query.isNotBlank() && state.results.isEmpty() && !state.isSearchRunning) {

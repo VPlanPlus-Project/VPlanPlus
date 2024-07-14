@@ -2,44 +2,88 @@ package es.jvbabi.vplanplus.data.model.combined
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import es.jvbabi.vplanplus.data.model.DbProfile
+import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
+import es.jvbabi.vplanplus.data.model.DbRoom
+import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbVppId
-import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
+import es.jvbabi.vplanplus.data.model.profile.DbRoomProfile
+import es.jvbabi.vplanplus.data.model.profile.DbTeacherProfile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.RoomProfile
+import es.jvbabi.vplanplus.domain.model.TeacherProfile
 
-data class CProfile(
-    @Embedded val profile: DbProfile,
+data class CTeacherProfile(
+    @Embedded val teacherProfile: DbTeacherProfile,
     @Relation(
-        parentColumn = "profileId",
-        entityColumn = "profileId",
+        parentColumn = "teacher_id",
+        entityColumn = "id",
+        entity = DbSchoolEntity::class
+    ) val schoolEntity: CSchoolEntity
+) {
+    fun toModel(): TeacherProfile {
+        return TeacherProfile(
+            id = teacherProfile.id,
+            originalName = teacherProfile.name,
+            displayName = teacherProfile.customName,
+            calendarType = teacherProfile.calendarMode,
+            calendarId = teacherProfile.calendarId,
+            teacher = schoolEntity.toTeacherModel()
+        )
+    }
+}
+
+data class CRoomProfile(
+    @Embedded val roomProfile: DbRoomProfile,
+    @Relation(
+        parentColumn = "room_id",
+        entityColumn = "id",
+        entity = DbRoom::class
+    ) val room: CRoom
+) {
+    fun toModel(): RoomProfile {
+        return RoomProfile(
+            id = roomProfile.id,
+            originalName = roomProfile.name,
+            displayName = roomProfile.customName,
+            calendarType = roomProfile.calendarMode,
+            calendarId = roomProfile.calendarId,
+            room = room.toModel()
+        )
+    }
+}
+
+data class CClassProfile(
+    @Embedded val classProfile: DbClassProfile,
+    @Relation(
+        parentColumn = "class_id",
+        entityColumn = "id",
+        entity = DbGroup::class
+    ) val group: CGroup,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "profile_id",
         entity = DbProfileDefaultLesson::class
     )
     val defaultLessons: List<CProfileDefaultLesson>,
     @Relation(
-        parentColumn = "linkedVppId",
+        parentColumn = "vpp_id",
         entityColumn = "id",
         entity = DbVppId::class
     ) val vppId: CVppId?
 ) {
-    fun toModel(): Profile {
-        return Profile(
-            id = profile.profileId,
-            displayName = profile.customName,
-            defaultLessons = defaultLessons.associate {
-                val defaultLesson = it.defaultLessons.first { dl ->
-                    (profile.type == ProfileType.STUDENT && dl.defaultLesson.classId == profile.referenceId) ||
-                            (profile.type == ProfileType.TEACHER && dl.defaultLesson.teacherId == profile.referenceId)
-                }
-                defaultLesson.toModel() to it.profileDefaultLesson.enabled
-            },
-            type = profile.type,
-            referenceId = profile.referenceId,
-            calendarType = profile.calendarMode,
-            calendarId = profile.calendarId,
-            originalName = profile.name,
-            vppId = vppId?.toModel(),
-            isHomeworkEnabled = profile.isHomeworkEnabled
+    fun toModel(): ClassProfile {
+        return ClassProfile(
+            id = classProfile.id,
+            originalName = classProfile.name,
+            displayName = classProfile.customName,
+            calendarType = classProfile.calendarMode,
+            calendarId = classProfile.calendarId,
+            group = group.toModel(),
+            isHomeworkEnabled = classProfile.isHomeworkEnabled,
+            defaultLessons = emptyMap(),
+            vppId = vppId?.toModel()
         )
     }
 }

@@ -1,21 +1,21 @@
 package es.jvbabi.vplanplus.feature.main_grades.domain.usecase
 
-import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class IsEnabledUseCase(
-    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     private val vppIdRepository: VppIdRepository,
 ) {
 
     operator fun invoke(): Flow<GradeUseState> = flow {
-        getCurrentIdentityUseCase().collect identity@{ identity ->
-            if (identity == null) {
+        getCurrentProfileUseCase().collect profile@{ profile ->
+            if (profile == null) {
                 emit(GradeUseState.NO_VPP_ID)
-                return@identity
+                return@profile
             }
             vppIdRepository.getVppIds().collect vppId@{ rawVppIds ->
                 val vppIds = rawVppIds.filter { it.isActive() }
@@ -23,11 +23,11 @@ class IsEnabledUseCase(
                     emit(GradeUseState.NO_VPP_ID)
                     return@vppId
                 }
-                if (identity.profile?.vppId == null || identity.profile.type != ProfileType.STUDENT) {
+                if (profile !is ClassProfile || profile.vppId == null) {
                     emit(GradeUseState.WRONG_PROFILE_SELECTED)
                     return@vppId
                 }
-                val bsToken = vppIdRepository.getBsToken(identity.profile.vppId)
+                val bsToken = vppIdRepository.getBsToken(profile.vppId)
                 if (bsToken == null) {
                     emit(GradeUseState.NOT_ENABLED)
                 } else {

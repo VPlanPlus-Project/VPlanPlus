@@ -12,20 +12,20 @@ import java.util.UUID
 @Dao
 abstract class DefaultLessonDao {
 
-    @Query("SELECT * FROM default_lesson WHERE vpId = :id")
-    @Transaction
-    abstract suspend fun getDefaultLessonByVpId(id: Long): CDefaultLesson?
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(defaultLesson: DbDefaultLesson)
 
-    @Query("SELECT * FROM default_lesson WHERE classId = :classId")
+    @Query("SELECT * FROM default_lesson WHERE class_id = :groupId")
     @Transaction
-    abstract suspend fun getDefaultLessonByClassId(classId: UUID): List<CDefaultLesson>
+    abstract suspend fun getDefaultLessonByGroupId(groupId: Int): List<CDefaultLesson>
 
-    @Query("UPDATE default_lesson SET teacherId = :teacherId WHERE classId = :classId AND vpId = :vpId")
-    abstract suspend fun updateTeacherId(classId: UUID, vpId: Long, teacherId: UUID)
+    @Query("SELECT * FROM default_lesson LEFT JOIN `group` ON default_lesson.class_id = `group`.id WHERE `group`.school_id = :schoolId")
+    @Transaction
+    abstract suspend fun getDefaultLessonsBySchool(schoolId: Int): List<CDefaultLesson>
 
-    @Query("DELETE FROM default_lesson WHERE defaultLessonId = :id")
+    @Query("UPDATE default_lesson SET teacher_id = :teacherId WHERE class_id = :groupId AND vp_id = :vpId")
+    abstract suspend fun updateTeacherId(groupId: Int, vpId: Int, teacherId: UUID)
+
+    @Query("DELETE FROM default_lesson WHERE id = :id")
     abstract suspend fun deleteById(id: UUID)
 }

@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.settings.vpp_id.ui
 
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -46,8 +47,8 @@ import io.ktor.http.Parameters
 import io.ktor.http.URLBuilder
 import io.ktor.http.URLProtocol
 import io.ktor.http.Url
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
-import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
+import es.jvbabi.vplanplus.ui.preview.GroupPreview as PreviewClasses
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview as PreviewSchool
 
 fun onLogin(context: Context, server: VppIdServer) {
     val host = URLBuilder(server.uiHost).host
@@ -69,6 +70,7 @@ fun onLogin(context: Context, server: VppIdServer) {
             }
         )
     )
+    if (BuildConfig.DEBUG) Log.d("VppId", "Opening $url")
     val intent = CustomTabsIntent.Builder().build()
     intent.launchUrl(context, url.toString().toUri())
 }
@@ -122,7 +124,7 @@ private fun AccountSettingsScreenContent(
 
                     val subtitle = listOfNotNull(
                         if (account.school != null) account.school.name.take(24) + (if (account.school.name.length > 24) "..." else "") else account.schoolId.toString(),
-                        if (profiles.isNotEmpty()) account.className else null,
+                        if (profiles.isNotEmpty()) account.groupName else null,
                         if (profiles.isEmpty()) stringResource(id = R.string.vppIdSettings_noProfilesConnected) else pluralStringResource(
                             id = R.plurals.vppIdSettings_withNProfilesConnected,
                             count = profiles.size,
@@ -197,7 +199,7 @@ private fun AccountSettingsPreviewNoAccounts() {
 @Composable
 private fun AccountSettingsPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first()
-    val classes = PreviewClasses.generateClass(school)
+    val classes = PreviewClasses.generateGroup(school)
     AccountSettingsScreenContent(
         onBack = {},
         state = AccountSettingsState(
@@ -206,10 +208,10 @@ private fun AccountSettingsPreview() {
                     VppId(
                         id = 654,
                         name = "Max Mustermann",
-                        schoolId = school.schoolId,
+                        schoolId = school.id,
                         school = school,
-                        className = classes.name,
-                        classes = classes,
+                        groupName = classes.name,
+                        group = classes,
                         email = "max.mustermann@email.com"
                     ),
                     false,

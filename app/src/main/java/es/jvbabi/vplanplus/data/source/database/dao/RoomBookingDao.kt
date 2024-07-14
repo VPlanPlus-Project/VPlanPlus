@@ -6,7 +6,6 @@ import androidx.room.Transaction
 import androidx.room.Upsert
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.combined.CRoomBooking
-import java.util.UUID
 
 @Dao
 abstract class RoomBookingDao {
@@ -25,12 +24,12 @@ abstract class RoomBookingDao {
     abstract fun deleteAll()
 
     @Transaction
-    @Query("SELECT * FROM room_booking WHERE class = :classId")
-    abstract fun getRoomBookingsByClass(classId: UUID): List<CRoomBooking>
+    @Query("SELECT * FROM room_booking INNER JOIN vpp_id ON room_booking.booked_by = vpp_id.id WHERE vpp_id.group_id = :classId")
+    abstract fun getRoomBookingsByGroup(classId: Int): List<CRoomBooking>
 
     @Transaction
-    @Query("SELECT * FROM room_booking WHERE roomId = :roomId")
-    abstract fun getRoomBookingsByRoom(roomId: UUID): List<CRoomBooking>
+    @Query("SELECT * FROM room_booking WHERE room_id = :roomId")
+    abstract fun getRoomBookingsByRoom(roomId: Int): List<CRoomBooking>
 
     @Transaction
     open fun upsertAll(roomBookings: List<DbRoomBooking>) {
@@ -40,6 +39,7 @@ abstract class RoomBookingDao {
     @Query("DELETE FROM room_booking WHERE id = :id")
     abstract fun deleteById(id: Long)
 
+    @Transaction
     @Query("SELECT * FROM room_booking")
     abstract fun getAllRoomBookings(): List<CRoomBooking>
 }

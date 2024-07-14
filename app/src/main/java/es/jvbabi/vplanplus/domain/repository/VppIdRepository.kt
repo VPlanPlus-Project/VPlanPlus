@@ -6,17 +6,19 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import java.time.ZonedDateTime
 
 interface VppIdRepository {
     fun getVppIds(): Flow<List<VppId>>
     fun getActiveVppIds(): Flow<List<VppId>>
-    suspend fun getVppIdOnline(token: String): DataResponse<VppIdOnlineResponse?>
+    suspend fun getVppId(id: Int): VppId?
+
+    suspend fun deleteVppId(id: Int)
 
     suspend fun addVppId(vppId: VppId)
 
@@ -30,30 +32,23 @@ interface VppIdRepository {
     suspend fun unlinkVppId(vppId: VppId): Boolean
 
     suspend fun bookRoom(vppId: VppId, room: Room, from: ZonedDateTime, to: ZonedDateTime): BookResult
-    suspend fun cancelRoomBooking(roomBooking: RoomBooking): HttpStatusCode?
+    suspend fun cancelRoomBooking(roomBooking: RoomBooking): Boolean?
 
     suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?>
     suspend fun closeSession(session: Session, vppId: VppId): Boolean
 
-    suspend fun fetchUsersPerClass(schoolId: Long, username: String, password: String): DataResponse<UsersPerClassResponse?>
+    suspend fun useOAuthCode(code: String): VppId?
 
-    suspend fun getVersionHints(version: Int, versionBefore: Int): DataResponse<List<VersionHints>>
+    /**
+     * @return A map with the class name as key and the number of students in that class as value or null if something went wrong
+     */
+    suspend fun fetchUsersPerClass(sp24Access: SchoolSp24Access): List<GroupInfoResponse>?
+
+    suspend fun getVersionHint(version: Int): DataResponse<VersionHints?>
 }
 
-data class VppIdOnlineResponse(
-    @SerializedName("id") val id: Int,
-    @SerializedName("username") val username: String,
-    @SerializedName("email") val email: String,
-    @SerializedName("sp24_school_id") val schoolId: Long,
-    @SerializedName("class_name") val className: String,
-    @SerializedName("bs_token") val bsToken: String?
-)
-
-data class UsersPerClassResponse(
-    @SerializedName("data") val classes: List<UsersPerClassResponseRecord>
-)
-
-data class UsersPerClassResponseRecord(
-    @SerializedName("class_name") val className: String,
-    @SerializedName("students_count") val users: Int
+data class GroupInfoResponse(
+    @SerializedName("group_name") val className: String,
+    @SerializedName("group_id") val groupId: Int,
+    @SerializedName("members") val users: Int
 )

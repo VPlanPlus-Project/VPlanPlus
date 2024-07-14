@@ -16,10 +16,10 @@ abstract class PlanDao {
     abstract suspend fun insertPlan(plan: DbPlanData)
 
     @Transaction
-    @Query("SELECT * FROM plan_data WHERE schoolId = :schoolId AND planDate = :date")
-    abstract suspend fun getPlanByDate(schoolId: Long, date: LocalDate): CPlanData?
+    @Query("SELECT * FROM plan_data WHERE school_id = :schoolId AND plan_date = :date")
+    abstract suspend fun getPlanByDate(schoolId: Int, date: LocalDate): CPlanData?
 
-    @Query("SELECT planDate FROM plan_data")
+    @Query("SELECT plan_date FROM plan_data")
     abstract suspend fun getLocalPlanDates(): List<LocalDate>
 
     @Query("DELETE FROM plan_data")

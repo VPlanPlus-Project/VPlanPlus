@@ -15,22 +15,21 @@ class DeleteSchoolUseCase(
     private val notificationRepository: NotificationRepository,
 ) {
     suspend operator fun invoke(
-        schoolId: Long
+        schoolId: Int
     ) {
         val currentProfile = profileRepository.getProfileById(
             UUID.fromString(keyValueRepository.get(Keys.ACTIVE_PROFILE))
         ).first()!!
-        if (profileRepository.getSchoolFromProfile(currentProfile).schoolId == schoolId) {
+        if (currentProfile.getSchool().id == schoolId) {
             keyValueRepository.set(Keys.ACTIVE_PROFILE,
                 profileRepository
                     .getProfiles()
                     .first()
-                    .firstOrNull {
-                        profileRepository.getSchoolFromProfile(it).schoolId != schoolId
-                    }?.id.toString()
+                    .firstOrNull { it.getSchool().id != schoolId }
+                    ?.id.toString()
             )
         }
-        val profiles = profileRepository.getProfilesBySchoolId(schoolId)
+        val profiles = profileRepository.getProfilesBySchool(schoolId).first()
         profiles.forEach { profile ->
             notificationRepository.deleteChannel("PROFILE_${profile.id.toString().lowercase()}")
         }

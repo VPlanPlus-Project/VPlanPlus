@@ -43,9 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.data.model.ProfileCalendarType
-import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.Calendar
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.feature.settings.profile.ui.components.dialogs.ConfirmHomeworkDisableDialog
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
@@ -58,7 +58,7 @@ import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -123,8 +123,8 @@ fun ProfileSettingsScreen(
             onSetDialogVisible = { viewModel.setDialogOpen(it) },
             onSetDialogCall = { viewModel.setDialogCall(it) },
             onOpenVppIdSettings = {
-                if (state.profile.vppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
-                else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.profile.vppId.id}")
+                if ((state.profile as? ClassProfile)?.vppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
+                else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.profile.vppId!!.id}")
             },
             onLaunchPermissionDialog = { writeLauncher.launch(android.Manifest.permission.WRITE_CALENDAR) },
             onToggleHomework = viewModel::onToggleHomework,
@@ -302,7 +302,7 @@ private fun ProfileSettingsScreenContent(
             SettingsCategory(
                 title = stringResource(id = R.string.profileManagement_defaultLessonsTitle)
             ) {
-                if (state.profile.type == ProfileType.STUDENT) SettingsSetting(
+                if (state.profile is ClassProfile) SettingsSetting(
                     icon = Icons.Default.FilterAlt,
                     title = stringResource(id = R.string.settings_profileManagementDefaultLessonSettingsTitle),
                     subtitle = stringResource(
@@ -315,7 +315,7 @@ private fun ProfileSettingsScreenContent(
                     })
             }
 
-            if (state.profile.type == ProfileType.STUDENT) SettingsCategory(title = stringResource(id = R.string.profileManagement_homeworkTitle)) {
+            if (state.profile is ClassProfile) SettingsCategory(title = stringResource(id = R.string.profileManagement_homeworkTitle)) {
                 SettingsSetting(
                     icon = Icons.Default.TaskAlt,
                     title = stringResource(id = R.string.profileManagement_homeworkEnableHomeworkTitle),
@@ -326,7 +326,7 @@ private fun ProfileSettingsScreenContent(
                 )
             }
 
-            if (state.profile.type == ProfileType.STUDENT) SettingsCategory(
+            if (state.profile is ClassProfile) SettingsCategory(
                 title = stringResource(
                     id = R.string.profileManagement_vppIDCategoryTitle
                 )
@@ -368,10 +368,10 @@ private fun ProfileSettingsScreenContent(
 @Composable
 @Preview(showBackground = true)
 private fun ProfileSettingsScreenPreview() {
-    val classes = ClassesPreview.generateClass(null)
+    val classes = GroupPreview.generateGroup(null)
     ProfileSettingsScreenContent(
         state = ProfileSettingsState(
-            profile = ProfilePreview.generateClassProfile(VppIdPreview.generateVppId(classes)).copy(calendarType = ProfileCalendarType.DAY),
+            profile = ProfilePreview.generateClassProfile(classes, VppIdPreview.generateVppId(classes))
         ),
         onBackClicked = {}
     )
