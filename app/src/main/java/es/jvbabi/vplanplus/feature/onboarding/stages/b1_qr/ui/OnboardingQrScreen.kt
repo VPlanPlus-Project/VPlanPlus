@@ -175,7 +175,8 @@ private fun OnboardingQrScreenContent(
                     }
                     OutlinedButton(
                         onClick = { cameraIndex++ },
-                        modifier = Modifier.align(Alignment.End)
+                        modifier = Modifier.align(Alignment.End),
+                        enabled = state.qrResultState != QrResultState.LOADING_SCHOOL_DATA && state.qrResultState != QrResultState.CHECKING
                     ) {
                         Icon(imageVector = Icons.Default.SwitchCamera, contentDescription = stringResource(id = R.string.onboarding_qrSwitchCamera))
                         Spacer8Dp()
