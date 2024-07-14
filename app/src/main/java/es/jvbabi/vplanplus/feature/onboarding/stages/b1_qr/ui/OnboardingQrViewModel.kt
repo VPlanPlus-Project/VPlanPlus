@@ -20,20 +20,33 @@ class OnboardingQrViewModel @Inject constructor(
     var state by mutableStateOf(OnboardingQrState())
     private var testJob: Job? = null
 
+    fun init() { state = OnboardingQrState() }
+
     fun doAction(action: UiAction) {
         when (action) {
             is InputQrResult -> {
                 if (state.qrResult == action.qrResult) return
                 testJob?.cancel()
                 testJob = viewModelScope.launch {
-                    val schoolId = action.qrResult.schoolId.toLongOrNull() ?: return@launch
-                    state = state.copy(isLoading = true, qrResultState = null)
+                    val schoolId = action.qrResult.schoolId!!.toLongOrNull() ?: return@launch
                     state = state.copy(
-                        isLoading = false,
-                        qrResult = action.qrResult,
-                        qrResultState = onboardingQrUseCases.testSchoolCredentialsUseCase(schoolId, action.qrResult.username, action.qrResult.password)
+                        qrResultState = QrResultState.CHECKING,
+                        qrResult = action.qrResult
                     )
+                    val result = onboardingQrUseCases.testSchoolCredentialsUseCase(schoolId, action.qrResult.username!!, action.qrResult.password!!)
+                    if (result == null) {
+                        state = state.copy(qrResultState = QrResultState.LOADING_SCHOOL_DATA)
+                        state = state.copy(
+                            qrResultState = if (onboardingQrUseCases.checkCredentialsAndInitOnboardingForSchoolUseCase(schoolId.toInt(), action.qrResult.username, action.qrResult.password) == null) QrResultState.NETWORK_ERROR else QrResultState.PROCEED
+                        )
+                    } else state = state.copy(qrResultState = result)
                 }
+            }
+            is OnInvalidQrScanned -> {
+                state = state.copy(
+                    qrResult = null,
+                    qrResultState = QrResultState.INVALID_QR
+                )
             }
         }
     }
@@ -41,17 +54,13 @@ class OnboardingQrViewModel @Inject constructor(
 
 data class OnboardingQrState(
     val qrResult: QrResult? = null,
-    val isLoading: Boolean = false,
     val qrResultState: QrResultState? = null
-) {
-    val canProceed: Boolean
-        get() = qrResultState == null && !isLoading && qrResult != null
-}
+)
 
 data class QrResult(
-    @SerializedName("school_id") val schoolId: String,
-    @SerializedName("username") val username: String,
-    @SerializedName("password") val password: String
+    @SerializedName("school_id") val schoolId: String?,
+    @SerializedName("username") val username: String?,
+    @SerializedName("password") val password: String?
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -76,9 +85,13 @@ data class QrResult(
 
 enum class QrResultState {
     SCHOOL_NOT_FOUND,
-    BAD_CREDENTIALS,
-    NETWORK_ERROR
+    INVALID_QR,
+    NETWORK_ERROR,
+    CHECKING,
+    LOADING_SCHOOL_DATA,
+    PROCEED
 }
 
 sealed class UiAction
 data class InputQrResult(val qrResult: QrResult) : UiAction()
+data object OnInvalidQrScanned : UiAction()

@@ -91,6 +91,7 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
             OnboardingInitClass(it, entry.groupId, entry.users, lessonTimes)
         }
 
+        keyValueRepository.set("onboarding.sp24_school_id", sp24SchoolId.toString())
         keyValueRepository.set("onboarding.username", username)
         keyValueRepository.set("onboarding.password", password)
         keyValueRepository.set("onboarding.is_fully_supported", isFullySupported.toString())
