@@ -102,6 +102,7 @@ class MainActivity : FragmentActivity() {
             goToOnboarding = currentProfile == null
 
             Log.i("MainActivity.Setup", "Creating or updating notification channels")
+            if (goToOnboarding == true) notificationRepository.deleteAllChannels()
             notificationRepository.createSystemChannels(applicationContext)
             notificationRepository.createProfileChannels(applicationContext, mainUseCases.getProfilesUseCase().first().map { it.value }.flatten())
 

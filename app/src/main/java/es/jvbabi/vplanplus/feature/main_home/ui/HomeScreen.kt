@@ -301,7 +301,7 @@ fun HomeScreenContent(
                             snapAnimationSpec = tween(100)
                         ),
                         beyondViewportPageCount = 7
-                    ) {
+                    ) contentHost@{
                         val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
                         val day = state.days[date]
 
@@ -309,7 +309,7 @@ fun HomeScreenContent(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
+                        ) content@{
                             val start by rememberSaveable { mutableLongStateOf(System.currentTimeMillis() / 1000) }
                             val timeOffset = 1
                             AnimatedVisibility(visible = day == null && start + timeOffset < System.currentTimeMillis() / 1000) {
@@ -331,11 +331,8 @@ fun HomeScreenContent(
                                 exit = fadeOut(animationSpec = tween(animationDuration))
                             ) dayViewRoot@{
                                 Column {
-                                    if (day?.lessons?.size == 0 && day.type == DayType.NORMAL) {
-                                        NoData(date)
-                                        return@dayViewRoot
-                                    }
-                                    DayView(
+                                    if (day?.lessons?.size == 0 && day.type == DayType.NORMAL) NoData(date)
+                                    else DayView(
                                         day = day,
                                         currentTime = state.currentTime,
                                         showCountdown = state.currentTime.toLocalDate().isEqual(date),

@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.domain.repository
 
-import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -23,6 +22,8 @@ interface NotificationRepository {
     fun createSystemChannels(context: Context)
     fun createProfileChannels(context: Context, profiles: List<Profile>)
     fun dismissNotification(id: Int)
+
+    fun deleteAllChannels()
 
     companion object {
         const val CHANNEL_ID_SYSTEM = "system"
