@@ -62,33 +62,19 @@ class AdvancedSettingsViewModel @Inject constructor(
         }
     }
 
-    fun showDeleteCacheDialog() {
-        _state.value = _state.value.copy(showDeleteCacheDialog = true)
-    }
-
-    fun deleteCache() {
+    private fun deleteCache() {
         viewModelScope.launch {
             advancedSettingsUseCases.deleteCacheUseCase()
-            closeDeleteCacheDialog()
         }
     }
 
-    fun closeDeleteCacheDialog() {
-        _state.value = _state.value.copy(showDeleteCacheDialog = false)
-    }
-
-    fun showVppIdDialog(show: Boolean) {
-        _state.value = _state.value.copy(showVppIdServerDialog = show)
-    }
-
-    fun setVppIdServer(server: String?) {
+    private fun setVppIdServer(server: String?) {
         viewModelScope.launch {
             advancedSettingsUseCases.setVppIdServerUseCase(server)
-            showVppIdDialog(false)
         }
     }
 
-    fun onUpdateFcmToken() {
+    private fun onUpdateFcmToken() {
         if (state.value.fcmTokenReloadState == FcmTokenReloadState.LOADING) return
         viewModelScope.launch {
             _state.value = _state.value.copy(fcmTokenReloadState = FcmTokenReloadState.LOADING)
@@ -96,14 +82,30 @@ class AdvancedSettingsViewModel @Inject constructor(
             else _state.value = _state.value.copy(fcmTokenReloadState = FcmTokenReloadState.ERROR)
         }
     }
+
+    fun onEvent(event: AdvancedSettingsEvent) {
+        viewModelScope.launch {
+            when (event) {
+                is AdvancedSettingsEvent.DeleteCache -> deleteCache()
+                is AdvancedSettingsEvent.SetVppIdServer -> setVppIdServer(event.server)
+                is AdvancedSettingsEvent.UpdateFcmToken -> onUpdateFcmToken()
+                is AdvancedSettingsEvent.ResetBalloons -> advancedSettingsUseCases.resetBalloonsUseCase()
+            }
+        }
+    }
 }
 
 data class AdvancedSettingsState(
     val currentProfileText: String = "Loading...",
     val currentLessonText: String = "Loading...",
-    val showDeleteCacheDialog: Boolean = false,
-    val showVppIdServerDialog: Boolean = false,
     val selectedVppIdServer: VppIdServer = servers.first(),
     val canChangeVppIdServer: Boolean = false,
     val fcmTokenReloadState: FcmTokenReloadState = FcmTokenReloadState.NONE
 )
+
+sealed class AdvancedSettingsEvent {
+    data object DeleteCache : AdvancedSettingsEvent()
+    data class SetVppIdServer(val server: String?) : AdvancedSettingsEvent()
+    data object UpdateFcmToken : AdvancedSettingsEvent()
+    data object ResetBalloons : AdvancedSettingsEvent()
+}

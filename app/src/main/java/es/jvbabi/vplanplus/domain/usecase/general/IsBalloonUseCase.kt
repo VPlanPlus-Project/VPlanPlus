@@ -21,3 +21,10 @@ val HOMEWORK_DOCUMENT_BALLOON = Balloon("homework_document_balloon")
 val HOMEWORK_VPPID_BALLOON = Balloon("homework_vppid_balloon")
 val HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON = Balloon("homework_hidden_where_to_find_balloon")
 val HOMEWORK_SWIPE_DEMO_BALLOON = Balloon("homework_swipe_demo_balloon")
+
+val BALLOONS = listOf(
+    HOMEWORK_DOCUMENT_BALLOON,
+    HOMEWORK_VPPID_BALLOON,
+    HOMEWORK_HIDDEN_WHERE_TO_FIND_BALLOON,
+    HOMEWORK_SWIPE_DEMO_BALLOON,
+)

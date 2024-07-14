@@ -1,11 +1,13 @@
 package es.jvbabi.vplanplus.feature.settings.advanced.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.LiveHelp
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DeleteForever
@@ -16,7 +18,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,6 +36,7 @@ import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServerDi
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.IconSettingsState
 import es.jvbabi.vplanplus.ui.common.PainterSettingsState
 import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
@@ -47,40 +55,34 @@ fun AdvancedSettingsScreen(
     val state = viewModel.state.value
 
     AdvancedSettingsScreenContent(
+        state = state,
         onBack = { navHostController.navigateUp() },
         onLogsClicked = { navHostController.navigate(Screen.SettingsAdvancedLogScreen.route) },
-        state = state,
-        onDeletePlansClicked = { viewModel.showDeleteCacheDialog() },
-        onDeletePlansYes = { viewModel.deleteCache() },
-        onDeletePlansNo = { viewModel.closeDeleteCacheDialog() },
-        onVppIdDialogStateChange = viewModel::showVppIdDialog,
-        onSetServer = viewModel::setVppIdServer,
-        onUpdateFCMToken = viewModel::onUpdateFcmToken
+        onEvent = viewModel::onEvent
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AdvancedSettingsScreenContent(
+    state: AdvancedSettingsState,
     onBack: () -> Unit = {},
     onLogsClicked: () -> Unit = {},
-    state: AdvancedSettingsState,
-    onDeletePlansClicked: () -> Unit = {},
-    onDeletePlansYes: () -> Unit = {},
-    onDeletePlansNo: () -> Unit = {},
-    onVppIdDialogStateChange: (Boolean) -> Unit = {},
-    onSetServer: (String?) -> Unit = {},
-    onUpdateFCMToken: () -> Unit = {}
+    onEvent: (AdvancedSettingsEvent) -> Unit = {}
 ) {
-    if (state.showDeleteCacheDialog) DeletePlanDataDialog(
-        { onDeletePlansYes() },
-        { onDeletePlansNo() }
+    val context = LocalContext.current
+
+    var showDeleteCacheDialog by rememberSaveable { mutableStateOf(false) }
+    if (showDeleteCacheDialog) DeletePlanDataDialog(
+        { showDeleteCacheDialog = false; onEvent(AdvancedSettingsEvent.DeleteCache) },
+        { showDeleteCacheDialog = false }
     )
 
-    if (state.showVppIdServerDialog) VppIdServerDialog(
+    var showVppIdServerDialog by rememberSaveable { mutableStateOf(false) }
+    if (showVppIdServerDialog) VppIdServerDialog(
         selectedServer = state.selectedVppIdServer,
-        onSetServer = onSetServer,
-        onDismiss = { onVppIdDialogStateChange(false) }
+        onSetServer = { onEvent(AdvancedSettingsEvent.SetVppIdServer(it)); showVppIdServerDialog = false },
+        onDismiss = { showVppIdServerDialog = false }
     )
 
     Scaffold(
@@ -116,7 +118,7 @@ private fun AdvancedSettingsScreenContent(
                     title = stringResource(id = R.string.advancedSettings_clearCacheTitle),
                     subtitle = stringResource(id = R.string.advancedSettings_clearCacheText),
                     type = SettingsType.FUNCTION,
-                    doAction = { onDeletePlansClicked() }
+                    doAction = { showDeleteCacheDialog = true }
                 )
                 Setting(
                     PainterSettingsState(
@@ -126,7 +128,7 @@ private fun AdvancedSettingsScreenContent(
                             if (state.selectedVppIdServer.apiHost == servers.first().apiHost) stringResource(id = R.string.advancedSettings_settingsServerDefault)
                             else state.selectedVppIdServer.apiHost,
                         type = SettingsType.FUNCTION,
-                        doAction = { onVppIdDialogStateChange(true) },
+                        doAction = { showVppIdServerDialog = true },
                         enabled = state.canChangeVppIdServer
                     )
                 )
@@ -142,9 +144,23 @@ private fun AdvancedSettingsScreenContent(
                             },
                         painter = painterResource(id = R.drawable.logo_firebase),
                         type = SettingsType.FUNCTION,
-                        doAction = { onUpdateFCMToken() },
+                        doAction = { onEvent(AdvancedSettingsEvent.UpdateFcmToken) },
                         enabled = state.fcmTokenReloadState != FcmTokenReloadState.LOADING,
                         isLoading = state.fcmTokenReloadState == FcmTokenReloadState.LOADING
+                    )
+                )
+                Setting(
+                    IconSettingsState(
+                        title = stringResource(id = R.string.advancedSettings_resetBalloonsTitle),
+                        subtitle = stringResource(id = R.string.advancedSettings_resetBalloonsSubtitle),
+                        imageVector = Icons.AutoMirrored.Default.LiveHelp,
+                        type = SettingsType.FUNCTION,
+                        enabled = true,
+                        isLoading = false,
+                        doAction = {
+                            onEvent(AdvancedSettingsEvent.ResetBalloons)
+                            Toast.makeText(context, context.getString(R.string.advancedSettings_resetBalloonsSuccess), Toast.LENGTH_SHORT).show()
+                        }
                     )
                 )
             }

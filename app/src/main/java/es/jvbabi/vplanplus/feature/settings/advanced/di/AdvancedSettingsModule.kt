@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepos
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.DeleteCacheUseCase
+import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.ResetBalloonsUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.SetVppIdServerUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
 import javax.inject.Singleton
@@ -42,7 +43,8 @@ object AdvancedSettingsModule {
             ),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository),
-            updateFcmTokenUseCase = UpdateFcmTokenUseCase(firebaseCloudMessagingManagerRepository)
+            updateFcmTokenUseCase = UpdateFcmTokenUseCase(firebaseCloudMessagingManagerRepository),
+            resetBalloonsUseCase = ResetBalloonsUseCase(keyValueRepository)
         )
     }
 }
