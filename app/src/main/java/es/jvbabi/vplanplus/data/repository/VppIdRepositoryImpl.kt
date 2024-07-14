@@ -38,7 +38,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.ZonedDateTime
-import java.util.UUID
 
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
@@ -365,7 +364,6 @@ class VppIdRepositoryImpl(
         vppIdTokenDao.insert(DbVppIdToken(
             accessToken = oAuthResponse.accessToken,
             vppId = me.id,
-            id = UUID.randomUUID(),
             bsToken = me.schulverwalterAccessToken
         ))
         return getVppId(me.id) as? VppId.ActiveVppId ?: run {

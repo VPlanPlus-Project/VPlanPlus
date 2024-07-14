@@ -40,8 +40,8 @@ class UpdateGradesUseCase(
                         }
                         SchulverwalterTokenResponse.NETWORK_ERROR -> null
                         SchulverwalterTokenResponse.SUCCESS -> {
-                            Log.i("SyncGradesUseCase", "${profile.toLogString()}: Token refreshed")
                             vppIdRepository.setSchulverwalterToken(vppId, token!!)
+                            Log.i("SyncGradesUseCase", "${profile.toLogString()}: Token refreshed")
                             vppIdRepository.getVppId(vppId.id.toLong(), vppId.school!!, false) as VppId.ActiveVppId
                         }
                     }
