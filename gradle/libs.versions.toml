@@ -26,10 +26,10 @@ hiltNavigationCompose = "1.2.0"
 hiltWork = "1.2.0"
 junit = "4.13.2"
 junitVersion = "1.2.1"
-kotlin = "1.9.24"
+kotlin = "2.0.0"
 kotlinxCoroutinesTestVersion = "1.8.0"
 kotlinxSerializationJson = "1.6.3"
-ksp = "1.9.24-1.0.20"
+ksp = "2.0.0-1.0.23"
 ktorClientCore = "2.3.11"
 ktorClientAndroid = "2.3.2"
 lifecycleRuntimeKtx = "2.8.3"
@@ -112,7 +112,7 @@ compose = ["compose-ui", "compose-navigation", "compose-ui-graphics", "compose-u
 android-application = { id = "com.android.application", version.ref = "androidApplication" }
 android-kotlin = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
-kotlin-kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 kotlin-parcelize = { id = "org.jetbrains.kotlin.plugin.parcelize", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }

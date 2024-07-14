@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.google.gms)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
-    alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.kotlin.compose.compiler)
 }
 
 android {
@@ -84,9 +84,6 @@ android {
         compose = true
         buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -135,8 +132,8 @@ dependencies {
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.work)
     testImplementation(libs.junit)
-    kapt(libs.hilt.android.compiler)
-    kapt(libs.hilt.compiler)
+    ksp(libs.hilt.android.compiler)
+    ksp(libs.hilt.compiler)
 
     implementation(libs.room.runtime)
     annotationProcessor(libs.room.compiler)
@@ -166,7 +163,7 @@ dependencies {
 
     // Instrumentation tests
     androidTestImplementation(libs.hilt.android.testing)
-    kaptAndroidTest(libs.hilt.android.compiler)
+    kspAndroidTest(libs.hilt.android.compiler)
     androidTestImplementation(libs.junit)
     androidTestImplementation(libs.jetbrains.kotlinx.coroutines.test)
     androidTestImplementation(libs.core.testing)
@@ -177,8 +174,4 @@ dependencies {
     androidTestImplementation(libs.runner)
 
     implementation(libs.compose.html)
-}
-
-kapt {
-    correctErrorTypes = true
 }
