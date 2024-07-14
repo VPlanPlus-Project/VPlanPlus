@@ -24,10 +24,13 @@ import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerReposi
 import es.jvbabi.vplanplus.domain.repository.GroupInfoResponse
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.SchulverwalterTokenResponse
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
+import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
+import es.jvbabi.vplanplus.shared.data.Response
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
@@ -35,7 +38,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.ZonedDateTime
-import java.util.UUID
 
 class VppIdRepositoryImpl(
     private val vppIdDao: VppIdDao,
@@ -44,7 +46,8 @@ class VppIdRepositoryImpl(
     private val profileRepository: ProfileRepository,
     private val roomBookingDao: RoomBookingDao,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
-    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
+    private val schulverwalterNetworkRepository: BsNetworkRepository
 ) : VppIdRepository {
     override fun getVppIds(): Flow<List<VppId>> {
         return vppIdDao.getAll().map { list ->
@@ -52,9 +55,9 @@ class VppIdRepositoryImpl(
         }
     }
 
-    override fun getActiveVppIds(): Flow<List<VppId>> {
+    override fun getActiveVppIds(): Flow<List<VppId.ActiveVppId>> {
         return vppIdDao.getAll().map { list ->
-            list.filter { it.vppId.state == State.ACTIVE }.map { it.toModel() }
+            list.filter { it.vppId.state == State.ACTIVE }.map { it.toModel() as VppId.ActiveVppId }
         }
     }
 
@@ -88,8 +91,8 @@ class VppIdRepositoryImpl(
         val vppId = vppIdDao.getVppId(id)?.toModel()
         if (vppId != null && vppId.cachedAt.plusHours(6).isAfter(ZonedDateTime.now())) return vppId
 
-        if (vppId?.isActive() == true && getVppIdToken(vppId) != null) {
-            vppIdNetworkRepository.authentication = BearerAuthentication(getVppIdToken(vppId)!!)
+        if (vppId is VppId.ActiveVppId) {
+            vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
             val meResponse = vppIdNetworkRepository.doRequest("/api/$API_VERSION/user/me", HttpMethod.Get)
             if (meResponse.response != HttpStatusCode.OK || meResponse.data == null) return null
             val data = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)
@@ -140,17 +143,8 @@ class VppIdRepositoryImpl(
         vppIdNetworkRepository.authentication = BearerAuthentication(token)
     }
 
-    override suspend fun getVppIdToken(vppId: VppId): String? {
-        return vppIdTokenDao.getTokenByVppId(vppId.id)?.accessToken
-    }
-
-    override suspend fun getBsToken(vppId: VppId): String? {
-        return vppIdTokenDao.getTokenByVppId(vppId.id)?.bsToken
-    }
-
-    override suspend fun testVppIdSession(vppId: VppId): Boolean? {
-        val currentToken = getVppIdToken(vppId) ?: return null
-        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
+    override suspend fun testVppIdSession(vppId: VppId.ActiveVppId): Boolean? {
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/user/me",
             requestMethod = HttpMethod.Get
@@ -159,9 +153,8 @@ class VppIdRepositoryImpl(
         return response.response == HttpStatusCode.OK
     }
 
-    override suspend fun unlinkVppId(vppId: VppId): Boolean {
-        val currentToken = getVppIdToken(vppId) ?: return false
-        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
+    override suspend fun unlinkVppId(vppId: VppId.ActiveVppId): Boolean {
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             "/api/$API_VERSION/auth/logout",
             HttpMethod.Get,
@@ -180,13 +173,12 @@ class VppIdRepositoryImpl(
     }
 
     override suspend fun bookRoom(
-        vppId: VppId,
+        vppId: VppId.ActiveVppId,
         room: Room,
         from: ZonedDateTime,
         to: ZonedDateTime
     ): BookResult {
-        val currentToken = getVppIdToken(vppId) ?: return BookResult.OTHER
-        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val url = "/api/$API_VERSION/school/${vppId.schoolId}/room/booking"
         val response = vppIdNetworkRepository.doRequest(
             url,
@@ -208,10 +200,10 @@ class VppIdRepositoryImpl(
         return BookResult.SUCCESS
     }
 
-    override suspend fun cancelRoomBooking(roomBooking: RoomBooking): Boolean? {
+    override suspend fun cancelRoomBooking(roomBooking: RoomBooking): Boolean {
         val url = "/api/$API_VERSION/school/${roomBooking.bookedBy!!.schoolId}/room/booking/${roomBooking.id}"
-        val currentToken = getVppIdToken(roomBooking.bookedBy) ?: return null
-        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
+        val vppId = roomBooking.bookedBy as? VppId.ActiveVppId ?: return false
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
 
         val response = vppIdNetworkRepository.doRequest(
             url,
@@ -227,9 +219,8 @@ class VppIdRepositoryImpl(
         return true
     }
 
-    override suspend fun fetchSessions(vppId: VppId): DataResponse<List<Session>?> {
-        val currentToken = getVppIdToken(vppId) ?: return DataResponse(null, HttpStatusCode.Unauthorized)
-        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
+    override suspend fun fetchSessions(vppId: VppId.ActiveVppId): DataResponse<List<Session>?> {
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
 
         val response = vppIdNetworkRepository.doRequest(
             "/api/$API_VERSION/user/me/session",
@@ -239,9 +230,8 @@ class VppIdRepositoryImpl(
         else DataResponse(ResponseDataWrapper.fromJson<List<Session>>(response.data), HttpStatusCode.OK)
     }
 
-    override suspend fun closeSession(session: Session, vppId: VppId): Boolean {
-        val currentToken = getVppIdToken(vppId) ?: return false
-        vppIdNetworkRepository.authentication = BearerAuthentication(currentToken)
+    override suspend fun closeSession(session: Session, vppId: VppId.ActiveVppId): Boolean {
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
 
         return try {
             val response = vppIdNetworkRepository.doRequest(
@@ -278,7 +268,47 @@ class VppIdRepositoryImpl(
         )
     }
 
-    override suspend fun useOAuthCode(code: String): VppId? {
+    override suspend fun testSchulverwalterToken(token: String): Boolean? {
+        if (token.isEmpty()) return false
+        val LOG_TAG = "VppIdRepository.useOAuthCode"
+        schulverwalterNetworkRepository.authentication = BearerAuthentication(token)
+        val response = schulverwalterNetworkRepository.doRequest("/api/me")
+        if (response.response == HttpStatusCode.Unauthorized) {
+            Log.e(LOG_TAG, "Token not valid")
+            return false
+        }
+        if (response.data == null || response.response != HttpStatusCode.OK) {
+            Log.e(LOG_TAG, "response not OK, probably no internet")
+            return null
+        }
+        return true
+    }
+
+    override suspend fun requestCurrentSchulverwalterToken(vppId: VppId.ActiveVppId): Response<SchulverwalterTokenResponse, String?> {
+        val LOG_TAG = "VppIdRepository.requestCurrentSchulverwalterToken"
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
+        val meResponse = vppIdNetworkRepository.doRequest(
+            "/api/$API_VERSION/user/me",
+            HttpMethod.Get
+        )
+
+        if (meResponse.response != HttpStatusCode.OK || meResponse.data == null) {
+            Log.e(LOG_TAG, "meResponse not OK")
+            return Response(SchulverwalterTokenResponse.NETWORK_ERROR, null)
+        }
+        val me = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)
+        return Response(SchulverwalterTokenResponse.SUCCESS, me.schulverwalterAccessToken)
+    }
+
+    override suspend fun setSchulverwalterToken(vppId: VppId.ActiveVppId, token: String) {
+        vppIdTokenDao.insert(DbVppIdToken(
+            accessToken = vppId.vppIdToken,
+            vppId = vppId.id,
+            bsToken = token
+        ))
+    }
+
+    override suspend fun useOAuthCode(code: String): VppId.ActiveVppId? {
         val LOG_TAG = "VppIdRepository.useOAuthCode"
         vppIdNetworkRepository.authentication = null
         Log.d(LOG_TAG, "using code: ${code.take(8)}${"*".repeat(code.length-8)}")
@@ -334,10 +364,9 @@ class VppIdRepositoryImpl(
         vppIdTokenDao.insert(DbVppIdToken(
             accessToken = oAuthResponse.accessToken,
             vppId = me.id,
-            id = UUID.randomUUID(),
             bsToken = me.schulverwalterAccessToken
         ))
-        return getVppId(me.id) ?: run {
+        return getVppId(me.id) as? VppId.ActiveVppId ?: run {
             Log.w(LOG_TAG, "getVppId returned null")
             null
         }

@@ -29,7 +29,9 @@ import es.jvbabi.vplanplus.domain.model.RoomProfile
 import es.jvbabi.vplanplus.domain.model.TeacherProfile
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.ProfileIcon
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
 
@@ -98,11 +100,12 @@ fun Head(
     }
 }
 
+@OptIn(PreviewFunction::class)
 @Composable
 @Preview(showBackground = true)
 private fun HeadPreview() {
     val group = GroupPreview.generateGroup()
-    val profile = ProfilePreview.generateClassProfile(group, VppIdPreview.generateVppId(group))
+    val profile = ProfilePreview.generateClassProfile(group, VppIdPreview.generateVppId(group).toActiveVppId())
     Head(
         currentTime = ZonedDateTime.now(),
         profile = profile,

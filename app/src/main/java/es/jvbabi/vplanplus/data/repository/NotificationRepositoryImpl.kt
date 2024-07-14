@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -19,6 +20,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ROOM_BOOKINGS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYNC
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
+import es.jvbabi.vplanplus.domain.repository.OpenLinkTask
 import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 
@@ -38,20 +40,28 @@ class NotificationRepositoryImpl(
     ) {
         logRepository.log("Notification", "Sending $id to $channelId: $title")
 
-        val pendingIntent = when (onClickTask) {
-            is OpenScreenTask -> {
-                val intent = Intent(appContext, MainActivity::class.java)
-                    .putExtra("screen", onClickTask.route)
+        val taskToIntent: (task: NotificationOnClickTask) -> PendingIntent? = { task ->
+            when (task) {
+                is OpenScreenTask -> {
+                    val intent = Intent(appContext, MainActivity::class.java)
+                        .putExtra("screen", task.route)
 
-                PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-            }
-            is DoActionTask -> {
-                val intent = Intent(appContext, MainActivity::class.java)
-                    .putExtra("tag", onClickTask.tag)
+                    PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                }
+                is DoActionTask -> {
+                    val intent = Intent(appContext, MainActivity::class.java)
+                        .putExtra("tag", task.tag)
 
-                PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                    PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                }
+                is OpenLinkTask -> {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                        .setData(task.url.toUri())
+
+                    PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                }
+                else -> null
             }
-            else -> null
         }
 
         val builder = NotificationCompat.Builder(appContext, channelId)
@@ -63,11 +73,11 @@ class NotificationRepositoryImpl(
                     .bigText(message)
             )
             .setSmallIcon(icon)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(onClickTask?.let { taskToIntent(it) })
             .setAutoCancel(true)
 
         actions.forEach {
-            builder.addAction(0, it.title, it.intent)
+            builder.addAction(0, it.title, taskToIntent(it.task))
         }
 
         val notificationManager =

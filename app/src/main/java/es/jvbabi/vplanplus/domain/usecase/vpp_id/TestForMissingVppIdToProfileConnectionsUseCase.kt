@@ -16,14 +16,14 @@ class TestForMissingVppIdToProfileConnectionsUseCase(
      * @return true if there are any VppIds that are not connected to a profile, false otherwise.
      */
     suspend operator fun invoke(autoFix: Boolean = false): Boolean {
-        val vppIds = vppIdRepository.getVppIds().first().filter { it.isActive() }
+        val vppIds = vppIdRepository.getActiveVppIds().first()
         val withProfileConnectedVppIds = profileRepository.getProfiles().first()
             .filterIsInstance<ClassProfile>()
             .mapNotNull { it.vppId }
             .distinctBy { vppId -> vppId.id }
         if (autoFix) {
             val profiles = profileRepository.getProfiles().first().filterIsInstance<ClassProfile>()
-            val resolveMap = mutableMapOf<ClassProfile, VppId>()
+            val resolveMap = mutableMapOf<ClassProfile, VppId.ActiveVppId>()
             vppIds
                 .filter { vppId -> profiles.none { it.vppId == vppId} } // every vppId that is not connected to a profile
                 .forEach { vppId ->

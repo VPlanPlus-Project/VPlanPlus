@@ -55,11 +55,10 @@ class HomeworkRepositoryImpl(
 
     private var isUpdateRunning = false
 
-    override suspend fun downloadHomework(vppId: VppId?, group: Group): List<HomeworkCore.CloudHomework>? {
+    override suspend fun downloadHomework(vppId: VppId.ActiveVppId?, group: Group): List<HomeworkCore.CloudHomework>? {
         if (vppId == null) vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
         else {
-            val token = vppIdRepository.getVppIdToken(vppId) ?: return null
-            vppIdNetworkRepository.authentication = BearerAuthentication(token)
+            vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         }
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework",
@@ -91,12 +90,10 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun downloadHomeworkDocument(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray? {
+    override suspend fun downloadHomeworkDocument(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray? {
         if (vppId == null) vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
-        else {
-            val token = vppIdRepository.getVppIdToken(vppId) ?: return null
-            vppIdNetworkRepository.authentication = BearerAuthentication(token)
-        }
+        else vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
+
         val response = vppIdNetworkRepository.doRequestRaw(
             path = "/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework/$homeworkId/document/$homeworkDocumentId/content",
             requestMethod = HttpMethod.Get
@@ -105,12 +102,10 @@ class HomeworkRepositoryImpl(
         return response.data
     }
 
-    override suspend fun downloadHomeworkDocumentMetadata(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument? {
+    override suspend fun downloadHomeworkDocumentMetadata(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument? {
         if (vppId == null) vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
-        else {
-            val token = vppIdRepository.getVppIdToken(vppId) ?: return null
-            vppIdNetworkRepository.authentication = BearerAuthentication(token)
-        }
+        else vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
+
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework/$homeworkId/document/$homeworkDocumentId",
             requestMethod = HttpMethod.Get
@@ -147,9 +142,8 @@ class HomeworkRepositoryImpl(
 
     override suspend fun changeDueDateCloud(profileHomework: PersonalizedHomework.CloudHomework, newDate: ZonedDateTime): Unit? {
         val vppId = profileHomework.profile.vppId ?: return null
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return null
         if (vppId.group?.school == null) return null
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val result = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${profileHomework.homework.id}",
             requestBody = Gson().toJson(
@@ -239,10 +233,9 @@ class HomeworkRepositoryImpl(
         return id
     }
 
-    override suspend fun addDocumentCloud(vppId: VppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<Boolean, Int?> {
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
+    override suspend fun addDocumentCloud(vppId: VppId.ActiveVppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<Boolean, Int?> {
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/$homeworkId/document",
             requestBody = content,
@@ -272,10 +265,9 @@ class HomeworkRepositoryImpl(
         return id
     }
 
-    override suspend fun addHomeworkCloud(vppId: VppId, dueTo: ZonedDateTime, tasks: List<String>, vpId: Int?, isPublic: Boolean): Response<Boolean, AddHomeworkResponse?> {
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
+    override suspend fun addHomeworkCloud(vppId: VppId.ActiveVppId, dueTo: ZonedDateTime, tasks: List<String>, vpId: Int?, isPublic: Boolean): Response<Boolean, AddHomeworkResponse?> {
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework",
             requestBody = Gson().toJson(
@@ -304,10 +296,9 @@ class HomeworkRepositoryImpl(
         return id
     }
 
-    override suspend fun addTaskCloud(vppId: VppId, homeworkId: Int, content: String): Response<Boolean, Int?> {
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
+    override suspend fun addTaskCloud(vppId: VppId.ActiveVppId, homeworkId: Int, content: String): Response<Boolean, Int?> {
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/$homeworkId/task",
             requestBody = Gson().toJson(AddOrChangeTaskRequest(content)),
@@ -317,11 +308,10 @@ class HomeworkRepositoryImpl(
         return Response(true, ResponseDataWrapper.fromJson<AddTaskResponse>(response.data).id.toInt())
     }
 
-    override suspend fun changeTaskStateCloud(vppId: VppId, homeworkTaskId: Int, isDone: Boolean): Response<Boolean, Unit?> {
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
+    override suspend fun changeTaskStateCloud(vppId: VppId.ActiveVppId, homeworkTaskId: Int, isDone: Boolean): Response<Boolean, Unit?> {
         if (vppId.group?.school == null) return Response(false, null)
         val homework = getHomeworkByTask(homeworkTaskId)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homework.id}/task/$homeworkTaskId",
             requestBody = Gson().toJson(MarkDoneRequest(isDone)),
@@ -336,10 +326,9 @@ class HomeworkRepositoryImpl(
         homeworkDao.insertTaskDone(homeworkTaskId, profile.id, isDone)
     }
 
-    override suspend fun changeDocumentNameCloud(vppId: VppId, homeworkDocument: HomeworkDocument, newName: String): Response<Boolean, Unit?> {
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
+    override suspend fun changeDocumentNameCloud(vppId: VppId.ActiveVppId, homeworkDocument: HomeworkDocument, newName: String): Response<Boolean, Unit?> {
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homeworkDocument.homeworkId}/document/${homeworkDocument.documentId}/name",
             requestBody = Gson().toJson(RenameDocumentRequest(newName)),
@@ -353,10 +342,9 @@ class HomeworkRepositoryImpl(
         homeworkDocumentDao.updateHomeworkDocumentFileName(homeworkDocument.documentId, newName)
     }
 
-    override suspend fun deleteDocumentCloud(vppId: VppId, homeworkDocument: HomeworkDocument): Response<Boolean, Unit?> {
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
+    override suspend fun deleteDocumentCloud(vppId: VppId.ActiveVppId, homeworkDocument: HomeworkDocument): Response<Boolean, Unit?> {
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homeworkDocument.homeworkId}/document/${homeworkDocument.documentId}",
             requestMethod = HttpMethod.Delete
@@ -376,9 +364,8 @@ class HomeworkRepositoryImpl(
 
     override suspend fun changeHomeworkSharingCloud(homeworkWithProfile: PersonalizedHomework.CloudHomework, isPublic: Boolean): Response<Boolean, Unit?> {
         val vppId = homeworkWithProfile.profile.vppId ?: return Response(false, null)
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homeworkWithProfile.homework.id}",
             requestBody = Gson().toJson(ChangeVisibilityRequest(isPublic)),
@@ -402,9 +389,8 @@ class HomeworkRepositoryImpl(
 
     override suspend fun deleteHomeworkCloud(homeworkWithProfile: PersonalizedHomework.CloudHomework): Response<Boolean, Unit?> {
         val vppId = homeworkWithProfile.profile.vppId ?: return Response(false, null)
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homeworkWithProfile.homework.id}",
             requestMethod = HttpMethod.Delete
@@ -413,10 +399,9 @@ class HomeworkRepositoryImpl(
         else Response(false, null)
     }
 
-    override suspend fun changeTaskContentCloud(vppId: VppId, homeworkTaskCore: HomeworkTaskCore, newContent: String): Response<Boolean, Unit?> {
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
+    override suspend fun changeTaskContentCloud(vppId: VppId.ActiveVppId, homeworkTaskCore: HomeworkTaskCore, newContent: String): Response<Boolean, Unit?> {
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homeworkTaskCore.homeworkId}/task/${homeworkTaskCore.id}",
             requestBody = Gson().toJson(AddOrChangeTaskRequest(newContent)),
@@ -436,11 +421,10 @@ class HomeworkRepositoryImpl(
         )
     }
 
-    override suspend fun deleteTaskCloud(vppId: VppId, task: HomeworkTaskCore): Response<Boolean, Unit?> {
+    override suspend fun deleteTaskCloud(vppId: VppId.ActiveVppId, task: HomeworkTaskCore): Response<Boolean, Unit?> {
         val homework = getHomeworkByTask(task.id)
-        val token = vppIdRepository.getVppIdToken(vppId) ?: return Response(false, null)
         if (vppId.group?.school == null) return Response(false, null)
-        vppIdNetworkRepository.authentication = BearerAuthentication(token)
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/school/${vppId.group.school.id}/group/${vppId.group.groupId}/homework/${homework.id}/task/${task.id}",
             requestMethod = HttpMethod.Delete

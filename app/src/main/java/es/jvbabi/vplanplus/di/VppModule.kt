@@ -93,7 +93,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileCon
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.UpdateMissingLinksStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
-import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.CheckCredentialsUseCase
@@ -102,6 +102,7 @@ import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasPr
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.SetProfileVppIdUseCase
+import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
 import es.jvbabi.vplanplus.shared.data.KeyValueRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.SchoolRepositoryImpl
 import es.jvbabi.vplanplus.shared.data.Sp24NetworkRepository
@@ -381,7 +382,8 @@ object VppModule {
         profileRepository: ProfileRepository,
         firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
         keyValueRepository: KeyValueRepository,
-        logRecordRepository: LogRecordRepository
+        logRecordRepository: LogRecordRepository,
+        schulverwalterNetworkRepository: BsNetworkRepository
     ): VppIdRepository {
         return VppIdRepositoryImpl(
             vppIdDao = db.vppIdDao,
@@ -393,7 +395,8 @@ object VppModule {
                 logRecordRepository
             ),
             firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
-            profileRepository = profileRepository
+            profileRepository = profileRepository,
+            schulverwalterNetworkRepository = schulverwalterNetworkRepository
         )
     }
 
@@ -502,9 +505,9 @@ object VppModule {
         db: VppDatabase,
         systemRepository: SystemRepository,
         notificationRepository: NotificationRepository,
-        gradeRepository: GradeRepository,
         updateCalendarUseCase: UpdateCalendarUseCase,
-        updateHomeworkUseCase: UpdateHomeworkUseCase
+        updateHomeworkUseCase: UpdateHomeworkUseCase,
+        updateGradesUseCase: UpdateGradesUseCase
     ) = DoSyncUseCase(
         context = context,
         keyValueRepository = keyValueRepository,
@@ -523,9 +526,9 @@ object VppModule {
         lessonSchoolEntityCrossoverDao = db.lessonSchoolEntityCrossoverDao,
         systemRepository = systemRepository,
         notificationRepository = notificationRepository,
-        gradeRepository = gradeRepository,
         updateCalendarUseCase = updateCalendarUseCase,
-        updateHomeworkUseCase = updateHomeworkUseCase
+        updateHomeworkUseCase = updateHomeworkUseCase,
+        updateGradesUseCase = updateGradesUseCase
     )
 
     @Provides

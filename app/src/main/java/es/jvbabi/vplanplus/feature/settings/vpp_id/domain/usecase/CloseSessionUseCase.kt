@@ -8,7 +8,7 @@ class CloseSessionUseCase(
     private val vppIdRepository: VppIdRepository
 ) {
 
-    suspend operator fun invoke(session: Session, vppId: VppId): Boolean {
+    suspend operator fun invoke(session: Session, vppId: VppId.ActiveVppId): Boolean {
         return vppIdRepository.closeSession(session, vppId)
     }
 }

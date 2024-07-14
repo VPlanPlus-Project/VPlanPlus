@@ -11,7 +11,7 @@ class GetVppIdDetailsUseCase(
     private val setBalloonUseCase: SetBalloonUseCase
 ) {
 
-    suspend operator fun invoke(code: String): VppId? {
+    suspend operator fun invoke(code: String): VppId.ActiveVppId? {
         if (vppIdRepository.getActiveVppIds().first().isEmpty()) setBalloonUseCase(HOMEWORK_VPPID_BALLOON, true)
         return vppIdRepository.useOAuthCode(code)
     }

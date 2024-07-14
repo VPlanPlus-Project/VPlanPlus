@@ -163,7 +163,7 @@ class ProfileRepositoryImpl(
         profileDao.setHomeworkEnabledForClassProfile(profile.id, enabled)
     }
 
-    override suspend fun setVppIdForProfile(classProfile: ClassProfile, vppId: VppId?) {
+    override suspend fun setVppIdForProfile(classProfile: ClassProfile, vppId: VppId.ActiveVppId?) {
         profileDao.setVppIdForClassProfile(classProfile.id, vppId?.id)
     }
 

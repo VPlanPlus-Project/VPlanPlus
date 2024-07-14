@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 35,
-    "identityHash": "f83aa08c992521a0c4533204e44cdbab",
+    "identityHash": "5bbd9177bcfae4c20eeaf01d885906d7",
     "entities": [
       {
         "tableName": "lesson",
@@ -1251,14 +1251,8 @@
       },
       {
         "tableName": "vpp_id_token",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `vpp_id` INTEGER NOT NULL, `access_token` TEXT NOT NULL, `schulverwalter_token` TEXT, PRIMARY KEY(`id`, `vpp_id`), FOREIGN KEY(`vpp_id`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`vpp_id` INTEGER NOT NULL, `access_token` TEXT NOT NULL, `schulverwalter_token` TEXT, PRIMARY KEY(`vpp_id`), FOREIGN KEY(`vpp_id`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
           {
             "fieldPath": "vppId",
             "columnName": "vpp_id",
@@ -1281,20 +1275,10 @@
         "primaryKey": {
           "autoGenerate": false,
           "columnNames": [
-            "id",
             "vpp_id"
           ]
         },
         "indices": [
-          {
-            "name": "index_vpp_id_token_id",
-            "unique": true,
-            "columnNames": [
-              "id"
-            ],
-            "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_vpp_id_token_id` ON `${TABLE_NAME}` (`id`)"
-          },
           {
             "name": "index_vpp_id_token_vpp_id",
             "unique": true,
@@ -2517,7 +2501,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f83aa08c992521a0c4533204e44cdbab')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '5bbd9177bcfae4c20eeaf01d885906d7')"
     ]
   }
 }

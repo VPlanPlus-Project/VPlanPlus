@@ -4,13 +4,15 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.RoomProfile
+import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.preview.GroupPreview.classNames
+import java.time.ZonedDateTime
 import java.util.UUID
 
 object ProfilePreview {
 
-    fun generateClassProfile(group: Group, vppId: VppId? = null): ClassProfile {
+    fun generateClassProfile(group: Group, vppId: VppId.ActiveVppId? = null): ClassProfile {
         val name = classNames.random()
         return ClassProfile(
             id = UUID.randomUUID(),
@@ -36,4 +38,19 @@ object ProfilePreview {
             room = room
         )
     }
+
+    @PreviewFunction
+    fun VppId.toActiveVppId() = VppId.ActiveVppId(
+        id = id,
+        name = name,
+        group = group,
+        school = school,
+        schoolId = schoolId,
+        groupName = groupName,
+        email = email,
+        state = State.ACTIVE,
+        vppIdToken = "",
+        schulverwalterToken = "",
+        cachedAt = ZonedDateTime.now()
+    )
 }

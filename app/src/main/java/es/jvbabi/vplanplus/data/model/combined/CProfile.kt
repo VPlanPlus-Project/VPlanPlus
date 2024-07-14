@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.data.model.profile.DbTeacherProfile
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.RoomProfile
 import es.jvbabi.vplanplus.domain.model.TeacherProfile
+import es.jvbabi.vplanplus.domain.model.VppId
 
 data class CTeacherProfile(
     @Embedded val teacherProfile: DbTeacherProfile,
@@ -83,7 +84,7 @@ data class CClassProfile(
             group = group.toModel(),
             isHomeworkEnabled = classProfile.isHomeworkEnabled,
             defaultLessons = emptyMap(),
-            vppId = vppId?.toModel()
+            vppId = vppId?.toModel() as? VppId.ActiveVppId
         )
     }
 }

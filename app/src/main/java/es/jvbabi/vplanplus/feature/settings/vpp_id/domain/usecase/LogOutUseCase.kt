@@ -11,7 +11,7 @@ class LogOutUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val testForMissingVppIdToProfileConnectionsUseCase: TestForMissingVppIdToProfileConnectionsUseCase
 ) {
-    suspend operator fun invoke(vppId: VppId): Boolean {
+    suspend operator fun invoke(vppId: VppId.ActiveVppId): Boolean {
         val result = vppIdRepository.unlinkVppId(vppId)
         keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, testForMissingVppIdToProfileConnectionsUseCase().toString())
         return result

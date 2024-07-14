@@ -742,5 +742,7 @@
     <string name="onboarding_invalidQr">Dieser QR-Code ist nicht gültig.</string>
     <string name="onboarding_loadingQr">Lade für %1$s</string>
     <string name="onboarding_qrSwitchCamera">Kamera wechseln</string>
+    <string name="notification_gradesUnhealthyProfileTitle">Problem mit deiner vpp.ID</string>
+    <string name="notification_gradesUnhealthyProfileText">Deine vpp.ID kann nicht mehr mit beste.schule verbunden werden. Verwende deinen Browser, um die Verbindung wiederherzustellen.</string>
 
 </resources>

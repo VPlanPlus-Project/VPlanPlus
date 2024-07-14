@@ -18,6 +18,10 @@ sealed class Profile(
     }
 
     abstract fun getSchool(): School
+
+    fun toLogString(): String {
+        return "${getType()} $displayName ($originalName) [$id]"
+    }
 }
 
 class TeacherProfile(
@@ -51,7 +55,7 @@ class ClassProfile(
     val group: Group,
     val isHomeworkEnabled: Boolean,
     val defaultLessons: Map<DefaultLesson, Boolean>,
-    val vppId: VppId?
+    val vppId: VppId.ActiveVppId?
 ) : Profile(id, originalName, displayName, calendarType, calendarId) {
         /**
         * Returns true if the default lesson is enabled for this profile

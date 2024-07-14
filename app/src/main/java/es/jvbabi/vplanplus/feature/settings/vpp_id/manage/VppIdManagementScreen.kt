@@ -49,6 +49,8 @@ import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
@@ -206,6 +208,7 @@ fun VppIdManagementContent(
     }
 }
 
+@OptIn(PreviewFunction::class)
 @Preview(showBackground = true)
 @Composable
 fun VppIdManagementScreenPreview() {
@@ -213,7 +216,7 @@ fun VppIdManagementScreenPreview() {
     val `class` = GroupPreview.generateGroup(school)
     VppIdManagementContent(
         state = VppIdManagementState(
-            vppId = VppIdPreview.generateVppId(`class`),
+            vppId = VppIdPreview.generateVppId(`class`).toActiveVppId(),
             logoutDialog = false,
             sessionsState = SessionState.SUCCESS,
             sessions = listOf(

@@ -42,6 +42,8 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.screens.Screen
 import io.ktor.http.Parameters
 import io.ktor.http.URLBuilder
@@ -195,6 +197,7 @@ private fun AccountSettingsPreviewNoAccounts() {
     )
 }
 
+@OptIn(PreviewFunction::class)
 @Preview
 @Composable
 private fun AccountSettingsPreview() {
@@ -213,7 +216,7 @@ private fun AccountSettingsPreview() {
                         groupName = classes.name,
                         group = classes,
                         email = "max.mustermann@email.com"
-                    ),
+                    ).toActiveVppId(),
                     false,
                     emptyList()
                 )

@@ -16,9 +16,9 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
-import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
-import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
-import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
+import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCalculatorScreen
+import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCollection
+import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.GradesScreen
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.HomeworkListScreen

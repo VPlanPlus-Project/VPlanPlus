@@ -34,8 +34,9 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
-import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
-import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
@@ -71,9 +72,9 @@ class DoSyncUseCase(
     private val planRepository: PlanRepository,
     private val systemRepository: SystemRepository,
     private val notificationRepository: NotificationRepository,
-    private val gradeRepository: GradeRepository,
     private val updateCalendarUseCase: UpdateCalendarUseCase,
-    private val updateHomeworkUseCase: UpdateHomeworkUseCase
+    private val updateHomeworkUseCase: UpdateHomeworkUseCase,
+    private val updateGradesUseCase: UpdateGradesUseCase
 ) {
     suspend operator fun invoke(): Boolean {
 
@@ -96,8 +97,9 @@ class DoSyncUseCase(
         messageRepository.updateMessages(null)
 
         logRecordRepository.log("Sync.Grades", "Syncing grades")
-        val newGrades = gradeRepository.updateGrades()
 
+        updateGradesUseCase()
+        val newGrades = emptyList<Grade>()
         if (newGrades.isNotEmpty()) {
             val msg = if (newGrades.size == 1) {
                 if (newGrades.first().actualValue != null) context.getString(

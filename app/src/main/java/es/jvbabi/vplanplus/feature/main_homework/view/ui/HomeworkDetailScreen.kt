@@ -74,7 +74,9 @@ import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
@@ -271,12 +273,13 @@ private fun HomeworkDetailScreenContent(
     }
 }
 
+@OptIn(PreviewFunction::class)
 @Preview
 @Composable
 fun HomeworkDetailScreenPreview() {
     val school = SchoolPreview.generateRandomSchools(1).first()
     val group = GroupPreview.generateGroup(school)
-    val vppId = VppIdPreview.generateVppId(group)
+    val vppId = VppIdPreview.generateVppId(group).toActiveVppId()
     val teacher = TeacherPreview.teacher(school)
     HomeworkDetailScreenContent(
         state = HomeworkDetailState(

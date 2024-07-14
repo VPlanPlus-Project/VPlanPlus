@@ -36,15 +36,18 @@ interface NotificationRepository {
         const val CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK = CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK + 1
         const val CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID = 8000
         const val CHANNEL_SYSTEM_NOTIFICATION_ID = 100000
+        const val ID_GRADE = 9000
+        const val ID_GRADE_NEW = ID_GRADE + 1
     }
 }
 
 data class NotificationAction(
     val title: String,
-    val intent: PendingIntent
+    val task: NotificationOnClickTask
 )
 
 interface NotificationOnClickTask
 
 class OpenScreenTask(val route: String) : NotificationOnClickTask
+class OpenLinkTask(val url: String) : NotificationOnClickTask
 class DoActionTask(val tag: String): NotificationOnClickTask
