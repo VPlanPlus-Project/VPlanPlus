@@ -59,7 +59,9 @@ import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.util.UUID
@@ -365,13 +367,14 @@ private fun ProfileSettingsScreenContent(
     if (isConfirmDisableHomeworkDialogVisible) ConfirmHomeworkDisableDialog({ isConfirmDisableHomeworkDialogVisible = false; onToggleHomework() }, { isConfirmDisableHomeworkDialogVisible = false })
 }
 
+@OptIn(PreviewFunction::class)
 @Composable
 @Preview(showBackground = true)
 private fun ProfileSettingsScreenPreview() {
     val classes = GroupPreview.generateGroup(null)
     ProfileSettingsScreenContent(
         state = ProfileSettingsState(
-            profile = ProfilePreview.generateClassProfile(classes, VppIdPreview.generateVppId(classes))
+            profile = ProfilePreview.generateClassProfile(classes, VppIdPreview.generateVppId(classes).toActiveVppId())
         ),
         onBackClicked = {}
     )

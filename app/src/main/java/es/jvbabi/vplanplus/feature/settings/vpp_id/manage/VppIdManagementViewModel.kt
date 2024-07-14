@@ -103,7 +103,7 @@ class VppIdManagementViewModel @Inject constructor(
 }
 
 data class VppIdManagementState(
-    val vppId: VppId? = null,
+    val vppId: VppId.ActiveVppId? = null,
     val logoutDialog: Boolean = false,
     val logoutSuccess: Boolean? = null,
     val profiles: List<Profile> = emptyList(),

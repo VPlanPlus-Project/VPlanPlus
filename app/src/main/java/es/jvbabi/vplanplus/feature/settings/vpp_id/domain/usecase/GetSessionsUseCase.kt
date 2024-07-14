@@ -7,5 +7,5 @@ class GetSessionsUseCase(
     private val vppIdRepository: VppIdRepository
 ) {
 
-    suspend operator fun invoke(vppId: VppId) = vppIdRepository.fetchSessions(vppId)
+    suspend operator fun invoke(vppId: VppId.ActiveVppId) = vppIdRepository.fetchSessions(vppId)
 }

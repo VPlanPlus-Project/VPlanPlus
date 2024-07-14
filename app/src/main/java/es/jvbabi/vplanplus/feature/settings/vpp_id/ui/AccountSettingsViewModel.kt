@@ -37,7 +37,7 @@ class AccountSettingsViewModel @Inject constructor(
                     accountSettingsUseCases.getProfilesUseCase()
                 )
             ) { data ->
-                val accounts = data[0] as List<VppId>
+                val accounts = data[0] as List<VppId.ActiveVppId>
                 val server = data[1] as VppIdServer
                 val profiles = data[2] as List<Profile>
 
@@ -68,7 +68,7 @@ data class AccountSettingsState(
 )
 
 data class VppIdSettingsRecord(
-    val vppId: VppId,
+    val vppId: VppId.ActiveVppId,
     val hasActiveSession: Boolean? = null,
     val linkedProfiles: List<Profile>
 )

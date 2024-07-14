@@ -63,7 +63,7 @@ class VppIdLinkViewModel @Inject constructor(
 }
 
 data class VppIdLinkState(
-    val vppId: VppId? = null,
+    val vppId: VppId.ActiveVppId? = null,
     val isLoading: Boolean = true,
     val error: Boolean = false,
     val selectedProfiles: Map<ClassProfile, Boolean> = emptyMap(),

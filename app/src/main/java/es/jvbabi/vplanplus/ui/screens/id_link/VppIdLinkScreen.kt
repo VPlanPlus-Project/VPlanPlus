@@ -32,7 +32,9 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.id_link.components.AutoConnectToProfile
 import es.jvbabi.vplanplus.ui.screens.id_link.components.LinkNoProfiles
@@ -150,6 +152,7 @@ private fun VppIdLinkScreenContent(
     }
 }
 
+@OptIn(PreviewFunction::class)
 @Preview
 @Composable
 private fun VppIdLinkScreenAutoLinkPreview() {
@@ -163,7 +166,7 @@ private fun VppIdLinkScreenAutoLinkPreview() {
         groupName = group.name,
         group = group,
         email = "maria.musterfrau@email.com"
-    )
+    ).toActiveVppId()
     VppIdLinkScreenContent(
         state = VppIdLinkState(
             isLoading = false,
@@ -176,6 +179,7 @@ private fun VppIdLinkScreenAutoLinkPreview() {
     )
 }
 
+@OptIn(PreviewFunction::class)
 @Preview
 @Composable
 private fun VppIdLinkScreenPreview() {
@@ -190,7 +194,7 @@ private fun VppIdLinkScreenPreview() {
         groupName = group.name,
         group = group,
         email = "maria.musterfrau@email.com"
-    )
+    ).toActiveVppId()
     VppIdLinkScreenContent(
         state = VppIdLinkState(
             isLoading = false,

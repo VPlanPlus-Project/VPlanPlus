@@ -4,7 +4,7 @@ import com.google.gson.annotations.SerializedName
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-data class VppId(
+open class VppId(
     @SerializedName("id") val id: Int,
     @SerializedName("name") val name: String,
     @SerializedName("email") val email: String?,
@@ -16,6 +16,25 @@ data class VppId(
     @SerializedName("cached_at") val cachedAt: ZonedDateTime = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))
 ) {
     fun isActive() = state == State.ACTIVE
+
+    class ActiveVppId(
+        id: Int,
+        name: String,
+        email: String?,
+        schoolId: Int,
+        school: School?,
+        groupName: String,
+        group: Group?,
+        state: State = State.ACTIVE,
+        cachedAt: ZonedDateTime = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")),
+        val vppIdToken: String,
+        val schulverwalterToken: String?
+    ) : VppId(id, name, email, schoolId, school, groupName, group, state, cachedAt)
+
+    override fun equals(other: Any?): Boolean {
+        if (other !is VppId) return super.equals(other)
+        return id == other.id
+    }
 }
 
 enum class State {

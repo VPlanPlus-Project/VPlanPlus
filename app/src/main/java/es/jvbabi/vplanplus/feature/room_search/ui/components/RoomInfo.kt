@@ -73,7 +73,9 @@ import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.common.unknownVppId
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.util.DateUtils.isBeforeOrEqual
@@ -365,12 +367,13 @@ fun TimeInfo(
     }
 }
 
+@OptIn(PreviewFunction::class)
 @Preview(showBackground = true)
 @Composable
 private fun TimeInfoPreview() {
     val school = SchoolPreview.generateRandomSchools(1).first()
     val group = GroupPreview.generateGroup(school)
-    val vppId = VppIdPreview.generateVppId(group)
+    val vppId = VppIdPreview.generateVppId(group).toActiveVppId()
     val profile = ProfilePreview.generateClassProfile(group, vppId)
     TimeInfo(
         data = RoomState(

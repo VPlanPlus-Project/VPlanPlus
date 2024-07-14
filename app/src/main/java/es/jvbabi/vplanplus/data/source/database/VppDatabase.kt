@@ -60,15 +60,15 @@ import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Message
 import es.jvbabi.vplanplus.domain.model.School
-import es.jvbabi.vplanplus.feature.main_grades.data.model.DbGrade
-import es.jvbabi.vplanplus.feature.main_grades.data.model.DbInterval
-import es.jvbabi.vplanplus.feature.main_grades.data.model.DbSubject
-import es.jvbabi.vplanplus.feature.main_grades.data.model.DbTeacher
-import es.jvbabi.vplanplus.feature.main_grades.data.model.DbYear
-import es.jvbabi.vplanplus.feature.main_grades.data.source.database.GradeDao
-import es.jvbabi.vplanplus.feature.main_grades.data.source.database.SubjectDao
-import es.jvbabi.vplanplus.feature.main_grades.data.source.database.TeacherDao
-import es.jvbabi.vplanplus.feature.main_grades.data.source.database.YearDao
+import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbGrade
+import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbInterval
+import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbSubject
+import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbTeacher
+import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbYear
+import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.GradeDao
+import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.SubjectDao
+import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.TeacherDao
+import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 
 @Database(

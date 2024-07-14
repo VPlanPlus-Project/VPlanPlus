@@ -24,16 +24,15 @@ class FeedbackRepositoryImpl(
         attachSystemDetails: Boolean
     ): Boolean {
         val vppId =
-            if (!email.isNullOrBlank()) vppIdRepository.getVppIds().first()
+            if (!email.isNullOrBlank()) vppIdRepository.getActiveVppIds().first()
                 .firstOrNull { it.isActive() && it.email == email }
             else null
 
         val systemDetails = if (attachSystemDetails) buildSystemDetails() else null
         val profileInformation = buildProfileInformation(profile)
 
-        val token = if (vppId != null) vppIdRepository.getVppIdToken(vppId) else null
-        if (token != null) vppIdNetworkRepository.authentication = BearerAuthentication(token)
-        else vppIdNetworkRepository.authentication = null
+        vppIdNetworkRepository.authentication = if (vppId?.vppIdToken != null) BearerAuthentication(vppId.vppIdToken)
+        else null
 
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/feedback",

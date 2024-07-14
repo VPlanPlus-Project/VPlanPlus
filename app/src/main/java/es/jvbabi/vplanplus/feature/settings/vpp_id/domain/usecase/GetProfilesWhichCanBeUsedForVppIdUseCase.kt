@@ -15,6 +15,6 @@ class GetProfilesWhichCanBeUsedForVppIdUseCase(
             .first()
             .filterIsInstance<ClassProfile>()
             .filter { it.group == vppId.group }
-            .filter { it.vppId == vppId || it.vppId == null }
+            .filter { it.vppId == null || it.vppId == vppId }
     }
 }

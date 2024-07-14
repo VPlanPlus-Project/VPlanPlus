@@ -73,7 +73,9 @@ import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -374,12 +376,13 @@ fun HomeScreenContent(
     )
 }
 
+@OptIn(PreviewFunction::class)
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
     val school = SchoolPreview.generateRandomSchools(1).first()
     val group = GroupPreview.generateGroup(school)
-    val profile = ProfilePreview.generateClassProfile(group, VppIdPreview.generateVppId(group))
+    val profile = ProfilePreview.generateClassProfile(group, VppIdPreview.generateVppId(group).toActiveVppId())
     HomeScreenContent(
         navBar = navBar,
         state = HomeState(

@@ -35,11 +35,11 @@ interface HomeworkRepository {
      * @see [downloadHomeworkDocument]
      * @see [addHomeworkDb]
      */
-    suspend fun downloadHomework(vppId: VppId?, group: Group): List<HomeworkCore.CloudHomework>?
+    suspend fun downloadHomework(vppId: VppId.ActiveVppId?, group: Group): List<HomeworkCore.CloudHomework>?
 
-    suspend fun downloadHomeworkDocument(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray?
+    suspend fun downloadHomeworkDocument(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray?
 
-    suspend fun downloadHomeworkDocumentMetadata(vppId: VppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument?
+    suspend fun downloadHomeworkDocumentMetadata(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument?
 
     suspend fun getHomeworkByTask(taskId: Int): HomeworkCore
 
@@ -73,7 +73,7 @@ interface HomeworkRepository {
      * @param onUploading A callback that is called when the document is being uploaded. The first parameter is the number of bytes sent, the second is the total number of bytes.
      * @return A [Response] containing the result of the operation and the ID of the document if it was successful.
      */
-    suspend fun addDocumentCloud(vppId: VppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<Boolean, Int?>
+    suspend fun addDocumentCloud(vppId: VppId.ActiveVppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<Boolean, Int?>
 
     /**
      * Adds a homework to the database. This will not upload the homework to the cloud, it will only save it to the device. Uploading the homework is the responsibility of the caller.
@@ -97,7 +97,7 @@ interface HomeworkRepository {
      * @param isPublic Whether the homework is public
      * @return A [Response] containing the result of the operation and the ID of the homework if it was successful.
      */
-    suspend fun addHomeworkCloud(vppId: VppId, dueTo: ZonedDateTime, tasks: List<String>, vpId: Int? = null, isPublic: Boolean): Response<Boolean, AddHomeworkResponse?>
+    suspend fun addHomeworkCloud(vppId: VppId.ActiveVppId, dueTo: ZonedDateTime, tasks: List<String>, vpId: Int? = null, isPublic: Boolean): Response<Boolean, AddHomeworkResponse?>
 
     /**
      * Adds a homework task to the database. This will not upload the task to the cloud, it will only save it to the device. Uploading the task is the responsibility of the caller.
@@ -115,7 +115,7 @@ interface HomeworkRepository {
      * @param content The content of the task.
      * @return A [Response] containing the result of the operation and the ID of the task if it was successful.
      */
-    suspend fun addTaskCloud(vppId: VppId, homeworkId: Int, content: String): Response<Boolean, Int?>
+    suspend fun addTaskCloud(vppId: VppId.ActiveVppId, homeworkId: Int, content: String): Response<Boolean, Int?>
 
     /**
      * Uploads the state of a homework task to the cloud. This will not save the state to the device, it will only upload it to the cloud. Saving the state is the responsibility of the caller.
@@ -124,7 +124,7 @@ interface HomeworkRepository {
      * @param isDone Whether the task is done.
      * @return A [Response] containing the result of the operation and null if it was not successful.
      */
-    suspend fun changeTaskStateCloud(vppId: VppId, homeworkTaskId: Int, isDone: Boolean): Response<Boolean, Unit?>
+    suspend fun changeTaskStateCloud(vppId: VppId.ActiveVppId, homeworkTaskId: Int, isDone: Boolean): Response<Boolean, Unit?>
 
     /**
      * Updates the state of a homework task in the database.
@@ -140,7 +140,7 @@ interface HomeworkRepository {
      * @param homeworkDocument The document to be renamed.
      * @param newName The new name of the document.
      */
-    suspend fun changeDocumentNameCloud(vppId: VppId, homeworkDocument: HomeworkDocument, newName: String): Response<Boolean, Unit?>
+    suspend fun changeDocumentNameCloud(vppId: VppId.ActiveVppId, homeworkDocument: HomeworkDocument, newName: String): Response<Boolean, Unit?>
 
     /**
      * Updates the name of a document in the database.
@@ -158,7 +158,7 @@ interface HomeworkRepository {
      * @return A [Response] containing the result of the operation and null if it was not successful.
      * @see [deleteDocumentDb]
      */
-    suspend fun deleteDocumentCloud(vppId: VppId, homeworkDocument: HomeworkDocument): Response<Boolean, Unit?>
+    suspend fun deleteDocumentCloud(vppId: VppId.ActiveVppId, homeworkDocument: HomeworkDocument): Response<Boolean, Unit?>
 
     /**
      * Deletes a document from the database. Be sure to delete the actual file before since this method won't remove it.
@@ -216,7 +216,7 @@ interface HomeworkRepository {
      * @return A [Response] containing the result of the operation and null if it was not successful.
      * @see [changeTaskContentDb]
      */
-    suspend fun changeTaskContentCloud(vppId: VppId, homeworkTaskCore: HomeworkTaskCore, newContent: String): Response<Boolean, Unit?>
+    suspend fun changeTaskContentCloud(vppId: VppId.ActiveVppId, homeworkTaskCore: HomeworkTaskCore, newContent: String): Response<Boolean, Unit?>
 
     /**
      * Updates the content of a homework task in the database. This will only save the content to the device, it will not upload it to the cloud.
@@ -233,7 +233,7 @@ interface HomeworkRepository {
      * @return A [Response] containing the result of the operation and null if it was not successful.
      * @see [deleteTaskDb]
      */
-    suspend fun deleteTaskCloud(vppId: VppId, task: HomeworkTaskCore): Response<Boolean, Unit?>
+    suspend fun deleteTaskCloud(vppId: VppId.ActiveVppId, task: HomeworkTaskCore): Response<Boolean, Unit?>
 
     /**
      * Deletes a homework task from the database. This won't delete it from the cloud.

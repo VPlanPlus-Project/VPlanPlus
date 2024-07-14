@@ -12,7 +12,7 @@ class SetProfileVppIdUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val testForMissingVppIdToProfileConnectionsUseCase: TestForMissingVppIdToProfileConnectionsUseCase
 ) {
-    suspend operator fun invoke(profiles: Map<ClassProfile, Boolean>, vppId: VppId) {
+    suspend operator fun invoke(profiles: Map<ClassProfile, Boolean>, vppId: VppId.ActiveVppId) {
         profiles.forEach { (profile, isSelected) -> profileRepository.setVppIdForProfile(profile, if (isSelected) vppId else null) }
         keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, testForMissingVppIdToProfileConnectionsUseCase().toString())
     }
