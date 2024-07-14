@@ -749,5 +749,6 @@
     <string name="notification_gradesUnhealthyProfileText">Your vpp.ID can no longer be connected to beste.schule. Use your browser to re-establish the connection.</string>
     <string name="advancedSettings_resetBalloonsTitle">Reset balloons</string>
     <string name="advancedSettings_resetBalloonsSubtitle">This will reset all dismissed balloons and hints and show them to you once more. You might see balloons that were targeted to new users or to existing users to explain an update to them.</string>
+    <string name="advancedSettings_resetBalloonsSuccess">Balloons resetted</string>
 
 </resources>

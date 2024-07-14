@@ -746,5 +746,6 @@
     <string name="notification_gradesUnhealthyProfileText">Deine vpp.ID kann nicht mehr mit beste.schule verbunden werden. Verwende deinen Browser, um die Verbindung wiederherzustellen.</string>
     <string name="advancedSettings_resetBalloonsTitle">Tipps (Balloons) zurücksetzen</string>
     <string name="advancedSettings_resetBalloonsSubtitle">Dies wird alle ausgeblendeted Balloons und Hinweise zurücksetzen und erneut anzeigen. Möglicherweise siehst du Hinweise, die sich an neue oder bestehende Nutzer z.B. nach einem Update richten.</string>
+    <string name="advancedSettings_resetBalloonsSuccess">Ballons zurückgesetzt</string>
 
 </resources>
