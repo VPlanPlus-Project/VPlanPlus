@@ -49,9 +49,13 @@ object GradesModule {
         gradesRepository: GradeRepository,
         profileRepository: ProfileRepository,
         vppIdRepository: VppIdRepository,
+        notificationRepository: NotificationRepository,
+        stringRepository: StringRepository
     ) = UpdateGradesUseCase(
         profileRepository = profileRepository,
         vppIdRepository = vppIdRepository,
-        gradeRepository = gradesRepository
+        gradeRepository = gradesRepository,
+        notificationRepository = notificationRepository,
+        stringRepository = stringRepository
     )
 }

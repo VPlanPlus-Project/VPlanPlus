@@ -1,22 +1,31 @@
 package es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases
 
 import android.util.Log
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.ID_GRADE_NEW
+import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchulverwalterTokenResponse
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Interval
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Year
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.SchulverwalterResponse
+import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.MathTools.cantor
 import kotlinx.coroutines.flow.first
 
 class UpdateGradesUseCase(
     private val profileRepository: ProfileRepository,
     private val vppIdRepository: VppIdRepository,
-    private val gradeRepository: GradeRepository
+    private val gradeRepository: GradeRepository,
+    private val notificationRepository: NotificationRepository,
+    private val stringRepository: StringRepository
 ) {
     suspend operator fun invoke() {
         val unhealthyProfiles = mutableListOf<ClassProfile>()
@@ -83,13 +92,25 @@ class UpdateGradesUseCase(
                         builtGrade
                     }
 
-                    (existing - builtGrades.toSet()).forEach delete@{ gradeRepository.deleteGrade(it) }
+                    existing.filter { it !in builtGrades }.forEach {
+                        gradeRepository.deleteGrade(it)
+                    }
 
-                    newGrades.addAll(builtGrades - existing.toSet())
+                    newGrades.addAll(builtGrades.filter { it !in existing })
                     isDone = true
                 }
 
                 if (newGrades.isNotEmpty()) {
+                    if (newGrades.size == 1) {
+                        notificationRepository.sendNotification(
+                            channelId = NotificationRepository.CHANNEL_ID_GRADES,
+                            id = cantor(ID_GRADE_NEW, vppId.id),
+                            icon = R.drawable.vpp,
+                            title = stringRepository.getString(R.string.notification_newGradesTitle),
+                            message = stringRepository.getString(R.string.notification_newGradeText, "${newGrades.first().value.toInt()}${newGrades.first().modifier.char}", newGrades.first().subject.name),
+                            onClickTask = OpenScreenTask(Screen.GradesScreen.route)
+                        )
+                    }
                     Log.i("SyncGradesUseCase", "New grades: ${newGrades.size}")
                 }
             }
