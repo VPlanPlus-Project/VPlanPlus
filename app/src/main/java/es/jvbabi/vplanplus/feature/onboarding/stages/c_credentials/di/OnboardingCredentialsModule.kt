@@ -22,21 +22,28 @@ object OnboardingCredentialsModule {
     @Provides
     @Singleton
     fun provideOnboardingCredentialsUseCases(
+        checkCredentialsAndInitOnboardingForSchoolUseCase: CheckCredentialsAndInitOnboardingForSchoolUseCase,
+        keyValueRepository: KeyValueRepository
+    ) = OnboardingCredentialsUseCases(
+        checkCredentialsAndInitOnboardingForSchoolUseCase = checkCredentialsAndInitOnboardingForSchoolUseCase,
+        getSp24SchoolIdUseCase = GetSp24SchoolIdUseCase(keyValueRepository)
+    )
+
+    @Provides
+    @Singleton
+    fun provideCheckCredentialsAndInitOnboardingForSchoolUseCase(
         schoolRepository: SchoolRepository,
         baseDataRepository: BaseDataRepository,
         profileRepository: ProfileRepository,
         vPlanRepository: VPlanRepository,
         vppIdRepository: VppIdRepository,
         keyValueRepository: KeyValueRepository
-    ) = OnboardingCredentialsUseCases(
-        checkCredentialsAndInitOnboardingForSchoolUseCase = CheckCredentialsAndInitOnboardingForSchoolUseCase(
-            schoolRepository = schoolRepository,
-            baseDataRepository = baseDataRepository,
-            profileRepository = profileRepository,
-            vPlanRepository = vPlanRepository,
-            vppIdRepository = vppIdRepository,
-            keyValueRepository = keyValueRepository
-        ),
-        getSp24SchoolIdUseCase = GetSp24SchoolIdUseCase(keyValueRepository)
+    ) = CheckCredentialsAndInitOnboardingForSchoolUseCase(
+        schoolRepository = schoolRepository,
+        baseDataRepository = baseDataRepository,
+        profileRepository = profileRepository,
+        vPlanRepository = vPlanRepository,
+        vppIdRepository = vppIdRepository,
+        keyValueRepository = keyValueRepository
     )
 }
