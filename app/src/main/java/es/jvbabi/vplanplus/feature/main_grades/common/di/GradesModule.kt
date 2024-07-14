@@ -5,10 +5,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_grades.view.data.repository.GradeRepositoryImpl
@@ -50,12 +52,14 @@ object GradesModule {
         profileRepository: ProfileRepository,
         vppIdRepository: VppIdRepository,
         notificationRepository: NotificationRepository,
-        stringRepository: StringRepository
+        stringRepository: StringRepository,
+        keyValueRepository: KeyValueRepository
     ) = UpdateGradesUseCase(
         profileRepository = profileRepository,
         vppIdRepository = vppIdRepository,
         gradeRepository = gradesRepository,
         notificationRepository = notificationRepository,
-        stringRepository = stringRepository
+        stringRepository = stringRepository,
+        getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository)
     )
 }

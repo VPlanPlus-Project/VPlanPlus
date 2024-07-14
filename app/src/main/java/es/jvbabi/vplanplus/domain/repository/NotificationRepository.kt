@@ -43,10 +43,11 @@ interface NotificationRepository {
 
 data class NotificationAction(
     val title: String,
-    val intent: PendingIntent
+    val task: NotificationOnClickTask
 )
 
 interface NotificationOnClickTask
 
 class OpenScreenTask(val route: String) : NotificationOnClickTask
+class OpenLinkTask(val url: String) : NotificationOnClickTask
 class DoActionTask(val tag: String): NotificationOnClickTask

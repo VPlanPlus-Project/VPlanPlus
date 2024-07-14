@@ -4,13 +4,18 @@ import android.util.Log
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.repository.NotificationAction
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.ID_GRADE_NEW
+import es.jvbabi.vplanplus.domain.repository.OpenLinkTask
 import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchulverwalterTokenResponse
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.feature.main_grades.view.data.repository.BsUnauthorizedException
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Interval
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Year
@@ -25,7 +30,8 @@ class UpdateGradesUseCase(
     private val vppIdRepository: VppIdRepository,
     private val gradeRepository: GradeRepository,
     private val notificationRepository: NotificationRepository,
-    private val stringRepository: StringRepository
+    private val stringRepository: StringRepository,
+    private val getVppIdServerUseCase: GetVppIdServerUseCase
 ) {
     suspend operator fun invoke() {
         val unhealthyProfiles = mutableListOf<ClassProfile>()
@@ -68,7 +74,11 @@ class UpdateGradesUseCase(
                     }
 
                     Log.d("SyncGradesUseCase", "${profile.toLogString()}:   Updating years")
-                    val years = updateYears(vppId)
+                    val years = try {
+                        updateYears(vppId)
+                    } catch (e: BsUnauthorizedException) {
+                        return@updateGrades
+                    }
 
                     Log.d("SyncGradesUseCase", "${profile.toLogString()}:   Downloading grades")
                     val (rawGradesCode, rawGrades) = gradeRepository.downloadGrades(vppId)
@@ -100,6 +110,12 @@ class UpdateGradesUseCase(
                     isDone = true
                 }
 
+                if (!isDone) {
+                    unhealthyProfiles.add(profile)
+                    Log.e("SyncGradesUseCase", "${profile.toLogString()}: Not done")
+                    return@forEachProfile
+                }
+
                 if (newGrades.isNotEmpty()) {
                     if (newGrades.size == 1) {
                         notificationRepository.sendNotification(
@@ -117,6 +133,22 @@ class UpdateGradesUseCase(
 
         unhealthyProfiles.forEach {
             Log.e("SyncGradesUseCase", "Unhealthy profile: $it")
+            if (it.vppId == null) return@forEach
+            val link = getVppIdServerUseCase().first().uiHost + "/app/schulverwalterconnection/connectionrestored?forcelogout"
+            notificationRepository.sendNotification(
+                CHANNEL_ID_SYSTEM,
+                id = cantor(80000, it.vppId.id),
+                icon = R.drawable.vpp,
+                title = stringRepository.getString(R.string.notification_gradesUnhealthyProfileTitle),
+                message = stringRepository.getString(R.string.notification_gradesUnhealthyProfileText),
+                onClickTask = OpenLinkTask(link),
+                actions = listOf(
+                    NotificationAction(
+                        title = stringRepository.getString(R.string.fix),
+                        task = OpenLinkTask(link)
+                    )
+                )
+            )
         }
     }
 

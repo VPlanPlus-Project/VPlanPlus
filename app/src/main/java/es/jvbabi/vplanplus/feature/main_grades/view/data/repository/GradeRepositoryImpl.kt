@@ -315,5 +315,5 @@ private data class DownloadedSchulverwalterCollection(
     @SerializedName("interval_id") val intervalId: Long
 )
 
-private class BsUnauthorizedException : Exception("The token is invalid")
+class BsUnauthorizedException : Exception("The token is invalid")
 private class BsRequestFailedException(val response: HttpStatusCode?) : Exception("The request failed with $response")
