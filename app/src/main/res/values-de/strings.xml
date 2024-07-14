@@ -741,5 +741,6 @@
     <string name="homework_swipeDemoDescription">Du kannst Hausaufgaben verstecken oder löschen (abhängig, ob du die HA erstellt hast) order alle Aufgaben als erledigt markieren,</string>
     <string name="onboarding_invalidQr">Dieser QR-Code ist nicht gültig.</string>
     <string name="onboarding_loadingQr">Lade für %1$s</string>
+    <string name="onboarding_qrSwitchCamera">Kamera wechseln</string>
 
 </resources>

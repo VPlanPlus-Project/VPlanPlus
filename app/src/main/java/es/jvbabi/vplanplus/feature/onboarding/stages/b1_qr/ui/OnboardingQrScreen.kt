@@ -10,7 +10,9 @@ import androidx.camera.view.PreviewView
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -19,13 +21,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.SwitchCamera
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -43,6 +49,7 @@ import com.google.gson.Gson
 import com.google.gson.JsonSyntaxException
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.screens.Screen
 import kotlinx.coroutines.delay
 import java.util.concurrent.Executors
@@ -99,69 +106,82 @@ private fun OnboardingQrScreenContent(
         },
         content = {
             Box(Modifier.fillMaxSize()) {
-                AndroidView(
-                    { context ->
-                        val cameraExecutor = Executors.newSingleThreadExecutor()
-                        val previewView = PreviewView(context).also {
-                            it.scaleType = PreviewView.ScaleType.FILL_CENTER
-                        }
-                        val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-                        cameraProviderFuture.addListener({
-                            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
-                            val preview = androidx.camera.core.Preview.Builder()
-                                .build()
-                                .also {
-                                    it.setSurfaceProvider(previewView.surfaceProvider)
+                var cameraIndex by rememberSaveable { mutableIntStateOf(0) }
+                Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    key(cameraIndex) {
+                        AndroidView(
+                            { context ->
+                                val cameraExecutor = Executors.newSingleThreadExecutor()
+                                val previewView = PreviewView(context).also {
+                                    it.scaleType = PreviewView.ScaleType.FILL_CENTER
                                 }
+                                val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
+                                cameraProviderFuture.addListener({
+                                    val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
-                            val imageCapture = ImageCapture.Builder().build()
-
-                            val imageAnalyzer = ImageAnalysis.Builder()
-                                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
-                                .build()
-                                .also {
-                                    it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { result ->
-                                        try {
-                                            val data = Gson().fromJson(result, QrResult::class.java)
-                                            if (data.schoolId?.toLongOrNull() == null || data.username.isNullOrBlank() || data.password.isNullOrBlank()) {
-                                                doAction(OnInvalidQrScanned)
-                                                return@QrCodeAnalyzer
-                                            }
-                                            doAction(InputQrResult(data))
-                                        } catch (e: JsonSyntaxException) {
-                                            doAction(OnInvalidQrScanned)
+                                    val preview = androidx.camera.core.Preview.Builder()
+                                        .build()
+                                        .also {
+                                            it.setSurfaceProvider(previewView.surfaceProvider)
                                         }
-                                    })
-                                }
 
-                            val cameraSelector = CameraSelector.DEFAULT_FRONT_CAMERA
+                                    val imageCapture = ImageCapture.Builder().build()
 
-                            try {
-                                // Unbind use cases before rebinding
-                                cameraProvider.unbindAll()
+                                    val imageAnalyzer = ImageAnalysis.Builder()
+                                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                                        .build()
+                                        .also {
+                                            it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { result ->
+                                                try {
+                                                    val data = Gson().fromJson(result, QrResult::class.java)
+                                                    if (data.schoolId?.toLongOrNull() == null || data.username.isNullOrBlank() || data.password.isNullOrBlank()) {
+                                                        doAction(OnInvalidQrScanned)
+                                                        return@QrCodeAnalyzer
+                                                    }
+                                                    doAction(InputQrResult(data))
+                                                } catch (e: JsonSyntaxException) {
+                                                    doAction(OnInvalidQrScanned)
+                                                }
+                                            })
+                                        }
 
-                                // Bind use cases to camera
-                                cameraProvider.bindToLifecycle(
-                                    context as ComponentActivity,
-                                    cameraSelector,
-                                    preview,
-                                    imageCapture,
-                                    imageAnalyzer
-                                )
+                                    val cameras = listOf(CameraSelector.DEFAULT_BACK_CAMERA, CameraSelector.DEFAULT_FRONT_CAMERA)
+                                    val cameraSelector = cameras[cameraIndex % cameras.size]
 
-                            } catch (exc: Exception) {
-                                Log.e("DEBUG", "Use case binding failed", exc)
-                            }
-                        }, ContextCompat.getMainExecutor(context))
-                        previewView
-                    },
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .aspectRatio(1f)
-                        .clip(RoundedCornerShape(16.dp))
-                )
+                                    try {
+                                        // Unbind use cases before rebinding
+                                        cameraProvider.unbindAll()
+
+                                        // Bind use cases to camera
+                                        cameraProvider.bindToLifecycle(
+                                            context as ComponentActivity,
+                                            cameraSelector,
+                                            preview,
+                                            imageCapture,
+                                            imageAnalyzer
+                                        )
+
+                                    } catch (exc: Exception) {
+                                        Log.e("DEBUG", "Use case binding failed", exc)
+                                    }
+                                }, ContextCompat.getMainExecutor(context))
+                                previewView
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .aspectRatio(1f)
+                                .clip(RoundedCornerShape(16.dp))
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = { cameraIndex++ },
+                        modifier = Modifier.align(Alignment.End)
+                    ) {
+                        Icon(imageVector = Icons.Default.SwitchCamera, contentDescription = stringResource(id = R.string.onboarding_qrSwitchCamera))
+                        Spacer8Dp()
+                        Text(text = stringResource(id = R.string.onboarding_qrSwitchCamera))
+                    }
+                }
                 androidx.compose.animation.AnimatedVisibility(
                     visible = state.qrResultState == QrResultState.LOADING_SCHOOL_DATA,
                     enter = fadeIn(),

@@ -744,5 +744,6 @@
     <string name="homework_swipeDemoDescription">You can swipe to hide/delete a homework (depending on if created it) or do mark all tasks as done.</string>
     <string name="onboarding_invalidQr">This QR-code is not valid.</string>
     <string name="onboarding_loadingQr">Loading for %1$s</string>
+    <string name="onboarding_qrSwitchCamera">Switch camera</string>
 
 </resources>
