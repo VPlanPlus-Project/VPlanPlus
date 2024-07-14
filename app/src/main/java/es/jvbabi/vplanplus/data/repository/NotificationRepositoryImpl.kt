@@ -165,4 +165,12 @@ class NotificationRepositoryImpl(
             appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(id)
     }
+
+    override fun deleteAllChannels() {
+        val notificationManager =
+            appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notificationChannels.forEach {
+            notificationManager.deleteNotificationChannel(it.id)
+        }
+    }
 }

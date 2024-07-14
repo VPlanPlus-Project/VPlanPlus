@@ -107,8 +107,6 @@ fun InfoCard(
             }
         }
     }
-
-    return
 }
 
 @Composable
