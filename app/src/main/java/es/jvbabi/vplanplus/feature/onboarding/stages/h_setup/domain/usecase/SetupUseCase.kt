@@ -4,7 +4,6 @@ import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.ProfileType.ROOM
 import es.jvbabi.vplanplus.domain.model.ProfileType.STUDENT
 import es.jvbabi.vplanplus.domain.model.ProfileType.TEACHER
-import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -18,6 +17,7 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.domain.usecase.Holiday
 import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.domain.usecase.OnboardingDefaultLesson
 import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.domain.usecase.OnboardingInitClass
+import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
 import kotlinx.serialization.json.Json
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -32,7 +32,8 @@ class SetupUseCase(
     private val lessonTimeRepository: LessonTimeRepository,
     private val defaultLessonRepository: DefaultLessonRepository,
     private val profileRepository: ProfileRepository,
-    private val keyValueRepository: KeyValueRepository
+    private val keyValueRepository: KeyValueRepository,
+    private val updateFcmTokenUseCase: UpdateFcmTokenUseCase
 ) {
     private val keys = listOf(
         "onboarding.school_id",
@@ -136,6 +137,7 @@ class SetupUseCase(
         }
 
         keys.forEach { keyValueRepository.delete(it) }
+        updateFcmTokenUseCase()
         return true
     }
 }
