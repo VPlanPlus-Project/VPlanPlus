@@ -88,6 +88,7 @@ import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.SyncUseCases
 import es.jvbabi.vplanplus.domain.usecase.sync.TriggerSyncUseCase
+import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.UpdateMissingLinksStateUseCase
@@ -96,6 +97,7 @@ import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
+import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.CheckCredentialsUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.UpdateCredentialsUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasProfileLocalHomeworkUseCase
@@ -187,7 +189,8 @@ object VppModule {
     fun provideSchoolRepository(
         db: VppDatabase,
         logRecordRepository: LogRecordRepository,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+        keyValueRepository: KeyValueRepository,
+        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ): SchoolRepository {
         return SchoolRepositoryImpl(
             sp24NetworkRepository = provideSP24NetworkRepository(logRecordRepository = logRecordRepository),
@@ -196,7 +199,7 @@ object VppModule {
                 logRecordRepository = logRecordRepository
             ),
             schoolDao = db.schoolDao,
-            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository
+            updateFcmTokenUseCase = UpdateFcmTokenUseCase(keyValueRepository, updateFirebaseTokenUseCase)
         )
     }
 
@@ -339,23 +342,14 @@ object VppModule {
     @Provides
     @Singleton
     fun provideFirebaseCloudMessagingManagerRepository(
-        groupRepository: GroupRepository,
-        profileRepository: ProfileRepository,
         logRecordRepository: LogRecordRepository,
         keyValueRepository: KeyValueRepository,
-        db: VppDatabase
     ): FirebaseCloudMessagingManagerRepository {
         return FirebaseCloudMessagingManagerRepositoryImpl(
-            vppIdTokenDao = db.vppIdTokenDao,
-            schoolEntityDao = db.schoolEntityDao,
-            groupRepository = groupRepository,
             vppIdNetworkRepository = provideVppIdNetworkRepository(
                 keyValueRepository,
                 logRecordRepository
             ),
-            logRecordRepository = logRecordRepository,
-            keyValueRepository = keyValueRepository,
-            profileRepository = profileRepository
         )
     }
 
@@ -380,7 +374,6 @@ object VppModule {
         db: VppDatabase,
         groupRepository: GroupRepository,
         profileRepository: ProfileRepository,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
         keyValueRepository: KeyValueRepository,
         logRecordRepository: LogRecordRepository,
         schulverwalterNetworkRepository: BsNetworkRepository
@@ -394,7 +387,6 @@ object VppModule {
                 keyValueRepository,
                 logRecordRepository
             ),
-            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
             profileRepository = profileRepository,
             schulverwalterNetworkRepository = schulverwalterNetworkRepository
         )
@@ -407,6 +399,15 @@ object VppModule {
     }
 
     // Use cases
+    @Provides
+    @Singleton
+    fun provideUpdateFirebaseTokenUseCase(
+        profileRepository: ProfileRepository,
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+    ): UpdateFirebaseTokenUseCase {
+        return UpdateFirebaseTokenUseCase(profileRepository, firebaseCloudMessagingManagerRepository)
+    }
+
     @Provides
     @Singleton
     fun provideProfileDefaultLessonsUseCases(
@@ -548,7 +549,8 @@ object VppModule {
         calendarRepository: CalendarRepository,
         notificationRepository: NotificationRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
-        updateCalendarUseCase: UpdateCalendarUseCase
+        updateCalendarUseCase: UpdateCalendarUseCase,
+        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ): ProfileSettingsUseCases {
         return ProfileSettingsUseCases(
             getProfilesUseCase = GetProfilesUseCase(
@@ -583,7 +585,8 @@ object VppModule {
                 keyValueRepository = keyValueRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
                 notificationRepository = notificationRepository,
-                updateCalendarUseCase = updateCalendarUseCase
+                updateCalendarUseCase = updateCalendarUseCase,
+                updateFirebaseTokenUseCase = updateFirebaseTokenUseCase
             ),
             checkCredentialsUseCase = CheckCredentialsUseCase(baseDataRepository),
             updateCredentialsUseCase = UpdateCredentialsUseCase(schoolRepository, notificationRepository),
@@ -638,11 +641,17 @@ object VppModule {
     fun provideVppIdLinkUseCases(
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
-        keyValueRepository: KeyValueRepository
+        keyValueRepository: KeyValueRepository,
+        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
     ): VppIdLinkUseCases {
         val testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
         return VppIdLinkUseCases(
-            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(vppIdRepository, SetBalloonUseCase(keyValueRepository)),
+            getVppIdDetailsUseCase = GetVppIdDetailsUseCase(
+                vppIdRepository = vppIdRepository,
+                firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
+                keyValueRepository = keyValueRepository,
+                setBalloonUseCase = SetBalloonUseCase(keyValueRepository)
+            ),
             getProfilesWhichCanBeUsedForVppIdUseCase = GetProfilesWhichCanBeUsedForVppIdUseCase(profileRepository),
             setProfileVppIdUseCase = SetProfileVppIdUseCase(profileRepository, keyValueRepository, testForMissingVppIdToProfileConnectionsUseCase),
             updateMissingLinksStateUseCase = UpdateMissingLinksStateUseCase(

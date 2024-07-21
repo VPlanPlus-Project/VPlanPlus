@@ -4,12 +4,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.AdvancedSettingsUseCases
@@ -32,7 +32,7 @@ object AdvancedSettingsModule {
         homeworkRepository: HomeworkRepository,
         keyValueRepository: KeyValueRepository,
         systemRepository: SystemRepository,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deleteCacheUseCase = DeleteCacheUseCase(
@@ -43,7 +43,7 @@ object AdvancedSettingsModule {
             ),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository),
-            updateFcmTokenUseCase = UpdateFcmTokenUseCase(firebaseCloudMessagingManagerRepository),
+            updateFcmTokenUseCase = UpdateFcmTokenUseCase(keyValueRepository, updateFirebaseTokenUseCase),
             resetBalloonsUseCase = ResetBalloonsUseCase(keyValueRepository)
         )
     }

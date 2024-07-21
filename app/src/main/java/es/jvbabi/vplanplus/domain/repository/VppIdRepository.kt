@@ -25,7 +25,6 @@ interface VppIdRepository {
 
     suspend fun getVppId(id: Long, school: School, forceUpdate: Boolean): VppId?
 
-    suspend fun addVppIdToken(vppId: VppId, token: String, bsToken: String?, initialCreation: Boolean)
     suspend fun testVppIdSession(vppId: VppId.ActiveVppId): Boolean?
 
     suspend fun unlinkVppId(vppId: VppId.ActiveVppId): Boolean
