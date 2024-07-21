@@ -9,6 +9,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LiveHelp
 import androidx.compose.material.icons.filled.MoreTime
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material.icons.outlined.FormatListNumbered
@@ -197,6 +198,15 @@ private fun AdvancedSettingsScreenContent(
                     type = SettingsType.DISPLAY,
                     enabled = false,
                     doAction = {}
+                )
+            }
+            SettingsCategory(stringResource(id = R.string.advancedSettings_testingTitle)) {
+                SettingsSetting(
+                    icon = Icons.Default.Notifications,
+                    title = stringResource(id = R.string.advancedSettings_testingRunHomeworkReminderTitle),
+                    subtitle = stringResource(id = R.string.advancedSettings_testingRunHomeworkReminderSubtitle),
+                    type = SettingsType.FUNCTION,
+                    doAction = { onEvent(AdvancedSettingsEvent.TriggerHomeworkReminder) }
                 )
             }
         }

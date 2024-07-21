@@ -451,7 +451,7 @@
     <string name="notification_homeworkReminderMessage">
         %1$s%2$s.
     </string>
-    <string name="notification_homeworkReminderRemindAgain">Remind again in 30 min</string>
+    <string name="notification_homeworkReminderRemindAgain">Remind again in %1$d min</string>
     <string name="homework_notificationSettingsTitle">New notification settings available</string>
     <string name="homework_notificationSettingsText">Now you can choose if you want to get notified the moment a new homework is created. Additionally, the app can remind you at your preferred time about unfinished homework.</string>
     <string name="to_settings">To settings</string>
@@ -750,5 +750,8 @@
     <string name="advancedSettings_resetBalloonsTitle">Reset balloons</string>
     <string name="advancedSettings_resetBalloonsSubtitle">This will reset all dismissed balloons and hints and show them to you once more. You might see balloons that were targeted to new users or to existing users to explain an update to them.</string>
     <string name="advancedSettings_resetBalloonsSuccess">Balloons resetted</string>
+    <string name="advancedSettings_testingTitle">Testing</string>
+    <string name="advancedSettings_testingRunHomeworkReminderTitle">Trigger homework reminder</string>
+    <string name="advancedSettings_testingRunHomeworkReminderSubtitle">This will execute the homework reminder notification instantly. Note that this will only work if there is any homework which you can get reminded of.</string>
 
 </resources>

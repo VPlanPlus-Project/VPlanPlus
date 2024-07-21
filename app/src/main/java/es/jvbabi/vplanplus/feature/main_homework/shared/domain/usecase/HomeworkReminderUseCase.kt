@@ -62,7 +62,13 @@ class HomeworkReminderUseCase(
                     messageAfterTomorrow
                 )
                 val remindAgainAction = NotificationAction(
-                    stringRepository.getString(R.string.notification_homeworkReminderRemindAgain),
+                    stringRepository.getString(
+                        R.string.notification_homeworkReminderRemindAgain,
+                        keyValueRepository.getOrDefault(
+                            Keys.SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS,
+                            Keys.SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS_DEFAULT
+                        ).toInt() / 60
+                    ),
                     BroadcastIntentTask(HomeworkRemindLaterReceiver.TAG)
                 )
                 notificationRepository.sendNotification(
