@@ -60,8 +60,6 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
-import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Interval
-import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Subject
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.usecase.GradeUseState
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.components.Average
@@ -90,7 +88,6 @@ fun GradesScreen(
 ) {
     val activity = LocalContext.current as FragmentActivity
     val state = gradesViewModel.state.value
-    val context = LocalContext.current
     var runAutomatically by rememberSaveable { mutableStateOf(true) }
 
     LaunchedEffect(
@@ -100,14 +97,13 @@ fun GradesScreen(
         if (!runAutomatically) return@LaunchedEffect
         if (state.authenticationState == AuthenticationState.NONE && state.isBiometricEnabled && state.isBiometricSetUp) {
             runAutomatically = false
-            gradesViewModel.authenticate(activity)
+            gradesViewModel.onEvent(GradeEvent.StartBiometricAuthentication(activity))
         }
     }
 
     GradesScreenContent(
         onBack = { navHostController.popBackStack() },
         onLinkVppId = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
-        onHideBanner = { gradesViewModel.onHideBanner() },
         onStartCalculator = { grades ->
             val data = grades.filter { it.actualValue != null }.groupBy { it.type }.map {
                 GradeCollection(
@@ -119,23 +115,11 @@ fun GradesScreen(
                 Base64.encode(Gson().toJson(data).toByteArray(StandardCharsets.UTF_8))
             navHostController.navigate("${Screen.GradesCalculatorScreen.route}/?grades=$encodedString&isSek2=${state.isSek2}")
         },
-        onStartAuthenticate = { gradesViewModel.authenticate(activity) },
         onOpenSecuritySettings = {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) activity.startActivity(Intent(Settings.ACTION_BIOMETRIC_ENROLL))
             else activity.startActivity(Intent(Settings.ACTION_SECURITY_SETTINGS))
         },
-        onEnableBiometric = {
-            gradesViewModel.onSetBiometric(true)
-            Toast.makeText(
-                context,
-                context.getString(R.string.grades_biometricNextTime),
-                Toast.LENGTH_SHORT
-            ).show()
-        },
-        onDismissEnableBiometricBanner = { gradesViewModel.onDismissEnableBiometricBanner() },
-        onDisableBiometric = { gradesViewModel.onSetBiometric(false) },
-        onToggleSubject = gradesViewModel::onToggleSubject,
-        onToggleInterval = gradesViewModel::onToggleInterval,
+        onEvent = gradesViewModel::onEvent,
         state = state,
         navBar = navBar
     )
@@ -148,19 +132,14 @@ fun GradesScreen(
 private fun GradesScreenContent(
     onBack: () -> Unit,
     onLinkVppId: () -> Unit,
-    onHideBanner: () -> Unit,
-    onDismissEnableBiometricBanner: () -> Unit,
-    onEnableBiometric: () -> Unit,
-    onStartAuthenticate: () -> Unit,
     onOpenSecuritySettings: () -> Unit,
-    onDisableBiometric: () -> Unit,
     onStartCalculator: (List<Grade>) -> Unit,
-    onToggleSubject: (Subject) -> Unit,
-    onToggleInterval: (Interval) -> Unit,
+    onEvent: (event: GradeEvent) -> Unit,
     state: GradesState,
     navBar: @Composable (expanded: Boolean) -> Unit
 ) {
     var searchExpanded by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
 
     var statisticsSheetOpen by rememberSaveable { mutableStateOf(false) }
     val statisticsSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -225,6 +204,12 @@ private fun GradesScreenContent(
         },
         bottomBar = { navBar(true) }
     ) { paddingValues ->
+        when (state.enabled) {
+            GradeUseState.NO_VPP_ID -> NoVppId(onLinkVppId)
+            GradeUseState.WRONG_PROFILE_SELECTED -> WrongProfile()
+            GradeUseState.ENABLED -> {}
+            else -> { /* This should not happen, stopping VPlanPlus from loading your grades is currently not supported */ }
+        }
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -253,7 +238,7 @@ private fun GradesScreenContent(
                         state.grades.keys.sortedBy { it.name }.forEach { subject ->
                             FilterChip(
                                 selected = state.visibleSubjects.contains(subject) && state.visibleSubjects.size != state.grades.size,
-                                onClick = { onToggleSubject(subject) },
+                                onClick = { onEvent(GradeEvent.ToggleSubject(subject)) },
                                 label = { Text(text = subject.short) },
                                 modifier = Modifier.padding(horizontal = 4.dp),
                                 leadingIcon = {
@@ -275,7 +260,7 @@ private fun GradesScreenContent(
                         state.intervals.keys.sortedBy { it.name }.forEach { interval ->
                             FilterChip(
                                 selected = state.intervals[interval] ?: false,
-                                onClick = { onToggleInterval(interval) },
+                                onClick = { onEvent(GradeEvent.ToggleInterval(interval)) },
                                 label = { Text(text = interval.name) },
                                 modifier = Modifier.padding(horizontal = 4.dp)
                             )
@@ -293,9 +278,17 @@ private fun GradesScreenContent(
                     title = stringResource(id = R.string.grades_enableBiometricTitle),
                     text = stringResource(id = R.string.grades_enableBiometricText),
                     buttonText1 = stringResource(id = R.string.not_now),
-                    buttonAction1 = onDismissEnableBiometricBanner,
+                    buttonAction1 = { onEvent(GradeEvent.DismissEnableBiometricBanner) },
                     buttonText2 = stringResource(id = R.string.enable),
-                    buttonAction2 = onEnableBiometric,
+                    buttonAction2 = {
+                        onEvent(GradeEvent.DismissEnableBiometricBanner)
+                        onEvent(GradeEvent.EnableBiometric)
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.grades_biometricNextTime),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
                     modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
                 )
             }
@@ -309,12 +302,12 @@ private fun GradesScreenContent(
                     buttonText1 = stringResource(id = R.string.grades_openSecuritySettings),
                     buttonAction1 = onOpenSecuritySettings,
                     buttonText2 = stringResource(id = R.string.disable),
-                    buttonAction2 = onDisableBiometric
+                    buttonAction2 = { onEvent(GradeEvent.DisableBiometric) }
                 )
             }
 
             if (state.isBiometricEnabled && state.authenticationState != AuthenticationState.AUTHENTICATED) {
-                Authenticate { onStartAuthenticate() }
+                Authenticate { onEvent(GradeEvent.StartBiometricAuthentication(context as FragmentActivity)) }
                 return@Scaffold
             }
             if (state.enabled == GradeUseState.ENABLED && state.grades.isEmpty()) {
@@ -323,7 +316,7 @@ private fun GradesScreenContent(
             }
             val grades = state.grades.entries.sortedBy { it.key.name }
             AnimatedVisibility(
-                visible = state.showBanner,
+                visible = state.showCalculationDisclaimerBanner,
                 enter = expandVertically(tween(200)),
                 exit = shrinkVertically(tween(200))
             ) {
@@ -334,7 +327,7 @@ private fun GradesScreenContent(
                         id = R.string.grades_warningCardText
                     ),
                     buttonText1 = stringResource(id = R.string.hideForever),
-                    buttonAction1 = onHideBanner,
+                    buttonAction1 = { onEvent(GradeEvent.DismissDisclaimerBanner) },
                     modifier = Modifier.padding(8.dp)
                 )
             }
@@ -382,7 +375,6 @@ fun GradesScreenPreview() {
     GradesScreenContent(
         onBack = {},
         onLinkVppId = {},
-        onHideBanner = {},
         onStartCalculator = {},
         navBar = {},
         state = GradesState(
@@ -391,13 +383,8 @@ fun GradesScreenPreview() {
             isBiometricSetUp = false
 //            biometricStatus = BiometricStatus.NOT_SET_UP
         ),
-        onStartAuthenticate = {},
         onOpenSecuritySettings = {},
-        onToggleSubject = {},
-        onDismissEnableBiometricBanner = {},
-        onEnableBiometric = {},
-        onDisableBiometric = {},
-        onToggleInterval = {}
+        onEvent = {}
     )
 }
 
