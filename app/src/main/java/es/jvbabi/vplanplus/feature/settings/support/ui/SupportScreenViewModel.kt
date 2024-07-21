@@ -38,25 +38,25 @@ class SupportScreenViewModel @Inject constructor(
         }
     }
 
-    fun onUpdateFeedback(feedback: String) {
+    private fun onUpdateFeedback(feedback: String) {
         state.value = state.value.copy(
             feedback = feedback,
             feedbackError = supportUseCases.validateFeedbackUseCase(feedback)
         )
     }
 
-    fun toggleAttachSystemDetails() {
+    private fun toggleAttachSystemDetails() {
         state.value = state.value.copy(attachSystemDetails = !state.value.attachSystemDetails)
     }
 
-    fun onUpdateEmail(email: String) {
+    private fun onUpdateEmail(email: String) {
         state.value = state.value.copy(
             email = email,
             emailValid = supportUseCases.validateEmailUseCase(email)
         )
     }
 
-    fun send() {
+    private fun send() {
         if (state.value.isLoading) return
         if (!state.value.emailValid || state.value.feedbackError != null) return
         state.value = state.value.copy(isLoading = true)
@@ -71,6 +71,15 @@ class SupportScreenViewModel @Inject constructor(
                 ) FeedbackSendState.SUCCESS else FeedbackSendState.ERROR,
                 isLoading = false
             )
+        }
+    }
+
+    fun onEvent(event: SupportScreenEvent) {
+        when (event) {
+            is SupportScreenEvent.SetFeedback -> onUpdateFeedback(event.feedback)
+            is SupportScreenEvent.ToggleSystemDetails -> toggleAttachSystemDetails()
+            is SupportScreenEvent.UpdateEmail -> onUpdateEmail(event.email)
+            is SupportScreenEvent.Send -> send()
         }
     }
 }
@@ -90,4 +99,11 @@ enum class FeedbackSendState {
     NONE,
     SUCCESS,
     ERROR
+}
+
+sealed class SupportScreenEvent {
+    data class SetFeedback(val feedback: String) : SupportScreenEvent()
+    data class UpdateEmail(val email: String) : SupportScreenEvent()
+    data object ToggleSystemDetails : SupportScreenEvent()
+    data object Send : SupportScreenEvent()
 }
