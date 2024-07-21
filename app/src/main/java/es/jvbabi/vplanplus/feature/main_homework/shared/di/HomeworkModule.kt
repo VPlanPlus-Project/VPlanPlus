@@ -82,13 +82,11 @@ object HomeworkModule {
         notificationRepository: NotificationRepository,
         stringRepository: StringRepository,
         keyValueRepository: KeyValueRepository,
-        @ApplicationContext context: Context
     ) = HomeworkReminderUseCase(
         homeworkRepository = homeworkRepository,
         profileRepository = profileRepository,
         notificationRepository = notificationRepository,
         stringRepository = stringRepository,
         keyValueRepository = keyValueRepository,
-        context = context
     )
 }

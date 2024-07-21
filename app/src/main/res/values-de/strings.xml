@@ -449,7 +449,7 @@
     <string name="notification_homeworkReminderMessage">
         %1$s%2$s.
     </string>
-    <string name="notification_homeworkReminderRemindAgain">In 30 Minuten erneut erinnern</string>
+    <string name="notification_homeworkReminderRemindAgain">In %1$d Minuten erneut erinnern</string>
     <string name="homework_notificationSettingsTitle">Neue Benachrichtigungsoptionen verfügbar</string>
     <string name="homework_notificationSettingsText">Jetzt kannst du auswählen, ob du benachrichtigt werden möchtest, sobald eine neue Hausaufgabe erstellt wurde. Außerdem kann die App dich zu deiner bevorzugten Zeit an unerledigte Hausaufgaben erinnern.</string>
     <string name="to_settings">Zu den Einstellungen</string>
@@ -747,5 +747,8 @@
     <string name="advancedSettings_resetBalloonsTitle">Tipps (Balloons) zurücksetzen</string>
     <string name="advancedSettings_resetBalloonsSubtitle">Dies wird alle ausgeblendeted Balloons und Hinweise zurücksetzen und erneut anzeigen. Möglicherweise siehst du Hinweise, die sich an neue oder bestehende Nutzer z.B. nach einem Update richten.</string>
     <string name="advancedSettings_resetBalloonsSuccess">Ballons zurückgesetzt</string>
+    <string name="advancedSettings_testingTitle">Test</string>
+    <string name="advancedSettings_testingRunHomeworkReminderTitle">Hausaufgabenerinnerung ausführen</string>
+    <string name="advancedSettings_testingRunHomeworkReminderSubtitle">Dadurch wird die Benachrichtigung zur Hausaufgabenerinnerung sofort ausgeführt. Beachte, dass dies nur funktioniert, wenn es Hausaufgaben gibt, zu den du erinnert werden kannst,</string>
 
 </resources>

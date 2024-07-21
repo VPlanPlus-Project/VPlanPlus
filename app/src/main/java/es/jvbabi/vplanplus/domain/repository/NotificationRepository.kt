@@ -52,3 +52,4 @@ interface NotificationOnClickTask
 class OpenScreenTask(val route: String) : NotificationOnClickTask
 class OpenLinkTask(val url: String) : NotificationOnClickTask
 class DoActionTask(val tag: String): NotificationOnClickTask
+class BroadcastIntentTask(val tag: String): NotificationOnClickTask

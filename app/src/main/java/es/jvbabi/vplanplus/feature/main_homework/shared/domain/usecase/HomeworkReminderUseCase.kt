@@ -1,11 +1,9 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase
 
-import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.android.receiver.HomeworkRemindLaterReceiver
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.repository.BroadcastIntentTask
 import es.jvbabi.vplanplus.domain.repository.DoActionTask
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -16,7 +14,6 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
-import es.jvbabi.vplanplus.shared.data.PendingIntentCodes.HOMEWORK_REMINDER_REMIND_LATER
 import kotlinx.coroutines.flow.first
 import java.time.ZonedDateTime
 
@@ -26,7 +23,6 @@ class HomeworkReminderUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val notificationRepository: NotificationRepository,
     private val stringRepository: StringRepository,
-    private val context: Context
 ) {
     suspend operator fun invoke() {
         if (!keyValueRepository.getOrDefault(
@@ -65,17 +61,15 @@ class HomeworkReminderUseCase(
                     messageTomorrow,
                     messageAfterTomorrow
                 )
-                val remindAgainIntent = Intent(context, HomeworkRemindLaterReceiver::class.java)
-                    .putExtra("tag", HomeworkRemindLaterReceiver.TAG)
-                val remindAgainPendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    HOMEWORK_REMINDER_REMIND_LATER,
-                    remindAgainIntent,
-                    PendingIntent.FLAG_IMMUTABLE
-                )
                 val remindAgainAction = NotificationAction(
-                    stringRepository.getString(R.string.notification_homeworkReminderRemindAgain),
-                    TODO()
+                    stringRepository.getString(
+                        R.string.notification_homeworkReminderRemindAgain,
+                        keyValueRepository.getOrDefault(
+                            Keys.SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS,
+                            Keys.SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS_DEFAULT
+                        ).toInt() / 60
+                    ),
+                    BroadcastIntentTask(HomeworkRemindLaterReceiver.TAG)
                 )
                 notificationRepository.sendNotification(
                     channelId = CHANNEL_ID_HOMEWORK,

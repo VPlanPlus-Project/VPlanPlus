@@ -9,7 +9,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.android.receiver.HomeworkRemindLaterReceiver
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.repository.BroadcastIntentTask
 import es.jvbabi.vplanplus.domain.repository.DoActionTask
 import es.jvbabi.vplanplus.domain.repository.NotificationAction
 import es.jvbabi.vplanplus.domain.repository.NotificationOnClickTask
@@ -23,6 +25,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.OpenLinkTask
 import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.shared.data.PendingIntentCodes.HOMEWORK_REMINDER_REMIND_LATER
 
 class NotificationRepositoryImpl(
     private val appContext: Context,
@@ -59,6 +62,19 @@ class NotificationRepositoryImpl(
                         .setData(task.url.toUri())
 
                     PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                }
+                is BroadcastIntentTask -> {
+                    val broadcastClass = when (task.tag) {
+                        HomeworkRemindLaterReceiver.TAG -> HomeworkRemindLaterReceiver::class.java
+                        else -> throw IllegalArgumentException("Unknown tag ${task.tag}")
+                    }
+                    val intent = Intent(appContext, broadcastClass).putExtra("tag", HomeworkRemindLaterReceiver.TAG)
+                    PendingIntent.getBroadcast(
+                        appContext,
+                        HOMEWORK_REMINDER_REMIND_LATER,
+                        intent,
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
                 }
                 else -> null
             }
