@@ -5,11 +5,11 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class ShowBannerUseCase(
+class ShowCalculationDisclaimerBannerUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
     operator fun invoke(): Flow<Boolean> = flow {
-        keyValueRepository.getFlow(Keys.SHOW_BS_BANNER).collect {
+        keyValueRepository.getFlow(Keys.GRADES_SHOW_CALCULATION_DISCLAIMER_BANNER).collect {
             if (it == null) emit(true)
             else emit(it.toBoolean())
         }

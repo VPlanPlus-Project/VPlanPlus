@@ -32,14 +32,14 @@ class GradesViewModel @Inject constructor(
                 listOf(
                     gradeUseCases.isEnabledUseCase(),
                     gradeUseCases.getGradesUseCase(),
-                    gradeUseCases.showBannerUseCase(),
+                    gradeUseCases.showCalculationDisclaimerBannerUseCase(),
                     gradeUseCases.isBiometricEnabled(),
                     gradeUseCases.canShowEnableBiometricBannerUseCase(),
                 )
             ) { data ->
                 val enabled = data[0] as GradeUseState
                 val grades = data[1] as List<Grade>
-                val showBanner = data[2] as Boolean
+                val showCalculationDisclaimerBanner = data[2] as Boolean
                 val isBiometricEnabled = data[3] as Boolean
                 val canShowEnableBiometricBanner = data[4] as Boolean
                 val isBiometricSetUp = gradeUseCases.isBiometricSetUpUseCase()
@@ -53,7 +53,7 @@ class GradesViewModel @Inject constructor(
                         )
                     },
                     visibleSubjects = grades.groupBy { it.subject }.keys.toList(),
-                    showBanner = showBanner,
+                    showCalculationDisclaimerBanner = showCalculationDisclaimerBanner,
                     showEnableBiometricBanner = canShowEnableBiometricBanner,
                     isBiometricEnabled = isBiometricEnabled,
                     isBiometricSetUp = isBiometricSetUp,
@@ -72,13 +72,13 @@ class GradesViewModel @Inject constructor(
         }
     }
 
-    fun onToggleInterval(interval: Interval) {
+    private fun onToggleInterval(interval: Interval) {
         val intervals = _state.value.intervals.toMutableMap()
         intervals[interval] = !intervals.getOrDefault(interval, true)
         _state.value = _state.value.copy(intervals = intervals)
     }
 
-    fun authenticate(fragmentActivity: FragmentActivity) {
+    private fun authenticate(fragmentActivity: FragmentActivity) {
         _state.value = _state.value.copy(authenticationState = AuthenticationState.AUTHENTICATING)
         gradeUseCases.requestBiometricUseCase(
             fragmentActivity = fragmentActivity,
@@ -102,25 +102,7 @@ class GradesViewModel @Inject constructor(
         )
     }
 
-    fun onHideBanner() {
-        viewModelScope.launch {
-            gradeUseCases.hideBannerUseCase()
-        }
-    }
-
-    fun onSetBiometric(state: Boolean) {
-        viewModelScope.launch {
-            gradeUseCases.setBiometricUseCase(state)
-        }
-    }
-
-    fun onDismissEnableBiometricBanner() {
-        viewModelScope.launch {
-            gradeUseCases.hideEnableBiometricBannerUseCase()
-        }
-    }
-
-    fun onToggleSubject(subject: Subject) {
+    private fun onToggleSubject(subject: Subject) {
         val visibleSubjects = _state.value.visibleSubjects.toMutableList()
         if (visibleSubjects.size == state.value.grades.size) {
             visibleSubjects.clear()
@@ -135,13 +117,27 @@ class GradesViewModel @Inject constructor(
         }
         _state.value = _state.value.copy(visibleSubjects = visibleSubjects)
     }
+
+    fun onEvent(event: GradeEvent) {
+        viewModelScope.launch {
+            when (event) {
+                is GradeEvent.DismissDisclaimerBanner -> gradeUseCases.hideCalculationDisclaimerBannerUseCase()
+                is GradeEvent.DismissEnableBiometricBanner -> gradeUseCases.hideEnableBiometricBannerUseCase()
+                is GradeEvent.EnableBiometric -> gradeUseCases.setBiometricUseCase(true)
+                is GradeEvent.DisableBiometric -> gradeUseCases.setBiometricUseCase(false)
+                is GradeEvent.StartBiometricAuthentication -> authenticate(event.activity)
+                is GradeEvent.ToggleSubject -> onToggleSubject(event.subject)
+                is GradeEvent.ToggleInterval -> onToggleInterval(event.interval)
+            }
+        }
+    }
 }
 
 data class GradesState(
     val enabled: GradeUseState? = null,
     val visibleSubjects: List<Subject> = emptyList(),
     val grades: Map<Subject, SubjectGradeCollection> = emptyMap(),
-    val showBanner: Boolean = false,
+    val showCalculationDisclaimerBanner: Boolean = false,
     val isBiometricEnabled: Boolean = false,
     val showEnableBiometricBanner: Boolean = false,
     val isBiometricSetUp: Boolean = false,
@@ -178,4 +174,14 @@ data class SubjectGradeCollection(
 
 enum class AuthenticationState {
     NONE, AUTHENTICATING, AUTHENTICATED
+}
+
+sealed class GradeEvent {
+    data object DismissDisclaimerBanner : GradeEvent()
+    data object DismissEnableBiometricBanner : GradeEvent()
+    data object EnableBiometric : GradeEvent()
+    data object DisableBiometric : GradeEvent()
+    data class StartBiometricAuthentication(val activity: FragmentActivity): GradeEvent()
+    data class ToggleSubject(val subject: Subject) : GradeEvent()
+    data class ToggleInterval(val interval: Interval) : GradeEvent()
 }

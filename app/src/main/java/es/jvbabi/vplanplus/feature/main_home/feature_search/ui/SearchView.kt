@@ -125,16 +125,16 @@ fun SearchViewContent(
 
             if (state.query.isBlank()) {
                 SearchPlaceholder(fullyCompatible = state.currentProfile?.getSchool()?.fullyCompatible ?: true)
-                return@Scaffold
+                return@Column
             }
             if (state.query.isNotBlank() && state.results.isEmpty() && !state.isSearchRunning) {
                 SearchNoResults(state.query)
-                return@Scaffold
+                return@Column
             }
 
             if (state.isSearchRunning) {
                 SearchSearching()
-                return@Scaffold
+                return@Column
             }
 
             LazyColumn(Modifier.fillMaxSize()) {
