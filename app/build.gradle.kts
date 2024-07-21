@@ -52,6 +52,7 @@ android {
             ndk {
                 debugSymbolLevel = "SYMBOL_TABLE"
             }
+
         }
 
         create("stage-minify") {
