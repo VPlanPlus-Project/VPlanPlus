@@ -14,8 +14,8 @@ import es.jvbabi.vplanplus.ui.common.SelectDialog
  * The first server in the list is the default server.
  */
 val servers = listOf(
-    VppIdServer("https://development.vplan.plus"), // TODO change order
     VppIdServer("https://vplan.plus"),
+    VppIdServer("https://development.vplan.plus"),
 )
 
 @Composable
