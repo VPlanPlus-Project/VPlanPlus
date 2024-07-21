@@ -22,7 +22,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 222
-        versionName = "${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}_564"
+        versionName = "${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}_566"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
