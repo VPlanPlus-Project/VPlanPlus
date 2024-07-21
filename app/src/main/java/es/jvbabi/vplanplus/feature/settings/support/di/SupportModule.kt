@@ -11,7 +11,6 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.settings.support.data.repository.FeedbackRepositoryImpl
 import es.jvbabi.vplanplus.feature.settings.support.domain.repository.FeedbackRepository
-import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.GetEmailForSupportUseCase
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.SendFeedbackUseCase
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.SupportUseCases
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.ValidateEmailUseCase
@@ -41,9 +40,6 @@ object SupportModule {
         feedbackRepository: FeedbackRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase
     ) = SupportUseCases(
-        getEmailForSupportUseCase = GetEmailForSupportUseCase(
-            getCurrentProfileUseCase = getCurrentProfileUseCase,
-        ),
         validateFeedbackUseCase = ValidateFeedbackUseCase(),
         validateEmailUseCase = ValidateEmailUseCase(),
         sendFeedbackUseCase = SendFeedbackUseCase(feedbackRepository),

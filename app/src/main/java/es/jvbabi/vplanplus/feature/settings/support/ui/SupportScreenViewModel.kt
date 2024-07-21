@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.FeedbackError
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.SupportUseCases
@@ -22,15 +23,13 @@ class SupportScreenViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    supportUseCases.getEmailForSupportUseCase(),
                     supportUseCases.getCurrentProfileUseCase()
                 )
             ) { data ->
-                val vppEmail = data[0] as String
-                val profile = data[1] as Profile
+                val profile = data[0]
 
                 state.value.copy(
-                    email = vppEmail,
+                    email = (profile as? ClassProfile)?.vppId?.email,
                     profile = profile,
                 )
             }.collect {

@@ -31,17 +31,17 @@ class FeedbackRepositoryImpl(
         val systemDetails = if (attachSystemDetails) buildSystemDetails() else null
         val profileInformation = buildProfileInformation(profile)
 
-        vppIdNetworkRepository.authentication = if (vppId?.vppIdToken != null) BearerAuthentication(vppId.vppIdToken)
-        else null
+        vppIdNetworkRepository.authentication =
+            if (vppId?.vppIdToken != null) BearerAuthentication(vppId.vppIdToken)
+            else profile.getSchool().buildAccess().buildVppAuthentication()
 
         val response = vppIdNetworkRepository.doRequest(
-            path = "/api/$API_VERSION/feedback",
+            path = "/api/$API_VERSION/app/feedback",
             requestMethod = HttpMethod.Post,
             requestBody = Gson().toJson(
                 FeedbackRequest(
                     email = if (email.isNullOrBlank()) null else email,
-                    feedback = feedback + "\n\n" + profileInformation,
-                    systemDetails = systemDetails
+                    feedback = feedback + "\n\n" + profileInformation + "\n\n" + (systemDetails ?: ""),
                 )
             )
         )
@@ -87,7 +87,6 @@ class FeedbackRepositoryImpl(
 }
 
 private data class FeedbackRequest(
-    @SerializedName("email") val email: String?,
     @SerializedName("content") val feedback: String,
-    @SerializedName("system_details") val systemDetails: String?,
+    @SerializedName("email") val email: String?,
 )
