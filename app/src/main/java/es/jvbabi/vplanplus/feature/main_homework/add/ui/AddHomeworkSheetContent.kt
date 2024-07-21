@@ -257,7 +257,9 @@ fun AddHomeworkSheetContent(
                             }
                         }
                     ) { balloonWindow ->
-                        if (state.showVppIdStorageBalloon) balloonWindow.showAlignTop()
+                        LaunchedEffect(key1 = state.showVppIdStorageBalloon) {
+                            if (state.showVppIdStorageBalloon) balloonWindow.showAlignTop()
+                        }
                         balloonWindow.setOnBalloonDismissListener { viewModel.onUiAction(HideVppIdStorageBalloon) }
                         AssistChip(
                             onClick = { isSaveLocationModalOpen = true },
@@ -290,7 +292,9 @@ fun AddHomeworkSheetContent(
                     Text(text = stringResource(id = R.string.addHomework_addDocumentsBalloon), color = colorScheme.onPrimaryContainer)
                 }
             ) { balloonWindow ->
-                if (state.showDocumentsBalloon) balloonWindow.showAlignTop()
+                LaunchedEffect(key1 = state.showDocumentsBalloon) {
+                    if (state.showDocumentsBalloon) balloonWindow.showAlignTop()
+                }
                 balloonWindow.setOnBalloonDismissListener { viewModel.onUiAction(HideDocumentBalloon) }
                 RowVerticalCenter {
                     IconButton(onClick = { isAddDocumentModalOpen = true }) {
