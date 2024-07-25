@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
@@ -36,12 +37,12 @@ class AccountSettingsViewModel @Inject constructor(
                     accountSettingsUseCases.getProfilesUseCase()
                 )
             ) { data ->
-                val accounts = data[0] as List<VppId>
+                val accounts = data[0] as List<VppId.ActiveVppId>
                 val server = data[1] as VppIdServer
                 val profiles = data[2] as List<Profile>
 
                 _state.value.copy(
-                    accounts = accounts.map { vppId -> VppIdSettingsRecord(vppId = vppId, linkedProfiles = profiles.filter { it.vppId == vppId }) },
+                    accounts = accounts.map { vppId -> VppIdSettingsRecord(vppId = vppId, linkedProfiles = profiles.filter { (it as? ClassProfile)?.vppId == vppId }) },
                     server = server
                 )
             }.collect {
@@ -67,7 +68,7 @@ data class AccountSettingsState(
 )
 
 data class VppIdSettingsRecord(
-    val vppId: VppId,
+    val vppId: VppId.ActiveVppId,
     val hasActiveSession: Boolean? = null,
     val linkedProfiles: List<Profile>
 )

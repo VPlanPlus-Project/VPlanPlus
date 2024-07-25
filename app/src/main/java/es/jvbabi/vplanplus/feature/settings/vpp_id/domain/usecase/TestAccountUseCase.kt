@@ -6,7 +6,7 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 class TestAccountUseCase(
     private val vppIdRepository: VppIdRepository
 ) {
-    suspend operator fun invoke(vppId: VppId): Boolean? {
+    suspend operator fun invoke(vppId: VppId.ActiveVppId): Boolean? {
         return vppIdRepository.testVppIdSession(vppId)
     }
 }

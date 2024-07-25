@@ -6,14 +6,14 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
 import es.jvbabi.vplanplus.feature.main_home.feature_search.domain.usecase.SearchUseCase
@@ -28,7 +28,7 @@ object SearchModule {
     @Singleton
     fun provideSearchUseCases(
         @ApplicationContext context: Context,
-        classRepository: ClassRepository,
+        groupRepository: GroupRepository,
         teacherRepository: TeacherRepository,
         roomRepository: RoomRepository,
         profileRepository: ProfileRepository,
@@ -37,13 +37,13 @@ object SearchModule {
         timeRepository: TimeRepository
     ): SearchUseCases {
         return SearchUseCases(
-            getCurrentIdentityUseCase = GetCurrentIdentityUseCase(
+            getCurrentProfileUseCase = GetCurrentProfileUseCase(
                 keyValueRepository = keyValueRepository,
                 profileRepository = profileRepository
             ),
             isSyncRunningUseCase = IsSyncRunningUseCase(context),
             searchUseCase = SearchUseCase(
-                classRepository = classRepository,
+                groupRepository = groupRepository,
                 teacherRepository = teacherRepository,
                 roomRepository = roomRepository,
                 keyValueRepository = keyValueRepository,

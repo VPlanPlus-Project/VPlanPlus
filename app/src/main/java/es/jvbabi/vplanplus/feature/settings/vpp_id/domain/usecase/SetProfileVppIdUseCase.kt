@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase
 
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -12,8 +12,8 @@ class SetProfileVppIdUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val testForMissingVppIdToProfileConnectionsUseCase: TestForMissingVppIdToProfileConnectionsUseCase
 ) {
-    suspend operator fun invoke(profiles: Map<Profile, Boolean>, vppId: VppId) {
-        profiles.forEach { (profile, isSelected) -> profileRepository.setProfileVppId(profile, if (isSelected) vppId else null) }
+    suspend operator fun invoke(profiles: Map<ClassProfile, Boolean>, vppId: VppId.ActiveVppId) {
+        profiles.forEach { (profile, isSelected) -> profileRepository.setVppIdForProfile(profile, if (isSelected) vppId else null) }
         keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, testForMissingVppIdToProfileConnectionsUseCase().toString())
     }
 }

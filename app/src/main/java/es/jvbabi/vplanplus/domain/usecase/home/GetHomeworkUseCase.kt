@@ -1,23 +1,19 @@
 package es.jvbabi.vplanplus.domain.usecase.home
 
-import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flatMapLatest
 
 class GetHomeworkUseCase(
-    private val homeworkRepository: HomeworkRepository
+    private val homeworkRepository: HomeworkRepository,
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
 ) {
-    operator fun invoke(profile: Profile?) = flow {
-        if (profile?.type != ProfileType.STUDENT) {
-            emit(emptyList())
-            return@flow
-        }
-        homeworkRepository.getHomeworkByClassId(profile.referenceId).collect { homework ->
-            if (homeworkRepository.isUpdateRunning()) {
-                return@collect
-            }
-            emit(homework)
-        }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend operator fun invoke() = getCurrentProfileUseCase().flatMapLatest { profile ->
+        if (profile is ClassProfile) homeworkRepository.getAllByProfile(profile)
+        else emptyFlow()
     }
 }

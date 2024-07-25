@@ -10,10 +10,10 @@ import java.util.UUID
 @Dao
 abstract class ProfileDefaultLessonsCrossoverDao {
 
-    @Query("DELETE FROM profile_default_lesson WHERE profileId = :profileId")
+    @Query("DELETE FROM profile_default_lesson WHERE profile_id = :profileId")
     abstract suspend fun deleteCrossoversByProfileId(profileId: UUID)
 
-    @Query("DELETE FROM profile_default_lesson WHERE defaultLessonVpId = :defaultLessonVpId")
+    @Query("DELETE FROM profile_default_lesson WHERE vp_id = :defaultLessonVpId")
     abstract suspend fun deleteCrossoversByDefaultLessonVpId(defaultLessonVpId: Long)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

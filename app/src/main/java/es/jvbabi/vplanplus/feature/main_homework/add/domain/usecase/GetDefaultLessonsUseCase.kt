@@ -1,20 +1,18 @@
 package es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase
 
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetClassByProfileUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import kotlinx.coroutines.flow.first
 
 class GetDefaultLessonsUseCase(
     private val defaultLessonRepository: DefaultLessonRepository,
-    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
-    private val getClassByProfileUseCase: GetClassByProfileUseCase
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
 ) {
 
     suspend operator fun invoke(): List<DefaultLesson> {
-        val profile = getCurrentIdentityUseCase().first()?.profile ?: return emptyList()
-        val `class` = getClassByProfileUseCase(profile) ?: return emptyList()
-        return defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
+        val profile = getCurrentProfileUseCase().first() as? ClassProfile ?: return emptyList()
+        return defaultLessonRepository.getDefaultLessonByGroupId(profile.group.groupId)
     }
 }

@@ -61,10 +61,7 @@ fun SupportScreen(
 
     SupportScreenContent(
         onBack = { navHostController.navigateUp() },
-        onFeedbackChange = viewModel::onUpdateFeedback,
-        onToggleSystemDetails = viewModel::toggleAttachSystemDetails,
-        onEmailChange = viewModel::onUpdateEmail,
-        onSend = viewModel::send,
+        onEvent = viewModel::onEvent,
         state = state
     )
 
@@ -84,10 +81,7 @@ fun SupportScreen(
 @Composable
 private fun SupportScreenContent(
     onBack: () -> Unit = {},
-    onFeedbackChange: (String) -> Unit = {},
-    onToggleSystemDetails: () -> Unit = {},
-    onEmailChange: (String) -> Unit = {},
-    onSend: () -> Unit = {},
+    onEvent: (SupportScreenEvent) -> Unit = {},
     state: SupportScreenState
 ) {
     val scrollBehavior =
@@ -102,7 +96,7 @@ private fun SupportScreenContent(
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                onClick = onSend,
+                onClick = { onEvent(SupportScreenEvent.Send) },
                 text = {
                     val alpha = animateFloatAsState(
                         targetValue =
@@ -143,7 +137,7 @@ private fun SupportScreenContent(
                     .fillMaxSize(),
                 minLines = 5,
                 placeholder = { Text(text = stringResource(id = R.string.settingsSupport_fieldPlaceholder)) },
-                onValueChange = onFeedbackChange,
+                onValueChange = { onEvent(SupportScreenEvent.SetFeedback(it)) },
                 isError = state.feedbackError != null,
                 supportingText = {
                     Text(
@@ -164,7 +158,7 @@ private fun SupportScreenContent(
                     subtitle = stringResource(id = R.string.settingsSupport_attachSystemDetailsSubtitle),
                     type = SettingsType.TOGGLE,
                     checked = state.attachSystemDetails,
-                    doAction = { onToggleSystemDetails() }
+                    doAction = { onEvent(SupportScreenEvent.ToggleSystemDetails) }
                 )
             )
             Setting(
@@ -182,10 +176,10 @@ private fun SupportScreenContent(
                                 .fillMaxSize(),
                             value = state.email ?: "",
                             placeholder = { Text(text = stringResource(id = R.string.settingsSupport_emailTitle)) },
-                            onValueChange = onEmailChange,
+                            onValueChange = { onEvent(SupportScreenEvent.UpdateEmail(it)) },
                             singleLine = true,
                             trailingIcon = {
-                                IconButton(onClick = { onEmailChange("") }) {
+                                IconButton(onClick = { onEvent(SupportScreenEvent.UpdateEmail("")) }) {
                                     Icon(imageVector = Icons.Default.Close, null)
                                 }
                             },

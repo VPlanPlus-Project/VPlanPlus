@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.domain.repository
 
-import android.app.PendingIntent
 import android.content.Context
 import androidx.core.app.NotificationCompat
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -12,7 +11,7 @@ interface NotificationRepository {
         title: String,
         message: String,
         icon: Int,
-        pendingIntent: PendingIntent?,
+        onClickTask: NotificationOnClickTask? = null,
         priority: Int = NotificationCompat.PRIORITY_DEFAULT,
         actions: List<NotificationAction> = emptyList()
     )
@@ -24,6 +23,8 @@ interface NotificationRepository {
     fun createProfileChannels(context: Context, profiles: List<Profile>)
     fun dismissNotification(id: Int)
 
+    fun deleteAllChannels()
+
     companion object {
         const val CHANNEL_ID_SYSTEM = "system"
         const val CHANNEL_ID_GRADES = "grades"
@@ -33,12 +34,22 @@ interface NotificationRepository {
         const val CHANNEL_ID_HOMEWORK = "homework"
 
         const val CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK = 7000
+        const val CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK = CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK + 1
         const val CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID = 8000
         const val CHANNEL_SYSTEM_NOTIFICATION_ID = 100000
+        const val ID_GRADE = 9000
+        const val ID_GRADE_NEW = ID_GRADE + 1
     }
 }
 
 data class NotificationAction(
     val title: String,
-    val intent: PendingIntent
+    val task: NotificationOnClickTask
 )
+
+interface NotificationOnClickTask
+
+class OpenScreenTask(val route: String) : NotificationOnClickTask
+class OpenLinkTask(val url: String) : NotificationOnClickTask
+class DoActionTask(val tag: String): NotificationOnClickTask
+class BroadcastIntentTask(val tag: String): NotificationOnClickTask

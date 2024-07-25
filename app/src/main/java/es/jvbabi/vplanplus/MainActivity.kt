@@ -9,7 +9,6 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -48,12 +47,11 @@ import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import dagger.hilt.android.AndroidEntryPoint
-import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
-import es.jvbabi.vplanplus.domain.usecase.general.Identity
 import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
 import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -70,8 +68,6 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
 
-    private val onboardingViewModel: OnboardingViewModel by viewModels()
-
     @Inject
     lateinit var mainUseCases: MainUseCases
 
@@ -81,7 +77,7 @@ class MainActivity : FragmentActivity() {
     private var navController: NavHostController? = null
     private var showSplashScreen: Boolean = true
 
-    private var currentIdentity = mutableStateOf<Identity?>(null)
+    private var currentProfile by mutableStateOf<Profile?>(null)
     private var colorScheme = mutableStateOf(Colors.DYNAMIC)
     private var appTheme = mutableStateOf(AppThemeMode.SYSTEM)
 
@@ -102,10 +98,11 @@ class MainActivity : FragmentActivity() {
         var goToOnboarding: Boolean? = null
         lifecycleScope.launch {
             Log.d("MainActivity.Setup", "Loading Identity")
-            currentIdentity.value = mainUseCases.getCurrentIdentity.invoke().first()
-            goToOnboarding = currentIdentity.value?.profile == null
+            currentProfile = mainUseCases.getCurrentIdentity.invoke().first()
+            goToOnboarding = currentProfile == null
 
             Log.i("MainActivity.Setup", "Creating or updating notification channels")
+            if (goToOnboarding == true) notificationRepository.deleteAllChannels()
             notificationRepository.createSystemChannels(applicationContext)
             notificationRepository.createProfileChannels(applicationContext, mainUseCases.getProfilesUseCase().first().map { it.value }.flatten())
 
@@ -120,7 +117,7 @@ class MainActivity : FragmentActivity() {
                 )
             ) { data ->
                 colorScheme.value = data[0] as Colors
-                currentIdentity.value = data[1] as Identity?
+                currentProfile = data[1] as Profile?
                 appTheme.value = AppThemeMode.valueOf(data[2] as String)
             }.collect {
                 initDone = true
@@ -189,7 +186,7 @@ class MainActivity : FragmentActivity() {
                             label = { Text(text = stringResource(id = R.string.main_home)) },
                             route = Screen.HomeScreen.route
                         ),
-                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
+                        if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 1) return@NavigationBarItem
                                 selectedIndex = 1
@@ -204,7 +201,7 @@ class MainActivity : FragmentActivity() {
                             label = { Text(text = stringResource(id = R.string.main_homework)) },
                             route = Screen.HomeworkScreen.route
                         ) else null,
-                        if (currentIdentity.value?.profile?.type == ProfileType.STUDENT) NavigationBarItem(
+                        if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 2) return@NavigationBarItem
                                 selectedIndex = 2
@@ -243,15 +240,12 @@ class MainActivity : FragmentActivity() {
                     }
 
                     Surface(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .imePadding(),
+                        modifier = Modifier.fillMaxSize().imePadding(),
                         color = MaterialTheme.colorScheme.surface
                     ) {
                         if (goToOnboarding != null && navController != null) {
                             NavigationGraph(
                                 navController = navController!!,
-                                onboardingViewModel = onboardingViewModel,
                                 goToOnboarding = goToOnboarding!!,
                                 navBar = navBar,
                                 onNavigationChanged = { route ->
@@ -296,7 +290,7 @@ class MainActivity : FragmentActivity() {
         if (intent.hasExtra("screen")) {
             showSplashScreen = false
             lifecycleScope.launch {
-                while (currentIdentity.value == null || navController == null) delay(50)
+                while (currentProfile == null || navController == null) delay(50)
                 when (intent.getStringExtra("screen")) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
                     "homework" -> navController!!.navigate(Screen.HomeworkScreen.route)

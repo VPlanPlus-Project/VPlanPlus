@@ -17,7 +17,7 @@ abstract class VppIdDao {
     @Query("DELETE FROM vpp_id WHERE id = :vppId")
     abstract suspend fun delete(vppId: Int)
 
-    @Query("UPDATE vpp_id SET name = :name, email = :email, cachedAt = :cachedAt WHERE id = :vppId")
+    @Query("UPDATE vpp_id SET name = :name, email = :email, cached_at = :cachedAt WHERE id = :vppId")
     abstract suspend fun update(vppId: Int, name: String, email: String, cachedAt: ZonedDateTime)
 
     @Transaction

@@ -2,7 +2,7 @@ package es.jvbabi.vplanplus.data.source.database.converter
 
 import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
-import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.GradeModifier
 
 @ProvidedTypeConverter
 class GradeModifierConverter {

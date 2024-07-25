@@ -1,10 +1,10 @@
 package es.jvbabi.vplanplus.feature.room_search.domain.usecase
 
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 
 
 data class RoomSearchUseCases(
-    val getCurrentIdentityUseCase: GetCurrentIdentityUseCase,
+    val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     val getRoomMapUseCase: GetRoomMapUseCase,
     val getLessonTimesUseCases: GetClassLessonTimesUseCase,
     val canBookRoomUseCase: CanBookRoomUseCase,

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
@@ -7,32 +8,32 @@ import java.util.UUID
 
 @Entity(
     tableName = "default_lesson",
-    primaryKeys = ["defaultLessonId"],
+    primaryKeys = ["id"],
     indices = [
-        Index(value = ["defaultLessonId"], unique = true),
-        Index(value = ["vpId"]),
-        Index(value = ["classId"]),
-        Index(value = ["teacherId"]),
+        Index(value = ["id"], unique = true),
+        Index(value = ["vp_id"]),
+        Index(value = ["class_id"]),
+        Index(value = ["teacher_id"]),
     ],
     foreignKeys = [
         ForeignKey(
-            entity = DbSchoolEntity::class,
+            entity = DbGroup::class,
             parentColumns = ["id"],
-            childColumns = ["classId"],
+            childColumns = ["class_id"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = DbSchoolEntity::class,
             parentColumns = ["id"],
-            childColumns = ["teacherId"],
-            onDelete = ForeignKey.SET_NULL
+            childColumns = ["teacher_id"],
+            onDelete = ForeignKey.CASCADE
         ),
     ]
 )
 data class DbDefaultLesson(
-    val defaultLessonId: UUID,
-    val vpId: Long,
-    val subject: String,
-    val teacherId: UUID?,
-    val classId: UUID,
+    @ColumnInfo("id") val id: UUID,
+    @ColumnInfo("vp_id") val vpId: Int,
+    @ColumnInfo("subject") val subject: String,
+    @ColumnInfo("teacher_id") val teacherId: UUID?,
+    @ColumnInfo("class_id") val classId: Int,
 )

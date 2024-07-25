@@ -1,20 +1,22 @@
 package es.jvbabi.vplanplus.ui.preview
 
-import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.Group
+import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
+import java.time.ZonedDateTime
 
 object VppIdPreview {
 
-    fun generateVppId(c: Classes?): VppId {
-        val school = c?.school ?: School.generateRandomSchools(1).first()
-        val classes = c ?: ClassesPreview.generateClass(school)
+    fun generateVppId(group: Group?): VppId {
+        val school = group?.school ?: SchoolPreview.generateRandomSchools(1).first()
+        val classes = group ?: GroupPreview.generateGroup(school)
         return VppId(
             id = 1,
             name = "John Doe",
-            classes = classes,
+            group = classes,
             school = school,
-            schoolId = school.schoolId,
-            className = classes.name,
+            schoolId = school.id,
+            groupName = classes.name,
             email = "john.doe@mail.com"
         )
     }

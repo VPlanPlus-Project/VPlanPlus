@@ -59,15 +59,18 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.RoomBooking
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Homework
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTask
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview
+import es.jvbabi.vplanplus.ui.common.unknownVppId
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.RoomPreview
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -80,9 +83,9 @@ private fun headerItemHeight() = MaterialTheme.typography.headlineSmall.lineHeig
 @Composable
 fun LessonCard(
     modifier: Modifier = Modifier,
-    homework: List<Homework>,
+    homework: List<PersonalizedHomework>,
     bookings: List<RoomBooking>,
-    onAddHomeworkClicked: (vpId: Long?) -> Unit = {},
+    onAddHomeworkClicked: (defaultLesson: DefaultLesson?) -> Unit = {},
     onBookRoomClicked: () -> Unit = {},
     lessons: List<Lesson>,
     time: ZonedDateTime,
@@ -114,9 +117,9 @@ fun LessonCard(
     ) {
         lessons.forEachIndexed { i, lesson ->
             val relevantHomeworkTasks = homework
-                .filter { hw -> hw.defaultLesson?.vpId == lesson.vpId }
-                .filter { hw -> hw.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
-                .filter { hw -> !hw.isHidden }
+                .filter { hw -> hw.homework.defaultLesson?.vpId == lesson.defaultLesson?.vpId }
+                .filter { hw -> hw.homework.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
+                .filter { hw -> (hw as? PersonalizedHomework.CloudHomework)?.isHidden != true }
                 .map { it.tasks }
 
             val booking = bookings.firstOrNull { it.from.isEqual(lesson.start) && it.to.isEqual(lesson.end) }
@@ -126,7 +129,7 @@ fun LessonCard(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) header@{
                 SubjectText(lesson.displaySubject, lesson.changedSubject != null)
-                RoomText(lesson.rooms, booking, changed = lesson.roomIsChanged)
+                RoomText(lesson.rooms.map { it.name }, booking, changed = lesson.roomIsChanged)
                 TeacherText(lesson.teachers, changed = lesson.teacherIsChanged)
                 if (displayType != ProfileType.STUDENT) ClassText(lesson.`class`.name)
             }
@@ -157,7 +160,7 @@ fun LessonCard(
             RowRecord(
                 expand = booking != null,
                 icon = Icons.Outlined.MeetingRoom,
-                text = stringResource(id = R.string.home_activeBookedBy, booking?.bookedBy?.name ?: "Unknown", booking?.`class`?.name ?: "--")
+                text = stringResource(id = R.string.home_activeBookedBy, booking?.bookedBy?.name ?: unknownVppId(), booking?.bookedBy?.group?.name ?: "--")
             )
 
             val showBookRoomAssistChip = lesson.rooms.isEmpty() && booking == null && time.isBefore(lesson.end)
@@ -192,7 +195,7 @@ fun LessonCard(
                                 exit = shrinkHorizontally(tween(250))
                             ) {
                                 AssistChip(
-                                    onClick = { onAddHomeworkClicked(lesson.vpId) },
+                                    onClick = { onAddHomeworkClicked(lesson.defaultLesson) },
                                     label = { Text(text = stringResource(id = R.string.home_addHomeworkLabel)) },
                                     leadingIcon = {
                                         Icon(Icons.AutoMirrored.Outlined.MenuBook, null)
@@ -222,14 +225,14 @@ private fun Expandable(isExpanded: Boolean, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun buildHomeworkTasksText(tasks: List<HomeworkTask>) = buildAnnotatedString {
+private fun buildHomeworkTasksText(tasks: List<HomeworkTaskDone>) = buildAnnotatedString {
     if (tasks.isNotEmpty()) {
         append(stringResource(id = R.string.homework_title))
         append("\n")
     }
     tasks.forEachIndexed { i, task ->
         append("   $DOT ")
-        if (task.done) withStyle(style = SpanStyle(textDecoration = TextDecoration.Companion.LineThrough)) {
+        if (task.isDone) withStyle(style = SpanStyle(textDecoration = TextDecoration.Companion.LineThrough)) {
             append(task.content)
         } else append(task.content)
         if (i != tasks.lastIndex) append("\n")
@@ -244,13 +247,13 @@ fun LessonCardPreview() {
         bookings = emptyList(),
         lessons = listOf(
             Lesson(
-                vpId = 1,
+                defaultLesson = null,
                 lessonNumber = 1,
                 start = ZonedDateTime.now(),
                 end = ZonedDateTime.now().plusHours(1),
-                `class` = ClassesPreview.generateClass(school = null),
+                `class` = GroupPreview.generateGroup(school = null),
                 originalSubject = "Math",
-                rooms = listOf("A1"),
+                rooms = listOf(RoomPreview.generateRoom()),
                 teachers = listOf("WMA"),
                 info = "This is an information about this lesson.\nIt also supports multiline.",
                 changedSubject = null,

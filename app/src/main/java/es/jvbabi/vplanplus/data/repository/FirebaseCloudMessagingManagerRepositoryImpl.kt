@@ -1,83 +1,48 @@
 package es.jvbabi.vplanplus.data.repository
 
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
-import es.jvbabi.vplanplus.data.model.ProfileType
-import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
-import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
-import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.model.Group
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
-import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.repository.Keys
-import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.tasks.await
 
 class FirebaseCloudMessagingManagerRepositoryImpl(
     private val vppIdNetworkRepository: VppIdNetworkRepository,
-    private val classRepository: ClassRepository,
-    private val logRecordRepository: LogRecordRepository,
-    private val keyValueRepository: KeyValueRepository,
-    private val schoolEntityDao: SchoolEntityDao,
-    private val profileDao: ProfileDao,
-    private val vppIdTokenDao: VppIdTokenDao,
 ) : FirebaseCloudMessagingManagerRepository {
-    override suspend fun updateToken(t: String?): Boolean {
-        val token = t ?: FirebaseMessaging.getInstance().token.await()
-        logRecordRepository.log("FCM", "Update token $token")
 
+    override suspend fun addTokenUser(user: VppId.ActiveVppId, t: String): Boolean {
+        vppIdNetworkRepository.authentication = BearerAuthentication(user.vppIdToken)
+        return vppIdNetworkRepository.doRequest(
+            path = "/api/${API_VERSION}/user/me/firebase",
+            requestMethod = HttpMethod.Post,
+            requestBody = Gson().toJson(FcmTokenRequest(t)),
+        ).response == HttpStatusCode.Created
+    }
+
+    override suspend fun addTokenGroup(group: Group, t: String): Boolean {
+        vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
+        return vppIdNetworkRepository.doRequest(
+            path = "/api/${API_VERSION}/school/${group.school.id}/group/${group.groupId}/firebase",
+            requestMethod = HttpMethod.Post,
+            requestBody = Gson().toJson(FcmTokenRequest(t)),
+        ).response == HttpStatusCode.Created
+    }
+
+    override suspend fun resetToken(t: String): Boolean {
         vppIdNetworkRepository.authentication = null
-        logRecordRepository.log("FCM", "Unregister token")
-        if (t == null) {
-            vppIdNetworkRepository.doRequest(
-                path = "/api/${API_VERSION}/firebase",
-                requestMethod = HttpMethod.Delete,
-                queries = mapOf("token" to token)
-            )
-        } else if (keyValueRepository.get(Keys.FCM_TOKEN) != null) {
-            vppIdNetworkRepository.doRequest(
-                path = "/api/${API_VERSION}/firebase",
-                requestMethod = HttpMethod.Delete,
-                queries = mapOf("token" to keyValueRepository.get(Keys.FCM_TOKEN)!!)
-            )
-        }
-
-        val profiles = profileDao
-            .getProfiles()
-            .map { it.toModel() }
-            .filter { it.type == ProfileType.STUDENT }
-
-        logRecordRepository.log("FCM", "Building requests for ${profiles.size} profiles")
-
-        val results = mutableListOf<Boolean>()
-        profiles.forEach { profile ->
-            val c = classRepository.getClassById(profile.referenceId)?:return@forEach
-            val vppIdToken = if (profile.vppId != null) vppIdTokenDao.getTokenByVppId(profile.vppId.id)?.token else null
-            val schoolAuthentication = schoolEntityDao.getSchoolEntityById(profile.referenceId)!!.school.buildAuthentication()
-
-            if (vppIdToken == null) vppIdNetworkRepository.authentication = schoolAuthentication
-            else vppIdNetworkRepository.authentication = BearerAuthentication(vppIdToken)
-
-            results.add(
-                vppIdNetworkRepository.doRequest(
-                    path = "/api/${API_VERSION}/firebase",
-                    requestMethod = HttpMethod.Post,
-                    requestBody = Gson().toJson(FcmTokenPutRequest(token, c.name)),
-                ).response == HttpStatusCode.Created
-            )
-        }
-
-        return results.all { it }
+        return vppIdNetworkRepository.doRequest(
+            path = "/api/${API_VERSION}/app/firebase",
+            requestMethod = HttpMethod.Delete,
+            requestBody = Gson().toJson(FcmTokenRequest(t)),
+        ).response == HttpStatusCode.OK
     }
 }
 
-private data class FcmTokenPutRequest(
+private data class FcmTokenRequest(
     @SerializedName("token") val token: String,
-    @SerializedName("class_name") val `class`: String
 )

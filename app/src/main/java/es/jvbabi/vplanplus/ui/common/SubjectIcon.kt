@@ -21,30 +21,40 @@ import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.DefaultLesson
 
 @Composable
 fun SubjectIcon(subject: String?, modifier: Modifier, tint: Color = Color.Unspecified) {
-    when (subject?.lowercase()) {
-        "deutsch", "de", "deu" -> Icon(imageVector = Icons.Default.Book, contentDescription = null, modifier = modifier, tint = tint)
-        "informatik", "inf", "info" -> Icon(imageVector = Icons.Default.Code, contentDescription = null, modifier = modifier, tint = tint)
-        "biologie", "bio" -> Icon(imageVector = Icons.Default.Biotech, contentDescription = null, modifier = modifier, tint = tint)
-        "mathematik", "mathe", "ma" -> Icon(imageVector = Icons.Default.Calculate, contentDescription = null, modifier = modifier, tint = tint)
-        "grw" -> Icon(imageVector = Icons.Default.Payment, contentDescription = null, modifier = modifier, tint = tint)
-        "englisch", "eng", "en" -> Icon(painter = painterResource(id = R.drawable.subject_english), contentDescription = null, modifier = modifier, tint = tint)
-        "geografie", "geo" -> Icon(imageVector = Icons.Default.Place, contentDescription = null, modifier = modifier, tint = tint)
-        "chemie", "ch", "cha" -> Icon(imageVector = Icons.Default.Science, contentDescription = null, modifier = modifier, tint = tint)
-        "physik", "ph", "pha" -> Icon(imageVector = Icons.Default.Bolt, contentDescription = null, modifier = modifier, tint = tint)
-        "ethik", "eth" -> Icon(imageVector = Icons.Default.Psychology, contentDescription = null, modifier = modifier, tint = tint)
-        "musik", "mu" -> Icon(imageVector = Icons.Default.MusicNote, contentDescription = null, modifier = modifier, tint = tint)
-        "geschichte", "ge", "ges" -> Icon(imageVector = Icons.Default.HistoryEdu, contentDescription = null, modifier = modifier, tint = tint)
-        "französisch", "fr", "fra" -> Icon(painter = painterResource(id = R.drawable.subject_french), contentDescription = null, modifier = modifier, tint = tint)
-        "sport", "spo", "sp", "spw", "spm" -> Icon(imageVector = Icons.Default.SportsSoccer, contentDescription = null, modifier = modifier, tint = tint)
-        "latein", "la", "lat" -> Icon(painterResource(id = R.drawable.subject_latin), contentDescription = null, modifier = modifier, tint = tint)
-        "kunst", "ku" -> Icon(imageVector = Icons.Default.Brush, contentDescription = null, modifier = modifier, tint = tint)
-        "astronomie", "ast" -> Icon(imageVector = Icons.Default.SatelliteAlt, contentDescription = null, modifier = modifier, tint = tint)
-        "-" -> Icon(imageVector = Icons.Default.EventBusy, contentDescription = null, modifier = modifier, tint = tint)
-        else -> Icon(imageVector = Icons.Default.School, contentDescription = null, modifier = modifier, tint = tint)
+    Icon(imageVector = subject.getSubjectIcon(), contentDescription = null, modifier = modifier, tint = tint)
+}
+
+@Composable
+fun DefaultLesson?.getSubjectIcon() = this?.subject?.lowercase().getSubjectIcon()
+
+@Composable
+fun String?.getSubjectIcon(): ImageVector {
+    return when(this?.lowercase()) {
+        "deutsch", "de", "deu" -> Icons.Default.Book
+        "informatik", "inf", "info" -> Icons.Default.Code
+        "biologie", "bio" -> Icons.Default.Biotech
+        "mathematik", "mathe", "ma" -> Icons.Default.Calculate
+        "grw" -> Icons.Default.Payment
+        "englisch", "eng", "en" -> ImageVector.vectorResource(id = R.drawable.subject_english)
+        "geografie", "geo" -> Icons.Default.Place
+        "chemie", "ch", "cha" -> Icons.Default.Science
+        "physik", "ph", "pha" -> Icons.Default.Bolt
+        "ethik", "eth" -> Icons.Default.Psychology
+        "musik", "mu" -> Icons.Default.MusicNote
+        "geschichte", "ge", "ges" -> Icons.Default.HistoryEdu
+        "französisch", "fr", "fra" -> ImageVector.vectorResource(id = R.drawable.subject_french)
+        "sport", "spo", "sp", "spw", "spm" -> Icons.Default.SportsSoccer
+        "latein", "la", "lat" -> ImageVector.vectorResource(id = R.drawable.subject_latin)
+        "kunst", "ku" -> Icons.Default.Brush
+        "astronomie", "ast" -> Icons.Default.SatelliteAlt
+        "-" -> Icons.Default.EventBusy
+        else -> Icons.Default.School
     }
 }

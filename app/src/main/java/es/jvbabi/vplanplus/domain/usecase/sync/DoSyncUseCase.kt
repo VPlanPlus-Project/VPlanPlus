@@ -1,23 +1,20 @@
 package es.jvbabi.vplanplus.domain.usecase.sync
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.util.Log
-import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.LessonSchoolEntityCrossoverDao
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -27,6 +24,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_SYSTEM_NOTIFICATION_ID
+import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -35,10 +33,11 @@ import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
-import es.jvbabi.vplanplus.feature.main_grades.domain.model.GradeModifier
-import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.GradeModifier
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.MathTools
@@ -62,20 +61,20 @@ class DoSyncUseCase(
     private val messageRepository: MessageRepository,
     private val schoolRepository: SchoolRepository,
     private val roomRepository: RoomRepository,
-    private val classRepository: ClassRepository,
+    private val groupRepository: GroupRepository,
     private val teacherRepository: TeacherRepository,
     private val defaultLessonRepository: DefaultLessonRepository,
     private val lessonTimesRepository: LessonTimeRepository,
     private val profileRepository: ProfileRepository,
     private val lessonRepository: LessonRepository,
-    private val homeworkRepository: HomeworkRepository,
     private val vPlanRepository: VPlanRepository,
     private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val planRepository: PlanRepository,
     private val systemRepository: SystemRepository,
     private val notificationRepository: NotificationRepository,
-    private val gradeRepository: GradeRepository,
-    private val updateCalendarUseCase: UpdateCalendarUseCase
+    private val updateCalendarUseCase: UpdateCalendarUseCase,
+    private val updateHomeworkUseCase: UpdateHomeworkUseCase,
+    private val updateGradesUseCase: UpdateGradesUseCase
 ) {
     suspend operator fun invoke(): Boolean {
 
@@ -87,7 +86,7 @@ class DoSyncUseCase(
             keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: -1L
 
         logRecordRepository.log("Sync.Homework", "Syncing homework")
-        homeworkRepository.fetchHomework(currentVersion != -1L)
+        updateHomeworkUseCase(currentVersion != -1L)
 
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
@@ -98,18 +97,9 @@ class DoSyncUseCase(
         messageRepository.updateMessages(null)
 
         logRecordRepository.log("Sync.Grades", "Syncing grades")
-        val newGrades = gradeRepository.updateGrades()
 
-        val pendingIntent = Intent(context, MainActivity::class.java)
-            .putExtra("screen", "grades")
-            .let { intent ->
-                PendingIntent.getActivity(
-                    context,
-                    0,
-                    intent,
-                    PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-            }
+        updateGradesUseCase()
+        val newGrades = emptyList<Grade>()
         if (newGrades.isNotEmpty()) {
             val msg = if (newGrades.size == 1) {
                 if (newGrades.first().actualValue != null) context.getString(
@@ -132,7 +122,7 @@ class DoSyncUseCase(
                 context.getString(R.string.notification_newGradesTitle),
                 msg,
                 R.drawable.vpp,
-                pendingIntent,
+                OpenScreenTask(Screen.GradesScreen.route),
             )
         }
 
@@ -142,7 +132,7 @@ class DoSyncUseCase(
         schoolRepository.getSchools().filter { it.credentialsValid != false }.forEach school@{ school ->
             logRecordRepository.log("Sync.School", "Syncing school ${school.name}")
             logRecordRepository.log("Sync.Messages", "Syncing messages for school ${school.name}")
-            messageRepository.updateMessages(school.schoolId)
+            messageRepository.updateMessages(school.id)
 
             logRecordRepository.log(
                 "Sync.RoomBookings",
@@ -154,28 +144,27 @@ class DoSyncUseCase(
                 val date = LocalDate.now().plusDays(it - SYNC_DAYS_PAST.toLong())
                 logRecordRepository.log("Sync.Day", "Syncing day $date")
 
-                val profiles = profileRepository.getProfilesBySchoolId(school.schoolId)
+                val profiles = profileRepository.getProfilesBySchool(school.id).first()
                 profiles.forEach { profile ->
                     profileDataBefore[profile] =
                         lessonRepository.getLessonsForProfile(profile.id, date, currentVersion)
                             .first()
-                            ?.filter { l -> profile.isDefaultLessonEnabled(l.vpId) }
+                            ?.filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
                             ?.toList() ?: emptyList()
                 }
 
-                val data = vPlanRepository.getVPlanData(school, date)
+                val data = vPlanRepository.getVPlanData(school.sp24SchoolId, school.username, school.password, date)
                 if (data.response == HttpStatusCode.Unauthorized) {
                     Log.d("Sync.VPlan", "Unauthorized")
                     schoolRepository.updateCredentialsValid(school, false)
-                    val notificationId = CHANNEL_SYSTEM_NOTIFICATION_ID + 100 + school.schoolId.toInt()
-                    val intent = buildSchoolCredentialsFixIntent(context, notificationId, school.schoolId)
+                    val notificationId = CHANNEL_SYSTEM_NOTIFICATION_ID + 100 + school.id
                     notificationRepository.sendNotification(
                         channelId = CHANNEL_ID_SYSTEM,
                         id = notificationId,
                         title = context.getString(R.string.notification_syncErrorCredentialsIncorrectTitle),
-                        message = context.getString(R.string.notification_syncErrorCredentialsIncorrectText, school.username, school.schoolId, school.name),
+                        message = context.getString(R.string.notification_syncErrorCredentialsIncorrectText, school.username, school.sp24SchoolId, school.name),
                         icon = R.drawable.vpp,
-                        pendingIntent = intent
+                        OpenScreenTask("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${school.id}")
                     )
                     return@school
                 }
@@ -188,7 +177,7 @@ class DoSyncUseCase(
                 if (data.response == HttpStatusCode.NotFound) {
                     logRecordRepository.log(
                         "SyncWorker",
-                        "No data available for ${school.schoolId} (${school.name} at $date)"
+                        "No data available for ${school.id} (${school.name} at $date)"
                     )
                     return@repeat
                 }
@@ -199,7 +188,7 @@ class DoSyncUseCase(
                     val day =
                         planRepository.getDayForProfile(profile, date, currentVersion + 1).first()
                     val importantLessons = day.lessons
-                        .filter { l -> profile.isDefaultLessonEnabled(l.vpId) }
+                        .filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
                     val changedLessons = importantLessons.filter { l ->
                         !profileDataBefore[profile]!!.map { prevData -> prevData.toHash() }
                             .contains(l.toHash())
@@ -256,24 +245,24 @@ class DoSyncUseCase(
             ), ZoneId.of("Europe/Berlin")
         )
 
-        val school = schoolRepository.getSchoolFromId(vPlanData.schoolId)!!
+        val school = schoolRepository.getSchoolBySp24Id(vPlanData.sp24SchoolId)!!
 
         val currentVersion =
             keyValueRepository.get(Keys.LESSON_VERSION_NUMBER)?.toLongOrNull() ?: -1L
 
         // lists to collect data for bulk insert
         val insertLessons = mutableListOf<DbLesson>()
-        val roomCrossovers = mutableListOf<Pair<UUID, UUID>>()
+        val roomCrossovers = mutableListOf<Pair<UUID, Int>>()
         val teacherCrossovers = mutableListOf<Pair<UUID, UUID>>()
 
         // get rooms and teachers
         var rooms = roomRepository.getRoomsBySchool(school)
-        var teachers = teacherRepository.getTeachersBySchoolId(school.schoolId)
+        var teachers = teacherRepository.getTeachersBySchoolId(school.id)
 
         // update stuff
-        classRepository.getClassesBySchool(school).forEach { dlClass ->
+        groupRepository.getGroupsBySchool(school).forEach { dlClass ->
             defaultLessonRepository
-                .getDefaultLessonByClassId(dlClass.classId)
+                .getDefaultLessonByGroupId(dlClass.groupId)
                 .groupBy { it.vpId }
                 .map { it.value.dropLast(1).map { item -> item.defaultLessonId } }
                 .flatten()
@@ -284,14 +273,20 @@ class DoSyncUseCase(
 
         vPlanData.wPlanDataObject.classes!!.forEach {
 
-            val `class` = classRepository.getClassBySchoolIdAndClassName(
-                vPlanData.schoolId,
-                it.schoolClass,
-                true
-            )!!
-            val defaultLessons = defaultLessonRepository.getDefaultLessonByClassId(`class`.classId)
+            val `class` = groupRepository.getGroupBySchoolAndName(
+                vPlanData.sp24SchoolId,
+                it.schoolClass
+            ).run {
+                if (this != null) return@run this
+                if (!groupRepository.insertGroup(school.buildAccess(), null, it.schoolClass, true)) return@run null
+                groupRepository.getGroupBySchoolAndName(
+                    school.id,
+                    it.schoolClass
+                )!!
+            } ?: return
+            val defaultLessons = defaultLessonRepository.getDefaultLessonByGroupId(`class`.groupId)
             val bookings = roomRepository.getRoomBookingsByClass(`class`)
-            val times = lessonTimesRepository.getLessonTimesByClass(`class`)
+            val times = lessonTimesRepository.getLessonTimesByGroup(`class`)
 
             // set lessons
             it.lessons!!.forEach lesson@{ lesson ->
@@ -299,7 +294,7 @@ class DoSyncUseCase(
                     it.defaultLessons!!.find { defaultLesson -> defaultLesson.defaultLesson!!.lessonId!! == lesson.defaultLessonVpId }?.defaultLesson
 
                 val dbDefaultLesson =
-                    defaultLessons.firstOrNull { dl -> dl.vpId == defaultLesson?.lessonId?.toLong() }
+                    defaultLessons.firstOrNull { dl -> dl.vpId == defaultLesson?.lessonId }
                 var defaultLessonDbId = dbDefaultLesson?.defaultLessonId
 
                 val rawTeacherAcronyms =
@@ -345,22 +340,15 @@ class DoSyncUseCase(
 
                 addTeachers.forEach { teacher ->
                     teacherRepository.createTeacher(
-                        schoolId = school.schoolId,
+                        schoolId = school.id,
                         acronym = teacher
                     )
                 }
 
-                addRooms.forEach { room ->
-                    roomRepository.createRoom(
-                        room = Room(
-                            school = school,
-                            name = room
-                        )
-                    )
-                }
+                if (addRooms.isNotEmpty()) roomRepository.insertRoomsByName(school, addRooms)
 
                 if (addTeachers.isNotEmpty()) teachers =
-                    teacherRepository.getTeachersBySchoolId(school.schoolId)
+                    teacherRepository.getTeachersBySchoolId(school.id)
                 if (addRooms.isNotEmpty()) rooms = roomRepository.getRoomsBySchool(school)
 
                 //Log.d("VPlanUseCases", "Processing lesson ${lesson.lesson} for class ${`class`.className}")
@@ -383,11 +371,11 @@ class DoSyncUseCase(
                 if (dbDefaultLesson == null && defaultLesson != null) {
                     defaultLessonDbId = defaultLessonRepository.insert(
                         DbDefaultLesson(
-                            defaultLessonId = UUID.randomUUID(),
-                            vpId = defaultLesson.lessonId!!.toLong(),
+                            id = UUID.randomUUID(),
+                            vpId = defaultLesson.lessonId!!,
                             subject = defaultLesson.subjectShort!!,
                             teacherId = dbTeachers.firstOrNull { t -> t.acronym == defaultLesson.teacherShort }?.teacherId,
-                            classId = `class`.classId
+                            classId = `class`.groupId
                         )
                     )
                 } else if (addTeachers.isNotEmpty() && dbDefaultLesson != null && defaultLesson?.teacherShort != null && dbDefaultLesson.teacher == null && addTeachers.contains(
@@ -395,7 +383,7 @@ class DoSyncUseCase(
                     )
                 ) {
                     defaultLessonRepository.updateTeacherId(
-                        `class`.classId,
+                        `class`.groupId,
                         dbDefaultLesson.vpId,
                         teachers.first { t -> t.acronym == defaultLesson.teacherShort }.teacherId
                     )
@@ -404,14 +392,14 @@ class DoSyncUseCase(
                 val lessonId = UUID.randomUUID()
                 insertLessons.add(
                     DbLesson(
-                        lessonId = lessonId,
-                        roomIsChanged = roomChanged,
+                        id = lessonId,
+                        isRoomChanged = roomChanged,
                         lessonNumber = lesson.lesson,
                         day = planDate,
                         info = if (DefaultValues.isEmpty(lesson.info)) null else lesson.info,
                         defaultLessonId = defaultLessonDbId,
                         changedSubject = changedSubject,
-                        classLessonRefId = `class`.classId,
+                        groupId = `class`.groupId,
                         version = currentVersion+1,
                         roomBookingId = bookings.firstOrNull { booking ->
                             booking.from
@@ -442,22 +430,22 @@ class DoSyncUseCase(
                 .defaultLessons
                 ?.mapNotNull { dl -> dl.defaultLesson?.lessonId } ?: emptyList()
             defaultLessons
-                .filter { dl -> !planDefaultLessons.contains(dl.vpId.toInt()) }
+                .filter { dl -> !planDefaultLessons.contains(dl.vpId) }
                 .forEach { dl ->
-                    profileRepository.deleteDefaultLessonFromProfile(dl.vpId)
                     defaultLessonRepository.deleteDefaultLesson(dl.defaultLessonId)
                 }
         }
 
         lessonRepository.insertLessons(insertLessons)
-        lessonSchoolEntityCrossoverDao.insertCrossovers(
+        lessonSchoolEntityCrossoverDao.insertRoomCrossovers(
             roomCrossovers.map { crossover ->
                 Pair(crossover.first, crossover.second)
-            }.plus(
-                teacherCrossovers.map { crossover ->
-                    Pair(crossover.first, crossover.second)
-                }
-            )
+            }
+        )
+        lessonSchoolEntityCrossoverDao.insertTeacherCrossovers(
+            teacherCrossovers.map { crossover ->
+                Pair(crossover.first, crossover.second)
+            }
         )
 
         planRepository.createPlan(
@@ -478,9 +466,6 @@ class DoSyncUseCase(
 
     private suspend fun sendNewPlanNotification(notificationData: NotificationData) {
 
-        val intent = Intent(context, MainActivity::class.java)
-            .putExtra("screen", "plan/${notificationData.profile.id}/${notificationData.date}")
-
         Log.d(
             "SyncWorker.Notification",
             "Sending ${notificationData.notificationType} for ${notificationData.profile.displayName} at ${
@@ -495,23 +480,11 @@ class DoSyncUseCase(
             )
         )
 
-        val pendingIntent = PendingIntent.getActivity(
-            context,
-            MathTools.cantor(
-                notificationData.profile.id.hashCode(),
-                notificationData.date.toString().replace("-", "").toInt()
-            ),
-            intent,
-            PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-
-        val school = profileRepository.getSchoolFromProfile(notificationData.profile)
-
         val message = when (notificationData.notificationType) {
             SyncNotificationType.CHANGED_LESSONS -> context.getString(
                 R.string.notification_planChangedText,
                 notificationData.profile.displayName,
-                school.name,
+                notificationData.profile.getSchool().name,
                 DateUtils.localizedRelativeDate(context, notificationData.date)
             ) +
                     buildInfoNotificationString(notificationData.info) +
@@ -520,7 +493,7 @@ class DoSyncUseCase(
             SyncNotificationType.NEW_PLAN -> context.getString(
                 R.string.notification_newPlanText,
                 notificationData.profile.displayName,
-                school.name,
+                notificationData.profile.getSchool().name,
                 DateUtils.localizedRelativeDate(context, notificationData.date)
             ) +
                     buildInfoNotificationString(notificationData.info) +
@@ -541,19 +514,7 @@ class DoSyncUseCase(
             ),
             message,
             R.drawable.vpp,
-            pendingIntent
-        )
-    }
-
-    private fun buildSchoolCredentialsFixIntent(context: Context, notificationId: Int, schoolId: Long): PendingIntent {
-        val intent = Intent(context, MainActivity::class.java)
-            .putExtra("screen", "${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=$schoolId")
-
-        return PendingIntent.getActivity(
-            context,
-            notificationId,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            OpenScreenTask(route = "plan/${notificationData.profile.id}/${notificationData.date}")
         )
     }
 

@@ -11,43 +11,29 @@ class HolidayRepositoryImpl(
     private val holidayDao: HolidayDao,
     private val schoolRepository: SchoolRepository
 ) : HolidayRepository {
-    override suspend fun getHolidaysBySchoolId(schoolId: Long): List<Holiday> {
+    override suspend fun getHolidaysBySchoolId(schoolId: Int): List<Holiday> {
         return holidayDao.getHolidaysBySchoolId(schoolId)
     }
 
-    override suspend fun getTodayHoliday(schoolId: Long): Holiday? {
+    override suspend fun getTodayHoliday(schoolId: Int): Holiday? {
         return holidayDao.getHolidaysBySchoolId(schoolId).find {
             it.date.isEqual(LocalDate.now())
         }
     }
 
-    /**
-     * Deletes all holidays with the same schoolId as the ones in the list and inserts the new ones
-     * @param holidays List of holidays to insert
-     */
-    override suspend fun replaceHolidays(holidays: List<Holiday>) {
-        holidays.map { it.schoolHolidayRefId }.toSet().forEach {
-            holidayDao.deleteHolidaysBySchoolId(it?:return@forEach)
-        }
-        holidayDao.insertHolidays(holidays)
+    override suspend fun insertHoliday(schoolId: Int?, date: LocalDate) {
+        holidayDao.insertHoliday(schoolId = schoolId, date = date)
     }
 
-    override suspend fun insertHoliday(holiday: Holiday) {
-        holidayDao.find(holiday.schoolHolidayRefId, holiday.date)?.let {
-            holidayDao.deleteHoliday(it)
-        }
-        holidayDao.insertHoliday(holiday)
-    }
-
-    override suspend fun deleteHolidaysBySchoolId(schoolId: Long) {
+    override suspend fun deleteHolidaysBySchoolId(schoolId: Int) {
         holidayDao.deleteHolidaysBySchoolId(schoolId)
     }
 
-    override suspend fun isHoliday(schoolId: Long, date: LocalDate): Boolean {
+    override suspend fun isHoliday(schoolId: Int, date: LocalDate): Boolean {
         return holidayDao.find(schoolId, date) != null
     }
 
-    override suspend fun getDayType(schoolId: Long, date: LocalDate): DayType {
+    override suspend fun getDayType(schoolId: Int, date: LocalDate): DayType {
         val school = schoolRepository.getSchoolFromId(schoolId) ?: return DayType.NORMAL
         return if (isHoliday(schoolId, date)) DayType.HOLIDAY
         else if (date.dayOfWeek.value > school.daysPerWeek) DayType.WEEKEND

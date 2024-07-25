@@ -10,9 +10,10 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.data.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.Calendar
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileManagementDeletionResult
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
 import kotlinx.coroutines.flow.combine
@@ -46,7 +47,7 @@ class ProfileSettingsViewModel @Inject constructor(
                 profileSettingsUseCases.getProfileByIdUseCase(profileId),
                 profileSettingsUseCases.getCalendarsUseCase()
             ) { profile, calendars ->
-                if (profile == null) return@combine _state.value.copy(initDone = true)
+                if (profile !is ClassProfile) return@combine _state.value.copy(initDone = true)
                 _state.value.copy(
                     profile = profile,
                     calendars = calendars,
@@ -117,7 +118,8 @@ class ProfileSettingsViewModel @Inject constructor(
 
     fun onToggleHomework() {
         viewModelScope.launch {
-            profileSettingsUseCases.updateHomeworkEnabledUseCase(_state.value.profile?:return@launch, _state.value.profile?.isHomeworkEnabled?.not()?:return@launch)
+            val profile = _state.value.profile as? ClassProfile ?: return@launch
+            profileSettingsUseCases.updateHomeworkEnabledUseCase(profile, !profile.isHomeworkEnabled)
         }
     }
 }

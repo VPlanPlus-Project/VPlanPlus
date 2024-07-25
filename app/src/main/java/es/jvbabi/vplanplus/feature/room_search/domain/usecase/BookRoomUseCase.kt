@@ -1,18 +1,18 @@
 package es.jvbabi.vplanplus.feature.room_search.domain.usecase
 
-import es.jvbabi.vplanplus.data.model.ProfileType
 import es.jvbabi.vplanplus.data.repository.BookResult
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import kotlinx.coroutines.flow.first
 import java.time.ZonedDateTime
 
 class BookRoomUseCase(
     private val vppIdRepository: VppIdRepository,
     private val roomRepository: RoomRepository,
-    private val getCurrentIdentityUseCase: GetCurrentIdentityUseCase
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
 ) {
 
     suspend operator fun invoke(
@@ -20,11 +20,11 @@ class BookRoomUseCase(
         start: ZonedDateTime,
         end: ZonedDateTime
     ): BookResult {
-        val identity = getCurrentIdentityUseCase().first() ?: return BookResult.OTHER
-        if (identity.profile?.type != ProfileType.STUDENT) return BookResult.OTHER
-        val vppId = identity.profile.vppId ?: return BookResult.OTHER
+        val profile = getCurrentProfileUseCase().first() ?: return BookResult.OTHER
+        if (profile !is ClassProfile) return BookResult.OTHER
+        val vppId = profile.vppId ?: return BookResult.OTHER
         val result = vppIdRepository.bookRoom(vppId, room, start, end)
-        if (result == BookResult.SUCCESS) roomRepository.fetchRoomBookings(identity.school ?: return BookResult.OTHER)
+        if (result == BookResult.SUCCESS) roomRepository.fetchRoomBookings(profile.getSchool())
         return result
     }
 }

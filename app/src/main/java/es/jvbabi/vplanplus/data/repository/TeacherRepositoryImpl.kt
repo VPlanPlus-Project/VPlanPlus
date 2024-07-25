@@ -12,7 +12,7 @@ import java.util.UUID
 class TeacherRepositoryImpl(
     private val schoolEntityDao: SchoolEntityDao
 ): TeacherRepository {
-    override suspend fun createTeacher(schoolId: Long, acronym: String) {
+    override suspend fun createTeacher(schoolId: Int, acronym: String) {
         schoolEntityDao.insertSchoolEntity(
             DbSchoolEntity(
                 id = UUID.randomUUID(),
@@ -23,17 +23,17 @@ class TeacherRepositoryImpl(
         )
     }
 
-    override suspend fun getTeachersBySchoolId(schoolId: Long): List<Teacher> {
+    override suspend fun getTeachersBySchoolId(schoolId: Int): List<Teacher> {
         return schoolEntityDao.getSchoolEntities(schoolId, SchoolEntityType.TEACHER).map { it.toTeacherModel() }
     }
 
     override suspend fun find(school: School, acronym: String, createIfNotExists: Boolean): Teacher? {
         if (DefaultValues.isEmpty(acronym)) return null
-        val teacher = schoolEntityDao.getSchoolEntityByName(school.schoolId, acronym, SchoolEntityType.TEACHER)
+        val teacher = schoolEntityDao.getSchoolEntityByName(school.id, acronym, SchoolEntityType.TEACHER)
         if (teacher == null && createIfNotExists && acronym.isNotBlank()) {
             val dbTeacher = DbSchoolEntity(
                 id = UUID.randomUUID(),
-                schoolId = school.schoolId,
+                schoolId = school.id,
                 name = acronym,
                 type = SchoolEntityType.TEACHER
             )
@@ -47,11 +47,11 @@ class TeacherRepositoryImpl(
         return schoolEntityDao.getSchoolEntityById(id)?.toTeacherModel()
     }
 
-    override suspend fun deleteTeachersBySchoolId(schoolId: Long) {
+    override suspend fun deleteTeachersBySchoolId(schoolId: Int) {
         schoolEntityDao.deleteSchoolEntitiesBySchoolId(schoolId, SchoolEntityType.TEACHER)
     }
 
-    override suspend fun insertTeachersByAcronym(schoolId: Long, teachers: List<String>) {
+    override suspend fun insertTeachersByAcronym(schoolId: Int, teachers: List<String>) {
         schoolEntityDao.insertSchoolEntities(
             teachers.map {
                 DbSchoolEntity(

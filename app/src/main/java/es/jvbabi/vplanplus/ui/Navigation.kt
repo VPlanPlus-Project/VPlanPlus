@@ -13,29 +13,27 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
-import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCalculatorScreen
-import es.jvbabi.vplanplus.feature.main_grades.ui.calculator.GradeCollection
-import es.jvbabi.vplanplus.feature.main_grades.ui.view.GradesScreen
+import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCalculatorScreen
+import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCollection
+import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.GradesScreen
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
-import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkScreen
-import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkScreen
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.HomeworkListScreen
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkDetailScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingAddProfileScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingCause
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingDefaultLessonScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingLoginScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingPermissionScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingProfileOptionListScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingQrScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSchoolIdScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingSetupScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingViewModel
-import es.jvbabi.vplanplus.feature.onboarding.ui.OnboardingWelcomeScreen
-import es.jvbabi.vplanplus.feature.onboarding.ui.Task
+import es.jvbabi.vplanplus.feature.onboarding.stages.a_welcome.ui.OnboardingWelcomeScreen
+import es.jvbabi.vplanplus.feature.onboarding.stages.b0_schoolid.ui.OnboardingSchoolIdScreen
+import es.jvbabi.vplanplus.feature.onboarding.stages.b1_qr.ui.OnboardingQrScreen
+import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.ui.OnboardingLoginScreen
+import es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.ui.OnboardingAddProfileScreen
+import es.jvbabi.vplanplus.feature.onboarding.stages.e_profile.ui.OnboardingProfileSelectScreen
+import es.jvbabi.vplanplus.feature.onboarding.stages.f_defaultlessons.ui.OnboardingDefaultLessonScreen
+import es.jvbabi.vplanplus.feature.onboarding.stages.g_permissions.ui.OnboardingPermissionScreen
+import es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.ui.OnboardingSetupScreen
 import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
@@ -67,7 +65,6 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 @Composable
 fun NavigationGraph(
     navController: NavHostController,
-    onboardingViewModel: OnboardingViewModel,
     goToOnboarding: Boolean,
     navBar: @Composable (expanded: Boolean) -> Unit,
     onNavigationChanged: (String?) -> Unit
@@ -81,10 +78,10 @@ fun NavigationGraph(
         }
 
         deepLinks(navController)
-        onboarding(navController, onboardingViewModel)
+        onboarding(navController)
         mainScreens(navController, navBar)
         newsScreens(navController)
-        settingsScreens(navController, onboardingViewModel)
+        settingsScreens(navController)
         gradesScreens(navController)
 
         composable(route = Screen.SearchAvailableRoomScreen.route) {
@@ -106,6 +103,10 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
                 uriPattern = "https://vplan.plus/android/link_success/{token}"
                 action = Intent.ACTION_VIEW
             },
+            navDeepLink {
+                uriPattern = "vplanplus://android/link_success/{token}"
+                action = Intent.ACTION_VIEW
+            }
         ),
         arguments = listOf(
             navArgument("token") {
@@ -122,8 +123,7 @@ private fun NavGraphBuilder.deepLinks(navController: NavHostController) {
 }
 
 private fun NavGraphBuilder.onboarding(
-    navController: NavHostController,
-    viewModel: OnboardingViewModel
+    navController: NavHostController
 ) {
     navigation(
         route = Screen.Onboarding.route,
@@ -137,7 +137,7 @@ private fun NavGraphBuilder.onboarding(
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingWelcomeScreen(navController, viewModel)
+            OnboardingWelcomeScreen(navController)
         }
 
         composable(
@@ -147,7 +147,7 @@ private fun NavGraphBuilder.onboarding(
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingQrScreen(navController, viewModel)
+            OnboardingQrScreen(navController)
         }
 
         composable(
@@ -157,7 +157,7 @@ private fun NavGraphBuilder.onboarding(
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingSchoolIdScreen(navController, viewModel)
+            OnboardingSchoolIdScreen(navController)
         }
 
         composable(
@@ -167,28 +167,17 @@ private fun NavGraphBuilder.onboarding(
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingLoginScreen(navController, viewModel)
+            OnboardingLoginScreen(navController)
         }
 
-        composable(
-            route = Screen.OnboardingFirstProfileScreen.route,
+        composable<Screen.OnboardingNewProfileScreen>(
             enterTransition = enterSlideTransition,
             exitTransition = exitSlideTransition,
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingAddProfileScreen(navController, viewModel)
-        }
-
-        composable(
-            route = Screen.OnboardingNewProfileScreen.route + "/{schoolId}",
-            arguments = listOf(
-                navArgument("schoolId") {
-                    type = NavType.LongType
-                }
-            ),
-        ) {
-            OnboardingAddProfileScreen(navController, viewModel)
+            val args = it.toRoute<Screen.OnboardingNewProfileScreen>()
+            OnboardingAddProfileScreen(navController, schoolId = if (args.schoolId == -1) null else args.schoolId)
         }
 
         composable(
@@ -198,7 +187,7 @@ private fun NavGraphBuilder.onboarding(
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingProfileOptionListScreen(navController, viewModel)
+            OnboardingProfileSelectScreen(navController)
         }
 
         composable(
@@ -208,7 +197,7 @@ private fun NavGraphBuilder.onboarding(
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingDefaultLessonScreen(navController, viewModel)
+            OnboardingDefaultLessonScreen(navController)
         }
 
         composable(
@@ -218,10 +207,7 @@ private fun NavGraphBuilder.onboarding(
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingPermissionScreen(
-                navController = navController,
-                viewModel = viewModel,
-            )
+            OnboardingPermissionScreen(navController)
         }
 
         composable(
@@ -231,7 +217,7 @@ private fun NavGraphBuilder.onboarding(
             popEnterTransition = enterSlideTransitionRight,
             popExitTransition = exitSlideTransitionRight
         ) {
-            OnboardingSetupScreen(navController, viewModel)
+            OnboardingSetupScreen(navController)
         }
     }
 }
@@ -286,33 +272,27 @@ private fun NavGraphBuilder.mainScreens(
     }
 
     composable(
-        route = Screen.AddHomeworkScreen.route + "?vpId={vpId}",
-        enterTransition = slideInFromBottom,
-        exitTransition = slideOutFromBottom,
-        popEnterTransition = slideInFromBottom,
-        popExitTransition = slideOutFromBottom,
-        arguments = listOf(
-            navArgument("vpId") {
-                type = NavType.StringType
-                nullable = true
-                defaultValue = null
-            }
-        )
-    ) {
-        AddHomeworkScreen(navHostController = navController, vpId = it.arguments?.getString("vpId")?.toLongOrNull())
-    }
-
-    composable(
         route = Screen.HomeworkScreen.route,
         enterTransition = { fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(300)) },
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
-        HomeworkScreen(
+        HomeworkListScreen(
             navHostController = navController,
             navBar = navBar
         )
+    }
+
+    composable(
+        route = Screen.HomeworkDetailScreen.route + "/{homeworkId}",
+        arguments = listOf(
+            navArgument(name = "homeworkId") {
+                type = NavType.IntType
+            }
+        )
+    ) {
+        HomeworkDetailScreen(navHostController = navController, homeworkId = it.arguments!!.getInt("homeworkId"))
     }
 
     composable(
@@ -343,8 +323,7 @@ private fun NavGraphBuilder.newsScreens(navController: NavHostController) {
 }
 
 private fun NavGraphBuilder.settingsScreens(
-    navController: NavHostController,
-    onboardingViewModel: OnboardingViewModel
+    navController: NavHostController
 ) {
     composable(
         route = Screen.SettingsScreen.route,
@@ -441,22 +420,22 @@ private fun NavGraphBuilder.settingsScreens(
     ) {
         val taskName = it.arguments?.getString("task") ?: "display"
         val task: ProfileManagementTask? = when (taskName) {
-            UpdateCredentialsTask.NAME -> UpdateCredentialsTask(it.arguments?.getString("schoolId")!!.toLong())
+            UpdateCredentialsTask.NAME -> /*UpdateCredentialsTask(it.arguments?.getString("schoolId")!!.toLong())*/ TODO()
             else -> null
         }
 
         ProfileManagementScreen(
             navController = navController,
             onNewProfileClicked = {
-                onboardingViewModel.reset()
-                onboardingViewModel.setTask(Task.CREATE_PROFILE)
-                onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
-                onboardingViewModel.onAutomaticSchoolIdInput(it.schoolId)
+//                onboardingViewModel.reset()
+//                onboardingViewModel.setTask(Task.CREATE_PROFILE)
+//                onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
+//                onboardingViewModel.onAutomaticSchoolIdInput(it.schoolId)
             },
             onNewSchoolClicked = {
-                onboardingViewModel.reset()
-                onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
-                onboardingViewModel.setTask(Task.CREATE_SCHOOL)
+//                onboardingViewModel.reset()
+//                onboardingViewModel.setOnboardingCause(OnboardingCause.NEW_PROFILE)
+//                onboardingViewModel.setTask(Task.CREATE_SCHOOL)
             },
             task = task
         )

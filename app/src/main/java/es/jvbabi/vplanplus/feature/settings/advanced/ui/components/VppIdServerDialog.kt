@@ -10,9 +10,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.SelectDialog
 
+/**
+ * The first server in the list is the default server.
+ */
 val servers = listOf(
     VppIdServer("https://vplan.plus"),
-    VppIdServer("https://vppid-development.test.jvbabi.es", "https://5173--main--website--julius-babies.coder.vppid-server02.cluster.jvbabi.es"),
+    VppIdServer("https://development.vplan.plus"),
 )
 
 @Composable

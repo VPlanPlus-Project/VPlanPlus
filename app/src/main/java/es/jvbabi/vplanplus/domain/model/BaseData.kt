@@ -1,7 +1,5 @@
 package es.jvbabi.vplanplus.domain.model
 
-import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.BaseDataSchoolWeek
-
 
 /**
  * This class represents the base data of a school.
@@ -11,7 +9,6 @@ import es.jvbabi.vplanplus.feature.onboarding.domain.model.xml.BaseDataSchoolWee
  * @param schoolName The name of the school.
  * @param daysPerWeek The number of days per week.
  * @param holidays The list of holidays.
- * @param weeks The list of weeks.
  * @param lessonTimes The map of lesson times, with the class name as key and the lesson number as key of the inner map.
  */
 data class XmlBaseData(
@@ -21,6 +18,5 @@ data class XmlBaseData(
     val schoolName: String,
     val daysPerWeek: Int,
     val holidays: List<Holiday>,
-    val weeks: List<BaseDataSchoolWeek>,
     val lessonTimes: Map<String, Map<Int, Pair<String, String>>>
 )

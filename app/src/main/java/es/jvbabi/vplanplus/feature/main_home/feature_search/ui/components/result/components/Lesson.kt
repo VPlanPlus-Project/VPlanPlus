@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.result.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MarqueeSpacing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.basicMarquee
@@ -22,16 +21,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import es.jvbabi.vplanplus.data.model.SchoolEntityType
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun SearchResultLesson(
     lesson: Lesson,
-    resultType: SchoolEntityType,
+    resultType: ProfileType,
     currentTime: ZonedDateTime
 ) {
     Box(
@@ -74,15 +72,15 @@ fun SearchResultLesson(
                 )
                 Text(
                     text = when (resultType) {
-                        SchoolEntityType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
+                        ProfileType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
                             ", "
                         )
 
-                        SchoolEntityType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
+                        ProfileType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
                             ", "
                         )
 
-                        SchoolEntityType.CLASS -> lesson.teachers.joinToString(
+                        ProfileType.STUDENT -> lesson.teachers.joinToString(
                             ", "
                         ) + " • " + lesson.rooms.joinToString(", ")
                     },

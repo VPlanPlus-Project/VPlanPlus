@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Ignore
 import androidx.room.Index
-import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.util.DateUtils.atBeginningOfTheWorld
 import es.jvbabi.vplanplus.util.DateUtils.atDate
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
@@ -18,8 +18,8 @@ import java.util.UUID
 /**
  * @author Julius Babies
  * Represents a lesson time.
- * @param lessonTimeId The id of the lesson time. (automatically set by the database)
- * @param classLessonTimeRefId The id of the class.
+ * @param id The id of the lesson time. (automatically set by the database)
+ * @param groupId The id of the class.
  * @param lessonNumber The number of the lesson at this day.
  * @param from The start time of the lesson in Europe/Berlin timezone
  * @param to The end time of the lesson in Europe/Berlin timezone
@@ -28,24 +28,24 @@ import java.util.UUID
     tableName = "lesson_time",
     foreignKeys = [
         ForeignKey(
-            entity = DbSchoolEntity::class,
+            entity = DbGroup::class,
             parentColumns = ["id"],
-            childColumns = ["classLessonTimeRefId"],
+            childColumns = ["group_id"],
             onDelete = ForeignKey.CASCADE
         )
     ],
-    primaryKeys = ["lessonTimeId"],
+    primaryKeys = ["id", "group_id", "lesson_number"],
     indices = [
-        Index(value = ["lessonTimeId"], unique = true),
-        Index(value = ["classLessonTimeRefId"]),
+        Index(value = ["id"], unique = true),
+        Index(value = ["group_id"]),
     ]
 )
 data class LessonTime(
-    val lessonTimeId: UUID = UUID.randomUUID(),
-    val classLessonTimeRefId: UUID,
-    val lessonNumber: Int,
-    @ColumnInfo(name = "start") val from: Long,
-    @ColumnInfo(name = "end") val to: Long,
+    @ColumnInfo("id") val id: UUID = UUID.randomUUID(),
+    @ColumnInfo("group_id") val groupId: Int,
+    @ColumnInfo("lesson_number") val lessonNumber: Int,
+    @ColumnInfo("start") val from: Long,
+    @ColumnInfo("end") val to: Long,
 ) {
 
     @get:Ignore

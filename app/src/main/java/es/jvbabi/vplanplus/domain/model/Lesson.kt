@@ -4,18 +4,18 @@ import es.jvbabi.vplanplus.util.sha256
 import java.time.ZonedDateTime
 
 data class Lesson(
-    val `class`: Classes,
+    val `class`: Group,
     val lessonNumber: Int,
     val originalSubject: String?,
     val changedSubject: String?,
     val teachers: List<String>,
     val teacherIsChanged: Boolean,
-    val rooms: List<String>,
+    val rooms: List<Room>,
     val roomIsChanged: Boolean,
     val info: String?,
     val start: ZonedDateTime,
     val end: ZonedDateTime,
-    val vpId: Long?,
+    val defaultLesson: DefaultLesson?,
     val roomBooking: RoomBooking? = null
 ) {
     fun toHash(): String {
@@ -28,7 +28,4 @@ data class Lesson(
 
     val displaySubject: String
         get() = changedSubject ?: originalSubject ?: "-"
-
-    val subjectIsChanged: Boolean
-        get() = changedSubject != null
 }

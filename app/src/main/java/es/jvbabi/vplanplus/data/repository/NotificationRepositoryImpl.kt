@@ -4,10 +4,17 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import androidx.core.app.NotificationCompat
+import androidx.core.net.toUri
+import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.android.receiver.HomeworkRemindLaterReceiver
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.repository.BroadcastIntentTask
+import es.jvbabi.vplanplus.domain.repository.DoActionTask
 import es.jvbabi.vplanplus.domain.repository.NotificationAction
+import es.jvbabi.vplanplus.domain.repository.NotificationOnClickTask
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
@@ -15,7 +22,10 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ROOM_BOOKINGS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYNC
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
+import es.jvbabi.vplanplus.domain.repository.OpenLinkTask
+import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.shared.data.PendingIntentCodes.HOMEWORK_REMINDER_REMIND_LATER
 
 class NotificationRepositoryImpl(
     private val appContext: Context,
@@ -27,11 +37,48 @@ class NotificationRepositoryImpl(
         title: String,
         message: String,
         icon: Int,
-        pendingIntent: PendingIntent?,
+        onClickTask: NotificationOnClickTask?,
         priority: Int,
         actions: List<NotificationAction>
     ) {
         logRepository.log("Notification", "Sending $id to $channelId: $title")
+
+        val taskToIntent: (task: NotificationOnClickTask) -> PendingIntent? = { task ->
+            when (task) {
+                is OpenScreenTask -> {
+                    val intent = Intent(appContext, MainActivity::class.java)
+                        .putExtra("screen", task.route)
+
+                    PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                }
+                is DoActionTask -> {
+                    val intent = Intent(appContext, MainActivity::class.java)
+                        .putExtra("tag", task.tag)
+
+                    PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                }
+                is OpenLinkTask -> {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                        .setData(task.url.toUri())
+
+                    PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+                }
+                is BroadcastIntentTask -> {
+                    val broadcastClass = when (task.tag) {
+                        HomeworkRemindLaterReceiver.TAG -> HomeworkRemindLaterReceiver::class.java
+                        else -> throw IllegalArgumentException("Unknown tag ${task.tag}")
+                    }
+                    val intent = Intent(appContext, broadcastClass).putExtra("tag", HomeworkRemindLaterReceiver.TAG)
+                    PendingIntent.getBroadcast(
+                        appContext,
+                        HOMEWORK_REMINDER_REMIND_LATER,
+                        intent,
+                        PendingIntent.FLAG_IMMUTABLE
+                    )
+                }
+                else -> null
+            }
+        }
 
         val builder = NotificationCompat.Builder(appContext, channelId)
             .setContentTitle(title)
@@ -42,11 +89,11 @@ class NotificationRepositoryImpl(
                     .bigText(message)
             )
             .setSmallIcon(icon)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(onClickTask?.let { taskToIntent(it) })
             .setAutoCancel(true)
 
         actions.forEach {
-            builder.addAction(0, it.title, it.intent)
+            builder.addAction(0, it.title, taskToIntent(it.task))
         }
 
         val notificationManager =
@@ -133,5 +180,13 @@ class NotificationRepositoryImpl(
         val notificationManager =
             appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.cancel(id)
+    }
+
+    override fun deleteAllChannels() {
+        val notificationManager =
+            appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.notificationChannels.forEach {
+            notificationManager.deleteNotificationChannel(it.id)
+        }
     }
 }

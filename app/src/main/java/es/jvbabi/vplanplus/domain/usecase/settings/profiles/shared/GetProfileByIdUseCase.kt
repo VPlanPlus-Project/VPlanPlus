@@ -6,5 +6,5 @@ import java.util.UUID
 class GetProfileByIdUseCase(
     private val profileRepository: ProfileRepository
 ) {
-    operator fun invoke(profileId: UUID) = profileRepository.getProfileById(id = profileId)
+    operator fun invoke(profileId: UUID) = profileRepository.getProfileById(profileId)
 }

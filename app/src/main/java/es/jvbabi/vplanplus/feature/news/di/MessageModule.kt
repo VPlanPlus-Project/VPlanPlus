@@ -6,12 +6,12 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.feature.news.data.repository.NewsRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
+import es.jvbabi.vplanplus.feature.news.data.repository.NewsRepositoryImpl
 import es.jvbabi.vplanplus.feature.news.domain.usecase.NewsUseCases
 import es.jvbabi.vplanplus.feature.news.domain.usecase.UpdateMessagesUseCase
 import es.jvbabi.vplanplus.shared.data.NewsNetworkRepository

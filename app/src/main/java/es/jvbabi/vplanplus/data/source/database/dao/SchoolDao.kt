@@ -15,21 +15,24 @@ abstract class SchoolDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract suspend fun insert(school: School)
 
-    @Query("UPDATE school SET name = :name WHERE schoolId = :schoolId")
-    abstract suspend fun updateName(schoolId: Long, name: String)
+    @Query("UPDATE school SET name = :name WHERE id = :schoolId")
+    abstract suspend fun updateName(schoolId: Int, name: String)
 
-    @Query("SELECT * FROM school WHERE schoolId = :schoolId")
-    abstract suspend fun getSchoolFromId(schoolId: Long): School?
+    @Query("SELECT * FROM school WHERE id = :schoolId")
+    abstract suspend fun getSchoolFromId(schoolId: Int): School?
+
+    @Query("SELECT * FROM school WHERE sp24_school_id = :sp24SchoolId LIMIT 1")
+    abstract suspend fun getSchoolBySp24Id(sp24SchoolId: Int): School?
 
     @Query("SELECT * FROM school WHERE name = :schoolName")
     abstract suspend fun getSchoolByName(schoolName: String): School
 
-    @Query("DELETE FROM school WHERE schoolId = :schoolId")
-    abstract suspend fun delete(schoolId: Long)
+    @Query("DELETE FROM school WHERE id = :schoolId")
+    abstract suspend fun delete(schoolId: Int)
 
-    @Query("UPDATE school SET credentials_valid = :credentialsValid WHERE schoolId = :schoolId")
-    abstract suspend fun updateCredentialsValid(schoolId: Long, credentialsValid: Boolean?)
+    @Query("UPDATE school SET credentials_valid = :credentialsValid WHERE id = :schoolId")
+    abstract suspend fun updateCredentialsValid(schoolId: Int, credentialsValid: Boolean?)
 
-    @Query("UPDATE school SET username = :username, password = :password WHERE schoolId = :schoolId")
-    abstract suspend fun updateCredentials(schoolId: Long, username: String, password: String)
+    @Query("UPDATE school SET username = :username, password = :password WHERE id = :schoolId")
+    abstract suspend fun updateCredentials(schoolId: Int, username: String, password: String)
 }

@@ -4,6 +4,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.FeedbackError
 import es.jvbabi.vplanplus.feature.settings.support.domain.usecase.SupportUseCases
 import kotlinx.coroutines.flow.combine
@@ -21,13 +23,14 @@ class SupportScreenViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    supportUseCases.getEmailForSupportUseCase()
+                    supportUseCases.getCurrentProfileUseCase()
                 )
             ) { data ->
-                val vppEmail = data[0]
+                val profile = data[0]
 
                 state.value.copy(
-                    email = vppEmail
+                    email = (profile as? ClassProfile)?.vppId?.email,
+                    profile = profile,
                 )
             }.collect {
                 state.value = it
@@ -35,42 +38,54 @@ class SupportScreenViewModel @Inject constructor(
         }
     }
 
-    fun onUpdateFeedback(feedback: String) {
+    private fun onUpdateFeedback(feedback: String) {
         state.value = state.value.copy(
             feedback = feedback,
             feedbackError = supportUseCases.validateFeedbackUseCase(feedback)
         )
     }
 
-    fun toggleAttachSystemDetails() {
+    private fun toggleAttachSystemDetails() {
         state.value = state.value.copy(attachSystemDetails = !state.value.attachSystemDetails)
     }
 
-    fun onUpdateEmail(email: String) {
+    private fun onUpdateEmail(email: String) {
         state.value = state.value.copy(
             email = email,
             emailValid = supportUseCases.validateEmailUseCase(email)
         )
     }
 
-    fun send() {
+    private fun send() {
         if (state.value.isLoading) return
         if (!state.value.emailValid || state.value.feedbackError != null) return
         state.value = state.value.copy(isLoading = true)
         viewModelScope.launch {
             state.value = state.value.copy(
                 sendState = if (supportUseCases.sendFeedbackUseCase(
-                    state.value.email,
-                    state.value.feedback,
-                    state.value.attachSystemDetails
-                )) FeedbackSendState.SUCCESS else FeedbackSendState.ERROR,
+                        state.value.email,
+                        state.value.profile ?: return@launch,
+                        state.value.feedback,
+                        state.value.attachSystemDetails
+                    )
+                ) FeedbackSendState.SUCCESS else FeedbackSendState.ERROR,
                 isLoading = false
             )
+        }
+    }
+
+    fun onEvent(event: SupportScreenEvent) {
+        when (event) {
+            is SupportScreenEvent.SetFeedback -> onUpdateFeedback(event.feedback)
+            is SupportScreenEvent.ToggleSystemDetails -> toggleAttachSystemDetails()
+            is SupportScreenEvent.UpdateEmail -> onUpdateEmail(event.email)
+            is SupportScreenEvent.Send -> send()
         }
     }
 }
 
 data class SupportScreenState(
+    val profile: Profile? = null,
     val feedback: String = "",
     val email: String? = null,
     val emailValid: Boolean = true,
@@ -84,4 +99,11 @@ enum class FeedbackSendState {
     NONE,
     SUCCESS,
     ERROR
+}
+
+sealed class SupportScreenEvent {
+    data class SetFeedback(val feedback: String) : SupportScreenEvent()
+    data class UpdateEmail(val email: String) : SupportScreenEvent()
+    data object ToggleSystemDetails : SupportScreenEvent()
+    data object Send : SupportScreenEvent()
 }

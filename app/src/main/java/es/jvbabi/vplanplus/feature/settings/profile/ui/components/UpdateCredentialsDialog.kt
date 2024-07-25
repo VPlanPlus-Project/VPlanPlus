@@ -39,7 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.ComposableDialog
-import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -156,7 +156,7 @@ fun UpdateCredentialsDialog(
 @Preview
 @Composable
 private fun UpdateCredentialsDialogPreview() {
-    val school = School.generateRandomSchools(1).first()
+    val school = SchoolPreview.generateRandomSchools(1).first()
     UpdateCredentialsDialog(
         schoolName = school.name,
         username = school.username,

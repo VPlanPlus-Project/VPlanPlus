@@ -45,9 +45,7 @@ class ProfileManagementViewModel @Inject constructor(
     fun deleteSchool() {
         if (_state.value.deletingSchool == null) return
         viewModelScope.launch {
-            profileSettingsUseCase.deleteSchoolUseCase(
-                _state.value.deletingSchool!!.schoolId
-            )
+            profileSettingsUseCase.deleteSchoolUseCase(_state.value.deletingSchool!!.id)
             closeDeleteSchoolDialog()
         }
     }
@@ -56,7 +54,7 @@ class ProfileManagementViewModel @Inject constructor(
         _state.value = _state.value.copy(
             shareSchool = Gson().toJson(
                 ShareSchool(
-                    school.schoolId,
+                    school.sp24SchoolId,
                     school.username,
                     school.password
                 )
@@ -68,8 +66,8 @@ class ProfileManagementViewModel @Inject constructor(
         _state.value = _state.value.copy(shareSchool = null)
     }
 
-    fun openUpdateCredentialsDialog(schoolId: Long) {
-        val school = state.value.profiles.keys.firstOrNull { it.schoolId == schoolId } ?: return
+    fun openUpdateCredentialsDialog(schoolId: Int) {
+        val school = state.value.profiles.keys.firstOrNull { it.id == schoolId } ?: return
         _state.value = _state.value.copy(
             changeCredentials = ProfileManagementChangeCredentialsState(
                 school = school,
@@ -87,7 +85,7 @@ class ProfileManagementViewModel @Inject constructor(
     }
 
     fun checkCredentialsValidity(username: String, password: String) {
-        val schoolId = _state.value.changeCredentials?.school?.schoolId ?: return
+        val sp24SchoolId = _state.value.changeCredentials?.school?.sp24SchoolId ?: return
         checkNewCredentialsValidityJob?.cancel()
         _state.value = _state.value.copy(
             changeCredentials = _state.value.changeCredentials?.copy(
@@ -95,7 +93,7 @@ class ProfileManagementViewModel @Inject constructor(
             )
         )
         checkNewCredentialsValidityJob = viewModelScope.launch {
-            val isValid = profileSettingsUseCase.checkCredentialsUseCase(schoolId, username, password)
+            val isValid = profileSettingsUseCase.checkCredentialsUseCase(sp24SchoolId, username, password)
             _state.value = _state.value.copy(
                 changeCredentials = _state.value.changeCredentials?.copy(
                     isValid = isValid,
@@ -131,7 +129,7 @@ data class ProfileManagementState(
 )
 
 private data class ShareSchool(
-    val schoolId: Long,
+    val schoolId: Int,
     val username: String,
     val password: String
 )

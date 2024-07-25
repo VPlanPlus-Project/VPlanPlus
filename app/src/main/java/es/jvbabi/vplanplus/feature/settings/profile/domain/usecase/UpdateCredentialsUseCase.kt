@@ -15,6 +15,6 @@ class UpdateCredentialsUseCase(
     ) {
         schoolRepository.updateCredentials(school, username, password)
         schoolRepository.updateCredentialsValid(school, true)
-        notificationRepository.dismissNotification(NotificationRepository.CHANNEL_SYSTEM_NOTIFICATION_ID + 100 + school.schoolId.toInt())
+        notificationRepository.dismissNotification(NotificationRepository.CHANNEL_SYSTEM_NOTIFICATION_ID + 100 + school.id.toInt())
     }
 }

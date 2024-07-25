@@ -5,11 +5,10 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
-import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentIdentityUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetAppThemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
@@ -18,6 +17,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.domain.usecase.home.SetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
+import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
@@ -32,17 +32,18 @@ object MainModule {
         homeworkRepository: HomeworkRepository,
         setUpUseCase: SetUpUseCase,
         profileRepository: ProfileRepository,
-        getProfilesUseCase: GetProfilesUseCase
+        getProfilesUseCase: GetProfilesUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ): MainUseCases {
         return MainUseCases(
             getColorSchemeUseCase = GetColorSchemeUseCase(keyValueRepository),
-            getCurrentIdentity = GetCurrentIdentityUseCase(
+            getCurrentIdentity = GetCurrentProfileUseCase(
                 keyValueRepository = keyValueRepository,
                 profileRepository = profileRepository,
             ),
             getProfilesUseCase = getProfilesUseCase,
             setUpUseCase = setUpUseCase,
-            getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository),
+            getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository, getCurrentProfileUseCase),
             getAppThemeUseCase = GetAppThemeUseCase(keyValueRepository),
             getSyncIntervalMinutesUseCase = GetSyncIntervalMinutesUseCase(keyValueRepository),
             setCurrentProfileUseCase = SetCurrentProfileUseCase(keyValueRepository, profileRepository)
@@ -57,15 +58,15 @@ object MainModule {
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
         alarmManagerRepository: AlarmManagerRepository,
-        firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository
+        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ): SetUpUseCase {
         return SetUpUseCase(
             keyValueRepository = keyValueRepository,
             homeworkRepository = homeworkRepository,
             alarmManagerRepository = alarmManagerRepository,
-            firebaseCloudMessagingManagerRepository = firebaseCloudMessagingManagerRepository,
             vppIdRepository = vppIdRepository,
-            testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository)
+            testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository),
+            updateFirebaseTokenUseCase = updateFirebaseTokenUseCase
         )
     }
 }

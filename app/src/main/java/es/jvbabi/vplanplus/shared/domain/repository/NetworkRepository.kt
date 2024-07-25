@@ -10,7 +10,27 @@ interface NetworkRepository {
     suspend fun doRequest(
         path: String,
         requestMethod: HttpMethod = HttpMethod.Get,
-        requestBody: String? = null,
-        queries: Map<String, String> = emptyMap()
+        requestBody: Any? = null,
+        queries: Map<String, String> = emptyMap(),
+        onUploading: (bytesSentTotal: Long, contentLength: Long) -> Unit = { _, _ -> },
+        onDownloading: (bytesReceivedTotal: Long, contentLength: Long) -> Unit = { _, _ -> }
+    ): DataResponse<String?>
+
+    suspend fun doRequestRaw(
+        path: String,
+        requestMethod: HttpMethod = HttpMethod.Get,
+        requestBody: Any? = null,
+        queries: Map<String, String> = emptyMap(),
+        onUploading: (bytesSentTotal: Long, contentLength: Long) -> Unit = { _, _ -> },
+        onDownloading: (bytesReceivedTotal: Long, contentLength: Long) -> Unit = { _, _ -> }
+    ): DataResponse<ByteArray?>
+
+    suspend fun doRequestForm(
+        path: String,
+        requestMethod: HttpMethod = HttpMethod.Get,
+        form: Map<String, String>,
+        queries: Map<String, String> = emptyMap(),
+        onUploading: (bytesSentTotal: Long, contentLength: Long) -> Unit = { _, _ -> },
+        onDownloading: (bytesReceivedTotal: Long, contentLength: Long) -> Unit = { _, _ -> }
     ): DataResponse<String?>
 }

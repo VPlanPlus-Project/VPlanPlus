@@ -1,6 +1,6 @@
 package es.jvbabi.vplanplus.ui.preview
 
-import es.jvbabi.vplanplus.domain.model.Classes
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.Teacher
@@ -15,92 +15,122 @@ object Lessons {
     fun generateLessons(count: Int = 4, isCurrentLesson: Boolean = false): List<Lesson> {
         val result = mutableListOf<Lesson>()
         val start = if (isCurrentLesson) "${LocalDateTime.now().hour}:15" else "08:00"
-        val end = if (isCurrentLesson) "${LocalDateTime.now().hour+1}:30" else "08:45"
+        val end = if (isCurrentLesson) "${LocalDateTime.now().hour + 1}:30" else "08:45"
 
         repeat(count) { index ->
             result.add(
                 Lesson(
-                    rooms = randomRoom().map { it.name },
+                    rooms = randomRoom(),
                     teacherIsChanged = Random.nextBoolean(),
                     teachers = randomTeacher().map { it.acronym },
                     start = DateUtils.zonedDateFromTimeStringAndDate(start, LocalDate.now()),
                     end = DateUtils.zonedDateFromTimeStringAndDate(end, LocalDate.now()),
                     info = "Info",
-                    lessonNumber = index+1,
+                    lessonNumber = index + 1,
                     roomIsChanged = Random.nextBoolean(),
                     `class` = randomClass(),
                     originalSubject = randomSubject(),
                     changedSubject = if (Random.nextBoolean()) randomSubject() else null,
-                    vpId = null
+                    defaultLesson = null
                 )
             )
         }
         return result
     }
 
-    private fun randomClass(): Classes {
-        val school = School.generateRandomSchools(1).first()
+    private fun randomClass(): Group {
+        val school = SchoolPreview.generateRandomSchools(1).first()
         return listOf(
-            Classes(
+            Group(
                 name = "5a",
-                school = school
+                groupId = 1,
+                school = school,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "5b",
-                school = school
+                school = school,
+                groupId = 2,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "5c",
-                school = school
+                school = school,
+                groupId = 3,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "6a",
-                school = school
+                school = school,
+                groupId = 4,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "6b",
-                school = school
+                school = school,
+                groupId = 5,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "6c",
-                school = school
+                school = school,
+                groupId = 6,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "7a",
-                school = school
+                school = school,
+                groupId = 7,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "7b",
-                school = school
+                school = school,
+                groupId = 8,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "7c",
-                school = school
+                school = school,
+                groupId = 9,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "8a",
-                school = school
+                school = school,
+                groupId = 10,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "8b",
-                school = school
+                school = school,
+                groupId = 11,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "8c",
-                school = school
+                school = school,
+                groupId = 12,
+                isClass = true
             ),
 
-            Classes(
+            Group(
                 name = "9a",
-                school = school
+                school = school,
+                groupId = 13,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "9b",
-                school = school
+                school = school,
+                groupId = 14,
+                isClass = true
             ),
-            Classes(
+            Group(
                 name = "9c",
-                school = school
+                school = school,
+                groupId = 15,
+                isClass = true
             ),
         ).random()
     }
@@ -109,8 +139,8 @@ object Lessons {
         return listOf("MA", "DEU", "ENG", "INF", "CH", "PH", "MU", "KU", "AST").random()
     }
 
-    fun randomTeacher(): MutableList<Teacher> {
-        val school = School.generateRandomSchools(1).first()
+    private fun randomTeacher(): MutableList<Teacher> {
+        val school = SchoolPreview.generateRandomSchools(1).first()
         return listOf(
             Teacher(
                 school = school,
@@ -180,68 +210,83 @@ object Lessons {
         ).randomSubList(2, false)
     }
 
-    fun randomRoom(): MutableList<Room> {
-        val school = School.generateRandomSchools(1).first()
+    private fun randomRoom(): MutableList<Room> {
+        val school = SchoolPreview.generateRandomSchools(1).first()
         return listOf(
             Room(
                 school = school,
-                name = "A1.01"
+                name = "A1.01",
+                roomId = 1
             ),
             Room(
                 school = school,
-                name = "A1.02"
+                name = "A1.02",
+                roomId = 2
             ),
             Room(
                 school = school,
-                name = "A1.03"
+                name = "A1.03",
+                roomId = 3
             ),
             Room(
                 school = school,
-                name = "101"
+                name = "101",
+                roomId = 4
             ),
             Room(
                 school = school,
-                name = "102"
+                name = "102",
+                roomId = 5
             ),
             Room(
                 school = school,
-                name = "103"
+                name = "103",
+                roomId = 6
             ),
             Room(
                 school = school,
-                name = "104"
+                name = "104",
+                roomId = 7
             ),
             Room(
                 school = school,
-                name = "201"
+                name = "201",
+                roomId = 8
             ),
             Room(
                 school = school,
-                name = "202"
+                name = "202",
+                roomId = 9
             ),
             Room(
                 school = school,
-                name = "203"
+                name = "203",
+                roomId = 10
             ),
             Room(
                 school = school,
-                name = "204"
+                name = "204",
+                roomId = 11
             ),
             Room(
                 school = school,
-                name = "K25"
+                name = "K25",
+                roomId = 12
             ),
             Room(
                 school = school,
-                name = "K26"
+                name = "K26",
+                roomId = 13
             ),
             Room(
                 school = school,
-                name = "TH 1"
+                name = "TH 1",
+                roomId = 14
             ),
             Room(
                 school = school,
-                name = "TH 2"
+                name = "TH 2",
+                roomId = 15
             ),
         ).randomSubList(2, false)
     }

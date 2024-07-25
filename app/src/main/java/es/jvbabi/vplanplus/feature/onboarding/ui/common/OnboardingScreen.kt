@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.onboarding.ui.common
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -27,14 +28,13 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun OnboardingScreen(
-    // content composables
     title: String,
     text: @Composable () -> Unit,
     buttonText: String,
     isLoading: Boolean,
     enabled: Boolean,
     onButtonClick: () -> Unit,
-    content: @Composable () -> Unit,
+    content: @Composable ColumnScope.() -> Unit,
     footer: @Composable () -> Unit = {},
 ) {
     val scrollState = rememberScrollState()

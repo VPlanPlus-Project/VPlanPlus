@@ -1,32 +1,60 @@
 package es.jvbabi.vplanplus.domain.repository
 
-import es.jvbabi.vplanplus.data.model.DbProfile
-import es.jvbabi.vplanplus.data.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.Calendar
+import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
+import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.domain.model.VppId
 import kotlinx.coroutines.flow.Flow
 import java.util.UUID
 
 interface ProfileRepository {
+
+    fun getProfilesBySchool(schoolId: Int): Flow<List<Profile>>
     fun getProfiles(): Flow<List<Profile>>
-    suspend fun createProfile(referenceId: UUID, type: ProfileType, name: String, customName: String, enableHomework: Boolean): UUID
-    suspend fun getProfileByReferenceId(referenceId: UUID, type: ProfileType): Profile
-    fun getProfileById(id: UUID): Flow<Profile?>
-    suspend fun deleteProfile(profileId: UUID)
-    suspend fun getProfilesBySchoolId(schoolId: Long): List<Profile>
-    suspend fun updateProfile(profile: DbProfile)
-    suspend fun getDbProfileById(profileId: UUID): DbProfile?
+    fun getProfileById(profileId: UUID): Flow<Profile?>
 
-    suspend fun enableDefaultLesson(profileId: UUID, vpId: Long)
-    suspend fun disableDefaultLesson(profileId: UUID, vpId: Long)
-    suspend fun deleteDefaultLessonsFromProfile(profileId: UUID)
-    suspend fun deleteDefaultLessonFromProfile(vpId: Long)
+    suspend fun deleteProfile(profile: Profile)
 
-    suspend fun getSchoolFromProfile(profile: Profile): School
-    suspend fun getActiveProfile(): Flow<Profile?>
+    suspend fun createClassProfile(
+        profileId: UUID = UUID.randomUUID(),
+        group: Group,
+        name: String = group.name,
+        customName: String = group.name,
+        calendar: Calendar? = null,
+        calendarType: ProfileCalendarType = ProfileCalendarType.NONE,
+        isHomeworkEnabled: Boolean,
+        vppId: VppId? = null
+    ): UUID
 
-    suspend fun setProfileVppId(profile: Profile, vppId: VppId?)
+    suspend fun createTeacherProfile(
+        profileId: UUID = UUID.randomUUID(),
+        teacher: Teacher,
+        name: String = teacher.acronym,
+        customName: String = teacher.acronym,
+        calendar: Calendar? = null,
+        calendarType: ProfileCalendarType = ProfileCalendarType.NONE,
+    ): UUID
 
-    suspend fun setHomeworkEnabled(profile: Profile, enabled: Boolean)
+    suspend fun createRoomProfile(
+        profileId: UUID = UUID.randomUUID(),
+        room: Room,
+        name: String = room.name,
+        customName: String = room.name,
+        calendar: Calendar? = null,
+        calendarType: ProfileCalendarType = ProfileCalendarType.NONE,
+    ): UUID
+
+    suspend fun deleteDefaultLessons(profile: ClassProfile)
+    suspend fun setDefaultLessonActivationState(classProfileId: UUID, defaultLessonVpId: Int, activate: Boolean)
+    suspend fun deleteDefaultLessonStatesFromProfile(classProfile: ClassProfile)
+
+    suspend fun setHomeworkEnabled(profile: ClassProfile, enabled: Boolean)
+    suspend fun setVppIdForProfile(classProfile: ClassProfile, vppId: VppId.ActiveVppId?)
+    suspend fun setCalendarIdForProfile(profile: Profile, calendarId: Long?)
+    suspend fun setCalendarModeForProfile(profile: Profile, calendarMode: ProfileCalendarType)
+    suspend fun setProfileDisplayName(profile: Profile, displayName: String?)
 }

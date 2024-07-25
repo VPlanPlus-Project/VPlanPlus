@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.SessionType
 import es.jvbabi.vplanplus.feature.settings.vpp_id.manage.components.RetrySessions
@@ -48,8 +48,10 @@ import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview
-import es.jvbabi.vplanplus.ui.preview.School
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import java.time.ZonedDateTime
 
@@ -102,7 +104,7 @@ fun VppIdManagementContent(
     onLogoutDialogDismiss: () -> Unit = {},
     onFetchSessions: () -> Unit = {},
     onSessionClosed: (Session) -> Unit = {},
-    onConfirmLinkedProfilesSelection: (result: Map<Profile, Boolean>) -> Unit = {},
+    onConfirmLinkedProfilesSelection: (result: Map<ClassProfile, Boolean>) -> Unit = {},
     state: VppIdManagementState
 ) {
     if (state.vppId == null) return
@@ -125,7 +127,7 @@ fun VppIdManagementContent(
     if (showLinkedProfilesSelectDialog) {
         SelectProfilesDialog(
             vppId = state.vppId,
-            profiles = state.profiles,
+            profiles = state.profiles.filterIsInstance<ClassProfile>(),
             onDismiss = { showLinkedProfilesSelectDialog = false },
             onOk = onConfirmLinkedProfilesSelection
         )
@@ -166,9 +168,9 @@ fun VppIdManagementContent(
                 IconSettingsState(
                     title = stringResource(id = R.string.vppIdSettingsManagement_linkedProfilesTitle),
                     subtitle =
-                        if (state.profiles.isEmpty()) stringResource(id = R.string.vppIdSettingsManagement_noProfilesPossible, state.vppId.className)
-                        else if (state.profiles.count { it.vppId == state.vppId } == 0) stringResource(id = R.string.vppIdSettings_noProfilesConnected)
-                        else state.profiles.filter { it.vppId == state.vppId }.joinToString(", ") { it.displayName },
+                        if (state.profiles.isEmpty()) stringResource(id = R.string.vppIdSettingsManagement_noProfilesPossible, state.vppId.groupName)
+                        else if (state.profiles.count { (it as? ClassProfile)?.vppId == state.vppId } == 0) stringResource(id = R.string.vppIdSettings_noProfilesConnected)
+                        else state.profiles.filter { (it as? ClassProfile)?.vppId == state.vppId }.joinToString(", ") { it.displayName },
                     enabled = state.profiles.isNotEmpty(),
                     type = SettingsType.FUNCTION,
                     doAction = { showLinkedProfilesSelectDialog = true },
@@ -206,14 +208,15 @@ fun VppIdManagementContent(
     }
 }
 
+@OptIn(PreviewFunction::class)
 @Preview(showBackground = true)
 @Composable
 fun VppIdManagementScreenPreview() {
-    val school = School.generateRandomSchools(1).first()
-    val `class` = ClassesPreview.generateClass(school)
+    val school = SchoolPreview.generateRandomSchools(1).first()
+    val `class` = GroupPreview.generateGroup(school)
     VppIdManagementContent(
         state = VppIdManagementState(
-            vppId = VppIdPreview.generateVppId(`class`),
+            vppId = VppIdPreview.generateVppId(`class`).toActiveVppId(),
             logoutDialog = false,
             sessionsState = SessionState.SUCCESS,
             sessions = listOf(

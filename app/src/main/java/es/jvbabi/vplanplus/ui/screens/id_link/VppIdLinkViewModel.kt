@@ -7,10 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,29 +33,17 @@ class VppIdLinkViewModel @Inject constructor(
         viewModelScope.launch {
             state = state.copy(isLoading = true, error = false)
             val response = vppIdLinkUseCases.getVppIdDetailsUseCase(token)
-            if (response.data == null) {
-                Log.d("vpp.ID Link", "Something went wrong: ${response.response}")
+            if (response == null) {
                 state = state.copy(error = true, isLoading = false)
                 return@launch
             }
-            if (response.data.classes == null) {
-                // class does not exists
-                state = state.copy(
-                    isLoading = false,
-                    classNotFound = true,
-                    error = true,
-                    vppId = response.data,
-                )
-                return@launch
-            }
-            val profiles = vppIdLinkUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(response.data)
+            val profiles = vppIdLinkUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(response)
 
-            if (profiles.size == 1) vppIdLinkUseCases.setProfileVppIdUseCase(mapOf(profiles.first() to true), response.data)
+            if (profiles.size == 1) vppIdLinkUseCases.setProfileVppIdUseCase(mapOf(profiles.first() to true), response)
 
             state = state.copy(
                 isLoading = false,
-                vppId = response.data,
-                response = response.response,
+                vppId = response,
                 selectedProfiles = profiles.associateWith { profiles.size == 1 },
                 selectedProfileFoundAtStart = profiles.size == 1
             )
@@ -70,17 +57,15 @@ class VppIdLinkViewModel @Inject constructor(
         }
     }
 
-    fun onToggleProfileState(profile: Profile) {
+    fun onToggleProfileState(profile: ClassProfile) {
         state = state.copy(selectedProfiles = state.selectedProfiles.plus(profile to !(state.selectedProfiles[profile] ?: true)))
     }
 }
 
 data class VppIdLinkState(
-    val vppId: VppId? = null,
-    val response: HttpStatusCode? = null,
+    val vppId: VppId.ActiveVppId? = null,
     val isLoading: Boolean = true,
     val error: Boolean = false,
-    val classNotFound: Boolean = false,
-    val selectedProfiles: Map<Profile, Boolean> = emptyMap(),
+    val selectedProfiles: Map<ClassProfile, Boolean> = emptyMap(),
     val selectedProfileFoundAtStart: Boolean? = null
 )

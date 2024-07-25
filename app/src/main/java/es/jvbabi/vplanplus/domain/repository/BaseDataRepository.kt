@@ -5,16 +5,14 @@ import es.jvbabi.vplanplus.domain.model.XmlBaseData
 
 interface BaseDataRepository {
 
-    suspend fun processBaseData(schoolId: Long, baseData: XmlBaseData)
-
     suspend fun getFullBaseData(
-        schoolId: Long,
+        sp24SchoolId: Int,
         username: String,
         password: String,
     ): DataResponse<XmlBaseData?>
 
     suspend fun checkCredentials(
-        schoolId: Long,
+        schoolId: Int,
         username: String,
         password: String,
     ): DataResponse<Boolean?>

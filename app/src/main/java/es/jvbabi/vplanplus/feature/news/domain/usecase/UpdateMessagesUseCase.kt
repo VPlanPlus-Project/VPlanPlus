@@ -8,7 +8,7 @@ class UpdateMessagesUseCase(
     private val schoolRepository: SchoolRepository
 ) {
     suspend operator fun invoke() {
-        val schoolIds = schoolRepository.getSchools().map { it.schoolId }
+        val schoolIds = schoolRepository.getSchools().map { it.id }
         messageRepository.updateMessages(null)
         schoolIds.forEach { messageRepository.updateMessages(it) }
     }

@@ -1,9 +1,7 @@
 package es.jvbabi.vplanplus.ui.screens.id_link
 
-import android.content.Intent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -13,15 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,15 +30,16 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.id_link.components.AutoConnectToProfile
 import es.jvbabi.vplanplus.ui.screens.id_link.components.LinkNoProfiles
-import io.ktor.http.HttpStatusCode
-import es.jvbabi.vplanplus.ui.preview.ClassesPreview as PreviewClasses
-import es.jvbabi.vplanplus.ui.preview.School as PreviewSchool
+import es.jvbabi.vplanplus.ui.preview.GroupPreview as PreviewClasses
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview as PreviewSchool
 
 @Composable
 fun VppIdLinkScreen(
@@ -69,24 +65,6 @@ fun VppIdLinkScreen(
             vppIdLinkViewModel.init(token)
         },
         onToggleProfile = vppIdLinkViewModel::onToggleProfileState,
-        onContactUs = { userId, className ->
-            val intent = Intent(Intent.ACTION_SENDTO)
-            intent.data = android.net.Uri.parse("mailto:")
-            intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("julvin.babies@gmail.com"))
-            intent.putExtra(Intent.EXTRA_SUBJECT, "VPP-ID Link Fehler")
-            intent.putExtra(
-                Intent.EXTRA_TEXT,
-                """
-                    Bitte fülle die Daten aus (vorausgefüllte Werte bitte lassen):
-                    vpp.ID Nutzer-ID, beste.schule E-Mail oder Nutzername: ${userId ?: "eingeben"}
-                    Klasse: ${className ?: "eingeben"}
-                    
-                    Wir melden uns, sobald du dich anmelden kannst.
-                    Alternativ kannst du uns auch auf Instagram (@vplanplus) kontaktieren.
-                """.trimIndent()
-            )
-            navHostController.context.startActivity(intent)
-        }
     )
 }
 
@@ -94,8 +72,7 @@ fun VppIdLinkScreen(
 private fun VppIdLinkScreenContent(
     onOk: () -> Unit = {},
     onRetry: () -> Unit = {},
-    onContactUs: (userId: Int?, className: String?) -> Unit = { _, _ -> },
-    onToggleProfile: (profile: Profile) -> Unit = {},
+    onToggleProfile: (profile: ClassProfile) -> Unit = {},
     state: VppIdLinkState
 ) {
     Box(
@@ -105,64 +82,14 @@ private fun VppIdLinkScreenContent(
         contentAlignment = Alignment.Center
     ) {
         if (state.isLoading) CircularProgressIndicator()
-        else if (state.classNotFound) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Error,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .size(48.dp)
-                )
-                Text(
-                    text = stringResource(id = R.string.vppIdLink_invalidClassTitle),
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center
-                )
-                Text(
-                    text = stringResource(id = R.string.vppIdLink_invalidClassText, state.vppId?.className ?: "unknown"),
-                    textAlign = TextAlign.Center
-                )
-                Row(
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    OutlinedButton(
-                        onClick = onOk,
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(end = 8.dp)
-                    ) { Text(text = stringResource(id = R.string.back)) }
-                    Button(
-                        onClick = { onContactUs(state.vppId?.id, state.vppId?.className) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(start = 8.dp)
-                    ) {
-                        Text(text = stringResource(id = R.string.vppIdLink_contactUs))
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Default.OpenInNew,
-                            contentDescription = null,
-                            modifier = Modifier.padding(start = 8.dp)
-                        )
-                    }
-                }
-            }
-        } else if (state.error || state.vppId!!.classes == null) {
+        else if (state.error || state.vppId?.group == null) {
             Column {
                 Text(text = "Error")
                 Button(onClick = onRetry) {
                     Text(text = "Retry/Erneut versuchen")
                 }
             }
-        } else if (state.response == HttpStatusCode.OK) {
+        } else {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -181,8 +108,8 @@ private fun VppIdLinkScreenContent(
                 Text(
                     text = stringResource(
                         id = R.string.vppidlink_message,
-                        state.vppId.classes!!.school.name,
-                        state.vppId.classes.name
+                        state.vppId.group.school.name,
+                        state.vppId.group.name
                     ),
                     textAlign = TextAlign.Center
                 )
@@ -194,7 +121,7 @@ private fun VppIdLinkScreenContent(
                 } else if (state.selectedProfiles.isEmpty()) {
                     LinkNoProfiles(
                         modifier = Modifier.padding(vertical = 8.dp),
-                        className = state.vppId.classes.name
+                        className = state.vppId.group.name
                     )
                 } else {
                     Column(Modifier.padding(vertical = 8.dp)) {
@@ -221,73 +148,60 @@ private fun VppIdLinkScreenContent(
                     Text(text = stringResource(id = android.R.string.ok))
                 }
             }
-        } else {
-            Text(text = "Something bad happened: ${state.response}")
         }
     }
 }
 
-@Preview
-@Composable
-private fun VppIdLinkScreenInvalidClassPreview() {
-    VppIdLinkScreenContent(
-        state = VppIdLinkState(
-            isLoading = false,
-            error = true,
-            classNotFound = true
-        )
-    )
-}
-
+@OptIn(PreviewFunction::class)
 @Preview
 @Composable
 private fun VppIdLinkScreenAutoLinkPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first()
-    val classes = PreviewClasses.generateClass(school)
+    val group = PreviewClasses.generateGroup(school)
     val vppId = VppId(
         id = 1,
         name = "Maria Musterfrau",
-        schoolId = school.schoolId,
+        schoolId = school.id,
         school = school,
-        className = classes.name,
-        classes = classes,
+        groupName = group.name,
+        group = group,
         email = "maria.musterfrau@email.com"
-    )
+    ).toActiveVppId()
     VppIdLinkScreenContent(
         state = VppIdLinkState(
             isLoading = false,
-            response = HttpStatusCode.OK,
             selectedProfileFoundAtStart = true,
             selectedProfiles = mapOf(
-                ProfilePreview.generateClassProfile(vppId) to true
+                ProfilePreview.generateClassProfile(group, vppId) to true
             ),
             vppId = vppId,
         )
     )
 }
 
+@OptIn(PreviewFunction::class)
 @Preview
 @Composable
 private fun VppIdLinkScreenPreview() {
     val school = PreviewSchool.generateRandomSchools(1).first()
-    val classes = PreviewClasses.generateClass(school)
+    val group = PreviewClasses.generateGroup(school)
+    val group2 = PreviewClasses.generateGroup(school)
     val vppId = VppId(
         id = 1,
         name = "Maria Musterfrau",
-        schoolId = school.schoolId,
+        schoolId = school.id,
         school = school,
-        className = classes.name,
-        classes = classes,
+        groupName = group.name,
+        group = group,
         email = "maria.musterfrau@email.com"
-    )
+    ).toActiveVppId()
     VppIdLinkScreenContent(
         state = VppIdLinkState(
             isLoading = false,
-            response = HttpStatusCode.OK,
             selectedProfileFoundAtStart = false,
             selectedProfiles = mapOf(
-                ProfilePreview.generateClassProfile(vppId) to true,
-                ProfilePreview.generateClassProfile() to false
+                ProfilePreview.generateClassProfile(group, vppId) to true,
+                ProfilePreview.generateClassProfile(group2) to false
             ),
             vppId = vppId,
         )

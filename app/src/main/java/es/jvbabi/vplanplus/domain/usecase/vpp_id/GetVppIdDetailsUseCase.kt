@@ -1,42 +1,27 @@
 package es.jvbabi.vplanplus.domain.usecase.vpp_id
 
-import es.jvbabi.vplanplus.domain.DataResponse
-import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
-import es.jvbabi.vplanplus.domain.repository.ClassRepository
+import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.feature.main_grades.domain.repository.GradeRepository
-import java.time.ZonedDateTime
+import es.jvbabi.vplanplus.domain.usecase.general.HOMEWORK_VPPID_BALLOON
+import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
+import kotlinx.coroutines.flow.first
 
 class GetVppIdDetailsUseCase(
     private val vppIdRepository: VppIdRepository,
-    private val classRepository: ClassRepository,
-    private val gradeRepository: GradeRepository
+    private val firebaseCloudMessagingManagerRepository: FirebaseCloudMessagingManagerRepository,
+    private val keyValueRepository: KeyValueRepository,
+    private val setBalloonUseCase: SetBalloonUseCase
 ) {
 
-    suspend operator fun invoke(token: String): DataResponse<VppId?> {
-        val response = vppIdRepository.getVppIdOnline(token)
-        if (response.data != null) {
-            val `class` = classRepository.getClassBySchoolIdAndClassName(response.data.schoolId, response.data.className)
-            val vppId = VppId(
-                id = response.data.id,
-                email = response.data.email,
-                name = response.data.username,
-                state = State.ACTIVE,
-                classes = `class`,
-                className = response.data.className,
-                school = `class`?.school,
-                schoolId = response.data.schoolId,
-                cachedAt = ZonedDateTime.now()
-            )
-            if (vppId.classes != null) {
-                vppIdRepository.addVppId(vppId)
-                vppIdRepository.addVppIdToken(vppId, token, response.data.bsToken, true)
-                gradeRepository.updateGrades()
-            }
-
-            return DataResponse(vppId, response.response)
+    suspend operator fun invoke(code: String): VppId.ActiveVppId? {
+        if (vppIdRepository.getActiveVppIds().first().isEmpty()) setBalloonUseCase(HOMEWORK_VPPID_BALLOON, true)
+        val vppId = vppIdRepository.useOAuthCode(code)
+        if (vppId != null) {
+            firebaseCloudMessagingManagerRepository.addTokenUser(vppId, keyValueRepository.get(Keys.FCM_TOKEN) ?: "")
         }
-        return DataResponse(null, response.response)
+        return vppId
     }
 }

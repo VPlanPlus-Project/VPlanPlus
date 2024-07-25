@@ -15,25 +15,25 @@ import java.util.UUID
 abstract class LessonDao {
 
     @Transaction
-    @Query("SELECT * FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp AND version = :version ORDER by lessonNumber ASC")
-    abstract fun getLessonsByClass(classId: UUID, timestamp: Long, version: Long): Flow<List<CLesson>>
+    @Query("SELECT * FROM lesson WHERE group_id = :classId AND day = :timestamp AND version = :version ORDER by lesson_number ASC")
+    abstract fun getLessonsByClass(classId: Int, timestamp: Long, version: Long): Flow<List<CLesson>>
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction
-    @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.defaultLessonId = lesson.defaultLessonId WHERE day = :timestamp AND version = :version AND (lessonId IN (SELECT lsecSchoolEntityId FROM lesson_se_crossover WHERE lsecSchoolEntityId = :teacherId) OR default_lesson.teacherId = :teacherId) ORDER by lessonNumber ASC")
+    @Query("SELECT * FROM lesson LEFT JOIN default_lesson ON default_lesson.id = lesson.default_lesson_id WHERE day = :timestamp AND version = :version AND (lesson.id IN (SELECT school_entity_id FROM lesson_teacher_crossover WHERE school_entity_id = :teacherId) OR default_lesson.teacher_id = :teacherId) ORDER by lesson_number ASC")
     @Suppress(RoomWarnings.CURSOR_MISMATCH)
     abstract fun getLessonsByTeacher(teacherId: UUID, timestamp: Long, version: Long): Flow<List<CLesson>>
 
     @RewriteQueriesToDropUnusedColumns
     @Transaction
-    @Query("SELECT * FROM lesson WHERE day = :timestamp AND version = :version AND lessonId IN (SELECT lsecLessonId FROM lesson_se_crossover WHERE lsecSchoolEntityId = :roomId) ORDER by lessonNumber ASC")
-    abstract fun getLessonsByRoom(roomId: UUID, timestamp: Long, version: Long): Flow<List<CLesson>>
+    @Query("SELECT * FROM lesson WHERE day = :timestamp AND version = :version AND id IN (SELECT lesson_id FROM lesson_room_crossover WHERE room_id = :roomId) ORDER by lesson_number ASC")
+    abstract fun getLessonsByRoom(roomId: Int, timestamp: Long, version: Long): Flow<List<CLesson>>
 
     @Transaction
     @RewriteQueriesToDropUnusedColumns
-    @Query("SELECT * FROM lesson LEFT JOIN school_entity ON school_entity.id = lesson.classLessonRefId WHERE school_entity.schoolId = :schoolId AND day = :timestamp AND version = :version")
+    @Suppress(RoomWarnings.CURSOR_MISMATCH)
+    @Query("SELECT * FROM lesson LEFT JOIN school_entity ON school_entity.id = lesson.group_id WHERE school_entity.school_id = :schoolId AND day = :timestamp AND version = :version")
     abstract fun getLessonsForSchool(schoolId: Int, timestamp: Long, version: Long): Flow<List<CLesson>>
-
 
     @Insert
     abstract suspend fun insertLesson(lesson: DbLesson): Long
@@ -41,8 +41,8 @@ abstract class LessonDao {
     @Query("DELETE FROM lesson")
     abstract suspend fun deleteAll()
 
-    @Query("DELETE FROM lesson WHERE classLessonRefId = :classId AND day = :timestamp AND version = :version")
-    abstract suspend fun deleteLessonsByClassAndDate(classId: UUID, timestamp: Long, version: Long)
+    @Query("DELETE FROM lesson WHERE group_id = :classId AND day = :timestamp AND version = :version")
+    abstract suspend fun deleteLessonsByGroupAndDate(classId: Int, timestamp: Long, version: Long)
 
     @Query("DELETE FROM lesson WHERE version = :version")
     abstract suspend fun deleteLessonsByVersion(version: Long)
