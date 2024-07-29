@@ -753,5 +753,7 @@
     <string name="advancedSettings_testingTitle">Testing</string>
     <string name="advancedSettings_testingRunHomeworkReminderTitle">Trigger homework reminder</string>
     <string name="advancedSettings_testingRunHomeworkReminderSubtitle">This will execute the homework reminder notification instantly. Note that this will only work if there is any homework which you can get reminded of.</string>
+    <string name="vppIdSettingsManagement_requestDeletion">Delete your vpp.ID</string>
+    <string name="vppIdSettingsManagement_requestDeletionSubtitle">Currently, you cannot delete your vpp.ID yourself. You may request its deletion via your account manager. This will open a browser to proceed.</string>
 
 </resources>

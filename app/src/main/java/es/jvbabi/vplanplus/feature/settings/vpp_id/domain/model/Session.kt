@@ -19,8 +19,8 @@ data class Session(
         isCurrent: Boolean
     ) : this(
         when (type) {
-            SessionType.VPLANPLUS -> "A"
-            SessionType.WEB -> "W"
+            SessionType.VPLANPLUS -> "a"
+            SessionType.WEB -> "w"
         },
         name,
         id,

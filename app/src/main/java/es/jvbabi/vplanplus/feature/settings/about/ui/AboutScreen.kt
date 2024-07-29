@@ -1,8 +1,5 @@
 package es.jvbabi.vplanplus.feature.settings.about.ui
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.graphics.ExperimentalAnimationGraphicsApi
 import androidx.compose.animation.graphics.res.animatedVectorResource
 import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
@@ -37,7 +34,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.MainActivity
@@ -46,6 +42,7 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
+import es.jvbabi.vplanplus.ui.common.openLink
 
 @Composable
 fun AboutScreen(
@@ -77,14 +74,6 @@ fun AboutScreen(
             openLink(context, "https://mastodon.social/@vpp_app")
         }
     )
-}
-
-private fun openLink(context: Context, url: String) {
-    val browserIntent = Intent(
-        Intent.ACTION_VIEW,
-        Uri.parse(url)
-    )
-    ContextCompat.startActivity(context, browserIntent, null)
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationGraphicsApi::class)
