@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
@@ -38,7 +37,6 @@ class AdvancedSettingsViewModel @Inject constructor(
             ) { data ->
                 val currentProfile = data[0] as Profile
                 val vppIdServer = data[1] as VppIdServer
-                val canChangeVppIdServer = BuildConfig.DEBUG
 
 
                 val currentLessonText = if (currentProfile is ClassProfile) {
@@ -54,7 +52,6 @@ class AdvancedSettingsViewModel @Inject constructor(
                     """.trimIndent(),
                     selectedVppIdServer = vppIdServer,
                     currentLessonText = currentLessonText,
-                    canChangeVppIdServer = canChangeVppIdServer
                 )
             }.collect {
                 _state.value = it
@@ -100,7 +97,6 @@ data class AdvancedSettingsState(
     val currentProfileText: String = "Loading...",
     val currentLessonText: String = "Loading...",
     val selectedVppIdServer: VppIdServer = servers.first(),
-    val canChangeVppIdServer: Boolean = false,
     val fcmTokenReloadState: FcmTokenReloadState = FcmTokenReloadState.NONE
 )
 

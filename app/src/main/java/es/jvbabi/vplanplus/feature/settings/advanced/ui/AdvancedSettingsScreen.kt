@@ -129,8 +129,7 @@ private fun AdvancedSettingsScreenContent(
                             if (state.selectedVppIdServer.apiHost == servers.first().apiHost) stringResource(id = R.string.advancedSettings_settingsServerDefault)
                             else state.selectedVppIdServer.apiHost,
                         type = SettingsType.FUNCTION,
-                        doAction = { showVppIdServerDialog = true },
-                        enabled = state.canChangeVppIdServer
+                        doAction = { showVppIdServerDialog = true }
                     )
                 )
                 Setting(

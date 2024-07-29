@@ -7,6 +7,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.AccountSettingsUseCases
 import io.ktor.http.HttpStatusCode
@@ -16,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VppIdManagementViewModel @Inject constructor(
-    private val accountSettingsUseCases: AccountSettingsUseCases
+    private val accountSettingsUseCases: AccountSettingsUseCases,
+    private val getCurrentServerUseCase: GetVppIdServerUseCase
 ): ViewModel() {
 
     val state = mutableStateOf(VppIdManagementState())
@@ -31,7 +35,8 @@ class VppIdManagementViewModel @Inject constructor(
                 } ?: return@launch
             state.value = state.value.copy(
                 vppId = account,
-                profiles = accountSettingsUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(account)
+                profiles = accountSettingsUseCases.getProfilesWhichCanBeUsedForVppIdUseCase(account),
+                currentServer = getCurrentServerUseCase().first()
             )
             fetchSessions()
         }
@@ -108,7 +113,8 @@ data class VppIdManagementState(
     val logoutSuccess: Boolean? = null,
     val profiles: List<Profile> = emptyList(),
     val sessions: List<Session> = emptyList(),
-    val sessionsState: SessionState = SessionState.LOADING
+    val sessionsState: SessionState = SessionState.LOADING,
+    val currentServer: VppIdServer = servers.first()
 )
 
 enum class SessionState {

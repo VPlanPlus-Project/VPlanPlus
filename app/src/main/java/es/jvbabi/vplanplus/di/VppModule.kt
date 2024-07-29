@@ -62,6 +62,7 @@ import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -594,6 +595,10 @@ object VppModule {
             updateHomeworkEnabledUseCase = UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository)
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideGetCurrentServerUseCase(keyValueRepository: KeyValueRepository) = GetVppIdServerUseCase(keyValueRepository)
 
     @Provides
     @Singleton
