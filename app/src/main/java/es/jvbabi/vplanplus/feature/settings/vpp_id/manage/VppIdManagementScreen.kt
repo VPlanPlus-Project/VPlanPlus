@@ -3,11 +3,12 @@ package es.jvbabi.vplanplus.feature.settings.vpp_id.manage
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AutoDelete
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SupervisorAccount
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -48,6 +49,7 @@ import es.jvbabi.vplanplus.ui.common.Setting
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
+import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
@@ -91,6 +93,7 @@ fun VppIdManagementScreen(
         onFetchSessions = viewModel::fetchSessionsFromUi,
         onSessionClosed = viewModel::closeSession,
         onConfirmLinkedProfilesSelection = viewModel::onSetLinkedProfiles,
+        onDeletionRequested = { openLink(context, state.currentServer.uiHost + "/app/id/settings/delete?forcelogout") },
         state = state
     )
 }
@@ -105,6 +108,7 @@ fun VppIdManagementContent(
     onFetchSessions: () -> Unit = {},
     onSessionClosed: (Session) -> Unit = {},
     onConfirmLinkedProfilesSelection: (result: Map<ClassProfile, Boolean>) -> Unit = {},
+    onDeletionRequested: () -> Unit = {},
     state: VppIdManagementState
 ) {
     if (state.vppId == null) return
@@ -191,7 +195,7 @@ fun VppIdManagementContent(
                 }
                 Row(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .fillMaxWidth()
                         .padding(16.dp),
                 ) {
                     Icon(
@@ -204,6 +208,15 @@ fun VppIdManagementContent(
                     Text(text = stringResource(id = R.string.vppIdSettingsManagement_sessionsCloseInfo), modifier = Modifier.padding(start = 8.dp))
                 }
             }
+            Setting(IconSettingsState(
+                type = SettingsType.FUNCTION,
+                title = stringResource(id = R.string.vppIdSettingsManagement_requestDeletion),
+                subtitle = stringResource(id = R.string.vppIdSettingsManagement_requestDeletionSubtitle),
+                imageVector = Icons.Default.AutoDelete,
+                enabled = true,
+                isLoading = false,
+                doAction = { onDeletionRequested() }
+            ))
         }
     }
 }

@@ -21,7 +21,6 @@ import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
-import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_SYSTEM_NOTIFICATION_ID
 import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
@@ -35,8 +34,6 @@ import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
-import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
-import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.GradeModifier
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
@@ -50,7 +47,6 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.UUID
-import kotlin.math.roundToInt
 
 private const val SYNC_DAYS_PAST = 2
 
@@ -99,32 +95,6 @@ class DoSyncUseCase(
         logRecordRepository.log("Sync.Grades", "Syncing grades")
 
         updateGradesUseCase()
-        val newGrades = emptyList<Grade>()
-        if (newGrades.isNotEmpty()) {
-            val msg = if (newGrades.size == 1) {
-                if (newGrades.first().actualValue != null) context.getString(
-                    R.string.notification_newGradeText,
-                    newGrades.first().value.roundToInt()
-                        .toString() + when (newGrades.first().modifier) {
-                        GradeModifier.MINUS -> "-"
-                        GradeModifier.PLUS -> "+"
-                        else -> ""
-                    },
-                    newGrades.first().subject.name
-                ) else ""
-            } else {
-                context.getString(R.string.notification_newGradesText, newGrades.size)
-            }
-
-            if (msg.isNotBlank()) notificationRepository.sendNotification(
-                CHANNEL_ID_GRADES,
-                564,
-                context.getString(R.string.notification_newGradesTitle),
-                msg,
-                R.drawable.vpp,
-                OpenScreenTask(Screen.GradesScreen.route),
-            )
-        }
 
         val profileDataBefore = hashMapOf<Profile, List<Lesson>>()
         val notifications = mutableListOf<NotificationData>()
@@ -528,7 +498,7 @@ class DoSyncUseCase(
                         R.string.notification_lesson,
                         lesson.displaySubject,
                         lesson.teachers.joinToString(", "),
-                        lesson.rooms.joinToString(", ")
+                        lesson.rooms.joinToString(", ") { it.name }
                     )
             } \n"
         }
