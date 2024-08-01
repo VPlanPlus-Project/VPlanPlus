@@ -92,7 +92,7 @@ class SetupUseCase(
 
             Log.d("SetupUseCase", "Inserting ${teacherAcronyms.size} teachers")
             teacherRepository.insertTeachersByAcronym(schoolId, teacherAcronyms)
-            val teachers = teacherRepository.getTeachersBySchoolId(school.id)
+            var teachers = teacherRepository.getTeachersBySchoolId(school.id)
 
             Log.d("SetupUseCase", "Inserting ${classesData.size} classes")
             classesData.forEach { clazz ->
@@ -122,11 +122,25 @@ class SetupUseCase(
             holidays.forEach { holidayRepository.insertHoliday(schoolId = schoolId, date = it.date) }
 
             Log.d("SetupUseCase", "Inserting ${defaultLessons.size} default lessons")
-            defaultLessons.forEach { defaultLesson ->
+            defaultLessons.forEach forEachDefaultLesson@{ defaultLesson ->
+                val group = classes.firstOrNull { defaultLesson.clazz == it.name } ?: run {
+                    Log.w("SetupUseCase", "Class '${defaultLesson.clazz}' not found, aborting")
+                    return@forEachDefaultLesson
+                }
+                val teacher = teachers.firstOrNull { defaultLesson.teacher == it.acronym } ?: run {
+                    if (defaultLesson.teacher.isNullOrBlank()) {
+                        Log.w("SetupUseCase", "Teacher '${defaultLesson.teacher}' not found, aborting")
+                        return@forEachDefaultLesson
+                    }
+                    Log.w("SetupUseCase", "Teacher ${defaultLesson.teacher} not found, creating")
+                    teacherRepository.createTeacher(schoolId, defaultLesson.teacher)
+                    teachers = teacherRepository.getTeachersBySchoolId(school.id)
+                    teachers.first { defaultLesson.teacher == it.acronym }
+                }
                 defaultLessonRepository.insertDefaultLesson(
-                    groupId = classes.first { defaultLesson.clazz == it.name }.groupId,
+                    groupId = group.groupId,
                     subject = defaultLesson.subject,
-                    teacherId = teachers.first { defaultLesson.teacher == it.acronym }.teacherId,
+                    teacherId = teacher.teacherId,
                     vpId = defaultLesson.vpId
                 )
             }
