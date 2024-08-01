@@ -57,13 +57,13 @@ class ClassProfile(
     val defaultLessons: Map<DefaultLesson, Boolean>,
     val vppId: VppId.ActiveVppId?
 ) : Profile(id, originalName, displayName, calendarType, calendarId) {
-        /**
-        * Returns true if the default lesson is enabled for this profile
-        * Returns also true if default lesson isn't found in profile
-        */
-        fun isDefaultLessonEnabled(vpId: Int?): Boolean {
-            return defaultLessons.filterKeys { it.vpId == vpId }.values.firstOrNull()?:true
-        }
+    /**
+     * Returns true if the default lesson is enabled for this profile
+     * Returns also true if default lesson isn't found in profile
+     */
+    fun isDefaultLessonEnabled(vpId: Int?): Boolean {
+        return defaultLessons.filterKeys { it.vpId == vpId }.values.firstOrNull() ?: true
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -71,7 +71,15 @@ class ClassProfile(
 
         other as ClassProfile
 
-        return id == other.id
+        return id == other.id &&
+                group == other.group &&
+                isHomeworkEnabled == other.isHomeworkEnabled &&
+                defaultLessons == other.defaultLessons &&
+                vppId == other.vppId &&
+                originalName == other.originalName &&
+                displayName == other.displayName &&
+                calendarType == other.calendarType &&
+                calendarId == other.calendarId
     }
 
     override fun getSchool() = group.school

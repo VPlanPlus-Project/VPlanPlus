@@ -26,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -42,7 +41,7 @@ fun ProfileSettingsDefaultLessonScreen(
     navController: NavHostController,
     viewModel: ProfileSettingsDefaultLessonsViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state.value
+    val state = viewModel.state
 
     LaunchedEffect(key1 = profileId, block = {
         viewModel.init(profileId)
@@ -50,10 +49,7 @@ fun ProfileSettingsDefaultLessonScreen(
     ProfileSettingsDefaultLessonContent(
         state = state,
         onBackClicked = { navController.navigateUp() },
-        onDefaultLessonChanged = { dl, value ->
-            viewModel.onDefaultLessonChanged(dl, value)
-        },
-        onFixLessons = { viewModel.onFixDefaultLessons() }
+        onEvent = { event -> viewModel.onEvent(event) },
     )
 }
 
@@ -62,8 +58,7 @@ fun ProfileSettingsDefaultLessonScreen(
 fun ProfileSettingsDefaultLessonContent(
     state: ProfileSettingsDefaultLessonsState,
     onBackClicked: () -> Unit,
-    onDefaultLessonChanged: (DefaultLesson, Boolean) -> Unit,
-    onFixLessons: () -> Unit
+    onEvent: (event: ProfileSettingsDefaultLessonsEvent) -> Unit,
 ) {
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -89,7 +84,7 @@ fun ProfileSettingsDefaultLessonContent(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-                return@Scaffold
+                return@Column
             }
             if (state.differentDefaultLessons) {
                 InfoCard(
@@ -97,12 +92,12 @@ fun ProfileSettingsDefaultLessonContent(
                     imageVector = Icons.Default.Warning,
                     title = stringResource(id = R.string.settings_profileDefaultLessonDifferentDefaultLessonsTitle),
                     text = stringResource(id = R.string.settings_profileDefaultLessonDifferentDefaultLessonsText),
-                    buttonAction1 = { onFixLessons() },
+                    buttonAction1 = { onEvent(ProfileSettingsDefaultLessonsEvent.FixDefaultLessons) },
                     buttonText1 = stringResource(id = R.string.fix)
                 )
             }
             LazyColumn {
-                items(items = state.profile.defaultLessons.entries.sortedBy { it.key.subject + (it.key.teacher?.acronym ?: "A") }) {
+                items(items = state.profile.defaultLessons.entries.sortedBy { it.key.subject + (it.key.teacher?.acronym ?: "A") + it.key.vpId }) {
                     SettingsSetting(
                         icon = null,
                         title = it.key.subject,
@@ -111,7 +106,7 @@ fun ProfileSettingsDefaultLessonContent(
                         type = SettingsType.TOGGLE,
                         enabled = true,
                         checked = it.value,
-                        doAction = { onDefaultLessonChanged(it.key, !it.value) }
+                        doAction = { onEvent(ProfileSettingsDefaultLessonsEvent.DefaultLessonChanged(it.key, !it.value)) }
                     )
                 }
             }
@@ -126,7 +121,6 @@ fun ProfileSettingsDefaultLessonScreenPreview() {
     ProfileSettingsDefaultLessonContent(
         state = ProfileSettingsDefaultLessonsState(differentDefaultLessons = true, profile = ProfilePreview.generateClassProfile(group)),
         onBackClicked = {},
-        onDefaultLessonChanged = { _, _ -> },
-        onFixLessons = {}
+        onEvent = {}
     )
 }

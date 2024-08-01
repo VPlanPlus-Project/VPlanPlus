@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.feature.settings.profile.ui.settings
 
-import androidx.compose.runtime.State
+import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,14 +20,15 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
     private val defaultLessonsUseCases: ProfileDefaultLessonsUseCases,
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(ProfileSettingsDefaultLessonsState())
-    val state: State<ProfileSettingsDefaultLessonsState> = _state
+    var state by mutableStateOf(ProfileSettingsDefaultLessonsState())
+        private set
 
     fun init(profileId: UUID) {
         viewModelScope.launch {
             defaultLessonsUseCases.getProfileByIdUseCase(profileId).collect { profile ->
-                if (profile as? ClassProfile == null) return@collect
-                _state.value = _state.value.copy(
+                if (profile !is ClassProfile) return@collect
+                Log.d("ProfileSettingsDefaultLessonsViewModel", "init: ${profile.hashCode()}")
+                state = state.copy(
                     profile = profile,
                     differentDefaultLessons = defaultLessonsUseCases.isInconsistentStateUseCase(profile),
                     isDebug = BuildConfig.DEBUG
@@ -34,19 +37,16 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
         }
     }
 
-    fun onDefaultLessonChanged(defaultLesson: DefaultLesson, value: Boolean) {
+    fun onEvent(event: ProfileSettingsDefaultLessonsEvent) {
         viewModelScope.launch {
-            defaultLessonsUseCases.changeDefaultLessonUseCase(
-                profile = state.value.profile!!,
-                defaultLesson = defaultLesson,
-                enabled = value
-            )
-        }
-    }
-
-    fun onFixDefaultLessons() {
-        viewModelScope.launch {
-            defaultLessonsUseCases.fixDefaultLessonsUseCase(state.value.profile!!)
+            when (event) {
+                is ProfileSettingsDefaultLessonsEvent.DefaultLessonChanged -> defaultLessonsUseCases.changeDefaultLessonUseCase(
+                    profile = state.profile!!,
+                    defaultLesson = event.defaultLesson,
+                    enabled = event.value
+                )
+                is ProfileSettingsDefaultLessonsEvent.FixDefaultLessons -> defaultLessonsUseCases.fixDefaultLessonsUseCase(state.profile!!)
+            }
         }
     }
 }
@@ -56,3 +56,8 @@ data class ProfileSettingsDefaultLessonsState(
     val differentDefaultLessons: Boolean = false,
     val isDebug: Boolean = false
 )
+
+sealed class ProfileSettingsDefaultLessonsEvent {
+    data object FixDefaultLessons : ProfileSettingsDefaultLessonsEvent()
+    data class DefaultLessonChanged(val defaultLesson: DefaultLesson, val value: Boolean) : ProfileSettingsDefaultLessonsEvent()
+}

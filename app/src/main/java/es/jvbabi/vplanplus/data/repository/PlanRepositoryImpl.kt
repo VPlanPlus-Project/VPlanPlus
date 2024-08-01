@@ -61,7 +61,7 @@ class PlanRepositoryImpl(
     }
 
     override fun getDayForGroup(groupId: Int, date: LocalDate, version: Long) = flow {
-        val `class` = groupRepository.getGroupById(groupId)!!
+        val `class` = groupRepository.getGroupById(groupId) ?: return@flow
         val school = `class`.school
 
         lessonRepository.getLessonsForGroup(`class`.groupId, date, version).distinctUntilChanged()

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
+import android.util.Log
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
