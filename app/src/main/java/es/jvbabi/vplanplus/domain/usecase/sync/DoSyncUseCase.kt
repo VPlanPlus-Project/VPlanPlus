@@ -345,7 +345,8 @@ class DoSyncUseCase(
                             vpId = defaultLesson.lessonId!!,
                             subject = defaultLesson.subjectShort!!,
                             teacherId = dbTeachers.firstOrNull { t -> t.acronym == defaultLesson.teacherShort }?.teacherId,
-                            classId = `class`.groupId
+                            classId = `class`.groupId,
+                            defaultLesson.courseGroup
                         )
                     )
                 } else if (addTeachers.isNotEmpty() && dbDefaultLesson != null && defaultLesson?.teacherShort != null && dbDefaultLesson.teacher == null && addTeachers.contains(

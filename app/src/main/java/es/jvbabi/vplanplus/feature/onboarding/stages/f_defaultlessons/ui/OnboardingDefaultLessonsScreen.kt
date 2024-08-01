@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -27,6 +26,9 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.domain.usecase.OnboardingDefaultLesson
 import es.jvbabi.vplanplus.feature.onboarding.stages.f_defaultlessons.ui.components.NoDataAvailable
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
@@ -69,7 +71,8 @@ fun OnboardingDefaultLessonContent(
                             subject = it.key.subject,
                             teacherAcronym = it.key.teacher,
                             activated = it.value,
-                            onClick = { doAction(ToggleDefaultLesson(it.key)) }
+                            onClick = { doAction(ToggleDefaultLesson(it.key)) },
+                            courseGroup = it.key.courseGroup
                         )
                     }
             }
@@ -87,13 +90,15 @@ fun OnboardingDefaultLessonScreenPreview() {
                     subject = "DEU",
                     teacher = "Mul",
                     clazz = "1A",
-                    vpId = 0
+                    vpId = 0,
+                    courseGroup = "DE1"
                 ) to true,
                 OnboardingDefaultLesson(
                     subject = "MAT",
                     teacher = "Wer",
                     clazz = "1A",
-                    vpId = 1
+                    vpId = 1,
+                    courseGroup = "MA1"
                 ) to false,
             )
         ),
@@ -117,6 +122,7 @@ fun DefaultLessonCard(
     subject: String,
     teacherAcronym: String?,
     activated: Boolean,
+    courseGroup: String?,
     onClick: () -> Unit
 ) {
     Box(
@@ -128,15 +134,20 @@ fun DefaultLessonCard(
             .background(MaterialTheme.colorScheme.secondaryContainer),
         contentAlignment = Alignment.CenterStart
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(checked = activated, onCheckedChange = { onClick() })
-            Text(text = subject, style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = teacherAcronym ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher),
+        RowVerticalCenterSpaceBetweenFill {
+            RowVerticalCenter {
+                Checkbox(checked = activated, onCheckedChange = { onClick() })
+                Text(text = subject, style = MaterialTheme.typography.titleMedium)
+                Spacer8Dp()
+                Text(
+                    text = teacherAcronym ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+            if (courseGroup != null) Text(
+                text = courseGroup,
                 style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(end = 16.dp)
             )
         }
     }
@@ -145,11 +156,11 @@ fun DefaultLessonCard(
 @Preview
 @Composable
 private fun DefaultLessonCardPreview() {
-    DefaultLessonCard(subject = "DEU", teacherAcronym = "Mul", activated = true, onClick = {})
+    DefaultLessonCard(subject = "DEU", teacherAcronym = "Mul", activated = true, onClick = {}, courseGroup = null)
 }
 
 @Preview
 @Composable
 private fun DefaultLessonCardWithoutTeacherPreview() {
-    DefaultLessonCard(subject = "DEU", teacherAcronym = "", activated = true, onClick = {})
+    DefaultLessonCard(subject = "DEU", teacherAcronym = "", activated = true, onClick = {}, courseGroup = "DE1")
 }

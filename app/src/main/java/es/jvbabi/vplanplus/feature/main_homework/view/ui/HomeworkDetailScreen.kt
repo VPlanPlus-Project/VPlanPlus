@@ -301,7 +301,8 @@ fun HomeworkDetailScreenPreview() {
                         `class` = group,
                         vpId = 1,
                         subject = "DEU",
-                        teacher = teacher
+                        teacher = teacher,
+                        courseGroup = null
                     ),
                     isPublic = true,
                 ),

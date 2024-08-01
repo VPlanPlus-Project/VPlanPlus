@@ -31,14 +31,15 @@ class DefaultLessonRepositoryImpl(
         defaultLessonDao.deleteById(id)
     }
 
-    override suspend fun insertDefaultLesson(groupId: Int, vpId: Int, subject: String, teacherId: UUID) {
+    override suspend fun insertDefaultLesson(groupId: Int, vpId: Int, subject: String, teacherId: UUID, courseGroup: String?) {
         defaultLessonDao.insert(
             DbDefaultLesson(
                 id = UUID.randomUUID(),
                 classId = groupId,
                 vpId = vpId,
                 subject = subject,
-                teacherId = teacherId
+                teacherId = teacherId,
+                courseGroup = courseGroup
             )
         )
     }

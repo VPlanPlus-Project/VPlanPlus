@@ -1,10 +1,12 @@
 package es.jvbabi.vplanplus.feature.settings.profile.ui.settings
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
@@ -97,12 +99,22 @@ fun ProfileSettingsDefaultLessonContent(
                 )
             }
             LazyColumn {
+                item courseGroups@{
+                    AnimatedVisibility(visible = state.courseGroups != null) {
+                        LazyRow {
+
+                        }
+                    }
+                }
                 items(items = state.profile.defaultLessons.entries.sortedBy { it.key.subject + (it.key.teacher?.acronym ?: "A") + it.key.vpId }) {
                     SettingsSetting(
                         icon = null,
                         title = it.key.subject,
-                        subtitle = (it.key.teacher?.acronym
-                            ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher)) + if (state.isDebug) " $DOT ${it.key.vpId}" else "",
+                        subtitle = buildString {
+                            append(it.key.teacher?.acronym ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher))
+                            if (it.key.courseGroup != null) append(" $DOT ${it.key.courseGroup}")
+                            if (state.isDebug) append(" $DOT ${it.key.vpId}")
+                        },
                         type = SettingsType.TOGGLE,
                         enabled = true,
                         checked = it.value,
