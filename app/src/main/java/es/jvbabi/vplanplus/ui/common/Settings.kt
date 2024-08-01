@@ -41,13 +41,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import es.jvbabi.vplanplus.R
 
 @Composable
-fun SettingsCategory(title: String, content: @Composable () -> Unit = {}) {
+fun SettingsCategory(
+    overrideStartPadding: Dp? = null,
+    title: String, content: @Composable () -> Unit = {}
+) {
     Column(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -55,7 +59,7 @@ fun SettingsCategory(title: String, content: @Composable () -> Unit = {}) {
             text = title,
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.padding(start = 16.dp, bottom = 4.dp, top = 24.dp)
+            modifier = Modifier.padding(start = overrideStartPadding ?: 16.dp, bottom = 4.dp, top = 24.dp)
         )
         content()
     }

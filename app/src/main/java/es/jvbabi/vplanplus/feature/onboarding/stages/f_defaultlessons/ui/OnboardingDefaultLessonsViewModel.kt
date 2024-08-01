@@ -38,7 +38,10 @@ class OnboardingDefaultLessonsViewModel @Inject constructor(
 
 data class OnboardingDefaultLessonsState(
     val defaultLessons: Map<OnboardingDefaultLesson, Boolean> = emptyMap()
-)
+) {
+    val courseGroups: List<String>
+        get() = defaultLessons.keys.mapNotNull { it.courseGroup }.distinct().sorted()
+}
 
 sealed class UiAction
 data class ToggleDefaultLesson(val defaultLesson: OnboardingDefaultLesson) : UiAction()

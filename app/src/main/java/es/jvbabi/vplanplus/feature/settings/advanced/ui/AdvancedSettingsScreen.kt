@@ -199,7 +199,7 @@ private fun AdvancedSettingsScreenContent(
                     doAction = {}
                 )
             }
-            SettingsCategory(stringResource(id = R.string.advancedSettings_testingTitle)) {
+            SettingsCategory(title = stringResource(id = R.string.advancedSettings_testingTitle)) {
                 SettingsSetting(
                     icon = Icons.Default.Notifications,
                     title = stringResource(id = R.string.advancedSettings_testingRunHomeworkReminderTitle),
