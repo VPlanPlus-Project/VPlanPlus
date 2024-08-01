@@ -89,7 +89,7 @@ fun ProfileSettingsDefaultLessonContent(
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
-                return@Scaffold
+                return@Column
             }
             if (state.differentDefaultLessons) {
                 InfoCard(
@@ -102,7 +102,7 @@ fun ProfileSettingsDefaultLessonContent(
                 )
             }
             LazyColumn {
-                items(items = state.profile.defaultLessons.entries.sortedBy { it.key.subject + (it.key.teacher?.acronym ?: "A") }) {
+                items(items = state.profile.defaultLessons.entries.sortedBy { it.key.subject + (it.key.teacher?.acronym ?: "A") + it.key.vpId }) {
                     SettingsSetting(
                         icon = null,
                         title = it.key.subject,

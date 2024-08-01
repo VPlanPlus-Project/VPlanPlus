@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.lessons.ProfileDefaultLessonsUseCases
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -41,6 +42,14 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
                 defaultLesson = defaultLesson,
                 enabled = value
             )
+            defaultLessonsUseCases.getProfileByIdUseCase(state.value.profile!!.id).first().let { profile -> // TODO replace with flow
+                if (profile as? ClassProfile == null) return@let
+                _state.value = _state.value.copy(
+                    profile = profile,
+                    differentDefaultLessons = defaultLessonsUseCases.isInconsistentStateUseCase(profile),
+                    isDebug = BuildConfig.DEBUG
+                )
+            }
         }
     }
 

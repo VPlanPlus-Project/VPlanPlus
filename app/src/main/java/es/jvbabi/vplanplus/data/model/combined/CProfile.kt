@@ -83,7 +83,12 @@ data class CClassProfile(
             calendarId = classProfile.calendarId,
             group = group.toModel(),
             isHomeworkEnabled = classProfile.isHomeworkEnabled,
-            defaultLessons = emptyMap(),
+            defaultLessons = defaultLessons
+                .mapNotNull { defaultLesson ->
+                    val defaultLessonModel = defaultLesson.defaultLessons.firstOrNull { it.`class`.school.id == group.school.id && it.defaultLesson.vpId.toLong() == defaultLesson.profileDefaultLesson.defaultLessonVpId }?.toModel() ?: return@mapNotNull null
+                    defaultLessonModel to defaultLesson.profileDefaultLesson.enabled
+                }
+                .toMap(),
             vppId = vppId?.toModel() as? VppId.ActiveVppId
         )
     }
