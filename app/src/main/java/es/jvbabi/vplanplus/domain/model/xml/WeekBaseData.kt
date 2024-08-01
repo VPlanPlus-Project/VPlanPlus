@@ -18,8 +18,11 @@ class WeekBaseData(val xml: String) {
 
         rootObject.classes!!.forEach { classShort ->
             val classTimes = mutableMapOf<Int, Pair<String, String>>()
-            classShort.hours!!.filter { it.start != "" && it.end != "" }.forEach { hour ->
-                classTimes[hour.lessonNumber!!] = Pair(hour.start!!, hour.end!!)
+            classShort.hours!!.filter { it.start != "" && it.end != "" }.forEach forEachHour@{ hour ->
+                val lessonNumber = hour.lessonNumber ?: return@forEachHour
+                val start = hour.start ?: return@forEachHour
+                val end = hour.end ?: return@forEachHour
+                classTimes[lessonNumber] = Pair(start, end)
             }
             times[classShort.short!!] = classTimes
         }
@@ -46,6 +49,6 @@ private class WeekBaseHour {
     var start: String? = null
     @field:Attribute(name = "StZeitBis", empty = "", required = false)
     var end: String? = null
-    @field:Text
+    @field:Text(required = false)
     var lessonNumber: Int? = null
 }
