@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase
 
+import android.util.Log
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.ProfileType.ROOM
 import es.jvbabi.vplanplus.domain.model.ProfileType.STUDENT
@@ -63,7 +64,9 @@ class SetupUseCase(
         val selectedDefaultLessons = json.decodeFromString<Map<OnboardingDefaultLesson, Boolean>>(keyValueRepository.get("onboarding.profile_default_lessons")?:"[]")
 
         var school = schoolRepository.getSchoolFromId(schoolId)
+        Log.d("SetupUseCase", "School ID: $schoolId, object: $school")
         if (school == null) {
+            Log.d("SetupUseCase", "School is null, creating new school")
             val sp24SchoolId = keyValueRepository.get("onboarding.sp24_school_id")!!.toInt()
             val name = keyValueRepository.get("onboarding.school_name")!!
             val username = keyValueRepository.get("onboarding.username")!!
@@ -85,9 +88,13 @@ class SetupUseCase(
                 fullyCompatible = fullyCompatible
             )
             school = schoolRepository.getSchoolFromId(schoolId)!!
+            Log.d("SetupUseCase", "School created: $school")
 
+            Log.d("SetupUseCase", "Inserting ${teacherAcronyms.size} teachers")
             teacherRepository.insertTeachersByAcronym(schoolId, teacherAcronyms)
             val teachers = teacherRepository.getTeachersBySchoolId(school.id)
+
+            Log.d("SetupUseCase", "Inserting ${classesData.size} classes")
             classesData.forEach { clazz ->
                 groupRepository.insertGroup(
                     schoolSp24Access = school.buildAccess(),
@@ -95,6 +102,7 @@ class SetupUseCase(
                     groupId = clazz.id,
                     isClass = true
                 )
+                Log.d("SetupUseCase", " Inserting ${clazz.lessonTimes.size} lesson times for class ${clazz.name}")
                 clazz.lessonTimes.forEach {
                     lessonTimeRepository.insertLessonTime(
                         groupId = clazz.id,
@@ -105,9 +113,15 @@ class SetupUseCase(
                 }
             }
             val classes = groupRepository.getGroupsBySchool(school).filter { it.isClass }
+
+            Log.d("SetupUseCase", "Inserting ${roomNames.size} rooms")
             roomRepository.insertRoomsByName(school, roomNames)
+
+            Log.d("SetupUseCase", "Inserting ${holidays.size} holidays")
             holidayRepository.deleteHolidaysBySchoolId(schoolId)
             holidays.forEach { holidayRepository.insertHoliday(schoolId = schoolId, date = it.date) }
+
+            Log.d("SetupUseCase", "Inserting ${defaultLessons.size} default lessons")
             defaultLessons.forEach { defaultLesson ->
                 defaultLessonRepository.insertDefaultLesson(
                     groupId = classes.first { defaultLesson.clazz == it.name }.groupId,
@@ -122,6 +136,7 @@ class SetupUseCase(
         val teachers = teacherRepository.getTeachersBySchoolId(school.id)
         val rooms = roomRepository.getRoomsBySchool(school)
 
+        Log.d("SetupUseCase", "Creating profile ${selectedProfileType.name}")
         val profileId = when (selectedProfileType) {
             STUDENT -> profileRepository.createClassProfile(group = classes.first { it.name == selectedProfileEntityName }, isHomeworkEnabled = isFirstProfile)
             TEACHER -> profileRepository.createTeacherProfile(teacher = teachers.first { it.acronym == selectedProfileEntityName })
@@ -131,6 +146,7 @@ class SetupUseCase(
         keyValueRepository.set(Keys.ACTIVE_PROFILE, profileId.toString())
 
         if (selectedProfileType == STUDENT) {
+            Log.d("SetupUseCase", "Setting default lessons for class profile")
             selectedDefaultLessons.forEach {
                 profileRepository.setDefaultLessonActivationState(profileId, it.key.vpId, it.value)
             }
