@@ -13,5 +13,5 @@ interface DefaultLessonRepository {
     suspend fun updateTeacherId(groupId: Int, vpId: Int, teacherId: UUID)
     suspend fun deleteDefaultLesson(id: UUID)
 
-    suspend fun insertDefaultLesson(groupId: Int, vpId: Int, subject: String, teacherId: UUID)
+    suspend fun insertDefaultLesson(groupId: Int, vpId: Int, subject: String, teacherId: UUID, courseGroup: String?)
 }

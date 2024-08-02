@@ -27,6 +27,7 @@ data class CDefaultLesson(
             subject = defaultLesson.subject,
             teacher = teacher?.toTeacherModel(),
             `class` = `class`.toModel(),
+            courseGroup = defaultLesson.courseGroup
         )
     }
 }

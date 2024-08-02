@@ -141,7 +141,8 @@ class SetupUseCase(
                     groupId = group.groupId,
                     subject = defaultLesson.subject,
                     teacherId = teacher.teacherId,
-                    vpId = defaultLesson.vpId
+                    vpId = defaultLesson.vpId,
+                    courseGroup = defaultLesson.courseGroup
                 )
             }
         }

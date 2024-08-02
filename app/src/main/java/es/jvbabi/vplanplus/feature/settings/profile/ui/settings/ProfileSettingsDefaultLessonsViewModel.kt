@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.settings.profile.ui.settings
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -27,10 +26,16 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
         viewModelScope.launch {
             defaultLessonsUseCases.getProfileByIdUseCase(profileId).collect { profile ->
                 if (profile !is ClassProfile) return@collect
-                Log.d("ProfileSettingsDefaultLessonsViewModel", "init: ${profile.hashCode()}")
+                val courseGroups = profile.defaultLessons.keys
+                    .map { it.courseGroup }
+                    .distinct()
+                    .filterNotNull()
+                    .sortedBy { it }
+
                 state = state.copy(
                     profile = profile,
                     differentDefaultLessons = defaultLessonsUseCases.isInconsistentStateUseCase(profile),
+                    courseGroups = courseGroups.ifEmpty { null },
                     isDebug = BuildConfig.DEBUG
                 )
             }
@@ -53,6 +58,7 @@ class ProfileSettingsDefaultLessonsViewModel @Inject constructor(
 
 data class ProfileSettingsDefaultLessonsState(
     val profile: ClassProfile? = null,
+    val courseGroups: List<String>? = null,
     val differentDefaultLessons: Boolean = false,
     val isDebug: Boolean = false
 )

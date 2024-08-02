@@ -113,7 +113,10 @@ fun SelectDefaultLessonSheet(
             ) {
                 defaultLessons.sortedBy { it.subject }.forEach defaultLessonOptions@{ defaultLesson ->
                     Option(
-                        title = defaultLesson.subject,
+                        title = buildString {
+                            append(defaultLesson.subject)
+                            if (defaultLesson.courseGroup != null) append (" (${defaultLesson.courseGroup})")
+                        },
                         subtitle = defaultLesson.teacher?.acronym ?: stringResource(id = R.string.addHomework_lessonSubtitleNoTeacher),
                         icon = defaultLesson.getSubjectIcon(), state = defaultLesson == selectedDefaultLesson, enabled = true,
                         modifier = Modifier.border(width = .25.dp, color = MaterialTheme.colorScheme.outline),

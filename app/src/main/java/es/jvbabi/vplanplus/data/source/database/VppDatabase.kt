@@ -108,7 +108,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 36,
+    version = 37,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -125,6 +125,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 25, to = 26), // add cached-at attribute to vpp.ID
         AutoMigration(from = 26, to = 27), // add vpp.ID to profile
         AutoMigration(from = 30, to = 31), // add documents
+        AutoMigration(from = 36, to = 37), // add courseGroup
     ],
 )
 @TypeConverters(

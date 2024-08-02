@@ -48,7 +48,8 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
                             clazz = clazz.schoolClass,
                             subject = dl.defaultLesson?.subjectShort ?: return@defaultLesson null,
                             teacher = dl.defaultLesson?.teacherShort ?: return@defaultLesson null,
-                            vpId = dl.defaultLesson?.lessonId ?: return@defaultLesson null
+                            vpId = dl.defaultLesson?.lessonId ?: return@defaultLesson null,
+                            courseGroup = dl.defaultLesson?.courseGroup
                         )
                     }
                 }
@@ -142,7 +143,8 @@ data class OnboardingDefaultLesson(
     @SerialName("class") val clazz: String,
     @SerialName("subject") val subject: String,
     @SerialName("teacher") val teacher: String?,
-    @SerialName("vp_id") val vpId: Int
+    @SerialName("vp_id") val vpId: Int,
+    @SerialName("course_group") val courseGroup: String? = null
 ) : Parcelable
 
 @Serializable

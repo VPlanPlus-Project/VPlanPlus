@@ -55,6 +55,7 @@ class WplanVpXmlDefaultLessonWrapper {
 class WplanVpXmlDefaultLesson {
     @field:Attribute(name = "UeLe") var teacherShort: String? = null
     @field:Attribute(name = "UeFa") var subjectShort: String? = null
+    @field:Attribute(name = "UeGr", required = false) var courseGroup: String? = null
     @field:Text var lessonId: Int? = null
 }
 
