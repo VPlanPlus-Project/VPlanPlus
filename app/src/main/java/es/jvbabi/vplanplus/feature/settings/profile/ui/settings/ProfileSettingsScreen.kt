@@ -368,6 +368,7 @@ private fun ProfileSettingsScreenContent(
         onOk = {
             if (it == null) return@SelectDialog
             onEvent(ProfileSettingsEvent.SetCalendar(it.id))
+            isCalendarDialogOpen = false
         }
     )
 
