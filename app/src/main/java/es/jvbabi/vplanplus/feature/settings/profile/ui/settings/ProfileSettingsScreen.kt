@@ -83,7 +83,7 @@ fun ProfileSettingsScreen(
         viewModel.init(profileId = profileId)
     })
 
-    val calendarPermissionLauncher = rememberLauncherForActivityResult(
+    val calendarPermissionReadLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = {
             if (!it) Toast.makeText(
@@ -96,6 +96,18 @@ fun ProfileSettingsScreen(
                 viewModel.onEvent(ProfileSettingsEvent.SetCalendarState(desiredCalendarTypeAfterPermissionSuccess!!))
                 desiredCalendarTypeAfterPermissionSuccess = null
             }
+        },
+    )
+
+    val calendarPermissionWriteLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {
+            if (!it) Toast.makeText(
+                context,
+                context.getString(R.string.permission_denied_forever),
+                Toast.LENGTH_LONG
+            ).show()
+            else calendarPermissionReadLauncher.launch(android.Manifest.permission.READ_CALENDAR)
         },
     )
 
@@ -122,7 +134,7 @@ fun ProfileSettingsScreen(
             },
             onStartPermissionDialog = {
                 desiredCalendarTypeAfterPermissionSuccess = it
-                calendarPermissionLauncher.launch(android.Manifest.permission.WRITE_CALENDAR)
+                calendarPermissionWriteLauncher.launch(android.Manifest.permission.WRITE_CALENDAR)
             }
         )
     }
