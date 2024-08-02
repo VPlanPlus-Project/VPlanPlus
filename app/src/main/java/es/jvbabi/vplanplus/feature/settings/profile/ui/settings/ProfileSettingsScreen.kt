@@ -29,6 +29,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +44,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.feature.settings.profile.ui.components.dialogs.ConfirmHomeworkDisableDialog
@@ -58,6 +58,7 @@ import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.YesNoDialog
+import es.jvbabi.vplanplus.ui.common.isPermissionGranted
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
@@ -73,30 +74,28 @@ fun ProfileSettingsScreen(
     profileId: UUID
 ) {
 
-    val state = viewModel.state.value
+    val state = viewModel.state
     val context = LocalContext.current
+    var isCalendarPermissionGranted by remember { mutableStateOf(isPermissionGranted(context, android.Manifest.permission.WRITE_CALENDAR)) }
+    var desiredCalendarTypeAfterPermissionSuccess by remember { mutableStateOf<ProfileCalendarType?>(null) }
 
     LaunchedEffect(key1 = profileId, block = {
-        viewModel.init(profileId = profileId, context = context)
+        viewModel.init(profileId = profileId)
     })
 
-    val readLauncher = rememberLauncherForActivityResult(
+    val calendarPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission(),
         onResult = {
-            viewModel.updatePermissionState(it)
             if (!it) Toast.makeText(
                 context,
                 context.getString(R.string.permission_denied_forever),
                 Toast.LENGTH_LONG
             ).show()
-        },
-    )
-
-    val writeLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission(),
-        onResult = {
-               if (it) readLauncher.launch(android.Manifest.permission.READ_CALENDAR)
-               else viewModel.dismissPermissionDialog()
+            isCalendarPermissionGranted = it
+            if (it && desiredCalendarTypeAfterPermissionSuccess != null) {
+                viewModel.onEvent(ProfileSettingsEvent.SetCalendarState(desiredCalendarTypeAfterPermissionSuccess!!))
+                desiredCalendarTypeAfterPermissionSuccess = null
+            }
         },
     )
 
@@ -108,29 +107,23 @@ fun ProfileSettingsScreen(
         ProfileSettingsScreenContent(
             state = state,
             onBackClicked = { navController.navigateUp() },
-            onProfileDeleteDialogYes = {
-                viewModel.deleteProfile()
-                navController.navigateUp()
-            },
-            onProfileRenamed = viewModel::renameProfile,
-            onCalendarModeSet = viewModel::setCalendarMode,
-            onCalendarSet = { viewModel.setCalendar(it.id) },
-            onDefaultLessonsClicked = {
+            onEvent = viewModel::onEvent,
+            isCalendarPermissionGranted = isCalendarPermissionGranted,
+            onOpenDefaultLessons = {
                 navController.navigate(
                     Screen.SettingsProfileDefaultLessonsScreen.route.replace(
                         "{profileId}", profileId.toString()
                     )
                 )
             },
-            onSetDialogVisible = { viewModel.setDialogOpen(it) },
-            onSetDialogCall = { viewModel.setDialogCall(it) },
             onOpenVppIdSettings = {
                 if ((state.profile as? ClassProfile)?.vppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
                 else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.profile.vppId!!.id}")
             },
-            onLaunchPermissionDialog = { writeLauncher.launch(android.Manifest.permission.WRITE_CALENDAR) },
-            onToggleHomework = viewModel::onToggleHomework,
-            onDismissedPermissionDialog = { viewModel.dismissPermissionDialog() }
+            onStartPermissionDialog = {
+                desiredCalendarTypeAfterPermissionSuccess = it
+                calendarPermissionLauncher.launch(android.Manifest.permission.WRITE_CALENDAR)
+            }
         )
     }
 }
@@ -140,22 +133,18 @@ fun ProfileSettingsScreen(
 private fun ProfileSettingsScreenContent(
     state: ProfileSettingsState,
     onBackClicked: () -> Unit,
-    onProfileDeleteDialogYes: () -> Unit = {},
-    onProfileRenamed: (String) -> Unit = {},
-    onCalendarModeSet: (ProfileCalendarType) -> Unit = {},
-    onCalendarSet: (Calendar) -> Unit = {},
-    onSetDialogVisible: (Boolean) -> Unit = {},
-    onSetDialogCall: (@Composable () -> Unit) -> Unit = {},
-    onDefaultLessonsClicked: () -> Unit = {},
-    onLaunchPermissionDialog: () -> Unit = {},
-    onDismissedPermissionDialog: () -> Unit = {},
-    onToggleHomework: () -> Unit = {},
-    onOpenVppIdSettings: () -> Unit = {}
+    onOpenDefaultLessons: () -> Unit = {},
+    onOpenVppIdSettings: () -> Unit = {},
+    onStartPermissionDialog: (setToModeOnSuccess: ProfileCalendarType) -> Unit = {},
+    onEvent: (event: ProfileSettingsEvent) -> Unit = {},
+    isCalendarPermissionGranted: Boolean
 ) {
     if (state.profile == null) return
 
-    var deleteDialogOpen by remember { mutableStateOf(false) }
-    var renameDialogOpen by remember { mutableStateOf(false) }
+    var deleteDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var renameDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isCalendarDialogOpen by rememberSaveable { mutableStateOf(false) }
+    var isCalendarPermissionInfoDialogOpenAndSetToTypeOnSuccess by remember<MutableState<ProfileCalendarType?>> { mutableStateOf(null) }
     var isConfirmDisableHomeworkDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     val scrollBehavior =
@@ -200,12 +189,10 @@ private fun ProfileSettingsScreenContent(
                     state.profile.originalName
                 ),
                 onYes = {
-                    onProfileDeleteDialogYes()
+                    onEvent(ProfileSettingsEvent.DeleteProfile)
                     deleteDialogOpen = false
                 },
-                onNo = {
-                    deleteDialogOpen = false
-                }
+                onNo = { deleteDialogOpen = false }
             )
         }
         if (renameDialogOpen) {
@@ -215,8 +202,8 @@ private fun ProfileSettingsScreenContent(
                 placeholder = state.profile.originalName,
                 message = stringResource(id = R.string.settings_profileManagementScreenRenameProfileDialogText),
                 onOk = {
-                    if (it?.isNotEmpty() == true) onProfileRenamed(it)
-                    else onProfileRenamed(state.profile.originalName)
+                    if (it?.isNotEmpty() == true) onEvent(ProfileSettingsEvent.RenameProfile(it))
+                    else onEvent(ProfileSettingsEvent.RenameProfile(state.profile.originalName))
                     renameDialogOpen = false
                 },
             )
@@ -251,22 +238,28 @@ private fun ProfileSettingsScreenContent(
                             icon = Icons.Outlined.CalendarToday,
                             title = stringResource(id = R.string.settings_profileManagementCalendarDayTitle),
                             subtitle = stringResource(id = R.string.settings_profileManagementCalendarDayText),
-                            onClick = { onCalendarModeSet(ProfileCalendarType.DAY) },
+                            onClick = {
+                                if (!isCalendarPermissionGranted) isCalendarPermissionInfoDialogOpenAndSetToTypeOnSuccess = ProfileCalendarType.DAY
+                                else onEvent(ProfileSettingsEvent.SetCalendarState(ProfileCalendarType.DAY))
+                            },
                             selected = state.profile.calendarType == ProfileCalendarType.DAY
                         ),
                         RadioCard(
                             icon = Icons.Outlined.CalendarMonth,
                             title = stringResource(id = R.string.settings_profileManagementCalendarLessonsTitle),
                             subtitle = stringResource(id = R.string.settings_profileManagementCalendarLessonsText),
-                            onClick = { onCalendarModeSet(ProfileCalendarType.LESSON) },
+                            onClick = {
+                                if (!isCalendarPermissionGranted) isCalendarPermissionInfoDialogOpenAndSetToTypeOnSuccess = ProfileCalendarType.LESSON
+                                else onEvent(ProfileSettingsEvent.SetCalendarState(ProfileCalendarType.LESSON))
+                            },
                             selected = state.profile.calendarType == ProfileCalendarType.LESSON
                         ),
                         RadioCard(
                             icon = Icons.Outlined.EventBusy,
                             title = stringResource(id = R.string.settings_profileManagementCalendarNoneTitle),
                             subtitle = stringResource(id = R.string.settings_profileManagementCalendarNoneText),
-                            onClick = { onCalendarModeSet(ProfileCalendarType.NONE) },
-                            selected = state.profile.calendarType == ProfileCalendarType.NONE
+                            onClick = { onEvent(ProfileSettingsEvent.SetCalendarState(ProfileCalendarType.NONE)) },
+                            selected = state.profile.calendarType == ProfileCalendarType.NONE,
                         )
                     )
                 )
@@ -274,30 +267,13 @@ private fun ProfileSettingsScreenContent(
                     icon = Icons.Default.EditCalendar,
                     title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
                     type = SettingsType.SELECT,
-                    enabled = state.profile.calendarType != ProfileCalendarType.NONE && state.calendars.isNotEmpty() && state.calendarPermissionState == CalendarPermissionState.GRANTED,
+                    enabled = state.profile.calendarType != ProfileCalendarType.NONE && state.calendars.isNotEmpty() && isCalendarPermissionGranted,
                     subtitle =
                     if (state.profile.calendarType == ProfileCalendarType.NONE) stringResource(id = R.string.settings_profileManagementCalendarNameDisabled)
                     else if (state.calendars.isEmpty()) stringResource(id = R.string.settings_profileManagementNoCalendars)
                     else state.profileCalendar?.displayName
                         ?: stringResource(id = R.string.settings_profileManagementCalendarNameNone),
-                    doAction = {
-                        onSetDialogCall {
-                            SelectDialog(
-                                icon = Icons.Default.EditCalendar,
-                                title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
-                                items = state.calendars.sortedBy { it.owner + it.displayName },
-                                itemToComposable = { Text("${it.displayName} (${it.owner})") },
-                                onDismiss = { onSetDialogVisible(false) },
-                                value = state.profileCalendar,
-                                onOk = {
-                                    if (it == null) return@SelectDialog
-                                    onCalendarSet(it)
-                                    onSetDialogVisible(false)
-                                }
-                            )
-                        }
-                        onSetDialogVisible(true)
-                    }
+                    doAction = { isCalendarDialogOpen = true }
                 )
             }
 
@@ -312,9 +288,8 @@ private fun ProfileSettingsScreenContent(
                         state.profile.defaultLessons.values.count { !it }
                     ),
                     type = SettingsType.FUNCTION,
-                    doAction = {
-                        onDefaultLessonsClicked()
-                    })
+                    doAction = onOpenDefaultLessons
+                )
             }
 
             if (state.profile is ClassProfile) SettingsCategory(title = stringResource(id = R.string.profileManagement_homeworkTitle)) {
@@ -324,7 +299,10 @@ private fun ProfileSettingsScreenContent(
                     subtitle = stringResource(id = R.string.profileManagement_homeworkEnableHomeworkSubtitle),
                     type = SettingsType.CHECKBOX,
                     checked = state.profile.isHomeworkEnabled,
-                    doAction = { if (state.profile.isHomeworkEnabled && state.profileHasLocalHomework) isConfirmDisableHomeworkDialogVisible = true else onToggleHomework() }
+                    doAction = {
+                        if (state.profile.isHomeworkEnabled && state.profileHasLocalHomework) isConfirmDisableHomeworkDialogVisible =
+                            true else onEvent(ProfileSettingsEvent.SetHomeworkEnabled(!state.profile.isHomeworkEnabled))
+                    }
                 )
             }
 
@@ -354,17 +332,36 @@ private fun ProfileSettingsScreenContent(
         }
     }
 
-    if (state.calendarPermissionState == CalendarPermissionState.SHOW_DIALOG) {
+    if (isCalendarPermissionInfoDialogOpenAndSetToTypeOnSuccess != null) {
         YesNoDialog(
             icon = Icons.Default.EditCalendar,
             title = stringResource(id = R.string.settings_profileManagementCalendarPermissionDialogTitle),
             message = stringResource(id = R.string.settings_profileManagementCalendarPermissionDialogText),
-            onNo = onDismissedPermissionDialog,
-            onYes = onLaunchPermissionDialog
+            onNo = { isCalendarPermissionInfoDialogOpenAndSetToTypeOnSuccess = null },
+            onYes = {
+                val type = isCalendarPermissionInfoDialogOpenAndSetToTypeOnSuccess!!
+                isCalendarPermissionInfoDialogOpenAndSetToTypeOnSuccess = null
+                onStartPermissionDialog(type)
+            }
         )
     }
 
-    if (isConfirmDisableHomeworkDialogVisible) ConfirmHomeworkDisableDialog({ isConfirmDisableHomeworkDialogVisible = false; onToggleHomework() }, { isConfirmDisableHomeworkDialogVisible = false })
+    if (isCalendarDialogOpen) SelectDialog(
+        icon = Icons.Default.EditCalendar,
+        title = stringResource(id = R.string.settings_profileManagementCalendarNameTitle),
+        items = state.calendars.sortedBy { it.owner + it.displayName },
+        itemToComposable = { Text("${it.displayName} (${it.owner})") },
+        onDismiss = { isCalendarDialogOpen = false },
+        value = state.profileCalendar,
+        onOk = {
+            if (it == null) return@SelectDialog
+            onEvent(ProfileSettingsEvent.SetCalendar(it.id))
+        }
+    )
+
+    if (isConfirmDisableHomeworkDialogVisible) ConfirmHomeworkDisableDialog({
+        isConfirmDisableHomeworkDialogVisible = false; onEvent(ProfileSettingsEvent.SetHomeworkEnabled((state.profile as? ClassProfile)?.isHomeworkEnabled ?: false))
+    }, { isConfirmDisableHomeworkDialogVisible = false })
 }
 
 @OptIn(PreviewFunction::class)
@@ -374,8 +371,13 @@ private fun ProfileSettingsScreenPreview() {
     val classes = GroupPreview.generateGroup(null)
     ProfileSettingsScreenContent(
         state = ProfileSettingsState(
-            profile = ProfilePreview.generateClassProfile(classes, VppIdPreview.generateVppId(classes).toActiveVppId())
+            profile = ProfilePreview.generateClassProfile(
+                classes,
+                VppIdPreview.generateVppId(classes).toActiveVppId()
+            )
         ),
-        onBackClicked = {}
+        onBackClicked = {},
+        onEvent = {},
+        isCalendarPermissionGranted = true
     )
 }

@@ -4,6 +4,8 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import es.jvbabi.vplanplus.R
 
@@ -38,4 +40,13 @@ data class Permission(
     fun isGranted(context: Context): Boolean {
         return isGranted(context, type)
     }
+}
+
+@Composable
+fun isPermissionGranted(permission: String): Boolean {
+    return ContextCompat.checkSelfPermission(LocalContext.current, permission) == PackageManager.PERMISSION_GRANTED
+}
+
+fun isPermissionGranted(context: Context, permission: String): Boolean {
+    return ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
 }
