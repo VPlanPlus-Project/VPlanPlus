@@ -24,7 +24,7 @@ class VPlanData(val xml: String, val sp24SchoolId: Int) {
 }
 
 
-@Root(name = "VpMobil", strict = false)
+@Root(name = "WplanVp", strict = false)
 class VpMobilVpXml {
     @field:Element(name = "Kopf")
     var head: WplanVpXmlHead? = null
@@ -39,7 +39,7 @@ class WplanVpXmlHead {
     @field:Element(name = "DatumPlan") var date: String? = null
 }
 
-@Root(name = "Klasse")
+@Root(name = "Kl")
 class WplanVpXmlSchoolClass {
     @field:Element(name = "Kurz") var schoolClass: String = ""
     @field:ElementList(name = "Pl") var lessons: List<WplanVpXmlLesson>? = null
