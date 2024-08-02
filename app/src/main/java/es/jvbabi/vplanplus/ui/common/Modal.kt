@@ -49,7 +49,10 @@ fun CustomModal(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
     ) {
-        content()
+        Column {
+            content()
+            Spacer8Dp()
+        }
     }
 }
 
