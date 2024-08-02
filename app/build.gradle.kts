@@ -21,8 +21,8 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 35
-        versionCode = 235
-        versionName = "${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}_592"
+        versionCode = 236
+        versionName = "VPP_${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}-android"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
