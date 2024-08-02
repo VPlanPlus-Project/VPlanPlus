@@ -13,7 +13,7 @@ class VPlanRepositoryImpl(
     override suspend fun getVPlanData(sp24SchoolId: Int, username: String, password: String, date: LocalDate): DataResponse<VPlanData?> {
         networkRepository.authentication = BasicAuthentication(username, password)
         val response = networkRepository.doRequest(
-            path = "/${sp24SchoolId}/mobil/mobdaten/PlanKl${date.year}${date.monthValue.toString().padStart(2, '0')}${date.dayOfMonth.toString().padStart(2, '0')}.xml",
+            path = "/${sp24SchoolId}/wplan/wdatenk/WPlanKl_${date.year}${date.monthValue.toString().padStart(2, '0')}${date.dayOfMonth.toString().padStart(2, '0')}.xml",
         )
         if (response.response == HttpStatusCode.NotFound) return DataResponse(null, HttpStatusCode.NotFound)
         if (response.data == null || response.response != HttpStatusCode.OK) return DataResponse(null, response.response)

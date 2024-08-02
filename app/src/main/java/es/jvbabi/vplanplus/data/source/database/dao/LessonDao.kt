@@ -1,11 +1,11 @@
 package es.jvbabi.vplanplus.data.source.database.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.RewriteQueriesToDropUnusedColumns
 import androidx.room.RoomWarnings
 import androidx.room.Transaction
+import androidx.room.Upsert
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.data.model.combined.CLesson
 import kotlinx.coroutines.flow.Flow
@@ -35,7 +35,7 @@ abstract class LessonDao {
     @Query("SELECT * FROM lesson LEFT JOIN school_entity ON school_entity.id = lesson.group_id WHERE school_entity.school_id = :schoolId AND day = :timestamp AND version = :version")
     abstract fun getLessonsForSchool(schoolId: Int, timestamp: Long, version: Long): Flow<List<CLesson>>
 
-    @Insert
+    @Upsert
     abstract suspend fun insertLesson(lesson: DbLesson): Long
 
     @Query("DELETE FROM lesson")
