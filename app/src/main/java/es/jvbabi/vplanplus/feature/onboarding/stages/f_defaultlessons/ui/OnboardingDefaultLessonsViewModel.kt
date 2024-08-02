@@ -25,12 +25,15 @@ class OnboardingDefaultLessonsViewModel @Inject constructor(
     }
 
     fun doAction(action: UiAction) {
-        when (action) {
-            is ToggleDefaultLesson -> state = state.copy(defaultLessons = state.defaultLessons.toMutableMap().apply {
-                this[action.defaultLesson] = this[action.defaultLesson]?.not() ?: true
-            })
-            is OnProceed -> {
-                action.after()
+        viewModelScope.launch {
+            when (action) {
+                is ToggleDefaultLesson -> state = state.copy(defaultLessons = state.defaultLessons.toMutableMap().apply {
+                    this[action.defaultLesson] = this[action.defaultLesson]?.not() ?: true
+                })
+                is OnProceed -> {
+                    onboardingDefaultLessonsUseCases.setDefaultLessonsUseCase(state.defaultLessons)
+                    action.after()
+                }
             }
         }
     }
