@@ -20,7 +20,7 @@ class DefaultLessonRepositoryImpl(
     }
 
     override suspend fun getDefaultLessonsBySchool(school: School): List<DefaultLesson> {
-        return defaultLessonDao.getDefaultLessonsBySchool(school.id).map { dl -> dl.toModel() }
+        return defaultLessonDao.getDefaultLessons().map { it.toModel() }.filter { it.`class`.school.id == school.id }
     }
 
     override suspend fun updateTeacherId(groupId: Int, vpId: Int, teacherId: UUID) {
