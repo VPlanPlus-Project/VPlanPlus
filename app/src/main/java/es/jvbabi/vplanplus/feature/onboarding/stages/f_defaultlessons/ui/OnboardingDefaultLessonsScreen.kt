@@ -76,7 +76,7 @@ fun OnboardingDefaultLessonContent(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    SettingsCategory(
+                    if (state.defaultLessons.any { it.key.courseGroup != null }) SettingsCategory(
                         overrideStartPadding = 0.dp,
                         title = stringResource(id = R.string.settingsProfileManagementDefaultLesson_courseGroupsTitle)
                     ) {

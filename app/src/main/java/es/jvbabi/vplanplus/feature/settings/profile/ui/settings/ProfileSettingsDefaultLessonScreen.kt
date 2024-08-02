@@ -104,7 +104,7 @@ fun ProfileSettingsDefaultLessonContent(
                 )
             }
             LazyColumn {
-                if (!state.courseGroups.isNullOrEmpty())item {
+                if (!state.courseGroups.isNullOrEmpty()) item {
                     SettingsCategory(title = stringResource(id = R.string.settingsProfileManagementDefaultLesson_courseGroupsTitle)) {
                         FlowRow(
                             verticalArrangement = Arrangement.spacedBy(8.dp),
