@@ -1,12 +1,9 @@
 package es.jvbabi.vplanplus.feature.settings.profile.ui.settings
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.content.pm.PackageManager
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.ContextCompat
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,100 +24,69 @@ class ProfileSettingsViewModel @Inject constructor(
     private val profileSettingsUseCases: ProfileSettingsUseCases,
 ) : ViewModel() {
 
-    private val _state = mutableStateOf(ProfileSettingsState())
-    val state: State<ProfileSettingsState> = _state
+    var state by mutableStateOf(ProfileSettingsState())
+        private set
 
-    @SuppressLint("Range")
-    fun init(profileId: UUID, context: Context) {
-        _state.value = _state.value.copy(
-            calendarPermissionState = if (ContextCompat.checkSelfPermission(
-                    context,
-                    android.Manifest.permission.WRITE_CALENDAR
-                ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                    context,
-                    android.Manifest.permission.READ_CALENDAR
-                ) == PackageManager.PERMISSION_GRANTED
-            ) CalendarPermissionState.GRANTED else CalendarPermissionState.DENIED
-        )
+    fun init(profileId: UUID) {
         viewModelScope.launch {
             combine(
                 profileSettingsUseCases.getProfileByIdUseCase(profileId),
                 profileSettingsUseCases.getCalendarsUseCase()
             ) { profile, calendars ->
-                if (profile !is ClassProfile) return@combine _state.value.copy(initDone = true)
-                _state.value.copy(
+                if (profile !is ClassProfile) return@combine state.copy(initDone = true)
+                state.copy(
                     profile = profile,
                     calendars = calendars,
                     initDone = true,
                     profileCalendar = calendars.firstOrNull { it.id == profile.calendarId },
-                    profileHasLocalHomework = profileSettingsUseCases.hasProfileLocalHomeworkUseCase(profile)
+                    profileHasLocalHomework = profileSettingsUseCases.hasProfileLocalHomeworkUseCase(
+                        profile
+                    )
                 )
             }.collect {
-                _state.value = it
+                state = it
             }
         }
     }
 
-    fun setCalendarMode(calendarMode: ProfileCalendarType) {
-        if (_state.value.calendarPermissionState == CalendarPermissionState.DENIED) {
-            _state.value = _state.value.copy(calendarPermissionState = CalendarPermissionState.SHOW_DIALOG)
-            viewModelScope.launch {
-                _state.value.profile?.let { profile ->
-                    profileSettingsUseCases.updateCalendarTypeUseCase(profile, calendarType = ProfileCalendarType.NONE)
-                }
-            }
-            return
-        }
+    fun onEvent(event: ProfileSettingsEvent) {
         viewModelScope.launch {
-            _state.value.profile?.let { profile ->
-                profileSettingsUseCases.updateCalendarTypeUseCase(profile, calendarType = calendarMode)
+            when (event) {
+                is ProfileSettingsEvent.DeleteProfile -> deleteProfile()
+                is ProfileSettingsEvent.RenameProfile -> renameProfile(event.name)
+                is ProfileSettingsEvent.SetCalendarState -> setCalendarMode(event.to)
+                is ProfileSettingsEvent.SetCalendar -> setCalendar(event.calendarId)
+                is ProfileSettingsEvent.SetHomeworkEnabled -> updateHomeworkEnabled(event.enabled)
             }
         }
     }
 
-    fun dismissPermissionDialog() {
-        _state.value = _state.value.copy(calendarPermissionState = CalendarPermissionState.DENIED)
-    }
-
-    fun setCalendar(calendarId: Long) {
-        viewModelScope.launch {
-            _state.value.profile?.let { profile ->
-                profileSettingsUseCases.updateCalendarIdUseCase(profile, calendarId)
-            }
-        }
-    }
-
-    fun setDialogOpen(open: Boolean) {
-        _state.value = _state.value.copy(dialogOpen = open)
-    }
-
-    fun setDialogCall(call: @Composable () -> Unit) {
-        _state.value = _state.value.copy(dialogCall = call)
-    }
-
-    fun deleteProfile() {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(deleteProfileResult = profileSettingsUseCases.deleteProfileUseCase(_state.value.profile?:return@launch))
-        }
-    }
-
-    fun renameProfile(name: String) {
-        viewModelScope.launch {
-            profileSettingsUseCases.updateProfileDisplayNameUseCase(_state.value.profile?:return@launch, name)
-        }
-    }
-
-    fun updatePermissionState(granted: Boolean) {
-        _state.value = _state.value.copy(
-            calendarPermissionState = if (granted) CalendarPermissionState.GRANTED else CalendarPermissionState.DENIED
+    private suspend fun setCalendarMode(calendarMode: ProfileCalendarType) {
+        val profile = state.profile ?: return
+        profileSettingsUseCases.updateCalendarTypeUseCase(
+            profile,
+            calendarType = calendarMode
         )
     }
 
-    fun onToggleHomework() {
-        viewModelScope.launch {
-            val profile = _state.value.profile as? ClassProfile ?: return@launch
-            profileSettingsUseCases.updateHomeworkEnabledUseCase(profile, !profile.isHomeworkEnabled)
-        }
+    private suspend fun setCalendar(calendarId: Long) {
+        val profile = state.profile ?: return
+        profileSettingsUseCases.updateCalendarIdUseCase(profile, calendarId)
+    }
+
+    private suspend fun deleteProfile() {
+        val profile = state.profile ?: return
+        state = state.copy(deleteProfileResult = profileSettingsUseCases.deleteProfileUseCase(profile))
+    }
+
+    private suspend fun renameProfile(name: String) {
+        val profile = state.profile ?: return
+        profileSettingsUseCases.updateProfileDisplayNameUseCase(profile, name)
+    }
+
+    private suspend fun updateHomeworkEnabled(enabled: Boolean) {
+        val profile = state.profile as? ClassProfile ?: return
+        profileSettingsUseCases.updateHomeworkEnabledUseCase(profile, enabled)
     }
 }
 
@@ -134,13 +100,13 @@ data class ProfileSettingsState(
     val dialogOpen: Boolean = false,
     val dialogCall: @Composable () -> Unit = {},
 
-    val calendarPermissionState: CalendarPermissionState = CalendarPermissionState.GRANTED,
-
     val profileHasLocalHomework: Boolean = false,
 )
 
-enum class CalendarPermissionState {
-    GRANTED,
-    DENIED,
-    SHOW_DIALOG
+sealed class ProfileSettingsEvent {
+    data object DeleteProfile : ProfileSettingsEvent()
+    data class RenameProfile(val name: String) : ProfileSettingsEvent()
+    data class SetCalendarState(val to: ProfileCalendarType) : ProfileSettingsEvent()
+    data class SetCalendar(val calendarId: Long) : ProfileSettingsEvent()
+    data class SetHomeworkEnabled(val enabled: Boolean) : ProfileSettingsEvent()
 }

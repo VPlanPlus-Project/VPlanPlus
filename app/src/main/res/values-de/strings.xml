@@ -752,5 +752,7 @@
     <string name="advancedSettings_testingRunHomeworkReminderSubtitle">Dadurch wird die Benachrichtigung zur Hausaufgabenerinnerung sofort ausgeführt. Beachte, dass dies nur funktioniert, wenn es Hausaufgaben gibt, zu den du erinnert werden kannst,</string>
     <string name="vppIdSettingsManagement_requestDeletion">Deine vpp.ID löschen</string>
     <string name="vppIdSettingsManagement_requestDeletionSubtitle">Momentan kannst du deine vpp.ID nicht selbstständig löschen. Du kannst die Löschung mit dem vpp.ID Webinterface beantragen. Dies wird einen Browser öffnen, um fortzufahren.</string>
+    <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Kurse</string>
+    <string name="settingsProfileManagementDefaultLesson_lessonsTitle">Stunden</string>
 
 </resources>

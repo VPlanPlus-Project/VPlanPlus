@@ -5,13 +5,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +30,13 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.domain.usecase.OnboardingDefaultLesson
 import es.jvbabi.vplanplus.feature.onboarding.stages.f_defaultlessons.ui.components.NoDataAvailable
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
+import es.jvbabi.vplanplus.ui.common.SelectableCard
+import es.jvbabi.vplanplus.ui.common.SettingsCategory
+import es.jvbabi.vplanplus.ui.common.Spacer2Dp
+import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
@@ -45,6 +55,7 @@ fun OnboardingDefaultLessonScreen(
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun OnboardingDefaultLessonContent(
     state: OnboardingDefaultLessonsState,
@@ -60,18 +71,57 @@ fun OnboardingDefaultLessonContent(
         onButtonClick = onProceed,
         content = {
             if (state.defaultLessons.isEmpty()) NoDataAvailable()
-            else Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                state.defaultLessons.toList()
-                    .sortedBy { (key, _) -> key.subject }
-                    .toMap()
-                    .forEach {
-                        DefaultLessonCard(
-                            subject = it.key.subject,
-                            teacherAcronym = it.key.teacher,
-                            activated = it.value,
-                            onClick = { doAction(ToggleDefaultLesson(it.key)) }
-                        )
+            else {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (state.defaultLessons.any { it.key.courseGroup != null }) SettingsCategory(
+                        overrideStartPadding = 0.dp,
+                        title = stringResource(id = R.string.settingsProfileManagementDefaultLesson_courseGroupsTitle)
+                    ) {
+                        FlowRow(
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            state.courseGroups.forEach { group ->
+                                val allEnabled = state.defaultLessons.filter { it.key.courseGroup == group }.all { it.value }
+                                SelectableCard(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .defaultMinSize(48.dp, 48.dp),
+                                    isSelected = allEnabled,
+                                    onToggleSelected = {
+                                        state.defaultLessons.filterValues { it != !allEnabled }.forEach { (key, _) ->
+                                            if (key.courseGroup == group) doAction(ToggleDefaultLesson(key))
+                                        }
+                                    }
+                                ) {
+                                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
+                                        Text(text = group)
+                                    }
+                                }
+                            }
+                        }
+                        Spacer8Dp()
+                        Spacer2Dp()
+                        HorizontalDivider()
+                        Spacer4Dp()
                     }
+                    state.defaultLessons.toList()
+                        .sortedBy { (key, _) -> key.subject }
+                        .toMap()
+                        .forEach {
+                            DefaultLessonCard(
+                                subject = it.key.subject,
+                                teacherAcronym = it.key.teacher,
+                                activated = it.value,
+                                onClick = { doAction(ToggleDefaultLesson(it.key)) },
+                                courseGroup = it.key.courseGroup
+                            )
+                        }
+                }
             }
         }
     )
@@ -87,13 +137,15 @@ fun OnboardingDefaultLessonScreenPreview() {
                     subject = "DEU",
                     teacher = "Mul",
                     clazz = "1A",
-                    vpId = 0
+                    vpId = 0,
+                    courseGroup = "DE1"
                 ) to true,
                 OnboardingDefaultLesson(
                     subject = "MAT",
                     teacher = "Wer",
                     clazz = "1A",
-                    vpId = 1
+                    vpId = 1,
+                    courseGroup = "MA1"
                 ) to false,
             )
         ),
@@ -117,6 +169,7 @@ fun DefaultLessonCard(
     subject: String,
     teacherAcronym: String?,
     activated: Boolean,
+    courseGroup: String?,
     onClick: () -> Unit
 ) {
     Box(
@@ -128,15 +181,20 @@ fun DefaultLessonCard(
             .background(MaterialTheme.colorScheme.secondaryContainer),
         contentAlignment = Alignment.CenterStart
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(checked = activated, onCheckedChange = { onClick() })
-            Text(text = subject, style = MaterialTheme.typography.titleMedium)
-            Text(
-                text = teacherAcronym ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher),
+        RowVerticalCenterSpaceBetweenFill {
+            RowVerticalCenter {
+                Checkbox(checked = activated, onCheckedChange = { onClick() })
+                Text(text = subject, style = MaterialTheme.typography.titleMedium)
+                Spacer8Dp()
+                Text(
+                    text = teacherAcronym ?: stringResource(id = R.string.settings_profileDefaultLessonNoTeacher),
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            }
+            if (courseGroup != null) Text(
+                text = courseGroup,
                 style = MaterialTheme.typography.labelMedium,
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(end = 16.dp)
             )
         }
     }
@@ -145,11 +203,11 @@ fun DefaultLessonCard(
 @Preview
 @Composable
 private fun DefaultLessonCardPreview() {
-    DefaultLessonCard(subject = "DEU", teacherAcronym = "Mul", activated = true, onClick = {})
+    DefaultLessonCard(subject = "DEU", teacherAcronym = "Mul", activated = true, onClick = {}, courseGroup = null)
 }
 
 @Preview
 @Composable
 private fun DefaultLessonCardWithoutTeacherPreview() {
-    DefaultLessonCard(subject = "DEU", teacherAcronym = "", activated = true, onClick = {})
+    DefaultLessonCard(subject = "DEU", teacherAcronym = "", activated = true, onClick = {}, courseGroup = "DE1")
 }

@@ -241,10 +241,10 @@ class DoSyncUseCase(
                 }
         }
 
-        vPlanData.wPlanDataObject.classes!!.forEach {
+        vPlanData.wPlanDataObject.classes!!.forEach forEachClass@{
 
             val `class` = groupRepository.getGroupBySchoolAndName(
-                vPlanData.sp24SchoolId,
+                school.id,
                 it.schoolClass
             ).run {
                 if (this != null) return@run this
@@ -253,7 +253,7 @@ class DoSyncUseCase(
                     school.id,
                     it.schoolClass
                 )!!
-            } ?: return
+            } ?: return@forEachClass
             val defaultLessons = defaultLessonRepository.getDefaultLessonByGroupId(`class`.groupId)
             val bookings = roomRepository.getRoomBookingsByClass(`class`)
             val times = lessonTimesRepository.getLessonTimesByGroup(`class`)
@@ -345,7 +345,8 @@ class DoSyncUseCase(
                             vpId = defaultLesson.lessonId!!,
                             subject = defaultLesson.subjectShort!!,
                             teacherId = dbTeachers.firstOrNull { t -> t.acronym == defaultLesson.teacherShort }?.teacherId,
-                            classId = `class`.groupId
+                            classId = `class`.groupId,
+                            defaultLesson.courseGroup
                         )
                     )
                 } else if (addTeachers.isNotEmpty() && dbDefaultLesson != null && defaultLesson?.teacherShort != null && dbDefaultLesson.teacher == null && addTeachers.contains(

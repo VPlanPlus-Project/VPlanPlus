@@ -36,4 +36,5 @@ data class DbDefaultLesson(
     @ColumnInfo("subject") val subject: String,
     @ColumnInfo("teacher_id") val teacherId: UUID?,
     @ColumnInfo("class_id") val classId: Int,
+    @ColumnInfo("course_group") val courseGroup: String?,
 )
