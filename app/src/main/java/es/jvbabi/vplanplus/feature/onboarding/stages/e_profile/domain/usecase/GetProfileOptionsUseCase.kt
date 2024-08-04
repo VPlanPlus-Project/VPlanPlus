@@ -12,15 +12,15 @@ class GetProfileOptionsUseCase(
         val profileType = ProfileType.entries[keyValueRepository.get("onboarding.profile_type")!!.toInt()]
         return ProfileOptions(profileType, when (profileType) {
             ProfileType.STUDENT -> {
-                val options =  Json.decodeFromString<List<OnboardingInitClass>>(keyValueRepository.get("onboarding.classes")!!)
+                val options = Json.decodeFromString<List<OnboardingInitClass>>(keyValueRepository.get("onboarding.classes")!!).sortedBy { it.name.first().isDigit().not().toString() + it.name.takeWhile { n -> n.isDigit() }.padStart(10, '0') + it.name.dropWhile { n -> n.isDigit() }}
                 options.associate { it.name to it.users }
             }
             ProfileType.TEACHER -> {
-                val options =  Json.decodeFromString<List<String>>(keyValueRepository.get("onboarding.teachers")!!)
+                val options =  Json.decodeFromString<List<String>>(keyValueRepository.get("onboarding.teachers")!!).sortedBy { it }
                 options.associateWith { 0 }
             }
             ProfileType.ROOM -> {
-                val options =  Json.decodeFromString<List<String>>(keyValueRepository.get("onboarding.rooms")!!)
+                val options =  Json.decodeFromString<List<String>>(keyValueRepository.get("onboarding.rooms")!!).sortedBy { it }
                 options.associateWith { 0 }
             }
         })
