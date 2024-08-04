@@ -4,11 +4,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.ProfileSettingsUseCases
+import es.jvbabi.vplanplus.feature.onboarding.stages.b1_qr.ui.QrSchoolState
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -52,13 +52,7 @@ class ProfileManagementViewModel @Inject constructor(
 
     fun share(school: School) {
         _state.value = _state.value.copy(
-            shareSchool = Gson().toJson(
-                ShareSchool(
-                    school.sp24SchoolId,
-                    school.username,
-                    school.password
-                )
-            )
+            shareSchool = QrSchoolState(school.sp24SchoolId.toString(), school.username, school.password)
         )
     }
 
@@ -123,15 +117,9 @@ data class ProfileManagementState(
     val isLoading: Boolean = false,
 
     val deletingSchool: School? = null,
-    val shareSchool: String? = null,
+    val shareSchool: QrSchoolState? = null,
     val changeCredentials: ProfileManagementChangeCredentialsState? = null,
     val taskCompleted: Boolean = false
-)
-
-private data class ShareSchool(
-    val schoolId: Int,
-    val username: String,
-    val password: String
 )
 
 data class ProfileManagementChangeCredentialsState(

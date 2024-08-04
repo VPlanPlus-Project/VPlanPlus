@@ -89,7 +89,7 @@ private fun OnboardingQrScreenContent(
         text = { Text(text = stringResource(id = R.string.onboarding_qrText)) },
         buttonText = stringResource(
             id = R.string.onboarding_qrNext,
-            state.qrResult?.schoolId?.toLong() ?: 0L
+            state.qrSchoolState?.schoolId?.toLong() ?: 0L
         ),
         isLoading = state.qrResultState in listOf(QrResultState.LOADING_SCHOOL_DATA, QrResultState.CHECKING, null),
         enabled = false,
@@ -133,7 +133,7 @@ private fun OnboardingQrScreenContent(
                                         .also {
                                             it.setAnalyzer(cameraExecutor, QrCodeAnalyzer { result ->
                                                 try {
-                                                    val data = Gson().fromJson(result, QrResult::class.java)
+                                                    val data = Gson().fromJson(result, QrSchoolState::class.java)
                                                     if (data.schoolId?.toLongOrNull() == null || data.username.isNullOrBlank() || data.password.isNullOrBlank()) {
                                                         doAction(OnInvalidQrScanned)
                                                         return@QrCodeAnalyzer
@@ -233,7 +233,7 @@ private fun OnboardingQrScreenContent(
 private fun OnboardingQrScreenPreview() {
     OnboardingQrScreenContent(
         state = OnboardingQrState(
-            qrResult = QrResult(
+            qrSchoolState = QrSchoolState(
                 schoolId = "12345678",
                 username = "username",
                 password = "password"
