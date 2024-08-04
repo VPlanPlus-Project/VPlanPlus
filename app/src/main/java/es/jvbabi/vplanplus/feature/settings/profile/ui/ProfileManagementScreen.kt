@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.gson.Gson
 import com.lightspark.composeqr.DotShape
 import com.lightspark.composeqr.QrCodeColors
 import com.lightspark.composeqr.QrCodeView
@@ -179,7 +180,7 @@ fun ProfileManagementScreenContent(
                 content = {
                     Column {
                         QrCodeView(
-                            data = state.shareSchool,
+                            data = Gson().toJson(state.shareSchool),
                             modifier = Modifier.size(300.dp),
                             colors = QrCodeColors(
                                 background = MaterialTheme.colorScheme.surfaceColorAtElevation(4.dp),
