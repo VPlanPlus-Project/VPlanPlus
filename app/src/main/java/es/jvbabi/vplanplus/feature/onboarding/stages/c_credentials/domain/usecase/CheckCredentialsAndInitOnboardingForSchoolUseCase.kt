@@ -29,8 +29,9 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
     suspend operator fun invoke(sp24SchoolId: Int, username: String, password: String): OnboardingInit? {
         val school = schoolRepository.getSchoolBySp24Id(sp24SchoolId)
         val baseData = baseDataRepository.getFullBaseData(sp24SchoolId, username, password)
-        if (baseData.response == null || baseData.data == null) return null
         if (baseData.response == HttpStatusCode.Unauthorized) return OnboardingInit(false, isFirstProfile = false, areCredentialsCorrect = false)
+        if (baseData.response == null) return null
+        if (baseData.data == null) return OnboardingInit(false, isFirstProfile = false, areCredentialsCorrect = false, isSchoolSupported = false)
 
         val isFullySupported = school?.fullyCompatible ?: (baseData.data.teacherShorts != null)
         val isFirstProfile = school == null || profileRepository.getProfilesBySchool(school.id).first().isEmpty()
@@ -134,6 +135,7 @@ data class OnboardingInit(
     @SerialName("rooms") val rooms: List<String> = emptyList(),
     @SerialName("default_lessons") val defaultLessons: List<OnboardingDefaultLesson> = emptyList(),
     @SerialName("are_credentials_correct") val areCredentialsCorrect: Boolean = true,
+    @SerialName("is_school_supported") val isSchoolSupported: Boolean = true,
     @SerialName("holidays") val holidays: List<Holiday> = emptyList()
 ) : Parcelable
 

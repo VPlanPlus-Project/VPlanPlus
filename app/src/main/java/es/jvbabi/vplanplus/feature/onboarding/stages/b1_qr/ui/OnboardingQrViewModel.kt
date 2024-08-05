@@ -85,6 +85,7 @@ data class QrSchoolState(
 
 enum class QrResultState {
     SCHOOL_NOT_FOUND,
+    UNAUTHORIZED,
     INVALID_QR,
     NETWORK_ERROR,
     CHECKING,

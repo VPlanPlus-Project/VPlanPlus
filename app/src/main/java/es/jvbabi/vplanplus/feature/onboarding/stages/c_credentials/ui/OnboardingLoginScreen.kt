@@ -124,6 +124,13 @@ fun LoginScreen(
                         color = MaterialTheme.colorScheme.error,
                     )
                 }
+                LoginError.UNSUPPORTED_SCHOOL -> {
+                    Text(
+                        text = stringResource(id = R.string.onboarding_credentialsUnsupportedSchool),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
                 null -> {}
             }
 
