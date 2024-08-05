@@ -63,7 +63,7 @@ class RoomRepositoryImpl(
         createIfNotExists: Boolean
     ): Room? {
         if (name == "&amp;nbsp;" || name == "&nbsp;") return null
-        val getRoom: suspend () -> Room? = { roomDao.getAllRooms().first().firstOrNull { it.school.id == school.id && it.room.name == name }?.toModel() }
+        val getRoom: suspend () -> Room? = { roomDao.getAllRooms().first().firstOrNull { it.school.school.id == school.id && it.room.name == name }?.toModel() }
         val room = getRoom()
         if (room == null && createIfNotExists) {
             if (!insertRoomsByName(school, listOf(name))) return null

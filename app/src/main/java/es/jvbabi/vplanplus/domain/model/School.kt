@@ -1,26 +1,17 @@
 package es.jvbabi.vplanplus.domain.model
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Index
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 
-@Entity(
-    tableName = "school",
-    primaryKeys = ["id"],
-    indices = [
-        Index(value = ["id"], unique = true),
-    ]
-)
 data class School(
-    @ColumnInfo(name = "id") val id: Int,
-    @ColumnInfo(name = "sp24_school_id") val sp24SchoolId: Int,
-    @ColumnInfo("name") val name: String,
-    @ColumnInfo("username") val username: String,
-    @ColumnInfo("password") val password: String,
-    @ColumnInfo("days_per_week") val daysPerWeek: Int,
-    @ColumnInfo("fully_compatible") val fullyCompatible: Boolean,
-    @ColumnInfo(name = "credentials_valid", defaultValue = "NULL") val credentialsValid: Boolean? = null
+     val id: Int,
+    val sp24SchoolId: Int,
+    val name: String,
+    val username: String,
+    val password: String,
+    val daysPerWeek: Int,
+    val fullyCompatible: Boolean,
+    val credentialsValid: Boolean? = null,
+    val schoolDownloadMode: SchoolDownloadMode
 ) {
     override fun hashCode(): Int {
         var result = id.hashCode()
@@ -66,4 +57,9 @@ data class SchoolSp24Access(
     fun buildVppAuthentication(): BasicAuthentication {
         return BasicAuthentication("$username@$sp24SchoolId", password)
     }
+}
+
+enum class SchoolDownloadMode {
+    INDIWARE_WOCHENPLAN_6,
+    INDIWARE_MOBIL
 }

@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.ui.preview
 
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 
 object SchoolPreview {
 
@@ -15,7 +16,8 @@ object SchoolPreview {
                     username = "schueler",
                     password = "",
                     daysPerWeek = 5,
-                    fullyCompatible = true
+                    fullyCompatible = true,
+                    schoolDownloadMode = SchoolDownloadMode.INDIWARE_WOCHENPLAN_6
                 )
             )
         }

@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.ProfileType.ROOM
 import es.jvbabi.vplanplus.domain.model.ProfileType.STUDENT
 import es.jvbabi.vplanplus.domain.model.ProfileType.TEACHER
+import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -85,7 +86,8 @@ class SetupUseCase(
                 username = username,
                 password = password,
                 daysPerWeek = daysPerWeek,
-                fullyCompatible = fullyCompatible
+                fullyCompatible = fullyCompatible,
+                schoolDownloadMode = SchoolDownloadMode.INDIWARE_WOCHENPLAN_6
             )
             school = schoolRepository.getSchoolFromId(schoolId)!!
             Log.d("SetupUseCase", "School created: $school")
