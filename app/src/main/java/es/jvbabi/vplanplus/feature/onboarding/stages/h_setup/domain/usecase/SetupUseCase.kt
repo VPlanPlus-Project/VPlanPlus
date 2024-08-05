@@ -23,6 +23,24 @@ import kotlinx.serialization.json.Json
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
+val onboardingSetupKeys = listOf(
+    "onboarding.school_id",
+    "onboarding.sp24_school_id",
+    "onboarding.school_name",
+    "onboarding.username",
+    "onboarding.password",
+    "onboarding.days_per_week",
+    "onboarding.is_fully_supported",
+    "onboarding.is_first_profile",
+    "onboarding.teachers",
+    "onboarding.rooms",
+    "onboarding.classes",
+    "onboarding.holidays",
+    "onboarding.default_lessons",
+    "onboarding.profile_type",
+    "onboarding.profile",
+    "onboarding.profile_default_lessons"
+)
 
 class SetupUseCase(
     private val schoolRepository: SchoolRepository,
@@ -36,24 +54,6 @@ class SetupUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val updateFcmTokenUseCase: UpdateFcmTokenUseCase
 ) {
-    private val keys = listOf(
-        "onboarding.school_id",
-        "onboarding.sp24_school_id",
-        "onboarding.school_name",
-        "onboarding.username",
-        "onboarding.password",
-        "onboarding.days_per_week",
-        "onboarding.is_fully_supported",
-        "onboarding.is_first_profile",
-        "onboarding.teachers",
-        "onboarding.rooms",
-        "onboarding.classes",
-        "onboarding.holidays",
-        "onboarding.default_lessons",
-        "onboarding.profile_type",
-        "onboarding.profile",
-        "onboarding.profile_default_lessons"
-    )
     suspend operator fun invoke(): Boolean {
         val json = Json { allowStructuredMapKeys = true }
 
@@ -167,7 +167,7 @@ class SetupUseCase(
             }
         }
 
-        keys.forEach { keyValueRepository.delete(it) }
+        onboardingSetupKeys.forEach { keyValueRepository.delete(it) }
         updateFcmTokenUseCase()
         return true
     }
