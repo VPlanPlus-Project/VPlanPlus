@@ -117,7 +117,7 @@ class DoSyncUseCase(
                 val profiles = profileRepository.getProfilesBySchool(school.id).first()
                 profiles.forEach { profile ->
                     profileDataBefore[profile] =
-                        lessonRepository.getLessonsForProfile(profile.id, date, currentVersion)
+                        lessonRepository.getLessonsForProfile(profile, date, currentVersion)
                             .first()
                             ?.filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
                             ?.toList() ?: emptyList()

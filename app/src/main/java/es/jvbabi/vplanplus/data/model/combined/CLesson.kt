@@ -67,7 +67,7 @@ data class CLesson(
             lessonNumber = lesson.lessonNumber,
             originalSubject = defaultLesson?.defaultLesson?.subject,
             changedSubject = lesson.changedSubject,
-            teachers = teachers.map { it.toTeacherModel().acronym },
+            teachers = teachers.map { it.toTeacherModel() },
             teacherIsChanged = teachers.map { it.toTeacherModel().teacherId }.sorted() != listOf(defaultLesson?.defaultLesson?.teacherId),
             rooms = rooms.map { it.toModel() },
             roomIsChanged = lesson.isRoomChanged,

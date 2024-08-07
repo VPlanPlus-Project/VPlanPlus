@@ -71,6 +71,8 @@ import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.common.unknownVppId
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.RoomPreview
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
+import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -130,7 +132,7 @@ fun LessonCard(
             ) header@{
                 SubjectText(lesson.displaySubject, lesson.changedSubject != null)
                 RoomText(lesson.rooms.map { it.name }, booking, changed = lesson.roomIsChanged)
-                TeacherText(lesson.teachers, changed = lesson.teacherIsChanged)
+                TeacherText(lesson.teachers.map { it.acronym }, changed = lesson.teacherIsChanged)
                 if (displayType != ProfileType.STUDENT) ClassText(lesson.`class`.name)
             }
             ProgressBar(lesson = lesson, now = time, activeModifier = activeModifier.value)
@@ -254,7 +256,7 @@ fun LessonCardPreview() {
                 `class` = GroupPreview.generateGroup(school = null),
                 originalSubject = "Math",
                 rooms = listOf(RoomPreview.generateRoom()),
-                teachers = listOf("WMA"),
+                teachers = listOf(TeacherPreview.teacher(school = SchoolPreview.generateRandomSchools(1).first())),
                 info = "This is an information about this lesson.\nIt also supports multiline.",
                 changedSubject = null,
                 teacherIsChanged = false,

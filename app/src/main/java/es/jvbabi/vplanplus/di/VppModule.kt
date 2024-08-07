@@ -284,13 +284,9 @@ object VppModule {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Provides
     @Singleton
-    fun provideLessonRepository(
-        db: VppDatabase,
-        profileRepository: ProfileRepository
-    ): LessonRepository {
+    fun provideLessonRepository(db: VppDatabase): LessonRepository {
         return LessonRepositoryImpl(
             lessonDao = db.lessonDao,
-            profileRepository = profileRepository
         )
     }
 
@@ -299,7 +295,6 @@ object VppModule {
     fun providePlanRepository(
         db: VppDatabase,
         roomRepository: RoomRepository,
-        profileRepository: ProfileRepository,
         holidayRepository: HolidayRepository,
         groupRepository: GroupRepository
     ): PlanRepository {
@@ -308,7 +303,7 @@ object VppModule {
             teacherRepository = provideTeacherRepository(db),
             groupRepository = groupRepository,
             roomRepository = roomRepository,
-            lessonRepository = provideLessonRepository(db, profileRepository),
+            lessonRepository = provideLessonRepository(db),
             planDao = db.planDao
         )
     }
