@@ -5,7 +5,7 @@ import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
-import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.DbSchool
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import java.time.ZoneId
@@ -16,8 +16,8 @@ data class CVppId(
     @Relation(
         parentColumn = "school_id",
         entityColumn = "id",
-        entity = School::class
-    ) val school: School,
+        entity = DbSchool::class
+    ) val school: CSchool,
     @Relation(
         parentColumn = "group_id",
         entityColumn = "id",
@@ -35,7 +35,7 @@ data class CVppId(
                 id = vppId.id,
                 name = vppId.name,
                 schoolId = vppId.schoolId,
-                school = school,
+                school = school.toModel(),
                 groupName = vppId.groupName,
                 group = group?.toModel(),
                 state = vppId.state,
@@ -49,7 +49,7 @@ data class CVppId(
             id = vppId.id,
             name = vppId.name,
             schoolId = vppId.schoolId,
-            school = school,
+            school = school.toModel(),
             groupName = vppId.groupName,
             group = group?.toModel(),
             state = vppId.state,

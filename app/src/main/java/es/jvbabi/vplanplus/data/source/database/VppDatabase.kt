@@ -28,6 +28,7 @@ import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
+import es.jvbabi.vplanplus.data.source.database.converter.SchoolDownloadTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
@@ -54,12 +55,12 @@ import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
+import es.jvbabi.vplanplus.domain.model.DbSchool
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import es.jvbabi.vplanplus.domain.model.LogRecord
 import es.jvbabi.vplanplus.domain.model.Message
-import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbGrade
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbInterval
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbSubject
@@ -77,7 +78,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbClassProfile::class,
         DbTeacherProfile::class,
         DbRoomProfile::class,
-        School::class,
+        DbSchool::class,
         KeyValue::class,
         Holiday::class,
         LessonTime::class,
@@ -108,7 +109,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 37,
+    version = 38,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -135,7 +136,8 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
     DayDataTypeConverter::class,
     VppIdStateConverter::class,
     GradeModifierConverter::class,
-    ZonedDateTimeConverter::class
+    ZonedDateTimeConverter::class,
+    SchoolDownloadTypeConverter::class
 )
 abstract class VppDatabase : RoomDatabase() {
     abstract val schoolDao: SchoolDao
@@ -295,6 +297,19 @@ abstract class VppDatabase : RoomDatabase() {
         val migration_29_30 = object : Migration(29, 30) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE profile ADD COLUMN is_homework_enabled INTEGER NOT NULL DEFAULT true")
+            }
+        }
+
+        val migration_37_38 = object : Migration(37, 38) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE school RENAME TO school_old;")
+                db.execSQL("ALTER TABLE school_old ADD COLUMN school_download_mode TEXT DEFAULT NULL;")
+                db.execSQL("UPDATE school_old SET school_download_mode = 'INDIWARE_WOCHENPLAN_6';")
+                db.execSQL("CREATE TABLE `school` (`id` INTEGER NOT NULL, `sp24_school_id` INTEGER NOT NULL, `name` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `days_per_week` INTEGER NOT NULL, `fully_compatible` INTEGER NOT NULL, `credentials_valid` INTEGER DEFAULT NULL, `school_download_mode` TEXT NOT NULL, PRIMARY KEY(`id`));")
+                db.execSQL("DROP INDEX IF EXISTS `index_school_id`")
+                db.execSQL("CREATE UNIQUE INDEX `index_school_id` ON `school` (`id`)")
+                db.execSQL("INSERT INTO school (id, sp24_school_id, name, username, password, days_per_week, fully_compatible, credentials_valid, school_download_mode) SELECT * FROM school_old;")
+                db.execSQL("DROP TABLE school_old;")
             }
         }
     }

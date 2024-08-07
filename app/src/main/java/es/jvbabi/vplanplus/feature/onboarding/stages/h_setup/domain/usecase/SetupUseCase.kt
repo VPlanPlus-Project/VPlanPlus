@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.ProfileType.ROOM
 import es.jvbabi.vplanplus.domain.model.ProfileType.STUDENT
 import es.jvbabi.vplanplus.domain.model.ProfileType.TEACHER
+import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
@@ -23,7 +24,7 @@ import kotlinx.serialization.json.Json
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-val onboardingSetupKeys = listOf(
+private val keys = listOf(
     "onboarding.school_id",
     "onboarding.sp24_school_id",
     "onboarding.school_name",
@@ -39,7 +40,8 @@ val onboardingSetupKeys = listOf(
     "onboarding.default_lessons",
     "onboarding.profile_type",
     "onboarding.profile",
-    "onboarding.profile_default_lessons"
+    "onboarding.profile_default_lessons",
+    "onboarding.download_mode"
 )
 
 class SetupUseCase(
@@ -78,6 +80,7 @@ class SetupUseCase(
             val classesData = Json.decodeFromString<List<OnboardingInitClass>>(keyValueRepository.get("onboarding.classes")!!)
             val holidays = Json.decodeFromString<List<Holiday>>(keyValueRepository.get("onboarding.holidays")!!)
             val defaultLessons = Json.decodeFromString<List<OnboardingDefaultLesson>>(keyValueRepository.get("onboarding.default_lessons")!!)
+            val downloadMode = SchoolDownloadMode.valueOf(keyValueRepository.get("onboarding.download_mode")!!)
             schoolRepository.createSchool(
                 schoolId = schoolId,
                 sp24SchoolId = sp24SchoolId,
@@ -85,7 +88,8 @@ class SetupUseCase(
                 username = username,
                 password = password,
                 daysPerWeek = daysPerWeek,
-                fullyCompatible = fullyCompatible
+                fullyCompatible = fullyCompatible,
+                schoolDownloadMode = downloadMode
             )
             school = schoolRepository.getSchoolFromId(schoolId)!!
             Log.d("SetupUseCase", "School created: $school")
@@ -167,7 +171,7 @@ class SetupUseCase(
             }
         }
 
-        onboardingSetupKeys.forEach { keyValueRepository.delete(it) }
+        keys.forEach { keyValueRepository.delete(it) }
         updateFcmTokenUseCase()
         return true
     }

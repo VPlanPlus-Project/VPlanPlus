@@ -85,7 +85,7 @@ data class CClassProfile(
             isHomeworkEnabled = classProfile.isHomeworkEnabled,
             defaultLessons = defaultLessons
                 .mapNotNull { defaultLesson ->
-                    val defaultLessonModel = defaultLesson.defaultLessons.firstOrNull { it.`class`.school.id == group.school.id && it.defaultLesson.vpId.toLong() == defaultLesson.profileDefaultLesson.defaultLessonVpId }?.toModel() ?: return@mapNotNull null
+                    val defaultLessonModel = defaultLesson.defaultLessons.firstOrNull { it.`class`.school.school.id == group.school.school.id && it.defaultLesson.vpId.toLong() == defaultLesson.profileDefaultLesson.defaultLessonVpId }?.toModel() ?: return@mapNotNull null
                     defaultLessonModel to defaultLesson.profileDefaultLesson.enabled
                 }
                 .toMap(),

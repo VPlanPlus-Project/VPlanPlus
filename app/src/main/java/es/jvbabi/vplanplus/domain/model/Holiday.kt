@@ -17,7 +17,7 @@ import java.util.UUID
     tableName = "holiday",
     foreignKeys = [
          ForeignKey(
-             entity = School::class,
+             entity = DbSchool::class,
              parentColumns = ["id"],
              childColumns = ["school_id"],
              onDelete = ForeignKey.CASCADE

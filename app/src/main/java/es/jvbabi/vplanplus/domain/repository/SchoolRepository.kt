@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.domain.repository
 
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.shared.data.SchoolInformation
 import io.ktor.http.HttpStatusCode
 
@@ -16,7 +17,8 @@ interface SchoolRepository {
         password: String,
         name: String,
         daysPerWeek: Int,
-        fullyCompatible: Boolean
+        fullyCompatible: Boolean,
+        schoolDownloadMode: SchoolDownloadMode
     )
     suspend fun updateSchoolName(schoolId: Int, name: String)
     suspend fun getSchoolNameOnline(schoolId: Int, username: String, password: String): String
