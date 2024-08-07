@@ -34,7 +34,7 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
         val schoolInformation = schoolRepository.getSchoolInfoBySp24DataOnline(sp24SchoolId, username, password) ?: return null
 
         val getDefaultLessons: suspend (date: LocalDate) -> List<OnboardingDefaultLesson>? = { date: LocalDate ->
-            val result = vPlanRepository.getVPlanData(sp24SchoolId, username, password, date)
+            val result = vPlanRepository.getVPlanData(sp24SchoolId, username, password, date, baseData.downloadMode)
             result.data
                 ?.wPlanDataObject
                 ?.classes
