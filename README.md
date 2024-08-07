@@ -50,6 +50,7 @@ Eine vpp.ID erstellst du mit deinem beste.schule Account.
 | Vitzthum-Gymnasium Dresden                   | 10223946 | ⚠️         | ❌                  |
 | Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          | ✅                  |
 | Testschule                                   | 10000000 | ✅️         | ❌                  |
+| Friedrich-Schiller-Oberschule Neustadt in Sachsen | 10533425 | ❌ | ❌ |
 
 Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es anderen Schülern/Lehrern an der Schule einfacher zu machen.
 
