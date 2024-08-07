@@ -22,7 +22,7 @@ object Lessons {
                 Lesson(
                     rooms = randomRoom(),
                     teacherIsChanged = Random.nextBoolean(),
-                    teachers = randomTeacher().map { it.acronym },
+                    teachers = randomTeacher(),
                     start = DateUtils.zonedDateFromTimeStringAndDate(start, LocalDate.now()),
                     end = DateUtils.zonedDateFromTimeStringAndDate(end, LocalDate.now()),
                     info = "Info",

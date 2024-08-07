@@ -45,7 +45,7 @@ class PlanRepositoryImpl(
         val teacher = teacherRepository.getTeacherById(teacherId)!!
         val school = teacher.school
 
-        lessonRepository.getLessonsForTeacher(teacherId, date, version).distinctUntilChanged()
+        lessonRepository.getLessonsForTeacher(teacher, date, version).distinctUntilChanged()
             .collect { lessons ->
                 val bookings = roomRepository.getRoomBookings(date)
                 emit(
@@ -64,7 +64,7 @@ class PlanRepositoryImpl(
         val `class` = groupRepository.getGroupById(groupId) ?: return@flow
         val school = `class`.school
 
-        lessonRepository.getLessonsForGroup(`class`.groupId, date, version).distinctUntilChanged()
+        lessonRepository.getLessonsForGroup(`class`, date, version).distinctUntilChanged()
             .collect { lessons ->
                 val bookings = roomRepository.getRoomBookings(date)
                 emit(
@@ -83,7 +83,7 @@ class PlanRepositoryImpl(
         val room = roomRepository.getRoomById(roomId)!!
         val school = room.school
 
-        lessonRepository.getLessonsForRoom(room.roomId, date, version).distinctUntilChanged()
+        lessonRepository.getLessonsForRoom(room, date, version).distinctUntilChanged()
             .collect { lessons ->
                 val bookings = roomRepository.getRoomBookings(date)
                 emit(

@@ -8,7 +8,7 @@ data class Lesson(
     val lessonNumber: Int,
     val originalSubject: String?,
     val changedSubject: String?,
-    val teachers: List<String>,
+    val teachers: List<Teacher>,
     val teacherIsChanged: Boolean,
     val rooms: List<Room>,
     val roomIsChanged: Boolean,

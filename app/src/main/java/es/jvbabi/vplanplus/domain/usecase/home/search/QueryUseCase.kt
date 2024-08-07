@@ -46,7 +46,7 @@ class QueryUseCase(
                     GroupSearchResult(
                         id = it.groupId,
                         name = it.name,
-                        lessons = lessonRepository.getLessonsForGroup(it.groupId, date, version).first()?: emptyList(),
+                        lessons = lessonRepository.getLessonsForGroup(it, date, version).first()?: emptyList(),
                     )
                 )
             }
@@ -55,7 +55,7 @@ class QueryUseCase(
                     TeacherSearchResult(
                         id = it.teacherId,
                         name = it.acronym,
-                        lessons = lessonRepository.getLessonsForTeacher(it.teacherId, date, version).first()?: emptyList(),
+                        lessons = lessonRepository.getLessonsForTeacher(it, date, version).first()?: emptyList(),
                     )
                 )
             }
@@ -64,7 +64,7 @@ class QueryUseCase(
                     RoomSearchResult(
                         id = it.roomId,
                         name = it.name,
-                        lessons = lessonRepository.getLessonsForRoom(it.roomId, date, version).first()?: emptyList(),
+                        lessons = lessonRepository.getLessonsForRoom(it, date, version).first()?: emptyList(),
                     )
                 )
             }
