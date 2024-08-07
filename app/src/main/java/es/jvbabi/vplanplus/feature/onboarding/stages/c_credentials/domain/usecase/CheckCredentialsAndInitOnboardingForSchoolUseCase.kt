@@ -92,10 +92,10 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
                 .map { (lessonNumber, times) ->
                     LessonTime(
                         lessonNumber = lessonNumber,
-                        startHour = times.first.substringBefore(":").toInt(),
-                        startMinute = times.first.substringAfter(":").toInt(),
-                        endHour = times.second.substringBefore(":").toInt(),
-                        endMinute = times.second.substringAfter(":").toInt()
+                        startHour = times.first.substringBefore(":").trim().toInt(),
+                        startMinute = times.first.substringAfter(":").trim().toInt(),
+                        endHour = times.second.substringBefore(":").trim().toInt(),
+                        endMinute = times.second.substringAfter(":").trim().toInt()
                     )
                 }
             OnboardingInitClass(schoolClass.name, entry.groupId, entry.users, lessonTimes)
