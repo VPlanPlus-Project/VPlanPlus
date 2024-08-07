@@ -46,7 +46,7 @@ Eine vpp.ID erstellst du mit deinem beste.schule Account.
 
 | Schule                                       | Schul-ID | Kompatibel | Unterstützt vpp.ID |
 |----------------------------------------------|----------|------------|--------------------|
-| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ⚠️         | ✅                  |
+| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ✅         | ✅                  |
 | Vitzthum-Gymnasium Dresden                   | 10223946 | ⚠️         | ❌                  |
 | Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          | ✅                  |
 | Testschule                                   | 10000000 | ✅️         | ❌                  |
