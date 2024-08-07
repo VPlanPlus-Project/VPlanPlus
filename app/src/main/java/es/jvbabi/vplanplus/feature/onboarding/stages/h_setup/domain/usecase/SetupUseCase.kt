@@ -24,7 +24,7 @@ import kotlinx.serialization.json.Json
 import java.time.ZoneId
 import java.time.ZonedDateTime
 
-private val keys = listOf(
+val onboardingSetupKeys = listOf(
     "onboarding.school_id",
     "onboarding.sp24_school_id",
     "onboarding.school_name",
@@ -171,7 +171,7 @@ class SetupUseCase(
             }
         }
 
-        keys.forEach { keyValueRepository.delete(it) }
+        onboardingSetupKeys.forEach { keyValueRepository.delete(it) }
         updateFcmTokenUseCase()
         return true
     }

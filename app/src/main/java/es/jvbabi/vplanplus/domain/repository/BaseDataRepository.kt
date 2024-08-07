@@ -2,16 +2,9 @@ package es.jvbabi.vplanplus.domain.repository
 
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
-import es.jvbabi.vplanplus.domain.model.WPlanBaseData
 import java.time.LocalDate
 
 interface BaseDataRepository {
-
-    suspend fun getFullBaseData(
-        sp24SchoolId: Int,
-        username: String,
-        password: String,
-    ): DataResponse<WPlanBaseData?>
 
     suspend fun checkCredentials(
         schoolId: Int,
@@ -23,7 +16,7 @@ interface BaseDataRepository {
         sp24SchoolId: Int,
         username: String,
         password: String,
-    ): BaseData?
+    ): BaseDataResponse
 
 }
 
@@ -40,3 +33,9 @@ data class BaseDataClass(
     val name: String,
     val lessonTimes: Map<Int, Pair<String, String>>
 )
+
+sealed class BaseDataResponse {
+    data object Unauthorized : BaseDataResponse()
+    data class Success(val baseData: BaseData) : BaseDataResponse()
+    data object Error : BaseDataResponse()
+}

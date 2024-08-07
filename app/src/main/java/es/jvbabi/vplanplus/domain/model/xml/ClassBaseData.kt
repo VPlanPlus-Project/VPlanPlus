@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.model.xml
 
+import es.jvbabi.vplanplus.domain.repository.BaseDataClass
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -12,7 +13,7 @@ class ClassBaseData(val xml: String) {
 
     var schoolName: String
     var daysPerWeek: Int
-    val classes = mutableListOf<String>()
+    val classes = mutableListOf<BaseDataClass>()
 
     val holidays =
         mutableListOf<Pair<Triple<Int, Int, Int>, Boolean>>() // Pair<<year, month, day>, is public holiday> TODO convert to class
@@ -34,7 +35,9 @@ class ClassBaseData(val xml: String) {
                 ), it.isPublicHoliday == "1"
             )
         })
-        classes.addAll(rootObject.classes!!.map { it.schoolClass })
+        classes.addAll(rootObject.classes!!.map {
+            BaseDataClass(it.schoolClass, emptyMap())
+        })
     }
 }
 

@@ -4,6 +4,7 @@ import android.os.Parcelable
 import es.jvbabi.vplanplus.data.serializers.LocalDateSerializer
 import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
+import es.jvbabi.vplanplus.domain.repository.BaseDataResponse
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
@@ -28,7 +29,20 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
     suspend operator fun invoke(sp24SchoolId: Int, username: String, password: String): OnboardingInit? {
         val school = schoolRepository.getSchoolBySp24Id(sp24SchoolId)
 
-        val baseData = baseDataRepository.getBaseData(sp24SchoolId, username, password) ?: return null
+
+        val baseDataResponse = baseDataRepository.getBaseData(sp24SchoolId, username, password)
+        when (baseDataResponse) {
+            is BaseDataResponse.Unauthorized -> return OnboardingInit(
+                fullySupported = false,
+                isFirstProfile = false,
+                areCredentialsCorrect = false,
+                isSchoolSupported = school != null
+            )
+            is BaseDataResponse.Error -> return null
+            else -> Unit
+        }
+        val baseData = (baseDataResponse as BaseDataResponse.Success).baseData
+
         val isFirstProfile = school == null || profileRepository.getProfilesBySchool(school.id).first().isEmpty()
 
         val schoolInformation = schoolRepository.getSchoolInfoBySp24DataOnline(sp24SchoolId, username, password) ?: return null
