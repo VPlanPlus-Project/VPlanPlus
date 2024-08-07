@@ -53,7 +53,8 @@ class SetupUseCase(
         "onboarding.default_lessons",
         "onboarding.profile_type",
         "onboarding.profile",
-        "onboarding.profile_default_lessons"
+        "onboarding.profile_default_lessons",
+        "onboarding.download_mode"
     )
     suspend operator fun invoke(): Boolean {
         val json = Json { allowStructuredMapKeys = true }
@@ -79,6 +80,7 @@ class SetupUseCase(
             val classesData = Json.decodeFromString<List<OnboardingInitClass>>(keyValueRepository.get("onboarding.classes")!!)
             val holidays = Json.decodeFromString<List<Holiday>>(keyValueRepository.get("onboarding.holidays")!!)
             val defaultLessons = Json.decodeFromString<List<OnboardingDefaultLesson>>(keyValueRepository.get("onboarding.default_lessons")!!)
+            val downloadMode = SchoolDownloadMode.valueOf(keyValueRepository.get("onboarding.download_mode")!!)
             schoolRepository.createSchool(
                 schoolId = schoolId,
                 sp24SchoolId = sp24SchoolId,
@@ -87,7 +89,7 @@ class SetupUseCase(
                 password = password,
                 daysPerWeek = daysPerWeek,
                 fullyCompatible = fullyCompatible,
-                schoolDownloadMode = SchoolDownloadMode.INDIWARE_WOCHENPLAN_6
+                schoolDownloadMode = downloadMode
             )
             school = schoolRepository.getSchoolFromId(schoolId)!!
             Log.d("SetupUseCase", "School created: $school")

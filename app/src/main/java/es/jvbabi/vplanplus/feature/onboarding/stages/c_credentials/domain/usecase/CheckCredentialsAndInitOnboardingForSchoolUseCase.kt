@@ -9,7 +9,6 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
@@ -28,11 +27,8 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
 ) {
     suspend operator fun invoke(sp24SchoolId: Int, username: String, password: String): OnboardingInit? {
         val school = schoolRepository.getSchoolBySp24Id(sp24SchoolId)
-        val baseData = baseDataRepository.getFullBaseData(sp24SchoolId, username, password)
-        if (baseData.response == null || baseData.data == null) return null
-        if (baseData.response == HttpStatusCode.Unauthorized) return OnboardingInit(false, isFirstProfile = false, areCredentialsCorrect = false)
 
-        val isFullySupported = school?.fullyCompatible ?: (baseData.data.teacherShorts != null)
+        val baseData = baseDataRepository.getBaseData(sp24SchoolId, username, password) ?: return null
         val isFirstProfile = school == null || profileRepository.getProfilesBySchool(school.id).first().isEmpty()
 
         val schoolInformation = schoolRepository.getSchoolInfoBySp24DataOnline(sp24SchoolId, username, password) ?: return null
@@ -73,13 +69,13 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
             SchoolSp24Access(schoolId = schoolInformation.schoolId, sp24SchoolId = sp24SchoolId, username = username, password = password)
         ) ?: return null
 
-        val classes = baseData.data.classNames.mapNotNull {
-            val entry = groups.find { c -> c.className == it } ?: return@mapNotNull null
-            val lessonTimes = baseData.data.lessonTimes
+        val isFullySupported = baseData.teachers != null && baseData.rooms != null
+
+        val classes = baseData.classes.mapNotNull { schoolClass ->
+            val entry = groups.find { c -> c.className == schoolClass.name } ?: return@mapNotNull null
+            val lessonTimes = schoolClass.lessonTimes
                 .toList()
-                .firstOrNull { lt -> lt.first == it }
-                ?.second
-                ?.map { (lessonNumber, times) ->
+                .map { (lessonNumber, times) ->
                     LessonTime(
                         lessonNumber = lessonNumber,
                         startHour = times.first.substringBefore(":").toInt(),
@@ -88,8 +84,7 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
                         endMinute = times.second.substringAfter(":").toInt()
                     )
                 }
-                .orEmpty()
-            OnboardingInitClass(it, entry.groupId, entry.users, lessonTimes)
+            OnboardingInitClass(schoolClass.name, entry.groupId, entry.users, lessonTimes)
         }
 
         keyValueRepository.set("onboarding.sp24_school_id", sp24SchoolId.toString())
@@ -99,24 +94,25 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
         keyValueRepository.set("onboarding.is_first_profile", isFirstProfile.toString())
         keyValueRepository.set("onboarding.school_id", schoolInformation.schoolId.toString())
         keyValueRepository.set("onboarding.school_name", schoolInformation.name)
-        keyValueRepository.set("onboarding.days_per_week", baseData.data.daysPerWeek.toString())
+        keyValueRepository.set("onboarding.days_per_week", baseData.daysPerWeek.toString())
         keyValueRepository.set("onboarding.default_lessons", Json.encodeToString(defaultLessons.orEmpty()))
         keyValueRepository.set("onboarding.classes", Json.encodeToString(classes))
-        keyValueRepository.set("onboarding.teachers", Json.encodeToString(baseData.data.teacherShorts.orEmpty()))
-        keyValueRepository.set("onboarding.rooms", Json.encodeToString(baseData.data.roomNames.orEmpty()))
-        keyValueRepository.set("onboarding.holidays", Json.encodeToString(baseData.data.holidays.map { Holiday(it.date, it.schoolId == null) }))
+        keyValueRepository.set("onboarding.teachers", Json.encodeToString(baseData.teachers.orEmpty()))
+        keyValueRepository.set("onboarding.rooms", Json.encodeToString(baseData.rooms.orEmpty()))
+        keyValueRepository.set("onboarding.holidays", Json.encodeToString(baseData.holidays.map { Holiday(it, false) }))
+        keyValueRepository.set("onboarding.download_mode", baseData.downloadMode.name)
 
         return OnboardingInit(
             fullySupported = isFullySupported,
             isFirstProfile = isFirstProfile,
             schoolId = schoolInformation.schoolId,
             name = schoolInformation.name,
-            daysPerWeek = baseData.data.daysPerWeek,
+            daysPerWeek = baseData.daysPerWeek,
             defaultLessons = defaultLessons.orEmpty(),
             classes = classes,
-            teachers = baseData.data.teacherShorts.orEmpty(),
-            rooms = baseData.data.roomNames.orEmpty(),
-            holidays = baseData.data.holidays.map { Holiday(it.date, it.schoolId == null) }
+            teachers = baseData.teachers.orEmpty(),
+            rooms = baseData.rooms.orEmpty(),
+            holidays = baseData.holidays.map { Holiday(it, false) }
         )
     }
 }
