@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.domain.model.xml
 
 import es.jvbabi.vplanplus.domain.repository.BaseDataClass
+import es.jvbabi.vplanplus.util.sanitizeXml
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -9,7 +10,7 @@ import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
 
-class ClassBaseData(val xml: String) {
+class ClassBaseData(rawXml: String) {
 
     var schoolName: String
     var daysPerWeek: Int
@@ -20,6 +21,7 @@ class ClassBaseData(val xml: String) {
 
     init {
         val serializer: Serializer = Persister()
+        val xml = sanitizeXml(rawXml)
         val reader = xml.reader()
         val rootObject: Splan = serializer.read(Splan::class.java, reader, false)
 

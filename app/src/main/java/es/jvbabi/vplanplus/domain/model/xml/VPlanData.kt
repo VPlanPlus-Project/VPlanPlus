@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.model.xml
 
+import es.jvbabi.vplanplus.util.sanitizeXml
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -14,7 +15,7 @@ class VPlanData(val xml: String, val sp24SchoolId: Int) {
         val serializer: Serializer = Persister()
 
         // Angry checkpoint: There are things in the XML data that you'd never expect to be there.
-        var modified = xml.replace("<Kurse/>", "")
+        var modified = sanitizeXml(xml).replace("<Kurse/>", "")
         modified = modified.replace("+</Nr>", "</Nr>") // HOW DID THIS + EVEN GET HERE
         while (!modified.startsWith("<")) modified = modified.drop(1)
 

@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.domain.model.xml
 import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.domain.repository.BaseData
 import es.jvbabi.vplanplus.domain.repository.BaseDataClass
+import es.jvbabi.vplanplus.util.sanitizeXml
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -13,11 +14,13 @@ import org.simpleframework.xml.core.Persister
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class MobileBaseData(xml: String) {
+class MobileBaseData(rawXml: String) {
     var baseData: BaseData
 
     init {
         val serializer: Serializer = Persister()
+        val xml = sanitizeXml(rawXml)
+        println(xml)
         val reader = xml.reader()
         val rootObject: VpPlan = serializer.read(VpPlan::class.java, reader, false)
         baseData = BaseData(
