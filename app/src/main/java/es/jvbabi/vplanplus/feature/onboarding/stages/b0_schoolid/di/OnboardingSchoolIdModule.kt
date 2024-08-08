@@ -24,6 +24,6 @@ object OnboardingSchoolIdModule {
     ) = OnboardingSchoolIdUseCases(
         isSchoolIdValidUseCase = IsSchoolIdValidUseCase(),
         doesSchoolIdExistsUseCase = DoesSchoolIdExistsUseCase(schoolRepository),
-        setSchoolIdUseCase = SetSchoolIdUseCase(keyValueRepository)
+        setSchoolIdUseCase = SetSchoolIdUseCase(keyValueRepository, schoolRepository)
     )
 }

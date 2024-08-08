@@ -72,17 +72,9 @@ fun SearchResultLesson(
                 )
                 Text(
                     text = when (resultType) {
-                        ProfileType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(
-                            ", "
-                        )
-
-                        ProfileType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(
-                            ", "
-                        )
-
-                        ProfileType.STUDENT -> lesson.teachers.joinToString(
-                            ", "
-                        ) + " • " + lesson.rooms.joinToString(", ")
+                        ProfileType.TEACHER -> lesson.`class`.name + " • " + lesson.rooms.joinToString(", ") { it.name }
+                        ProfileType.ROOM -> lesson.`class`.name + " • " + lesson.teachers.joinToString(", ") { it.acronym }
+                        ProfileType.STUDENT -> lesson.teachers.joinToString(", ") { it.acronym } + " • " + lesson.rooms.joinToString(", ") { it.name }
                     },
                     style = MaterialTheme.typography.labelSmall
                 )

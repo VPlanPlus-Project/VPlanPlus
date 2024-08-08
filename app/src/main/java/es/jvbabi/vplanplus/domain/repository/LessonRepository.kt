@@ -3,16 +3,19 @@ package es.jvbabi.vplanplus.domain.repository
 import es.jvbabi.vplanplus.data.model.DbLesson
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.Room
+import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.Teacher
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
-import java.util.UUID
 
 interface LessonRepository {
-    fun getLessonsForTeacher(teacherId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
-    fun getLessonsForGroup(classId: Int, date: LocalDate, version: Long): Flow<List<Lesson>?>
-    fun getLessonsForRoom(roomId: Int, date: LocalDate, version: Long): Flow<List<Lesson>?>
-    fun getLessonsForSchoolByDate(schoolId: Int, date: LocalDate, version: Long): Flow<List<Lesson>>
-    suspend fun getLessonsForProfile(profileId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?>
+    fun getLessonsForTeacher(teacher: Teacher, date: LocalDate, version: Long): Flow<List<Lesson>?>
+    fun getLessonsForGroup(group: Group, date: LocalDate, version: Long): Flow<List<Lesson>?>
+    fun getLessonsForRoom(room: Room, date: LocalDate, version: Long): Flow<List<Lesson>?>
+    fun getLessonsForSchoolByDate(school: School, date: LocalDate, version: Long): Flow<List<Lesson>>
+    suspend fun getLessonsForProfile(profile: Profile, date: LocalDate, version: Long): Flow<List<Lesson>?>
 
     suspend fun deleteLessonForClass(`class`: Group, date: LocalDate, version: Long)
 

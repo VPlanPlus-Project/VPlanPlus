@@ -24,7 +24,7 @@ class GetRoomMapUseCase(
     ): List<RoomState> {
         val rooms = roomRepository.getRooms(profile.getSchool().id).sortedBy { it.name }
         val version = keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()
-        val lessons = lessonRepository.getLessonsForSchoolByDate(profile.getSchool().id, date, version).first()
+        val lessons = lessonRepository.getLessonsForSchoolByDate(profile.getSchool(), date, version).first()
         val bookings = roomRepository.getRoomBookings(date).filter { it.bookedBy?.group?.school == profile.getSchool() }
 
         val result = mutableListOf<RoomState>()

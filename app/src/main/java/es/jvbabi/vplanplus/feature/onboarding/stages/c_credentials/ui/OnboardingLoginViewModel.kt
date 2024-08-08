@@ -40,9 +40,11 @@ class OnboardingLoginViewModel @Inject constructor(
                     if (onboardingInit == null) {
                         state = state.copy(error = LoginError.NETWORK_ERROR, isLoading = false)
                         return@launch
-                    }
-                    if (!onboardingInit.areCredentialsCorrect) {
+                    } else if (!onboardingInit.areCredentialsCorrect) {
                         state = state.copy(error = LoginError.BAD_CREDENTIALS, isLoading = false)
+                        return@launch
+                    } else if (!onboardingInit.isSchoolSupported) {
+                        state = state.copy(error = LoginError.UNSUPPORTED_SCHOOL, isLoading = false)
                         return@launch
                     } else {
                         action.after()
@@ -67,7 +69,8 @@ data class OnboardingLoginState(
 
 enum class LoginError {
     BAD_CREDENTIALS,
-    NETWORK_ERROR
+    NETWORK_ERROR,
+    UNSUPPORTED_SCHOOL
 }
 
 sealed class UiAction

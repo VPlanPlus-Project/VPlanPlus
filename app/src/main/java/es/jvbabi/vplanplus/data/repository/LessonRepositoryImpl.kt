@@ -6,83 +6,85 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonDao
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomProfile
+import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.domain.model.TeacherProfile
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
-import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import java.util.UUID
 
 @ExperimentalCoroutinesApi
 class LessonRepositoryImpl(
-    private val lessonDao: LessonDao,
-    private val profileRepository: ProfileRepository
+    private val lessonDao: LessonDao
 ) : LessonRepository {
 
     private val converter = ZonedDateTimeConverter()
 
-    override fun getLessonsForGroup(classId: Int, date: LocalDate, version: Long): Flow<List<Lesson>?> {
+    override fun getLessonsForGroup(group: Group, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         val timestamp = converter.zonedDateTimeToTimestamp(ZonedDateTime.of(date, LocalTime.MIN, ZoneId.of("UTC")))
-        return lessonDao.getLessonsByClass(classId, timestamp, version)
+        return lessonDao.getLessons(timestamp = timestamp, version = version)
             .map { lessons ->
-                if (lessons.isEmpty()) null
+                (if (lessons.isEmpty()) null
                 else lessons.map { lesson ->
                     lesson.toModel()
+                }).let { modeledLessons ->
+                    modeledLessons?.filter { it.`class`.groupId == group.groupId }
                 }
             }
     }
 
-    override fun getLessonsForTeacher(teacherId: UUID, date: LocalDate, version: Long): Flow<List<Lesson>?> {
+    override fun getLessonsForTeacher(teacher: Teacher, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         val timestamp = converter.zonedDateTimeToTimestamp(ZonedDateTime.of(date, LocalTime.MIN, ZoneId.of("UTC")))
-        return lessonDao.getLessonsByTeacher(teacherId, timestamp, version)
+        return lessonDao.getLessons(timestamp = timestamp, version = version)
             .map { lessons ->
-                if (lessons.isEmpty()) null
+                (if (lessons.isEmpty()) null
                 else lessons.map { lesson ->
                     lesson.toModel()
+                }).let { modeledLessons ->
+                    modeledLessons?.filter { it.teachers.any { t -> t.teacherId == teacher.teacherId } }
                 }
             }
     }
 
-    override fun getLessonsForRoom(roomId: Int, date: LocalDate, version: Long): Flow<List<Lesson>?> {
+    override fun getLessonsForRoom(room: Room, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         val timestamp = converter.zonedDateTimeToTimestamp(ZonedDateTime.of(date, LocalTime.MIN, ZoneId.of("UTC")))
-        return lessonDao.getLessonsByRoom(roomId, timestamp, version)
+        return lessonDao.getLessons(timestamp = timestamp, version = version)
             .map { lessons ->
-                if (lessons.isEmpty()) null
+                (if (lessons.isEmpty()) null
                 else lessons.map { lesson ->
                     lesson.toModel()
+                }).let { modeledLessons ->
+                    modeledLessons?.filter { it.rooms.any { r -> r.roomId == room.roomId } }
                 }
             }
     }
 
-    override fun getLessonsForSchoolByDate(schoolId: Int, date: LocalDate, version: Long): Flow<List<Lesson>> {
+    override fun getLessonsForSchoolByDate(school: School, date: LocalDate, version: Long): Flow<List<Lesson>> {
         val timestamp = converter.zonedDateTimeToTimestamp(ZonedDateTime.of(date, LocalTime.MIN, ZoneId.of("UTC")))
-
-        return lessonDao.getLessonsForSchool(schoolId, timestamp, version).map { lessons ->
-            lessons.map {
-                it.toModel()
-            }
+        return lessonDao.getLessons(timestamp = timestamp, version = version).map { lessons ->
+            lessons
+                .map { it.toModel() }
+                .filter { it.`class`.school.id == school.id || it.teachers.any { t -> t.school.id == school.id } || it.rooms.any { r -> r.school.id == school.id } }
         }
     }
 
     override suspend fun getLessonsForProfile(
-        profileId: UUID,
+        profile: Profile,
         date: LocalDate,
         version: Long
     ): Flow<List<Lesson>?> {
-        val profile = profileRepository.getProfileById(profileId).first() ?: return emptyFlow()
-
         return when (profile) {
-            is ClassProfile -> getLessonsForGroup(profile.group.groupId, date, version)
-            is TeacherProfile -> getLessonsForTeacher(profile.teacher.teacherId, date, version)
-            is RoomProfile -> getLessonsForRoom(profile.room.roomId, date, version)
+            is ClassProfile -> getLessonsForGroup(profile.group, date, version)
+            is TeacherProfile -> getLessonsForTeacher(profile.teacher, date, version)
+            is RoomProfile -> getLessonsForRoom(profile.room, date, version)
         }
     }
 

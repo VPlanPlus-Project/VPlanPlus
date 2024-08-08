@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.data.repository
 
-import android.util.Log
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
@@ -32,9 +31,9 @@ class ProfileRepositoryImpl(
             profileDao.getRoomProfiles()
         ) { classProfiles, teacherProfiles, roomProfiles ->
             val profiles = mutableListOf<Profile>()
-            classProfiles.filter { it.group.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
-            teacherProfiles.filter { it.schoolEntity.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
-            roomProfiles.filter { it.room.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
+            classProfiles.filter { it.group.school.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
+            teacherProfiles.filter { it.schoolEntity.school.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
+            roomProfiles.filter { it.room.school.school.id == schoolId }.forEach { profiles.add(it.toModel()) }
             profiles
         }.collect {
             emit(it)

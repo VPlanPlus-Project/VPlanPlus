@@ -31,6 +31,7 @@ import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
+import es.jvbabi.vplanplus.data.source.database.converter.SchoolDownloadTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
 import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
@@ -140,12 +141,14 @@ object VppModule {
             .addMigrations(VppDatabase.migration_27_28)
             .addMigrations(VppDatabase.migration_28_29)
             .addMigrations(VppDatabase.migration_29_30)
+            .addMigrations(VppDatabase.migration_37_38)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())
             .addTypeConverter(GradeModifierConverter())
             .addTypeConverter(ZonedDateTimeConverter())
+            .addTypeConverter(SchoolDownloadTypeConverter())
             .allowMainThreadQueries()
             .fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
@@ -284,13 +287,9 @@ object VppModule {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Provides
     @Singleton
-    fun provideLessonRepository(
-        db: VppDatabase,
-        profileRepository: ProfileRepository
-    ): LessonRepository {
+    fun provideLessonRepository(db: VppDatabase): LessonRepository {
         return LessonRepositoryImpl(
             lessonDao = db.lessonDao,
-            profileRepository = profileRepository
         )
     }
 
@@ -299,7 +298,6 @@ object VppModule {
     fun providePlanRepository(
         db: VppDatabase,
         roomRepository: RoomRepository,
-        profileRepository: ProfileRepository,
         holidayRepository: HolidayRepository,
         groupRepository: GroupRepository
     ): PlanRepository {
@@ -308,7 +306,7 @@ object VppModule {
             teacherRepository = provideTeacherRepository(db),
             groupRepository = groupRepository,
             roomRepository = roomRepository,
-            lessonRepository = provideLessonRepository(db, profileRepository),
+            lessonRepository = provideLessonRepository(db),
             planDao = db.planDao
         )
     }

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.model.xml
 
+import es.jvbabi.vplanplus.util.sanitizeXml
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -13,7 +14,7 @@ class WeekBaseData(val xml: String) {
 
     init {
         val serializer: Serializer = Persister()
-        val reader = xml.reader()
+        val reader = sanitizeXml(xml).reader()
         val rootObject: WeekSplan = serializer.read(WeekSplan::class.java, reader, false)
 
         rootObject.classes!!.forEach { classShort ->

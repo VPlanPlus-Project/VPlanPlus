@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.data.model.combined
 import androidx.room.Embedded
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
-import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.DbSchool
 import es.jvbabi.vplanplus.domain.model.Teacher
 
 data class CSchoolEntity(
@@ -11,15 +11,15 @@ data class CSchoolEntity(
     @Relation(
         parentColumn = "school_id",
         entityColumn = "id",
-        entity = School::class
-    ) val school: School
+        entity = DbSchool::class
+    ) val school: CSchool
 ) {
 
     fun toTeacherModel(): Teacher {
         return Teacher(
             teacherId = schoolEntity.id,
             acronym = schoolEntity.name,
-            school = school
+            school = school.toModel()
         )
     }
 }

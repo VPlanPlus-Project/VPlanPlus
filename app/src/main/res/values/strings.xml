@@ -757,5 +757,6 @@
     <string name="vppIdSettingsManagement_requestDeletionSubtitle">Currently, you cannot delete your vpp.ID yourself. You may request its deletion via your account manager. This will open a browser to proceed.</string>
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Course groups</string>
     <string name="settingsProfileManagementDefaultLesson_lessonsTitle">Lessons</string>
+    <string name="onboarding_credentialsUnsupportedSchool">This school is not supported by VPlanPlus. Your school needs to support the \'Wochenplan 6\' module by Stundenplan24.de</string>
 
 </resources>

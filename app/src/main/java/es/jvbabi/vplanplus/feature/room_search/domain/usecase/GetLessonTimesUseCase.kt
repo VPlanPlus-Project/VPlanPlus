@@ -29,7 +29,7 @@ class GetLessonTimesUseCase(
             .getRoomBookings(date = date)
             .filter { it.room == room && it.from.toLocalDate() == date && it.to.toLocalDate() == date }
 
-        val lessons = lessonRepository.getLessonsForRoom(room.roomId, date, keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()).first() ?: emptyList()
+        val lessons = lessonRepository.getLessonsForRoom(room, date, keyValueRepository.getOrDefault(Keys.LESSON_VERSION_NUMBER, "0").toLong()).first() ?: emptyList()
 
         return lessonTimeRepository.getLessonTimesByGroup(profile.group).values.associateWith { lessonTime ->
             val lessonTimeFrom = lessonTime.start.atBeginningOfTheWorld()
