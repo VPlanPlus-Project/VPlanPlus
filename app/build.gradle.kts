@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.compose.compiler)
+    alias(libs.plugins.firebase.crashlytics)
 }
 
 android {
@@ -111,6 +112,8 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.messaging)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     // splash screen
     implementation(libs.core.splashscreen)
