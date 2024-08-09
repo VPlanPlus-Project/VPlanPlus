@@ -755,5 +755,15 @@
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Kurse</string>
     <string name="settingsProfileManagementDefaultLesson_lessonsTitle">Stunden</string>
     <string name="onboarding_credentialsUnsupportedSchool">Diese Schule wird von VPlanPlus nicht unterstützt. Deine Schule muss das Modul \'Wochenplan 6\' von Stundenplan24.de unterstützen.</string>
+    <string name="profileManagement_detailsLabel">Details</string>
+    <string name="profileManagement_detailsId">ID</string>
+    <string name="profileManagement_detailsSp24Id">SP24-ID</string>
+    <string name="profileManagement_detailsUsername">Nutzer</string>
+    <string name="profileManagement_detailsPassword">Passwort</string>
+    <string name="profileManagement_detailsName">Name</string>
+    <string name="profileManagement_detailsPreferredDownloadMode">Bevorzugte Quelle</string>
+    <string name="profileManagement_detailsDaysPerWeek">Wochentage</string>
+    <string name="profileManagement_detailsCredentialsValid">Zugangsdaten gültig</string>
+    <string name="profileManagement_detailsFullyCompatible">Vollst. kompatibel</string>
 
 </resources>
