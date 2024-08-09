@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ProfileType
+import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.domain.usecase.OnboardingProfileTypeUseCases
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,7 +20,10 @@ class OnboardingProfileTypeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            state = state.copy(isFirstProfileForSchool = onboardingProfileTypeUseCases.isFirstProfileForSchoolUseCase())
+            state = state.copy(
+                isFirstProfileForSchool = onboardingProfileTypeUseCases.isFirstProfileForSchoolUseCase(),
+                preferredSchoolDownloadMode = onboardingProfileTypeUseCases.getPreferredSchoolDownloadModeUseCase()
+            )
         }
     }
 
@@ -45,7 +49,8 @@ class OnboardingProfileTypeViewModel @Inject constructor(
 data class OnboardingProfileTypeState(
     val isLimitedToStudentProfile: Boolean = false,
     val isFirstProfileForSchool: Boolean = false,
-    val profileType: ProfileType? = null
+    val profileType: ProfileType? = null,
+    val preferredSchoolDownloadMode: SchoolDownloadMode? = null
 )
 
 sealed class UiAction

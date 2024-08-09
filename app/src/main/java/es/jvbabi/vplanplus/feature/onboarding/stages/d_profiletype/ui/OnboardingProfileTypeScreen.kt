@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -27,6 +28,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ProfileType.ROOM
 import es.jvbabi.vplanplus.domain.model.ProfileType.STUDENT
 import es.jvbabi.vplanplus.domain.model.ProfileType.TEACHER
+import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.screens.Screen
@@ -64,6 +66,25 @@ fun AddProfileScreen(
         enabled = state.profileType != null,
         onButtonClick = { onContinue() },
         content = {
+            when (state.preferredSchoolDownloadMode) {
+                SchoolDownloadMode.INDIWARE_WOCHENPLAN_6 -> {
+                    InfoCard(
+                        imageVector = Icons.Default.Download,
+                        title = stringResource(id = R.string.onboarding_preferredDownloadModeTitle),
+                        text = stringResource(id = R.string.onboarding_preferredDownloadModeWPlan6Text),
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+                SchoolDownloadMode.INDIWARE_MOBIL -> {
+                    InfoCard(
+                        imageVector = Icons.Default.Warning,
+                        title = stringResource(id = R.string.onboarding_preferredDownloadModeTitle),
+                        text = stringResource(id = R.string.onboarding_preferredDownloadModeMobilText),
+                        modifier = Modifier.padding(vertical = 8.dp)
+                    )
+                }
+                null -> Unit
+            }
             if (state.isLimitedToStudentProfile) InfoCard(
                 imageVector = Icons.Default.Warning,
                 title = stringResource(id = R.string.onboarding_newProfileNotFullySupportedSchoolWarningTitle),
