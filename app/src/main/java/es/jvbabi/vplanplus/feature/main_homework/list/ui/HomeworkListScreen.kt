@@ -222,7 +222,7 @@ private fun HomeworkListContent(
                     visible = state.initDone,
                     enter = slideIn(initialOffset = { IntOffset(0, 100) }) + fadeIn()
                 ) {
-                    val items = state.personalizedHomeworks.groupBy { it.homework.until }.toList()
+                    val items = state.personalizedHomeworks.groupBy { it.homework.until }.toList().sortedBy { it.first }
                     val homeworkListState = rememberLazyListState()
 
                     var hasDrawnFirstVisibleHomework = false
