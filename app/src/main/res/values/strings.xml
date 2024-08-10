@@ -758,5 +758,7 @@
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Course groups</string>
     <string name="settingsProfileManagementDefaultLesson_lessonsTitle">Lessons</string>
     <string name="onboarding_credentialsUnsupportedSchool">This school is not supported by VPlanPlus. Your school needs to support the \'Wochenplan 6\' module by Stundenplan24.de</string>
+    <string name="settingsAbout_socialMediaWhatsAppTitle">WhatsApp-Channel</string>
+    <string name="settingsAbout_socialMediaWhatsAppSubtitle">Get status updates and news in WhatsApp</string>
 
 </resources>
