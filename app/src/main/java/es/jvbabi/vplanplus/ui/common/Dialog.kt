@@ -34,6 +34,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
@@ -93,6 +94,31 @@ private fun YesNoDialogPreview() {
         title = "Deleting stuff",
         message = "Are you sure you want to delete this stuff?",
     )
+}
+
+@Composable
+fun InfoDialog(
+    icon: ImageVector,
+    title: String?,
+    message: AnnotatedString,
+    onOk: () -> Unit = {},
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        AlertDialog(
+            title = { if (title != null) Text(text = title) },
+            text = { Text(text = message) },
+            icon = { Icon(imageVector = icon, contentDescription = null) },
+            onDismissRequest = { onOk() },
+            confirmButton = {
+                TextButton(onClick = { onOk() }) {
+                    Text(text = stringResource(id = android.R.string.ok))
+                }
+            },
+        )
+    }
 }
 
 @Composable

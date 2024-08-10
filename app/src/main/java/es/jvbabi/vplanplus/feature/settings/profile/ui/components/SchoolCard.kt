@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Error
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Key
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -36,6 +38,7 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.feature.settings.profile.ui.components.dialogs.SchoolDetailsDialog
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.RoomPreview
@@ -53,6 +56,7 @@ fun SchoolCard(
     onUpdateCredentialsRequest: () -> Unit,
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
+    var showInfoDialog by rememberSaveable { mutableStateOf(false) }
     Card(
         modifier = Modifier
             .fillMaxWidth(),
@@ -112,6 +116,11 @@ fun SchoolCard(
                             onClick = { menuExpanded = false; onUpdateCredentialsRequest() },
                             leadingIcon = { Icon(imageVector = Icons.Default.Key, contentDescription = null) }
                         )
+                        DropdownMenuItem(
+                            text = { Text(text = stringResource(id = R.string.profileManagement_detailsLabel)) },
+                            onClick = { menuExpanded = false; showInfoDialog = true },
+                            leadingIcon = { Icon(imageVector = Icons.Default.Info, contentDescription = null) }
+                        )
                     }
                 }
             }
@@ -138,6 +147,10 @@ fun SchoolCard(
                 }
             }
         }
+    }
+
+    if (showInfoDialog) SchoolDetailsDialog(school = school) {
+        showInfoDialog = false
     }
 }
 
