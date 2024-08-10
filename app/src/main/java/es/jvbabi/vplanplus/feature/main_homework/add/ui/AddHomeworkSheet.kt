@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.components.unsaved_changes_dialog.Dialog
 import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
@@ -28,6 +29,7 @@ fun AddHomeworkSheet(
     onClose: () -> Unit,
     initialValues: AddHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(),
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
     var hasChanged by rememberSaveable { mutableStateOf(false) }
 
     var isDismissDialogOpen by rememberSaveable { mutableStateOf(false) }
@@ -48,7 +50,7 @@ fun AddHomeworkSheet(
         },
     )
     ModalBottomSheet(
-        onDismissRequest = onClose,
+        onDismissRequest = { keyboardController?.hide(); onClose() },
         sheetState = modalSheetState,
     ) {
         AddHomeworkSheetContent(
