@@ -168,10 +168,7 @@ fun AddHomeworkSheetContent(
     )
 
     var isSelectDefaultLessonSheetOpen by rememberSaveable { mutableStateOf(false) }
-    val selectDefaultLessonSheetState = rememberModalBottomSheetState(
-        skipPartiallyExpanded = true,
-        confirmValueChange = { it != SheetValue.PartiallyExpanded }
-    )
+    val selectDefaultLessonSheetState = rememberModalBottomSheetState(true)
     if (isSelectDefaultLessonSheetOpen) SelectDefaultLessonSheet(
         defaultLessons = state.defaultLessons,
         selectedDefaultLesson = state.selectedDefaultLesson,
