@@ -106,7 +106,7 @@ fun HomeworkCardItem(
         }
     )
 
-    LaunchedEffect(key1 = resetKey1, key2 = resetKey2) { dismissState.reset() }
+    LaunchedEffect(key1 = resetKey1, key2 = resetKey2, key3 = personalizedHomework) { dismissState.reset() }
 
     if (isDeleteDialogOpen) {
         YesNoDialog(
