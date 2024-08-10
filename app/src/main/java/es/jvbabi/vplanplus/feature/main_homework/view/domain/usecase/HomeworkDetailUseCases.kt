@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase
 
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.DeleteHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
 
 data class HomeworkDetailUseCases(
@@ -13,4 +14,5 @@ data class HomeworkDetailUseCases(
     val addTaskUseCase: AddTaskUseCase,
     val updateHomeworkVisibilityUseCase: UpdateHomeworkVisibilityUseCase,
     val updateDocumentsUseCase: UpdateDocumentsUseCase,
+    val deleteHomeworkUseCase: DeleteHomeworkUseCase
 )

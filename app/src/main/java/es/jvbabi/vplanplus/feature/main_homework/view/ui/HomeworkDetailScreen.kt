@@ -18,6 +18,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material3.CircularProgressIndicator
@@ -73,6 +75,7 @@ import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.VerticalExpandAnimatedAndFadingVisibility
 import es.jvbabi.vplanplus.ui.common.VerticalExpandVisibility
+import es.jvbabi.vplanplus.ui.common.YesNoDialog
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
@@ -131,6 +134,8 @@ private fun HomeworkDetailScreenContent(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
 
+    var isDeleteDialogOpen by rememberSaveable { mutableStateOf(false) }
+
     var showUnsavedChangesDialog by rememberSaveable { mutableStateOf(false) }
     if (showUnsavedChangesDialog) UnsavedChangesDialog(
         onDismiss = { showUnsavedChangesDialog = false },
@@ -150,6 +155,9 @@ private fun HomeworkDetailScreenContent(
                         title = { Text(stringResource(id = R.string.homework_detailViewTitle)) },
                         navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
                         actions = {
+                            if (state.canEditOrigin) IconButton(onClick = { isDeleteDialogOpen = true }) {
+                                Icon(imageVector = Icons.Default.Delete, contentDescription = stringResource(id = R.string.delete))
+                            }
                             IconButton(onClick = { onAction(StartEditModeAction) }) {
                                 Icon(
                                     imageVector = Icons.Default.Edit,
@@ -270,6 +278,21 @@ private fun HomeworkDetailScreenContent(
                 onScanDocumentClicked = onScanDocumentClicked
             )
         }
+    }
+
+    if (isDeleteDialogOpen) {
+        YesNoDialog(
+            icon = Icons.Default.DeleteForever,
+            title = stringResource(id = R.string.homework_deleteHomeworkTitle),
+            message =
+                when (state.personalizedHomework) {
+                    is PersonalizedHomework.CloudHomework -> if (state.personalizedHomework.homework.isPublic) stringResource(id = R.string.homework_deleteHomeworkTextPublic) else stringResource(id = R.string.homework_deleteHomeworkTextPrivate)
+                    is PersonalizedHomework.LocalHomework -> stringResource(id = R.string.homework_deleteHomeworkTextLocal)
+                    else -> ""
+                },
+            onYes = { onAction(DeleteHomework) },
+            onNo = { isDeleteDialogOpen = false },
+        )
     }
 }
 
