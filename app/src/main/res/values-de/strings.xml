@@ -757,5 +757,8 @@
     <string name="onboarding_credentialsUnsupportedSchool">Diese Schule wird von VPlanPlus nicht unterstützt. Deine Schule muss das Modul \'Wochenplan 6\' von Stundenplan24.de unterstützen.</string>
     <string name="settingsAbout_socialMediaWhatsAppTitle">WhatsApp-Kanal</string>
     <string name="settingsAbout_socialMediaWhatsAppSubtitle">Erhalte Statusmeldungen und Infos in WhatsApp</string>
+    <string name="onboarding_preferredDownloadModeTitle">Bevorzugter Download-Modus</string>
+    <string name="onboarding_preferredDownloadModeWPlan6Text">VPlanPlus bevorzugt das Modul \'Wochenplan 6\' zum Laden der Plandaten.</string>
+    <string name="onboarding_preferredDownloadModeMobilText">VPlanPlus bevorzugt das Modul \'Indiware Mobil\' zum Laden der Plandaten.</string>
 
 </resources>
