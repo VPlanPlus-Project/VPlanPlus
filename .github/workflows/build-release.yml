@@ -1,8 +1,5 @@
 name: Build Release
-on:
-    push:
-        branches:
-            - ci
+on: push
 
 env:
     KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
