@@ -497,14 +497,14 @@ class DoSyncUseCase(
 
     private fun buildChangedNotificationString(changedLessons: List<Lesson>): String {
         if (changedLessons.isEmpty()) return ""
-        var changedString = "\n" + context.getString(R.string.notification_changedLessons) + "\n"
+        var changedString = "\n"
         changedLessons.forEach { lesson ->
             changedString += "${lesson.lessonNumber}: ${
                 if (lesson.displaySubject == "-") "-" else
                     context.getString(
                         R.string.notification_lesson,
                         lesson.displaySubject,
-                        lesson.teachers.joinToString(", "),
+                        lesson.teachers.joinToString(", ") { it.acronym },
                         lesson.rooms.joinToString(", ") { it.name }
                     )
             } \n"

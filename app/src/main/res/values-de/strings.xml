@@ -112,7 +112,6 @@
     <string name="timetable_holidayTitle">Feiertag/Ferien</string>
     <string name="timetable_holidayText">Heute musst du nicht in die Schule. Fühle dich frei, triff Freunde oder räume dein Zimmer auf.</string>
     <string name="notification_lesson">%1$s mit %2$s in %3$s</string>
-    <string name="notification_changedLessons">Diese Stunden haben sich verändert:</string>
     <string name="notification_planChangedText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
     <string name="notification_planChangedTitle">Planänderung</string>
     <string name="home_lastSyncNever">Nie synchronisiert</string>
