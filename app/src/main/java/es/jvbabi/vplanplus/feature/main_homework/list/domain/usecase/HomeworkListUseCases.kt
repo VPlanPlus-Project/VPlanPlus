@@ -10,7 +10,7 @@ data class HomeworkListUseCases(
     val getHomeworkUseCase: GetHomeworkUseCase,
     val deleteHomeworkUseCase: DeleteHomeworkUseCase,
     val toggleHomeworkHiddenStateUseCase: ToggleHomeworkHiddenStateUseCase,
-    val markHomeworkAsDoneUseCase: MarkHomeworkAsDoneUseCase,
+    val toggleDoneStateUseCase: ToggleDoneStateUseCase,
     val updateHomeworkUseCase: UpdateHomeworkUseCase,
 
     val isBalloonUseCase: IsBalloonUseCase,

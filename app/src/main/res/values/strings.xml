@@ -758,5 +758,20 @@
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Course groups</string>
     <string name="settingsProfileManagementDefaultLesson_lessonsTitle">Lessons</string>
     <string name="onboarding_credentialsUnsupportedSchool">This school is not supported by VPlanPlus. Your school needs to support the \'Wochenplan 6\' module by Stundenplan24.de</string>
+    <string name="profileManagement_detailsLabel">Details</string>
+    <string name="profileManagement_detailsId">ID</string>
+    <string name="profileManagement_detailsSp24Id">SP24-ID</string>
+    <string name="profileManagement_detailsUsername">Username</string>
+    <string name="profileManagement_detailsPassword">Password</string>
+    <string name="profileManagement_detailsName">Name</string>
+    <string name="profileManagement_detailsPreferredDownloadMode">Preferred DL-Mode</string>
+    <string name="profileManagement_detailsDaysPerWeek">Days per week</string>
+    <string name="profileManagement_detailsCredentialsValid">Credentials valid</string>
+    <string name="profileManagement_detailsFullyCompatible">Fully compatible</string>
+    <string name="settingsAbout_socialMediaWhatsAppTitle">WhatsApp-Channel</string>
+    <string name="settingsAbout_socialMediaWhatsAppSubtitle">Get status updates and news in WhatsApp</string>
+    <string name="onboarding_preferredDownloadModeTitle">Preferred download mode</string>
+    <string name="onboarding_preferredDownloadModeWPlan6Text">VPlanPlus preferres the \'Wochenplan 6\' module to download plan data.</string>
+    <string name="onboarding_preferredDownloadModeMobilText">VPlanPlus preferres the \'Indiware Mobil\' module to download the plan data.</string>
 
 </resources>

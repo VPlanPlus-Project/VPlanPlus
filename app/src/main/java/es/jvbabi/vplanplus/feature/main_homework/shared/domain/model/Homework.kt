@@ -10,7 +10,25 @@ open class HomeworkTaskCore(
     val id: Int,
     val homeworkId: Int,
     val content: String
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is HomeworkTaskCore) return false
+
+        if (id != other.id) return false
+        if (homeworkId != other.homeworkId) return false
+        if (content != other.content) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + homeworkId
+        result = 31 * result + content.hashCode()
+        return result
+    }
+}
 
 class HomeworkTaskDone(
     id: Int,

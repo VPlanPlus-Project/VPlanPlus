@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.domain.usecase.GetPreferredSchoolDownloadModeUseCase
 import es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.domain.usecase.IsFirstProfileForSchoolUseCase
 import es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.domain.usecase.OnboardingProfileTypeUseCases
 import es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.domain.usecase.PrepareNewProfileForSchoolUseCase
@@ -42,6 +43,7 @@ object OnboardingProfileTypeModule {
             roomRepository = roomRepository,
             vppIdRepository = vppIdRepository,
             defaultLessonRepository = defaultLessonRepository
-        )
+        ),
+        getPreferredSchoolDownloadModeUseCase = GetPreferredSchoolDownloadModeUseCase(keyValueRepository)
     )
 }

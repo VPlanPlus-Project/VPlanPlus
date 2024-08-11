@@ -85,6 +85,11 @@ class HomeworkDetailViewModel @Inject constructor(
                     }
                     initEditMode(false)
                 }
+                is DeleteHomework -> {
+                    state = state.copy(isLoading = true)
+                    homeworkDetailUseCases.deleteHomeworkUseCase(state.personalizedHomework!!)
+                    state = state.copy(isLoading = false)
+                }
 
                 is UpdateDueDateAction -> state = state.copy(editDueDate = action.date, hasEdited = true)
                 is ChangeVisibilityAction -> state = state.copy(editVisibility = action.isPublicOrVisible, hasEdited = true)
@@ -191,6 +196,8 @@ data class RenameDocumentAction(val document: DocumentUpdate) : UiAction()
 data class DeleteDocumentAction(val document: DocumentUpdate) : UiAction()
 
 data class AddTaskAction(val newTask: NewTask) : UiAction()
+
+data object DeleteHomework : UiAction()
 
 sealed class TaskUpdate(val content: String)
 

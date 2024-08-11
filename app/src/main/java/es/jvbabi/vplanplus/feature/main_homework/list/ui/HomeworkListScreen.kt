@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -221,7 +222,7 @@ private fun HomeworkListContent(
                     visible = state.initDone,
                     enter = slideIn(initialOffset = { IntOffset(0, 100) }) + fadeIn()
                 ) {
-                    val items = state.personalizedHomeworks.groupBy { it.homework.until }.toList()
+                    val items = state.personalizedHomeworks.groupBy { it.homework.until }.toList().sortedBy { it.first }
                     val homeworkListState = rememberLazyListState()
 
                     var hasDrawnFirstVisibleHomework = false
@@ -265,7 +266,10 @@ private fun HomeworkListContent(
                                     personalizedHomework = homeworkProfile,
                                     isVisible = isVisible,
                                     onClick = { onOpenHomework(homeworkProfile.homework) },
-                                    onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homeworkProfile)) },
+                                    onCheckSwiped = {
+                                        Log.d("HomeworkListContent", "Toggling done state of homework ${homeworkProfile.homework.id} ${homeworkProfile.tasks.any { !it.isDone }}")
+                                        onEvent(HomeworkListEvent.ToggleHomeworkDone(homeworkProfile))
+                                                    },
                                     onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homeworkProfile)) },
                                     resetKey1 = state.updateCounter,
                                     resetKey2 = state.error,

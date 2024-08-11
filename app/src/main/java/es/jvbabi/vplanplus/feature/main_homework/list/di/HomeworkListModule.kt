@@ -14,7 +14,7 @@ import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.DeleteHomew
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ToggleHomeworkHiddenStateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.HomeworkListUseCases
-import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.MarkHomeworkAsDoneUseCase
+import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.ToggleDoneStateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.SetHomeworkEnabledUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
@@ -46,7 +46,7 @@ object HomeworkListModule {
         toggleHomeworkHiddenStateUseCase = ToggleHomeworkHiddenStateUseCase(
             homeworkRepository = homeworkRepository
         ),
-        markHomeworkAsDoneUseCase = MarkHomeworkAsDoneUseCase(
+        toggleDoneStateUseCase = ToggleDoneStateUseCase(
             homeworkRepository = homeworkRepository
         ),
         updateHomeworkUseCase = updateHomeworkUseCase,
