@@ -40,6 +40,14 @@ android {
         buildConfigField("String", "VPP_REDIRECT_URI", localProperties["vpp.redirect_uri"].toString())
     }
 
+    signingConfigs {
+        create("release") {
+            storeFile = file("keystore.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD")
+            keyAlias = "key"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = true
