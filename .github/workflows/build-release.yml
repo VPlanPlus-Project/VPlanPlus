@@ -4,12 +4,21 @@ on:
     branches:
       - ci
 
+env:
+  KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+  KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+
 jobs:
     Build:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v2
+            - name: Setup JDK 17
+              uses: actions/setup-java@v2
+              with:
+                  distribution: 'adopt'
+                  java-version: '17'
             - name: Generate Keystore
               run: echo ${{ secrets.KEYSTORE }} | base64 --decode > keystore.jks
             - name: Build Release AAB
