@@ -21,6 +21,10 @@ jobs:
                     java-version: '17'
             -   name: Generate Keystore
                 run: echo ${{ secrets.KEYSTORE }} | base64 --decode > keystore.jks
+            -   name: Create local.properties
+                run: echo {{ secrets.LOCAL_PROPERTIES }} | base64 --decode > local.properties
+            -   name: Build Google Services
+                run: echo ${{ secrets.GOOGLE_SERVICES }} | base64 --decode > app/google-services.json
             -   name: Build Release AAB
                 run: ./gradlew :app:bundleRelease
             -   name: Build Release APK
