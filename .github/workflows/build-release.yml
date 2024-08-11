@@ -26,6 +26,10 @@ jobs:
                 run: ./gradlew :app:bundleRelease
             -   name: Build Release APK
                 run: ./gradlew :app:assembleRelease
+
+            -   name: Sign AAB
+                run: jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore keystore.jks -storepass $KEYSTORE_PASSWORD -keypass $KEY_PASSWORD app/build/outputs/bundle/release/app-release.aab key0
+
             -   name: Upload Release AAB
                 uses: actions/upload-artifact@v4
                 with:
