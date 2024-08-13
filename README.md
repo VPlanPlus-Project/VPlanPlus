@@ -38,8 +38,8 @@ Eine vpp.ID erstellst du mit deinem beste.schule Account.
 > [!IMPORTANT]
 > Wenn deine Schule [stundenplan24.de](https://stundenplan24.de) verwendet, kannst du die App verwenden. Die vpp.ID ist
 > momentan nur für ausgewählte Schulen verfügbar, du kannst jedoch versuchen,
-> einen [Account anzulegen](https://id.vpp.jvbabi.es/login), dort findest du anschließend einen Link, um mir eine E-Mail
-> zu senden. Beachte dabei, dass ich die Schulnummer für stundenplan24.de benötige.
+> einen [Account anzulegen](https://vplan.plus/id). Sollte deine Schule nicht freigeschaltet sein, werden wir uns
+> bei einer fehlgeschlagenen Anmeldung darum kümmern.
 
 | Symbol | Bedeutung                          |
 |--------|------------------------------------|
@@ -50,16 +50,29 @@ Eine vpp.ID erstellst du mit deinem beste.schule Account.
 [^2]: Zu Beginn sind Lehrer oder Räume nicht immer vollständig, dieses Problem behebt sich bei Nutzung der App über
 einige Tage.
 
-| Schule                                                                                                                           | Schul-ID | Kompatibel | Unterstützt vpp.ID |
+Suche deine Schule einfach mit <kbd>Strg</kbd> + <kbd>F</kbd>.
+
+| Schule                                                                                                                           | SP24-ID  | Kompatibel | Unterstützt vpp.ID |
 |----------------------------------------------------------------------------------------------------------------------------------|----------|------------|--------------------|
 | Gerhart-Hauptmann-Schule Oberschule Sohland                                                                                      | 10566374 | ✅          | ❌                  |
 | Freiherr-vom-Stein-Gymnasium Weferlingen                                                                                         | 20150177 | ✅          | ❌                  |
 | Gymnasium Dresden-Cotta                                                                                                          | 10077598 | ✅          | ❌                  |
 | Ehrenfried-Walther-von-Tschirnhaus-Gymnasium                                                                                     | 10396458 | ✅          | ✅                  |
 | Oberschule Pausa (siehe [Diskussion](https://github.com/VPlanPlus-Project/VPlanPlus/discussions/616#discussioncomment-10329281)) | 10204127 | ❌          | ❌                  |
+| Gymnasium "Am Breiten Teich" Borna                                                                                               | 10048477 | ✅          | ❌                  |
+| Oberschule Lichtentanne                                                                                                          | 10524931 | ✅          | ❌                  |
+| Gymnasium Dresden-Tolkewitz                                                                                                      | 10499483 | ✅          | ❌                  |
+| Goethe-Gymnasium der Stadt Leipzig                                                                                               | 10467392 | ✅          | ❌                  |
+| Oberschule Schmiedeberg                                                                                                          | 10482537 | ✅          | ❌                  |
+| Sekundarschule "An der Doppelkapelle" Landsberg                                                                                  | 20148306 | ✅          | ❌                  |
+| Artur-Becker-Oberschule Delitzsch                                                                                                | 10294593 | ✅          | ❌                  |
+| Montessori-Schulzentrum Leipzig                                                                                                  | 10233497 | ✅          | ❌                  |
+| Editha-Gymnasium Magdeburg                                                                                                       | 20299165 | ✅          | ❌                  |
+| Sekundarschule Möser                                                                                                             | 20187536 | ✅          | ❌                  |
+| Oberschule Dresden-Pieschen                                                                                                      | 10311924 | ✅          | ❌                  |
 | Martin-Andersen-Nexö-Gymnasium Dresden                                                                                           | 10063764 | ✅          | ✅                  |
 | Testschule                                                                                                                       | 10000000 | ✅️         | ❌                  |
-| Friedrich-Schiller-Oberschule Neustadt in Sachsen                                                                                | 10533425 | ❌          | ❌                  |
+| Friedrich-Schiller-Oberschule Neustadt in Sachsen                                                                                | 10533425 | ✅          | ❌                  |
 
 Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es
 anderen Schülern/Lehrern an der Schule einfacher zu machen.
