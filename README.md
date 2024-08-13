@@ -3,17 +3,15 @@
 
 ### Aktuelles
 
-> [!NOTE]
-> #### Google Play Store Release
-> Die App ist ab sofort im Google Play Store verfügbar. Vielen Dank an alle Teilnehmer.
-
 # <img src="https://raw.githubusercontent.com/Julius-Babies/VPlanPlus/v0.5.1-alpha/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" height="30px"> VPlanPlus für Android
 
 [<img src="https://raw.githubusercontent.com/Julius-Babies/Julius-Babies/main/static/ghreleases.png" alt="Get it on Github Releases" height="50px">](https://github.com/Julius-Babies/VPlanPlus/releases)
 [<img src="https://raw.githubusercontent.com/Julius-Babies/Julius-Babies/main/static/googleplay.png" alt="Get it on Github Releases" height="50px">](https://play.google.com/store/apps/details?id=es.jvbabi.vplanplus)<br />
 
 Diese App ist eine Alternative zu VpMobil und VpMobil24.
+
 ### Spotlight-Features
+
 - Suche nach unbelegten Räumen, Lehrern und Klassen
 - Modernes Design
 - Alle Features der Lehrer-Accounts mit Schüler-Accounts[^1]
@@ -22,7 +20,10 @@ Diese App ist eine Alternative zu VpMobil und VpMobil24.
 Website: [VPlan.Plus](https://vplan.plus)
 
 ### vpp.ID
-Mit der vpp.ID hast du noch mehr Möglichkeiten, deinen Schulalltag digital zu gestalten. Mit diesem Account kannst du Räume buchen, Hausaufgaben erstellen und in der Klasse teilen - selbst, wenn deine Klassenkameraden selbst keine vpp.ID haben.
+
+Mit der vpp.ID hast du noch mehr Möglichkeiten, deinen Schulalltag digital zu gestalten. Mit diesem Account kannst du
+Räume buchen, Hausaufgaben erstellen und in der Klasse teilen - selbst, wenn deine Klassenkameraden selbst keine vpp.ID
+haben.
 
 Eine vpp.ID erstellst du mit deinem beste.schule Account.
 
@@ -33,30 +34,35 @@ Eine vpp.ID erstellst du mit deinem beste.schule Account.
 <hr />
 
 ### Ist meine Schule kompatibel?
+
 > [!IMPORTANT]
-> Wenn deine Schule [stundenplan24.de](https://stundenplan24.de) verwendet, kannst du die App verwenden. Die vpp.ID ist momentan nur für ausgewählte Schulen verfügbar, du kannst jedoch versuchen, einen [Account anzulegen](https://id.vpp.jvbabi.es/login), dort findest du anschließend einen Link, um mir eine E-Mail zu senden. Beachte dabei, dass ich die Schulnummer für stundenplan24.de benötige.
+> Wenn deine Schule [stundenplan24.de](https://stundenplan24.de) verwendet, kannst du die App verwenden. Die vpp.ID ist
+> momentan nur für ausgewählte Schulen verfügbar, du kannst jedoch versuchen,
+> einen [Account anzulegen](https://id.vpp.jvbabi.es/login), dort findest du anschließend einen Link, um mir eine E-Mail
+> zu senden. Beachte dabei, dass ich die Schulnummer für stundenplan24.de benötige.
 
-| Symbol | Bedeutung                               |
-|--------|-----------------------------------------|
-| ✅      | Alle App-Features sind verfügbar        |
-| ⚠️️    | Eingeschränkter Funktionsumfang[^2]     |
-| ❌      | Nicht kompatibel                        |
+| Symbol | Bedeutung                          |
+|--------|------------------------------------|
+| ✅      | Alle App-Features sind verfügbar   |
+| ☑️️️   | Fast alle App-Funktionen verfügbar |
+| ❌      | Nicht kompatibel                   |
 
-[^2]: Zu beginn sind Lehrer oder Räume nicht unbedingt vollständig, dieses Problem behebt sich bei Nutzung der App über einige Wochen
+[^2]: Zu Beginn sind Lehrer oder Räume nicht immer vollständig, dieses Problem behebt sich bei Nutzung der App über
+einige Tage.
 
-| Schule                                       | Schul-ID | Kompatibel | Unterstützt vpp.ID |
-|----------------------------------------------|----------|------------|--------------------|
-| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium | 10396458 | ✅         | ✅                  |
-| Vitzthum-Gymnasium Dresden                   | 10223946 | ⚠️         | ❌                  |
-| Martin-Andersen-Nexö-Gymnasium Dresden       | 10063764 | ✅          | ✅                  |
-| Testschule                                   | 10000000 | ✅️         | ❌                  |
-| Friedrich-Schiller-Oberschule Neustadt in Sachsen | 10533425 | ❌ | ❌ |
+| Schule                                                                                                                           | Schul-ID | Kompatibel | Unterstützt vpp.ID |
+|----------------------------------------------------------------------------------------------------------------------------------|----------|------------|--------------------|
+| Gerhart-Hauptmann-Schule Oberschule Sohland                                                                                      | 10566374 | ✅          | ❌                  |
+| Freiherr-vom-Stein-Gymnasium Weferlingen                                                                                         | 20150177 | ✅          | ❌                  |
+| Gymnasium Dresden-Cotta                                                                                                          | 10077598 | ✅          | ❌                  |
+| Ehrenfried-Walther-von-Tschirnhaus-Gymnasium                                                                                     | 10396458 | ✅          | ✅                  |
+| Oberschule Pausa (siehe [Diskussion](https://github.com/VPlanPlus-Project/VPlanPlus/discussions/616#discussioncomment-10329281)) | 10204127 | ❌          | ❌                  |
+| Martin-Andersen-Nexö-Gymnasium Dresden                                                                                           | 10063764 | ✅          | ✅                  |
+| Testschule                                                                                                                       | 10000000 | ✅️         | ❌                  |
+| Friedrich-Schiller-Oberschule Neustadt in Sachsen                                                                                | 10533425 | ❌          | ❌                  |
 
-Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es anderen Schülern/Lehrern an der Schule einfacher zu machen.
+Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es
+anderen Schülern/Lehrern an der Schule einfacher zu machen.
 
-**Hinweis**: Die Datenschutzerklärung findest du [hier](https://github.com/VPlanPlus-Project/VPlanPlus/blob/main/PRIVACY-POLICY.md)
-
-## Development
-Um eine Entwicklungsumgebung aufzusetzen, sind einige Schritte erforderlich.
-Diese Liste ist noch unvollständig:
-- Setzen von `vpp.client_id`, `vpp.client_secret`, `vpp.redirect_uri` in `/local.properties`
+**Hinweis**: Die Datenschutzerklärung findest
+du [hier](https://vplan.plus/privacy)
