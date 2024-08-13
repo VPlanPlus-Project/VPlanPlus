@@ -110,7 +110,6 @@
     <string name="timetable_holidayTitle">Holiday</string>
     <string name="timetable_holidayText">You don\'t have to go to school today. Feel free to meet friends or tidy up your room.</string>
     <string name="notification_lesson">%1$s with %2$s in %3$s</string>
-    <string name="notification_changedLessons">These lessons were changed:</string>
     <string name="notification_planChangedText">There is a change in plan for %1$s at %2$s for %3$s</string>
     <string name="notification_planChangedTitle">Change of plan</string>
     <string name="home_lastSyncNever">Never synced</string>

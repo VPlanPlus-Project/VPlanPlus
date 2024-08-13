@@ -61,6 +61,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -291,22 +292,20 @@ class MainActivity : FragmentActivity() {
             showSplashScreen = false
             lifecycleScope.launch {
                 while (currentProfile == null || navController == null) delay(50)
-                when (intent.getStringExtra("screen")) {
+                val screen = intent.getStringExtra("screen") ?: Screen.HomeScreen.route
+                if (screen.startsWith("plan/")) {
+                    val args = screen.split("/")
+                    val profileId = UUID.fromString(args[1])
+                    val date = LocalDate.parse(args[2])
+                    mainUseCases.setCurrentProfileUseCase(profileId)
+                    navController!!.navigate(Screen.HomeScreen.route + "/$date")
+                } else when (screen) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
                     "homework" -> navController!!.navigate(Screen.HomeworkScreen.route)
                     else -> {
-                        Log.d("MainActivity.Intent", "Navigating to ${intent.getStringExtra("screen")}")
-                        navController!!.navigate(intent.getStringExtra("screen") ?: Screen.HomeScreen.route)
+                        Log.d("MainActivity.Intent", "Navigating to $screen")
+                        navController!!.navigate(screen)
                     }
-                }
-
-                if (intent.getStringExtra("screen")!!.startsWith("plan")) {
-                    val params = intent.getStringExtra("screen")!!.split("/")
-                    val profileId = params[1]
-                    val date = params[2]
-
-                    mainUseCases.setCurrentProfileUseCase(UUID.fromString(profileId))
-                    navController!!.navigate(Screen.HomeScreen.route + "/$date")
                 }
             }
         }
