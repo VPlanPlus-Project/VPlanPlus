@@ -28,7 +28,7 @@ class ClassBaseData(rawXml: String) {
         schoolName = rootObject.head!!.schoolName
         daysPerWeek = rootObject.baseData!!.daysPerWeek
 
-        holidays.addAll(rootObject.holidays!!.map {
+        holidays.addAll(rootObject.holidays.orEmpty().map {
             Pair(
                 Triple(
                     2000 + (it.date.substring(0, 2).toInt()),
@@ -48,7 +48,7 @@ private class Splan {
     @field:Element(name = "Kopf")
     var head: SPlanHead? = null
 
-    @field:ElementList(name = "FreieTage", entry = "ft")
+    @field:ElementList(name = "FreieTage", entry = "ft", required = false)
     var holidays: List<Holiday>? = null
 
     @field:ElementList(name = "Klassen")
