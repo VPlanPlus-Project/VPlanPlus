@@ -302,7 +302,7 @@ fun TimeInfo(
                                 VerticalDivider()
                                 Column {
                                     Text(
-                                        text = lesson.`class`.name + " $DOT " + lesson.displaySubject + " $DOT " + lesson.teachers.joinToString(", "),
+                                        text = lesson.`class`.name + " $DOT " + lesson.displaySubject + " $DOT " + lesson.teachers.joinToString(", ") { it.acronym },
                                         style = MaterialTheme.typography.bodyMedium
                                     )
                                     Text(
