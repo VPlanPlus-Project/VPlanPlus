@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.first
 import java.time.ZonedDateTime
@@ -39,7 +40,9 @@ class HomeworkReminderUseCase(
             .filterIsInstance<ClassProfile>()
             .filter { it.isHomeworkEnabled }
             .forEach { profile ->
-                val homework = homeworkRepository.getAllByProfile(profile).first()
+                val homework = homeworkRepository
+                    .getAllByProfile(profile).first()
+                    .filter { profile.isDefaultLessonEnabled(it.homework.defaultLesson?.vpId) && (it as? PersonalizedHomework.CloudHomework)?.isHidden != true }
                 val homeworkForTomorrow = homework.filter { it.homework.until.isBefore(tomorrow) && it.tasks.any { task -> !task.isDone } }
                 if (homeworkForTomorrow.isEmpty()) return
                 val homeworkForAfterTomorrow = homework.filter { it.homework.until.isAfter(tomorrow) && it.tasks.any { task -> !task.isDone } }
@@ -48,7 +51,7 @@ class HomeworkReminderUseCase(
                     R.plurals.notification_homeworkReminderTomorrowMessage,
                     homeworkForTomorrow.size,
                     homeworkForTomorrow.size,
-                    homeworkForTomorrow.joinToString(", ") { it.homework.defaultLesson?.subject ?: stringRepository.getString(R.string.notification_homeworkReminderNoDefaultLesson) }
+                    homeworkForTomorrow.map { it.homework.defaultLesson?.subject ?: stringRepository.getString(R.string.notification_homeworkReminderNoDefaultLesson) }.distinct().joinToString(", ")
                 )
                 val messageAfterTomorrow =
                     if (homeworkForTomorrow.isNotEmpty()) stringRepository.getPlural(
