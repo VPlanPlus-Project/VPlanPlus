@@ -69,15 +69,19 @@ class UpdateHomeworkUseCase(
                 downloadedHomework.forEach { downloadedHomeworkItem ->
                     val existingItem = existingHomework.find { it.id == downloadedHomeworkItem.id }
                     if (existingItem == null) {
-                        homeworkRepository.addHomeworkDb(
+                        val homeworkId = homeworkRepository.addHomeworkDb(
                             homeworkId = downloadedHomeworkItem.id,
                             isPublic = downloadedHomeworkItem.isPublic,
                             dueTo = downloadedHomeworkItem.until,
                             clazzProfile = profile,
                             createdAt = downloadedHomeworkItem.createdAt,
                             vppId = downloadedHomeworkItem.createdBy,
-                            defaultLessonVpId = downloadedHomeworkItem.defaultLesson?.vpId,
+                            defaultLessonVpId = downloadedHomeworkItem.defaultLesson?.vpId
                         )
+                        if (!profile.isDefaultLessonEnabled(downloadedHomeworkItem.defaultLesson?.vpId)) {
+                            val hw = homeworkRepository.getHomeworkById(homeworkId).first() as HomeworkCore.CloudHomework
+                            homeworkRepository.changeHomeworkVisibilityDb(hw, profile, true)
+                        }
                     }
                     downloadedHomeworkItems.add(downloadedHomeworkItem)
 
@@ -136,9 +140,11 @@ class UpdateHomeworkUseCase(
 
         if (!allowNotifications) return stopUpdate(true)
 
+        val profiles = profileRepository.getProfiles().first().filterIsInstance<ClassProfile>()
         val notificationNewHomeworkItems = downloadedHomeworkItems
             .filter { it.id !in initialExisting.map { existing -> existing.id } } // is new
             .filter { it.createdBy.id !in activeVppIds.map { vppId -> vppId.id } } // is not created by current user
+            .filter { profiles.any { profile -> profile.isDefaultLessonEnabled(it.defaultLesson?.vpId) } }
 
         if (notificationNewHomeworkItems.isEmpty()) return stopUpdate(true)
         if (notificationNewHomeworkItems.size == 1) { // detailed notification
