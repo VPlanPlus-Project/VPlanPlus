@@ -58,7 +58,7 @@ Suche deine Schule einfach mit <kbd>Strg</kbd> + <kbd>F</kbd>.
 | Freiherr-vom-Stein-Gymnasium Weferlingen                                                                                         | 20150177 | ✅          | ❌                  |
 | Gymnasium Dresden-Cotta                                                                                                          | 10077598 | ✅          | ❌                  |
 | Ehrenfried-Walther-von-Tschirnhaus-Gymnasium                                                                                     | 10396458 | ✅          | ✅                  |
-| Oberschule Pausa (siehe [Diskussion](https://github.com/VPlanPlus-Project/VPlanPlus/discussions/616#discussioncomment-10329281)) | 10204127 | ❌          | ❌                  |
+| Oberschule Pausa (siehe [Diskussion](https://github.com/VPlanPlus-Project/VPlanPlus/discussions/616#discussioncomment-10329281)) | 10204127 | ✅          | ❌                  |
 | Gymnasium "Am Breiten Teich" Borna                                                                                               | 10048477 | ✅          | ❌                  |
 | Oberschule Lichtentanne                                                                                                          | 10524931 | ✅          | ❌                  |
 | Gymnasium Dresden-Tolkewitz                                                                                                      | 10499483 | ✅          | ❌                  |
