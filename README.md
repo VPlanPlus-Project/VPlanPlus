@@ -74,6 +74,7 @@ Suche deine Schule einfach mit <kbd>Strg</kbd> + <kbd>F</kbd>.
 | Testschule                                                                                                                       | 10000000 | ✅️         | ❌                  |
 | Friedrich-Schiller-Oberschule Neustadt in Sachsen                                                                                | 10533425 | ✅          | ❌                  |
 | Werner-von-Siemens-Gymnasium Magdeburg                                                                                           | 20129987 | ✅          | ❌                  |
+| Gymnasium Dresden-Plauen                                                                                                         | 10216397 | ✅          | ❌                  |
 
 Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es
 anderen Schülern/Lehrern an der Schule einfacher zu machen.
