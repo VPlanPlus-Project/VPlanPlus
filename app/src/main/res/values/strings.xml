@@ -772,5 +772,9 @@
     <string name="onboarding_preferredDownloadModeTitle">Preferred download mode</string>
     <string name="onboarding_preferredDownloadModeWPlan6Text">VPlanPlus preferres the \'Wochenplan 6\' module to download plan data.</string>
     <string name="onboarding_preferredDownloadModeMobilText">VPlanPlus preferres the \'Indiware Mobil\' module to download the plan data.</string>
+    <string name="onboarding_crashTitle">App crashing?</string>
+    <string name="onboarding_crashText">The app crashes while trying to set up? Try to clear its cache and data in settings.</string>
+    <string name="onboarding_crashButton">Settings</string>
+    <string name="onboarding_crashToast">Click \'Storage and cache\'</string>
 
 </resources>
