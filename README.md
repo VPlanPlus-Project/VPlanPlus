@@ -58,7 +58,7 @@ Suche deine Schule einfach mit <kbd>Strg</kbd> + <kbd>F</kbd>.
 | Freiherr-vom-Stein-Gymnasium Weferlingen                                                                                         | 20150177 | ✅          | ❌                  |
 | Gymnasium Dresden-Cotta                                                                                                          | 10077598 | ✅          | ❌                  |
 | Ehrenfried-Walther-von-Tschirnhaus-Gymnasium                                                                                     | 10396458 | ✅          | ✅                  |
-| Oberschule Pausa (siehe [Diskussion](https://github.com/VPlanPlus-Project/VPlanPlus/discussions/616#discussioncomment-10329281)) | 10204127 | ✅          | ❌                  |
+| Oberschule Pausa                                                                                                                 | 10204127 | ✅          | ❌                  |
 | Gymnasium "Am Breiten Teich" Borna                                                                                               | 10048477 | ✅          | ❌                  |
 | Oberschule Lichtentanne                                                                                                          | 10524931 | ✅          | ❌                  |
 | Gymnasium Dresden-Tolkewitz                                                                                                      | 10499483 | ✅          | ❌                  |
@@ -71,7 +71,7 @@ Suche deine Schule einfach mit <kbd>Strg</kbd> + <kbd>F</kbd>.
 | Sekundarschule Möser                                                                                                             | 20187536 | ✅          | ❌                  |
 | Oberschule Dresden-Pieschen                                                                                                      | 10311924 | ✅          | ❌                  |
 | Martin-Andersen-Nexö-Gymnasium Dresden                                                                                           | 10063764 | ✅          | ✅                  |
-| Testschule                                                                                                                       | 10000000 | ✅️         | ❌                  |
+| Testschule                                                                                                                       | 10000000 | ✅️          | ❌                  |
 | Friedrich-Schiller-Oberschule Neustadt in Sachsen                                                                                | 10533425 | ✅          | ❌                  |
 | Werner-von-Siemens-Gymnasium Magdeburg                                                                                           | 20129987 | ✅          | ❌                  |
 | Gymnasium Dresden-Plauen                                                                                                         | 10216397 | ✅          | ❌                  |
