@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase
 
+import android.util.Log
 import androidx.compose.ui.util.fastAny
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
@@ -18,6 +19,7 @@ class ToggleDoneStateUseCase(
         val homework = personalizedHomework.homework
         val profile = (personalizedHomework.profile as? ClassProfile) ?: return false
         val desiredState = personalizedHomework.tasks.any { !it.isDone }
+        Log.d("ToggleDoneStateUseCase", "Toggling done state of homework ${homework.id} to $desiredState")
         if (homework is HomeworkCore.CloudHomework && profile.vppId != null) {
             personalizedHomework.tasks.filter { it.isDone != desiredState }.map { task ->
                 homeworkRepository.changeTaskStateCloud(profile.vppId, task.id, desiredState)

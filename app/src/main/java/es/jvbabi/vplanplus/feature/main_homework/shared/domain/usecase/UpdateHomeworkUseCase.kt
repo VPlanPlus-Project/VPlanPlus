@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.relativeDateStringResource
@@ -85,12 +86,13 @@ class UpdateHomeworkUseCase(
                     }
                     downloadedHomeworkItems.add(downloadedHomeworkItem)
 
-                    downloadedHomeworkItem.tasks.forEach { task ->
+                    downloadedHomeworkItem.tasks.forEach forEachDownloadedTask@{ task ->
                         homeworkRepository.addTaskDb(
                             homeworkId = downloadedHomeworkItem.id,
                             content = task.content,
                             taskId = task.id,
                         )
+                        if (task is HomeworkTaskDone) homeworkRepository.changeTaskStateDb(profile, task.id, task.isDone)
                     }
 
                     downloadedHomeworkItem.documents.forEach { document ->
