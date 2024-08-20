@@ -769,5 +769,9 @@
     <string name="onboarding_preferredDownloadModeTitle">Bevorzugter Download-Modus</string>
     <string name="onboarding_preferredDownloadModeWPlan6Text">VPlanPlus bevorzugt das Modul \'Wochenplan 6\' zum Laden der Plandaten.</string>
     <string name="onboarding_preferredDownloadModeMobilText">VPlanPlus bevorzugt das Modul \'Indiware Mobil\' zum Laden der Plandaten.</string>
+    <string name="onboarding_crashTitle">Die App stürzt ab?</string>
+    <string name="onboarding_crashText">Falls die App beim Einrichten abstürzt, versuche, App-Daten und App-Cache in den Einstellungen zu löschen.</string>
+    <string name="onboarding_crashButton">Einstellungen</string>
+    <string name="onboarding_crashToast">Tippe auf \'Speicher und Cache\'</string>
 
 </resources>

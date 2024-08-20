@@ -33,15 +33,13 @@ class ProfileSettingsViewModel @Inject constructor(
                 profileSettingsUseCases.getProfileByIdUseCase(profileId),
                 profileSettingsUseCases.getCalendarsUseCase()
             ) { profile, calendars ->
-                if (profile !is ClassProfile) return@combine state.copy(initDone = true)
+                if (profile == null) return@combine state.copy(initDone = true)
                 state.copy(
                     profile = profile,
                     calendars = calendars,
                     initDone = true,
                     profileCalendar = calendars.firstOrNull { it.id == profile.calendarId },
-                    profileHasLocalHomework = profileSettingsUseCases.hasProfileLocalHomeworkUseCase(
-                        profile
-                    )
+                    profileHasLocalHomework = profile is ClassProfile && profileSettingsUseCases.hasProfileLocalHomeworkUseCase(profile)
                 )
             }.collect {
                 state = it
@@ -52,7 +50,7 @@ class ProfileSettingsViewModel @Inject constructor(
     fun onEvent(event: ProfileSettingsEvent) {
         viewModelScope.launch {
             when (event) {
-                is ProfileSettingsEvent.DeleteProfile -> deleteProfile()
+                is ProfileSettingsEvent.DeleteProfile -> { deleteProfile(); event.after() }
                 is ProfileSettingsEvent.RenameProfile -> renameProfile(event.name)
                 is ProfileSettingsEvent.SetCalendarState -> setCalendarMode(event.to)
                 is ProfileSettingsEvent.SetCalendar -> setCalendar(event.calendarId)
@@ -104,7 +102,7 @@ data class ProfileSettingsState(
 )
 
 sealed class ProfileSettingsEvent {
-    data object DeleteProfile : ProfileSettingsEvent()
+    data class DeleteProfile(val after: () -> Unit) : ProfileSettingsEvent()
     data class RenameProfile(val name: String) : ProfileSettingsEvent()
     data class SetCalendarState(val to: ProfileCalendarType) : ProfileSettingsEvent()
     data class SetCalendar(val calendarId: Long) : ProfileSettingsEvent()
