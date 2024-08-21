@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -266,10 +265,7 @@ private fun HomeworkListContent(
                                     personalizedHomework = homeworkProfile,
                                     isVisible = isVisible,
                                     onClick = { onOpenHomework(homeworkProfile.homework) },
-                                    onCheckSwiped = {
-                                        Log.d("HomeworkListContent", "Toggling done state of homework ${homeworkProfile.homework.id} ${homeworkProfile.tasks.any { !it.isDone }}")
-                                        onEvent(HomeworkListEvent.ToggleHomeworkDone(homeworkProfile))
-                                                    },
+                                    onCheckSwiped = { onEvent(HomeworkListEvent.ToggleHomeworkDone(homeworkProfile)) },
                                     onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homeworkProfile)) },
                                     resetKey1 = state.updateCounter,
                                     resetKey2 = state.error,

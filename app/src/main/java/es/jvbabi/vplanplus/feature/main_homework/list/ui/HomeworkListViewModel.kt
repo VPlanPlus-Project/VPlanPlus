@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
@@ -84,6 +85,7 @@ class HomeworkListViewModel @Inject constructor(
                 }
                 is HomeworkListEvent.ToggleHomeworkDone -> {
                     val homework = event.homework
+                    Log.d("HomeworkListViewModel", "ToggleHomeworkDone: $homework")
                     homeworkListUseCases.toggleDoneStateUseCase(homework).let { success ->
                         if (!success) state = state.copy(error = HomeworkListError.MarkAsDoneError)
                     }
