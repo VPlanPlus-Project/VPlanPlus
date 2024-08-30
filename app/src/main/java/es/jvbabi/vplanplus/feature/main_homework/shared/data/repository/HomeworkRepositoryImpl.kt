@@ -65,7 +65,7 @@ class HomeworkRepositoryImpl(
             requestMethod = HttpMethod.Get
         )
         if (response.response != HttpStatusCode.OK || response.data == null) return null
-        val data = ResponseDataWrapper.fromJson<List<HomeworkResponse>>(response.data)
+        val data = ResponseDataWrapper.fromJson<List<HomeworkResponse>>(response.data)!!
         return data.mapNotNull homework@{ homework ->
             val createdBy = vppIdRepository.getVppId(homework.createdBy, group.school, false) ?: run {
                 Log.e("HomeworkRepository.downloadHomework", "Failed to get VppId for id ${homework.createdBy}")
@@ -111,7 +111,7 @@ class HomeworkRepositoryImpl(
             requestMethod = HttpMethod.Get
         )
         if (response.response != HttpStatusCode.OK || response.data == null) return null
-        val data = ResponseDataWrapper.fromJson<HomeworkDocumentResponse>(response.data)
+        val data = ResponseDataWrapper.fromJson<HomeworkDocumentResponse>(response.data)!!
         return HomeworkDocument(
             name = data.name,
             type = HomeworkDocumentType.fromExtension(data.extension),
@@ -245,7 +245,7 @@ class HomeworkRepositoryImpl(
         )
         if (response.response?.isSuccess() != true) return Response(false, null)
         val data = response.data ?: return Response(false, null)
-        return Response(false, ResponseDataWrapper.fromJson<UploadDocumentResponse>(data).id)
+        return Response(false, ResponseDataWrapper.fromJson<UploadDocumentResponse>(data)!!.id)
     }
 
     override suspend fun addHomeworkDb(homeworkId: Int?, clazzProfile: ClassProfile?, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId {
@@ -281,7 +281,7 @@ class HomeworkRepositoryImpl(
             requestMethod = HttpMethod.Post
         )
         if (response.response?.isSuccess() != true || response.data == null) return Response(false, null)
-        return Response(true, ResponseDataWrapper.fromJson<AddHomeworkResponse>(response.data))
+        return Response(true, ResponseDataWrapper.fromJson<AddHomeworkResponse>(response.data)!!)
     }
 
     override suspend fun addTaskDb(homeworkId: Int, taskId: Int?, content: String): HomeworkTaskId {
@@ -305,7 +305,7 @@ class HomeworkRepositoryImpl(
             requestMethod = HttpMethod.Post
         )
         if (response.response?.isSuccess() != true || response.data == null) return Response(false, null)
-        return Response(true, ResponseDataWrapper.fromJson<AddTaskResponse>(response.data).id.toInt())
+        return Response(true, ResponseDataWrapper.fromJson<AddTaskResponse>(response.data)!!.id.toInt())
     }
 
     override suspend fun changeTaskStateCloud(vppId: VppId.ActiveVppId, homeworkTaskId: Int, isDone: Boolean): Response<Boolean, Unit?> {

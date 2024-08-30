@@ -21,7 +21,7 @@ class GroupRepositoryImpl(
             vppIdNetworkRepository.authentication = schoolSp24Access.buildVppAuthentication()
             val response = vppIdNetworkRepository.doRequest("/api/$API_VERSION/school/${schoolSp24Access.schoolId}/group")
             if (response.response != HttpStatusCode.OK || response.data == null) return false
-            val groups = ResponseDataWrapper.fromJson<List<GroupInfoResponse>>(response.data)
+            val groups = ResponseDataWrapper.fromJson<List<GroupInfoResponse>>(response.data)!!
             groups.firstOrNull { it.className == groupName }?.groupId ?: return false
         }
         groupDao.upsert(

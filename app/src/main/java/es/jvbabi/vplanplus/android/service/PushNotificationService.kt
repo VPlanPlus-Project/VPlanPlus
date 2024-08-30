@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.WebAuthTaskUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
@@ -51,6 +52,9 @@ class PushNotificationService : FirebaseMessagingService() {
     @Inject
     lateinit var updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
 
+    @Inject
+    lateinit var webAuthTaskUseCases: WebAuthTaskUseCases
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -78,6 +82,7 @@ class PushNotificationService : FirebaseMessagingService() {
                 }
                 prefix + PushNotificationType.HOMEWORK_CHANGE -> updateHomeworkUseCase(true)
                 prefix + PushNotificationType.UPDATE_PLAN -> doSyncUseCase()
+                prefix + PushNotificationType.VPP_AUTH -> webAuthTaskUseCases.getWebAuthTaskUseCase()
             }
         }
     }
@@ -87,4 +92,5 @@ data object PushNotificationType {
     const val NEW_BOOKING = "ROOM_BOOKED"
     const val HOMEWORK_CHANGE = "HOMEWORK_UPDATE"
     const val UPDATE_PLAN = "UPDATE_PLAN"
+    const val VPP_AUTH = "VPP_AUTH"
 }

@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.ui.common.SelectDialog
 val servers = listOf(
     VppIdServer("https://vplan.plus"),
     VppIdServer("https://development.vplan.plus"),
+    VppIdServer("https://vpp.magnix.cluster.jvbabi.es"),
     VppIdServer("https://vpp-api.localhost.cluster.jvbabi.es", "https://vpp-ui.localhost.cluster.jvbabi.es"),
     VppIdServer("https://julius.familie-babies.de")
 )

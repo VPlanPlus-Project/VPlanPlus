@@ -776,5 +776,9 @@
     <string name="onboarding_crashText">The app crashes while trying to set up? Try to clear its cache and data in settings.</string>
     <string name="onboarding_crashButton">Settings</string>
     <string name="onboarding_crashToast">Click \'Storage and cache\'</string>
+    <string name="notification_webAuthTitle">Login with VPlanPlus</string>
+    <string name="notification_webAuthMessage">Someone tries to log in to your vpp.ID. Tap here to verify or deny.</string>
+    <string name="webAuth_title">Verify login request</string>
+    <string name="webAuth_error">Couldn\'t verify, please try again.</string>
 
 </resources>

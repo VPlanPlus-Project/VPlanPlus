@@ -773,5 +773,9 @@
     <string name="onboarding_crashText">Falls die App beim Einrichten abstürzt, versuche, App-Daten und App-Cache in den Einstellungen zu löschen.</string>
     <string name="onboarding_crashButton">Einstellungen</string>
     <string name="onboarding_crashToast">Tippe auf \'Speicher und Cache\'</string>
+    <string name="notification_webAuthTitle">Mit VPlanPlus anmelden</string>
+    <string name="notification_webAuthMessage">Jemand versucht, sich in deiner vpp.ID anzumelden. Tippe, um die Anfrage zu bestätigen oder anzulehnen.</string>
+    <string name="webAuth_title">Anmeldung bestätigen</string>
+    <string name="webAuth_error">Anmeldung konnte nicht bestätigt werden, bitte erneut versuchen.</string>
 
 </resources>
