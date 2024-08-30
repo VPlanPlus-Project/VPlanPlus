@@ -780,5 +780,6 @@
     <string name="notification_webAuthMessage">Someone tries to log in to your vpp.ID. Tap here to verify or deny.</string>
     <string name="webAuth_title">Verify login request</string>
     <string name="webAuth_error">Couldn\'t verify, please try again.</string>
+    <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
 
 </resources>

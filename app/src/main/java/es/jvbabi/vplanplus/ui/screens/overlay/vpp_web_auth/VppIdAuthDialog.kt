@@ -80,6 +80,8 @@ fun VppIdAuthDialog(
         onCancel = onCancel,
         content = {
             Column {
+                Text(text = stringResource(id = R.string.webAuth_description, state.task.vppId.name))
+                Spacer8Dp()
                 FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
