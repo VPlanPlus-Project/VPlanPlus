@@ -19,6 +19,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -66,18 +67,26 @@ class PushNotificationService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         Log.d("PushNotificationService", "Message received: ${message.data["type"]}")
 
-        val prefix = if (BuildConfig.DEBUG) "DEV_" else ""
+        val isDebug = runBlocking { keyValueRepository.getOrDefault(Keys.FCM_DEBUG_MODE, BuildConfig.DEBUG.toString()).toBoolean() }
+
+        val type = message.data["type"].let {
+            if (isDebug) {
+                if (it?.startsWith("DEV_") != true) return
+                return@let it.removePrefix("DEV_")
+            }
+            return@let it
+        }
 
         GlobalScope.launch {
-            logRecordRepository.log("PushNotificationService", "Message received: ${message.data["type"]}\nDebug: ${BuildConfig.DEBUG}")
-            when (message.data.getOrDefault("type", "")) {
-                prefix + PushNotificationType.NEW_BOOKING -> {
+            logRecordRepository.log("PushNotificationService", "Message received: ${message.data["type"]}\nDebug: $isDebug")
+            when (type) {
+                PushNotificationType.NEW_BOOKING -> {
                     schoolRepository.getSchools().forEach { school ->
                         roomRepository.fetchRoomBookings(school)
                     }
                 }
-                prefix + PushNotificationType.HOMEWORK_CHANGE -> updateHomeworkUseCase(true)
-                prefix + PushNotificationType.UPDATE_PLAN -> doSyncUseCase()
+                PushNotificationType.HOMEWORK_CHANGE -> updateHomeworkUseCase(true)
+                PushNotificationType.UPDATE_PLAN -> doSyncUseCase()
             }
         }
     }

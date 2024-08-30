@@ -776,5 +776,7 @@
     <string name="onboarding_crashText">The app crashes while trying to set up? Try to clear its cache and data in settings.</string>
     <string name="onboarding_crashButton">Settings</string>
     <string name="onboarding_crashToast">Click \'Storage and cache\'</string>
+    <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM Events</string>
+    <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Listen to FCM-Events prefixed with DEBUG_. This will cause much uneccessary traffic when used in production.</string>
 
 </resources>
