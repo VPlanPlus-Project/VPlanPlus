@@ -11,10 +11,10 @@ import org.junit.Test
 
 class TestSchoolCredentialsUseCaseTest {
 
-    lateinit var schoolRepositoryWithInternet: FakeSchoolRepository
-    lateinit var schoolRepositoryWithoutInternet: FakeSchoolRepository
-    lateinit var useCaseWithInternet: TestSchoolCredentialsUseCase
-    lateinit var useCaseWithoutInternet: TestSchoolCredentialsUseCase
+    private lateinit var schoolRepositoryWithInternet: FakeSchoolRepository
+    private lateinit var schoolRepositoryWithoutInternet: FakeSchoolRepository
+    private lateinit var useCaseWithInternet: TestSchoolCredentialsUseCase
+    private lateinit var useCaseWithoutInternet: TestSchoolCredentialsUseCase
 
     @Before
     fun setUp() {

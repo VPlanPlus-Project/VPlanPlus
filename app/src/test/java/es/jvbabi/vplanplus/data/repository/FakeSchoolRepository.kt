@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
@@ -43,9 +44,10 @@ class FakeSchoolRepository(private val internetRepository: InternetRepository) :
         password: String,
         name: String,
         daysPerWeek: Int,
-        fullyCompatible: Boolean
+        fullyCompatible: Boolean,
+        schoolDownloadMode: SchoolDownloadMode
     ) {
-        schools.add(School(schoolId, sp24SchoolId, username, password, name, daysPerWeek, fullyCompatible))
+        TODO("Not yet implemented")
     }
 
     override suspend fun updateSchoolName(schoolId: Int, name: String) {

@@ -1,21 +1,24 @@
 package es.jvbabi.vplanplus.feature.onboarding.stages.b0_schoolid.domain.usecase
 
 import es.jvbabi.vplanplus.data.repository.FakeKeyValueRepository
+import es.jvbabi.vplanplus.data.repository.FakeSchoolRepository
+import es.jvbabi.vplanplus.data.repository.InternetRepository
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
-
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
 class SetSchoolIdUseCaseTest {
 
-    lateinit var useCase: SetSchoolIdUseCase
-    lateinit var fakeKeyValueRepository: FakeKeyValueRepository
+    private lateinit var useCase: SetSchoolIdUseCase
+    private lateinit var fakeKeyValueRepository: FakeKeyValueRepository
+    private lateinit var fakeSchoolRepository: FakeSchoolRepository
 
     @Before
     fun setUp() {
         fakeKeyValueRepository = FakeKeyValueRepository()
-        useCase = SetSchoolIdUseCase(fakeKeyValueRepository)
+        fakeSchoolRepository = FakeSchoolRepository(InternetRepository(false))
+        useCase = SetSchoolIdUseCase(fakeKeyValueRepository, fakeSchoolRepository)
     }
 
     @Test
