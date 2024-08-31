@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.DbSchool
 
 @Entity(
     tableName = "group",
@@ -15,7 +15,7 @@ import es.jvbabi.vplanplus.domain.model.School
     ],
     foreignKeys = [
         ForeignKey(
-            entity = School::class,
+            entity = DbSchool::class,
             parentColumns = ["id"],
             childColumns = ["school_id"],
             onDelete = ForeignKey.CASCADE

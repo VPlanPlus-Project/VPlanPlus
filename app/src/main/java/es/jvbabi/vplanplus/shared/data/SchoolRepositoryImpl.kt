@@ -4,7 +4,9 @@ import android.util.Log
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.data.repository.ResponseDataWrapper
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
+import es.jvbabi.vplanplus.domain.model.DbSchool
 import es.jvbabi.vplanplus.domain.model.School
+import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.domain.model.xml.ClassBaseData
 import es.jvbabi.vplanplus.domain.repository.SchoolIdCheckResult
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
@@ -28,7 +30,7 @@ class SchoolRepositoryImpl(
     private val updateFcmTokenUseCase: UpdateFcmTokenUseCase
 ) : SchoolRepository {
     override suspend fun getSchools(): List<School> {
-        return schoolDao.getAll()
+        return schoolDao.getAll().map { it.toModel() }
     }
 
     override suspend fun deleteSchool(schoolId: Int) {
@@ -85,17 +87,19 @@ class SchoolRepositoryImpl(
         password: String,
         name: String,
         daysPerWeek: Int,
-        fullyCompatible: Boolean
+        fullyCompatible: Boolean,
+        schoolDownloadMode: SchoolDownloadMode
     ) {
         schoolDao.insert(
-            School(
+            DbSchool(
                 id = schoolId,
                 sp24SchoolId = sp24SchoolId,
                 username = username,
                 password = password,
                 name = name,
                 daysPerWeek = daysPerWeek,
-                fullyCompatible = fullyCompatible
+                fullyCompatible = fullyCompatible,
+                schoolDownloadMode = schoolDownloadMode
             )
         )
     }
@@ -144,15 +148,15 @@ class SchoolRepositoryImpl(
     }
 
     override suspend fun getSchoolFromId(schoolId: Int): School? {
-        return schoolDao.getSchoolFromId(schoolId)
+        return schoolDao.getSchoolFromId(schoolId)?.toModel()
     }
 
     override suspend fun getSchoolBySp24Id(sp24SchoolId: Int): School? {
-        return schoolDao.getSchoolBySp24Id(sp24SchoolId)
+        return schoolDao.getSchoolBySp24Id(sp24SchoolId)?.toModel()
     }
 
     override suspend fun getSchoolByName(schoolName: String): School {
-        return schoolDao.getSchoolByName(schoolName)
+        return schoolDao.getSchoolByName(schoolName).toModel()
     }
 
     override suspend fun updateCredentialsValid(school: School, credentialsValid: Boolean?) {

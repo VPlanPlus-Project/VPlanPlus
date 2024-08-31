@@ -112,7 +112,6 @@
     <string name="timetable_holidayTitle">Feiertag/Ferien</string>
     <string name="timetable_holidayText">Heute musst du nicht in die Schule. Fühle dich frei, triff Freunde oder räume dein Zimmer auf.</string>
     <string name="notification_lesson">%1$s mit %2$s in %3$s</string>
-    <string name="notification_changedLessons">Diese Stunden haben sich verändert:</string>
     <string name="notification_planChangedText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
     <string name="notification_planChangedTitle">Planänderung</string>
     <string name="home_lastSyncNever">Nie synchronisiert</string>
@@ -754,5 +753,25 @@
     <string name="vppIdSettingsManagement_requestDeletionSubtitle">Momentan kannst du deine vpp.ID nicht selbstständig löschen. Du kannst die Löschung mit dem vpp.ID Webinterface beantragen. Dies wird einen Browser öffnen, um fortzufahren.</string>
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Kurse</string>
     <string name="settingsProfileManagementDefaultLesson_lessonsTitle">Stunden</string>
+    <string name="onboarding_credentialsUnsupportedSchool">Diese Schule wird von VPlanPlus nicht unterstützt. Deine Schule muss das Modul \'Wochenplan 6\' von Stundenplan24.de unterstützen.</string>
+    <string name="profileManagement_detailsLabel">Details</string>
+    <string name="profileManagement_detailsId">ID</string>
+    <string name="profileManagement_detailsSp24Id">SP24-ID</string>
+    <string name="profileManagement_detailsUsername">Nutzer</string>
+    <string name="profileManagement_detailsPassword">Passwort</string>
+    <string name="profileManagement_detailsName">Name</string>
+    <string name="profileManagement_detailsPreferredDownloadMode">Bevorzugte Quelle</string>
+    <string name="profileManagement_detailsDaysPerWeek">Wochentage</string>
+    <string name="profileManagement_detailsCredentialsValid">Zugangsdaten gültig</string>
+    <string name="profileManagement_detailsFullyCompatible">Vollst. kompatibel</string>
+    <string name="settingsAbout_socialMediaWhatsAppTitle">WhatsApp-Kanal</string>
+    <string name="settingsAbout_socialMediaWhatsAppSubtitle">Erhalte Statusmeldungen und Infos in WhatsApp</string>
+    <string name="onboarding_preferredDownloadModeTitle">Bevorzugter Download-Modus</string>
+    <string name="onboarding_preferredDownloadModeWPlan6Text">VPlanPlus bevorzugt das Modul \'Wochenplan 6\' zum Laden der Plandaten.</string>
+    <string name="onboarding_preferredDownloadModeMobilText">VPlanPlus bevorzugt das Modul \'Indiware Mobil\' zum Laden der Plandaten.</string>
+    <string name="onboarding_crashTitle">Die App stürzt ab?</string>
+    <string name="onboarding_crashText">Falls die App beim Einrichten abstürzt, versuche, App-Daten und App-Cache in den Einstellungen zu löschen.</string>
+    <string name="onboarding_crashButton">Einstellungen</string>
+    <string name="onboarding_crashToast">Tippe auf \'Speicher und Cache\'</string>
 
 </resources>

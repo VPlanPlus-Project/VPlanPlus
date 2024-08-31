@@ -11,11 +11,20 @@ package es.jvbabi.vplanplus.domain.model
  * @param holidays The list of holidays.
  * @param lessonTimes The map of lesson times, with the class name as key and the lesson number as key of the inner map.
  */
-data class XmlBaseData(
+data class WPlanBaseData(
     val classNames: List<String>,
     val teacherShorts: List<String>?,
     val roomNames: List<String>?,
     val schoolName: String,
+    val daysPerWeek: Int,
+    val holidays: List<Holiday>,
+    val lessonTimes: Map<String, Map<Int, Pair<String, String>>>
+)
+
+data class MobilBaseData(
+    val classes: List<String>,
+    val teachers: List<String>?,
+    val rooms: List<String>?,
     val daysPerWeek: Int,
     val holidays: List<Holiday>,
     val lessonTimes: Map<String, Map<Int, Pair<String, String>>>

@@ -201,7 +201,7 @@ private fun ProfileSettingsScreenContent(
                     state.profile.originalName
                 ),
                 onYes = {
-                    onEvent(ProfileSettingsEvent.DeleteProfile)
+                    onEvent(ProfileSettingsEvent.DeleteProfile { onBackClicked() })
                     deleteDialogOpen = false
                 },
                 onNo = { deleteDialogOpen = false }
@@ -289,10 +289,10 @@ private fun ProfileSettingsScreenContent(
                 )
             }
 
-            SettingsCategory(
+            if (state.profile is ClassProfile) SettingsCategory(
                 title = stringResource(id = R.string.profileManagement_defaultLessonsTitle)
             ) {
-                if (state.profile is ClassProfile) SettingsSetting(
+                SettingsSetting(
                     icon = Icons.Default.FilterAlt,
                     title = stringResource(id = R.string.settings_profileManagementDefaultLessonSettingsTitle),
                     subtitle = stringResource(

@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -73,7 +74,6 @@ import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.rememberDefaultBalloon
-import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExpansion
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.runComposable
 import java.time.LocalDate
@@ -106,7 +106,7 @@ private fun HomeworkListContent(
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     var showDoneStateFilterSheet by rememberSaveable { mutableStateOf(false) }
-    val doneStateFilterSheetState = rememberModalBottomSheetStateWithoutFullExpansion()
+    val doneStateFilterSheetState = rememberModalBottomSheetState()
     if (showDoneStateFilterSheet) DoneStateFilterSheet(
         sheetState = doneStateFilterSheetState,
         onDismiss = { showDoneStateFilterSheet = false },
@@ -115,7 +115,7 @@ private fun HomeworkListContent(
     )
 
     var showVisibilityFilterSheet by rememberSaveable { mutableStateOf(false) }
-    val visibilityFilterSheetState = rememberModalBottomSheetStateWithoutFullExpansion()
+    val visibilityFilterSheetState = rememberModalBottomSheetState()
     if (showVisibilityFilterSheet) VisibilityFilterSheet(
         sheetState = visibilityFilterSheetState,
         onDismiss = { showVisibilityFilterSheet = false },
@@ -221,7 +221,7 @@ private fun HomeworkListContent(
                     visible = state.initDone,
                     enter = slideIn(initialOffset = { IntOffset(0, 100) }) + fadeIn()
                 ) {
-                    val items = state.personalizedHomeworks.groupBy { it.homework.until }.toList()
+                    val items = state.personalizedHomeworks.groupBy { it.homework.until }.toList().sortedBy { it.first }
                     val homeworkListState = rememberLazyListState()
 
                     var hasDrawnFirstVisibleHomework = false
@@ -265,7 +265,7 @@ private fun HomeworkListContent(
                                     personalizedHomework = homeworkProfile,
                                     isVisible = isVisible,
                                     onClick = { onOpenHomework(homeworkProfile.homework) },
-                                    onCheckSwiped = { onEvent(HomeworkListEvent.MarkAsDone(homeworkProfile)) },
+                                    onCheckSwiped = { onEvent(HomeworkListEvent.ToggleHomeworkDone(homeworkProfile)) },
                                     onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homeworkProfile)) },
                                     resetKey1 = state.updateCounter,
                                     resetKey2 = state.error,

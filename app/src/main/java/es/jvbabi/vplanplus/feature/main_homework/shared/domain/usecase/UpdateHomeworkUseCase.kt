@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.relativeDateStringResource
@@ -69,24 +70,29 @@ class UpdateHomeworkUseCase(
                 downloadedHomework.forEach { downloadedHomeworkItem ->
                     val existingItem = existingHomework.find { it.id == downloadedHomeworkItem.id }
                     if (existingItem == null) {
-                        homeworkRepository.addHomeworkDb(
+                        val homeworkId = homeworkRepository.addHomeworkDb(
                             homeworkId = downloadedHomeworkItem.id,
                             isPublic = downloadedHomeworkItem.isPublic,
                             dueTo = downloadedHomeworkItem.until,
                             clazzProfile = profile,
                             createdAt = downloadedHomeworkItem.createdAt,
                             vppId = downloadedHomeworkItem.createdBy,
-                            defaultLessonVpId = downloadedHomeworkItem.defaultLesson?.vpId,
+                            defaultLessonVpId = downloadedHomeworkItem.defaultLesson?.vpId
                         )
+                        if (!profile.isDefaultLessonEnabled(downloadedHomeworkItem.defaultLesson?.vpId)) {
+                            val hw = homeworkRepository.getHomeworkById(homeworkId).first() as HomeworkCore.CloudHomework
+                            homeworkRepository.changeHomeworkVisibilityDb(hw, profile, true)
+                        }
                     }
                     downloadedHomeworkItems.add(downloadedHomeworkItem)
 
-                    downloadedHomeworkItem.tasks.forEach { task ->
+                    downloadedHomeworkItem.tasks.forEach forEachDownloadedTask@{ task ->
                         homeworkRepository.addTaskDb(
                             homeworkId = downloadedHomeworkItem.id,
                             content = task.content,
                             taskId = task.id,
                         )
+                        if (task is HomeworkTaskDone) homeworkRepository.changeTaskStateDb(profile, task.id, task.isDone)
                     }
 
                     downloadedHomeworkItem.documents.forEach { document ->
@@ -136,9 +142,11 @@ class UpdateHomeworkUseCase(
 
         if (!allowNotifications) return stopUpdate(true)
 
+        val profiles = profileRepository.getProfiles().first().filterIsInstance<ClassProfile>()
         val notificationNewHomeworkItems = downloadedHomeworkItems
             .filter { it.id !in initialExisting.map { existing -> existing.id } } // is new
             .filter { it.createdBy.id !in activeVppIds.map { vppId -> vppId.id } } // is not created by current user
+            .filter { profiles.any { profile -> profile.isDefaultLessonEnabled(it.defaultLesson?.vpId) } }
 
         if (notificationNewHomeworkItems.isEmpty()) return stopUpdate(true)
         if (notificationNewHomeworkItems.size == 1) { // detailed notification

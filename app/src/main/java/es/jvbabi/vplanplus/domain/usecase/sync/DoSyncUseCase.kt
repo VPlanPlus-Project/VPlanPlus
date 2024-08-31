@@ -117,13 +117,19 @@ class DoSyncUseCase(
                 val profiles = profileRepository.getProfilesBySchool(school.id).first()
                 profiles.forEach { profile ->
                     profileDataBefore[profile] =
-                        lessonRepository.getLessonsForProfile(profile.id, date, currentVersion)
+                        lessonRepository.getLessonsForProfile(profile, date, currentVersion)
                             .first()
                             ?.filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
                             ?.toList() ?: emptyList()
                 }
 
-                val data = vPlanRepository.getVPlanData(school.sp24SchoolId, school.username, school.password, date)
+                val data = vPlanRepository.getVPlanData(
+                    sp24SchoolId = school.sp24SchoolId,
+                    username = school.username,
+                    password = school.password,
+                    date = date,
+                    preferredDownloadMode = school.schoolDownloadMode
+                )
                 if (data.response == HttpStatusCode.Unauthorized) {
                     Log.d("Sync.VPlan", "Unauthorized")
                     schoolRepository.updateCredentialsValid(school, false)
@@ -491,14 +497,14 @@ class DoSyncUseCase(
 
     private fun buildChangedNotificationString(changedLessons: List<Lesson>): String {
         if (changedLessons.isEmpty()) return ""
-        var changedString = "\n" + context.getString(R.string.notification_changedLessons) + "\n"
+        var changedString = "\n"
         changedLessons.forEach { lesson ->
             changedString += "${lesson.lessonNumber}: ${
                 if (lesson.displaySubject == "-") "-" else
                     context.getString(
                         R.string.notification_lesson,
                         lesson.displaySubject,
-                        lesson.teachers.joinToString(", "),
+                        lesson.teachers.joinToString(", ") { it.acronym },
                         lesson.rooms.joinToString(", ") { it.name }
                     )
             } \n"

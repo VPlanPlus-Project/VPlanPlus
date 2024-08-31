@@ -1,5 +1,7 @@
 package es.jvbabi.vplanplus.domain.model.xml
 
+import es.jvbabi.vplanplus.domain.repository.BaseDataClass
+import es.jvbabi.vplanplus.util.sanitizeXml
 import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
@@ -8,24 +10,25 @@ import org.simpleframework.xml.Serializer
 import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
 
-class ClassBaseData(val xml: String) {
+class ClassBaseData(rawXml: String) {
 
     var schoolName: String
     var daysPerWeek: Int
-    val classes = mutableListOf<String>()
+    val classes = mutableListOf<BaseDataClass>()
 
     val holidays =
         mutableListOf<Pair<Triple<Int, Int, Int>, Boolean>>() // Pair<<year, month, day>, is public holiday> TODO convert to class
 
     init {
         val serializer: Serializer = Persister()
+        val xml = sanitizeXml(rawXml)
         val reader = xml.reader()
         val rootObject: Splan = serializer.read(Splan::class.java, reader, false)
 
         schoolName = rootObject.head!!.schoolName
         daysPerWeek = rootObject.baseData!!.daysPerWeek
 
-        holidays.addAll(rootObject.holidays!!.map {
+        holidays.addAll(rootObject.holidays.orEmpty().map {
             Pair(
                 Triple(
                     2000 + (it.date.substring(0, 2).toInt()),
@@ -34,7 +37,9 @@ class ClassBaseData(val xml: String) {
                 ), it.isPublicHoliday == "1"
             )
         })
-        classes.addAll(rootObject.classes!!.map { it.schoolClass })
+        classes.addAll(rootObject.classes!!.map {
+            BaseDataClass(it.schoolClass, emptyMap())
+        })
     }
 }
 
@@ -43,7 +48,7 @@ private class Splan {
     @field:Element(name = "Kopf")
     var head: SPlanHead? = null
 
-    @field:ElementList(name = "FreieTage", entry = "ft")
+    @field:ElementList(name = "FreieTage", entry = "ft", required = false)
     var holidays: List<Holiday>? = null
 
     @field:ElementList(name = "Klassen")

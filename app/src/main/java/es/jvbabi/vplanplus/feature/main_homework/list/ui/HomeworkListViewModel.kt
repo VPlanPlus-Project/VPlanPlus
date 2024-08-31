@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.list.ui
 
+import android.util.Log
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Check
@@ -82,9 +83,10 @@ class HomeworkListViewModel @Inject constructor(
                         }
                     }
                 }
-                is HomeworkListEvent.MarkAsDone -> {
+                is HomeworkListEvent.ToggleHomeworkDone -> {
                     val homework = event.homework
-                    homeworkListUseCases.markHomeworkAsDoneUseCase(homework).let { success ->
+                    Log.d("HomeworkListViewModel", "ToggleHomeworkDone: $homework")
+                    homeworkListUseCases.toggleDoneStateUseCase(homework).let { success ->
                         if (!success) state = state.copy(error = HomeworkListError.MarkAsDoneError)
                     }
                 }
@@ -187,7 +189,7 @@ sealed interface HomeworkFilter {
 
 sealed class HomeworkListEvent {
     data class DeleteOrHide(val personalizedHomework: PersonalizedHomework) : HomeworkListEvent()
-    data class MarkAsDone(val homework: PersonalizedHomework): HomeworkListEvent()
+    data class ToggleHomeworkDone(val homework: PersonalizedHomework): HomeworkListEvent()
     data class UpdateFilter(val filter: HomeworkFilter) : HomeworkListEvent()
     data object ResetFilters : HomeworkListEvent()
     data object RefreshHomework : HomeworkListEvent()
