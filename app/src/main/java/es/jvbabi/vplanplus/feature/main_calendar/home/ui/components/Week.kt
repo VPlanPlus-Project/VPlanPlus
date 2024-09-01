@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,6 +12,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import java.time.LocalDate
+import java.time.Month
+import kotlin.math.abs
 import kotlin.random.Random
 
 @Composable
@@ -22,7 +23,9 @@ fun Week(
     onDayClicked: (date: LocalDate) -> Unit = {},
     state: DayDisplayState,
     progress: Float,
-    smallMaxHeight: Dp
+    smallMaxHeight: Dp,
+    mediumMaxHeight: Dp,
+    displayMonth: Month?
 ) {
     Row(
         modifier = Modifier
@@ -30,6 +33,7 @@ fun Week(
             .height(
                 when (state) {
                     DayDisplayState.SMALL -> smallMaxHeight
+                    DayDisplayState.REGULAR -> smallMaxHeight + (mediumMaxHeight - smallMaxHeight) * abs(progress)
                     else -> 80.dp
                 }
             ),
@@ -46,7 +50,7 @@ fun Week(
                     exams = day.exams,
                     isToday = day.date == LocalDate.now(),
                     isSelected = day.date == selectedDay,
-                    displayMonth = days.first().date.month,
+                    displayMonth = displayMonth,
                     onClick = { onDayClicked(day.date) },
                     state = state,
                     progress = progress
@@ -77,6 +81,8 @@ private fun WeekPreview() {
         onDayClicked = {},
         state = DayDisplayState.SMALL,
         progress = 1f,
-        smallMaxHeight = 64.dp
+        smallMaxHeight = 64.dp,
+        mediumMaxHeight = 120.dp,
+        displayMonth = LocalDate.now().atStartOfWeek().month
     )
 }

@@ -174,6 +174,10 @@ object DateUtils {
         return this.withDayOfWeek(1)
     }
 
+    fun LocalDate.atStartOfMonth(): LocalDate {
+        return minusDays(dayOfMonth.toLong() - 1)
+    }
+
     fun ZonedDateTime.isAfterOrEqual(other: ZonedDateTime): Boolean {
         return this.isAfter(other) || this.isEqual(other)
     }

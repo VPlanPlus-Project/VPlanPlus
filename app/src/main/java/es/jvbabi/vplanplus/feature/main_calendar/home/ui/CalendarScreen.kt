@@ -1,7 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui
 
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -25,8 +25,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -43,6 +43,7 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DayDisplaySt
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.Week
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.WeekHeader
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.util.DateUtils.atStartOfMonth
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit
@@ -82,8 +83,8 @@ private fun CalendarScreenContent(
     val headerScrollState = rememberScrollState()
     val contentScrollState = rememberScrollState()
     val calendarSelectHeightSmall by remember { mutableFloatStateOf(with (localDensity) { 80.dp.toPx() }) }
-    var calendarSelectHeightMedium by remember { mutableFloatStateOf(with (localDensity) { 81.dp.toPx() }) }
-    var calendarSelectHeightLarge by remember { mutableFloatStateOf(with (localDensity) { 82.dp.toPx() }) }
+    var calendarSelectHeightMedium by remember { mutableFloatStateOf(with (localDensity) { 80.dp.toPx() }) }
+    var calendarSelectHeightLarge by remember { mutableFloatStateOf(with (localDensity) { 80.dp.toPx() }) }
     var currentHeadSize by remember { mutableFloatStateOf(calendarSelectHeightSmall) }
     val closest by remember(currentHeadSize) {
         mutableFloatStateOf(
@@ -166,8 +167,8 @@ private fun CalendarScreenContent(
                 .padding(innerPadding)
                 .fillMaxSize()
                 .onSizeChanged {
-                    calendarSelectHeightMedium = (it.height.toFloat() / 2)
-                    calendarSelectHeightLarge = (it.height.toFloat())
+                    calendarSelectHeightMedium = it.height.toFloat() / 2
+                    calendarSelectHeightLarge = it.height.toFloat()
                     if (currentHeadSize == 0f) currentHeadSize = calendarSelectHeightSmall
                 }
         ) {
@@ -179,7 +180,7 @@ private fun CalendarScreenContent(
                     .verticalScroll(headerScrollState)
             ) calendarView@{
                 WeekHeader(height = WEEK_HEADER_HEIGHT_DP.dp)
-                val isMoving = isAnimating || headerScrollState.isScrollInProgress
+                val isMoving = isAnimating || isScrolling
 
                 if (!isMoving && displayHeadSize == calendarSelectHeightSmall) {
                     val weekPager = rememberPagerState(
@@ -224,9 +225,85 @@ private fun CalendarScreenContent(
                                     exams = 0
                                 )
                             },
+                            displayMonth = null,
                             onDayClicked = { selectedDate = it },
-                            smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - WEEK_HEADER_HEIGHT_DP.dp
+                            smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - WEEK_HEADER_HEIGHT_DP.dp,
+                            mediumMaxHeight = with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - WEEK_HEADER_HEIGHT_DP.dp
                         )
+                    }
+                }
+                else if (isMoving && displayHeadSize in calendarSelectHeightSmall..calendarSelectHeightMedium) {
+                    // show month without pager
+                    val firstDayOfMonth = selectedDate.atStartOfMonth()
+                    val firstDayOfFirstWeekOfMonth = firstDayOfMonth.atStartOfWeek()
+                    val weekHeaderMiddleHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - WEEK_HEADER_HEIGHT_DP.dp) / 5
+                    val calendarHeightSmallDp = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - WEEK_HEADER_HEIGHT_DP.dp
+                    repeat(5) { weekOffset ->
+                        val weekStart = firstDayOfFirstWeekOfMonth.plusWeeks(weekOffset.toLong())
+                        val isWeekWithFirstVisibleDate = weekStart <= selectedDate && weekStart.plusWeeks(1) > selectedDate
+                        Box(
+                            modifier = Modifier
+                                .height(((weekHeaderMiddleHeight - calendarHeightSmallDp) * transitionProgress + calendarHeightSmallDp) * if (isWeekWithFirstVisibleDate) 1f else transitionProgress)
+                                .alpha((if (isWeekWithFirstVisibleDate) 1f else ((transitionProgress - 0.5f).coerceAtLeast(0f) * 2)))
+                        ) {
+                            Week(
+                                selectedDay = selectedDate,
+                                state = DayDisplayState.REGULAR,
+                                progress = transitionProgress,
+                                days = List(7) { index ->
+                                    val date = weekStart.plusDays(index.toLong())
+                                    days[date] ?: Day(
+                                        date = date,
+                                        homework = 0,
+                                        exams = 0
+                                    )
+                                },
+                                displayMonth = firstDayOfMonth.month,
+                                onDayClicked = { selectedDate = it },
+                                smallMaxHeight = calendarSelectHeightSmall.dp - WEEK_HEADER_HEIGHT_DP.dp,
+                                mediumMaxHeight = weekHeaderMiddleHeight
+                            )
+                        }
+                    }
+                } else if (!isMoving && displayHeadSize == calendarSelectHeightMedium) {
+                    // Show Month with pager
+                    val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2) { MONTH_PAGER_SIZE }
+                    LaunchedEffect(key1 = monthPager.targetPage, key2 = monthPager.currentPageOffsetFraction) {
+                        if (!(monthPager.currentPageOffsetFraction > -.25 && monthPager.currentPageOffsetFraction < .25)) return@LaunchedEffect
+                        val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.targetPage).toLong())
+                        if (selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
+                        selectedDate =
+                            if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now()
+                            else monthStart
+                    }
+                    HorizontalPager(
+                        state = monthPager,
+                        beyondViewportPageCount = 1
+                    ) { currentPage ->
+                        val month = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, currentPage).toLong()).month
+                        val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, currentPage).toLong()).atStartOfWeek()
+                        Column {
+                            repeat(5) { weekOffset ->
+                                val weekStart = monthStart.plusWeeks(weekOffset.toLong())
+                                Week(
+                                    selectedDay = selectedDate,
+                                    state = DayDisplayState.REGULAR,
+                                    progress = 1f,
+                                    days = List(7) { index ->
+                                        val date = weekStart.plusDays(index.toLong())
+                                        days[date] ?: Day(
+                                            date = date,
+                                            homework = 0,
+                                            exams = 0
+                                        )
+                                    },
+                                    displayMonth = month,
+                                    onDayClicked = { selectedDate = it },
+                                    smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - WEEK_HEADER_HEIGHT_DP.dp,
+                                    mediumMaxHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - WEEK_HEADER_HEIGHT_DP.dp) / 5
+                                )
+                            }
+                        }
                     }
                 }
             }

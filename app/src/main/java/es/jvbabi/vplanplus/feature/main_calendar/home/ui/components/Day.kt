@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.util.blendColor
 import java.time.LocalDate
 import java.time.Month
 
@@ -66,14 +67,23 @@ fun Day(
                 ),
             contentAlignment = Alignment.Center
         ) {
+            val normalColor = if (isSelected) MaterialTheme.colorScheme.onPrimary
+            else if (date.dayOfWeek.value == 6 || date.dayOfWeek.value == 7) MaterialTheme.colorScheme.error
+            else MaterialTheme.colorScheme.onSurface
+
+            val colorRegardingSelectedMonth =
+                if (displayMonth != null && displayMonth != date.month) Color.Gray
+                else normalColor
             Text(
                 text = date.dayOfMonth.toString(),
                 color =
-                if (displayMonth != null && displayMonth != date.month) Color.Gray
-                else if (isSelected) MaterialTheme.colorScheme.onPrimary
-                else if (date.dayOfWeek.value == 6 || date.dayOfWeek.value == 7) MaterialTheme.colorScheme.error
-                else MaterialTheme.colorScheme.onSurface,
-            )
+                when (state) {
+                    DayDisplayState.SMALL -> normalColor
+                    DayDisplayState.REGULAR -> blendColor(normalColor, colorRegardingSelectedMonth, progress)
+                    else -> colorRegardingSelectedMonth
+                },
+
+                )
         }
         Box(Modifier.height(16.dp)) {
             FlowRow(
