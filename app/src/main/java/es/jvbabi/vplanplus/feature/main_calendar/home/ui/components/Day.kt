@@ -26,6 +26,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
@@ -58,7 +59,6 @@ private const val CAPSULE_TEXT_PADDING_DP = 4
  * A single day in the calendar.
  * @param displayMonth The month that is currently displayed primarily. If the day is not in this month, it will be grayed out.
  */
-@OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun Day(
     date: LocalDate,
@@ -74,8 +74,6 @@ fun Day(
     val localDensity = LocalDensity.current
     var width by remember { mutableFloatStateOf(0f) }
     val widthDp by remember(width) { mutableStateOf(localDensity.run { width.toDp() }) }
-
-    val dpToPx: Dp.() -> Float = { localDensity.run { toPx() } }
 
     Column(
         modifier = Modifier
@@ -130,93 +128,115 @@ fun Day(
                         .height(16.dp + (widthDp - 16.dp) * progress)
                         .rotate(90f * progress)
                     else Modifier.height(16.dp)
-                )
+                ),
+            contentAlignment = Alignment.Center
         ) {
-            FlowRow(
-                modifier = Modifier
-                    .then(
-                        if (state == DayDisplayState.DETAILED) Modifier.width(32.dp + (widthDp - 32.dp) * progress)
-                        else Modifier.width(32.dp)
-                    )
-                    .fillMaxHeight(),
-                horizontalArrangement = Arrangement.Start,
-                verticalArrangement = Arrangement.Top
-            ) {
-                repeat(homework) {
-                    val textMeasurer = rememberTextMeasurer()
-                    val measuredText =
-                        textMeasurer.measure(
-                            AnnotatedString("HA"),
-                            constraints = Constraints.fixedWidth((width - (2 * CAPSULE_TEXT_PADDING_DP.dp.dpToPx())).toInt().coerceAtLeast(0)),
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                    Box(
-                        modifier = Modifier
-                            .padding(1.dp)
-                            .then(
-                                if (state == DayDisplayState.DETAILED) Modifier
-                                    .width(DOT_WIDTH_DP.dp + progress * (CAPSULE_THICKNESS_DP - DOT_WIDTH_DP).dp)
-                                    .height(DOT_HEIGHT_DP.dp + (widthDp - DOT_HEIGHT_DP.dp) * progress)
-                                    .drawWithContent {
-                                        drawContent()
-                                        rotate(
-                                            degrees = -90f,
-                                            pivot = Offset(0f, 0f)
-                                        ) {
-                                            scale(progress, progress, Offset(-size.height + CAPSULE_TEXT_PADDING_DP.dp.dpToPx(), size.width / 2 - measuredText.size.height / 2)) {
-                                                translate(left = -size.height + CAPSULE_TEXT_PADDING_DP.dp.dpToPx(), top = size.width / 2 - measuredText.size.height / 2) {
-                                                    drawText(measuredText, color = blendColor(Color.Transparent, Color.White, progress))
-                                                }
-                                            }
-                                        }
-                                    }
-                                else Modifier.size(4.dp)
-                            )
-                            .clip(RoundedCornerShape(50))
-                            .background(Color.Blue)
-                    )
-                }
-                repeat(exams) {
-                    val textMeasurer = rememberTextMeasurer()
-                    val measuredText =
-                        textMeasurer.measure(
-                            AnnotatedString("Test/KA"),
-                            constraints = Constraints.fixedWidth((width - (2 * CAPSULE_TEXT_PADDING_DP.dp.dpToPx())).toInt().coerceAtLeast(0)),
-                            style = MaterialTheme.typography.labelSmall,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-
-                    Box(
-                        modifier = Modifier
-                            .padding(1.dp)
-                            .then(
-                                if (state == DayDisplayState.DETAILED) Modifier
-                                    .width(DOT_WIDTH_DP.dp + progress * (CAPSULE_THICKNESS_DP - DOT_WIDTH_DP).dp)
-                                    .height(DOT_HEIGHT_DP.dp + (widthDp - DOT_HEIGHT_DP.dp) * progress)
-                                    .drawWithContent {
-                                        drawContent()
-                                        rotate(
-                                            degrees = -90f,
-                                            pivot = Offset(0f, 0f)
-                                        ) {
-                                            scale(progress, progress, Offset(-size.height + CAPSULE_TEXT_PADDING_DP.dp.dpToPx(), size.width / 2 - measuredText.size.height / 2)) {
-                                                translate(left = -size.height + CAPSULE_TEXT_PADDING_DP.dp.dpToPx(), top = size.width / 2 - measuredText.size.height / 2) {
-                                                    drawText(measuredText, color = blendColor(Color.Transparent, Color.White, progress))
-                                                }
-                                            }
-                                        }
-                                    }
-                                else Modifier.size(4.dp)
-                            )
-                            .clip(RoundedCornerShape(50))
-                            .background(Color.Red)
-                    )
-                }
+            Box(Modifier.alpha(if (state == DayDisplayState.DETAILED) progress else 0f)) {
+                Dots(homework, exams, state, progress, width, widthDp, Arrangement.Start)
             }
+            Box(Modifier.alpha(if (state == DayDisplayState.DETAILED) 1 - progress else 1f)) {
+                Dots(homework, exams, state, if (state == DayDisplayState.DETAILED) 0f else progress, width, widthDp, Arrangement.Center)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun Dots(
+    homework: Int,
+    exams: Int,
+    state: DayDisplayState,
+    progress: Float,
+    width: Float,
+    widthDp: Dp,
+    arrangement: Arrangement.Horizontal
+) {
+    val localDensity = LocalDensity.current
+    val dpToPx: Dp.() -> Float = { localDensity.run { toPx() } }
+    FlowRow(
+        modifier = Modifier
+            .then(
+                if (state == DayDisplayState.DETAILED) Modifier.width(32.dp + (widthDp - 32.dp) * progress)
+                else Modifier.width(32.dp)
+            )
+            .fillMaxHeight(),
+        horizontalArrangement = arrangement,
+        verticalArrangement = Arrangement.Top
+    ) {
+        repeat(homework) {
+            val textMeasurer = rememberTextMeasurer()
+            val measuredText =
+                textMeasurer.measure(
+                    AnnotatedString("HA"),
+                    constraints = Constraints.fixedWidth((width - (2 * CAPSULE_TEXT_PADDING_DP.dp.dpToPx())).toInt().coerceAtLeast(0)),
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+            Box(
+                modifier = Modifier
+                    .padding(1.dp)
+                    .then(
+                        if (state == DayDisplayState.DETAILED) Modifier
+                            .width(DOT_WIDTH_DP.dp + progress * (CAPSULE_THICKNESS_DP - DOT_WIDTH_DP).dp)
+                            .height(DOT_HEIGHT_DP.dp + (widthDp - DOT_HEIGHT_DP.dp) * progress)
+                            .drawWithContent {
+                                drawContent()
+                                rotate(
+                                    degrees = -90f,
+                                    pivot = Offset(0f, 0f)
+                                ) {
+                                    scale(progress, progress, Offset(-size.height + CAPSULE_TEXT_PADDING_DP.dp.dpToPx(), size.width / 2 - measuredText.size.height / 2)) {
+                                        translate(left = -size.height + CAPSULE_TEXT_PADDING_DP.dp.dpToPx(), top = size.width / 2 - measuredText.size.height / 2) {
+                                            drawText(measuredText, color = blendColor(Color.Transparent, Color.White, progress))
+                                        }
+                                    }
+                                }
+                            }
+                        else Modifier.size(4.dp)
+                    )
+                    .clip(RoundedCornerShape(50))
+                    .background(Color.Blue)
+            )
+        }
+        repeat(exams) {
+            val textMeasurer = rememberTextMeasurer()
+            val measuredText =
+                textMeasurer.measure(
+                    AnnotatedString("Test/KA"),
+                    constraints = Constraints.fixedWidth((width - (2 * CAPSULE_TEXT_PADDING_DP.dp.dpToPx())).toInt().coerceAtLeast(0)),
+                    style = MaterialTheme.typography.labelSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+
+            Box(
+                modifier = Modifier
+                    .padding(1.dp)
+                    .then(
+                        if (state == DayDisplayState.DETAILED) Modifier
+                            .width(DOT_WIDTH_DP.dp + progress * (CAPSULE_THICKNESS_DP - DOT_WIDTH_DP).dp)
+                            .height(DOT_HEIGHT_DP.dp + (widthDp - DOT_HEIGHT_DP.dp) * progress)
+                            .drawWithContent {
+                                drawContent()
+                                rotate(
+                                    degrees = -90f,
+                                    pivot = Offset(0f, 0f)
+                                ) {
+                                    scale(progress, progress, Offset(-size.height + CAPSULE_TEXT_PADDING_DP.dp.dpToPx(), size.width / 2 - measuredText.size.height / 2)) {
+                                        translate(left = -size.height + CAPSULE_TEXT_PADDING_DP.dp.dpToPx(), top = size.width / 2 - measuredText.size.height / 2) {
+                                            drawText(measuredText, color = blendColor(Color.Transparent, Color.White, progress))
+                                        }
+                                    }
+                                }
+                            }
+                        else Modifier.size(4.dp)
+                    )
+                    .clip(RoundedCornerShape(50))
+                    .background(Color.Red)
+            )
         }
     }
 }
