@@ -131,10 +131,10 @@ fun Day(
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Box(Modifier.alpha(if (state == DayDisplayState.DETAILED) progress else 0f)) {
+            Box(Modifier.alpha(if (state == DayDisplayState.DETAILED) (progress-0.5f)*2 else 0f)) {
                 Dots(homework, exams, state, progress, width, widthDp, Arrangement.Start)
             }
-            Box(Modifier.alpha(if (state == DayDisplayState.DETAILED) 1 - progress else 1f)) {
+            Box(Modifier.alpha(if (state == DayDisplayState.DETAILED) 1 - progress*2 else 1f)) {
                 Dots(homework, exams, state, if (state == DayDisplayState.DETAILED) 0f else progress, width, widthDp, Arrangement.Center)
             }
         }
