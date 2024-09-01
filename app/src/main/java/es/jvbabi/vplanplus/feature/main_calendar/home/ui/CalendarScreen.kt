@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandVertically
@@ -15,7 +16,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
@@ -120,7 +123,6 @@ private fun CalendarScreenContent(
 ) {
     val localDensity = LocalDensity.current
     val headerScrollState = rememberScrollState()
-    val contentScrollState = rememberScrollState()
     val contentPagerState = rememberPagerState(initialPage = CONTENT_PAGER_SIZE / 2) { CONTENT_PAGER_SIZE }
 
     val calendarSelectHeightSmall by remember { mutableFloatStateOf(with(localDensity) { (70 + HEADER_STATIC_HEIGHT_DP).dp.toPx() }) }
@@ -156,11 +158,10 @@ private fun CalendarScreenContent(
                 source: NestedScrollSource
             ): Offset {
                 val useHeadSize = if (isAnimating) animateCurrentHeadSize else currentHeadSize
-                val isContentOnTop = contentScrollState.value == 0
-                val isContentScrolling = contentScrollState.isScrollInProgress
                 val isHeaderScrolling = headerScrollState.isScrollInProgress
                 val delta = available.y
-                if (isHeaderScrolling || (delta > 0 && isContentOnTop && isContentScrolling)) {
+                Log.e("CalendarScreenContent", "onPreScroll: $useHeadSize | $delta")
+                if (isHeaderScrolling || (delta > 0)) {
                     // scroll head
                     println("$useHeadSize | $delta")
                     currentHeadSize = (currentHeadSize + delta).coerceIn(
@@ -168,7 +169,7 @@ private fun CalendarScreenContent(
                         calendarSelectHeightLarge
                     )
                     return Offset(0f, delta)
-                } else if (isContentScrolling && isContentOnTop && delta < 0 && useHeadSize > calendarSelectHeightSmall) {
+                } else if (delta < 0 && useHeadSize > calendarSelectHeightSmall) {
                     // scroll head
                     currentHeadSize = (currentHeadSize + delta).coerceIn(
                         calendarSelectHeightSmall,
@@ -176,6 +177,7 @@ private fun CalendarScreenContent(
                     )
                     return Offset(0f, delta)
                 }
+                Log.e("CalendarScreenContent", "using super")
                 return super.onPreScroll(available, source)
             }
         }
@@ -183,9 +185,8 @@ private fun CalendarScreenContent(
 
     LaunchedEffect(
         key1 = headerScrollState.isScrollInProgress,
-        key2 = contentScrollState.isScrollInProgress
     ) {
-        isScrolling = headerScrollState.isScrollInProgress || contentScrollState.isScrollInProgress
+        isScrolling = headerScrollState.isScrollInProgress
         if (!isScrolling && currentHeadSize != closest && closest != 0f) isAnimating = true
     }
 
@@ -509,148 +510,146 @@ private fun CalendarScreenContent(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .nestedScroll(scrollConnection)
-                            .verticalScroll(contentScrollState)
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth(),
+                        state = rememberLazyListState()
                     ) {
-                        AnimatedVisibility(
-                            visible = day.info != null,
-                            enter = expandVertically(),
-                            exit = shrinkVertically(),
-                            modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
-                        ) {
-                            InfoCard(
-                                imageVector = Icons.Default.Campaign,
-                                title = stringResource(id = R.string.calendar_infoTitle),
-                                text = day.info ?: ""
-                            )
-                        }
-
-                        LazyRow(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            item { Spacer8Dp() }
-                            item {
-                                FilterChip(
-                                    selected = DayViewFilter.LESSONS in state.enabledFilters,
-                                    onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.LESSONS)) },
-                                    label = { Text(text = stringResource(id = R.string.calendar_dayFilterLessons)) },
-                                    leadingIcon = {
-                                        Icon(imageVector = if (DayViewFilter.LESSONS in state.enabledFilters) Icons.Default.Check else Icons.Default.School, contentDescription = null)
-                                    }
+                        item {
+                            AnimatedVisibility(
+                                visible = day.info != null,
+                                enter = expandVertically(),
+                                exit = shrinkVertically(),
+                                modifier = Modifier.padding(vertical = 8.dp, horizontal = 16.dp)
+                            ) {
+                                InfoCard(
+                                    imageVector = Icons.Default.Campaign,
+                                    title = stringResource(id = R.string.calendar_infoTitle),
+                                    text = day.info ?: ""
                                 )
                             }
-                            item {
-                                FilterChip(
-                                    selected = DayViewFilter.HOMEWORK in state.enabledFilters,
-                                    onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.HOMEWORK)) },
-                                    label = { Text(text = stringResource(id = R.string.calendar_dayFilterHomework)) },
-                                    leadingIcon = {
-                                        Icon(imageVector = if (DayViewFilter.HOMEWORK in state.enabledFilters) Icons.Default.Check else Icons.AutoMirrored.Default.MenuBook, contentDescription = null)
-                                    }
-                                )
-                            }
-                            item {
-                                FilterChip(
-                                    selected = DayViewFilter.GRADES in state.enabledFilters,
-                                    onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.GRADES)) },
-                                    label = { Text(text = stringResource(id = R.string.calendar_dayFilterGrades)) },
-                                    leadingIcon = {
-                                        if (DayViewFilter.GRADES in state.enabledFilters) Icon(Icons.Default.Check, contentDescription = null)
-                                        else Icon(painterResource(id = R.drawable.order_approve), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                                    }
-                                )
-                            }
-                        }
-
-                        AnimatedVisibility(
-                            visible = state.enabledFilters.isEmpty() || DayViewFilter.LESSONS in state.enabledFilters,
-                            enter = expandVertically(),
-                            exit = shrinkVertically()
-                        ) {
-                            Column(Modifier.padding(horizontal = 16.dp)) {
-                                val lessonsGroupedByLessonNumber = day.lessons.groupBy { it.lessonNumber }.toList().sortedBy { it.first }
-                                lessonsGroupedByLessonNumber.forEachIndexed { i, (lessonNumber, lessons) ->
-                                    Spacer8Dp()
-                                    Row {
-                                        Column(
-                                            modifier = Modifier
-                                                .width(48.dp)
-                                                .height(24.dp),
-                                            verticalArrangement = Arrangement.Center
-                                        ) {
-                                            Text(
-                                                text = stringResource(id = R.string.calendar_dayLessonNumber, lessonNumber.toLocalizedString()),
-                                                style = MaterialTheme.typography.labelSmall
-                                            )
+                            LazyRow(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                item { Spacer8Dp() }
+                                item {
+                                    FilterChip(
+                                        selected = DayViewFilter.LESSONS in state.enabledFilters,
+                                        onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.LESSONS)) },
+                                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterLessons)) },
+                                        leadingIcon = {
+                                            Icon(imageVector = if (DayViewFilter.LESSONS in state.enabledFilters) Icons.Default.Check else Icons.Default.School, contentDescription = null)
                                         }
-                                        Column {
-                                            lessons.forEach { lesson ->
-                                                Row(
-                                                    modifier = Modifier.defaultMinSize(minHeight = 40.dp),
-                                                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                ) {
-                                                    SubjectIcon(
-                                                        subject = lesson.displaySubject,
-                                                        modifier = Modifier.size(24.dp),
-                                                        tint = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                                                    )
-                                                    Column {
-                                                        RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                            Text(
-                                                                text = lesson.displaySubject,
-                                                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                                                color = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
-                                                            )
-                                                            Text(
-                                                                text = buildAnnotatedString {
-                                                                    val style = MaterialTheme.typography.bodyMedium.toSpanStyle()
-                                                                    val changed = style.copy(color = MaterialTheme.colorScheme.error)
-                                                                    val booked = style.copy(color = MaterialTheme.colorScheme.secondary)
-                                                                    withStyle(if (lesson.roomIsChanged) changed else style) {
-                                                                        append(lesson.rooms.joinToString(", ") { it.name })
-                                                                        if (lesson.roomBooking != null) append(", ")
-                                                                    }
-                                                                    if (lesson.roomBooking != null) withStyle(booked) {
-                                                                        append(lesson.roomBooking.room.name)
-                                                                    }
-                                                                }
-                                                            )
-                                                        }
-                                                        RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                            Text(
-                                                                text = buildAnnotatedString {
-                                                                    val style = MaterialTheme.typography.labelMedium.copy(
-                                                                        fontWeight = FontWeight.Light,
-                                                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                                    ).toSpanStyle()
-                                                                    val changed = style.copy(color = MaterialTheme.colorScheme.error)
-                                                                    withStyle(style) {
-                                                                        append(lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                                                        append(" - ")
-                                                                        append(lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                                                    }
-                                                                    if (lesson.teachers.isNotEmpty()) {
-                                                                        withStyle(if (lesson.teacherIsChanged) changed else style) {
-                                                                            append(" $DOT ")
-                                                                            append(lesson.teachers.joinToString(", ") { it.acronym })
+                                    )
+                                }
+                                item {
+                                    FilterChip(
+                                        selected = DayViewFilter.HOMEWORK in state.enabledFilters,
+                                        onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.HOMEWORK)) },
+                                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterHomework)) },
+                                        leadingIcon = {
+                                            Icon(imageVector = if (DayViewFilter.HOMEWORK in state.enabledFilters) Icons.Default.Check else Icons.AutoMirrored.Default.MenuBook, contentDescription = null)
+                                        }
+                                    )
+                                }
+                                item {
+                                    FilterChip(
+                                        selected = DayViewFilter.GRADES in state.enabledFilters,
+                                        onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.GRADES)) },
+                                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterGrades)) },
+                                        leadingIcon = {
+                                            if (DayViewFilter.GRADES in state.enabledFilters) Icon(Icons.Default.Check, contentDescription = null)
+                                            else Icon(painterResource(id = R.drawable.order_approve), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                        }
+                                    )
+                                }
+                            }
+                            AnimatedVisibility(
+                                visible = state.enabledFilters.isEmpty() || DayViewFilter.LESSONS in state.enabledFilters,
+                                enter = expandVertically(),
+                                exit = shrinkVertically()
+                            ) {
+                                Column(Modifier.padding(horizontal = 16.dp)) {
+                                    val lessonsGroupedByLessonNumber = day.lessons.groupBy { it.lessonNumber }.toList().sortedBy { it.first }
+                                    lessonsGroupedByLessonNumber.forEachIndexed { i, (lessonNumber, lessons) ->
+                                        Spacer8Dp()
+                                        Row {
+                                            Column(
+                                                modifier = Modifier
+                                                    .width(48.dp)
+                                                    .height(24.dp),
+                                                verticalArrangement = Arrangement.Center
+                                            ) {
+                                                Text(
+                                                    text = stringResource(id = R.string.calendar_dayLessonNumber, lessonNumber.toLocalizedString()),
+                                                    style = MaterialTheme.typography.labelSmall
+                                                )
+                                            }
+                                            Column {
+                                                lessons.forEach { lesson ->
+                                                    Row(
+                                                        modifier = Modifier.defaultMinSize(minHeight = 40.dp),
+                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                    ) {
+                                                        SubjectIcon(
+                                                            subject = lesson.displaySubject,
+                                                            modifier = Modifier.size(24.dp),
+                                                            tint = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                                        )
+                                                        Column {
+                                                            RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                                Text(
+                                                                    text = lesson.displaySubject,
+                                                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                                                    color = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                                                )
+                                                                Text(
+                                                                    text = buildAnnotatedString {
+                                                                        val style = MaterialTheme.typography.bodyMedium.toSpanStyle()
+                                                                        val changed = style.copy(color = MaterialTheme.colorScheme.error)
+                                                                        val booked = style.copy(color = MaterialTheme.colorScheme.secondary)
+                                                                        withStyle(if (lesson.roomIsChanged) changed else style) {
+                                                                            append(lesson.rooms.joinToString(", ") { it.name })
+                                                                            if (lesson.roomBooking != null) append(", ")
+                                                                        }
+                                                                        if (lesson.roomBooking != null) withStyle(booked) {
+                                                                            append(lesson.roomBooking.room.name)
                                                                         }
                                                                     }
-                                                                }
-                                                            )
+                                                                )
+                                                            }
+                                                            RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                                Text(
+                                                                    text = buildAnnotatedString {
+                                                                        val style = MaterialTheme.typography.labelMedium.copy(
+                                                                            fontWeight = FontWeight.Light,
+                                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                                        ).toSpanStyle()
+                                                                        val changed = style.copy(color = MaterialTheme.colorScheme.error)
+                                                                        withStyle(style) {
+                                                                            append(lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                                                            append(" - ")
+                                                                            append(lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                                                        }
+                                                                        if (lesson.teachers.isNotEmpty()) {
+                                                                            withStyle(if (lesson.teacherIsChanged) changed else style) {
+                                                                                append(" $DOT ")
+                                                                                append(lesson.teachers.joinToString(", ") { it.acronym })
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                )
+                                                            }
                                                         }
                                                     }
                                                 }
                                             }
                                         }
+                                        Spacer8Dp()
+                                        if (i != lessonsGroupedByLessonNumber.lastIndex) HorizontalDivider()
                                     }
-                                    Spacer8Dp()
-                                    if (i != lessonsGroupedByLessonNumber.lastIndex) HorizontalDivider()
                                 }
                             }
                         }

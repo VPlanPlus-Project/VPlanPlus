@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase
 
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -23,7 +24,7 @@ class GetDayUseCase(
                 emit(SchoolDay(
                     date = date,
                     info = day.info,
-                    lessons = day.lessons
+                    lessons = day.lessons.filter { (profile is ClassProfile && profile.isDefaultLessonEnabled(it.defaultLesson?.vpId)) || profile !is ClassProfile }
                 ))
             }
     }
