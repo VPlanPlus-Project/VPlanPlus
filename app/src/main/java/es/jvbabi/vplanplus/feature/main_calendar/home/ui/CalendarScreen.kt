@@ -24,6 +24,7 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.geometry.Offset
@@ -52,6 +53,8 @@ import kotlin.random.Random
 const val MONTH_PAGER_SIZE = 12 * 10
 const val WEEK_PAGER_SIZE = 52
 const val WEEK_HEADER_HEIGHT_DP = 16
+const val MONTH_HEADER_HEIGHT_DP = 48
+const val HEADER_STATIC_HEIGHT_DP = WEEK_HEADER_HEIGHT_DP + MONTH_HEADER_HEIGHT_DP
 
 @Composable
 fun CalendarScreen(
@@ -82,9 +85,9 @@ private fun CalendarScreenContent(
     val localDensity = LocalDensity.current
     val headerScrollState = rememberScrollState()
     val contentScrollState = rememberScrollState()
-    val calendarSelectHeightSmall by remember { mutableFloatStateOf(with (localDensity) { 80.dp.toPx() }) }
-    var calendarSelectHeightMedium by remember { mutableFloatStateOf(with (localDensity) { 80.dp.toPx() }) }
-    var calendarSelectHeightLarge by remember { mutableFloatStateOf(with (localDensity) { 80.dp.toPx() }) }
+    val calendarSelectHeightSmall by remember { mutableFloatStateOf(with (localDensity) { (70 + HEADER_STATIC_HEIGHT_DP).dp.toPx() }) }
+    var calendarSelectHeightMedium by remember { mutableFloatStateOf(with (localDensity) { (70 + HEADER_STATIC_HEIGHT_DP).dp.toPx() }) }
+    var calendarSelectHeightLarge by remember { mutableFloatStateOf(with (localDensity) { (70 + HEADER_STATIC_HEIGHT_DP).dp.toPx() }) }
     var currentHeadSize by remember { mutableFloatStateOf(calendarSelectHeightSmall) }
     val closest by remember(currentHeadSize) {
         mutableFloatStateOf(
@@ -172,6 +175,7 @@ private fun CalendarScreenContent(
                     if (currentHeadSize == 0f) currentHeadSize = calendarSelectHeightSmall
                 }
         ) {
+            var firstVisibleDate by remember { mutableStateOf(LocalDate.now().atStartOfWeek()) }
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -179,6 +183,18 @@ private fun CalendarScreenContent(
                     .nestedScroll(scrollConnection)
                     .verticalScroll(headerScrollState)
             ) calendarView@{
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(MONTH_HEADER_HEIGHT_DP.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = firstVisibleDate.month.name,
+                        fontSize = 24.sp,
+
+                    )
+                }
                 WeekHeader(height = WEEK_HEADER_HEIGHT_DP.dp)
                 val isMoving = isAnimating || isScrolling
 
@@ -197,10 +213,12 @@ private fun CalendarScreenContent(
                         if (!(weekPager.currentPageOffsetFraction > -.25 && weekPager.currentPageOffsetFraction < .25)) return@LaunchedEffect
                         val weekStart = LocalDate.now().atStartOfWeek().plusWeeks(getOffsetFromMiddle(weekPager.pageCount, weekPager.targetPage).toLong())
 
+                        firstVisibleDate = weekStart
                         if (selectedDate.atStartOfWeek() == weekStart) return@LaunchedEffect
                         selectedDate =
                             if (weekStart == LocalDate.now().atStartOfWeek()) LocalDate.now()
                             else weekStart
+
                     }
                     HorizontalPager(
                         state = weekPager,
@@ -227,9 +245,9 @@ private fun CalendarScreenContent(
                             },
                             displayMonth = null,
                             onDayClicked = { selectedDate = it },
-                            smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - WEEK_HEADER_HEIGHT_DP.dp,
-                            mediumMaxHeight = with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - WEEK_HEADER_HEIGHT_DP.dp,
-                            largeMaxHeight = with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - WEEK_HEADER_HEIGHT_DP.dp
+                            smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
+                            mediumMaxHeight = with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
+                            largeMaxHeight = with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp
                         )
                     }
                 }
@@ -237,8 +255,8 @@ private fun CalendarScreenContent(
                     // show month without pager
                     val firstDayOfMonth = selectedDate.atStartOfMonth()
                     val firstDayOfFirstWeekOfMonth = firstDayOfMonth.atStartOfWeek()
-                    val weekHeaderMiddleHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - WEEK_HEADER_HEIGHT_DP.dp) / 5
-                    val calendarHeightSmallDp = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - WEEK_HEADER_HEIGHT_DP.dp
+                    val weekHeaderMiddleHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
+                    val calendarHeightSmallDp = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - HEADER_STATIC_HEIGHT_DP.dp
                     repeat(5) { weekOffset ->
                         val weekStart = firstDayOfFirstWeekOfMonth.plusWeeks(weekOffset.toLong())
                         val isWeekWithFirstVisibleDate = weekStart <= selectedDate && weekStart.plusWeeks(1) > selectedDate
@@ -261,7 +279,7 @@ private fun CalendarScreenContent(
                                 },
                                 displayMonth = firstDayOfMonth.month,
                                 onDayClicked = { selectedDate = it },
-                                smallMaxHeight = calendarSelectHeightSmall.dp - WEEK_HEADER_HEIGHT_DP.dp,
+                                smallMaxHeight = calendarSelectHeightSmall.dp - HEADER_STATIC_HEIGHT_DP.dp,
                                 mediumMaxHeight = weekHeaderMiddleHeight,
                                 largeMaxHeight = weekHeaderMiddleHeight
                             )
@@ -272,6 +290,7 @@ private fun CalendarScreenContent(
                     val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2) { MONTH_PAGER_SIZE }
                     LaunchedEffect(key1 = monthPager.settledPage) {
                         val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.settledPage).toLong())
+                        firstVisibleDate = monthStart
                         if (selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
                         selectedDate =
                             if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now()
@@ -300,9 +319,9 @@ private fun CalendarScreenContent(
                                     },
                                     displayMonth = month,
                                     onDayClicked = { selectedDate = it },
-                                    smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - WEEK_HEADER_HEIGHT_DP.dp,
-                                    mediumMaxHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - WEEK_HEADER_HEIGHT_DP.dp) / 5,
-                                    largeMaxHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - WEEK_HEADER_HEIGHT_DP.dp) / 5
+                                    smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
+                                    mediumMaxHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5,
+                                    largeMaxHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
                                 )
                             }
                         }
@@ -311,8 +330,8 @@ private fun CalendarScreenContent(
                     // show month without pager
                     val firstDayOfMonth = selectedDate.atStartOfMonth()
                     val firstDayOfFirstWeekOfMonth = firstDayOfMonth.atStartOfWeek()
-                    val weekHeaderMiddleHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - WEEK_HEADER_HEIGHT_DP.dp) / 5
-                    val weekHeaderLargeHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - WEEK_HEADER_HEIGHT_DP.dp) / 5
+                    val weekHeaderMiddleHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
+                    val weekHeaderLargeHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
                     repeat(5) { weekOffset ->
                         val weekStart = firstDayOfFirstWeekOfMonth.plusWeeks(weekOffset.toLong())
                         Box(
@@ -333,7 +352,7 @@ private fun CalendarScreenContent(
                                 },
                                 displayMonth = firstDayOfMonth.month,
                                 onDayClicked = { selectedDate = it },
-                                smallMaxHeight = calendarSelectHeightMedium.dp - WEEK_HEADER_HEIGHT_DP.dp,
+                                smallMaxHeight = calendarSelectHeightMedium.dp - HEADER_STATIC_HEIGHT_DP.dp,
                                 mediumMaxHeight = weekHeaderMiddleHeight,
                                 largeMaxHeight = weekHeaderLargeHeight
                             )
@@ -341,11 +360,13 @@ private fun CalendarScreenContent(
                     }
                 } else {
                     // show month with pager
-                    val weekHeaderLargeHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - WEEK_HEADER_HEIGHT_DP.dp) / 5
+                    val weekHeaderLargeHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
                     val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2) { MONTH_PAGER_SIZE }
                     LaunchedEffect(key1 = monthPager.settledPage) {
                         val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.settledPage).toLong())
+                        firstVisibleDate = monthStart
                         if (selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
+
                         selectedDate =
                             if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now()
                             else monthStart
@@ -373,8 +394,8 @@ private fun CalendarScreenContent(
                                     },
                                     displayMonth = month,
                                     onDayClicked = { selectedDate = it },
-                                    smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - WEEK_HEADER_HEIGHT_DP.dp,
-                                    mediumMaxHeight = with (LocalDensity.current) { calendarSelectHeightMedium.toDp() } - WEEK_HEADER_HEIGHT_DP.dp,
+                                    smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
+                                    mediumMaxHeight = with (LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
                                     largeMaxHeight = weekHeaderLargeHeight
                                 )
                             }
