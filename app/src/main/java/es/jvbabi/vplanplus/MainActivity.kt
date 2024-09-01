@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
@@ -187,6 +188,18 @@ class MainActivity : FragmentActivity() {
                             label = { Text(text = stringResource(id = R.string.main_home)) },
                             route = Screen.HomeScreen.route
                         ),
+                        NavigationBarItem(
+                            onClick = {
+                                if (selectedIndex == 3) return@NavigationBarItem
+                                selectedIndex = 3
+                                navController!!.navigate(Screen.CalendarScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                            },
+                            icon = {
+                                Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null)
+                            },
+                            label = { Text(text = stringResource(id = R.string.main_calendar)) },
+                            route = Screen.CalendarScreen.route
+                        ),
                         if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 1) return@NavigationBarItem
@@ -241,7 +254,9 @@ class MainActivity : FragmentActivity() {
                     }
 
                     Surface(
-                        modifier = Modifier.fillMaxSize().imePadding(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .imePadding(),
                         color = MaterialTheme.colorScheme.surface
                     ) {
                         if (goToOnboarding != null && navController != null) {

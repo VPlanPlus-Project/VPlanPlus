@@ -16,6 +16,7 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.CalendarScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.GradesScreen
@@ -269,6 +270,16 @@ private fun NavGraphBuilder.mainScreens(
         popExitTransition = slideOutFromBottom
     ) {
         SearchView(navHostController = navController)
+    }
+
+    composable(
+        route = Screen.CalendarScreen.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        CalendarScreen(navHostController = navController, navBar = navBar)
     }
 
     composable(
