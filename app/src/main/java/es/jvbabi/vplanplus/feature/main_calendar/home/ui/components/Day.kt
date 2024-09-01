@@ -24,8 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.util.blendColor
 import java.time.LocalDate
@@ -41,7 +44,7 @@ fun Day(
     date: LocalDate,
     isSelected: Boolean,
     isToday: Boolean,
-    homework: Int,
+    homework: List<PersonalizedHomework>,
     exams: Int,
     displayMonth: Month?,
     state: DayDisplayState,
@@ -110,7 +113,7 @@ fun Day(
                 modifier = Modifier.alpha((progress-.5f)*2),
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
-                repeat(homework) {
+                homework.forEach { hw ->
                     Box(
                         modifier = Modifier
                             .height(14.dp)
@@ -120,7 +123,7 @@ fun Day(
                         contentAlignment = Alignment.CenterStart
                     ) {
                         Text(
-                            text = "HA",
+                            text = hw.homework.defaultLesson?.subject ?: stringResource(id = R.string.homework_noSubject),
                             color = Color.White,
                             style = MaterialTheme.typography.labelSmall,
                             modifier = Modifier.padding(horizontal = 4.dp)
@@ -152,7 +155,7 @@ fun Day(
                 modifier = Modifier
                     .alpha(if (state == DayDisplayState.DETAILED) (1 - progress*2) else 1f)
             ) {
-                repeat(homework) {
+                repeat(homework.size) {
                     Box(
                         modifier = Modifier
                             .padding(1.dp)
@@ -182,7 +185,7 @@ private fun WeekendPreview() {
         date = LocalDate.of(2024, 1, 14),
         isSelected = false,
         isToday = true,
-        homework = 0,
+        homework = emptyList(),
         exams = 0,
         displayMonth = Month.JANUARY,
         state = DayDisplayState.SMALL,
@@ -197,23 +200,8 @@ private fun SelectedPreview() {
         date = LocalDate.of(2024, 1, 14),
         isSelected = true,
         isToday = false,
-        homework = 2,
+        homework = emptyList(),
         exams = 0,
-        displayMonth = Month.JANUARY,
-        state = DayDisplayState.SMALL,
-        progress = 1f
-    )
-}
-
-@Composable
-@Preview
-private fun HomeworkPreview() {
-    Day(
-        date = LocalDate.of(2024, 2, 14),
-        isSelected = false,
-        isToday = false,
-        homework = 3,
-        exams = 2,
         displayMonth = Month.JANUARY,
         state = DayDisplayState.SMALL,
         progress = 1f
@@ -227,7 +215,7 @@ private fun DetailedPreview() {
         date = LocalDate.of(2024, 2, 14),
         isSelected = false,
         isToday = false,
-        homework = 3,
+        homework = emptyList(),
         exams = 2,
         displayMonth = Month.JANUARY,
         state = DayDisplayState.DETAILED,

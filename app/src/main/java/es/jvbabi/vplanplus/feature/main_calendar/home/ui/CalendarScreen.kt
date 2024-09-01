@@ -71,6 +71,7 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DayDisplayState
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.Week
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.WeekHeader
+import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -79,6 +80,7 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfMonth
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
@@ -107,6 +109,7 @@ fun CalendarScreen(
 
     CalendarScreenContent(
         onBack = { navHostController.navigateUp() },
+        onOpenHomeworkScreen = { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen.route + "/$homeworkId") },
         navBar = navBar,
         doAction = viewModel::doAction,
         state = state
@@ -117,6 +120,7 @@ fun CalendarScreen(
 @Composable
 private fun CalendarScreenContent(
     onBack: () -> Unit = {},
+    onOpenHomeworkScreen: (homeworkId: Int) -> Unit = {},
     doAction: (action: CalendarViewAction) -> Unit = {},
     navBar: @Composable (Boolean) -> Unit = {},
     state: CalendarViewState
@@ -566,12 +570,36 @@ private fun CalendarScreenContent(
                                     )
                                 }
                             }
+
+                            AnimatedVisibility(
+                                visible = state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters,
+                                enter = expandVertically(),
+                                exit = shrinkVertically()
+                            ) {
+                                Column {
+                                    if (day.homework.isNotEmpty()) Box(Modifier.padding(start = 16.dp)) {
+                                        Text(text = stringResource(id = R.string.calendar_dayFilterHomework), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
+                                    }
+                                    day.homework.forEach { hw ->
+                                        HomeworkCardItem(
+                                            personalizedHomework = hw,
+                                            isVisible = true,
+                                            onClick = { onOpenHomeworkScreen(hw.homework.id) },
+                                            onCheckSwiped = {},
+                                            onVisibilityOrDeleteSwiped = {}
+                                        )
+                                    }
+                                    Spacer8Dp()
+                                }
+                            }
+
                             AnimatedVisibility(
                                 visible = state.enabledFilters.isEmpty() || DayViewFilter.LESSONS in state.enabledFilters,
                                 enter = expandVertically(),
                                 exit = shrinkVertically()
                             ) {
                                 Column(Modifier.padding(horizontal = 16.dp)) {
+                                    if (day.lessons.isNotEmpty()) Text(text = stringResource(id = R.string.calendar_dayFilterLessons), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
                                     val lessonsGroupedByLessonNumber = day.lessons.groupBy { it.lessonNumber }.toList().sortedBy { it.first }
                                     lessonsGroupedByLessonNumber.forEachIndexed { i, (lessonNumber, lessons) ->
                                         Spacer8Dp()

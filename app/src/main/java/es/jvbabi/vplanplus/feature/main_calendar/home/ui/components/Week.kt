@@ -47,7 +47,7 @@ fun Week(
             ) {
                 Day(
                     date = day.date,
-                    homework = 0,
+                    homework = day.homework,
                     exams = 0,
                     isToday = day.date == LocalDate.now(),
                     isSelected = day.date == selectedDay,

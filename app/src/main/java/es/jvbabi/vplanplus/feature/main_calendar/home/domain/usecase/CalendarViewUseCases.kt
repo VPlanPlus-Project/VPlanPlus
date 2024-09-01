@@ -6,5 +6,5 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
 data class CalendarViewUseCases(
     val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     val getDayUseCase: GetDayUseCase,
-    val getLastSyncUseCase: GetLastSyncUseCase
+    val getLastSyncUseCase: GetLastSyncUseCase,
 )

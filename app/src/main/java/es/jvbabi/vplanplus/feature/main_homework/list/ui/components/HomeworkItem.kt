@@ -80,6 +80,7 @@ import kotlin.math.abs
 fun HomeworkCardItem(
     personalizedHomework: PersonalizedHomework,
     isVisible: Boolean,
+    isSwipingEnabled: Boolean = false,
     onClick: () -> Unit,
     onCheckSwiped: () -> Unit,
     onVisibilityOrDeleteSwiped: () -> Unit,
@@ -185,8 +186,8 @@ fun HomeworkCardItem(
             }
             SwipeToDismissBox(
                 state = dismissState,
-                enableDismissFromEndToStart = !isDemoRunning,
-                enableDismissFromStartToEnd = !isDemoRunning,
+                enableDismissFromEndToStart = !isDemoRunning && isSwipingEnabled,
+                enableDismissFromStartToEnd = !isDemoRunning && isSwipingEnabled,
                 backgroundContent = { SwipeBackground(demoDisplayDirection ?: dismissState.dismissDirection, personalizedHomework.homework is HomeworkCore.LocalHomework || (personalizedHomework is PersonalizedHomework.CloudHomework && personalizedHomework.homework.createdBy.id == personalizedHomework.profile.vppId?.id), personalizedHomework is PersonalizedHomework.CloudHomework && personalizedHomework.isHidden) }
             ) {
                 val demoOffset = animateFloatAsState(
