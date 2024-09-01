@@ -19,12 +19,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.times
 import es.jvbabi.vplanplus.util.blendColor
 import java.time.LocalDate
 import java.time.Month
@@ -46,10 +55,14 @@ fun Day(
     progress: Float,
     onClick: () -> Unit = {}
 ) {
+    val localDensity = LocalDensity.current
+    var width by remember { mutableFloatStateOf(0f) }
+    var widthDp by remember(width) { mutableStateOf(localDensity.run { width.toDp() }) }
     Column(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .onSizeChanged { width = it.width.toFloat() },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -101,16 +114,25 @@ fun Day(
         ) {
             FlowRow(
                 modifier = Modifier
-                    .width(32.dp)
+                    .then(
+                        if (state == DayDisplayState.DETAILED) Modifier.width(32.dp + (widthDp - 32.dp) * progress)
+                        else Modifier.width(32.dp)
+                    )
                     .fillMaxHeight(),
                 horizontalArrangement = Arrangement.Center,
-                verticalArrangement = Arrangement.Top
+                verticalArrangement = Arrangement.Top,
+
             ) {
                 repeat(homework) {
                     Box(
                         modifier = Modifier
                             .padding(1.dp)
-                            .size(4.dp)
+                            .then(
+                                if (state == DayDisplayState.DETAILED) Modifier
+                                    .height(4.dp + progress * 8.dp)
+                                    .width(4.dp + (widthDp - 4.dp) * progress)
+                                else Modifier.size(4.dp)
+                            )
                             .clip(RoundedCornerShape(50))
                             .background(Color.Blue)
                     )
@@ -119,7 +141,12 @@ fun Day(
                     Box(
                         modifier = Modifier
                             .padding(1.dp)
-                            .size(4.dp)
+                            .then(
+                                if (state == DayDisplayState.DETAILED) Modifier
+                                    .height(4.dp + progress * 8.dp)
+                                    .width(4.dp + (widthDp - 4.dp) * progress)
+                                else Modifier.size(4.dp)
+                            )
                             .clip(RoundedCornerShape(50))
                             .background(Color.Red)
                     )
