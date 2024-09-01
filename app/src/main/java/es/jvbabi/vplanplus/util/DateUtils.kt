@@ -40,6 +40,10 @@ object DateUtils {
         return ZonedDateTime.of(1970, 1, 1, this.hour, this.minute, this.second, this.nano, this.zone)
     }
 
+    fun epoch(): ZonedDateTime {
+        return ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))
+    }
+
     fun localizedRelativeDate(context: Context, localDate: LocalDate, fallbackToDefaultFormatting: Boolean = true): String? {
         val result = when (localDate) {
             LocalDate.now() -> {

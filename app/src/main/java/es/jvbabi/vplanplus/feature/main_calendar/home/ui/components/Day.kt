@@ -73,18 +73,19 @@ fun Day(
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(50))
                     .then(
-                        if (isSelected) Modifier.background(MaterialTheme.colorScheme.primary)
+                        if (isSelected) Modifier.background(MaterialTheme.colorScheme.primaryContainer)
                         else Modifier
                     )
                     .then(
-                        if (isToday && !isSelected) Modifier.border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(50))
+                        if (isToday && !isSelected) Modifier.border(1.dp, MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(50))
                         else Modifier
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                val normalColor = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                else if (date.dayOfWeek.value == 6 || date.dayOfWeek.value == 7) MaterialTheme.colorScheme.error
-                else MaterialTheme.colorScheme.onSurface
+                val normalColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                    else if (isToday) MaterialTheme.colorScheme.secondary
+                    else if (date.dayOfWeek.value == 6 || date.dayOfWeek.value == 7) MaterialTheme.colorScheme.error
+                    else MaterialTheme.colorScheme.onSurface
 
                 val colorRegardingSelectedMonth =
                     if (displayMonth != null && displayMonth != date.month) Color.Gray

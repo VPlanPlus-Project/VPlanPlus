@@ -10,15 +10,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import java.time.LocalDate
 import java.time.Month
 import kotlin.math.abs
-import kotlin.random.Random
 
 @Composable
 fun Week(
-    days: List<Day>,
+    days: List<SchoolDay>,
     selectedDay: LocalDate,
     onDayClicked: (date: LocalDate) -> Unit = {},
     state: DayDisplayState,
@@ -47,8 +47,8 @@ fun Week(
             ) {
                 Day(
                     date = day.date,
-                    homework = day.homework,
-                    exams = day.exams,
+                    homework = 0,
+                    exams = 0,
                     isToday = day.date == LocalDate.now(),
                     isSelected = day.date == selectedDay,
                     displayMonth = displayMonth,
@@ -61,21 +61,13 @@ fun Week(
     }
 }
 
-data class Day(
-    val date: LocalDate,
-    val homework: Int,
-    val exams: Int
-)
-
 @Composable
 @Preview
 private fun WeekPreview() {
     Week(
         days = List(7) { index ->
-            Day(
+            SchoolDay(
                 date = LocalDate.now().atStartOfWeek().plusDays(index.toLong()),
-                homework = Random.nextInt(0, 3),
-                exams = Random.nextInt(0, 2)
             )
         },
         selectedDay = LocalDate.now(),

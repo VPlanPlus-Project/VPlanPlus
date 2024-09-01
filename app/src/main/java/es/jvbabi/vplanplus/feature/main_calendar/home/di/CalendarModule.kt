@@ -1,0 +1,30 @@
+package es.jvbabi.vplanplus.feature.main_calendar.home.di
+
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.PlanRepository
+import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CalendarViewUseCases
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object CalendarModule {
+
+    @Provides
+    @Singleton
+    fun provideCalendarViewUseCases(
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
+        planRepository: PlanRepository,
+        keyValueRepository: KeyValueRepository
+    ): CalendarViewUseCases = CalendarViewUseCases(
+        getCurrentProfileUseCase = getCurrentProfileUseCase,
+        getDayUseCase = GetDayUseCase(planRepository, keyValueRepository),
+        getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository)
+    )
+}

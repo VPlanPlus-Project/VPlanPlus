@@ -114,8 +114,8 @@
     <string name="notification_lesson">%1$s mit %2$s in %3$s</string>
     <string name="notification_planChangedText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
     <string name="notification_planChangedTitle">Planänderung</string>
-    <string name="home_lastSyncNever">Nie synchronisiert</string>
-    <string name="home_lastSync">Zuletzt synchronisiert: %1$s</string>
+    <string name="calendar_lastSyncNever">Nie synchronisiert</string>
+    <string name="calendar_lastSync">Zuletzt synchronisiert: %1$s</string>
     <string name="day_after_tomorrow">Übermorgen</string>
     <string name="day_before_yesterday">Vorgestern</string>
     <string name="lesson_cancelFindRoom">Leeren Raum suchen</string>
@@ -775,5 +775,10 @@
     <string name="onboarding_crashToast">Tippe auf \'Speicher und Cache\'</string>
     <string name="main_calendar">Kalender</string>
     <string name="calendar_title">Kalender</string>
+    <string name="calendar_infoTitle">Aktuelle Informationen</string>
+    <string name="calendar_dayFilterLessons">Stunden</string>
+    <string name="calendar_dayFilterGrades">Noten</string>
+    <string name="calendar_dayFilterHomework">Hausaufgaben</string>
+    <string name="calendar_dayLessonNumber">%1$s Std</string>
 
 </resources>

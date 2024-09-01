@@ -112,8 +112,8 @@
     <string name="notification_lesson">%1$s with %2$s in %3$s</string>
     <string name="notification_planChangedText">There is a change in plan for %1$s at %2$s for %3$s</string>
     <string name="notification_planChangedTitle">Change of plan</string>
-    <string name="home_lastSyncNever">Never synced</string>
-    <string name="home_lastSync">Last sync: %1$s</string>
+    <string name="calendar_lastSyncNever">Never synced</string>
+    <string name="calendar_lastSync">Last sync: %1$s</string>
     <string name="day_after_tomorrow">;DATE</string>
     <string name="day_before_yesterday">;DATE</string>
     <string name="lesson_cancelFindRoom">Find an available room</string>
@@ -778,5 +778,10 @@
     <string name="onboarding_crashToast">Click \'Storage and cache\'</string>
     <string name="main_calendar">Calendar</string>
     <string name="calendar_title">Calendar</string>
+    <string name="calendar_infoTitle">Important information</string>
+    <string name="calendar_dayFilterLessons">Lessons</string>
+    <string name="calendar_dayFilterGrades">Grades</string>
+    <string name="calendar_dayFilterHomework">Homework</string>
+    <string name="calendar_dayLessonNumber">%1$s ln.</string>
 
 </resources>
