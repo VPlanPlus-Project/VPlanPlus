@@ -25,6 +25,7 @@ fun Week(
     progress: Float,
     smallMaxHeight: Dp,
     mediumMaxHeight: Dp,
+    largeMaxHeight: Dp,
     displayMonth: Month?
 ) {
     Row(
@@ -34,7 +35,7 @@ fun Week(
                 when (state) {
                     DayDisplayState.SMALL -> smallMaxHeight
                     DayDisplayState.REGULAR -> smallMaxHeight + (mediumMaxHeight - smallMaxHeight) * abs(progress)
-                    else -> 80.dp
+                    DayDisplayState.DETAILED -> mediumMaxHeight + (largeMaxHeight - mediumMaxHeight) * abs(progress)
                 }
             ),
         verticalAlignment = Alignment.CenterVertically,
@@ -83,6 +84,7 @@ private fun WeekPreview() {
         progress = 1f,
         smallMaxHeight = 64.dp,
         mediumMaxHeight = 120.dp,
+        largeMaxHeight = 200.dp,
         displayMonth = LocalDate.now().atStartOfWeek().month
     )
 }

@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,11 +53,16 @@ fun Day(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Spacer(modifier = Modifier.height(8.dp))
+        if (state == DayDisplayState.DETAILED) Spacer(modifier = Modifier.weight(8f))
+        else Spacer(modifier = Modifier.height(8.dp))
         Box(
             modifier = Modifier
                 .padding(4.dp)
-                .size(32.dp)
+                .fillMaxWidth()
+                .then(
+                    if (state == DayDisplayState.DETAILED) Modifier.weight(32f)
+                    else Modifier.height(32.dp)
+                )
                 .clip(RoundedCornerShape(50))
                 .then(
                     if (isSelected) Modifier.background(MaterialTheme.colorScheme.primary)
@@ -85,11 +92,17 @@ fun Day(
 
                 )
         }
-        Box(Modifier.height(16.dp)) {
+        Box(
+            modifier = Modifier
+                .then(
+                    if (state == DayDisplayState.DETAILED) Modifier.weight(16f)
+                    else Modifier.height(16.dp)
+                )
+        ) {
             FlowRow(
                 modifier = Modifier
                     .width(32.dp)
-                    .height(16.dp),
+                    .fillMaxHeight(),
                 horizontalArrangement = Arrangement.Center,
                 verticalArrangement = Arrangement.Top
             ) {
@@ -157,6 +170,21 @@ private fun HomeworkPreview() {
         exams = 2,
         displayMonth = Month.JANUARY,
         state = DayDisplayState.SMALL,
+        progress = 1f
+    )
+}
+
+@Composable
+@Preview
+private fun DetailedPreview() {
+    Day(
+        date = LocalDate.of(2024, 2, 14),
+        isSelected = false,
+        isToday = false,
+        homework = 3,
+        exams = 2,
+        displayMonth = Month.JANUARY,
+        state = DayDisplayState.DETAILED,
         progress = 1f
     )
 }
