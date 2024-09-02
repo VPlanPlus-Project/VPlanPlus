@@ -190,8 +190,8 @@ class MainActivity : FragmentActivity() {
                         ),
                         NavigationBarItem(
                             onClick = {
-                                if (selectedIndex == 3) return@NavigationBarItem
-                                selectedIndex = 3
+                                if (selectedIndex == 1) return@NavigationBarItem
+                                selectedIndex = 1
                                 navController!!.navigate(Screen.CalendarScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
@@ -202,8 +202,8 @@ class MainActivity : FragmentActivity() {
                         ),
                         if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
-                                if (selectedIndex == 1) return@NavigationBarItem
-                                selectedIndex = 1
+                                if (selectedIndex == 2) return@NavigationBarItem
+                                selectedIndex = 2
                                 navController!!.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
@@ -217,8 +217,8 @@ class MainActivity : FragmentActivity() {
                         ) else null,
                         if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
-                                if (selectedIndex == 2) return@NavigationBarItem
-                                selectedIndex = 2
+                                if (selectedIndex == 3) return@NavigationBarItem
+                                selectedIndex = 3
                                 navController!!.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
