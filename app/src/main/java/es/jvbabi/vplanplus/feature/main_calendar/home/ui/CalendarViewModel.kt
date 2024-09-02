@@ -75,8 +75,10 @@ class CalendarViewModel @Inject constructor(
 
     private fun startOneMonthAroundDate(date: LocalDate = LocalDate.now()) {
         viewModelScope.launch {
-            repeat(31*2) {
+            startDayUiSync(date)
+            repeat(31) {
                 startDayUiSync(date.plusDays(it.toLong()-31))
+                startDayUiSync(date.plusDays(it.toLong()))
             }
         }
     }

@@ -1,16 +1,18 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -24,12 +26,15 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.HorizontalDivider
@@ -49,6 +54,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
@@ -60,6 +66,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,12 +76,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DayDisplayState
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.Week
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.WeekHeader
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.components.grades.GradeRecord
-import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -169,7 +178,6 @@ private fun CalendarScreenContent(
                 val useHeadSize = if (isAnimating) animateCurrentHeadSize else currentHeadSize
                 val isHeaderScrolling = headerScrollState.isScrollInProgress
                 val delta = available.y
-                Log.e("CalendarScreenContent", "onPreScroll: $useHeadSize | $delta")
                 if (isHeaderScrolling || (delta > 0)) {
                     // scroll head
                     println("$useHeadSize | $delta")
@@ -186,7 +194,6 @@ private fun CalendarScreenContent(
                     )
                     return Offset(0f, delta)
                 }
-                Log.e("CalendarScreenContent", "using super")
                 return super.onPreScroll(available, source)
             }
         }
@@ -205,7 +212,29 @@ private fun CalendarScreenContent(
         topBar = {
             TopAppBar(
                 title = { Text(text = stringResource(id = R.string.calendar_title)) },
-                navigationIcon = { IconButton(onClick = onBack) { BackIcon() } }
+                navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
+                actions = {
+                    Box(
+                        modifier = Modifier.height(36.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(Modifier.fillMaxHeight()) {
+                            Spacer(Modifier.weight(.17f, true))
+                            Box(
+                                modifier = Modifier.weight(.83f, true),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = LocalDate.now().dayOfMonth.toString(),
+                                    style = MaterialTheme.typography.labelSmall
+                                )
+                            }
+                        }
+                        IconButton(onClick = { doAction(CalendarViewAction.SelectDate(LocalDate.now())) }) {
+                            Icon(imageVector = Icons.Default.CalendarToday, contentDescription = null)
+                        }
+                    }
+                }
             )
         },
         bottomBar = { navBar(true) }
@@ -415,8 +444,8 @@ private fun CalendarScreenContent(
                     // show month with pager
                     val weekHeaderLargeHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
                     val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2) { MONTH_PAGER_SIZE }
-                    LaunchedEffect(key1 = monthPager.settledPage) {
-                        val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.settledPage).toLong())
+                    LaunchedEffect(key1 = monthPager.targetPage) {
+                        val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.targetPage).toLong())
                         firstVisibleDate = monthStart
                         if (state.selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
 
@@ -480,8 +509,8 @@ private fun CalendarScreenContent(
                 )
             }
 
-            LaunchedEffect(key1 = contentPagerState.settledPage) {
-                val date = LocalDate.now().plusDays(getOffsetFromMiddle(CONTENT_PAGER_SIZE, contentPagerState.settledPage).toLong())
+            LaunchedEffect(key1 = contentPagerState.targetPage) {
+                val date = LocalDate.now().plusDays(getOffsetFromMiddle(CONTENT_PAGER_SIZE, contentPagerState.targetPage).toLong())
                 if (state.selectedDate == date) return@LaunchedEffect
                 doAction(CalendarViewAction.SelectDate(date))
             }
@@ -613,14 +642,66 @@ private fun CalendarScreenContent(
                                     if (day.homework.isNotEmpty()) Box(Modifier.padding(start = 16.dp)) {
                                         Text(text = stringResource(id = R.string.calendar_dayFilterHomework), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
                                     }
+                                    Spacer4Dp()
                                     day.homework.forEach { hw ->
-                                        HomeworkCardItem(
-                                            personalizedHomework = hw,
-                                            isVisible = true,
-                                            onClick = { onOpenHomeworkScreen(hw.homework.id) },
-                                            onCheckSwiped = {},
-                                            onVisibilityOrDeleteSwiped = {}
-                                        )
+                                        Row(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .defaultMinSize(minHeight = 40.dp)
+                                                .padding(vertical = 4.dp)
+                                                .clip(RoundedCornerShape(16.dp))
+                                                .clickable { onOpenHomeworkScreen(hw.homework.id) }
+                                        ) {
+                                            Spacer16Dp()
+                                            Spacer16Dp()
+                                            SubjectIcon(
+                                                subject = hw.homework.defaultLesson?.subject,
+                                                tint = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier
+                                                    .padding(top = 8.dp, bottom = 8.dp)
+                                                    .size(24.dp),
+                                            )
+                                            Spacer16Dp()
+                                            Column {
+                                                RowVerticalCenter {
+                                                    CircularProgressIndicator(
+                                                        progress = { hw.tasks.count { it.isDone }.toFloat() / hw.tasks.size.coerceAtLeast(1) },
+                                                        modifier = Modifier.size(16.dp),
+                                                        trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                                        color = MaterialTheme.colorScheme.primary
+                                                    )
+                                                    Spacer8Dp()
+                                                    Text(
+                                                        text = hw.homework.defaultLesson?.subject ?: stringResource(id = R.string.homework_noSubject),
+                                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, textDecoration = if (hw.allDone()) TextDecoration.LineThrough else null)
+                                                    )
+                                                    Spacer8Dp()
+                                                    Text(
+                                                        text = when (hw) {
+                                                            is PersonalizedHomework.LocalHomework -> stringResource(id = R.string.homework_thisDevice)
+                                                            is PersonalizedHomework.CloudHomework -> {
+                                                                if (hw.homework.createdBy.id == (state.currentProfile as? ClassProfile)?.vppId?.id) stringResource(id = R.string.homework_homeworkSubtitleCreatedByYou)
+                                                                else hw.homework.createdBy.name
+                                                            }
+                                                        },
+                                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Light, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                                    )
+                                                }
+                                                Text(
+                                                    text = buildAnnotatedString {
+                                                        val style = MaterialTheme.typography.bodySmall.copy(color = MaterialTheme.colorScheme.onSurfaceVariant).toSpanStyle()
+                                                        hw.tasks.sortedBy { it.isDone }.forEachIndexed { i, task ->
+                                                            withStyle(if (task.isDone) style.copy(textDecoration = TextDecoration.LineThrough) else style) {
+                                                                append(task.content)
+                                                                append(if (i != hw.tasks.size - 1) ", " else "")
+                                                            }
+                                                        }
+                                                    },
+                                                    maxLines = 1,
+                                                    overflow = TextOverflow.Ellipsis
+                                                )
+                                            }
+                                        }
                                     }
                                     Spacer8Dp()
                                 }
