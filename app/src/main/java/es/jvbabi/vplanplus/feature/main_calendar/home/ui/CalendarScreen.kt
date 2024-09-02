@@ -79,7 +79,9 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
+import es.jvbabi.vplanplus.ui.common.Spacer12Dp
 import es.jvbabi.vplanplus.ui.common.Spacer16Dp
+import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
@@ -605,7 +607,9 @@ private fun CalendarScreenContent(
                                 enter = expandVertically(),
                                 exit = shrinkVertically()
                             ) {
+                                HorizontalDivider()
                                 Column {
+                                    Spacer8Dp()
                                     if (day.homework.isNotEmpty()) Box(Modifier.padding(start = 16.dp)) {
                                         Text(text = stringResource(id = R.string.calendar_dayFilterHomework), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
                                     }
@@ -627,85 +631,91 @@ private fun CalendarScreenContent(
                                 enter = expandVertically(),
                                 exit = shrinkVertically()
                             ) {
-                                Column(Modifier.padding(horizontal = 16.dp)) {
-                                    if (day.lessons.isNotEmpty()) Text(text = stringResource(id = R.string.calendar_dayFilterLessons), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
-                                    val lessonsGroupedByLessonNumber = day.lessons.groupBy { it.lessonNumber }.toList().sortedBy { it.first }
-                                    lessonsGroupedByLessonNumber.forEachIndexed { i, (lessonNumber, lessons) ->
+                                HorizontalDivider()
+                                Column {
+                                    Column(Modifier.padding(horizontal = 16.dp)) {
                                         Spacer8Dp()
-                                        Row {
-                                            Column(
-                                                modifier = Modifier
-                                                    .width(48.dp)
-                                                    .height(24.dp),
-                                                verticalArrangement = Arrangement.Center
-                                            ) {
-                                                Text(
-                                                    text = stringResource(id = R.string.calendar_dayLessonNumber, lessonNumber.toLocalizedString()),
-                                                    style = MaterialTheme.typography.labelSmall
-                                                )
-                                            }
-                                            Column {
-                                                lessons.forEach { lesson ->
-                                                    Row(
-                                                        modifier = Modifier.defaultMinSize(minHeight = 40.dp),
-                                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                                    ) {
-                                                        SubjectIcon(
-                                                            subject = lesson.displaySubject,
-                                                            modifier = Modifier.size(24.dp),
-                                                            tint = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
-                                                        )
-                                                        Column {
-                                                            RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                                Text(
-                                                                    text = lesson.displaySubject,
-                                                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                                                    color = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
-                                                                )
-                                                                Text(
-                                                                    text = buildAnnotatedString {
-                                                                        val style = MaterialTheme.typography.bodyMedium.toSpanStyle()
-                                                                        val changed = style.copy(color = MaterialTheme.colorScheme.error)
-                                                                        val booked = style.copy(color = MaterialTheme.colorScheme.secondary)
-                                                                        withStyle(if (lesson.roomIsChanged) changed else style) {
-                                                                            append(lesson.rooms.joinToString(", ") { it.name })
-                                                                            if (lesson.roomBooking != null) append(", ")
-                                                                        }
-                                                                        if (lesson.roomBooking != null) withStyle(booked) {
-                                                                            append(lesson.roomBooking.room.name)
-                                                                        }
-                                                                    }
-                                                                )
-                                                            }
-                                                            RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                                                Text(
-                                                                    text = buildAnnotatedString {
-                                                                        val style = MaterialTheme.typography.labelMedium.copy(
-                                                                            fontWeight = FontWeight.Light,
-                                                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                                                        ).toSpanStyle()
-                                                                        val changed = style.copy(color = MaterialTheme.colorScheme.error)
-                                                                        withStyle(style) {
-                                                                            append(lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                                                            append(" - ")
-                                                                            append(lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                                                        }
-                                                                        if (lesson.teachers.isNotEmpty()) {
-                                                                            withStyle(if (lesson.teacherIsChanged) changed else style) {
-                                                                                append(" $DOT ")
-                                                                                append(lesson.teachers.joinToString(", ") { it.acronym })
+                                        Text(text = stringResource(id = R.string.calendar_dayFilterLessons), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
+                                    }
+                                    Column(Modifier.padding(horizontal = 24.dp)) {
+                                        val lessonsGroupedByLessonNumber = day.lessons.groupBy { it.lessonNumber }.toList().sortedBy { it.first }
+                                        lessonsGroupedByLessonNumber.forEachIndexed { i, (lessonNumber, lessons) ->
+                                            Spacer8Dp()
+                                            Row {
+                                                Column(
+                                                    modifier = Modifier
+                                                        .width(40.dp)
+                                                        .height(24.dp),
+                                                    verticalArrangement = Arrangement.Center
+                                                ) {
+                                                    Text(
+                                                        text = stringResource(id = R.string.calendar_dayLessonNumber, lessonNumber.toLocalizedString()),
+                                                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold)
+                                                    )
+                                                }
+                                                Column {
+                                                    lessons.forEach { lesson ->
+                                                        Row(
+                                                            modifier = Modifier.defaultMinSize(minHeight = 40.dp),
+                                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                                        ) {
+                                                            SubjectIcon(
+                                                                subject = lesson.displaySubject,
+                                                                modifier = Modifier.size(24.dp),
+                                                                tint = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                                            )
+                                                            Column {
+                                                                RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                                    Text(
+                                                                        text = lesson.displaySubject,
+                                                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                                                        color = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                                                    )
+                                                                    Text(
+                                                                        text = buildAnnotatedString {
+                                                                            val style = MaterialTheme.typography.bodyMedium.toSpanStyle()
+                                                                            val changed = style.copy(color = MaterialTheme.colorScheme.error)
+                                                                            val booked = style.copy(color = MaterialTheme.colorScheme.secondary)
+                                                                            withStyle(if (lesson.roomIsChanged) changed else style) {
+                                                                                append(lesson.rooms.joinToString(", ") { it.name })
+                                                                                if (lesson.roomBooking != null) append(", ")
+                                                                            }
+                                                                            if (lesson.roomBooking != null) withStyle(booked) {
+                                                                                append(lesson.roomBooking.room.name)
                                                                             }
                                                                         }
-                                                                    }
-                                                                )
+                                                                    )
+                                                                }
+                                                                RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                                                    Text(
+                                                                        text = buildAnnotatedString {
+                                                                            val style = MaterialTheme.typography.bodySmall.copy(
+                                                                                fontWeight = FontWeight.Light,
+                                                                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                                                            ).toSpanStyle()
+                                                                            val changed = style.copy(color = MaterialTheme.colorScheme.error)
+                                                                            withStyle(style) {
+                                                                                append(lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                                                                append(" - ")
+                                                                                append(lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                                                            }
+                                                                            if (lesson.teachers.isNotEmpty()) {
+                                                                                withStyle(if (lesson.teacherIsChanged) changed else style) {
+                                                                                    append(" $DOT ")
+                                                                                    append(lesson.teachers.joinToString(", ") { it.acronym })
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                    )
+                                                                }
                                                             }
                                                         }
                                                     }
                                                 }
                                             }
+                                            Spacer12Dp()
+                                            if (i != lessonsGroupedByLessonNumber.lastIndex) HorizontalDivider()
                                         }
-                                        Spacer8Dp()
-                                        if (i != lessonsGroupedByLessonNumber.lastIndex) HorizontalDivider()
                                     }
                                 }
                             }
@@ -715,16 +725,22 @@ private fun CalendarScreenContent(
                                 enter = expandVertically(),
                                 exit = shrinkVertically()
                             ) {
-                                Column(
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                ) {
-                                    Text(text = stringResource(id = R.string.calendar_dayFilterGrades), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
-                                    Spacer8Dp()
-                                    if (day.grades.isNotEmpty()) day.grades.forEach { grade ->
-                                        GradeRecord(grade = grade, showSubject = true)
+                                HorizontalDivider()
+                                Column {
+                                    Column(Modifier.padding(horizontal = 16.dp)) {
+                                        Spacer8Dp()
+                                        Text(text = stringResource(id = R.string.calendar_dayFilterGrades), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
                                     }
-                                    Spacer8Dp()
+                                    Column(
+                                        modifier = Modifier
+                                            .padding(horizontal = 16.dp)
+                                    ) {
+                                        Spacer8Dp()
+                                        if (day.grades.isNotEmpty()) day.grades.forEach { grade ->
+                                            GradeRecord(grade = grade, showSubject = true)
+                                        }
+                                        Spacer8Dp()
+                                    }
                                 }
                             }
                         }
