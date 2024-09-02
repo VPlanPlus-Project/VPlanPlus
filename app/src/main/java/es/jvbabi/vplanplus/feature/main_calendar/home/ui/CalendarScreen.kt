@@ -667,7 +667,7 @@ private fun CalendarScreenContent(
                                                         .clickable { onOpenHomeworkScreen(hw.homework.id) }
                                                         .padding(vertical = 8.dp, horizontal = 16.dp)
                                                 ) {
-                                                    Spacer16Dp()
+                                                    Spacer8Dp()
                                                     SubjectIcon(
                                                         subject = hw.homework.defaultLesson?.subject,
                                                         tint = MaterialTheme.colorScheme.primary,
