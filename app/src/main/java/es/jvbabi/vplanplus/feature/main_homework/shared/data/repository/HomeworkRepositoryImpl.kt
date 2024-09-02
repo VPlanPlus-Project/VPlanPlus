@@ -41,6 +41,9 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.io.File
 import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class HomeworkRepositoryImpl(
@@ -126,8 +129,11 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun getAllByProfile(profile: ClassProfile): Flow<List<PersonalizedHomework>> {
-        return homeworkDao.getByGroupId(profile.group.groupId).map {
+    override suspend fun getAllByProfile(profile: ClassProfile, until: LocalDate?): Flow<List<PersonalizedHomework>> {
+        return if (until != null) homeworkDao.getByGroupIdAndDate(profile.group.groupId, ZonedDateTime.of(until, LocalTime.MIN, ZoneId.of("UTC"))).map {
+            it.map { homework -> homework.toProfileModel(profile) }
+        }
+        else homeworkDao.getByGroupId(profile.group.groupId).map {
             it.map { homework -> homework.toProfileModel(profile) }
         }
     }

@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PreferredHo
 import es.jvbabi.vplanplus.shared.data.Response
 import kotlinx.coroutines.flow.Flow
 import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.ZonedDateTime
 
 interface HomeworkRepository {
@@ -21,7 +22,7 @@ interface HomeworkRepository {
     suspend fun getProfileHomeworkById(homeworkId: Int, classProfile: ClassProfile): Flow<PersonalizedHomework?>
 
     suspend fun getAll(): Flow<List<HomeworkCore>>
-    suspend fun getAllByProfile(profile: ClassProfile): Flow<List<PersonalizedHomework>>
+    suspend fun getAllByProfile(profile: ClassProfile, until: LocalDate? = null): Flow<List<PersonalizedHomework>>
 
     suspend fun findLocalId(): Int
     suspend fun findLocalTaskId(): Int

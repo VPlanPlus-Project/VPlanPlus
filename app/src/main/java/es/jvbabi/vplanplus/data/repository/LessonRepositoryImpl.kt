@@ -31,13 +31,12 @@ class LessonRepositoryImpl(
     override fun getLessonsForGroup(group: Group, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         val timestamp = converter.zonedDateTimeToTimestamp(ZonedDateTime.of(date, LocalTime.MIN, ZoneId.of("UTC")))
         return lessonDao.getLessons(timestamp = timestamp, version = version)
+            .map { flow -> flow.filter { it.`class`.group.id == group.groupId } }
             .map { lessons ->
                 (if (lessons.isEmpty()) null
                 else lessons.map { lesson ->
                     lesson.toModel()
-                }).let { modeledLessons ->
-                    modeledLessons?.filter { it.`class`.groupId == group.groupId }
-                }
+                })
             }
     }
 

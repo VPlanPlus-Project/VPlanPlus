@@ -26,7 +26,7 @@ class GetDayUseCase(
         combine(
             listOf(
                 keyValueRepository.getFlowOrDefault(Keys.LESSON_VERSION_NUMBER, "0").map { it.toLong() },
-                if (profile is ClassProfile) homeworkRepository.getAllByProfile(profile) else emptyFlow<List<PersonalizedHomework>>(),
+                if (profile is ClassProfile) homeworkRepository.getAllByProfile(profile, date) else emptyFlow<List<PersonalizedHomework>>(),
             )
         ) { data ->
             val version = data[0] as Long
@@ -37,7 +37,7 @@ class GetDayUseCase(
                 date = date,
                 info = day.info,
                 lessons = day.lessons.filter { (profile is ClassProfile && profile.isDefaultLessonEnabled(it.defaultLesson?.vpId)) || profile !is ClassProfile },
-                homework = homework.filter { it.homework.until.toLocalDate() == date },
+                homework = homework,
                 grades = if (profile is ClassProfile && profile.vppId != null) gradeRepository.getGradesByUser(profile.vppId).first().filter { it.givenAt == date } else emptyList()
             )
         }.collect {
