@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.main_calendar.home.ui
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
@@ -71,12 +72,14 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DayDisplayState
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.Week
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.WeekHeader
+import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.components.grades.GradeRecord
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.components.HomeworkCardItem
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
+import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
@@ -535,44 +538,70 @@ private fun CalendarScreenContent(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 8.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                item { Spacer8Dp() }
+                                item { Spacer16Dp() }
                                 item {
-                                    FilterChip(
-                                        selected = DayViewFilter.LESSONS in state.enabledFilters,
-                                        onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.LESSONS)) },
-                                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterLessons)) },
-                                        leadingIcon = {
-                                            Icon(imageVector = if (DayViewFilter.LESSONS in state.enabledFilters) Icons.Default.Check else Icons.Default.School, contentDescription = null)
+                                    AnimatedVisibility(
+                                        visible = day.lessons.isNotEmpty(),
+                                        enter = expandHorizontally(),
+                                        exit = shrinkVertically()
+                                    ) {
+                                        Row {
+                                            FilterChip(
+                                                selected = DayViewFilter.LESSONS in state.enabledFilters,
+                                                onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.LESSONS)) },
+                                                label = { Text(text = stringResource(id = R.string.calendar_dayFilterLessons)) },
+                                                leadingIcon = {
+                                                    Icon(imageVector = if (DayViewFilter.LESSONS in state.enabledFilters) Icons.Default.Check else Icons.Default.School, contentDescription = null)
+                                                }
+                                            )
+                                            Spacer8Dp()
                                         }
-                                    )
+                                    }
                                 }
                                 item {
-                                    FilterChip(
-                                        selected = DayViewFilter.HOMEWORK in state.enabledFilters,
-                                        onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.HOMEWORK)) },
-                                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterHomework)) },
-                                        leadingIcon = {
-                                            Icon(imageVector = if (DayViewFilter.HOMEWORK in state.enabledFilters) Icons.Default.Check else Icons.AutoMirrored.Default.MenuBook, contentDescription = null)
+                                    AnimatedVisibility(
+                                        visible = day.homework.isNotEmpty(),
+                                        enter = expandHorizontally(),
+                                        exit = shrinkVertically()
+                                    ) {
+                                        Row {
+                                            FilterChip(
+                                                selected = DayViewFilter.HOMEWORK in state.enabledFilters,
+                                                onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.HOMEWORK)) },
+                                                label = { Text(text = stringResource(id = R.string.calendar_dayFilterHomework)) },
+                                                leadingIcon = {
+                                                    Icon(imageVector = if (DayViewFilter.HOMEWORK in state.enabledFilters) Icons.Default.Check else Icons.AutoMirrored.Default.MenuBook, contentDescription = null)
+                                                }
+                                            )
+                                            Spacer8Dp()
                                         }
-                                    )
+                                    }
                                 }
                                 item {
-                                    FilterChip(
-                                        selected = DayViewFilter.GRADES in state.enabledFilters,
-                                        onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.GRADES)) },
-                                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterGrades)) },
-                                        leadingIcon = {
-                                            if (DayViewFilter.GRADES in state.enabledFilters) Icon(Icons.Default.Check, contentDescription = null)
-                                            else Icon(painterResource(id = R.drawable.order_approve), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                    AnimatedVisibility(
+                                        visible = day.grades.isNotEmpty(),
+                                        enter = expandHorizontally(),
+                                        exit = shrinkVertically()
+                                    ) {
+                                        Row {
+                                            FilterChip(
+                                                selected = DayViewFilter.GRADES in state.enabledFilters,
+                                                onClick = { doAction(CalendarViewAction.ToggleFilter(DayViewFilter.GRADES)) },
+                                                label = { Text(text = stringResource(id = R.string.calendar_dayFilterGrades)) },
+                                                leadingIcon = {
+                                                    if (DayViewFilter.GRADES in state.enabledFilters) Icon(Icons.Default.Check, contentDescription = null)
+                                                    else Icon(painterResource(id = R.drawable.order_approve), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                                }
+                                            )
+                                            Spacer8Dp()
                                         }
-                                    )
+                                    }
                                 }
                             }
 
                             AnimatedVisibility(
-                                visible = state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters,
+                                visible = (state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters) && day.homework.isNotEmpty(),
                                 enter = expandVertically(),
                                 exit = shrinkVertically()
                             ) {
@@ -594,7 +623,7 @@ private fun CalendarScreenContent(
                             }
 
                             AnimatedVisibility(
-                                visible = state.enabledFilters.isEmpty() || DayViewFilter.LESSONS in state.enabledFilters,
+                                visible = (state.enabledFilters.isEmpty() || DayViewFilter.LESSONS in state.enabledFilters) && day.lessons.isNotEmpty(),
                                 enter = expandVertically(),
                                 exit = shrinkVertically()
                             ) {
@@ -678,6 +707,24 @@ private fun CalendarScreenContent(
                                         Spacer8Dp()
                                         if (i != lessonsGroupedByLessonNumber.lastIndex) HorizontalDivider()
                                     }
+                                }
+                            }
+
+                            AnimatedVisibility(
+                                visible = (state.enabledFilters.isEmpty() || DayViewFilter.GRADES in state.enabledFilters) && day.grades.isNotEmpty(),
+                                enter = expandVertically(),
+                                exit = shrinkVertically()
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .padding(horizontal = 16.dp)
+                                ) {
+                                    Text(text = stringResource(id = R.string.calendar_dayFilterGrades), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
+                                    Spacer8Dp()
+                                    if (day.grades.isNotEmpty()) day.grades.forEach { grade ->
+                                        GradeRecord(grade = grade, showSubject = true)
+                                    }
+                                    Spacer8Dp()
                                 }
                             }
                         }

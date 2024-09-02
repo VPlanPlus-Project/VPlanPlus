@@ -6,6 +6,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.combine
@@ -18,13 +19,14 @@ import java.time.LocalDate
 class GetDayUseCase(
     private val planRepository: PlanRepository,
     private val keyValueRepository: KeyValueRepository,
-    private val homeworkRepository: HomeworkRepository
+    private val homeworkRepository: HomeworkRepository,
+    private val gradeRepository: GradeRepository
 ) {
     suspend operator fun invoke(date: LocalDate, profile: Profile) = flow {
         combine(
             listOf(
                 keyValueRepository.getFlowOrDefault(Keys.LESSON_VERSION_NUMBER, "0").map { it.toLong() },
-                if (profile is ClassProfile) homeworkRepository.getAllByProfile(profile) else emptyFlow<List<PersonalizedHomework>>()
+                if (profile is ClassProfile) homeworkRepository.getAllByProfile(profile) else emptyFlow<List<PersonalizedHomework>>(),
             )
         ) { data ->
             val version = data[0] as Long
@@ -35,7 +37,8 @@ class GetDayUseCase(
                 date = date,
                 info = day.info,
                 lessons = day.lessons.filter { (profile is ClassProfile && profile.isDefaultLessonEnabled(it.defaultLesson?.vpId)) || profile !is ClassProfile },
-                homework = homework.filter { it.homework.until.toLocalDate() == date }
+                homework = homework.filter { it.homework.until.toLocalDate() == date },
+                grades = if (profile is ClassProfile && profile.vppId != null) gradeRepository.getGradesByUser(profile.vppId).first().filter { it.givenAt == date } else emptyList()
             )
         }.collect {
             emit(it)

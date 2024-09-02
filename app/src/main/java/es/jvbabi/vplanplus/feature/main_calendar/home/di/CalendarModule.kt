@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CalendarViewUseCases
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
@@ -23,10 +24,11 @@ object CalendarModule {
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         planRepository: PlanRepository,
         keyValueRepository: KeyValueRepository,
-        homeworkRepository: HomeworkRepository
+        homeworkRepository: HomeworkRepository,
+        gradeRepository: GradeRepository
     ): CalendarViewUseCases = CalendarViewUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
-        getDayUseCase = GetDayUseCase(planRepository, keyValueRepository, homeworkRepository),
+        getDayUseCase = GetDayUseCase(planRepository, keyValueRepository, homeworkRepository, gradeRepository),
         getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository)
     )
 }

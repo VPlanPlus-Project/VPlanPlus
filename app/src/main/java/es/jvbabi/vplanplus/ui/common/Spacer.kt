@@ -20,3 +20,8 @@ fun Spacer4Dp(modifier: Modifier = Modifier) {
 fun Spacer8Dp(modifier: Modifier = Modifier) {
     Spacer(modifier.size(8.dp))
 }
+
+@Composable
+fun Spacer16Dp(modifier: Modifier = Modifier) {
+    Spacer(modifier.size(16.dp))
+}

@@ -56,7 +56,7 @@ class CalendarViewModel @Inject constructor(
         viewModelScope.launch {
             when (action) {
                 is CalendarViewAction.SelectDate -> {
-                    state = state.copy(selectedDate = action.date)
+                    state = state.copy(selectedDate = action.date, enabledFilters = emptyList())
                     startOneMonthAroundDate(action.date)
                 }
 
