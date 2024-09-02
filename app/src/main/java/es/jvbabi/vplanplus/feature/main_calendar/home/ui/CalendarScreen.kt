@@ -658,22 +658,20 @@ private fun CalendarScreenContent(
                                                 Text(text = stringResource(id = R.string.calendar_dayFilterHomework), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
                                             }
                                             Spacer4Dp()
-                                            day.homework.forEach { hw ->
-                                                Row(
+                                            day.homework.forEachIndexed { i, hw ->
+                                                RowVerticalCenter(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
                                                         .defaultMinSize(minHeight = 40.dp)
-                                                        .padding(vertical = 4.dp)
                                                         .clip(RoundedCornerShape(16.dp))
                                                         .clickable { onOpenHomeworkScreen(hw.homework.id) }
+                                                        .padding(vertical = 8.dp, horizontal = 16.dp)
                                                 ) {
-                                                    Spacer16Dp()
                                                     Spacer16Dp()
                                                     SubjectIcon(
                                                         subject = hw.homework.defaultLesson?.subject,
                                                         tint = MaterialTheme.colorScheme.primary,
                                                         modifier = Modifier
-                                                            .padding(top = 8.dp, bottom = 8.dp)
                                                             .size(24.dp),
                                                     )
                                                     Spacer16Dp()
@@ -695,7 +693,7 @@ private fun CalendarScreenContent(
                                                                 text = when (hw) {
                                                                     is PersonalizedHomework.LocalHomework -> stringResource(id = R.string.homework_thisDevice)
                                                                     is PersonalizedHomework.CloudHomework -> {
-                                                                        if (hw.homework.createdBy.id == (state.currentProfile as? ClassProfile)?.vppId?.id) stringResource(id = R.string.homework_homeworkSubtitleCreatedByYou)
+                                                                        if (hw.homework.createdBy.id == (state.currentProfile as? ClassProfile)?.vppId?.id) stringResource(id = R.string.homework_you)
                                                                         else hw.homework.createdBy.name
                                                                     }
                                                                 },
@@ -717,8 +715,9 @@ private fun CalendarScreenContent(
                                                         )
                                                     }
                                                 }
+                                                if (i != day.homework.size - 1) HorizontalDivider(Modifier.padding(horizontal = 32.dp))
                                             }
-                                            Spacer8Dp()
+                                            Spacer12Dp()
                                         }
                                     }
 
