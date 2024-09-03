@@ -783,5 +783,6 @@
     <string name="calendar_dayFilterGrades">Grades</string>
     <string name="calendar_dayFilterHomework">Homework</string>
     <string name="calendar_dayLessonNumber">%1$s ln.</string>
+    <string name="profileManagement_detailsCanUseTimetable">Timetable</string>
 
 </resources>

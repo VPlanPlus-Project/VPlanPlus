@@ -30,6 +30,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
+import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
@@ -37,6 +38,7 @@ import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGrad
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
@@ -68,6 +70,7 @@ class DoSyncUseCase(
     private val planRepository: PlanRepository,
     private val systemRepository: SystemRepository,
     private val notificationRepository: NotificationRepository,
+    private val timetableRepository: TimetableRepository,
     private val updateCalendarUseCase: UpdateCalendarUseCase,
     private val updateHomeworkUseCase: UpdateHomeworkUseCase,
     private val updateGradesUseCase: UpdateGradesUseCase
@@ -109,6 +112,36 @@ class DoSyncUseCase(
                 "Syncing room bookings for school ${school.name}"
             )
             roomRepository.fetchRoomBookings(school)
+
+            if (school.canUseTimetable != false) {
+                logRecordRepository.log(
+                    "Sync.Timetable",
+                    "Syncing timetable for school ${school.name}"
+                )
+                val timetable = vPlanRepository.getSPlanData(
+                    sp24SchoolId = school.sp24SchoolId,
+                    username = school.username,
+                    password = school.password
+                )
+
+                val teachers = teacherRepository.getTeachersBySchoolId(school.id)
+                val rooms = roomRepository.getRoomsBySchool(school)
+                val groups = groupRepository.getGroupsBySchool(school)
+
+                timetableRepository.clearTimetableForSchool(school)
+                timetable.data?.sPlan?.classes?.forEach { group ->
+                    group.lessons?.forEach forEachLesson@{ lesson ->
+                        timetableRepository.insertTimetableLesson(
+                            group = groups.firstOrNull { it.name == group.schoolClass } ?: return@forEachLesson,
+                            subject = lesson.subjectShort,
+                            lessonNumber = lesson.lessonNumber,
+                            date = LocalDate.now().atStartOfWeek().plusDays(lesson.dayOfWeek-1L),
+                            teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },
+                            rooms = rooms.filter { it.name in lesson.roomShort.split(" ") }
+                        )
+                    }
+                }
+            }
 
             repeat(daysAhead + SYNC_DAYS_PAST) {
                 val date = LocalDate.now().plusDays(it - SYNC_DAYS_PAST.toLong())

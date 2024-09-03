@@ -46,7 +46,7 @@ class ClassBaseData(rawXml: String) {
 @Root(name = "splan", strict = false)
 private class Splan {
     @field:Element(name = "Kopf")
-    var head: SPlanHead? = null
+    var head: ClassBaseDataHead? = null
 
     @field:ElementList(name = "FreieTage", entry = "ft", required = false)
     var holidays: List<Holiday>? = null
@@ -59,7 +59,7 @@ private class Splan {
 }
 
 @Root(name = "Kopf", strict = false)
-private data class SPlanHead @JvmOverloads constructor(
+private data class ClassBaseDataHead @JvmOverloads constructor(
     @field:Element(name = "schulname")
     var schoolName: String = ""
 )

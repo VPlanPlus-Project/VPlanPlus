@@ -780,5 +780,6 @@
     <string name="calendar_dayFilterGrades">Noten</string>
     <string name="calendar_dayFilterHomework">Hausaufgaben</string>
     <string name="calendar_dayLessonNumber">%1$s Std</string>
+    <string name="profileManagement_detailsCanUseTimetable">Stundenplan</string>
 
 </resources>

@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.shared.data
 
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
+import es.jvbabi.vplanplus.domain.model.xml.SPlanData
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.shared.domain.repository.NetworkRepository
@@ -52,5 +53,14 @@ class VPlanRepositoryImpl(
         )
         if (response.data == null || response.response != HttpStatusCode.OK) return DataResponse(null, response.response)
         return DataResponse(VPlanData(sp24SchoolId = sp24SchoolId, xml = response.data), response.response)
+    }
+
+    override suspend fun getSPlanData(sp24SchoolId: Int, username: String, password: String): DataResponse<SPlanData?> {
+        networkRepository.authentication = BasicAuthentication(username, password)
+        val response = networkRepository.doRequest(
+            path = "/${sp24SchoolId}/splan/sdaten/splank.xml",
+        )
+        if (response.data == null || response.response != HttpStatusCode.OK) return DataResponse(null, response.response)
+        return DataResponse(SPlanData(xml = response.data), response.response)
     }
 }

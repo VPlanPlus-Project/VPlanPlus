@@ -26,6 +26,7 @@ import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SystemRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.TimetableRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
@@ -57,6 +58,7 @@ import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
+import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
@@ -142,6 +144,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_28_29)
             .addMigrations(VppDatabase.migration_29_30)
             .addMigrations(VppDatabase.migration_37_38)
+            .addMigrations(VppDatabase.migration_38_39)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
@@ -505,6 +508,7 @@ object VppModule {
         db: VppDatabase,
         systemRepository: SystemRepository,
         notificationRepository: NotificationRepository,
+        timetableRepository: TimetableRepository,
         updateCalendarUseCase: UpdateCalendarUseCase,
         updateHomeworkUseCase: UpdateHomeworkUseCase,
         updateGradesUseCase: UpdateGradesUseCase
@@ -528,7 +532,8 @@ object VppModule {
         notificationRepository = notificationRepository,
         updateCalendarUseCase = updateCalendarUseCase,
         updateHomeworkUseCase = updateHomeworkUseCase,
-        updateGradesUseCase = updateGradesUseCase
+        updateGradesUseCase = updateGradesUseCase,
+        timetableRepository = timetableRepository
     )
 
     @Provides
@@ -675,4 +680,10 @@ object VppModule {
     fun provideAlarmManagerRepository(@ApplicationContext context: Context): AlarmManagerRepository {
         return AlarmManagerRepositoryImpl(context)
     }
+
+    @Provides
+    @Singleton
+    fun provideTimetableRepository(
+        db: VppDatabase
+    ): TimetableRepository = TimetableRepositoryImpl(db.timetableDao)
 }

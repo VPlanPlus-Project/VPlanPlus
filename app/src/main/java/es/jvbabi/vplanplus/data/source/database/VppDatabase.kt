@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.DbTimetable
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.model.homework.DbHomework
@@ -34,6 +35,8 @@ import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.TimetableRoomCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.TimetableTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
@@ -53,6 +56,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
+import es.jvbabi.vplanplus.data.source.database.dao.TimetableDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
 import es.jvbabi.vplanplus.domain.model.DbSchool
@@ -96,6 +100,10 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbProfileDefaultLesson::class,
         LogRecord::class,
 
+        DbTimetable::class,
+        TimetableRoomCrossover::class,
+        TimetableTeacherCrossover::class,
+
         DbHomework::class,
         DbHomeworkProfileData::class,
         DbHomeworkTask::class,
@@ -109,7 +117,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 38,
+    version = 40,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -127,6 +135,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 26, to = 27), // add vpp.ID to profile
         AutoMigration(from = 30, to = 31), // add documents
         AutoMigration(from = 36, to = 37), // add courseGroup
+        AutoMigration(from = 39, to = 40), // add timetable
     ],
 )
 @TypeConverters(
@@ -162,6 +171,8 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val homeworkDao: HomeworkDao
     abstract val homeworkDocumentDao: HomeworkDocumentDao
     abstract val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao
+
+    abstract val timetableDao: TimetableDao
 
     // grades
     abstract val subjectDao: SubjectDao
@@ -310,6 +321,12 @@ abstract class VppDatabase : RoomDatabase() {
                 db.execSQL("CREATE UNIQUE INDEX `index_school_id` ON `school` (`id`)")
                 db.execSQL("INSERT INTO school (id, sp24_school_id, name, username, password, days_per_week, fully_compatible, credentials_valid, school_download_mode) SELECT * FROM school_old;")
                 db.execSQL("DROP TABLE school_old;")
+            }
+        }
+
+        val migration_38_39 = object : Migration(38, 39) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE school ADD COLUMN can_use_timetable INTEGER DEFAULT NULL")
             }
         }
     }
