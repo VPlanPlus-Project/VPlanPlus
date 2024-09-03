@@ -16,6 +16,7 @@ import java.time.LocalDate
 )
 data class DbWeek(
     @ColumnInfo("school_id") val schoolId: Int,
+    @ColumnInfo("week_number") val weekNumber: Int,
     @ColumnInfo("week_type_id") val weekTypeId: Int,
     @ColumnInfo("start_date") val startDate: LocalDate,
     @ColumnInfo("end_date") val endDate: LocalDate

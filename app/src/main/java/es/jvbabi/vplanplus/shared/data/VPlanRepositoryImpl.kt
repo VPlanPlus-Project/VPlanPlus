@@ -57,13 +57,26 @@ class VPlanRepositoryImpl(
         return DataResponse(VPlanData(sp24SchoolId = sp24SchoolId, xml = response.data), response.response)
     }
 
-    override suspend fun getSPlanDataViaWPlan6(sp24SchoolId: Int, username: String, password: String, weekNumber: Int): DataResponse<WPlanSPlan?> {
+    override suspend fun getSPlanDataViaWPlan6(
+        sp24SchoolId: Int,
+        username: String,
+        password: String,
+        weekNumber: Int,
+        allowFallback: Boolean
+    ): DataResponse<WPlanSPlan?> {
         networkRepository.authentication = BasicAuthentication(username, password)
-        val response = networkRepository.doRequest(
-            path = "/${sp24SchoolId}/wplan/wdatenk/SPlanKl_Sw${weekNumber}.xml",
-        )
-        if (response.data == null || response.response != HttpStatusCode.OK) return DataResponse(null, response.response)
-        return DataResponse(WPlanSPlanData(response.data).sPlan, response.response)
+        var week = weekNumber
+        do {
+            val response = networkRepository.doRequest(
+                path = "/${sp24SchoolId}/wplan/wdatenk/SPlanKl_Sw${week}.xml",
+            )
+            if (response.data != null && response.response == HttpStatusCode.OK) {
+                return DataResponse(WPlanSPlanData(response.data).sPlan, response.response)
+            }
+            if (allowFallback) week -= 1
+            else return DataResponse(null, response.response)
+        } while (week > 0)
+        return DataResponse(null, HttpStatusCode.NotFound)
     }
 
     override suspend fun getSPlanData(sp24SchoolId: Int, username: String, password: String): DataResponse<SPlanData?> {

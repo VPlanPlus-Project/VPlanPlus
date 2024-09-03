@@ -19,6 +19,7 @@ class WPlanSPlanData(xml: String) {
 @Root(name = "splan", strict = false)
 class WPlanSPlan {
     @field:ElementList(name = "Schulwochen", entry = "Sw") var schoolWeeks: List<WPlanSchoolWeek>? = null
+    @field:ElementList(name = "Klassen", entry = "Kl") var classes: List<WPlanClass>? = null
 }
 
 @Root(name = "Sw", strict = false)

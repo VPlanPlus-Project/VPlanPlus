@@ -9,6 +9,6 @@ import java.time.LocalDate
 
 interface VPlanRepository {
     suspend fun getVPlanData(sp24SchoolId: Int, username: String, password: String, date: LocalDate, preferredDownloadMode: SchoolDownloadMode): DataResponse<VPlanData?>
-    suspend fun getSPlanDataViaWPlan6(sp24SchoolId: Int, username: String, password: String, weekNumber: Int): DataResponse<WPlanSPlan?>
+    suspend fun getSPlanDataViaWPlan6(sp24SchoolId: Int, username: String, password: String, weekNumber: Int, allowFallback: Boolean = false): DataResponse<WPlanSPlan?>
     suspend fun getSPlanData(sp24SchoolId: Int, username: String, password: String): DataResponse<SPlanData?>
 }

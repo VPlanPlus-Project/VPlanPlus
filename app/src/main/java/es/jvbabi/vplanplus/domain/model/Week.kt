@@ -4,6 +4,7 @@ import java.time.LocalDate
 
 data class Week(
     val id: Int,
+    val weekNumber: Int,
     val school: School,
     val start: LocalDate,
     val end: LocalDate,

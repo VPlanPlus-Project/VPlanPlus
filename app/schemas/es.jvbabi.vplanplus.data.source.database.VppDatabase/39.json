@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 39,
-    "identityHash": "ed03a38245f26aba353a1d35828e11be",
+    "identityHash": "4e29dcaa29b93991f5fb1cffd09b5bde",
     "entities": [
       {
         "tableName": "lesson",
@@ -1920,11 +1920,17 @@
       },
       {
         "tableName": "week",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`school_id` INTEGER NOT NULL, `week_type_id` INTEGER NOT NULL, `start_date` INTEGER NOT NULL, `end_date` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`school_id` INTEGER NOT NULL, `week_number` INTEGER NOT NULL, `week_type_id` INTEGER NOT NULL, `start_date` INTEGER NOT NULL, `end_date` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
           {
             "fieldPath": "schoolId",
             "columnName": "school_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weekNumber",
+            "columnName": "week_number",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -2896,7 +2902,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed03a38245f26aba353a1d35828e11be')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4e29dcaa29b93991f5fb1cffd09b5bde')"
     ]
   }
 }

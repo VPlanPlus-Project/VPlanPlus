@@ -26,6 +26,7 @@ class WeekRepositoryImpl(
             schoolId = school.id,
             startDate = startDate,
             endDate = endDate,
+            weekNumber = weekNumber
         ))
     }
 

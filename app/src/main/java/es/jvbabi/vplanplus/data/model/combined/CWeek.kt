@@ -24,6 +24,7 @@ data class CWeek(
         return Week(
             id = week.id,
             school = school.toModel(),
+            weekNumber = week.weekNumber,
             start = week.startDate,
             end = week.endDate,
             type = weekType.toModel()

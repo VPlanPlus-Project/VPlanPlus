@@ -39,6 +39,7 @@ import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGrad
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
@@ -161,7 +162,7 @@ class DoSyncUseCase(
                 }
             }
 
-            val weeks = weekRepository.getWeeksBySchool(school)
+            var weeks = weekRepository.getWeeksBySchool(school)
             if (weeks.isEmpty()) run handleWeeks@{
                 val week1Response = vPlanRepository.getSPlanDataViaWPlan6(
                     sp24SchoolId = school.sp24SchoolId,
@@ -183,6 +184,35 @@ class DoSyncUseCase(
                         weekType = weekTypes.first { it.name == week.weekType },
                         weekNumber = week.weekNumber
                     )
+                }
+            }
+            weeks = weekRepository.getWeeksBySchool(school)
+            val weekTypes = weekRepository.getWeekTypesBySchool(school)
+
+            // refresh splan
+            val sPlanResponse = vPlanRepository.getSPlanDataViaWPlan6(
+                sp24SchoolId = school.sp24SchoolId,
+                username = school.username,
+                password = school.password,
+                weekNumber = weeks.firstOrNull { LocalDate.now() in it.start..it.end.withDayOfWeek(6) }?.weekNumber ?: 1,
+                allowFallback = true
+            )
+            if (sPlanResponse.data != null) {
+                val teachers = teacherRepository.getTeachersBySchoolId(school.id)
+                val rooms = roomRepository.getRoomsBySchool(school)
+                val groups = groupRepository.getGroupsBySchool(school)
+                sPlanResponse.data.classes.orEmpty().forEach { group ->
+                    group.lessons?.forEach { lesson ->
+                        timetableRepository.insertTimetableLesson(
+                            group = groups.first { it.name == group.schoolClass },
+                            weekType = weekTypes.firstOrNull { it.name == lesson.weekType },
+                            lessonNumber = lesson.lessonNumber,
+                            teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },
+                            subject = lesson.subjectShort,
+                            rooms = rooms.filter { it.name == lesson.roomShort },
+                            dayOfWeek = DayOfWeek.of(lesson.dayOfWeek)
+                        )
+                    }
                 }
             }
 
