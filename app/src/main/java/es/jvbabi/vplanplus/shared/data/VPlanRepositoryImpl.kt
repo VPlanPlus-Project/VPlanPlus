@@ -4,6 +4,8 @@ import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
 import es.jvbabi.vplanplus.domain.model.xml.SPlanData
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
+import es.jvbabi.vplanplus.domain.model.xml.WPlanSPlan
+import es.jvbabi.vplanplus.domain.model.xml.WPlanSPlanData
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.shared.domain.repository.NetworkRepository
 import io.ktor.http.HttpStatusCode
@@ -53,6 +55,15 @@ class VPlanRepositoryImpl(
         )
         if (response.data == null || response.response != HttpStatusCode.OK) return DataResponse(null, response.response)
         return DataResponse(VPlanData(sp24SchoolId = sp24SchoolId, xml = response.data), response.response)
+    }
+
+    override suspend fun getSPlanDataViaWPlan6(sp24SchoolId: Int, username: String, password: String, weekNumber: Int): DataResponse<WPlanSPlan?> {
+        networkRepository.authentication = BasicAuthentication(username, password)
+        val response = networkRepository.doRequest(
+            path = "/${sp24SchoolId}/wplan/wdatenk/SPlanKl_Sw${weekNumber}.xml",
+        )
+        if (response.data == null || response.response != HttpStatusCode.OK) return DataResponse(null, response.response)
+        return DataResponse(WPlanSPlanData(response.data).sPlan, response.response)
     }
 
     override suspend fun getSPlanData(sp24SchoolId: Int, username: String, password: String): DataResponse<SPlanData?> {

@@ -23,7 +23,7 @@ class ClassBaseData(rawXml: String) {
         val serializer: Serializer = Persister()
         val xml = sanitizeXml(rawXml)
         val reader = xml.reader()
-        val rootObject: Splan = serializer.read(Splan::class.java, reader, false)
+        val rootObject = serializer.read(ClassSPlan::class.java, reader, false)
 
         schoolName = rootObject.head!!.schoolName
         daysPerWeek = rootObject.baseData!!.daysPerWeek
@@ -44,7 +44,7 @@ class ClassBaseData(rawXml: String) {
 }
 
 @Root(name = "splan", strict = false)
-private class Splan {
+private class ClassSPlan {
     @field:Element(name = "Kopf")
     var head: ClassBaseDataHead? = null
 

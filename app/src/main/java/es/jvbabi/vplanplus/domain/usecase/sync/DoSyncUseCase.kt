@@ -161,6 +161,31 @@ class DoSyncUseCase(
                 }
             }
 
+            val weeks = weekRepository.getWeeksBySchool(school)
+            if (weeks.isEmpty()) run handleWeeks@{
+                val week1Response = vPlanRepository.getSPlanDataViaWPlan6(
+                    sp24SchoolId = school.sp24SchoolId,
+                    username = school.username,
+                    password = school.password,
+                    weekNumber = 1
+                )
+                if (week1Response.data == null) return@handleWeeks
+                week1Response.data.schoolWeeks.orEmpty().map { it.weekType }.distinct().forEach {
+                    weekRepository.insertWeekType(school, it)
+                }
+
+                val weekTypes = weekRepository.getWeekTypesBySchool(school)
+                week1Response.data.schoolWeeks.orEmpty().forEach { week ->
+                    weekRepository.insertWeek(
+                        school = school,
+                        startDate = LocalDate.parse(week.dateFrom, DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                        endDate = LocalDate.parse(week.dateTo, DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                        weekType = weekTypes.first { it.name == week.weekType },
+                        weekNumber = week.weekNumber
+                    )
+                }
+            }
+
             repeat(daysAhead + SYNC_DAYS_PAST) {
                 val date = LocalDate.now().plusDays(it - SYNC_DAYS_PAST.toLong())
                 logRecordRepository.log("Sync.Day", "Syncing day $date")
@@ -174,14 +199,14 @@ class DoSyncUseCase(
                             ?.toList() ?: emptyList()
                 }
 
-                val data = vPlanRepository.getVPlanData(
+                val vPlanData = vPlanRepository.getVPlanData(
                     sp24SchoolId = school.sp24SchoolId,
                     username = school.username,
                     password = school.password,
                     date = date,
                     preferredDownloadMode = school.schoolDownloadMode
                 )
-                if (data.response == HttpStatusCode.Unauthorized) {
+                if (vPlanData.response == HttpStatusCode.Unauthorized) {
                     Log.d("Sync.VPlan", "Unauthorized")
                     schoolRepository.updateCredentialsValid(school, false)
                     val notificationId = CHANNEL_SYSTEM_NOTIFICATION_ID + 100 + school.id
@@ -196,12 +221,12 @@ class DoSyncUseCase(
                     return@school
                 }
 
-                if (!listOf(HttpStatusCode.OK, HttpStatusCode.NotFound).contains(data.response)) {
+                if (!listOf(HttpStatusCode.OK, HttpStatusCode.NotFound).contains(vPlanData.response)) {
                     logRecordRepository.log("Sync.VPlan", "Failed to sync VPlan for $date")
                     return false
                 }
 
-                if (data.response == HttpStatusCode.NotFound) {
+                if (vPlanData.response == HttpStatusCode.NotFound) {
                     logRecordRepository.log(
                         "SyncWorker",
                         "No data available for ${school.id} (${school.name} at $date)"
@@ -209,7 +234,7 @@ class DoSyncUseCase(
                     return@repeat
                 }
 
-                processVPlanData(data.data ?: return@school)
+                processVPlanData(vPlanData.data ?: return@school)
                 profiles.forEach profile@{ profile ->
                     // check if plan has changed
                     val day =

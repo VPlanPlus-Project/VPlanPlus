@@ -122,7 +122,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 40,
+    version = 39,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -140,7 +140,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 26, to = 27), // add vpp.ID to profile
         AutoMigration(from = 30, to = 31), // add documents
         AutoMigration(from = 36, to = 37), // add courseGroup
-        AutoMigration(from = 39, to = 40), // add timetable
     ],
 )
 @TypeConverters(
