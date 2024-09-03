@@ -32,16 +32,17 @@ import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
+import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
-import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -71,6 +72,7 @@ class DoSyncUseCase(
     private val systemRepository: SystemRepository,
     private val notificationRepository: NotificationRepository,
     private val timetableRepository: TimetableRepository,
+    private val weekRepository: WeekRepository,
     private val updateCalendarUseCase: UpdateCalendarUseCase,
     private val updateHomeworkUseCase: UpdateHomeworkUseCase,
     private val updateGradesUseCase: UpdateGradesUseCase
@@ -129,15 +131,31 @@ class DoSyncUseCase(
                 val groups = groupRepository.getGroupsBySchool(school)
 
                 timetableRepository.clearTimetableForSchool(school)
+                timetable.data?.sPlan?.schoolWeekTypes?.forEach forEachWeekType@{ type ->
+                    if (type.type.isEmpty()) return@forEachWeekType
+                    weekRepository.insertWeekType(school, type.type)
+                }
+                val weekTypes = weekRepository.getWeekTypesBySchool(school)
+                timetable.data?.sPlan?.weeks?.forEach { week ->
+                    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                    weekRepository.insertWeek(
+                        school = school,
+                        startDate = LocalDate.parse(week.dateFrom, formatter),
+                        endDate = LocalDate.parse(week.dateTo, formatter),
+                        weekType = weekTypes.first { it.name == week.type },
+                        weekNumber = week.weekNumber
+                    )
+                }
                 timetable.data?.sPlan?.classes?.forEach { group ->
                     group.lessons?.forEach forEachLesson@{ lesson ->
                         timetableRepository.insertTimetableLesson(
                             group = groups.firstOrNull { it.name == group.schoolClass } ?: return@forEachLesson,
                             subject = lesson.subjectShort,
                             lessonNumber = lesson.lessonNumber,
-                            date = LocalDate.now().atStartOfWeek().plusDays(lesson.dayOfWeek-1L),
                             teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },
-                            rooms = rooms.filter { it.name in lesson.roomShort.split(" ") }
+                            rooms = rooms.filter { it.name == lesson.roomShort },
+                            dayOfWeek = DayOfWeek.of(lesson.dayOfWeek),
+                            weekType = lesson.weekType?.let { weekTypes.firstOrNull { wt -> wt.name == it } },
                         )
                     }
                 }

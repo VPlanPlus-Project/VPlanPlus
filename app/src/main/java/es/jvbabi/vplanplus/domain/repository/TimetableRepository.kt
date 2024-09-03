@@ -4,12 +4,25 @@ import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Teacher
-import java.time.LocalDate
+import es.jvbabi.vplanplus.domain.model.Week
+import es.jvbabi.vplanplus.domain.model.WeekType
+import java.time.DayOfWeek
 
 interface TimetableRepository {
     fun insertTimetableLesson(
         group: Group,
-        date: LocalDate,
+        dayOfWeek: DayOfWeek,
+        week: Week,
+        lessonNumber: Int,
+        subject: String,
+        rooms: List<Room>,
+        teachers: List<Teacher>
+    )
+
+    fun insertTimetableLesson(
+        group: Group,
+        dayOfWeek: DayOfWeek,
+        weekType: WeekType?,
         lessonNumber: Int,
         subject: String,
         rooms: List<Room>,

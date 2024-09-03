@@ -17,6 +17,8 @@ import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.DbTimetable
 import es.jvbabi.vplanplus.data.model.DbVppId
 import es.jvbabi.vplanplus.data.model.DbVppIdToken
+import es.jvbabi.vplanplus.data.model.DbWeek
+import es.jvbabi.vplanplus.data.model.DbWeekType
 import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkProfileData
@@ -59,6 +61,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.TimetableDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
+import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
 import es.jvbabi.vplanplus.domain.model.DbSchool
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
@@ -103,6 +106,8 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbTimetable::class,
         TimetableRoomCrossover::class,
         TimetableTeacherCrossover::class,
+        DbWeek::class,
+        DbWeekType::class,
 
         DbHomework::class,
         DbHomeworkProfileData::class,
@@ -173,6 +178,7 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao
 
     abstract val timetableDao: TimetableDao
+    abstract val weekDao: WeekDao
 
     // grades
     abstract val subjectDao: SubjectDao

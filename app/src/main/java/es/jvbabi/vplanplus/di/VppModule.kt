@@ -28,6 +28,7 @@ import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimetableRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -61,6 +62,7 @@ import es.jvbabi.vplanplus.domain.repository.TimeRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
@@ -509,6 +511,7 @@ object VppModule {
         systemRepository: SystemRepository,
         notificationRepository: NotificationRepository,
         timetableRepository: TimetableRepository,
+        weekRepository: WeekRepository,
         updateCalendarUseCase: UpdateCalendarUseCase,
         updateHomeworkUseCase: UpdateHomeworkUseCase,
         updateGradesUseCase: UpdateGradesUseCase
@@ -533,6 +536,7 @@ object VppModule {
         updateCalendarUseCase = updateCalendarUseCase,
         updateHomeworkUseCase = updateHomeworkUseCase,
         updateGradesUseCase = updateGradesUseCase,
+        weekRepository = weekRepository,
         timetableRepository = timetableRepository
     )
 
@@ -686,4 +690,10 @@ object VppModule {
     fun provideTimetableRepository(
         db: VppDatabase
     ): TimetableRepository = TimetableRepositoryImpl(db.timetableDao)
+
+    @Provides
+    @Singleton
+    fun provideWeekRepository(
+        db: VppDatabase
+    ): WeekRepository = WeekRepositoryImpl(db.weekDao)
 }
