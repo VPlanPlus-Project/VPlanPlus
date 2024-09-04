@@ -80,6 +80,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DayDisplayState
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.Week
@@ -757,25 +758,25 @@ private fun CalendarScreenContent(
                                                                     SubjectIcon(
                                                                         subject = lesson.displaySubject,
                                                                         modifier = Modifier.size(24.dp),
-                                                                        tint = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
+                                                                        tint = if (lesson is Lesson.SubstitutionPlanLesson && lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary
                                                                     )
                                                                     Column {
                                                                         RowVerticalCenter(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                                                             Text(
                                                                                 text = lesson.displaySubject,
                                                                                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                                                                                color = if (lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
+                                                                                color = if (lesson is Lesson.SubstitutionPlanLesson && lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
                                                                             )
                                                                             Text(
                                                                                 text = buildAnnotatedString {
                                                                                     val style = MaterialTheme.typography.bodyMedium.toSpanStyle()
                                                                                     val changed = style.copy(color = MaterialTheme.colorScheme.error)
                                                                                     val booked = style.copy(color = MaterialTheme.colorScheme.secondary)
-                                                                                    withStyle(if (lesson.roomIsChanged) changed else style) {
+                                                                                    withStyle(if (lesson is Lesson.SubstitutionPlanLesson && lesson.roomIsChanged) changed else style) {
                                                                                         append(lesson.rooms.joinToString(", ") { it.name })
-                                                                                        if (lesson.roomBooking != null) append(", ")
+                                                                                        if (lesson is Lesson.SubstitutionPlanLesson && lesson.roomBooking != null) append(", ")
                                                                                     }
-                                                                                    if (lesson.roomBooking != null) withStyle(booked) {
+                                                                                    if (lesson is Lesson.SubstitutionPlanLesson && lesson.roomBooking != null) withStyle(booked) {
                                                                                         append(lesson.roomBooking.room.name)
                                                                                     }
                                                                                 }
@@ -795,7 +796,7 @@ private fun CalendarScreenContent(
                                                                                         append(lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")))
                                                                                     }
                                                                                     if (lesson.teachers.isNotEmpty()) {
-                                                                                        withStyle(if (lesson.teacherIsChanged) changed else style) {
+                                                                                        withStyle(if (lesson is Lesson.SubstitutionPlanLesson && lesson.teacherIsChanged) changed else style) {
                                                                                             append(" $DOT ")
                                                                                             append(lesson.teachers.joinToString(", ") { it.acronym })
                                                                                         }

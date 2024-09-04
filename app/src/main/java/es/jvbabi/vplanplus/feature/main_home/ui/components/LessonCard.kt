@@ -77,6 +77,7 @@ import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import java.util.UUID
 
 @Composable
 private fun headerItemHeight() = MaterialTheme.typography.headlineSmall.lineHeight.value.dp
@@ -119,7 +120,7 @@ fun LessonCard(
     ) {
         lessons.forEachIndexed { i, lesson ->
             val relevantHomeworkTasks = homework
-                .filter { hw -> hw.homework.defaultLesson?.vpId == lesson.defaultLesson?.vpId }
+                .filter { hw -> hw.homework.defaultLesson?.vpId == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson?.vpId }
                 .filter { hw -> hw.homework.until.toLocalDate().isEqual(lesson.start.toLocalDate()) }
                 .filter { hw -> (hw as? PersonalizedHomework.CloudHomework)?.isHidden != true }
                 .map { it.tasks }
@@ -130,15 +131,15 @@ fun LessonCard(
                 verticalArrangement = Arrangement.Center,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) header@{
-                SubjectText(lesson.displaySubject, lesson.changedSubject != null)
-                RoomText(lesson.rooms.map { it.name }, booking, changed = lesson.roomIsChanged)
-                TeacherText(lesson.teachers.map { it.acronym }, changed = lesson.teacherIsChanged)
-                if (displayType != ProfileType.STUDENT) ClassText(lesson.`class`.name)
+                SubjectText(lesson.displaySubject, lesson is Lesson.SubstitutionPlanLesson && lesson.changedSubject != null)
+                RoomText(lesson.rooms.map { it.name }, booking, changed = lesson is Lesson.SubstitutionPlanLesson && lesson.roomIsChanged)
+                TeacherText(lesson.teachers.map { it.acronym }, changed = lesson is Lesson.SubstitutionPlanLesson && lesson.teacherIsChanged)
+                if (displayType != ProfileType.STUDENT) ClassText(lesson.group.name)
             }
             ProgressBar(lesson = lesson, now = time, activeModifier = activeModifier.value)
             Spacer(Modifier.size(8.dp))
 
-            if (!lesson.info.isNullOrBlank()) RowRecord(expand = true, icon = Icons.Outlined.Info, text = lesson.info)
+            if (!(lesson as? Lesson.SubstitutionPlanLesson)?.info.isNullOrBlank()) RowRecord(expand = true, icon = Icons.Outlined.Info, text = (lesson as Lesson.SubstitutionPlanLesson).info!!)
             RowRecord(
                 expand = relevantHomeworkTasks.isNotEmpty(),
                 icon = Icons.Outlined.ImportContacts
@@ -197,7 +198,10 @@ fun LessonCard(
                                 exit = shrinkHorizontally(tween(250))
                             ) {
                                 AssistChip(
-                                    onClick = { onAddHomeworkClicked(lesson.defaultLesson) },
+                                    onClick = {
+                                        if (lesson !is Lesson.SubstitutionPlanLesson) return@AssistChip
+                                        onAddHomeworkClicked(lesson.defaultLesson)
+                                              },
                                     label = { Text(text = stringResource(id = R.string.home_addHomeworkLabel)) },
                                     leadingIcon = {
                                         Icon(Icons.AutoMirrored.Outlined.MenuBook, null)
@@ -248,20 +252,23 @@ fun LessonCardPreview() {
         homework = emptyList(),
         bookings = emptyList(),
         lessons = listOf(
-            Lesson(
+            Lesson.SubstitutionPlanLesson(
                 defaultLesson = null,
                 lessonNumber = 1,
                 start = ZonedDateTime.now(),
                 end = ZonedDateTime.now().plusHours(1),
-                `class` = GroupPreview.generateGroup(school = null),
-                originalSubject = "Math",
+                group = GroupPreview.generateGroup(school = null),
+                subject = "Math",
                 rooms = listOf(RoomPreview.generateRoom()),
                 teachers = listOf(TeacherPreview.teacher(school = SchoolPreview.generateRandomSchools(1).first())),
                 info = "This is an information about this lesson.\nIt also supports multiline.",
                 changedSubject = null,
                 teacherIsChanged = false,
                 roomIsChanged = false,
-                roomBooking = null
+                roomBooking = null,
+                week = null,
+                weekType = null,
+                id = UUID.randomUUID()
             )
         ),
         displayType = ProfileType.TEACHER,

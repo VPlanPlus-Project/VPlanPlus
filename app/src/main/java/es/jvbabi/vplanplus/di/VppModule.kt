@@ -689,7 +689,11 @@ object VppModule {
     @Singleton
     fun provideTimetableRepository(
         db: VppDatabase
-    ): TimetableRepository = TimetableRepositoryImpl(db.timetableDao)
+    ): TimetableRepository = TimetableRepositoryImpl(
+        timetableDao = db.timetableDao,
+        weekDao = db.weekDao,
+        lessonTimeDao = db.lessonTimeDao
+    )
 
     @Provides
     @Singleton

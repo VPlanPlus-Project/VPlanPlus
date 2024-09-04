@@ -71,7 +71,7 @@ class LessonRepositoryImpl(
         return lessonDao.getLessons(timestamp = timestamp, version = version).map { lessons ->
             lessons
                 .map { it.toModel() }
-                .filter { it.`class`.school.id == school.id || it.teachers.any { t -> t.school.id == school.id } || it.rooms.any { r -> r.school.id == school.id } }
+                .filter { it.group.school.id == school.id || it.teachers.any { t -> t.school.id == school.id } || it.rooms.any { r -> r.school.id == school.id } }
         }
     }
 
