@@ -73,9 +73,8 @@ class TimetableRepositoryImpl(
         val week = weeks.firstOrNull { date in it.start..it.end.withDayOfWeek(7) }
         val lessonTimes = lessonTimeDao.getLessonTimesByGroupId(group.groupId)
         if (week == null) {
-            val weekTypes = weekDao.getWeekTypesBySchool(group.school.id).map { it.toModel() }
             return timetableDao
-                .getTimetableForGroup(group.groupId, null, weekTypes.first().id, date.dayOfWeek.value)
+                .getTimetableForGroup(group.groupId, null, null, date.dayOfWeek.value)
                 .map { it.toModel(lessonTimes) }
         }
         return timetableDao
