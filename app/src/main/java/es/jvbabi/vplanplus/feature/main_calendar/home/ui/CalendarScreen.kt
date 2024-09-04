@@ -549,6 +549,10 @@ private fun CalendarScreenContent(
                                 text = " $DOT " + DateUtils.localizedRelativeDate(LocalContext.current, date, false)!!,
                                 style = MaterialTheme.typography.bodyMedium
                             )
+                            if (day.lessons.isNotEmpty()) Text(
+                                text = " $DOT " + if (day.lessons.any { it is Lesson.SubstitutionPlanLesson }) stringResource(id = R.string.calendar_substitutionPlan) else stringResource(id = R.string.calendar_timetable),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                         if (state.lastSync != null) Text(
                             text =
