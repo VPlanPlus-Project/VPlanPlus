@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -97,6 +99,7 @@ import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
+import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
@@ -124,10 +127,12 @@ fun CalendarScreen(
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
     val state = viewModel.state
+    val context = LocalContext.current
 
     CalendarScreenContent(
         onBack = { navHostController.navigateUp() },
         onOpenHomeworkScreen = { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen.route + "/$homeworkId") },
+        onTimetableInfoBannerClicked = { openLink(context, "https://vplan.plus/faq/stundenplan-filter-funktioniert-nicht") },
         navBar = navBar,
         doAction = viewModel::doAction,
         state = state
@@ -139,6 +144,7 @@ fun CalendarScreen(
 private fun CalendarScreenContent(
     onBack: () -> Unit = {},
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit = {},
+    onTimetableInfoBannerClicked: () -> Unit = {},
     doAction: (action: CalendarViewAction) -> Unit = {},
     navBar: @Composable (Boolean) -> Unit = {},
     state: CalendarViewState
@@ -732,6 +738,26 @@ private fun CalendarScreenContent(
                                             Column(Modifier.padding(horizontal = 16.dp)) {
                                                 Spacer8Dp()
                                                 Text(text = stringResource(id = R.string.calendar_dayFilterLessons), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
+                                                if (day.lessons.any { it is Lesson.TimetableLesson }) AnimatedVisibility(
+                                                    visible = state.canShowTimetableInfoBanner,
+                                                    enter = fadeIn(tween(0)),
+                                                    exit = shrinkVertically()
+                                                ) {
+                                                    Column {
+                                                        Spacer8Dp()
+                                                        InfoCard(
+                                                            imageVector = Icons.Default.WarningAmber,
+                                                            title = stringResource(id = R.string.calendar_timetableBannerTitle),
+                                                            text = stringResource(id = R.string.calendar_timetableBannerText),
+                                                            buttonText2 = stringResource(id = android.R.string.ok),
+                                                            buttonAction2 = { doAction(CalendarViewAction.DismissTimetableInfoBanner) },
+                                                            buttonText1 = stringResource(id = R.string.learn_more),
+                                                            buttonAction1 = onTimetableInfoBannerClicked,
+                                                            backgroundColor = MaterialTheme.colorScheme.errorContainer,
+                                                            textColor = MaterialTheme.colorScheme.onErrorContainer
+                                                        )
+                                                    }
+                                                }
                                             }
                                             Column(Modifier.padding(horizontal = 24.dp)) {
                                                 val lessonsGroupedByLessonNumber = day.lessons.groupBy { it.lessonNumber }.toList().sortedBy { it.first }

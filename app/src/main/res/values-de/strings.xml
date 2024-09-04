@@ -781,5 +781,8 @@
     <string name="calendar_dayFilterHomework">Hausaufgaben</string>
     <string name="calendar_dayLessonNumber">%1$s Std</string>
     <string name="profileManagement_detailsCanUseTimetable">Stundenplan</string>
+    <string name="calendar_timetableBannerTitle">Kein Vertretungsplan</string>
+    <string name="calendar_timetableBannerText">Für dieses Datum ist kein Vertretungsplan verfügbar. VPlanPlus lädt den Stundenplan abhängig von deiner Schule. Jedoch kann der Stundenfilter hier nicht greifen, da die Stundenplandaten diese Informationen nicht mitliefern. Dies ist ein Stundenplan24.de-Problem.</string>
+    <string name="learn_more">Mehr dazu</string>
 
 </resources>

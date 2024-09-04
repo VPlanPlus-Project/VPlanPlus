@@ -784,5 +784,8 @@
     <string name="calendar_dayFilterHomework">Homework</string>
     <string name="calendar_dayLessonNumber">%1$s ln.</string>
     <string name="profileManagement_detailsCanUseTimetable">Timetable</string>
+    <string name="calendar_timetableBannerTitle">No substitution plan</string>
+    <string name="calendar_timetableBannerText">For this date, no substitution plan is available. VPlanPlus loads the default timetable from different sources depending on your schools setup. However, this cannot apply your lesson filter, since the data does not contain the required information. This is a Stundenplan24.de-problem.</string>
+    <string name="learn_more">Lean more</string>
 
 </resources>

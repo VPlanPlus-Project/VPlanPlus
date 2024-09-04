@@ -9,6 +9,8 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CalendarViewUseCases
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CanShowTimetableInfoBannerUseCase
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.DismissTimetableInfoBannerUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
@@ -31,6 +33,9 @@ object CalendarModule {
     ): CalendarViewUseCases = CalendarViewUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
         getDayUseCase = GetDayUseCase(planRepository, keyValueRepository, homeworkRepository, gradeRepository, timetableRepository),
-        getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository)
+        getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
+
+        canShowTimetableInfoBannerUseCase = CanShowTimetableInfoBannerUseCase(keyValueRepository),
+        dismissTimetableInfoBannerUseCase = DismissTimetableInfoBannerUseCase(keyValueRepository)
     )
 }
