@@ -232,7 +232,7 @@
     <string name="home_activeDayNext">Next lesson - %1$s until %2$s</string>
     <string name="home_activeDayNextLessonTitleWith">with</string>
     <string name="home_activeDayNextLessonTitleIn">in</string>
-    <string name="home_activeDayNextLessonCanceled">Canceled</string>
+    <string name="home_activeDayNextLessonCanceled">%1$s canceled</string>
     <string name="home_activeBookRoom">Book a room</string>
     <string name="home_activeRoomBookedBy">%1$s booked room %2$s for this canceled lesson</string>
     <string name="home_activeDaySchoolInformation">Information from your school</string>

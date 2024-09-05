@@ -234,7 +234,7 @@
     <string name="home_activeDayNext">Nächste Stunde von %1$s bis %2$s</string>
     <string name="home_activeDayNextLessonTitleWith">mit</string>
     <string name="home_activeDayNextLessonTitleIn">in</string>
-    <string name="home_activeDayNextLessonCanceled">Entfällt</string>
+    <string name="home_activeDayNextLessonCanceled">%1$s entfällt</string>
     <string name="home_activeBookRoom">Raum buchen</string>
     <string name="home_activeRoomBookedBy">%1$s hat den Raum %2$s für diese Freistunde gebucht</string>
     <string name="home_activeDaySchoolInformation">Informationen deiner Schule</string>

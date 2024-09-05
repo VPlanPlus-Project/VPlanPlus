@@ -21,8 +21,8 @@ import java.util.UUID
  * @param id The id of the lesson time. (automatically set by the database)
  * @param groupId The id of the class.
  * @param lessonNumber The number of the lesson at this day.
- * @param from The start time of the lesson in Europe/Berlin timezone
- * @param to The end time of the lesson in Europe/Berlin timezone
+ * @param from The start time of the lesson in seconds starting from 00:00:00
+ * @param to The end time of the lesson in seconds starting from 00:00:00
  */
 @Entity(
     tableName = "lesson_time",
