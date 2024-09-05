@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.domain.model
 
 import es.jvbabi.vplanplus.util.sha256
+import java.time.DayOfWeek
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -17,6 +18,7 @@ sealed class Lesson(
 ) {
     class TimetableLesson(
         val id: UUID,
+        val dayOfWeek: DayOfWeek,
         group: Group,
         subject: String,
         lessonNumber: Int,
@@ -45,12 +47,21 @@ sealed class Lesson(
             get() = subject
 
         fun copy(
+            id: UUID = this.id,
+            dayOfWeek: DayOfWeek = this.dayOfWeek,
+            group: Group = this.group,
             subject: String = this.subject,
+            lessonNumber: Int = this.lessonNumber,
             rooms: List<Room> = this.rooms,
-            teachers: List<Teacher> = this.teachers
+            teachers: List<Teacher> = this.teachers,
+            start: ZonedDateTime = this.start,
+            end: ZonedDateTime = this.end,
+            week: Week? = this.week,
+            weekType: WeekType? = this.weekType
         ): TimetableLesson {
             return TimetableLesson(
                 id,
+                dayOfWeek,
                 group,
                 subject,
                 lessonNumber,

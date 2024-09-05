@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
@@ -20,6 +21,7 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
+import es.jvbabi.vplanplus.domain.repository.NewTimetableLesson
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_SYSTEM_NOTIFICATION_ID
@@ -152,19 +154,21 @@ class DoSyncUseCase(
                         weekNumber = week.weekNumber
                     )
                 }
-                timetable.data?.sPlan?.classes?.forEach { group ->
-                    group.lessons?.forEach forEachLesson@{ lesson ->
-                        timetableRepository.insertTimetableLesson(
-                            group = groups.firstOrNull { it.name == group.schoolClass } ?: return@forEachLesson,
+                val lessons = timetable.data?.sPlan?.classes.orEmpty().map { group ->
+                    group.lessons.orEmpty().mapNotNull forEachLesson@{ lesson ->
+                        NewTimetableLesson(
+                            group = groups.firstOrNull { it.name == group.schoolClass } ?: return@forEachLesson null,
                             subject = lesson.subjectShort,
                             lessonNumber = lesson.lessonNumber,
                             teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },
                             rooms = rooms.filter { it.name == lesson.roomShort },
                             dayOfWeek = DayOfWeek.of(lesson.dayOfWeek),
                             weekType = lesson.weekType?.let { weekTypes.firstOrNull { wt -> wt.name == it } },
+                            week = null
                         )
                     }
-                }
+                }.flatten()
+                timetableRepository.insertTimetableLessons(lessons)
                 times.add("Timetable Insert" to System.currentTimeMillis())
             }
 
@@ -206,19 +210,43 @@ class DoSyncUseCase(
                 val teachers = teacherRepository.getTeachersBySchoolId(school.id)
                 val rooms = roomRepository.getRoomsBySchool(school)
                 val groups = groupRepository.getGroupsBySchool(school)
+                val timetable = timetableRepository.getWeekTimetableForSchool(school, null)
+                val newLessons = mutableListOf<NewTimetableLesson>()
+                val removeLessons = timetable.toMutableSet()
                 sPlanResponse.data.classes.orEmpty().forEach { group ->
                     group.lessons?.forEach { lesson ->
-                        timetableRepository.insertTimetableLesson(
-                            group = groups.first { it.name == group.schoolClass },
-                            weekType = weekTypes.firstOrNull { it.name == lesson.weekType },
-                            lessonNumber = lesson.lessonNumber,
-                            teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },
-                            subject = lesson.subjectShort,
-                            rooms = rooms.filter { it.name == lesson.roomShort },
-                            dayOfWeek = DayOfWeek.of(lesson.dayOfWeek)
-                        )
+                        val lessonRooms = getRoomsFromRawData(lesson.roomShort, rooms)
+                        val existingLessons = timetable.filter { l ->
+                            l.lessonNumber == lesson.lessonNumber &&
+                                    l.group.name == group.schoolClass &&
+                                    l.dayOfWeek.value == lesson.dayOfWeek &&
+                                    l.weekType?.name == lesson.weekType &&
+                                    l.subject == lesson.subjectShort &&
+                                    l.teachers.map { it.acronym }.containsAll(lesson.teacherShort.split(",")) &&
+                                    l.rooms.map { it.name }.containsAll(lessonRooms)
+                        }.toSet()
+                        if (existingLessons.count() != 1) {
+                            newLessons.add(
+                                NewTimetableLesson(
+                                    group = groups.first { it.name == group.schoolClass },
+                                    weekType = weekTypes.firstOrNull { it.name == lesson.weekType },
+                                    lessonNumber = lesson.lessonNumber,
+                                    teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },
+                                    subject = lesson.subjectShort,
+                                    rooms = rooms.filter { it.name in lessonRooms },
+                                    dayOfWeek = DayOfWeek.of(lesson.dayOfWeek),
+                                    week = null
+                                )
+                            )
+                        } else {
+                            removeLessons.removeAll(existingLessons)
+                        }
                     }
                 }
+                Log.d("Sync.Timetable", "Inserting ${newLessons.size} new lessons")
+                Log.d("Sync.Timetable", "Removing ${removeLessons.size} old lessons")
+                timetableRepository.deleteFromTimetableById(removeLessons.map { it.id })
+                timetableRepository.insertTimetableLessons(newLessons)
                 times.add("SPlan Insert" to System.currentTimeMillis())
             }
 
@@ -305,8 +333,11 @@ class DoSyncUseCase(
             Keys.LESSON_VERSION_NUMBER,
             currentVersion.toString()
         )
-        keyValueRepository.set(Keys.LAST_SYNC_TS, ZonedDateTimeConverter().zonedDateTimeToTimestamp(
-            ZonedDateTime.now()).toString())
+        keyValueRepository.set(
+            Keys.LAST_SYNC_TS, ZonedDateTimeConverter().zonedDateTimeToTimestamp(
+                ZonedDateTime.now()
+            ).toString()
+        )
         lessonRepository.deleteLessonsByVersion(currentVersion - 1)
         planRepository.deletePlansByVersion(currentVersion - 1)
 
@@ -403,29 +434,7 @@ class DoSyncUseCase(
                 val rawRoomNames = if (DefaultValues.isEmpty(lesson.room.room)) null
                 else lesson.room.room
 
-                val lessonRooms = mutableListOf<String>()
-
-                // this algorithm tries to find existing rooms within the raw room string. It splits the string by spaces and tries to find a room with the joined string.
-                // An example would be "TH 1 TH 2" where it's not clear where to split.
-                // Time for another angry checkpoint: While teachers are separated by commas, rooms are separated by spaces. But sometimes, there are spaces in room names.
-                if (rawRoomNames != null) {
-                    if (rooms.map { r -> r.name }.contains(lesson.room.room)) {
-                        lessonRooms.add(lesson.room.room)
-                    } else {
-                        val split = lesson.room.room.split(" ")
-                        var join = 0
-                        var start = 0
-                        for (a in 0..split.size) {
-                            val joined = split.subList(start, join).joinToString(" ")
-                            if (rooms.map { r -> r.name }.contains(joined)) {
-                                lessonRooms.add(joined)
-                                start = join
-                            }
-                            join += 1
-                        }
-                        if (start == 0) lessonRooms.add(lesson.room.room)
-                    }
-                }
+                val lessonRooms = getRoomsFromRawData(rawRoomNames, rooms)
 
                 // add teachers and rooms to db if they don't exist
                 val addTeachers = rawTeacherAcronyms.filter { t ->
@@ -497,7 +506,7 @@ class DoSyncUseCase(
                         defaultLessonId = defaultLessonDbId,
                         changedSubject = changedSubject,
                         groupId = `class`.groupId,
-                        version = currentVersion+1,
+                        version = currentVersion + 1,
                         roomBookingId = bookings.firstOrNull { booking ->
                             booking.from
                                 .isEqual(planDate) && booking.from.toLocalTime().isBefore(
@@ -554,6 +563,37 @@ class DoSyncUseCase(
                 version = currentVersion + 1
             )
         )
+    }
+
+    /**
+     * This algorithm tries to find existing rooms within the raw room string. It splits the string by spaces and tries to find a room with the joined string.
+     * An example would be "TH 1 TH 2" where it's not clear where to split.
+     * Time for another angry checkpoint: While teachers are separated by commas, rooms are separated by spaces. But sometimes, there are spaces in room names.
+     */
+    private fun getRoomsFromRawData(
+        rawRoomNames: String?,
+        rooms: List<Room>,
+    ): List<String> {
+        val result = mutableListOf<String>()
+        if (rawRoomNames != null) {
+            if (rooms.map { r -> r.name }.contains(rawRoomNames)) {
+                result.add(rawRoomNames)
+            } else {
+                val split = rawRoomNames.split(" ")
+                var join = 0
+                var start = 0
+                for (a in 0..split.size) {
+                    val joined = split.subList(start, join).joinToString(" ")
+                    if (rooms.map { r -> r.name }.contains(joined)) {
+                        result.add(joined)
+                        start = join
+                    }
+                    join += 1
+                }
+                if (start == 0) result.add(rawRoomNames)
+            }
+        }
+        return result
     }
 
     private suspend fun canSendNotification() =

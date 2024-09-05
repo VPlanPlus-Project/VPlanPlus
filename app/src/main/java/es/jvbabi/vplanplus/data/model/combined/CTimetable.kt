@@ -13,7 +13,6 @@ import es.jvbabi.vplanplus.data.source.database.crossover.TimetableRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableTeacherCrossover
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
-import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbTeacher
 import java.time.DayOfWeek
 
 data class CTimetable(
@@ -66,6 +65,7 @@ data class CTimetable(
             weekType = weekType?.toModel(),
             start = lessonTimes.firstOrNull { it.lessonNumber == timetable.lessonNumber && it.groupId == group.group.id }?.start!!,
             end = lessonTimes.firstOrNull { it.lessonNumber == timetable.lessonNumber && it.groupId == group.group.id }?.end!!,
+            dayOfWeek = DayOfWeek.of(timetable.dayOfWeek)
         )
     }
 }

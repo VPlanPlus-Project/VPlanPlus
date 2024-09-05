@@ -693,7 +693,8 @@ object VppModule {
     ): TimetableRepository = TimetableRepositoryImpl(
         timetableDao = db.timetableDao,
         weekDao = db.weekDao,
-        lessonTimeDao = db.lessonTimeDao
+        lessonTimeDao = db.lessonTimeDao,
+        groupDao = db.groupDao
     )
 
     @Provides
