@@ -280,8 +280,8 @@ private fun SubjectText(originalSubject: String?, changedSubject: String? = null
         SubjectIcon(subject = changedSubject ?: originalSubject, modifier = Modifier.size(24.dp), tint = if (changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
         Text(
             text =
-            if (changedSubject == "-" && originalSubject != null) stringResource(id = R.string.home_activeDayNextLessonCanceled, originalSubject)
-            else originalSubject ?: "-",
+                if (changedSubject == "-" && originalSubject != null) stringResource(id = R.string.home_activeDayNextLessonCanceled, originalSubject)
+                else originalSubject ?: "-",
             color = if (changedSubject == "-" || originalSubject == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
         )
