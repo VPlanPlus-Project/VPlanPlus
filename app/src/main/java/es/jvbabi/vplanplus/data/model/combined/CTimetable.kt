@@ -14,6 +14,8 @@ import es.jvbabi.vplanplus.data.source.database.crossover.TimetableTeacherCrosso
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.LessonTime
 import java.time.DayOfWeek
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 data class CTimetable(
     @Embedded val timetable: DbTimetable,
@@ -63,8 +65,8 @@ data class CTimetable(
             subject = timetable.subject,
             week = week?.toModel(),
             weekType = weekType?.toModel(),
-            start = lessonTimes.firstOrNull { it.lessonNumber == timetable.lessonNumber && it.groupId == group.group.id }?.start!!,
-            end = lessonTimes.firstOrNull { it.lessonNumber == timetable.lessonNumber && it.groupId == group.group.id }?.end!!,
+            start = lessonTimes.firstOrNull { it.lessonNumber == timetable.lessonNumber && it.groupId == group.group.id }?.start ?: ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")),
+            end = lessonTimes.firstOrNull { it.lessonNumber == timetable.lessonNumber && it.groupId == group.group.id }?.end ?: ZonedDateTime.of(1970, 1, 1, 23, 59, 59, 99, ZoneId.of("UTC")),
             dayOfWeek = DayOfWeek.of(timetable.dayOfWeek)
         )
     }

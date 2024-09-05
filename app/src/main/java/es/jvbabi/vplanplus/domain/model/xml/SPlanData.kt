@@ -4,6 +4,7 @@ import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
 import org.simpleframework.xml.Root
+import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
 
 class SPlanData(val xml: String) {
@@ -39,6 +40,14 @@ class SPlanWeek {
 class SPlanClass {
     @field:Element(name = "Kurz") var schoolClass: String = ""
     @field:ElementList(name = "Pl", entry = "Std") var lessons: List<SPlanLesson>? = null
+    @field:ElementList(name = "Stunden", entry = "St") var lessonTimes: List<SPlanLessonTime>? = null
+}
+
+@Root(name = "St", strict = false)
+class SPlanLessonTime {
+    @field:Attribute(name = "StZeit") var start: String? = null
+    @field:Attribute(name = "StZeitBis") var end: String? = null
+    @field:Text(required = false) var lessonNumber: Int? = null
 }
 
 @Root(name = "Std", strict = false)

@@ -5,6 +5,7 @@ import org.simpleframework.xml.Attribute
 import org.simpleframework.xml.Element
 import org.simpleframework.xml.ElementList
 import org.simpleframework.xml.Root
+import org.simpleframework.xml.Text
 import org.simpleframework.xml.core.Persister
 
 class WPlanSPlanData(xml: String) {
@@ -34,6 +35,14 @@ class WPlanSchoolWeek {
 class WPlanClass {
     @field:Element(name = "Kurz") var schoolClass: String = ""
     @field:ElementList(name = "Pl", entry = "Std") var lessons: List<WPlanSPlanLesson>? = null
+    @field:ElementList(name = "Stunden", entry = "St") var lessonTimes: List<WPlanSPlanLessonTime>? = null
+}
+
+@Root(name = "St", strict = false)
+class WPlanSPlanLessonTime {
+    @field:Attribute(name = "StZeit") var start: String? = null
+    @field:Attribute(name = "StZeitBis") var end: String? = null
+    @field:Text(required = false) var lessonNumber: Int? = null
 }
 
 @Root(name = "Std", strict = false)

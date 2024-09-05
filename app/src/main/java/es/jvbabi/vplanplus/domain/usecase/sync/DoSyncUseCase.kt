@@ -155,6 +155,20 @@ class DoSyncUseCase(
                     )
                 }
                 val lessons = timetable.data?.sPlan?.classes.orEmpty().map { group ->
+                    groupRepository.getGroupBySchoolAndName(school.id, group.schoolClass)?.let { groupObj ->
+                        val lessonTimes = lessonTimesRepository.getLessonTimesByGroup(groupObj)
+                        if (lessonTimes.isNotEmpty()) return@let
+                        lessonTimesRepository.deleteLessonTimes(groupObj)
+                        group.lessonTimes.orEmpty().forEach forEachLessonTime@{ lessonTime ->
+                            if (lessonTime.lessonNumber == null || lessonTime.start == null || lessonTime.end == null || !(lessonTime.start?:"a").matches(Regex("\\d+:\\d+")) || !(lessonTime.end?:"a").matches(Regex("\\d+:\\d+"))) return@forEachLessonTime
+                            lessonTimesRepository.insertLessonTime(
+                                groupId = groupObj.groupId,
+                                lessonNumber = lessonTime.lessonNumber!!,
+                                from = lessonTime.start!!.substringBefore(":").toInt() * 60 * 60 + lessonTime.start!!.substringAfter(":").toInt() * 60L,
+                                to = lessonTime.end!!.substringBefore(":").toInt() * 60 * 60 + lessonTime.end!!.substringAfter(":").toInt() * 60L,
+                            )
+                        }
+                    }
                     group.lessons.orEmpty().mapNotNull forEachLesson@{ lesson ->
                         NewTimetableLesson(
                             group = groups.firstOrNull { it.name == group.schoolClass } ?: return@forEachLesson null,
@@ -214,6 +228,20 @@ class DoSyncUseCase(
                 val newLessons = mutableListOf<NewTimetableLesson>()
                 val removeLessons = timetable.toMutableSet()
                 sPlanResponse.data.classes.orEmpty().forEach { group ->
+                    groups.firstOrNull { it.name == group.schoolClass }?.let { groupObj ->
+                        val lessonTimes = lessonTimesRepository.getLessonTimesByGroup(groupObj)
+                        if (lessonTimes.isNotEmpty()) return@let
+                        lessonTimesRepository.deleteLessonTimes(groupObj)
+                        group.lessonTimes.orEmpty().forEach forEachLessonTime@{ lessonTime ->
+                            if (lessonTime.lessonNumber == null || lessonTime.start == null || lessonTime.end == null || !(lessonTime.start?:"a").matches(Regex("\\d+:\\d+")) || !(lessonTime.end?:"a").matches(Regex("\\d+:\\d+"))) return@forEachLessonTime
+                            lessonTimesRepository.insertLessonTime(
+                                groupId = groupObj.groupId,
+                                lessonNumber = lessonTime.lessonNumber!!,
+                                from = lessonTime.start!!.substringBefore(":").toInt() * 60 * 60 + lessonTime.start!!.substringAfter(":").toInt() * 60L,
+                                to = lessonTime.end!!.substringBefore(":").toInt() * 60 * 60 + lessonTime.end!!.substringAfter(":").toInt() * 60L,
+                            )
+                        }
+                    }
                     group.lessons?.forEach { lesson ->
                         val lessonRooms = getRoomsFromRawData(lesson.roomShort, rooms)
                         val existingLessons = timetable.filter { l ->
