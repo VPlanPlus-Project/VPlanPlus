@@ -773,5 +773,7 @@
     <string name="onboarding_crashText">Falls die App beim Einrichten abstürzt, versuche, App-Daten und App-Cache in den Einstellungen zu löschen.</string>
     <string name="onboarding_crashButton">Einstellungen</string>
     <string name="onboarding_crashToast">Tippe auf \'Speicher und Cache\'</string>
+    <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM-Events verarbeiten</string>
+    <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Auf Debug-FCM-Events hören. Dies wird viel unnötigen Traffic in Production erzeugen.</string>
 
 </resources>
