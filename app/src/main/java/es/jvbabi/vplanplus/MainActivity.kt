@@ -126,7 +126,7 @@ class MainActivity : FragmentActivity() {
             )
 
             Log.i("MainActivity.Setup", "Run preparation")
-            //mainUseCases.setUpUseCase()
+            mainUseCases.setUpUseCase()
 
             combine(
                 listOf(
