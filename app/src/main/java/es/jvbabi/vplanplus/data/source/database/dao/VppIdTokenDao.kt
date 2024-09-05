@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.data.source.database.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import es.jvbabi.vplanplus.data.model.DbVppIdToken
+import es.jvbabi.vplanplus.data.model.vppid.DbVppIdToken
 
 @Dao
 abstract class VppIdTokenDao {

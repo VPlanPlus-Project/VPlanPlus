@@ -39,6 +39,7 @@ interface NotificationRepository {
         const val CHANNEL_SYSTEM_NOTIFICATION_ID = 100000
         const val ID_GRADE = 9000
         const val ID_GRADE_NEW = ID_GRADE + 1
+        const val CHANNEL_DEFAULT_NOTIFICATION_ID_VPP_AUTH = 11000
     }
 }
 
@@ -51,5 +52,5 @@ interface NotificationOnClickTask
 
 class OpenScreenTask(val route: String) : NotificationOnClickTask
 class OpenLinkTask(val url: String) : NotificationOnClickTask
-class DoActionTask(val tag: String): NotificationOnClickTask
+class DoActionTask(val tag: String, val payload: String? = null): NotificationOnClickTask
 class BroadcastIntentTask(val tag: String): NotificationOnClickTask

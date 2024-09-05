@@ -778,5 +778,10 @@
     <string name="onboarding_crashToast">Click \'Storage and cache\'</string>
     <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM Events</string>
     <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Listen to FCM-Events prefixed with DEBUG_. This will cause much uneccessary traffic when used in production.</string>
+    <string name="notification_webAuthTitle">Login with VPlanPlus</string>
+    <string name="notification_webAuthMessage">Someone tries to log in to your vpp.ID. Tap here to verify or deny.</string>
+    <string name="webAuth_title">Verify login request</string>
+    <string name="webAuth_error">Couldn\'t verify, please try again.</string>
+    <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
 
 </resources>
