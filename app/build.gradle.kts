@@ -21,7 +21,7 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 35
-        versionCode = 251
+        versionCode = 257
         versionName = "VPP_${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}-android1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
