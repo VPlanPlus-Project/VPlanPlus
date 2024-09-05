@@ -6,7 +6,7 @@ import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
-import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
 import es.jvbabi.vplanplus.data.model.profile.DbRoomProfile
 import es.jvbabi.vplanplus.data.model.profile.DbTeacherProfile

@@ -8,6 +8,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LiveHelp
+import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.MoreTime
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.AccountCircle
@@ -149,6 +150,14 @@ private fun AdvancedSettingsScreenContent(
                         isLoading = state.fcmTokenReloadState == FcmTokenReloadState.LOADING
                     )
                 )
+                Setting(state = IconSettingsState(
+                    title =  stringResource(id = R.string.advancedSettings_settingsListenForFCMDebugTitle),
+                    subtitle = stringResource(id = R.string.advancedSettings_settingsListenForFCMDebugSubtitle),
+                    imageVector = Icons.Default.FilterAlt,
+                    type = SettingsType.CHECKBOX,
+                    checked = state.isFcmDebugModeEnabled,
+                    doAction = { onEvent(AdvancedSettingsEvent.ToggleFcmDebugMode) }
+                ))
                 Setting(
                     IconSettingsState(
                         title = stringResource(id = R.string.advancedSettings_resetBalloonsTitle),
@@ -218,7 +227,8 @@ private fun AdvancedSettingsScreenPreview() {
     AdvancedSettingsScreenContent(
         state = AdvancedSettingsState(
             currentProfileText = "Loading...",
-            currentLessonText = "3"
+            currentLessonText = "3",
+            isFcmDebugModeEnabled = true
         )
     )
 }

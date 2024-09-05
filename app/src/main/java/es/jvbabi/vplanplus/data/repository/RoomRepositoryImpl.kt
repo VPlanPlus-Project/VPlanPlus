@@ -92,7 +92,7 @@ class RoomRepositoryImpl(
                 queries = mapOf("allow_creation" to "true")
             )
             if (response.response != HttpStatusCode.OK || response.data == null) return false
-            val data = ResponseDataWrapper.fromJson<RoomLookupResponse>(response.data)
+            val data = ResponseDataWrapper.fromJson<RoomLookupResponse>(response.data)!!
             val dbRoom = DbRoom(
                 id = data.id,
                 schoolId = school.id,
@@ -137,7 +137,7 @@ class RoomRepositoryImpl(
             return
         }
 
-        val roomBookings = ResponseDataWrapper.fromJson<List<RoomBookingResponseItem>>(response.data)
+        val roomBookings = ResponseDataWrapper.fromJson<List<RoomBookingResponseItem>>(response.data)!!
 
         val classes = groupRepository.getGroupsBySchool(school)
 

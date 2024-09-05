@@ -14,9 +14,9 @@ import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppIdToken
 import es.jvbabi.vplanplus.data.model.DbTimetable
-import es.jvbabi.vplanplus.data.model.DbVppId
-import es.jvbabi.vplanplus.data.model.DbVppIdToken
 import es.jvbabi.vplanplus.data.model.DbWeek
 import es.jvbabi.vplanplus.data.model.DbWeekType
 import es.jvbabi.vplanplus.data.model.homework.DbHomework

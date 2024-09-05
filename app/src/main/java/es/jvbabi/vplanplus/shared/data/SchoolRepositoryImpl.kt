@@ -112,7 +112,7 @@ class SchoolRepositoryImpl(
         if (getSchoolInformation.response != HttpStatusCode.OK) return null
         val schoolInformation = getSchoolInformation.data?.let {
             try {
-                val schoolInformation = ResponseDataWrapper.fromJson<SchoolInformation>(getSchoolInformation.data)
+                val schoolInformation = ResponseDataWrapper.fromJson<SchoolInformation>(getSchoolInformation.data)!!
                 if (schoolInformation.sp24Id.toInt() != sp24SchoolId) return null
                 schoolInformation
             } catch (e: Exception) {

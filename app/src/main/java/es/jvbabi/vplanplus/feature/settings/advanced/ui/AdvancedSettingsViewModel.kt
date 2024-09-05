@@ -32,11 +32,13 @@ class AdvancedSettingsViewModel @Inject constructor(
             combine(
                 listOf(
                     getCurrentProfileUseCase(),
-                    advancedSettingsUseCases.getVppIdServerUseCase()
+                    advancedSettingsUseCases.getVppIdServerUseCase(),
+                    advancedSettingsUseCases.isFcmDebugModeUseCase()
                 )
             ) { data ->
                 val currentProfile = data[0] as Profile
                 val vppIdServer = data[1] as VppIdServer
+                val isFcmDebugModeEnabled = data[2] as Boolean
 
 
                 val currentLessonText = if (currentProfile is ClassProfile) {
@@ -52,6 +54,7 @@ class AdvancedSettingsViewModel @Inject constructor(
                     """.trimIndent(),
                     selectedVppIdServer = vppIdServer,
                     currentLessonText = currentLessonText,
+                    isFcmDebugModeEnabled = isFcmDebugModeEnabled
                 )
             }.collect {
                 _state.value = it
@@ -88,6 +91,7 @@ class AdvancedSettingsViewModel @Inject constructor(
                 is AdvancedSettingsEvent.UpdateFcmToken -> onUpdateFcmToken()
                 is AdvancedSettingsEvent.ResetBalloons -> advancedSettingsUseCases.resetBalloonsUseCase()
                 is AdvancedSettingsEvent.TriggerHomeworkReminder -> advancedSettingsUseCases.homeworkReminderUseCase()
+                is AdvancedSettingsEvent.ToggleFcmDebugMode -> advancedSettingsUseCases.toggleFcmDebugModeUseCase()
             }
         }
     }
@@ -97,7 +101,8 @@ data class AdvancedSettingsState(
     val currentProfileText: String = "Loading...",
     val currentLessonText: String = "Loading...",
     val selectedVppIdServer: VppIdServer = servers.first(),
-    val fcmTokenReloadState: FcmTokenReloadState = FcmTokenReloadState.NONE
+    val fcmTokenReloadState: FcmTokenReloadState = FcmTokenReloadState.NONE,
+    val isFcmDebugModeEnabled: Boolean = false
 )
 
 sealed class AdvancedSettingsEvent {
@@ -107,4 +112,6 @@ sealed class AdvancedSettingsEvent {
     data object ResetBalloons : AdvancedSettingsEvent()
 
     data object TriggerHomeworkReminder: AdvancedSettingsEvent()
+
+    data object ToggleFcmDebugMode : AdvancedSettingsEvent()
 }

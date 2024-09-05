@@ -131,7 +131,7 @@ fun LessonCard(
                 verticalArrangement = Arrangement.Center,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) header@{
-                SubjectText(lesson.displaySubject, lesson is Lesson.SubstitutionPlanLesson && lesson.changedSubject != null)
+                SubjectText(lesson.subject, if (lesson is Lesson.SubstitutionPlanLesson) lesson.changedSubject else null)
                 RoomText(lesson.rooms.map { it.name }, booking, changed = lesson is Lesson.SubstitutionPlanLesson && lesson.roomIsChanged)
                 TeacherText(lesson.teachers.map { it.acronym }, changed = lesson is Lesson.SubstitutionPlanLesson && lesson.teacherIsChanged)
                 if (displayType != ProfileType.STUDENT) ClassText(lesson.group.name)
@@ -201,7 +201,7 @@ fun LessonCard(
                                     onClick = {
                                         if (lesson !is Lesson.SubstitutionPlanLesson) return@AssistChip
                                         onAddHomeworkClicked(lesson.defaultLesson)
-                                              },
+                                    },
                                     label = { Text(text = stringResource(id = R.string.home_addHomeworkLabel)) },
                                     leadingIcon = {
                                         Icon(Icons.AutoMirrored.Outlined.MenuBook, null)
@@ -278,18 +278,18 @@ fun LessonCardPreview() {
 }
 
 @Composable
-private fun SubjectText(subject: String, changed: Boolean) {
+private fun SubjectText(originalSubject: String?, changedSubject: String? = null) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.height(headerItemHeight())
     ) {
-        SubjectIcon(subject = subject, modifier = Modifier.size(24.dp), tint = if (changed) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
+        SubjectIcon(subject = changedSubject ?: originalSubject, modifier = Modifier.size(24.dp), tint = if (changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary)
         Text(
             text =
-            if (subject == "-") stringResource(id = R.string.home_activeDayNextLessonCanceled)
-            else subject,
-            color = if (changed || subject == "-") MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+                if (changedSubject == "-" && originalSubject != null) stringResource(id = R.string.home_activeDayNextLessonCanceled, originalSubject)
+                else originalSubject ?: "-",
+            color = if (changedSubject == "-" || originalSubject == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
         )
     }
