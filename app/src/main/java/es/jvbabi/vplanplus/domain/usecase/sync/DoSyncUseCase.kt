@@ -106,15 +106,19 @@ class DoSyncUseCase(
         val notifications = mutableListOf<NotificationData>()
 
         schoolRepository.getSchools().filter { it.credentialsValid != false }.forEach school@{ school ->
+            val times = mutableListOf<Pair<String, Long>>()
+            times.add("Start" to System.currentTimeMillis())
             logRecordRepository.log("Sync.School", "Syncing school ${school.name}")
             logRecordRepository.log("Sync.Messages", "Syncing messages for school ${school.name}")
             messageRepository.updateMessages(school.id)
+            times.add("Messages" to System.currentTimeMillis())
 
             logRecordRepository.log(
                 "Sync.RoomBookings",
                 "Syncing room bookings for school ${school.name}"
             )
             roomRepository.fetchRoomBookings(school)
+            times.add("RoomBookings" to System.currentTimeMillis())
 
             if (school.canUseTimetable != false) {
                 logRecordRepository.log(
@@ -126,6 +130,7 @@ class DoSyncUseCase(
                     username = school.username,
                     password = school.password
                 )
+                times.add("Timetable Download" to System.currentTimeMillis())
 
                 val teachers = teacherRepository.getTeachersBySchoolId(school.id)
                 val rooms = roomRepository.getRoomsBySchool(school)
@@ -160,16 +165,16 @@ class DoSyncUseCase(
                         )
                     }
                 }
+                times.add("Timetable Insert" to System.currentTimeMillis())
             }
 
             var weeks = weekRepository.getWeeksBySchool(school)
             if (weeks.isEmpty()) run handleWeeks@{
                 val week1Response = vPlanRepository.getSPlanDataViaWPlan6(
-                    sp24SchoolId = school.sp24SchoolId,
-                    username = school.username,
-                    password = school.password,
+                    school.buildAccess(),
                     weekNumber = 1
                 )
+                times.add("Weeks Download" to System.currentTimeMillis())
                 if (week1Response.data == null) return@handleWeeks
                 week1Response.data.schoolWeeks.orEmpty().map { it.weekType }.distinct().forEach {
                     weekRepository.insertWeekType(school, it)
@@ -185,18 +190,18 @@ class DoSyncUseCase(
                         weekNumber = week.weekNumber
                     )
                 }
+                weeks = weekRepository.getWeeksBySchool(school)
             }
             weeks = weekRepository.getWeeksBySchool(school)
             val weekTypes = weekRepository.getWeekTypesBySchool(school)
 
             // refresh splan
             val sPlanResponse = vPlanRepository.getSPlanDataViaWPlan6(
-                sp24SchoolId = school.sp24SchoolId,
-                username = school.username,
-                password = school.password,
+                school.buildAccess(),
                 weekNumber = weeks.firstOrNull { LocalDate.now() in it.start..it.end.withDayOfWeek(6) }?.weekNumber ?: 1,
                 allowFallback = true
             )
+            times.add("SPlan Download" to System.currentTimeMillis())
             if (sPlanResponse.data != null) {
                 val teachers = teacherRepository.getTeachersBySchoolId(school.id)
                 val rooms = roomRepository.getRoomsBySchool(school)
@@ -214,6 +219,7 @@ class DoSyncUseCase(
                         )
                     }
                 }
+                times.add("SPlan Insert" to System.currentTimeMillis())
             }
 
             repeat(daysAhead + SYNC_DAYS_PAST) {
@@ -236,6 +242,7 @@ class DoSyncUseCase(
                     date = date,
                     preferredDownloadMode = school.schoolDownloadMode
                 )
+                times.add("VPlan.$date Download" to System.currentTimeMillis())
                 if (vPlanData.response == HttpStatusCode.Unauthorized) {
                     Log.d("Sync.VPlan", "Unauthorized")
                     schoolRepository.updateCredentialsValid(school, false)
@@ -265,6 +272,7 @@ class DoSyncUseCase(
                 }
 
                 processVPlanData(vPlanData.data ?: return@school)
+                times.add("VPlan.$date Insert" to System.currentTimeMillis())
                 profiles.forEach profile@{ profile ->
                     // check if plan has changed
                     val day =
@@ -283,6 +291,12 @@ class DoSyncUseCase(
                     )
 
                 }
+            }
+
+            times.forEachIndexed { i, (name, time) ->
+                if (i == 0) return@forEachIndexed
+                logRecordRepository.log("Sync.Times", "$name took ${time - times[i - 1].second}ms")
+                Log.d("Sync.Times", "$name took ${time - times[i - 1].second}ms")
             }
         }
 

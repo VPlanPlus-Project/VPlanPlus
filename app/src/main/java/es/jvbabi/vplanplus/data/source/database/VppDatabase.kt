@@ -27,6 +27,7 @@ import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTaskDone
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
 import es.jvbabi.vplanplus.data.model.profile.DbRoomProfile
 import es.jvbabi.vplanplus.data.model.profile.DbTeacherProfile
+import es.jvbabi.vplanplus.data.model.sp24.SPlanInWeek
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -56,6 +57,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
+import es.jvbabi.vplanplus.data.source.database.dao.SP24SPlanInWeekDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
 import es.jvbabi.vplanplus.data.source.database.dao.TimetableDao
@@ -109,6 +111,8 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbWeek::class,
         DbWeekType::class,
 
+        SPlanInWeek::class,
+
         DbHomework::class,
         DbHomeworkProfileData::class,
         DbHomeworkTask::class,
@@ -122,7 +126,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 39,
+    version = 40,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -140,6 +144,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 26, to = 27), // add vpp.ID to profile
         AutoMigration(from = 30, to = 31), // add documents
         AutoMigration(from = 36, to = 37), // add courseGroup
+        AutoMigration(from = 39, to = 40) // sp24 is data in week available
     ],
 )
 @TypeConverters(
@@ -178,6 +183,8 @@ abstract class VppDatabase : RoomDatabase() {
 
     abstract val timetableDao: TimetableDao
     abstract val weekDao: WeekDao
+
+    abstract val sPlanInWeekDao: SP24SPlanInWeekDao
 
     // grades
     abstract val subjectDao: SubjectDao

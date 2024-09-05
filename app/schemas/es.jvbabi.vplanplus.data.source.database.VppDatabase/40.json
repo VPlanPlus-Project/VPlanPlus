@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 40,
-    "identityHash": "ed03a38245f26aba353a1d35828e11be",
+    "identityHash": "2ad7a950a227f3b2c2f72a38a9565720",
     "entities": [
       {
         "tableName": "lesson",
@@ -1920,11 +1920,17 @@
       },
       {
         "tableName": "week",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`school_id` INTEGER NOT NULL, `week_type_id` INTEGER NOT NULL, `start_date` INTEGER NOT NULL, `end_date` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`school_id` INTEGER NOT NULL, `week_number` INTEGER NOT NULL, `week_type_id` INTEGER NOT NULL, `start_date` INTEGER NOT NULL, `end_date` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "fields": [
           {
             "fieldPath": "schoolId",
             "columnName": "school_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weekNumber",
+            "columnName": "week_number",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -2030,6 +2036,62 @@
             ],
             "orders": [],
             "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_week_type_id_name_school_id` ON `${TABLE_NAME}` (`id`, `name`, `school_id`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "school",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "school_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
+        "tableName": "sp24_splan_in_week",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`school_id` INTEGER NOT NULL, `week_number` INTEGER NOT NULL, `has_data` INTEGER NOT NULL, PRIMARY KEY(`school_id`, `week_number`), FOREIGN KEY(`school_id`) REFERENCES `school`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "schoolId",
+            "columnName": "school_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weekNumber",
+            "columnName": "week_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasData",
+            "columnName": "has_data",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "school_id",
+            "week_number"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sp24_splan_in_week_school_id_week_number",
+            "unique": true,
+            "columnNames": [
+              "school_id",
+              "week_number"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_sp24_splan_in_week_school_id_week_number` ON `${TABLE_NAME}` (`school_id`, `week_number`)"
           }
         ],
         "foreignKeys": [
@@ -2896,7 +2958,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ed03a38245f26aba353a1d35828e11be')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '2ad7a950a227f3b2c2f72a38a9565720')"
     ]
   }
 }

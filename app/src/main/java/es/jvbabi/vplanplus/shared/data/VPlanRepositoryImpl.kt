@@ -1,7 +1,10 @@
 package es.jvbabi.vplanplus.shared.data
 
+import es.jvbabi.vplanplus.data.model.sp24.SPlanInWeek
+import es.jvbabi.vplanplus.data.source.database.dao.SP24SPlanInWeekDao
 import es.jvbabi.vplanplus.domain.DataResponse
 import es.jvbabi.vplanplus.domain.model.SchoolDownloadMode
+import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.model.xml.SPlanData
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
 import es.jvbabi.vplanplus.domain.model.xml.WPlanSPlan
@@ -12,7 +15,8 @@ import io.ktor.http.HttpStatusCode
 import java.time.LocalDate
 
 class VPlanRepositoryImpl(
-    private val networkRepository: NetworkRepository
+    private val networkRepository: NetworkRepository,
+    private val sPlanInWeekDao: SP24SPlanInWeekDao
 ) : VPlanRepository {
     override suspend fun getVPlanData(
         sp24SchoolId: Int,
@@ -58,21 +62,27 @@ class VPlanRepositoryImpl(
     }
 
     override suspend fun getSPlanDataViaWPlan6(
-        sp24SchoolId: Int,
-        username: String,
-        password: String,
+        schoolSp24Access: SchoolSp24Access,
         weekNumber: Int,
         allowFallback: Boolean
     ): DataResponse<WPlanSPlan?> {
-        networkRepository.authentication = BasicAuthentication(username, password)
+        networkRepository.authentication = BasicAuthentication(schoolSp24Access.username, schoolSp24Access.password)
+        val weeksHaveData = sPlanInWeekDao.getIsSPlanInWeek(schoolSp24Access.schoolId)
         var week = weekNumber
         do {
+            if (week != weekNumber && weeksHaveData.any { !it.hasData && it.weekNumber == week }) {
+                if (allowFallback) week -= 1
+                else return DataResponse(null, HttpStatusCode.NotFound)
+                continue
+            }
             val response = networkRepository.doRequest(
-                path = "/${sp24SchoolId}/wplan/wdatenk/SPlanKl_Sw${week}.xml",
+                path = "/${schoolSp24Access.sp24SchoolId}/wplan/wdatenk/SPlanKl_Sw${week}.xml",
             )
             if (response.data != null && response.response == HttpStatusCode.OK) {
+                sPlanInWeekDao.upsertSPlanInWeek(SPlanInWeek(schoolId = schoolSp24Access.schoolId, weekNumber = week, hasData = true))
                 return DataResponse(WPlanSPlanData(response.data).sPlan, response.response)
             }
+            sPlanInWeekDao.upsertSPlanInWeek(SPlanInWeek(schoolId = schoolSp24Access.schoolId, weekNumber = week, hasData = false))
             if (allowFallback) week -= 1
             else return DataResponse(null, response.response)
         } while (week > 0)

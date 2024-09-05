@@ -278,9 +278,10 @@ object VppModule {
     @Provides
     @Singleton
     fun provideVPlanRepository(
-        sp24NetworkRepository: Sp24NetworkRepository
+        sp24NetworkRepository: Sp24NetworkRepository,
+        db: VppDatabase
     ): VPlanRepository {
-        return VPlanRepositoryImpl(sp24NetworkRepository)
+        return VPlanRepositoryImpl(sp24NetworkRepository, db.sPlanInWeekDao)
     }
 
     @Provides
