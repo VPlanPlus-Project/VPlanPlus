@@ -238,7 +238,7 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun addDocumentDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long): HomeworkDocumentId {
+    override suspend fun addDocumentDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long, isDownloaded: Boolean?): HomeworkDocumentId {
         val id = documentId ?: (findLocalDocumentId() - 1)
         homeworkDocumentDao.upsertHomeworkDocument(
             DbHomeworkDocument(
@@ -246,7 +246,7 @@ class HomeworkRepositoryImpl(
                 fileName = name,
                 homeworkId = homeworkId.toLong(),
                 fileType = type.extension,
-                isDownloaded = File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == id } ?: false,
+                isDownloaded = isDownloaded ?: File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == id } ?: false,
                 size = size
             )
         )

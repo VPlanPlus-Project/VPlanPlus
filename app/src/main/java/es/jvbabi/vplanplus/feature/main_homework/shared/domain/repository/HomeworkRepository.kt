@@ -60,9 +60,10 @@ interface HomeworkRepository {
      * @param name The name of the document.
      * @param type The type of the document.
      * @param size The size of the document in bytes.
+     * @param isDownloaded Whether the document is downloaded. If null, the repository will check if the corresponding file exists.
      * @return The ID of the document, either the one provided or the next available local ID.
      */
-    suspend fun addDocumentDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long): HomeworkDocumentId
+    suspend fun addDocumentDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long, isDownloaded: Boolean? = null): HomeworkDocumentId
 
     /**
      * Uploads a document to the cloud. This will not save the document to the device, it will only upload it to the cloud. Creating the actual document is the responsibility of the caller.
