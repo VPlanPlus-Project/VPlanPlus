@@ -103,6 +103,7 @@ fun Documents(
                         uri = uri,
                         type = document.type,
                         name = document.name,
+                        isDownloaded = document.isDownloaded,
                         newName = editedDocument?.name,
                         isEditing = isEditing,
                         onRename = { to -> onRename(DocumentUpdate.EditedDocument(uri, to, document.documentId)) },
@@ -115,6 +116,7 @@ fun Documents(
             DocumentRecord(
                 uri = document.uri,
                 type = HomeworkDocumentType.fromExtension(document.extension),
+                isDownloaded = true,
                 progress = progress,
                 name = document.name,
                 isEditing = isEditing,

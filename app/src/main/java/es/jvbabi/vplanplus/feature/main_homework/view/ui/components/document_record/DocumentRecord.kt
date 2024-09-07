@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.CloudDownload
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -44,6 +45,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -66,13 +68,15 @@ import java.io.File
 @Composable
 fun DocumentRecord(
     uri: Uri?,
+    isDownloaded: Boolean,
     name: String?,
     newName: String? = null,
     type: HomeworkDocumentType,
     progress: Float? = null,
     isEditing: Boolean,
     onRename: (to: String) -> Unit = {},
-    onRemove: () -> Unit = {}
+    onRemove: () -> Unit = {},
+    onDownload: (onDownloaded: (downloadedUri: Uri) -> Unit) -> Unit = {}
 ) {
     var isLoading by remember(uri) { mutableStateOf(true) }
     val context = LocalContext.current
@@ -80,7 +84,7 @@ fun DocumentRecord(
     var pageCount by remember(uri) { mutableIntStateOf(0) }
     var documentSize by remember(uri) { mutableLongStateOf(0) }
     LaunchedEffect(key1 = uri) {
-        if (uri == null) {
+        if (uri == null || !isDownloaded) {
             isLoading = false
             return@LaunchedEffect
         }
@@ -130,20 +134,24 @@ fun DocumentRecord(
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .clickable {
-                val intent = Intent(Intent.ACTION_VIEW)
-                val file = File(context.cacheDir, FileRepository.createSafeFileName(name ?: "unknown"))
-                uri!!.toFile().copyTo(file, overwrite = true)
-                val newUri = FileProvider.getUriForFile(
-                    context,
-                    context.packageName + ".fileprovider",
-                    file
-                )
-                when (type) {
-                    HomeworkDocumentType.PDF -> intent.setDataAndType(newUri, "application/pdf")
-                    HomeworkDocumentType.JPG -> intent.setDataAndType(newUri, "image/*")
+                val openFile = {
+                    val intent = Intent(Intent.ACTION_VIEW)
+                    val file = File(context.cacheDir, FileRepository.createSafeFileName(name ?: "unknown"))
+                    uri!!.toFile().copyTo(file, overwrite = true)
+                    val newUri = FileProvider.getUriForFile(
+                        context,
+                        context.packageName + ".fileprovider",
+                        file
+                    )
+                    when (type) {
+                        HomeworkDocumentType.PDF -> intent.setDataAndType(newUri, "application/pdf")
+                        HomeworkDocumentType.JPG -> intent.setDataAndType(newUri, "image/*")
+                    }
+                    intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    context.startActivity(intent)
                 }
-                intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                context.startActivity(intent)
+                if (!isDownloaded) onDownload { openFile() }
+                else openFile()
             }
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -157,6 +165,9 @@ fun DocumentRecord(
         ) {
             if (isLoading) {
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            else if (!isDownloaded) {
+                Icon(imageVector = Icons.Outlined.CloudDownload, contentDescription = null, modifier = Modifier.size(32.dp))
             }
             if (bitmap != null) Image(
                 bitmap = bitmap!!.asImageBitmap(),
@@ -185,14 +196,21 @@ fun DocumentRecord(
                             overflow = TextOverflow.Ellipsis
                         )
                     }
-                    if (type == HomeworkDocumentType.PDF) Text(
-                        text = pluralStringResource(id = R.plurals.homework_detailViewDocumentPages, count = pageCount, pageCount),
-                        style = MaterialTheme.typography.labelMedium
-                    )
-                    if (type == HomeworkDocumentType.JPG) Text(
-                        text = bitmap?.width.toString() + "x" + bitmap?.height.toString(),
-                        style = MaterialTheme.typography.labelMedium
-                    )
+                    if (isDownloaded) {
+                        if (type == HomeworkDocumentType.PDF) Text(
+                            text = pluralStringResource(id = R.plurals.homework_detailViewDocumentPages, count = pageCount, pageCount),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                        if (type == HomeworkDocumentType.JPG) Text(
+                            text = bitmap?.width.toString() + "x" + bitmap?.height.toString(),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    } else {
+                        Text(
+                            text = stringResource(id = R.string.homework_detailViewDocumentOnline),
+                            style = MaterialTheme.typography.labelMedium
+                        )
+                    }
                     Text(
                         text = storageToHumanReadableFormat(documentSize),
                         style = MaterialTheme.typography.labelSmall
@@ -232,11 +250,11 @@ fun DocumentRecord(
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordPreview() {
-    DocumentRecord(null, null, null, HomeworkDocumentType.PDF, 0.3f, false)
+    DocumentRecord(null, true, null, null, HomeworkDocumentType.PDF, 0.3f, false)
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordEditingPreview() {
-    DocumentRecord(null, "A file", null, HomeworkDocumentType.PDF, null, true)
+    DocumentRecord(null, false, "A file", null, HomeworkDocumentType.PDF, null, true)
 }

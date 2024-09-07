@@ -52,6 +52,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
@@ -99,7 +100,8 @@ fun HomeworkDetailScreen(
     val pickDocumentLauncher = pickDocumentLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.PDF.extension))) }
     val (scanner, scannerLauncher) = rememberScanner { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.PDF.extension))) }
 
-    val takePhotoLauncher = rememberTakePhotoLauncher(key1 = state.newDocuments.size) { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
+    val takePhotoLauncher =
+        rememberTakePhotoLauncher(key1 = state.newDocuments.size) { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
     val pickPhotosLauncher = rememberPickPhotoLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
 
     HomeworkDetailScreenContent(
@@ -285,11 +287,11 @@ private fun HomeworkDetailScreenContent(
             icon = Icons.Default.DeleteForever,
             title = stringResource(id = R.string.homework_deleteHomeworkTitle),
             message =
-                when (state.personalizedHomework) {
-                    is PersonalizedHomework.CloudHomework -> if (state.personalizedHomework.homework.isPublic) stringResource(id = R.string.homework_deleteHomeworkTextPublic) else stringResource(id = R.string.homework_deleteHomeworkTextPrivate)
-                    is PersonalizedHomework.LocalHomework -> stringResource(id = R.string.homework_deleteHomeworkTextLocal)
-                    else -> ""
-                },
+            when (state.personalizedHomework) {
+                is PersonalizedHomework.CloudHomework -> if (state.personalizedHomework.homework.isPublic) stringResource(id = R.string.homework_deleteHomeworkTextPublic) else stringResource(id = R.string.homework_deleteHomeworkTextPrivate)
+                is PersonalizedHomework.LocalHomework -> stringResource(id = R.string.homework_deleteHomeworkTextLocal)
+                else -> ""
+            },
             onYes = { onAction(DeleteHomework) },
             onNo = { isDeleteDialogOpen = false },
         )
@@ -310,7 +312,24 @@ fun HomeworkDetailScreenPreview() {
                 homework = HomeworkCore.CloudHomework(
                     id = 1,
                     createdBy = vppId,
-                    documents = emptyList(),
+                    documents = listOf(
+                        HomeworkDocument(
+                            documentId = 1,
+                            homeworkId = 1,
+                            type = HomeworkDocumentType.JPG,
+                            name = "Document 1.jpg",
+                            isDownloaded = true,
+                            size = 1024
+                        ),
+                        HomeworkDocument(
+                            documentId = 2,
+                            homeworkId = 1,
+                            type = HomeworkDocumentType.PDF,
+                            name = "Document 2.pdf",
+                            isDownloaded = false,
+                            size = 2048*1024
+                        )
+                    ),
                     tasks = listOf(
                         HomeworkTaskCore(id = 1, content = "Task 1", homeworkId = 1),
                         HomeworkTaskCore(id = 2, content = "Task 2", homeworkId = 1),
@@ -335,7 +354,9 @@ fun HomeworkDetailScreenPreview() {
                     HomeworkTaskDone(id = 2, content = "Task 2", isDone = true, homeworkId = 1),
                     HomeworkTaskDone(id = 3, content = "Task 3", isDone = false, homeworkId = 1)
                 ),
-                profile = ProfilePreview.generateClassProfile(group, vppId)
+                profile = ProfilePreview.generateClassProfile(
+                    group, vppId
+                )
             ),
             isEditing = true,
             isLoading = true,

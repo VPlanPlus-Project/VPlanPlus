@@ -44,6 +44,7 @@ class UpdateDocumentsUseCase(
                 homeworkId = homework.id,
                 name = newDocument.name,
                 type = HomeworkDocumentType.fromExtension(newDocument.extension),
+                size = content.size.toLong()
             )
             fileRepository.writeBytes("homework_documents", "$documentId.${newDocument.extension}", content)
         }

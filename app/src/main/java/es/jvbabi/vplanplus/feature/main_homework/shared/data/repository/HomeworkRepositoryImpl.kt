@@ -99,6 +99,7 @@ class HomeworkRepositoryImpl(
             requestMethod = HttpMethod.Get
         )
         if (response.response != HttpStatusCode.OK || response.data == null) return null
+        homeworkDocumentDao.updateHomeworkDocumentIsDownloaded(homeworkDocumentId, true)
         return response.data
     }
 
@@ -116,7 +117,9 @@ class HomeworkRepositoryImpl(
             name = data.name,
             type = HomeworkDocumentType.fromExtension(data.extension),
             documentId = homeworkDocumentId,
-            homeworkId = homeworkId
+            homeworkId = homeworkId,
+            isDownloaded = File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == homeworkDocumentId } ?: false,
+            size = data.size
         )
     }
 
@@ -155,6 +158,21 @@ class HomeworkRepositoryImpl(
         )
         if (result.response != HttpStatusCode.OK) return null
         return Unit
+    }
+
+    override suspend fun updateHomeworkDocumentsFileState() {
+        homeworkDocumentDao.getAllHomeworkDocuments().first().forEach { homeworkDocument ->
+            val file = File(context.filesDir, "homework_documents").listFiles()?.find { it.name.substringBefore(".").toInt() == homeworkDocument.id }
+            homeworkDocumentDao.updateHomeworkDocumentIsDownloaded(
+                homeworkDocument.id,
+                file != null
+            )
+            if (file == null) return@forEach
+            homeworkDocumentDao.updateHomeworkDocumentSize(
+                homeworkDocument.id,
+                file.readBytes().size.toLong()
+            )
+        }
     }
 
     override suspend fun changeDueDateDb(homework: HomeworkCore, newDate: ZonedDateTime) {
@@ -220,14 +238,16 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun addDocumentDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId {
+    override suspend fun addDocumentDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long): HomeworkDocumentId {
         val id = documentId ?: (findLocalDocumentId() - 1)
         homeworkDocumentDao.upsertHomeworkDocument(
             DbHomeworkDocument(
                 id,
                 fileName = name,
                 homeworkId = homeworkId.toLong(),
-                fileType = type.extension
+                fileType = type.extension,
+                isDownloaded = File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == id } ?: false,
+                size = size
             )
         )
         return id
@@ -503,7 +523,8 @@ private data class ChangeDueToDateRequest(
 private data class HomeworkDocumentResponse(
     @SerializedName("file_name") val name: String,
     @SerializedName("file_type") val extension: String,
-    @SerializedName("id") val id: Int
+    @SerializedName("id") val id: Int,
+    @SerializedName("size") val size: Long
 )
 
 private data class RenameDocumentRequest(

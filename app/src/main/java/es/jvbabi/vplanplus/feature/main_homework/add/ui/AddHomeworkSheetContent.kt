@@ -310,9 +310,11 @@ fun AddHomeworkSheetContent(
                     uri = document.uri,
                     type = document.type,
                     name = document.name,
+                    isDownloaded = true,
                     isEditing = true,
                     progress = document.uploadProgress,
-                    onRemove = { viewModel.onUiAction(RemoveDocument(document.uri)) }
+                    onRemove = { viewModel.onUiAction(RemoveDocument(document.uri)) },
+                    onDownload = {}
                 )
             }
         }

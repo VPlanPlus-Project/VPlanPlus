@@ -780,5 +780,6 @@
     <string name="webAuth_description">Jemand versucht sich als \'%1$s\' anzumelden. Wenn du das bist, tippe das entsprechende Emoji an. Wenn du nicht versuchst, dich anzumelden, brich bitte ab.</string>
     <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM-Events verarbeiten</string>
     <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Auf Debug-FCM-Events hören. Dies wird viel unnötigen Traffic in Production erzeugen.</string>
+    <string name="homework_detailViewDocumentOnline">Online</string>
 
 </resources>

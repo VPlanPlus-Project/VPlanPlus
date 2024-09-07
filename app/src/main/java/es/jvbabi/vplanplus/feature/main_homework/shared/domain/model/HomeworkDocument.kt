@@ -4,7 +4,9 @@ open class HomeworkDocument(
     val documentId: Int,
     val homeworkId: Int,
     val type: HomeworkDocumentType,
-    val name: String?
+    val name: String?,
+    val isDownloaded: Boolean,
+    val size: Long
 )
 
 enum class HomeworkDocumentType(val extension: String) {

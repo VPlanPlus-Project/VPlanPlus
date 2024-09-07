@@ -59,9 +59,10 @@ interface HomeworkRepository {
      * @param homeworkId The ID of the homework to which the document belongs.
      * @param name The name of the document.
      * @param type The type of the document.
+     * @param size The size of the document in bytes.
      * @return The ID of the document, either the one provided or the next available local ID.
      */
-    suspend fun addDocumentDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId
+    suspend fun addDocumentDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long): HomeworkDocumentId
 
     /**
      * Uploads a document to the cloud. This will not save the document to the device, it will only upload it to the cloud. Creating the actual document is the responsibility of the caller.
@@ -258,6 +259,8 @@ interface HomeworkRepository {
      * @see [changeDueDateDb]
      */
     suspend fun changeDueDateCloud(profileHomework: PersonalizedHomework.CloudHomework, newDate: ZonedDateTime): Unit?
+
+    suspend fun updateHomeworkDocumentsFileState()
 }
 
 typealias HomeworkDocumentId = Int
