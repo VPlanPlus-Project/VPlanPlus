@@ -232,7 +232,7 @@
     <string name="home_activeDayNext">Next lesson - %1$s until %2$s</string>
     <string name="home_activeDayNextLessonTitleWith">with</string>
     <string name="home_activeDayNextLessonTitleIn">in</string>
-    <string name="home_activeDayNextLessonCanceled">Canceled</string>
+    <string name="home_activeDayNextLessonCanceled">%1$s canceled</string>
     <string name="home_activeBookRoom">Book a room</string>
     <string name="home_activeRoomBookedBy">%1$s booked room %2$s for this canceled lesson</string>
     <string name="home_activeDaySchoolInformation">Information from your school</string>
@@ -776,5 +776,12 @@
     <string name="onboarding_crashText">The app crashes while trying to set up? Try to clear its cache and data in settings.</string>
     <string name="onboarding_crashButton">Settings</string>
     <string name="onboarding_crashToast">Click \'Storage and cache\'</string>
+    <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM Events</string>
+    <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Listen to FCM-Events prefixed with DEBUG_. This will cause much uneccessary traffic when used in production.</string>
+    <string name="notification_webAuthTitle">Login with VPlanPlus</string>
+    <string name="notification_webAuthMessage">Someone tries to log in to your vpp.ID. Tap here to verify or deny.</string>
+    <string name="webAuth_title">Verify login request</string>
+    <string name="webAuth_error">Couldn\'t verify, please try again.</string>
+    <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
 
 </resources>

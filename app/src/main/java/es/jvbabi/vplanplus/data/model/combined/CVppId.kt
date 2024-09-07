@@ -3,8 +3,8 @@ package es.jvbabi.vplanplus.data.model.combined
 import androidx.room.Embedded
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbGroup
-import es.jvbabi.vplanplus.data.model.DbVppId
-import es.jvbabi.vplanplus.data.model.DbVppIdToken
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppIdToken
 import es.jvbabi.vplanplus.domain.model.DbSchool
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId

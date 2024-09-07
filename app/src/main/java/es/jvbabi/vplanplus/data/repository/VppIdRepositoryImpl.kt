@@ -5,8 +5,8 @@ import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import es.jvbabi.vplanplus.BuildConfig
-import es.jvbabi.vplanplus.data.model.DbVppId
-import es.jvbabi.vplanplus.data.model.DbVppIdToken
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
@@ -20,6 +20,8 @@ import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.model.vpp_id.WebAuthTask
+import es.jvbabi.vplanplus.domain.repository.GetWebAuthResponse
 import es.jvbabi.vplanplus.domain.repository.GroupInfoResponse
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -33,8 +35,11 @@ import es.jvbabi.vplanplus.shared.data.Response
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.ZonedDateTime
 
@@ -47,6 +52,9 @@ class VppIdRepositoryImpl(
     private val vppIdNetworkRepository: VppIdNetworkRepository,
     private val schulverwalterNetworkRepository: BsNetworkRepository
 ) : VppIdRepository {
+
+    var authTask: WebAuthTask? = null
+
     override fun getVppIds(): Flow<List<VppId>> {
         return vppIdDao.getAll().map { list ->
             list.map { it.toModel() }
@@ -93,7 +101,7 @@ class VppIdRepositoryImpl(
             vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
             val meResponse = vppIdNetworkRepository.doRequest("/api/$API_VERSION/user/me", HttpMethod.Get)
             if (meResponse.response != HttpStatusCode.OK || meResponse.data == null) return null
-            val data = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)
+            val data = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)!!
             vppIdDao.update(
                 vppId = vppId.id,
                 name = data.username,
@@ -112,7 +120,7 @@ class VppIdRepositoryImpl(
             null
         )
         if (response.response != HttpStatusCode.OK || response.data == null) return null
-        val r = ResponseDataWrapper.fromJson<UserNameResponse>(response.data)
+        val r = ResponseDataWrapper.fromJson<UserNameResponse>(response.data)!!
         val group = groupRepository.getGroupById(r.groupId) ?: return null
         vppIdDao.upsert(
             DbVppId(
@@ -248,7 +256,7 @@ class VppIdRepositoryImpl(
         if (response.response != HttpStatusCode.OK || response.data == null) return DataResponse(null, response.response)
 
         return DataResponse(
-            ResponseDataWrapper.fromJson<VersionHintResponse>(response.data).toModel(),
+            ResponseDataWrapper.fromJson<VersionHintResponse>(response.data)!!.toModel(),
             response.response
         )
     }
@@ -281,16 +289,18 @@ class VppIdRepositoryImpl(
             Log.e(LOG_TAG, "meResponse not OK")
             return Response(SchulverwalterTokenResponse.NETWORK_ERROR, null)
         }
-        val me = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)
+        val me = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)!!
         return Response(SchulverwalterTokenResponse.SUCCESS, me.schulverwalterAccessToken)
     }
 
     override suspend fun setSchulverwalterToken(vppId: VppId.ActiveVppId, token: String) {
-        vppIdTokenDao.insert(DbVppIdToken(
+        vppIdTokenDao.insert(
+            DbVppIdToken(
             accessToken = vppId.vppIdToken,
             vppId = vppId.id,
             bsToken = token
-        ))
+        )
+        )
     }
 
     override suspend fun useOAuthCode(code: String): VppId.ActiveVppId? {
@@ -325,7 +335,7 @@ class VppIdRepositoryImpl(
             Log.e(LOG_TAG, "meResponse not OK")
             return null
         }
-        val me = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)
+        val me = ResponseDataWrapper.fromJson<MeResponse>(meResponse.data)!!
 
         deleteVppId(me.id)
 
@@ -346,16 +356,61 @@ class VppIdRepositoryImpl(
 
         vppIdDao.upsert(dbEntity)
 
-        vppIdTokenDao.insert(DbVppIdToken(
+        vppIdTokenDao.insert(
+            DbVppIdToken(
             accessToken = oAuthResponse.accessToken,
             vppId = me.id,
             bsToken = me.schulverwalterAccessToken
-        ))
+        )
+        )
         return getVppId(me.id) as? VppId.ActiveVppId ?: run {
             Log.w(LOG_TAG, "getVppId returned null")
             null
         }
     }
+
+    override suspend fun getAuthTask(vppId: VppId.ActiveVppId): Response<GetWebAuthResponse, WebAuthTask?> {
+        vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
+        val response = vppIdNetworkRepository.doRequest(
+            "/api/$API_VERSION/auth/vpp/task",
+            HttpMethod.Get
+        )
+        if (response.response != HttpStatusCode.OK) return Response(GetWebAuthResponse.ERROR, null)
+        val taskResponse: EmojiAuthTaskResponse = ResponseDataWrapper.fromJson<EmojiAuthTaskResponse?>(response.data)
+                ?: return Response(GetWebAuthResponse.NO_TASKS, null)
+
+        val task = WebAuthTask(
+            taskId = taskResponse.taskId,
+            emojis = taskResponse.emojis,
+            validUntil = ZonedDateTimeConverter().timestampToZonedDateTime(taskResponse.validUntil),
+            vppId = vppId
+        )
+        authTask = task
+        return Response(
+            GetWebAuthResponse.TASK_FOUND,
+            task
+        )
+    }
+
+    override suspend fun pickEmoji(task: WebAuthTask, emoji: String): Response<Boolean, Boolean> {
+        vppIdNetworkRepository.authentication = BearerAuthentication(task.vppId.vppIdToken)
+        val response = vppIdNetworkRepository.doRequest(
+            "/api/$API_VERSION/auth/vpp/task",
+            HttpMethod.Post,
+            Gson().toJson(mapOf("emoji" to emoji))
+        )
+        authTask = null
+        if (response.response == HttpStatusCode.OK) return Response(code = true, value = true)
+        if (response.response == HttpStatusCode.Unauthorized) return Response(code = true, value = false)
+        return Response(code = false, value = false)
+    }
+
+    override suspend fun getCurrentAuthTask(): Flow<WebAuthTask?> = flow {
+        while (true) {
+            emit(authTask)
+            delay(5000)
+        }
+    }.distinctUntilChanged()
 }
 
 private data class OAuthResponse(
@@ -407,11 +462,18 @@ private data class VersionHintResponse(
     }
 }
 
+private data class EmojiAuthTaskResponse(
+    @SerializedName("task_id") val taskId: Int,
+    @SerializedName("emojis") val emojis: List<String>,
+    @SerializedName("valid_until") val validUntil: Long,
+)
+
 data class ResponseDataWrapper<T>(
     @SerializedName("data") val data: T
 ) {
     companion object {
-        inline fun <reified T> fromJson(json: String, gson: Gson = Gson()): T {
+        inline fun <reified T> fromJson(json: String?, gson: Gson = Gson()): T? {
+            if (json == null) return null
             val type = object : TypeToken<ResponseDataWrapper<T>>() {}.type
             return (gson.fromJson(json, type) as ResponseDataWrapper<T>).data
         }

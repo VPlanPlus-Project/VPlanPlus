@@ -54,6 +54,7 @@ class NotificationRepositoryImpl(
                 is DoActionTask -> {
                     val intent = Intent(appContext, MainActivity::class.java)
                         .putExtra("tag", task.tag)
+                        .apply { if (task.payload != null) putExtra("payload", task.payload) }
 
                     PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 }

@@ -234,7 +234,7 @@
     <string name="home_activeDayNext">Nächste Stunde von %1$s bis %2$s</string>
     <string name="home_activeDayNextLessonTitleWith">mit</string>
     <string name="home_activeDayNextLessonTitleIn">in</string>
-    <string name="home_activeDayNextLessonCanceled">Entfällt</string>
+    <string name="home_activeDayNextLessonCanceled">%1$s entfällt</string>
     <string name="home_activeBookRoom">Raum buchen</string>
     <string name="home_activeRoomBookedBy">%1$s hat den Raum %2$s für diese Freistunde gebucht</string>
     <string name="home_activeDaySchoolInformation">Informationen deiner Schule</string>
@@ -773,5 +773,12 @@
     <string name="onboarding_crashText">Falls die App beim Einrichten abstürzt, versuche, App-Daten und App-Cache in den Einstellungen zu löschen.</string>
     <string name="onboarding_crashButton">Einstellungen</string>
     <string name="onboarding_crashToast">Tippe auf \'Speicher und Cache\'</string>
+    <string name="notification_webAuthTitle">Mit VPlanPlus anmelden</string>
+    <string name="notification_webAuthMessage">Jemand versucht, sich in deiner vpp.ID anzumelden. Tippe, um die Anfrage zu bestätigen oder anzulehnen.</string>
+    <string name="webAuth_title">Anmeldung bestätigen</string>
+    <string name="webAuth_error">Anmeldung konnte nicht bestätigt werden, bitte erneut versuchen.</string>
+    <string name="webAuth_description">Jemand versucht sich als \'%1$s\' anzumelden. Wenn du das bist, tippe das entsprechende Emoji an. Wenn du nicht versuchst, dich anzumelden, brich bitte ab.</string>
+    <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM-Events verarbeiten</string>
+    <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Auf Debug-FCM-Events hören. Dies wird viel unnötigen Traffic in Production erzeugen.</string>
 
 </resources>

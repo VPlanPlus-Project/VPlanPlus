@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import java.time.ZonedDateTime
 
 @Entity(

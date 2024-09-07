@@ -2,7 +2,7 @@ package es.jvbabi.vplanplus.feature.main_grades.view.data.model.combined
 
 import androidx.room.Embedded
 import androidx.room.Relation
-import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.data.model.combined.CVppId
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbGrade
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbInterval

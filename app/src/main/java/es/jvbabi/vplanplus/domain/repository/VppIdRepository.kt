@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
 import es.jvbabi.vplanplus.domain.model.VersionHints
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.model.vpp_id.WebAuthTask
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.model.Session
 import es.jvbabi.vplanplus.shared.data.Response
 import kotlinx.coroutines.flow.Flow
@@ -52,6 +53,11 @@ interface VppIdRepository {
 
     suspend fun requestCurrentSchulverwalterToken(vppId: VppId.ActiveVppId): Response<SchulverwalterTokenResponse, String?>
     suspend fun setSchulverwalterToken(vppId: VppId.ActiveVppId, token: String)
+
+    // vpp.ID WebAuth
+    suspend fun getAuthTask(vppId: VppId.ActiveVppId): Response<GetWebAuthResponse, WebAuthTask?>
+    suspend fun pickEmoji(task: WebAuthTask, emoji: String): Response<Boolean, Boolean>
+    suspend fun getCurrentAuthTask(): Flow<WebAuthTask?>
 }
 
 data class GroupInfoResponse(
@@ -64,4 +70,10 @@ enum class SchulverwalterTokenResponse {
     SUCCESS,
     NO_TOKENS,
     NETWORK_ERROR
+}
+
+enum class GetWebAuthResponse {
+    NO_TASKS,
+    ERROR,
+    TASK_FOUND
 }
