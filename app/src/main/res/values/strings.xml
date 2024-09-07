@@ -179,7 +179,7 @@
     <string name="onboarding_setupDoneText">VPlanPlus is set up.</string>
     <string name="onboarding_setupDoneLetsGo">Let\'s go!</string>
     <string name="advancedSettings_clearCacheTitle">Delete app cache</string>
-    <string name="advancedSettings_clearCacheDialogText">This deletes the data that originates from the Internet. This data can then be downloaded again. If incorrect data is displayed, deleting the app cache can help.<br />\nThis will be removed from the device:<br />\n- Timetable data<br />\n- Room bookings<br />\n- Grades<br />\n- Cloud homework<br /></string>
+    <string name="advancedSettings_clearCacheDialogText">This deletes the data that originates from the Internet. This data can then be downloaded again. If incorrect data is displayed, deleting the app cache can help.<br />\nThis will be removed from the device:<br />\n- Timetable data<br />\n- Room bookings<br />\n- Grades<br />\n- Cloud homework<br />\n- Timetable<br /></string>
     <string name="advancedSettings_clearCacheText">This can help if the cache is corrupted.</string>
     <string name="settings_profileDeleteSchool">Delete</string>
     <string name="settings_profileShareSchool">Share</string>

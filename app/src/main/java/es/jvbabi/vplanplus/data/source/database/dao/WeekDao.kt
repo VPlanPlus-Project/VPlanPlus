@@ -21,4 +21,10 @@ abstract class WeekDao {
 
     @Query("SELECT * FROM week WHERE school_id = :schoolId")
     abstract suspend fun getWeeksBySchool(schoolId: Int): List<CWeek>
+
+    @Query("DELETE FROM week")
+    abstract suspend fun deleteAllWeeks()
+
+    @Query("DELETE FROM week_type")
+    abstract suspend fun deleteAllWeekTypes()
 }

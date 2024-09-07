@@ -43,4 +43,7 @@ abstract class TimetableDao {
 
     @Query("DELETE FROM timetable WHERE id IN (:ids)")
     abstract fun deleteFromTimetableById(ids: List<UUID>)
+
+    @Query("DELETE FROM timetable")
+    abstract suspend fun deleteAllTimetable()
 }

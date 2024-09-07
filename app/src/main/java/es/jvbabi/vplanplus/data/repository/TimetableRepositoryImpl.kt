@@ -127,4 +127,10 @@ class TimetableRepositoryImpl(
             .getWeekTimetableForSchool(school.id, week.id, week.type.id)
             .map { lesson -> lesson.toModel(groupsWithLessonTimes.filter { it.key.groupId == lesson.group.group.id }.values.first()) }
     }
+
+    override suspend fun clearCache() {
+        weekDao.deleteAllWeeks()
+        weekDao.deleteAllWeekTypes()
+        timetableDao.deleteAllTimetable()
+    }
 }

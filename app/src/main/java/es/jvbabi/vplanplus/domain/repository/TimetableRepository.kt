@@ -30,6 +30,8 @@ interface TimetableRepository {
 
     suspend fun getTimetableForGroup(group: Group, date: LocalDate): List<Lesson.TimetableLesson>
     suspend fun getWeekTimetableForSchool(school: School, week: Week?): List<Lesson.TimetableLesson>
+
+    suspend fun clearCache()
 }
 
 data class NewTimetableLesson(
