@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.zIndex
 import androidx.core.animation.doOnEnd
-import androidx.core.content.IntentSanitizer
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -365,26 +364,6 @@ class MainActivity : FragmentActivity() {
                 }
             }
         }
-    }
-
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        this.finish()
-        val sanitized = IntentSanitizer.Builder()
-            .allowExtra("profileId", String::class.java)
-            .allowExtra("dateStr", String::class.java)
-            .allowExtra("screen", String::class.java)
-            .allowData { true }
-            .allowFlags(0x10000000)
-            .allowAnyComponent()
-            .allowPackage { true }
-            .allowAction(Intent.ACTION_VIEW)
-            .allowCategory(Intent.CATEGORY_BROWSABLE)
-            .build()
-            .sanitizeByFiltering(intent)
-        startActivity(sanitized)
-        processIntent(intent)
     }
 
     private fun doInit(calledBySplashScreen: Boolean) {

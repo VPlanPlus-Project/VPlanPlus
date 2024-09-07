@@ -310,6 +310,7 @@ fun AddHomeworkSheetContent(
                     uri = document.uri,
                     type = document.type,
                     name = document.name,
+                    size = document.size,
                     isDownloaded = true,
                     isEditing = true,
                     progress = document.uploadProgress,

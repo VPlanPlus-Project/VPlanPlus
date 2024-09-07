@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -84,6 +85,7 @@ import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
+import es.jvbabi.vplanplus.util.getFileSize
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -97,12 +99,12 @@ fun HomeworkDetailScreen(
     val state = viewModel.state
     val context = LocalContext.current
 
-    val pickDocumentLauncher = pickDocumentLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.PDF.extension))) }
-    val (scanner, scannerLauncher) = rememberScanner { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.PDF.extension))) }
+    val pickDocumentLauncher = pickDocumentLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, size = it.toFile().getFileSize(), extension = HomeworkDocumentType.PDF.extension))) }
+    val (scanner, scannerLauncher) = rememberScanner { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, size = it.toFile().getFileSize(), extension = HomeworkDocumentType.PDF.extension))) }
 
     val takePhotoLauncher =
-        rememberTakePhotoLauncher(key1 = state.newDocuments.size) { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
-    val pickPhotosLauncher = rememberPickPhotoLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
+        rememberTakePhotoLauncher(key1 = state.newDocuments.size) { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, size = it.toFile().getFileSize(), extension = HomeworkDocumentType.JPG.extension))) }
+    val pickPhotosLauncher = rememberPickPhotoLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, size = it.toFile().getFileSize(), extension = HomeworkDocumentType.JPG.extension))) }
 
     HomeworkDetailScreenContent(
         onBack = { navHostController.popBackStack() },

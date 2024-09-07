@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -69,6 +68,7 @@ import java.io.File
 fun DocumentRecord(
     uri: Uri?,
     isDownloaded: Boolean,
+    size: Long,
     name: String?,
     newName: String? = null,
     type: HomeworkDocumentType,
@@ -82,7 +82,6 @@ fun DocumentRecord(
     val context = LocalContext.current
     var bitmap: Bitmap? by remember(uri) { mutableStateOf(null) }
     var pageCount by remember(uri) { mutableIntStateOf(0) }
-    var documentSize by remember(uri) { mutableLongStateOf(0) }
     LaunchedEffect(key1 = uri) {
         if (uri == null || !isDownloaded) {
             isLoading = false
@@ -104,17 +103,14 @@ fun DocumentRecord(
                     it.render(bitmap!!, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                 }
                 pageCount = pdfRenderer.pageCount
-                documentSize = file.length()
             }
 
             HomeworkDocumentType.JPG -> {
-                val file = uri.toFile()
                 bitmap = try {
                     context.contentResolver.openInputStream(uri)?.use {
                         it.use { stream -> Bitmap.createBitmap(BitmapFactory.decodeStream(stream)) }
                     }
                 } catch (_: FileNotFoundException) { null }
-                documentSize = file.length()
             }
         }
         isLoading = false
@@ -212,7 +208,7 @@ fun DocumentRecord(
                         )
                     }
                     Text(
-                        text = storageToHumanReadableFormat(documentSize),
+                        text = storageToHumanReadableFormat(size),
                         style = MaterialTheme.typography.labelSmall
                     )
                     VerticalExpandAnimatedAndFadingVisibility(visible = progress != null) {
@@ -250,11 +246,11 @@ fun DocumentRecord(
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordPreview() {
-    DocumentRecord(null, true, null, null, HomeworkDocumentType.PDF, 0.3f, false)
+    DocumentRecord(null, true, 453614563,null, null, HomeworkDocumentType.PDF, 0.3f, false)
 }
 
 @Composable
 @Preview(showBackground = true)
 private fun DocumentRecordEditingPreview() {
-    DocumentRecord(null, false, "A file", null, HomeworkDocumentType.PDF, null, true)
+    DocumentRecord(null, false, 4513, "A file", null, HomeworkDocumentType.PDF, null, true)
 }

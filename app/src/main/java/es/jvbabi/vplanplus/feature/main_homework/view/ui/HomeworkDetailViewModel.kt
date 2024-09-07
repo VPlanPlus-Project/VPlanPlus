@@ -120,7 +120,7 @@ class HomeworkDetailViewModel @Inject constructor(
                 }
 
                 is AddDocumentAction -> {
-                    val newDocument = DocumentUpdate.NewDocument(action.newDocument.uri, extension = action.newDocument.extension)
+                    val newDocument = DocumentUpdate.NewDocument(action.newDocument.uri, size = action.newDocument.size, extension = action.newDocument.extension)
                     state = state.copy(newDocuments = state.newDocuments + (newDocument to null), hasEdited = true)
                 }
 

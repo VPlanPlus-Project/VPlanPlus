@@ -72,6 +72,7 @@ sealed class DocumentUpdate(
     class NewDocument(
         uri: Uri,
         name: String = uri.toFile().name,
+        val size: Long,
         val extension: String
     ) : DocumentUpdate(uri, name)
 

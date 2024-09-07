@@ -524,7 +524,7 @@ private data class HomeworkDocumentResponse(
     @SerializedName("file_name") val name: String,
     @SerializedName("file_type") val extension: String,
     @SerializedName("id") val id: Int,
-    @SerializedName("size") val size: Long
+    @SerializedName("file_size") val size: Long
 )
 
 private data class RenameDocumentRequest(

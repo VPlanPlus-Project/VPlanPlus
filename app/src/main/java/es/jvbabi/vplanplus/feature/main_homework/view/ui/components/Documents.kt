@@ -103,6 +103,7 @@ fun Documents(
                         uri = uri,
                         type = document.type,
                         name = document.name,
+                        size = document.size,
                         isDownloaded = document.isDownloaded,
                         newName = editedDocument?.name,
                         isEditing = isEditing,
@@ -119,8 +120,9 @@ fun Documents(
                 isDownloaded = true,
                 progress = progress,
                 name = document.name,
+                size = document.size,
                 isEditing = isEditing,
-                onRename = { to -> onRename(DocumentUpdate.NewDocument(document.uri, to, document.extension)) },
+                onRename = { to -> onRename(DocumentUpdate.NewDocument(document.uri, to, document.size, document.extension)) },
                 onRemove = { onRemove(document) }
             )
         }
