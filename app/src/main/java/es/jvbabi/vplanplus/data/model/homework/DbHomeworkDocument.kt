@@ -28,8 +28,8 @@ data class DbHomeworkDocument(
     @ColumnInfo("file_name") val fileName: String,
     @ColumnInfo("file_type") val fileType: String,
     @ColumnInfo("homework_id") val homeworkId: Long,
-    @ColumnInfo("is_downloaded") val isDownloaded: Boolean,
-    @ColumnInfo("size") val size: Long
+    @ColumnInfo("is_downloaded", defaultValue = "false") val isDownloaded: Boolean,
+    @ColumnInfo("size", defaultValue = "0") val size: Long
 ) {
     fun toModel(): HomeworkDocument {
         if (isDownloaded) return HomeworkDocument.SavedHomeworkDocument(
