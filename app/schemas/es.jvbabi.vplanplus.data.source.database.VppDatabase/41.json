@@ -1,8 +1,8 @@
 {
   "formatVersion": 1,
   "database": {
-    "version": 39,
-    "identityHash": "4e29dcaa29b93991f5fb1cffd09b5bde",
+    "version": 41,
+    "identityHash": "25b32d348af5e557e0b98fabd6d43ad5",
     "entities": [
       {
         "tableName": "lesson",
@@ -2053,6 +2053,62 @@
         ]
       },
       {
+        "tableName": "sp24_splan_in_week",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`school_id` INTEGER NOT NULL, `week_number` INTEGER NOT NULL, `has_data` INTEGER NOT NULL, PRIMARY KEY(`school_id`, `week_number`), FOREIGN KEY(`school_id`) REFERENCES `school`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "fields": [
+          {
+            "fieldPath": "schoolId",
+            "columnName": "school_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "weekNumber",
+            "columnName": "week_number",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasData",
+            "columnName": "has_data",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "school_id",
+            "week_number"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_sp24_splan_in_week_school_id_week_number",
+            "unique": true,
+            "columnNames": [
+              "school_id",
+              "week_number"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_sp24_splan_in_week_school_id_week_number` ON `${TABLE_NAME}` (`school_id`, `week_number`)"
+          }
+        ],
+        "foreignKeys": [
+          {
+            "table": "school",
+            "onDelete": "CASCADE",
+            "onUpdate": "NO ACTION",
+            "columns": [
+              "school_id"
+            ],
+            "referencedColumns": [
+              "id"
+            ]
+          }
+        ]
+      },
+      {
         "tableName": "homework",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `created_by` INTEGER, `group_id` INTEGER NOT NULL, `is_public` INTEGER NOT NULL DEFAULT false, `created_at` INTEGER NOT NULL, `default_lesson_vp_id` INTEGER, `until` INTEGER NOT NULL, `profile_id` TEXT, PRIMARY KEY(`id`), FOREIGN KEY(`created_by`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`group_id`) REFERENCES `group`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`profile_id`) REFERENCES `profile_class`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
@@ -2401,7 +2457,7 @@
       },
       {
         "tableName": "homework_document",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `file_name` TEXT NOT NULL, `file_type` TEXT NOT NULL, `homework_id` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`homework_id`) REFERENCES `homework`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `file_name` TEXT NOT NULL, `file_type` TEXT NOT NULL, `homework_id` INTEGER NOT NULL, `is_downloaded` INTEGER NOT NULL, `size` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`homework_id`) REFERENCES `homework`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -2424,6 +2480,18 @@
           {
             "fieldPath": "homeworkId",
             "columnName": "homework_id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isDownloaded",
+            "columnName": "is_downloaded",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "size",
+            "columnName": "size",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -2902,7 +2970,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '4e29dcaa29b93991f5fb1cffd09b5bde')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '25b32d348af5e557e0b98fabd6d43ad5')"
     ]
   }
 }
