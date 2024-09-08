@@ -92,7 +92,10 @@ open class NetworkRepositoryImpl(
                 if (requestMethod != HttpMethod.Get) {
                     if (requestBody is ByteArray) setBody(ByteReadChannel(requestBody))
                     else if (requestBody != null) setBody(requestBody)
-                    onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
+                    onUpload { bytesSentTotal, contentLength ->
+                        onUploading(bytesSentTotal, contentLength)
+                        Log.d("Network", "Uploading $bytesSentTotal/$contentLength")
+                    }
                     onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
                 }
             }

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui.components
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,6 +28,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDoc
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.AddDocumentModal
 import es.jvbabi.vplanplus.feature.main_homework.shared.ui.add_document_drawer.AddImageModel
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.DocumentUpdate
+import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkDocumentUi
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.components.document_record.DocumentRecord
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.SegmentedButtonItem
@@ -38,13 +40,14 @@ import es.jvbabi.vplanplus.ui.common.rememberModalBottomSheetStateWithoutFullExp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Documents(
-    documents: List<HomeworkDocument>,
+    documentItems: List<HomeworkDocumentUi>,
     changedDocuments: List<DocumentUpdate.EditedDocument>,
-    newDocuments: Map<DocumentUpdate.NewDocument, Float?>,
+    newDocuments: List<DocumentUpdate.NewDocument>,
     markedAsRemoveIds: List<Int>,
     isEditing: Boolean,
     onRename: (updated: DocumentUpdate) -> Unit,
     onRemove: (removed: DocumentUpdate) -> Unit,
+    onDownload: (downloaded: HomeworkDocument) -> Unit,
     onPickPhotoClicked: () -> Unit,
     onTakePhotoClicked: () -> Unit,
     onPickDocumentClicked: () -> Unit,
@@ -83,7 +86,7 @@ fun Documents(
             color = MaterialTheme.colorScheme.outline,
             modifier = Modifier.padding(bottom = 4.dp)
         )
-        if (documents.isEmpty() && newDocuments.isEmpty()) {
+        if (documentItems.isEmpty() && newDocuments.isEmpty()) {
             RowVerticalCenter(
                 Modifier.align(Alignment.CenterHorizontally)
             ) {
@@ -94,31 +97,33 @@ fun Documents(
                 )
             }
         } else {
-            documents
-                .filter { document -> document.documentId !in markedAsRemoveIds }
-                .forEach { document ->
-                    val uri = document.buildUri()
-                    val editedDocument = changedDocuments.firstOrNull { it.documentId == document.documentId }
+            documentItems
+                .filter { item -> item.document.documentId !in markedAsRemoveIds }
+                .forEach { item ->
+                    val uri = item.document.buildUri()
+                    val editedDocument = changedDocuments.firstOrNull { it.documentId == item.document.documentId }
                     DocumentRecord(
                         uri = uri,
-                        type = document.type,
-                        name = document.name,
-                        size = document.size,
-                        isDownloaded = document.isDownloaded,
+                        type = item.document.type,
+                        name = item.document.name,
+                        size = item.document.size,
+                        progress = item.progress,
+                        isDownloaded = item.document is HomeworkDocument.SavedHomeworkDocument,
                         newName = editedDocument?.name,
                         isEditing = isEditing,
-                        onRename = { to -> onRename(DocumentUpdate.EditedDocument(uri, to, document.documentId)) },
-                        onRemove = { onRemove(DocumentUpdate.EditedDocument(uri, documentId = document.documentId)) }
+                        onRename = { to -> onRename(DocumentUpdate.EditedDocument(uri, to, item.document.documentId)) },
+                        onRemove = { onRemove(DocumentUpdate.EditedDocument(uri, documentId = item.document.documentId)) },
+                        onDownload = { onDownload(item.document) }
                     )
                 }
         }
 
-        newDocuments.forEach { (document, progress) ->
+        newDocuments.forEach { document ->
             DocumentRecord(
                 uri = document.uri,
                 type = HomeworkDocumentType.fromExtension(document.extension),
                 isDownloaded = true,
-                progress = progress,
+                progress = document.progress,
                 name = document.name,
                 size = document.size,
                 isEditing = isEditing,
@@ -161,8 +166,16 @@ fun Documents(
 @Preview(showBackground = true)
 private fun NoDocumentsPreview() {
     Documents(
-        documents = emptyList(),
-        newDocuments = emptyMap(),
+        documentItems = emptyList(),
+        newDocuments = listOf(
+            DocumentUpdate.NewDocument(
+                name = "Document 1.jpg",
+                size = 1024,
+                progress = .4f,
+                extension = "jpg",
+                uri = Uri.EMPTY
+            )
+        ),
         changedDocuments = emptyList(),
         markedAsRemoveIds = emptyList(),
         isEditing = true,
@@ -171,6 +184,7 @@ private fun NoDocumentsPreview() {
         onPickPhotoClicked = {},
         onTakePhotoClicked = {},
         onPickDocumentClicked = {},
-        onScanDocumentClicked = {}
+        onScanDocumentClicked = {},
+        onDownload = {}
     )
 }

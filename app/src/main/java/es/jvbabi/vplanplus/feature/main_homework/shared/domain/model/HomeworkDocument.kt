@@ -1,13 +1,29 @@
 package es.jvbabi.vplanplus.feature.main_homework.shared.domain.model
 
-open class HomeworkDocument(
+sealed class HomeworkDocument(
     val documentId: Int,
     val homeworkId: Int,
     val type: HomeworkDocumentType,
     val name: String?,
-    val isDownloaded: Boolean,
     val size: Long
-)
+) {
+    class SavedHomeworkDocument(
+        documentId: Int,
+        homeworkId: Int,
+        type: HomeworkDocumentType,
+        name: String?,
+        size: Long
+    ) : HomeworkDocument(documentId, homeworkId, type, name, size)
+
+    class OnlineHomeworkDocument(
+        documentId: Int,
+        homeworkId: Int,
+        type: HomeworkDocumentType,
+        name: String?,
+        size: Long
+    ) : HomeworkDocument(documentId, homeworkId, type, name, size)
+}
+
 
 enum class HomeworkDocumentType(val extension: String) {
     JPG("jpg"),
@@ -22,4 +38,8 @@ enum class HomeworkDocumentType(val extension: String) {
             }
         }
     }
+}
+
+enum class HomeworkDownloadDocumentState {
+    SAVED, ONLY_ONLINE
 }

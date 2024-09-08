@@ -74,8 +74,11 @@ sealed class DocumentUpdate(
         uri: Uri,
         name: String = uri.toFile().name,
         val size: Long,
-        val extension: String
-    ) : DocumentUpdate(uri, name)
+        val extension: String,
+        val progress: Float = 0f
+    ) : DocumentUpdate(uri, name) {
+        fun copy(progress: Float = this.progress) = NewDocument(uri, name, size, extension, progress)
+    }
 
     class EditedDocument(
         uri: Uri,

@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.EditTaskUse
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.UpdateDueDateUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
+import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.DownloadDocumentUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.GetHomeworkByIdUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.HomeworkDetailUseCases
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.UpdateDocumentsUseCase
@@ -40,6 +41,7 @@ object HomeworkDetailModule {
         addTaskUseCase = AddTaskUseCase(homeworkRepository),
         updateHomeworkVisibilityUseCase = UpdateHomeworkVisibilityUseCase(homeworkRepository),
         updateDocumentsUseCase = UpdateDocumentsUseCase(homeworkRepository, fileRepository),
-        deleteHomeworkUseCase = DeleteHomeworkUseCase(homeworkRepository, fileRepository)
+        deleteHomeworkUseCase = DeleteHomeworkUseCase(homeworkRepository, fileRepository),
+        downloadDocumentUseCase = DownloadDocumentUseCase(homeworkRepository, fileRepository, getCurrentProfileUseCase)
     )
 }

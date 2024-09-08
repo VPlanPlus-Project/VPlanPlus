@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui
 
 import android.app.Activity
+import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.IntentSenderRequest
@@ -269,13 +270,14 @@ private fun HomeworkDetailScreenContent(
             )
             Spacer8Dp()
             Documents(
-                documents = state.personalizedHomework?.homework?.documents ?: emptyList(),
+                documentItems = state.documents,
                 changedDocuments = state.editedDocuments,
                 newDocuments = state.newDocuments,
                 markedAsRemoveIds = state.documentsToDelete.map { it.documentId },
                 isEditing = state.isEditing && state.canEditOrigin,
                 onRename = { onAction(RenameDocumentAction(it)) },
                 onRemove = { onAction(DeleteDocumentAction(it)) },
+                onDownload = { onAction(DownloadDocumentAction(it)) },
                 onPickPhotoClicked = onPickPhotoClicked,
                 onTakePhotoClicked = onTakePhotoClicked,
                 onPickDocumentClicked = onPickDocumentClicked,
@@ -315,20 +317,11 @@ fun HomeworkDetailScreenPreview() {
                     id = 1,
                     createdBy = vppId,
                     documents = listOf(
-                        HomeworkDocument(
-                            documentId = 1,
-                            homeworkId = 1,
-                            type = HomeworkDocumentType.JPG,
-                            name = "Document 1.jpg",
-                            isDownloaded = true,
-                            size = 1024
-                        ),
-                        HomeworkDocument(
+                        HomeworkDocument.SavedHomeworkDocument(
                             documentId = 2,
                             homeworkId = 1,
                             type = HomeworkDocumentType.PDF,
                             name = "Document 2.pdf",
-                            isDownloaded = false,
                             size = 2048*1024
                         )
                     ),
@@ -358,6 +351,15 @@ fun HomeworkDetailScreenPreview() {
                 ),
                 profile = ProfilePreview.generateClassProfile(
                     group, vppId
+                )
+            ),
+            newDocuments = listOf(
+                DocumentUpdate.NewDocument(
+                    name = "Document 1.jpg",
+                    size = 1024,
+                    progress = .4f,
+                    extension = "jpg",
+                    uri = Uri.EMPTY
                 )
             ),
             isEditing = true,

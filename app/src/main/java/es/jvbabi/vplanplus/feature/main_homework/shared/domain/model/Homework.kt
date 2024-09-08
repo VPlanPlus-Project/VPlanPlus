@@ -49,6 +49,15 @@ sealed class HomeworkCore(
 
     fun getTaskById(id: Int) = tasks.find { it.id == id }
 
+    abstract fun copy(
+        id: Int = this.id,
+        createdAt: ZonedDateTime = this.createdAt,
+        until: ZonedDateTime = this.until,
+        tasks: List<HomeworkTaskCore> = this.tasks,
+        documents: List<HomeworkDocument> = this.documents,
+        defaultLesson: DefaultLesson? = this.defaultLesson
+    ): HomeworkCore
+
     class LocalHomework(
         id: Int,
         createdAt: ZonedDateTime,
@@ -64,6 +73,10 @@ sealed class HomeworkCore(
 
         override fun getAssociatedGroup(): Group {
             return profile.group
+        }
+
+        override fun copy(id: Int, createdAt: ZonedDateTime, until: ZonedDateTime, tasks: List<HomeworkTaskCore>, documents: List<HomeworkDocument>, defaultLesson: DefaultLesson?): HomeworkCore {
+            return LocalHomework(id, createdAt, until, tasks, documents, defaultLesson, profile)
         }
     }
 
@@ -85,6 +98,10 @@ sealed class HomeworkCore(
         override fun getAssociatedGroup(): Group {
             return this.group
         }
+
+        override fun copy(id: Int, createdAt: ZonedDateTime, until: ZonedDateTime, tasks: List<HomeworkTaskCore>, documents: List<HomeworkDocument>, defaultLesson: DefaultLesson?): HomeworkCore {
+            return CloudHomework(id, createdAt, until, tasks, documents, defaultLesson, createdBy, group, isPublic)
+        }
     }
 }
 sealed class PersonalizedHomework(
@@ -96,18 +113,27 @@ sealed class PersonalizedHomework(
         profile: ClassProfile,
         homework: HomeworkCore.LocalHomework,
         tasks: List<HomeworkTaskDone>
-    ) : PersonalizedHomework(profile, homework, tasks)
+    ) : PersonalizedHomework(profile, homework, tasks) {
+        override fun updateCore(core: HomeworkCore): PersonalizedHomework {
+            return LocalHomework(profile, core as HomeworkCore.LocalHomework, tasks)
+        }
+    }
 
     class CloudHomework(
         profile: ClassProfile,
         override val homework: HomeworkCore.CloudHomework,
         tasks: List<HomeworkTaskDone>,
         val isHidden: Boolean
-    ) : PersonalizedHomework(profile, homework, tasks)
+    ) : PersonalizedHomework(profile, homework, tasks) {
+        override fun updateCore(core: HomeworkCore): PersonalizedHomework {
+            return CloudHomework(profile, core as HomeworkCore.CloudHomework, tasks, isHidden)
+        }
+    }
 
     fun allDone(): Boolean {
         return tasks.all { it.isDone }
     }
 
     fun getTaskById(id: Int) = tasks.find { it.id == id }
+    abstract fun updateCore(core: HomeworkCore): PersonalizedHomework
 }

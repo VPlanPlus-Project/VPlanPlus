@@ -37,7 +37,7 @@ interface HomeworkRepository {
      */
     suspend fun downloadHomework(vppId: VppId.ActiveVppId?, group: Group): List<HomeworkCore.CloudHomework>?
 
-    suspend fun downloadHomeworkDocument(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray?
+    suspend fun downloadHomeworkDocument(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int, onDownloading: (sent: Long, total: Long) -> Unit): ByteArray?
 
     suspend fun downloadHomeworkDocumentMetadata(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument?
 
