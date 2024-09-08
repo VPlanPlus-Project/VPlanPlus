@@ -126,7 +126,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 41,
+    version = 40,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -144,7 +144,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 26, to = 27), // add vpp.ID to profile
         AutoMigration(from = 30, to = 31), // add documents
         AutoMigration(from = 36, to = 37), // add courseGroup
-        AutoMigration(from = 39, to = 40) // sp24 is data in week available
     ],
 )
 @TypeConverters(
@@ -357,10 +356,12 @@ abstract class VppDatabase : RoomDatabase() {
             }
         }
 
-        val migration_40_41 = object : Migration(40, 41) {
+        val migration_39_40 = object : Migration(39, 40) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE homework_document ADD COLUMN is_downloaded INTEGER NOT NULL DEFAULT false")
                 db.execSQL("ALTER TABLE homework_document ADD COLUMN size INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE homework_document ADD COLUMN is_downloaded INTEGER NOT NULL DEFAULT false")
+                db.execSQL("CREATE TABLE sp24_splan_in_week (school_id INTEGER NOT NULL, week_number INTEGER NOT NULL, has_data BOOLEAN NOT NULL, PRIMARY KEY (school_id, week_number), FOREIGN KEY (school_id) REFERENCES school(id) ON DELETE CASCADE);")
+                db.execSQL("CREATE UNIQUE INDEX idx_sp24_splan_in_week_school_week ON sp24_splan_in_week (school_id, week_number);")
             }
         }
     }
