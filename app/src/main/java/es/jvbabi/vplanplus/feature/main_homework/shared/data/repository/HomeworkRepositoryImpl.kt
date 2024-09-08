@@ -23,9 +23,9 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkDocumentId
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkId
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
@@ -35,20 +35,17 @@ import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.Response
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
-import es.jvbabi.vplanplus.ui.common.storageToHumanReadableFormat
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.onDownload
 import io.ktor.client.request.get
 import io.ktor.client.request.headers
-import io.ktor.client.request.prepareGet
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
-import io.ktor.http.contentLength
 import io.ktor.http.isSuccess
+import io.ktor.util.toByteArray
 import io.ktor.utils.io.ByteReadChannel
-import io.ktor.utils.io.core.isNotEmpty
-import io.ktor.utils.io.core.readBytes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -116,30 +113,18 @@ class HomeworkRepositoryImpl(
         onDownloading: (sent: Long, total: Long) -> Unit
     ): ByteArray? {
         val client = HttpClient(Android)
-        var bytes = null as ByteArray?
         val server = keyValueDao.get(Keys.VPPID_SERVER) ?: servers.first().apiHost
         Log.d("HomeworkRepositoryImpl", "Downloading document $homeworkDocumentId from $server")
-        client.get("https://www.google.com")
-        client.prepareGet("$server/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework/$homeworkId/document/$homeworkDocumentId/content") {
-            Log.d("HomeworkRepositoryImpl", "Preparing request to $server")
+        val response = client.get("$server/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework/$homeworkId/document/$homeworkDocumentId/content") {
             headers {
                 (if (vppId == null) group.school.buildAccess().buildVppAuthentication()
                 else BearerAuthentication(vppId.vppIdToken)).toHeader().let { append(it.first, it.second) }
             }
-        }.execute { response ->
-            Log.d("HomeworkRepositoryImpl", "Response: ${response.status}, content-length: ${response.contentLength()} (${storageToHumanReadableFormat(response.contentLength() ?: 0)})")
-            if (!response.status.isSuccess()) return@execute
-            val channel: ByteReadChannel = response.body()
-            while (!channel.isClosedForRead) {
-                val packet = channel.readRemaining(DEFAULT_BUFFER_SIZE.toLong())
-                while (packet.isNotEmpty) {
-                    bytes = bytes?.plus(packet.readBytes()) ?: packet.readBytes()
-                    onDownloading(bytes!!.size.toLong(), response.contentLength() ?: -1L)
-                }
-            }
+            onDownload { bytesSentTotal, contentLength -> onDownloading(bytesSentTotal, contentLength) }
         }
-
-        return bytes
+        if (!response.status.isSuccess()) return null
+        val channel: ByteReadChannel = response.body()
+        return channel.toByteArray()
     }
 
     override suspend fun downloadHomeworkDocumentMetadata(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument? {

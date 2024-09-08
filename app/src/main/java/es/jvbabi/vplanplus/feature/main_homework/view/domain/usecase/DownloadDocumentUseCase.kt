@@ -15,7 +15,7 @@ class DownloadDocumentUseCase(
 ) {
     suspend operator fun invoke(homework: PersonalizedHomework, document: HomeworkDocument, onDownloading: (sent: Long, total: Long) -> Unit) {
         val profile = getCurrentProfileUseCase().first() as? ClassProfile ?: return
-        val vppId = profile.vppId ?: return
+        val vppId = profile.vppId
         val group = profile.group
         val data = homeworkRepository.downloadHomeworkDocument(vppId, group, homework.homework.id, document.documentId, onDownloading) ?: return
         fileRepository.writeBytes("homework_documents", "${document.documentId}.${document.type.extension}", data)
