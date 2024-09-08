@@ -27,14 +27,24 @@ data class DbHomeworkDocument(
     val id: Int,
     @ColumnInfo("file_name") val fileName: String,
     @ColumnInfo("file_type") val fileType: String,
-    @ColumnInfo("homework_id") val homeworkId: Long
+    @ColumnInfo("homework_id") val homeworkId: Long,
+    @ColumnInfo("is_downloaded") val isDownloaded: Boolean,
+    @ColumnInfo("size") val size: Long
 ) {
     fun toModel(): HomeworkDocument {
-        return HomeworkDocument(
+        if (isDownloaded) return HomeworkDocument.SavedHomeworkDocument(
             documentId = id,
             homeworkId = homeworkId.toInt(),
             type = HomeworkDocumentType.fromExtension(fileType),
-            name = fileName
+            name = fileName,
+            size = size
+        )
+        return HomeworkDocument.OnlineHomeworkDocument(
+            documentId = id,
+            homeworkId = homeworkId.toInt(),
+            type = HomeworkDocumentType.fromExtension(fileType),
+            name = fileName,
+            size = size
         )
     }
 }

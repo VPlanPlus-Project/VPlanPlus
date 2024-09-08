@@ -100,14 +100,9 @@ class UpdateHomeworkUseCase(
                             documentId = document.documentId,
                             homeworkId = downloadedHomeworkItem.id,
                             type = document.type,
-                            name = document.name ?: "Untitled"
+                            name = document.name ?: "Untitled",
+                            size = document.size
                         )
-
-                        if (!fileRepository.exists("homework_documents", "${document.documentId}.${document.type.extension}")) {
-                            Log.d("UpdateHomeworkUseCase", "Downloading document ${document.documentId}")
-                            val content = homeworkRepository.downloadHomeworkDocument(profile.vppId, profile.group, downloadedHomeworkItem.id, document.documentId) ?: return false
-                            fileRepository.writeBytes("homework_documents", "${document.documentId}.${document.type.extension}", content)
-                        }
                     }
 
                     val tasksToDelete = existingItem?.tasks.orEmpty().filter { task -> downloadedHomeworkItem.tasks.none { it.id == task.id } }
