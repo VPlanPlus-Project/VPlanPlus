@@ -23,4 +23,10 @@ abstract class HomeworkDocumentDao {
 
     @Query("UPDATE homework_document SET file_name = :fileName WHERE id = :id")
     abstract fun updateHomeworkDocumentFileName(id: Int, fileName: String)
+
+    @Query("UPDATE homework_document SET is_downloaded = :isDownloaded WHERE id = :id")
+    abstract fun updateHomeworkDocumentIsDownloaded(id: Int, isDownloaded: Boolean)
+
+    @Query("UPDATE homework_document SET size = :size WHERE id = :id")
+    abstract fun updateHomeworkDocumentSize(id: Int, size: Long)
 }

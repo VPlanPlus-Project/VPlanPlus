@@ -67,6 +67,7 @@ object HomeworkModule {
             homeworkDao = db.homeworkDao,
             homeworkNotificationTimeDao = db.homeworkNotificationTimeDao,
             homeworkDocumentDao = db.homeworkDocumentDao,
+            keyValueDao = db.keyValueDao,
             vppIdRepository = vppIdRepository,
             vppIdNetworkRepository = VppModule.provideVppIdNetworkRepository(keyValueRepository, logRecordRepository),
             defaultLessonRepository = defaultLessonRepository,
