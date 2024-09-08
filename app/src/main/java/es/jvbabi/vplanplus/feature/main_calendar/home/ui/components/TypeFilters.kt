@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.DayViewFilter
@@ -97,4 +98,40 @@ fun TypeFilters(
             }
         }
     }
+}
+
+@Composable
+@Preview
+private fun TypeFiltersPreview() {
+    TypeFilters(
+        hasLessons = true,
+        hasHomework = true,
+        hasGrades = true,
+        enabledFilters = listOf(DayViewFilter.HOMEWORK, DayViewFilter.GRADES),
+        toggleFilter = {}
+    )
+}
+
+@Composable
+@Preview
+private fun TypeFiltersNoLessonsPreview() {
+    TypeFilters(
+        hasLessons = false,
+        hasHomework = true,
+        hasGrades = true,
+        enabledFilters = listOf(DayViewFilter.HOMEWORK, DayViewFilter.GRADES),
+        toggleFilter = {}
+    )
+}
+
+@Composable
+@Preview
+private fun TypeFiltersNoHomeworkPreview() {
+    TypeFilters(
+        hasLessons = true,
+        hasHomework = false,
+        hasGrades = true,
+        enabledFilters = listOf(DayViewFilter.HOMEWORK, DayViewFilter.GRADES),
+        toggleFilter = {}
+    )
 }
