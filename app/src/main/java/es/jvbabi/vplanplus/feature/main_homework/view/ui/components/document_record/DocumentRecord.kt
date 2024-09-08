@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.os.ParcelFileDescriptor.MODE_READ_ONLY
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -39,7 +40,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
@@ -82,7 +85,9 @@ fun DocumentRecord(
     val context = LocalContext.current
     var bitmap: Bitmap? by remember(uri) { mutableStateOf(null) }
     var pageCount by remember(uri) { mutableIntStateOf(0) }
-    LaunchedEffect(key1 = uri) {
+    var isDownloadStarted by remember(isDownloaded) { mutableStateOf(false) }
+    val isLoadingAnim by animateFloatAsState(targetValue = if (isDownloadStarted) 1f else 0f, label = "isLoadingAnim")
+    LaunchedEffect(key1 = uri, key2 = isDownloaded) {
         if (uri == null || !isDownloaded) {
             isLoading = false
             return@LaunchedEffect
@@ -133,7 +138,9 @@ fun DocumentRecord(
                 val openFile = {
                     val intent = Intent(Intent.ACTION_VIEW)
                     val file = File(context.cacheDir, FileRepository.createSafeFileName(name ?: "unknown"))
-                    uri!!.toFile().copyTo(file, overwrite = true)
+                    uri!!
+                        .toFile()
+                        .copyTo(file, overwrite = true)
                     val newUri = FileProvider.getUriForFile(
                         context,
                         context.packageName + ".fileprovider",
@@ -146,7 +153,10 @@ fun DocumentRecord(
                     intent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
                     context.startActivity(intent)
                 }
-                if (!isDownloaded) onDownload { openFile() }
+                if (!isDownloaded) {
+                    isDownloadStarted = true
+                    onDownload { openFile() }
+                }
                 else openFile()
             }
             .padding(8.dp),
@@ -163,7 +173,10 @@ fun DocumentRecord(
                 CircularProgressIndicator(color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             else if (!isDownloaded) {
-                Icon(imageVector = Icons.Outlined.CloudDownload, contentDescription = null, modifier = Modifier.size(32.dp))
+                Icon(imageVector = Icons.Outlined.CloudDownload, contentDescription = null, modifier = Modifier
+                    .size(32.dp)
+                    .scale(1 - 0.3f * isLoadingAnim))
+                CircularProgressIndicator(Modifier.alpha(isLoadingAnim))
             }
             if (bitmap != null) Image(
                 bitmap = bitmap!!.asImageBitmap(),

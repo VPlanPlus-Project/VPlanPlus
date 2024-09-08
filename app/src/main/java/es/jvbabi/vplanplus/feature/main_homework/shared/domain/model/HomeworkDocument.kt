@@ -39,7 +39,3 @@ enum class HomeworkDocumentType(val extension: String) {
         }
     }
 }
-
-enum class HomeworkDownloadDocumentState {
-    SAVED, ONLY_ONLINE
-}
