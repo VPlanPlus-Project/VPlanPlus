@@ -76,7 +76,6 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer12Dp
-import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
@@ -315,22 +314,27 @@ private fun CalendarScreenContent(
                                                         .padding(vertical = 8.dp, horizontal = 16.dp)
                                                 ) {
                                                     Spacer8Dp()
-                                                    SubjectIcon(
-                                                        subject = hw.homework.defaultLesson?.subject,
-                                                        tint = MaterialTheme.colorScheme.primary,
+                                                    Box(
                                                         modifier = Modifier
-                                                            .size(24.dp),
-                                                    )
-                                                    Spacer16Dp()
+                                                            .size(32.dp),
+                                                        contentAlignment = Alignment.Center
+                                                    ) {
+                                                        SubjectIcon(
+                                                            subject = hw.homework.defaultLesson?.subject,
+                                                            tint = MaterialTheme.colorScheme.primary,
+                                                            modifier = Modifier
+                                                                .size(24.dp),
+                                                        )
+                                                        CircularProgressIndicator(
+                                                            progress = { hw.tasks.count { it.isDone }.toFloat() / hw.tasks.size.coerceAtLeast(1) },
+                                                            modifier = Modifier.size(32.dp),
+                                                            trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
+                                                            color = MaterialTheme.colorScheme.primary
+                                                        )
+                                                    }
+                                                    Spacer8Dp()
                                                     Column {
                                                         RowVerticalCenter {
-                                                            CircularProgressIndicator(
-                                                                progress = { hw.tasks.count { it.isDone }.toFloat() / hw.tasks.size.coerceAtLeast(1) },
-                                                                modifier = Modifier.size(16.dp),
-                                                                trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                                                                color = MaterialTheme.colorScheme.primary
-                                                            )
-                                                            Spacer8Dp()
                                                             Text(
                                                                 text = hw.homework.defaultLesson?.subject ?: stringResource(id = R.string.homework_noSubject),
                                                                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold, textDecoration = if (hw.allDone()) TextDecoration.LineThrough else null)
