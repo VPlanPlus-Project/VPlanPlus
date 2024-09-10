@@ -10,8 +10,14 @@ import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 
 class GetDayUseCase(
@@ -21,32 +27,32 @@ class GetDayUseCase(
     private val gradeRepository: GradeRepository,
     private val timetableRepository: TimetableRepository
 ) {
-    suspend operator fun invoke(date: LocalDate, profile: Profile) = flow {
-        var initial = true
-        keyValueRepository.getFlowOrDefault(Keys.LESSON_VERSION_NUMBER, "0").collect { version ->
-            val day = planRepository.getDayForProfile(profile, date, version.toLong()).first()
-            val lessons = if (day.state == DayDataState.NO_DATA) {
-                when (profile) {
-                    is ClassProfile -> timetableRepository.getTimetableForGroup(profile.group, date)
-                    else -> emptyList()
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend operator fun invoke(date: LocalDate, profile: Profile): Flow<SchoolDay> {
+        var schoolDay = SchoolDay(date)
+        return keyValueRepository.getFlowOrDefault(Keys.LESSON_VERSION_NUMBER, "0").flatMapLatest { version ->
+            flow {
+                val day = planRepository.getDayForProfile(profile, date, version.toLong()).first()
+                val lessons = if (day.state == DayDataState.NO_DATA) {
+                    when (profile) {
+                        is ClassProfile -> timetableRepository.getTimetableForGroup(profile.group, date)
+                        else -> emptyList()
+                    }
+                } else {
+                    day.getEnabledLessons(profile)
                 }
-            } else {
-                day.getEnabledLessons(profile)
+                schoolDay = schoolDay.copy(lessons = lessons, info = day.info)
+                emit(schoolDay)
+                
+                val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it, date) } ?: emptyFlow()
+                val gradesFlow = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it).map { grades -> grades.filter { grade -> grade.givenAt == date } } } ?: emptyFlow()
+                combine(homeworkFlow, gradesFlow) { homework, grades ->
+                    schoolDay.copy(homework = homework, grades = grades)
+                }.collect {
+                    schoolDay = it
+                    emit(schoolDay)
+                }
             }
-            if (initial) emit(SchoolDay(date, day.info, lessons, emptyList(), emptyList()))
-            initial = false
-
-
-            val homework = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it, date).first() } ?: emptyList()
-            val grades = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it).first().filter { it.givenAt == date } } ?: emptyList()
-
-            SchoolDay(
-                date = date,
-                info = day.info,
-                lessons = lessons,
-                homework = homework,
-                grades = grades
-            ).also { emit(it) }
         }
     }
 }

@@ -36,10 +36,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,12 +67,15 @@ import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButton
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DateBar
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DateSelector
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DayInfoCard
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.TopBar
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.TypeFilters
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.components.grades.GradeRecord
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
+import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -122,6 +127,15 @@ private fun CalendarScreenContent(
     navBar: @Composable (Boolean) -> Unit = {},
     state: CalendarViewState
 ) {
+
+    var addHomeworkSheetInitialValues by rememberSaveable<MutableState<AddHomeworkSheetInitialValues?>> { mutableStateOf(null) }
+    if (addHomeworkSheetInitialValues != null) {
+        AddHomeworkSheet(
+            onClose = { addHomeworkSheetInitialValues = null },
+            initialValues = addHomeworkSheetInitialValues ?: AddHomeworkSheetInitialValues()
+        )
+    }
+
     val localDensity = LocalDensity.current
     val headerScrollState = rememberScrollState()
     val contentPagerState = rememberPagerState(initialPage = CONTENT_PAGER_SIZE / 2) { CONTENT_PAGER_SIZE }
@@ -193,7 +207,8 @@ private fun CalendarScreenContent(
 
     Scaffold(
         topBar = { TopBar(onBack = onBack, selectDate = { doAction(CalendarViewAction.SelectDate(it)) }) },
-        bottomBar = { navBar(true) }
+        floatingActionButton = { CalendarFloatingActionButton(onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }) },
+        bottomBar = { navBar(addHomeworkSheetInitialValues == null) }
     ) { innerPadding ->
         val transitionProgress = when (displayHeadSize) {
             in calendarSelectHeightSmall..calendarSelectHeightMedium -> (displayHeadSize - calendarSelectHeightSmall) / (calendarSelectHeightMedium - calendarSelectHeightSmall)
@@ -366,9 +381,8 @@ private fun CalendarScreenContent(
                                                         )
                                                     }
                                                 }
-                                                if (i != day.homework.size - 1) HorizontalDivider(Modifier.padding(horizontal = 32.dp))
                                             }
-                                            Spacer12Dp()
+                                            Spacer8Dp()
                                         }
                                     }
 
