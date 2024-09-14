@@ -561,7 +561,7 @@ private fun CalendarScreenContent(
                                                         )
                                                     )
                                                 )
-                                                state.days.values.firstOrNull { it.date.isAfter(date) && it.lessons.isNotEmpty() }?.let { nextDay ->
+                                                state.days.values.sortedBy { it.date }.firstOrNull { it.date.isAfter(date) && it.lessons.isNotEmpty() }?.let { nextDay ->
                                                     Spacer16Dp()
                                                     TextButton(onClick = { doAction(CalendarViewAction.SelectDate(nextDay.date)) }) {
                                                         RowVerticalCenter {
