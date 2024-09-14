@@ -41,7 +41,11 @@ class GetDayUseCase(
                 } else {
                     day.getEnabledLessons(profile)
                 }
-                schoolDay = schoolDay.copy(lessons = lessons, info = day.info)
+                schoolDay = schoolDay.copy(
+                    lessons = lessons,
+                    info = day.info,
+                    type = day.type
+                )
                 emit(schoolDay)
                 
                 val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it, date) } ?: emptyFlow()

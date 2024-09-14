@@ -797,4 +797,6 @@
     <string name="learn_more">Lean more</string>
     <string name="calendar_substitutionPlan">Substitution plan</string>
     <string name="calendar_timetable">Timetable</string>
+    <string name="calendar_dayTypeWeekend">Weekend</string>
+    <string name="calendar_dayTypeHoliday">Holiday</string>
 </resources>

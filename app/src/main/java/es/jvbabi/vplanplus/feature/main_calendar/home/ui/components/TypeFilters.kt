@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Row
@@ -33,67 +34,73 @@ fun TypeFilters(
     enabledFilters: List<DayViewFilter>,
     toggleFilter: (DayViewFilter) -> Unit,
 ) {
-    LazyRow(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 4.dp),
+    AnimatedVisibility(
+        visible = hasLessons || hasHomework || hasGrades,
+        enter = expandHorizontally(),
+        exit = shrinkVertically()
     ) {
-        item { Spacer16Dp() }
-        item {
-            androidx.compose.animation.AnimatedVisibility(
-                visible = hasLessons,
-                enter = expandHorizontally(),
-                exit = shrinkVertically()
-            ) {
-                Row {
-                    FilterChip(
-                        selected = DayViewFilter.LESSONS in enabledFilters,
-                        onClick = { toggleFilter(DayViewFilter.LESSONS) },
-                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterLessons)) },
-                        leadingIcon = {
-                            Icon(imageVector = if (DayViewFilter.LESSONS in enabledFilters) Icons.Default.Check else Icons.Default.School, contentDescription = null)
-                        }
-                    )
-                    Spacer8Dp()
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+        ) {
+            item { Spacer16Dp() }
+            item {
+                AnimatedVisibility(
+                    visible = hasLessons,
+                    enter = expandHorizontally(),
+                    exit = shrinkVertically()
+                ) {
+                    Row {
+                        FilterChip(
+                            selected = DayViewFilter.LESSONS in enabledFilters,
+                            onClick = { toggleFilter(DayViewFilter.LESSONS) },
+                            label = { Text(text = stringResource(id = R.string.calendar_dayFilterLessons)) },
+                            leadingIcon = {
+                                Icon(imageVector = if (DayViewFilter.LESSONS in enabledFilters) Icons.Default.Check else Icons.Default.School, contentDescription = null)
+                            }
+                        )
+                        Spacer8Dp()
+                    }
                 }
             }
-        }
-        item {
-            androidx.compose.animation.AnimatedVisibility(
-                visible = hasHomework,
-                enter = expandHorizontally(),
-                exit = shrinkVertically()
-            ) {
-                Row {
-                    FilterChip(
-                        selected = DayViewFilter.HOMEWORK in enabledFilters,
-                        onClick = { toggleFilter(DayViewFilter.HOMEWORK) },
-                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterHomework)) },
-                        leadingIcon = {
-                            Icon(imageVector = if (DayViewFilter.HOMEWORK in enabledFilters) Icons.Default.Check else Icons.AutoMirrored.Default.MenuBook, contentDescription = null)
-                        }
-                    )
-                    Spacer8Dp()
+            item {
+                AnimatedVisibility(
+                    visible = hasHomework,
+                    enter = expandHorizontally(),
+                    exit = shrinkVertically()
+                ) {
+                    Row {
+                        FilterChip(
+                            selected = DayViewFilter.HOMEWORK in enabledFilters,
+                            onClick = { toggleFilter(DayViewFilter.HOMEWORK) },
+                            label = { Text(text = stringResource(id = R.string.calendar_dayFilterHomework)) },
+                            leadingIcon = {
+                                Icon(imageVector = if (DayViewFilter.HOMEWORK in enabledFilters) Icons.Default.Check else Icons.AutoMirrored.Default.MenuBook, contentDescription = null)
+                            }
+                        )
+                        Spacer8Dp()
+                    }
                 }
             }
-        }
-        item {
-            androidx.compose.animation.AnimatedVisibility(
-                visible = hasGrades,
-                enter = expandHorizontally(),
-                exit = shrinkVertically()
-            ) {
-                Row {
-                    FilterChip(
-                        selected = DayViewFilter.GRADES in enabledFilters,
-                        onClick = { toggleFilter(DayViewFilter.GRADES) },
-                        label = { Text(text = stringResource(id = R.string.calendar_dayFilterGrades)) },
-                        leadingIcon = {
-                            if (DayViewFilter.GRADES in enabledFilters) Icon(Icons.Default.Check, contentDescription = null)
-                            else Icon(painterResource(id = R.drawable.order_approve), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
-                        }
-                    )
-                    Spacer8Dp()
+            item {
+                AnimatedVisibility(
+                    visible = hasGrades,
+                    enter = expandHorizontally(),
+                    exit = shrinkVertically()
+                ) {
+                    Row {
+                        FilterChip(
+                            selected = DayViewFilter.GRADES in enabledFilters,
+                            onClick = { toggleFilter(DayViewFilter.GRADES) },
+                            label = { Text(text = stringResource(id = R.string.calendar_dayFilterGrades)) },
+                            leadingIcon = {
+                                if (DayViewFilter.GRADES in enabledFilters) Icon(Icons.Default.Check, contentDescription = null)
+                                else Icon(painterResource(id = R.drawable.order_approve), contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            }
+                        )
+                        Spacer8Dp()
+                    }
                 }
             }
         }

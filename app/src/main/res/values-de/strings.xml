@@ -794,4 +794,6 @@
     <string name="learn_more">Mehr dazu</string>
     <string name="calendar_substitutionPlan">Vertretungsplan</string>
     <string name="calendar_timetable">Stundenplan</string>
+    <string name="calendar_dayTypeWeekend">Wochenende</string>
+    <string name="calendar_dayTypeHoliday">Ferien/Feiertag</string>
 </resources>

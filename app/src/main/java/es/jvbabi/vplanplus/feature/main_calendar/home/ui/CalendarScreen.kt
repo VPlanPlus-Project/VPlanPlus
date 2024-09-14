@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -47,11 +48,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -65,6 +68,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButton
@@ -81,6 +85,7 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer12Dp
+import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
@@ -319,7 +324,7 @@ private fun CalendarScreenContent(
                                                 Text(text = stringResource(id = R.string.calendar_dayFilterHomework), style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold))
                                             }
                                             Spacer4Dp()
-                                            day.homework.forEachIndexed { i, hw ->
+                                            day.homework.forEach { hw ->
                                                 RowVerticalCenter(
                                                     modifier = Modifier
                                                         .fillMaxWidth()
@@ -523,6 +528,35 @@ private fun CalendarScreenContent(
                                             }
                                         }
                                     }
+
+                                    when (day.type) {
+                                        DayType.WEEKEND, DayType.HOLIDAY -> {
+                                            Column(
+                                                modifier = Modifier.fillParentMaxSize(),
+                                                verticalArrangement = Arrangement.Center,
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                Image(
+                                                    painter = painterResource(id = if (day.type == DayType.WEEKEND) R.drawable.undraw_fun_moments else R.drawable.undraw_beach_day),
+                                                    contentDescription = null,
+                                                    modifier = Modifier.size(148.dp)
+                                                )
+                                                Spacer16Dp()
+                                                Text(
+                                                    text = stringResource(id = if (day.type == DayType.WEEKEND) R.string.calendar_dayTypeWeekend else R.string.calendar_dayTypeHoliday),
+                                                    style = MaterialTheme.typography.headlineMedium.copy(
+                                                        brush = Brush.horizontalGradient(
+                                                            listOf(
+                                                                MaterialTheme.colorScheme.primary,
+                                                                MaterialTheme.colorScheme.secondary
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            }
+                                        }
+                                        else -> Unit
+                                    }
                                 }
                             }
                         }
@@ -539,7 +573,12 @@ private fun CalendarScreenPreview() {
     CalendarScreenContent(
         state = CalendarViewState(
             days = mapOf(
-                LocalDate.now() to SchoolDay(LocalDate.now(), "This is an information for all students!", listOf())
+                LocalDate.now() to SchoolDay(
+                    date = LocalDate.now(),
+//                    info = "This is an information for all students!",
+                    lessons = listOf(),
+                    type = DayType.HOLIDAY
+                )
             ),
             lastSync = ZonedDateTimeConverter().timestampToZonedDateTime(0)
         )
