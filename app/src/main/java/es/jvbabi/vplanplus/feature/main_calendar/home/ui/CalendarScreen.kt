@@ -29,12 +29,15 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
@@ -553,6 +556,16 @@ private fun CalendarScreenContent(
                                                         )
                                                     )
                                                 )
+                                                state.days.values.firstOrNull { it.date.isAfter(date) && it.lessons.isNotEmpty() }?.let { nextDay ->
+                                                    Spacer16Dp()
+                                                    TextButton(onClick = { doAction(CalendarViewAction.SelectDate(nextDay.date)) }) {
+                                                        RowVerticalCenter {
+                                                            Text(text = stringResource(id = R.string.calendar_dayTypeNextDay, nextDay.date.format(DateTimeFormatter.ofPattern("EEEE"))))
+                                                            Spacer8Dp()
+                                                            Icon(Icons.AutoMirrored.Default.ArrowForward, contentDescription = null)
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                         else -> Unit

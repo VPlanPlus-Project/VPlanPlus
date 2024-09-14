@@ -796,4 +796,5 @@
     <string name="calendar_timetable">Stundenplan</string>
     <string name="calendar_dayTypeWeekend">Wochenende</string>
     <string name="calendar_dayTypeHoliday">Ferien/Feiertag</string>
+    <string name="calendar_dayTypeNextDay">Zu %1$s</string>
 </resources>
