@@ -68,6 +68,7 @@ fun NavigationGraph(
     navController: NavHostController,
     goToOnboarding: Boolean,
     navBar: @Composable (expanded: Boolean) -> Unit,
+    navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit,
     onNavigationChanged: (String?) -> Unit
 ) {
     NavHost(
@@ -80,7 +81,7 @@ fun NavigationGraph(
 
         deepLinks(navController)
         onboarding(navController)
-        mainScreens(navController, navBar)
+        mainScreens(navController, navBar, navRail)
         newsScreens(navController)
         settingsScreens(navController)
         gradesScreens(navController)
@@ -225,7 +226,8 @@ private fun NavGraphBuilder.onboarding(
 
 private fun NavGraphBuilder.mainScreens(
     navController: NavHostController,
-    navBar: @Composable (expanded: Boolean) -> Unit
+    navBar: @Composable (expanded: Boolean) -> Unit,
+    navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit
 ) {
     composable(
         route = Screen.HomeScreen.route + "/{startDate}",
@@ -279,7 +281,7 @@ private fun NavGraphBuilder.mainScreens(
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
     ) {
-        CalendarScreen(navHostController = navController, navBar = navBar)
+        CalendarScreen(navHostController = navController, navBar = navBar, navRail = navRail)
     }
 
     composable(

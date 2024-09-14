@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,7 +19,7 @@ import java.time.Month
 import kotlin.math.abs
 
 @Composable
-fun Week(
+fun ColumnScope.Week(
     days: List<SchoolDay>,
     selectedDay: LocalDate,
     onDayClicked: (date: LocalDate) -> Unit = {},
@@ -25,18 +27,20 @@ fun Week(
     progress: Float,
     smallMaxHeight: Dp,
     mediumMaxHeight: Dp,
-    largeMaxHeight: Dp,
+    largeMaxHeight: Dp?,
     displayMonth: Month?
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .height(
-                when (state) {
-                    DayDisplayState.SMALL -> smallMaxHeight
-                    DayDisplayState.REGULAR -> smallMaxHeight + (mediumMaxHeight - smallMaxHeight) * abs(progress)
-                    DayDisplayState.DETAILED -> mediumMaxHeight + (largeMaxHeight - mediumMaxHeight) * abs(progress)
-                }
+            .then(
+                if (largeMaxHeight == null) Modifier.weight(1f, true) else Modifier.height(
+                    when (state) {
+                        DayDisplayState.SMALL -> smallMaxHeight
+                        DayDisplayState.REGULAR -> smallMaxHeight + (mediumMaxHeight - smallMaxHeight) * abs(progress)
+                        DayDisplayState.DETAILED -> mediumMaxHeight + (largeMaxHeight - mediumMaxHeight) * abs(progress)
+                    }
+                )
             ),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -64,19 +68,21 @@ fun Week(
 @Composable
 @Preview
 private fun WeekPreview() {
-    Week(
-        days = List(7) { index ->
-            SchoolDay(
-                date = LocalDate.now().atStartOfWeek().plusDays(index.toLong()),
-            )
-        },
-        selectedDay = LocalDate.now(),
-        onDayClicked = {},
-        state = DayDisplayState.SMALL,
-        progress = 1f,
-        smallMaxHeight = 64.dp,
-        mediumMaxHeight = 120.dp,
-        largeMaxHeight = 200.dp,
-        displayMonth = LocalDate.now().atStartOfWeek().month
-    )
+    Column {
+        Week(
+            days = List(7) { index ->
+                SchoolDay(
+                    date = LocalDate.now().atStartOfWeek().plusDays(index.toLong()),
+                )
+            },
+            selectedDay = LocalDate.now(),
+            onDayClicked = {},
+            state = DayDisplayState.SMALL,
+            progress = 1f,
+            smallMaxHeight = 64.dp,
+            mediumMaxHeight = 120.dp,
+            largeMaxHeight = 200.dp,
+            displayMonth = LocalDate.now().atStartOfWeek().month
+        )
+    }
 }

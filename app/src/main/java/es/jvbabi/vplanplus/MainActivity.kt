@@ -26,6 +26,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -261,18 +263,17 @@ class MainActivity : FragmentActivity() {
                             enter = expandVertically(tween(250)),
                             exit = shrinkVertically(tween(250))
                         ) {
-                            NavigationBar(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            ) {
-                                navBarItems.forEachIndexed { index, item ->
-                                    NavigationBarItem(
-                                        selected = index == selectedIndex,
-                                        onClick = item.onClick,
-                                        icon = item.icon,
-                                        label = item.label
-                                    )
-                                }
-                            }
+                            navBarItems.BottomBar(selectedIndex)
+                        }
+                    }
+
+                    val navRail = @Composable { expanded: Boolean, fab: @Composable () -> Unit ->
+                        AnimatedVisibility(
+                            visible = expanded,
+                            enter = expandVertically(tween(250)),
+                            exit = shrinkVertically(tween(250))
+                        ) {
+                            navBarItems.RailBar(selectedIndex, fab)
                         }
                     }
 
@@ -287,6 +288,7 @@ class MainActivity : FragmentActivity() {
                                 navController = navController!!,
                                 goToOnboarding = goToOnboarding!!,
                                 navBar = navBar,
+                                navRail = navRail,
                                 onNavigationChanged = { route ->
                                     val item =
                                         navBarItems.firstOrNull { route?.startsWith(it.route) == true }
@@ -377,6 +379,39 @@ class MainActivity : FragmentActivity() {
     private fun doInit(calledBySplashScreen: Boolean) {
         if (!calledBySplashScreen) setTheme(R.style.Theme_VPlanPlus)
         enableEdgeToEdge()
+    }
+}
+
+@Composable
+fun List<NavigationBarItem>.BottomBar(selectedIndex: Int) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
+    ) {
+        forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = index == selectedIndex,
+                onClick = item.onClick,
+                icon = item.icon,
+                label = item.label
+            )
+        }
+    }
+}
+
+@Composable
+fun List<NavigationBarItem>.RailBar(selectedIndex: Int, fab: @Composable () -> Unit) {
+    NavigationRail(
+        header = { fab() },
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
+    ) {
+        forEachIndexed { index, item ->
+            NavigationRailItem(
+                selected = index == selectedIndex,
+                onClick = item.onClick,
+                icon = item.icon,
+                label = item.label
+            )
+        }
     }
 }
 

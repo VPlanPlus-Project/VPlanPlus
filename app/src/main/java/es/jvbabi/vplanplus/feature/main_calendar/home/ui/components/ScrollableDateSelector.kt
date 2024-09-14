@@ -31,6 +31,8 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.ui.MONTH_PAGER_SIZE
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.WEEK_HEADER_HEIGHT_DP
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.WEEK_PAGER_SIZE
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.getOffsetFromMiddle
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfMonth
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import java.time.LocalDate
@@ -39,7 +41,7 @@ import java.time.temporal.ChronoUnit
 import java.util.Locale
 
 @Composable
-fun DateSelector(
+fun ScrollableDateSelector(
     state: CalendarViewState,
     displayHeadSize: Float,
     scrollConnection: NestedScrollConnection,
@@ -69,16 +71,7 @@ fun DateSelector(
                 .height(MONTH_HEADER_HEIGHT_DP.dp),
             contentAlignment = Alignment.Center
         ) {
-            AnimatedContent(
-                targetState = firstVisibleDate.month to firstVisibleDate.year, label = "month",
-            ) { (month, year) ->
-                val date = LocalDate.of(year, month, 1)
-                Text(
-                    text = date.format(DateTimeFormatter.ofPattern("LLL yy", Locale.getDefault())).uppercase(),
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
+            CalendarDateHead(firstVisibleDate)
         }
         WeekHeader(height = WEEK_HEADER_HEIGHT_DP.dp)
         val isMoving = isAnimating || isScrolling
@@ -154,20 +147,22 @@ fun DateSelector(
                         .height(((weekHeaderMiddleHeight - calendarHeightSmallDp) * transitionProgress + calendarHeightSmallDp) * if (isWeekWithFirstVisibleDate) 1f else transitionProgress)
                         .alpha((if (isWeekWithFirstVisibleDate) 1f else ((transitionProgress - 0.5f).coerceAtLeast(0f) * 2)))
                 ) {
-                    Week(
-                        selectedDay = state.selectedDate,
-                        state = DayDisplayState.REGULAR,
-                        progress = transitionProgress,
-                        days = List(7) { index ->
-                            val date = weekStart.plusDays(index.toLong())
-                            state.days[date] ?: SchoolDay(date)
-                        },
-                        displayMonth = firstDayOfMonth.month,
-                        onDayClicked = { doAction(CalendarViewAction.SelectDate(it)) },
-                        smallMaxHeight = calendarSelectHeightSmall.dp - HEADER_STATIC_HEIGHT_DP.dp,
-                        mediumMaxHeight = weekHeaderMiddleHeight,
-                        largeMaxHeight = weekHeaderMiddleHeight
-                    )
+                    Column {
+                        Week(
+                            selectedDay = state.selectedDate,
+                            state = DayDisplayState.REGULAR,
+                            progress = transitionProgress,
+                            days = List(7) { index ->
+                                val date = weekStart.plusDays(index.toLong())
+                                state.days[date] ?: SchoolDay(date)
+                            },
+                            displayMonth = firstDayOfMonth.month,
+                            onDayClicked = { doAction(CalendarViewAction.SelectDate(it)) },
+                            smallMaxHeight = calendarSelectHeightSmall.dp - HEADER_STATIC_HEIGHT_DP.dp,
+                            mediumMaxHeight = weekHeaderMiddleHeight,
+                            largeMaxHeight = weekHeaderMiddleHeight
+                        )
+                    }
                 }
             }
         } else if (!isMoving && displayHeadSize == calendarSelectHeightMedium) {
@@ -247,58 +242,117 @@ fun DateSelector(
             }
         } else {
             // show month with pager
-            val weekHeaderLargeHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
-            val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2) { MONTH_PAGER_SIZE }
-            LaunchedEffect(key1 = monthPager.targetPage) {
-                val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.targetPage).toLong())
-                setFirstVisibleDate(monthStart)
-                if (state.selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
+            FullMonthPager(
+                calendarSelectHeightLarge,
+                setFirstVisibleDate,
+                state,
+                doAction,
+                setIsAnimating,
+                setClosest,
+                calendarSelectHeightSmall,
+                calendarSelectHeightMedium
+            )
+        }
+    }
+}
 
-                doAction(CalendarViewAction.SelectDate(if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now() else monthStart))
-            }
+@Composable
+fun CalendarDateHead(
+    firstVisibleDate: LocalDate,
+    onClickToday: ((date: LocalDate) -> Unit)? = null
+) {
+    RowVerticalCenter {
+        AnimatedContent(
+            targetState = firstVisibleDate.month to firstVisibleDate.year, label = "month",
+        ) { (month, year) ->
+            val date = LocalDate.of(year, month, 1)
+            Text(
+                text = date.format(DateTimeFormatter.ofPattern("LLL yy", Locale.getDefault()))
+                    .uppercase(),
+                fontSize = 22.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        if (onClickToday != null) {
+            Spacer8Dp()
+            TodayButton(selectDate = onClickToday)
+        }
+    }
+}
 
-            LaunchedEffect(state.selectedDate) {
-                monthPager.animateScrollToPage(
-                    MONTH_PAGER_SIZE / 2 - state.selectedDate.atStartOfMonth()
-                        .until(
-                            LocalDate.now().atStartOfMonth(),
-                            ChronoUnit.MONTHS
-                        ).toInt()
+@Composable
+fun FullMonthPager(
+    calendarSelectHeightLarge: Float?,
+    setFirstVisibleDate: (LocalDate) -> Unit,
+    state: CalendarViewState,
+    doAction: (action: CalendarViewAction) -> Unit,
+    setIsAnimating: (Boolean) -> Unit,
+    setClosest: (Float) -> Unit,
+    calendarSelectHeightSmall: Float,
+    calendarSelectHeightMedium: Float
+) {
+    val weekHeaderLargeHeight = if (calendarSelectHeightLarge == null) null else
+        (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
+    val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2) { MONTH_PAGER_SIZE }
+    LaunchedEffect(key1 = monthPager.targetPage) {
+        val monthStart = LocalDate.now().atStartOfMonth()
+            .plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.targetPage).toLong())
+        setFirstVisibleDate(monthStart)
+        if (state.selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
+
+        doAction(
+            CalendarViewAction.SelectDate(
+                if (LocalDate.now()
+                        .atStartOfMonth() == monthStart.atStartOfMonth()
+                ) LocalDate.now() else monthStart
+            )
+        )
+    }
+
+    LaunchedEffect(state.selectedDate) {
+        monthPager.animateScrollToPage(
+            MONTH_PAGER_SIZE / 2 - state.selectedDate.atStartOfMonth()
+                .until(
+                    LocalDate.now().atStartOfMonth(),
+                    ChronoUnit.MONTHS
+                ).toInt()
+        )
+    }
+
+    HorizontalPager(
+        state = monthPager,
+        beyondViewportPageCount = 1
+    ) { currentPage ->
+        val month = LocalDate.now().atStartOfMonth()
+            .plusMonths(getOffsetFromMiddle(monthPager.pageCount, currentPage).toLong()).month
+        val monthStart = LocalDate.now().atStartOfMonth()
+            .plusMonths(getOffsetFromMiddle(monthPager.pageCount, currentPage).toLong())
+            .atStartOfWeek()
+        Column {
+            repeat(5) { weekOffset ->
+                val weekStart = monthStart.plusWeeks(weekOffset.toLong())
+                Week(
+                    selectedDay = state.selectedDate,
+                    state = DayDisplayState.DETAILED,
+                    progress = 1f,
+                    days = List(7) { index ->
+                        val date = weekStart.plusDays(index.toLong())
+                        state.days[date] ?: SchoolDay(date)
+                    },
+                    displayMonth = month,
+                    onDayClicked = {
+                        doAction(CalendarViewAction.SelectDate(it))
+                        if (calendarSelectHeightLarge == null) return@Week
+                        setIsAnimating(false)
+                        setClosest(calendarSelectHeightLarge)
+                        setIsAnimating(true)
+                        setClosest(calendarSelectHeightSmall)
+                    },
+                    smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
+                    mediumMaxHeight = with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
+                    largeMaxHeight = if (weekHeaderLargeHeight == null) null else weekHeaderLargeHeight - if (weekOffset == 4) 0.dp else 1.dp
                 )
-            }
-
-            HorizontalPager(
-                state = monthPager,
-                beyondViewportPageCount = 1
-            ) { currentPage ->
-                val month = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, currentPage).toLong()).month
-                val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, currentPage).toLong()).atStartOfWeek()
-                Column {
-                    repeat(5) { weekOffset ->
-                        val weekStart = monthStart.plusWeeks(weekOffset.toLong())
-                        Week(
-                            selectedDay = state.selectedDate,
-                            state = DayDisplayState.DETAILED,
-                            progress = 1f,
-                            days = List(7) { index ->
-                                val date = weekStart.plusDays(index.toLong())
-                                state.days[date] ?: SchoolDay(date)
-                            },
-                            displayMonth = month,
-                            onDayClicked = {
-                                doAction(CalendarViewAction.SelectDate(it))
-                                setIsAnimating(false)
-                                setClosest(calendarSelectHeightLarge)
-                                setIsAnimating(true)
-                                setClosest(calendarSelectHeightSmall)
-                            },
-                            smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
-                            mediumMaxHeight = with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
-                            largeMaxHeight = weekHeaderLargeHeight - if (weekOffset == 4) 0.dp else 1.dp
-                        )
-                        if (weekOffset != 4) HorizontalDivider()
-                    }
-                }
+                if (weekOffset != 4) HorizontalDivider()
             }
         }
     }

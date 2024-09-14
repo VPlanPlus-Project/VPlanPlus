@@ -34,26 +34,31 @@ fun TopBar(
         title = { Text(text = stringResource(id = R.string.calendar_title)) },
         navigationIcon = { IconButton(onClick = onBack) { BackIcon() } },
         actions = {
-            Box(
-                modifier = Modifier.height(36.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(Modifier.fillMaxHeight()) {
-                    Spacer(Modifier.weight(.17f, true))
-                    Box(
-                        modifier = Modifier.weight(.83f, true),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = LocalDate.now().dayOfMonth.toString(),
-                            style = MaterialTheme.typography.labelSmall
-                        )
-                    }
-                }
-                IconButton(onClick = { selectDate(LocalDate.now()) }) {
-                    Icon(imageVector = Icons.Default.CalendarToday, contentDescription = null)
-                }
-            }
+            TodayButton(selectDate)
         }
     )
+}
+
+@Composable
+fun TodayButton(selectDate: (date: LocalDate) -> Unit) {
+    Box(
+        modifier = Modifier.height(36.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(Modifier.fillMaxHeight()) {
+            Spacer(Modifier.weight(.17f, true))
+            Box(
+                modifier = Modifier.weight(.83f, true),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = LocalDate.now().dayOfMonth.toString(),
+                    style = MaterialTheme.typography.labelSmall
+                )
+            }
+        }
+        IconButton(onClick = { selectDate(LocalDate.now()) }) {
+            Icon(imageVector = Icons.Default.CalendarToday, contentDescription = null)
+        }
+    }
 }
