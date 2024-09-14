@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -68,11 +69,16 @@ fun DateSelector(
                 .height(MONTH_HEADER_HEIGHT_DP.dp),
             contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = firstVisibleDate.format(DateTimeFormatter.ofPattern("LLL yy", Locale.getDefault())).uppercase(),
-                fontSize = 22.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            AnimatedContent(
+                targetState = firstVisibleDate.month to firstVisibleDate.year, label = "month",
+            ) { (month, year) ->
+                val date = LocalDate.of(year, month, 1)
+                Text(
+                    text = date.format(DateTimeFormatter.ofPattern("LLL yy", Locale.getDefault())).uppercase(),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
         WeekHeader(height = WEEK_HEADER_HEIGHT_DP.dp)
         val isMoving = isAnimating || isScrolling

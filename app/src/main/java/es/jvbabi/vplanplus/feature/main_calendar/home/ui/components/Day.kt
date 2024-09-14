@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -58,6 +60,7 @@ fun Day(
     progress: Float,
     onClick: () -> Unit = {}
 ) {
+    val isSelectedModifier by animateFloatAsState(if (isSelected) 1f else 0f, label = "isSelectedModifier")
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,20 +85,19 @@ fun Day(
                     .size(32.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(50))
-                    .then(
-                        if (isSelected) Modifier.background(MaterialTheme.colorScheme.primaryContainer)
-                        else Modifier
-                    )
+                    .background(blendColor(Color.Transparent, MaterialTheme.colorScheme.primaryContainer, isSelectedModifier))
                     .then(
                         if (isToday && !isSelected) Modifier.border(1.dp, MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(50))
                         else Modifier
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                val normalColor = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
-                    else if (isToday) MaterialTheme.colorScheme.secondary
+                val normalColor = blendColor(if (isToday) MaterialTheme.colorScheme.secondary
                     else if (date.dayOfWeek.value == 6 || date.dayOfWeek.value == 7) MaterialTheme.colorScheme.error
-                    else MaterialTheme.colorScheme.onSurface
+                    else MaterialTheme.colorScheme.onSurface,
+                    MaterialTheme.colorScheme.onPrimaryContainer,
+                    isSelectedModifier
+                )
 
                 val colorRegardingSelectedMonth =
                     if (displayMonth != null && displayMonth != date.month) Color.Gray
