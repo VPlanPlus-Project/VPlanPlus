@@ -7,4 +7,7 @@ data class CalendarViewUseCases(
     val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     val getDayUseCase: GetDayUseCase,
     val getLastSyncUseCase: GetLastSyncUseCase,
+
+    val canShowTimetableInfoBannerUseCase: CanShowTimetableInfoBannerUseCase,
+    val dismissTimetableInfoBannerUseCase: DismissTimetableInfoBannerUseCase,
 )

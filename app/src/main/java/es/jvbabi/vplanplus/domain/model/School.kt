@@ -11,7 +11,8 @@ data class School(
     val daysPerWeek: Int,
     val fullyCompatible: Boolean,
     val credentialsValid: Boolean? = null,
-    val schoolDownloadMode: SchoolDownloadMode
+    val schoolDownloadMode: SchoolDownloadMode,
+    val canUseTimetable: Boolean?
 ) {
     override fun hashCode(): Int {
         var result = id.hashCode()

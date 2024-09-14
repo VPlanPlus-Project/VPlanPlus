@@ -179,7 +179,7 @@
     <string name="onboarding_setupDoneText">VPlanPlus is set up.</string>
     <string name="onboarding_setupDoneLetsGo">Let\'s go!</string>
     <string name="advancedSettings_clearCacheTitle">Delete app cache</string>
-    <string name="advancedSettings_clearCacheDialogText">This deletes the data that originates from the Internet. This data can then be downloaded again. If incorrect data is displayed, deleting the app cache can help.<br />\nThis will be removed from the device:<br />\n- Timetable data<br />\n- Room bookings<br />\n- Grades<br />\n- Cloud homework<br /></string>
+    <string name="advancedSettings_clearCacheDialogText">This deletes the data that originates from the Internet. This data can then be downloaded again. If incorrect data is displayed, deleting the app cache can help.<br />\nThis will be removed from the device:<br />\n- Timetable data<br />\n- Room bookings<br />\n- Grades<br />\n- Cloud homework<br />\n- Timetable<br /></string>
     <string name="advancedSettings_clearCacheText">This can help if the cache is corrupted.</string>
     <string name="settings_profileDeleteSchool">Delete</string>
     <string name="settings_profileShareSchool">Share</string>
@@ -783,6 +783,7 @@
     <string name="webAuth_title">Verify login request</string>
     <string name="webAuth_error">Couldn\'t verify, please try again.</string>
     <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
+    <string name="homework_detailViewDocumentOnline">Online</string>
     <string name="main_calendar">Calendar</string>
     <string name="calendar_title">Calendar</string>
     <string name="calendar_infoTitle">Important information</string>
@@ -790,5 +791,10 @@
     <string name="calendar_dayFilterGrades">Grades</string>
     <string name="calendar_dayFilterHomework">Homework</string>
     <string name="calendar_dayLessonNumber">%1$s ln.</string>
-
+    <string name="profileManagement_detailsCanUseTimetable">Timetable</string>
+    <string name="calendar_timetableBannerTitle">No substitution plan</string>
+    <string name="calendar_timetableBannerText">For this date, no substitution plan is available. VPlanPlus loads the default timetable from different sources depending on your schools setup. However, this cannot apply your lesson filter, since the data does not contain the required information. This is a Stundenplan24.de-problem.</string>
+    <string name="learn_more">Lean more</string>
+    <string name="calendar_substitutionPlan">Substitution plan</string>
+    <string name="calendar_timetable">Timetable</string>
 </resources>

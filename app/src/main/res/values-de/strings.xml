@@ -181,7 +181,7 @@
     <string name="onboarding_setupDoneText">VPlanPlus ist fertig eingerichtet.</string>
     <string name="onboarding_setupDoneLetsGo">Auf geht\'s!</string>
     <string name="advancedSettings_clearCacheTitle">App-Cache löschen</string>
-    <string name="advancedSettings_clearCacheDialogText">Dies löscht die Daten, welche aus dem Internet stammen. Diese Daten können anschließend erneut heruntergeladen werden. Falls falsche Daten angezeigt werden, kann das Löschen des App-Caches helfen.<br />\nKonkret werden folgende Daten von diesem Gerät entfernt:<br />\n- Stundenplandaten<br />\n- Raumbuchen<br />\n- Noten<br />\n- Cloud-Hausaufgaben</string>
+    <string name="advancedSettings_clearCacheDialogText">Dies löscht die Daten, welche aus dem Internet stammen. Diese Daten können anschließend erneut heruntergeladen werden. Falls falsche Daten angezeigt werden, kann das Löschen des App-Caches helfen.<br />\nKonkret werden folgende Daten von diesem Gerät entfernt:<br />\n- Stundenplandaten<br />\n- Raumbuchen<br />\n- Noten<br />\n- Cloud-Hausaufgaben<br />\n- Stundenplan</string>
     <string name="advancedSettings_clearCacheText">Dies kann helfen, wenn der Cache beschädigt ist.</string>
     <string name="settings_profileDeleteSchool">Löschen</string>
     <string name="settings_profileShareSchool">Teilen</string>
@@ -780,6 +780,7 @@
     <string name="webAuth_description">Jemand versucht sich als \'%1$s\' anzumelden. Wenn du das bist, tippe das entsprechende Emoji an. Wenn du nicht versuchst, dich anzumelden, brich bitte ab.</string>
     <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM-Events verarbeiten</string>
     <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Auf Debug-FCM-Events hören. Dies wird viel unnötigen Traffic in Production erzeugen.</string>
+    <string name="homework_detailViewDocumentOnline">Online</string>
     <string name="main_calendar">Kalender</string>
     <string name="calendar_title">Kalender</string>
     <string name="calendar_infoTitle">Aktuelle Informationen</string>
@@ -787,5 +788,10 @@
     <string name="calendar_dayFilterGrades">Noten</string>
     <string name="calendar_dayFilterHomework">Hausaufgaben</string>
     <string name="calendar_dayLessonNumber">%1$s Std</string>
-
+    <string name="profileManagement_detailsCanUseTimetable">Stundenplan</string>
+    <string name="calendar_timetableBannerTitle">Kein Vertretungsplan</string>
+    <string name="calendar_timetableBannerText">Für dieses Datum ist kein Vertretungsplan verfügbar. VPlanPlus lädt den Stundenplan abhängig von deiner Schule. Jedoch kann der Stundenfilter hier nicht greifen, da die Stundenplandaten diese Informationen nicht mitliefern. Dies ist ein Stundenplan24.de-Problem.</string>
+    <string name="learn_more">Mehr dazu</string>
+    <string name="calendar_substitutionPlan">Vertretungsplan</string>
+    <string name="calendar_timetable">Stundenplan</string>
 </resources>

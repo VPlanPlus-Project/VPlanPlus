@@ -17,7 +17,8 @@ object SchoolPreview {
                     password = "",
                     daysPerWeek = 5,
                     fullyCompatible = true,
-                    schoolDownloadMode = SchoolDownloadMode.INDIWARE_WOCHENPLAN_6
+                    schoolDownloadMode = SchoolDownloadMode.INDIWARE_WOCHENPLAN_6,
+                    canUseTimetable = true
                 )
             )
         }

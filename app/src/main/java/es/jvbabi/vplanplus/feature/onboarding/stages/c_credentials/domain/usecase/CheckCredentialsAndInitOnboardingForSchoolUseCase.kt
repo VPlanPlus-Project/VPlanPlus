@@ -115,6 +115,7 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
         keyValueRepository.set("onboarding.rooms", Json.encodeToString(baseData.rooms.orEmpty()))
         keyValueRepository.set("onboarding.holidays", Json.encodeToString(baseData.holidays.map { Holiday(it, false) }))
         keyValueRepository.set("onboarding.download_mode", baseData.downloadMode.name)
+        keyValueRepository.set("onboarding.can_use_timetable", baseData.canUseTimetable.toString())
 
         return OnboardingInit(
             fullySupported = isFullySupported,

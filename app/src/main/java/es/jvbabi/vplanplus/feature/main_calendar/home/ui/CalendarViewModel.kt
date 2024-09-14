@@ -31,15 +31,19 @@ class CalendarViewModel @Inject constructor(
             combine(
                 listOf(
                     calendarViewUseCases.getCurrentProfileUseCase(),
-                    calendarViewUseCases.getLastSyncUseCase()
+                    calendarViewUseCases.getLastSyncUseCase(),
+                    calendarViewUseCases.canShowTimetableInfoBannerUseCase()
                 )
             ) { data ->
                 val profile = data[0] as? Profile
                 val lastSyncTimestamp = data[1] as? ZonedDateTime
+                val canShowTimetableInfoBanner = data[2] as? Boolean ?: true
+
                 if (profile == null) return@combine state
                 state.copy(
                     currentProfile = profile,
-                    lastSync = lastSyncTimestamp
+                    lastSync = lastSyncTimestamp,
+                    canShowTimetableInfoBanner = canShowTimetableInfoBanner
                 )
             }.collect {
                 state = it
@@ -68,6 +72,10 @@ class CalendarViewModel @Inject constructor(
                         filters.add(action.filter)
                     }
                     state = state.copy(enabledFilters = if (filters.size == DayViewFilter.entries.size) emptyList() else filters)
+                }
+
+                is CalendarViewAction.DismissTimetableInfoBanner -> {
+                    calendarViewUseCases.dismissTimetableInfoBannerUseCase()
                 }
             }
         }
@@ -101,12 +109,15 @@ data class CalendarViewState(
     val days: Map<LocalDate, SchoolDay> = emptyMap(),
     val selectedDate: LocalDate = LocalDate.now(),
     val lastSync: ZonedDateTime? = null,
-    val enabledFilters: List<DayViewFilter> = emptyList()
+    val enabledFilters: List<DayViewFilter> = emptyList(),
+    val canShowTimetableInfoBanner: Boolean = true
 )
 
 sealed class CalendarViewAction {
     data class SelectDate(val date: LocalDate) : CalendarViewAction()
     data class ToggleFilter(val filter: DayViewFilter) : CalendarViewAction()
+
+    data object DismissTimetableInfoBanner : CalendarViewAction()
 }
 
 enum class DayViewFilter {

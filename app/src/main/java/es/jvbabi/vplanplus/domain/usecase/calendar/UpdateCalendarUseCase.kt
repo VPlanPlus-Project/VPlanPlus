@@ -3,7 +3,6 @@ package es.jvbabi.vplanplus.domain.usecase.calendar
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
-import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -36,8 +35,8 @@ class UpdateCalendarUseCase(
                 planRepository.getDayForProfile(profile, it, version).first()
             }.forEach { day ->
                 if (profile.calendarType == ProfileCalendarType.LESSON) {
-                    day.lessons
-                        .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
+                    day
+                        .getEnabledLessons(profile)
                         .filter { it.displaySubject != "-" }
                         .forEach { lesson ->
                             calendarRepository.insertEvent(
@@ -60,15 +59,15 @@ class UpdateCalendarUseCase(
                         CalendarEvent(
                             calendarId = calendar.id,
                             startTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
-                                day.lessons
-                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
+                                day
+                                    .getEnabledLessons(profile)
                                     .filter { it.displaySubject != "-" }
                                     .sortedBy { it.lessonNumber }
                                     .first { it.displaySubject != "-" }.start
                             ),
                             endTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
-                                day.lessons
-                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
+                                day
+                                    .getEnabledLessons(profile)
                                     .filter { it.displaySubject != "-" }
                                     .sortedBy { it.lessonNumber }
                                     .last { it.displaySubject != "-" }.end

@@ -112,12 +112,13 @@ class PlanRepositoryImpl(
         val dayType = holidayRepository.getDayType(school.id, date)
         val lessonsWithBookings = lessons?.map { lesson ->
             val booking = bookings.firstOrNull { roomBooking ->
-                roomBooking.bookedBy?.group == lesson.`class` &&
+                roomBooking.bookedBy?.group == lesson.group &&
                         lesson.start.isEqual(roomBooking.from) &&
                         lesson.end.isEqual(roomBooking.to.plusSeconds(1)) &&
                         date == roomBooking.from.toLocalDate()
             }
-            lesson.copy(roomBooking = booking)
+            if (lesson is Lesson.SubstitutionPlanLesson) lesson.copy(roomBooking = booking)
+            else lesson
         }
         if (dayType == DayType.NORMAL) {
             return if (lessonsWithBookings == null) {
