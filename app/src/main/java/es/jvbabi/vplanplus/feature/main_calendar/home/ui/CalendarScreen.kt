@@ -187,7 +187,6 @@ private fun CalendarScreenContent(
                 val delta = available.y
                 if (isHeaderScrolling || (delta > 0)) {
                     // scroll head
-                    println("$useHeadSize | $delta")
                     currentHeadSize = (currentHeadSize + delta).coerceIn(
                         calendarSelectHeightSmall,
                         calendarSelectHeightLarge
@@ -217,7 +216,7 @@ private fun CalendarScreenContent(
 
     Scaffold(
         topBar = { TopBar(onBack = onBack, selectDate = { doAction(CalendarViewAction.SelectDate(it)) }) },
-        floatingActionButton = { CalendarFloatingActionButton(onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }) },
+        floatingActionButton = { CalendarFloatingActionButton(isVisible = closest != calendarSelectHeightLarge, onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }) },
         bottomBar = { navBar(addHomeworkSheetInitialValues == null) }
     ) { innerPadding ->
         val transitionProgress = when (displayHeadSize) {
@@ -539,7 +538,9 @@ private fun CalendarScreenContent(
                                     when (day.type) {
                                         DayType.WEEKEND, DayType.HOLIDAY -> {
                                             Column(
-                                                modifier = Modifier.fillParentMaxSize(),
+                                                modifier = Modifier
+                                                    .fillParentMaxSize()
+                                                    .defaultMinSize(minHeight = 148.dp),
                                                 verticalArrangement = Arrangement.Center,
                                                 horizontalAlignment = Alignment.CenterHorizontally
                                             ) {

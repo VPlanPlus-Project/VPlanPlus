@@ -16,6 +16,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -25,10 +29,13 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.Spacer2Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.util.blendColor
 import java.time.LocalDate
@@ -114,19 +121,22 @@ fun Day(
                 verticalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 homework.forEach { hw ->
-                    Box(
+                    RowVerticalCenter (
                         modifier = Modifier
                             .height(14.dp)
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(50))
-                            .background(Color.Blue),
-                        contentAlignment = Alignment.CenterStart
+                            .background(hw.getBackgroundColor()),
+                        horizontalArrangement = Arrangement.Start
                     ) {
+                        Spacer2Dp()
+                        Icon(if (hw.allDone()) Icons.Default.Check else Icons.AutoMirrored.Default.MenuBook, null, modifier = Modifier.size(12.dp), tint = hw.getTextColor())
+                        Spacer2Dp()
                         Text(
                             text = hw.homework.defaultLesson?.subject ?: stringResource(id = R.string.homework_noSubject),
-                            color = Color.White,
+                            color = hw.getTextColor(),
                             style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 4.dp)
+                            textDecoration = if (hw.allDone()) TextDecoration.LineThrough else null,
                         )
                     }
                 }
@@ -155,13 +165,13 @@ fun Day(
                 modifier = Modifier
                     .alpha(if (state == DayDisplayState.DETAILED) (1 - progress*2) else 1f)
             ) {
-                repeat(homework.size) {
+                homework.forEach { hw ->
                     Box(
                         modifier = Modifier
                             .padding(1.dp)
                             .size(6.dp)
                             .clip(RoundedCornerShape(50))
-                            .background(Color.Blue)
+                            .background(hw.getBackgroundColor()),
                     )
                 }
                 repeat(exams) {
@@ -227,4 +237,30 @@ enum class DayDisplayState {
     SMALL,
     REGULAR,
     DETAILED
+}
+
+@Composable
+private fun PersonalizedHomework.getBackgroundColor(): Color {
+    val homeworkDone = MaterialTheme.colorScheme.surfaceContainer
+    val homeworkOverdue = MaterialTheme.colorScheme.errorContainer
+    val homeworkNotDone = MaterialTheme.colorScheme.primary
+    val overdue = homework.until.toLocalDate().isBefore(LocalDate.now())
+    return when {
+        allDone() -> homeworkDone
+        overdue -> homeworkOverdue
+        else -> homeworkNotDone
+    }
+}
+
+@Composable
+private fun PersonalizedHomework.getTextColor(): Color {
+    val homeworkDone = MaterialTheme.colorScheme.onSurface
+    val homeworkOverdue = MaterialTheme.colorScheme.onErrorContainer
+    val homeworkNotDone = MaterialTheme.colorScheme.onPrimary
+    val overdue = homework.until.toLocalDate().isBefore(LocalDate.now())
+    return when {
+        allDone() -> homeworkDone
+        overdue -> homeworkOverdue
+        else -> homeworkNotDone
+    }
 }

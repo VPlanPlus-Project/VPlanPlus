@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.ExtendedFloatingActionButton
@@ -15,13 +18,20 @@ import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 @Composable
 @Preview
 fun CalendarFloatingActionButton(
+    isVisible: Boolean = true,
     onClick: () -> Unit = {},
 ) {
-    ExtendedFloatingActionButton(onClick = onClick) {
-        RowVerticalCenter {
-            Icon(Icons.Default.Add, contentDescription = null)
-            Spacer4Dp()
-            Text(text = stringResource(id = R.string.home_quickActionsNewHomework))
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        ExtendedFloatingActionButton(onClick = onClick) {
+            RowVerticalCenter {
+                Icon(Icons.Default.Add, contentDescription = null)
+                Spacer4Dp()
+                Text(text = stringResource(id = R.string.home_quickActionsNewHomework))
+            }
         }
     }
 }
