@@ -261,7 +261,7 @@ fun CalendarDateHead(
     firstVisibleDate: LocalDate,
     onClickToday: ((date: LocalDate) -> Unit)? = null
 ) {
-    RowVerticalCenter {
+    RowVerticalCenter(Modifier.height(HEADER_STATIC_HEIGHT_DP.dp)) {
         AnimatedContent(
             targetState = firstVisibleDate.month to firstVisibleDate.year, label = "month",
         ) { (month, year) ->

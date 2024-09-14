@@ -85,7 +85,7 @@ fun Day(
                     .size(32.dp)
                     .aspectRatio(1f)
                     .clip(RoundedCornerShape(50))
-                    .background(blendColor(MaterialTheme.colorScheme.surface, MaterialTheme.colorScheme.primaryContainer, isSelectedModifier))
+                    .background(blendColor(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0f), MaterialTheme.colorScheme.primaryContainer, isSelectedModifier))
                     .then(
                         if (isToday && !isSelected) Modifier.border(1.dp, MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(50))
                         else Modifier

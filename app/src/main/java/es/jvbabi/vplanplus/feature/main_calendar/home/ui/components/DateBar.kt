@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -11,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.HEADER_STATIC_HEIGHT_DP
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
@@ -27,9 +29,16 @@ fun DateBar(
     date: LocalDate,
     lastSync: ZonedDateTime?,
     isSubstitutionPlan: Boolean?,
+    isLarge: Boolean = false
 ) {
     RowVerticalCenterSpaceBetweenFill(
-        modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)
+        modifier = Modifier
+            .then(
+                if (isLarge) Modifier
+                    .height(HEADER_STATIC_HEIGHT_DP.dp)
+                else Modifier.padding(top = 16.dp, bottom = 8.dp)
+            )
+            .padding(horizontal = 16.dp)
     ) title@{
         RowVerticalCenter {
             Text(
@@ -64,7 +73,7 @@ private fun ZonedDateTime.toLastSyncText(): String {
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 private fun DateBarPreview() {
     DateBar(
         date = LocalDate.now().plusDays(1),
@@ -74,11 +83,22 @@ private fun DateBarPreview() {
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 private fun DateBarNoSyncPreview() {
     DateBar(
         date = LocalDate.now().plusDays(1),
         lastSync = null,
         isSubstitutionPlan = null
+    )
+}
+
+@Composable
+@Preview(showBackground = true)
+private fun DateBarLargePreview() {
+    DateBar(
+        date = LocalDate.now().plusDays(1),
+        lastSync = ZonedDateTime.now(),
+        isSubstitutionPlan = true,
+        isLarge = true
     )
 }

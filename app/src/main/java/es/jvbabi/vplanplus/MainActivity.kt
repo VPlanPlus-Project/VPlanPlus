@@ -401,8 +401,7 @@ fun List<NavigationBarItem>.BottomBar(selectedIndex: Int) {
 @Composable
 fun List<NavigationBarItem>.RailBar(selectedIndex: Int, fab: @Composable () -> Unit) {
     NavigationRail(
-        header = { fab() },
-        containerColor = MaterialTheme.colorScheme.surfaceContainer
+        header = { fab() }
     ) {
         forEachIndexed { index, item ->
             NavigationRailItem(

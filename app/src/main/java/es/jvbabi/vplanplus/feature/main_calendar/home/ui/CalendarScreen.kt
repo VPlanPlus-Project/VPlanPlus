@@ -15,12 +15,17 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -40,6 +45,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationRailDefaults
 import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -58,6 +64,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.layout.onSizeChanged
@@ -294,45 +301,66 @@ private fun CalendarScreenContent(
                 HorizontalDivider()
 
                 DayPager(
-                    state,
-                    contentPagerState,
-                    doAction,
-                    onOpenHomeworkScreen,
-                    onTimetableInfoBannerClicked,
+                    state = state,
+                    contentPagerState = contentPagerState,
+                    doAction = doAction,
+                    onOpenHomeworkScreen = onOpenHomeworkScreen,
+                    onTimetableInfoBannerClicked = onTimetableInfoBannerClicked,
                 )
             }
         }
         else {
-            Row(Modifier.padding(innerPadding)) {
-                navRail(true) { FloatingActionButton(onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }) { Icon(Icons.Default.Add, null) } }
-                Spacer8Dp()
+            Row {
+                navRail(true) {
+                    Column {
+                        Spacer8Dp()
+                        FloatingActionButton(onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }) { Icon(Icons.Default.Add, null) }
+                    }
+                }
+                val topBarHeight = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
                 Column(
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier
+                        .weight(1f)
+                        .background(Brush.linearGradient(listOf(NavigationRailDefaults.ContainerColor, MaterialTheme.colorScheme.surface))),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    Spacer(Modifier.height(topBarHeight/2))
                     CalendarDateHead(
                         firstVisibleDate = firstVisibleDate,
                         onClickToday = { doAction(CalendarViewAction.SelectDate(it)) }
                     )
-                    Spacer8Dp()
-                    FullMonthPager(
-                        calendarSelectHeightLarge = null,
-                        setFirstVisibleDate = { firstVisibleDate = it },
-                        state = state,
-                        doAction = doAction,
-                        setIsAnimating = { isAnimating = it },
-                        setClosest = { closest = it },
-                        calendarSelectHeightSmall = calendarSelectHeightSmall,
-                        calendarSelectHeightMedium = calendarSelectHeightMedium
-                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(16.dp, 16.dp, 0.dp, 0.dp))
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                            .padding(horizontal = 8.dp)
+                            .fillMaxSize()
+                    ) {
+                        FullMonthPager(
+                            calendarSelectHeightLarge = null,
+                            setFirstVisibleDate = { firstVisibleDate = it },
+                            state = state,
+                            doAction = doAction,
+                            setIsAnimating = { isAnimating = it },
+                            setClosest = { closest = it },
+                            calendarSelectHeightSmall = calendarSelectHeightSmall,
+                            calendarSelectHeightMedium = calendarSelectHeightMedium
+                        )
+                    }
                 }
-                Column(Modifier.weight(1f)) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(horizontal = 8.dp)
+                        .padding(top = topBarHeight/2)
+                        .background(MaterialTheme.colorScheme.surface)
+                ) {
                     DayPager(
-                        state,
-                        contentPagerState,
-                        doAction,
-                        onOpenHomeworkScreen,
-                        onTimetableInfoBannerClicked
+                        state = state,
+                        contentPagerState = contentPagerState,
+                        doAction = doAction,
+                        onOpenHomeworkScreen = onOpenHomeworkScreen,
+                        onTimetableInfoBannerClicked = onTimetableInfoBannerClicked
                     )
                 }
             }
@@ -348,6 +376,7 @@ private fun DayPager(
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit,
     onTimetableInfoBannerClicked: () -> Unit,
 ) {
+    val localConfiguration = LocalConfiguration.current
     LaunchedEffect(state.selectedDate) {
         contentPagerState.animateScrollToPage(
             CONTENT_PAGER_SIZE / 2 - state.selectedDate.atStartOfDay()
@@ -385,7 +414,8 @@ private fun DayPager(
             DateBar(
                 date = date,
                 lastSync = state.lastSync,
-                isSubstitutionPlan = if (day.lessons.isNotEmpty()) day.lessons.any { it is Lesson.SubstitutionPlanLesson } else null
+                isSubstitutionPlan = if (day.lessons.isNotEmpty()) day.lessons.any { it is Lesson.SubstitutionPlanLesson } else null,
+                isLarge = localConfiguration.orientation == Configuration.ORIENTATION_LANDSCAPE
             )
             Box(
                 modifier = Modifier.fillMaxSize(),
@@ -812,6 +842,10 @@ private fun DayPager(
 
                                 else -> Unit
                             }
+                        }
+                        if(localConfiguration.orientation == Configuration.ORIENTATION_LANDSCAPE) item {
+                            val bottomBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                            Spacer(Modifier.height(bottomBarHeight))
                         }
                     }
                 }
