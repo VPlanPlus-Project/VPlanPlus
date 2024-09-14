@@ -13,7 +13,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.Homewo
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -48,8 +47,8 @@ class GetDayUseCase(
                 )
                 emit(schoolDay)
                 
-                val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it, date) } ?: emptyFlow()
-                val gradesFlow = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it).map { grades -> grades.filter { grade -> grade.givenAt == date } } } ?: emptyFlow()
+                val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it, date) } ?: flow { emit(emptyList()) }
+                val gradesFlow = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it).map { grades -> grades.filter { grade -> grade.givenAt == date } } } ?: flow { emit(emptyList()) }
                 combine(homeworkFlow, gradesFlow) { homework, grades ->
                     schoolDay.copy(homework = homework, grades = grades)
                 }.collect {
