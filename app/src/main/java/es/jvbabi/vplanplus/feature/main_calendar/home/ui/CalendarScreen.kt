@@ -99,6 +99,8 @@ import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 const val MONTH_PAGER_SIZE = 12 * 10
 const val WEEK_PAGER_SIZE = 52
@@ -342,17 +344,19 @@ private fun CalendarScreenContent(
                                                             .size(32.dp),
                                                         contentAlignment = Alignment.Center
                                                     ) {
+                                                        val circularProgressIndicatorPadding = 3
                                                         SubjectIcon(
                                                             subject = hw.homework.defaultLesson?.subject,
                                                             tint = MaterialTheme.colorScheme.primary,
                                                             modifier = Modifier
-                                                                .size(24.dp),
+                                                                .size(sqrt(((32-circularProgressIndicatorPadding)/2f).pow(2)*2).dp),
                                                         )
                                                         CircularProgressIndicator(
                                                             progress = { hw.tasks.count { it.isDone }.toFloat() / hw.tasks.size.coerceAtLeast(1) },
                                                             modifier = Modifier.size(32.dp),
                                                             trackColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f),
-                                                            color = MaterialTheme.colorScheme.primary
+                                                            color = MaterialTheme.colorScheme.primary,
+                                                            strokeWidth = circularProgressIndicatorPadding.dp
                                                         )
                                                     }
                                                     Spacer8Dp()
