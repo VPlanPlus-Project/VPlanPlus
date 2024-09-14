@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.source.database
 
+import android.database.sqlite.SQLiteException
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
@@ -360,8 +361,12 @@ abstract class VppDatabase : RoomDatabase() {
 
         val migration_40_41 = object : Migration(40, 41) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("ALTER TABLE homework_document ADD COLUMN is_downloaded INTEGER NOT NULL DEFAULT false")
-                db.execSQL("ALTER TABLE homework_document ADD COLUMN size INTEGER NOT NULL DEFAULT 0")
+                try {
+                    db.execSQL("ALTER TABLE homework_document ADD COLUMN is_downloaded INTEGER NOT NULL DEFAULT false")
+                } catch (_: SQLiteException) { }
+                try {
+                    db.execSQL("ALTER TABLE homework_document ADD COLUMN size INTEGER NOT NULL DEFAULT 0")
+                } catch (_: SQLiteException) { }
             }
         }
     }
