@@ -4,7 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Upsert
-import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.data.model.combined.CVppId
 import kotlinx.coroutines.flow.Flow
 import java.time.ZonedDateTime

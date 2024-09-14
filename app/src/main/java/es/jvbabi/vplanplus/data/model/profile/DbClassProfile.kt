@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import es.jvbabi.vplanplus.data.model.DbGroup
-import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import java.util.UUID
 

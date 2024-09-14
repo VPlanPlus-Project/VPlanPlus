@@ -4,7 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
-import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.GradeModifier
 import java.time.LocalDate
 

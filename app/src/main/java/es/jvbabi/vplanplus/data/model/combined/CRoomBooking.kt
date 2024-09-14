@@ -4,7 +4,7 @@ import androidx.room.Embedded
 import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
-import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.util.DateUtils.toZonedLocalDateTime
 import java.time.ZoneId

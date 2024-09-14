@@ -1,9 +1,7 @@
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white)
 
-### Aktuelles
-
-# <img src="https://raw.githubusercontent.com/Julius-Babies/VPlanPlus/v0.5.1-alpha/app/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp" height="30px"> VPlanPlus für Android
+# <img src="https://vplan.plus/favicon.svg" height="35px"> VPlanPlus für Android
 
 [<img src="https://raw.githubusercontent.com/Julius-Babies/Julius-Babies/main/static/ghreleases.png" alt="Get it on Github Releases" height="50px">](https://github.com/Julius-Babies/VPlanPlus/releases)
 [<img src="https://raw.githubusercontent.com/Julius-Babies/Julius-Babies/main/static/googleplay.png" alt="Get it on Github Releases" height="50px">](https://play.google.com/store/apps/details?id=es.jvbabi.vplanplus)<br />
@@ -15,9 +13,17 @@ Diese App ist eine Alternative zu VpMobil und VpMobil24.
 - Suche nach unbelegten Räumen, Lehrern und Klassen
 - Modernes Design
 - Alle Features der Lehrer-Accounts mit Schüler-Accounts[^1]
-- Quelloffen
+- App ist Open-Source
 
 Website: [VPlan.Plus](https://vplan.plus)
+
+## VPlanPlus im Internet
+[![Website](https://img.shields.io/badge/website-005792?style=for-the-badge&logo=About.me&logoColor=white)](https://vplan.plus)
+[![Threads](https://img.shields.io/badge/Threads-212121?style=for-the-badge&logo=Threads&logoColor=white)](https://www.threads.net/@vplanplus)
+[![Instagram](https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://www.instagram.com/vplanplus)
+[![Mastodon](https://img.shields.io/badge/Mastodon-6364FF?style=for-the-badge&logo=Mastodon&logoColor=white)](https://mastodon.social/@vpp_app)
+[![Linktree](https://img.shields.io/badge/linktree-39E09B?style=for-the-badge&logo=linktree&logoColor=white)](https://linktr.ee/vplanplus)
+[![GitHub](https://img.shields.io/badge/GitHub-232323?style=for-the-badge&logo=github&logoColor=white)](https://github.com/VPlanPlus-Project/)
 
 ### vpp.ID
 
@@ -28,7 +34,7 @@ haben.
 Eine vpp.ID erstellst du mit deinem beste.schule Account.
 
 > [!IMPORTANT]
-> Der beste.schule Account benötigt eine E-Mail-Adresse.
+> Der beste.schule Account benötigt eine bestätigte E-Mail-Adresse.
 
 [^1]: Variiert zwischen Schulen, siehe Kompatibilitätstabelle weiter unten
 <hr />
@@ -63,7 +69,7 @@ Suche deine Schule einfach mit <kbd>Strg</kbd> + <kbd>F</kbd>.
 | Oberschule Lichtentanne                                                                                                          | 10524931 | ✅          | ❌                  |
 | Gymnasium Dresden-Tolkewitz                                                                                                      | 10499483 | ✅          | ❌                  |
 | Goethe-Gymnasium der Stadt Leipzig                                                                                               | 10467392 | ✅          | ❌                  |
-| Oberschule Schmiedeberg                                                                                                          | 10482537 | ✅          | ❌                  |
+| Oberschule Schmiedeberg                                                                                                          | 10482537 | ✅          | ✅                  |
 | Sekundarschule "An der Doppelkapelle" Landsberg                                                                                  | 20148306 | ✅          | ❌                  |
 | Artur-Becker-Oberschule Delitzsch                                                                                                | 10294593 | ✅          | ❌                  |
 | Montessori-Schulzentrum Leipzig                                                                                                  | 10233497 | ✅          | ❌                  |
@@ -75,6 +81,11 @@ Suche deine Schule einfach mit <kbd>Strg</kbd> + <kbd>F</kbd>.
 | Friedrich-Schiller-Oberschule Neustadt in Sachsen                                                                                | 10533425 | ✅          | ❌                  |
 | Werner-von-Siemens-Gymnasium Magdeburg                                                                                           | 20129987 | ✅          | ❌                  |
 | Gymnasium Dresden-Plauen                                                                                                         | 10216397 | ✅          | ❌                  |
+| Gymnasium Dresden-Bühlau                                                                                                         | 10252109 | ✅          | ❌                  |
+| Werner-Heisenberg-Gymnasium Leipzig                                                                                              | 10045328 | ✅          | ✅                  |
+| Schiller-Gymnasium Hameln                                                                                                        | 53018234 | ✅          | ❌                  |
+| Gymnasium Dresden-Pieschen                                                                                                       | 10490187 | ✅          | ✅                  |
+| Pestalozzi-Schule Demmin                                                                                                         | 40142395 | ✅          | ❌                  |
 
 Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es
 anderen Schülern/Lehrern an der Schule einfacher zu machen.
