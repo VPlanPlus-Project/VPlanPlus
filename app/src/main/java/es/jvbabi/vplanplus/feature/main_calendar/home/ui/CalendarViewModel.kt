@@ -32,18 +32,21 @@ class CalendarViewModel @Inject constructor(
                 listOf(
                     calendarViewUseCases.getCurrentProfileUseCase(),
                     calendarViewUseCases.getLastSyncUseCase(),
-                    calendarViewUseCases.canShowTimetableInfoBannerUseCase()
+                    calendarViewUseCases.canShowTimetableInfoBannerUseCase(),
+                    calendarViewUseCases.getCurrentDataVersionUseCase()
                 )
             ) { data ->
                 val profile = data[0] as? Profile
                 val lastSyncTimestamp = data[1] as? ZonedDateTime
                 val canShowTimetableInfoBanner = data[2] as? Boolean ?: true
+                val version = data[3] as? Int ?: 0
 
                 if (profile == null) return@combine state
                 state.copy(
                     currentProfile = profile,
                     lastSync = lastSyncTimestamp,
-                    canShowTimetableInfoBanner = canShowTimetableInfoBanner
+                    canShowTimetableInfoBanner = canShowTimetableInfoBanner,
+                    version = if (state.version == -1) -1 else version
                 )
             }.collect {
                 state = it
@@ -97,24 +100,30 @@ class CalendarViewModel @Inject constructor(
             val profile = state.currentProfile ?: return@launch
             calendarViewUseCases.getDayUseCase(date, profile).collect { day ->
                 state = state.copy(
-                    days = state.days + (date to day)
+                    days = state.days + (date to day),
+                    version = state.version.coerceAtLeast(0)
                 )
             }
         }
     }
 }
 
+/**
+ * @param currentSelectCause The cause of the current selection, if a click is detected, it will trigger all pagers to scroll to the selected date.
+ */
 data class CalendarViewState(
     val currentProfile: Profile? = null,
     val days: Map<LocalDate, SchoolDay> = emptyMap(),
     val selectedDate: LocalDate = LocalDate.now(),
+    val currentSelectCause: DateSelectCause = DateSelectCause.CALENDAR_CLICK,
     val lastSync: ZonedDateTime? = null,
     val enabledFilters: List<DayViewFilter> = emptyList(),
-    val canShowTimetableInfoBanner: Boolean = true
+    val canShowTimetableInfoBanner: Boolean = true,
+    val version: Int = -1
 )
 
 sealed class CalendarViewAction {
-    data class SelectDate(val date: LocalDate) : CalendarViewAction()
+    data class SelectDate(val date: LocalDate, val currentSelectCause: DateSelectCause) : CalendarViewAction()
     data class ToggleFilter(val filter: DayViewFilter) : CalendarViewAction()
 
     data object DismissTimetableInfoBanner : CalendarViewAction()
@@ -122,4 +131,10 @@ sealed class CalendarViewAction {
 
 enum class DayViewFilter {
     GRADES, LESSONS, HOMEWORK
+}
+
+enum class DateSelectCause {
+    CALENDAR_SWIPE,
+    CALENDAR_CLICK,
+    DAY_SWIPE,
 }

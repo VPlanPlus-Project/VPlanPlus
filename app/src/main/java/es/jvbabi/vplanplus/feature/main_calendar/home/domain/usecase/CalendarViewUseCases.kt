@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase
 
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetCurrentDataVersionUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
 
 data class CalendarViewUseCases(
@@ -10,4 +11,6 @@ data class CalendarViewUseCases(
 
     val canShowTimetableInfoBannerUseCase: CanShowTimetableInfoBannerUseCase,
     val dismissTimetableInfoBannerUseCase: DismissTimetableInfoBannerUseCase,
+
+    val getCurrentDataVersionUseCase: GetCurrentDataVersionUseCase
 )

@@ -251,7 +251,7 @@ private fun CalendarScreenContent(
     val displayHeadSize = if (!isScrolling) animateCurrentHeadSize else currentHeadSize
 
     Scaffold(
-        topBar = { if (localConfiguration.orientation == Configuration.ORIENTATION_PORTRAIT) TopBar(onBack = onBack, selectDate = { doAction(CalendarViewAction.SelectDate(it)) }) },
+        topBar = { if (localConfiguration.orientation == Configuration.ORIENTATION_PORTRAIT) TopBar(onBack = onBack, selectDate = { doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK)) }) },
         floatingActionButton = {
             CalendarFloatingActionButton(
                 isVisible = closest != calendarSelectHeightLarge,
@@ -326,7 +326,7 @@ private fun CalendarScreenContent(
                     Spacer(Modifier.height(topBarHeight/2))
                     CalendarDateHead(
                         firstVisibleDate = firstVisibleDate,
-                        onClickToday = { doAction(CalendarViewAction.SelectDate(it)) }
+                        onClickToday = { doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK)) }
                     )
                     Box(
                         modifier = Modifier
@@ -340,10 +340,10 @@ private fun CalendarScreenContent(
                             setFirstVisibleDate = { firstVisibleDate = it },
                             state = state,
                             doAction = doAction,
-                            setIsAnimating = { isAnimating = it },
-                            setClosest = { closest = it },
-                            calendarSelectHeightSmall = calendarSelectHeightSmall,
-                            calendarSelectHeightMedium = calendarSelectHeightMedium
+                            setIsAnimating = {},
+                            setClosest = {},
+                            calendarSelectHeightSmall = 0f,
+                            calendarSelectHeightMedium = 0f
                         )
                     }
                 }
@@ -377,16 +377,17 @@ private fun DayPager(
 ) {
     val localConfiguration = LocalConfiguration.current
     LaunchedEffect(state.selectedDate) {
-        contentPagerState.animateScrollToPage(
-            CONTENT_PAGER_SIZE / 2 - state.selectedDate.atStartOfDay()
-                .until(
-                    LocalDate.now().atStartOfDay(),
-                    ChronoUnit.DAYS
-                ).toInt()
-        )
+        if (state.currentSelectCause == DateSelectCause.DAY_SWIPE) return@LaunchedEffect
+        val targetPage = CONTENT_PAGER_SIZE / 2 - state.selectedDate.atStartOfDay()
+            .until(
+                LocalDate.now().atStartOfDay(),
+                ChronoUnit.DAYS
+            ).toInt()
+        contentPagerState.animateScrollToPage(targetPage)
     }
 
     LaunchedEffect(key1 = contentPagerState.targetPage) {
+        if (state.currentSelectCause == DateSelectCause.DAY_SWIPE) return@LaunchedEffect
         val date = LocalDate.now().plusDays(
             getOffsetFromMiddle(
                 CONTENT_PAGER_SIZE,
@@ -394,7 +395,7 @@ private fun DayPager(
             ).toLong()
         )
         if (state.selectedDate == date) return@LaunchedEffect
-        doAction(CalendarViewAction.SelectDate(date))
+        doAction(CalendarViewAction.SelectDate(date, DateSelectCause.DAY_SWIPE))
     }
 
     HorizontalPager(
@@ -405,7 +406,7 @@ private fun DayPager(
     ) { currentPage ->
         val date = LocalDate.now()
             .plusDays(getOffsetFromMiddle(CONTENT_PAGER_SIZE, currentPage).toLong())
-        val day = state.days[date] ?: SchoolDay(date)
+        val day = remember(state.version, state.days.size) { state.days[date] ?: SchoolDay(date = date) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -813,7 +814,8 @@ private fun DayPager(
                                                 TextButton(onClick = {
                                                     doAction(
                                                         CalendarViewAction.SelectDate(
-                                                            nextDay.date
+                                                            nextDay.date,
+                                                            DateSelectCause.CALENDAR_CLICK
                                                         )
                                                     )
                                                 }) {

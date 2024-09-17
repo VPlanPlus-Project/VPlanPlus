@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.CalendarViewAction
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.CalendarViewState
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.DateSelectCause
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.HEADER_STATIC_HEIGHT_DP
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.MONTH_HEADER_HEIGHT_DP
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.MONTH_PAGER_SIZE
@@ -93,11 +94,12 @@ fun ScrollableDateSelector(
 
                 setFirstVisibleDate(weekStart)
                 if (state.selectedDate.atStartOfWeek() == weekStart) return@LaunchedEffect
-                doAction(CalendarViewAction.SelectDate(if (weekStart == LocalDate.now().atStartOfWeek()) LocalDate.now() else weekStart))
+                doAction(CalendarViewAction.SelectDate(if (weekStart == LocalDate.now().atStartOfWeek()) LocalDate.now() else weekStart, DateSelectCause.CALENDAR_SWIPE))
 
             }
 
             LaunchedEffect(key1 = state.selectedDate) {
+                if (state.currentSelectCause == DateSelectCause.CALENDAR_SWIPE) return@LaunchedEffect
                 weekPager.animateScrollToPage(
                     WEEK_PAGER_SIZE / 2 - state.selectedDate.atStartOfWeek()
                         .until(
@@ -127,7 +129,7 @@ fun ScrollableDateSelector(
                         state.days[date] ?: SchoolDay(date)
                     },
                     displayMonth = null,
-                    onDayClicked = { doAction(CalendarViewAction.SelectDate(it)) },
+                    onDayClicked = { doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK)) },
                     smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
                     mediumMaxHeight = with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
                     largeMaxHeight = with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp
@@ -157,7 +159,7 @@ fun ScrollableDateSelector(
                                 state.days[date] ?: SchoolDay(date)
                             },
                             displayMonth = firstDayOfMonth.month,
-                            onDayClicked = { doAction(CalendarViewAction.SelectDate(it)) },
+                            onDayClicked = { doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK)) },
                             smallMaxHeight = calendarSelectHeightSmall.dp - HEADER_STATIC_HEIGHT_DP.dp,
                             mediumMaxHeight = weekHeaderMiddleHeight,
                             largeMaxHeight = weekHeaderMiddleHeight
@@ -172,10 +174,11 @@ fun ScrollableDateSelector(
                 val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.settledPage).toLong())
                 setFirstVisibleDate(monthStart)
                 if (state.selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
-                doAction(CalendarViewAction.SelectDate(if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now() else monthStart))
+                doAction(CalendarViewAction.SelectDate(if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now() else monthStart, DateSelectCause.CALENDAR_SWIPE))
             }
 
             LaunchedEffect(state.selectedDate) {
+                if (state.currentSelectCause == DateSelectCause.CALENDAR_SWIPE) return@LaunchedEffect
                 monthPager.animateScrollToPage(
                     MONTH_PAGER_SIZE / 2 - state.selectedDate.atStartOfMonth()
                         .until(
@@ -203,7 +206,7 @@ fun ScrollableDateSelector(
                                 state.days[date] ?: SchoolDay(date)
                             },
                             displayMonth = month,
-                            onDayClicked = { doAction(CalendarViewAction.SelectDate(it)) },
+                            onDayClicked = { doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK)) },
                             smallMaxHeight = with(LocalDensity.current) { calendarSelectHeightSmall.toDp() } - HEADER_STATIC_HEIGHT_DP.dp,
                             mediumMaxHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5,
                             largeMaxHeight = (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
@@ -232,7 +235,7 @@ fun ScrollableDateSelector(
                             state.days[date] ?: SchoolDay(date)
                         },
                         displayMonth = firstDayOfMonth.month,
-                        onDayClicked = { doAction(CalendarViewAction.SelectDate(it)) },
+                        onDayClicked = { doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK)) },
                         smallMaxHeight = calendarSelectHeightMedium.dp - HEADER_STATIC_HEIGHT_DP.dp,
                         mediumMaxHeight = weekHeaderMiddleHeight,
                         largeMaxHeight = weekHeaderLargeHeight - if (weekOffset == 4) 0.dp else 1.dp
@@ -293,23 +296,23 @@ fun FullMonthPager(
 ) {
     val weekHeaderLargeHeight = if (calendarSelectHeightLarge == null) null else
         (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
-    val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2) { MONTH_PAGER_SIZE }
+    val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2 - state.selectedDate.atStartOfMonth()
+        .until(
+            LocalDate.now().atStartOfMonth(),
+            ChronoUnit.MONTHS
+        ).toInt()) { MONTH_PAGER_SIZE }
+
     LaunchedEffect(key1 = monthPager.targetPage) {
         val monthStart = LocalDate.now().atStartOfMonth()
             .plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.targetPage).toLong())
         setFirstVisibleDate(monthStart)
         if (state.selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
 
-        doAction(
-            CalendarViewAction.SelectDate(
-                if (LocalDate.now()
-                        .atStartOfMonth() == monthStart.atStartOfMonth()
-                ) LocalDate.now() else monthStart
-            )
-        )
+        doAction(CalendarViewAction.SelectDate(if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now() else monthStart, DateSelectCause.CALENDAR_SWIPE))
     }
 
     LaunchedEffect(state.selectedDate) {
+        if (state.currentSelectCause == DateSelectCause.CALENDAR_SWIPE) return@LaunchedEffect
         monthPager.animateScrollToPage(
             MONTH_PAGER_SIZE / 2 - state.selectedDate.atStartOfMonth()
                 .until(
@@ -341,7 +344,7 @@ fun FullMonthPager(
                     },
                     displayMonth = month,
                     onDayClicked = {
-                        doAction(CalendarViewAction.SelectDate(it))
+                        doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK))
                         if (calendarSelectHeightLarge == null) return@Week
                         setIsAnimating(false)
                         setClosest(calendarSelectHeightLarge)

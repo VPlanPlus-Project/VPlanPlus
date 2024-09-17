@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CanShowTime
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.DismissTimetableInfoBannerUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetCurrentDataVersionUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
@@ -36,6 +37,7 @@ object CalendarModule {
         getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
 
         canShowTimetableInfoBannerUseCase = CanShowTimetableInfoBannerUseCase(keyValueRepository),
-        dismissTimetableInfoBannerUseCase = DismissTimetableInfoBannerUseCase(keyValueRepository)
+        dismissTimetableInfoBannerUseCase = DismissTimetableInfoBannerUseCase(keyValueRepository),
+        getCurrentDataVersionUseCase = GetCurrentDataVersionUseCase(keyValueRepository)
     )
 }
