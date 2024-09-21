@@ -31,6 +31,7 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -192,6 +193,9 @@ class MainActivity : FragmentActivity() {
             setContent {
                 isAppInDarkMode.value = appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
                 VPlanPlusTheme(cs = colorScheme.value, darkTheme = isAppInDarkMode.value) {
+                    LaunchedEffect(key1 = Unit) {
+                        enableEdgeToEdge()
+                    }
                     navController = rememberNavController()
 
                     var selectedIndex by rememberSaveable {
