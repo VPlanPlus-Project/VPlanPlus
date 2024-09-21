@@ -138,7 +138,7 @@ class DoSyncUseCase(
                 val rooms = roomRepository.getRoomsBySchool(school)
                 val groups = groupRepository.getGroupsBySchool(school)
 
-                timetableRepository.clearTimetableForSchool(school)
+                //timetableRepository.clearTimetableForSchool(school)
                 timetable.data?.sPlan?.schoolWeekTypes?.forEach forEachWeekType@{ type ->
                     if (type.type.isEmpty()) return@forEachWeekType
                     weekRepository.insertWeekType(school, type.type)
@@ -154,7 +154,7 @@ class DoSyncUseCase(
                         weekNumber = week.weekNumber
                     )
                 }
-                val lessons = timetable.data?.sPlan?.classes.orEmpty().map { group ->
+                val newTimetableLessons = timetable.data?.sPlan?.classes.orEmpty().map { group ->
                     groupRepository.getGroupBySchoolAndName(school.id, group.schoolClass)?.let { groupObj ->
                         val lessonTimes = lessonTimesRepository.getLessonTimesByGroup(groupObj)
                         if (lessonTimes.isNotEmpty()) return@let
@@ -182,7 +182,7 @@ class DoSyncUseCase(
                         )
                     }
                 }.flatten()
-                timetableRepository.insertTimetableLessons(lessons)
+                timetableRepository.insertTimetableLessons(newTimetableLessons)
                 times.add("Timetable Insert" to System.currentTimeMillis())
             }
 

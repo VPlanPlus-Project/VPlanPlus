@@ -148,6 +148,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_37_38)
             .addMigrations(VppDatabase.migration_38_39)
             .addMigrations(VppDatabase.migration_40_41)
+            .addMigrations(VppDatabase.migration_42_43)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())

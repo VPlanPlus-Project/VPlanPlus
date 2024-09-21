@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.Week
 import es.jvbabi.vplanplus.domain.model.WeekType
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
+import es.jvbabi.vplanplus.util.MathTools.cantor
 import java.time.LocalDate
 
 class WeekRepositoryImpl(
@@ -22,6 +23,7 @@ class WeekRepositoryImpl(
 
     override suspend fun insertWeek(school: School, weekType: WeekType, startDate: LocalDate, endDate: LocalDate, weekNumber: Int) {
         weekDao.upsertWeek(DbWeek(
+            id = cantor(school.id, weekNumber),
             weekTypeId = weekType.id,
             schoolId = school.id,
             startDate = startDate,

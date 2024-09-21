@@ -127,7 +127,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class
     ],
-    version = 42,
+    version = 43,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -367,6 +367,24 @@ abstract class VppDatabase : RoomDatabase() {
                 try {
                     db.execSQL("ALTER TABLE homework_document ADD COLUMN size INTEGER NOT NULL DEFAULT 0")
                 } catch (_: SQLiteException) { }
+            }
+        }
+
+        val migration_42_43 = object : Migration(42, 43) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE week;")
+                db.execSQL("CREATE TABLE week (" +
+                        "school_id INTEGER NOT NULL, " +
+                        "week_number INTEGER NOT NULL, " +
+                        "week_type_id INTEGER NOT NULL, " +
+                        "start_date INTEGER NOT NULL, " +
+                        "end_date INTEGER NOT NULL, " +
+                        "id INTEGER NOT NULL, " +
+                        "PRIMARY KEY(id)" +
+                        ");")
+                db.execSQL("CREATE UNIQUE INDEX `index_week_id` ON `week` (`id`)")
+                db.execSQL("CREATE INDEX `index_week_school_id` ON `week` (`school_id`)")
+                db.execSQL("CREATE INDEX `index_week_week_type_id` ON `week` (`week_type_id`)")
             }
         }
     }
