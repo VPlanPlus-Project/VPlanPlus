@@ -23,7 +23,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.DayViewFilter
-import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 
 @Composable
@@ -44,7 +43,7 @@ fun TypeFilters(
                 .fillMaxWidth()
                 .padding(vertical = 4.dp),
         ) {
-            item { Spacer16Dp() }
+            item { Spacer8Dp() }
             item {
                 AnimatedVisibility(
                     visible = hasLessons,

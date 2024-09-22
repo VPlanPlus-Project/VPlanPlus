@@ -20,7 +20,7 @@ fun DayInfoCard(
         visible = info != null,
         enter = expandVertically(),
         exit = shrinkVertically(),
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp)
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
         es.jvbabi.vplanplus.ui.common.InfoCard(
             imageVector = Icons.Default.Campaign,

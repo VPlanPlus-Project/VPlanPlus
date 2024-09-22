@@ -38,7 +38,7 @@ fun DateBar(
                     .height(HEADER_STATIC_HEIGHT_DP.dp)
                 else Modifier.padding(top = 16.dp, bottom = 8.dp)
             )
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 8.dp)
     ) title@{
         RowVerticalCenter {
             Text(

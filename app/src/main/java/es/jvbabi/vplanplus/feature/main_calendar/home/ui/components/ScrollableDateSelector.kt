@@ -111,7 +111,7 @@ fun ScrollableDateSelector(
 
             HorizontalPager(
                 state = weekPager,
-                beyondViewportPageCount = 3
+                beyondViewportPageCount = 2
             ) { currentPage ->
                 val weekStart = LocalDate.now().atStartOfWeek().plusWeeks(
                     getOffsetFromMiddle(

@@ -25,6 +25,10 @@ object SchoolPreview {
         return schools
     }
 
+    fun generateRandomSchool(): School {
+        return generateRandomSchools(1).first()
+    }
+
     private fun randomSchoolName(): String {
         return listOf(
             "Goethe Gymnasium",

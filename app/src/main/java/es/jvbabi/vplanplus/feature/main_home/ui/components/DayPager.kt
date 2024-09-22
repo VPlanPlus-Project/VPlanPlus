@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_home.ui.components
 
 import android.util.Log
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
@@ -20,7 +19,6 @@ import java.time.temporal.ChronoUnit
 
 private const val FLING_ITEMS = 20
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun DayPager(
     modifier: Modifier = Modifier,
