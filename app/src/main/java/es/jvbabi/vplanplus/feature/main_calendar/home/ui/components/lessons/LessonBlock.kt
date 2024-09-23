@@ -1,14 +1,18 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons
 
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -16,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Lesson
-import es.jvbabi.vplanplus.ui.common.Spacer4Dp
-import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.RoomPreview
@@ -31,17 +33,29 @@ fun LessonBlock(
     lessonNumber: Int,
     lessons: List<Lesson>,
 ) {
-    Column(Modifier.padding(horizontal = 8.dp)) {
-        Spacer8Dp()
-        LessonNumber(lessonNumber)
-        Spacer4Dp()
-        Column(
-            modifier = Modifier.clip(RoundedCornerShape(16.dp)),
-            verticalArrangement = Arrangement.spacedBy(2.dp)
-        ) {
-            lessons.forEach { lesson ->
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(4.dp))
+    ) {
+        Column {
+            lessons.forEachIndexed { i, lesson ->
                 LessonItem(lesson)
+                if (i != lessons.lastIndex) HorizontalDivider(Modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .padding(horizontal = 8.dp)
+                )
             }
+        }
+        Box(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .padding(top = 12.dp, end = 12.dp)
+                .shadow(elevation = 4.dp, shape = RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(4.dp))
+                .background(MaterialTheme.colorScheme.secondaryContainer)
+                .padding(4.dp)
+        ) {
+            LessonNumber(lessonNumber)
         }
     }
 }
@@ -56,7 +70,8 @@ private fun LessonNumber(
             lessonNumber.toLocalizedString()
         ),
         style = MaterialTheme.typography.labelSmall.copy(
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
         )
     )
 }
