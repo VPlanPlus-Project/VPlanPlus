@@ -434,7 +434,8 @@ private fun DayPager(
                                 showSection = (state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters) && day.homework.isNotEmpty(),
                                 homework = day.homework,
                                 onOpenHomeworkScreen = onOpenHomeworkScreen,
-                                currentProfile = state.currentProfile!!
+                                currentProfile = state.currentProfile!!,
+                                contextDate = date
                             )
 
                             LessonsSection(

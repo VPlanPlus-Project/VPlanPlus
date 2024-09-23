@@ -26,13 +26,15 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Personalize
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
+import java.time.LocalDate
 
 @Composable
 fun HomeworkSection(
     showSection: Boolean,
     homework: List<PersonalizedHomework>,
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit,
-    currentProfile: Profile
+    currentProfile: Profile,
+    contextDate: LocalDate
 ) {
     androidx.compose.animation.AnimatedVisibility(
         visible = showSection,
@@ -51,7 +53,8 @@ fun HomeworkSection(
                     HomeworkItem(
                         onOpenHomeworkScreen = onOpenHomeworkScreen,
                         currentProfile = currentProfile,
-                        hw = hw
+                        hw = hw,
+                        contextDate = contextDate
                     )
                 }
             }

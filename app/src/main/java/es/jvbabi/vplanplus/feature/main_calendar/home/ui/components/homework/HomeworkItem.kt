@@ -33,6 +33,7 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import java.time.LocalDate
 import java.time.ZonedDateTime
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -42,6 +43,7 @@ fun HomeworkItem(
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit,
     currentProfile: Profile,
     hw: PersonalizedHomework,
+    contextDate: LocalDate
 ) {
     RowVerticalCenter(
         modifier = Modifier
@@ -52,9 +54,9 @@ fun HomeworkItem(
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        ProgressRing(hw)
+        ProgressRing(hw, contextDate)
         Column {
-            Title(hw, currentProfile)
+            Title(hw, currentProfile, contextDate)
             Tasks(hw)
         }
     }
@@ -89,7 +91,8 @@ private fun Tasks(hw: PersonalizedHomework) {
 @Composable
 private fun Title(
     hw: PersonalizedHomework,
-    currentProfile: Profile
+    currentProfile: Profile,
+    contextDate: LocalDate
 ) {
     RowVerticalCenter(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -101,7 +104,8 @@ private fun Title(
             style = MaterialTheme.typography.bodyMedium.copy(
                 fontWeight = FontWeight.SemiBold,
                 textDecoration = if (hw.allDone()) TextDecoration.LineThrough else null
-            )
+            ),
+            color = if (!hw.allDone() && hw.homework.until.toLocalDate().isBefore(contextDate)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
         )
 
         // Save location and creator
@@ -127,7 +131,10 @@ private fun Title(
 }
 
 @Composable
-private fun ProgressRing(hw: PersonalizedHomework) {
+private fun ProgressRing(
+    hw: PersonalizedHomework,
+    contextDate: LocalDate
+) {
     Box(
         modifier = Modifier
             .size(32.dp),
@@ -136,7 +143,7 @@ private fun ProgressRing(hw: PersonalizedHomework) {
         val circularProgressIndicatorPadding = 3
         SubjectIcon(
             subject = hw.homework.defaultLesson?.subject,
-            tint = MaterialTheme.colorScheme.primary,
+            tint = if (!hw.allDone() && hw.homework.until.toLocalDate().isBefore(contextDate)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .size(
                     sqrt(
@@ -157,7 +164,7 @@ private fun ProgressRing(hw: PersonalizedHomework) {
             trackColor = MaterialTheme.colorScheme.onSurface.copy(
                 alpha = 0.2f
             ),
-            color = MaterialTheme.colorScheme.primary,
+            color = if (!hw.allDone() && hw.homework.until.toLocalDate().isBefore(contextDate)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
             strokeWidth = circularProgressIndicatorPadding.dp
         )
     }
@@ -183,6 +190,7 @@ fun HomeworkItemPreview() {
             profile = classProfile,
             tasks = emptyList()
         ),
-        currentProfile = classProfile
+        currentProfile = classProfile,
+        contextDate = LocalDate.now().plusDays(5)
     )
 }
