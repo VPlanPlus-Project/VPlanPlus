@@ -33,7 +33,6 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HasUnreadNewsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IgnoreInvalidVppIdSessionsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.IsInfoExpandedUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.SetInfoExpandedUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.UpdateLastVersionHintsVersionUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import javax.inject.Singleton
@@ -76,7 +75,6 @@ object HomeModule {
             getHideFinishedLessonsUseCase = GetHideFinishedLessonsUseCase(keyValueRepository),
             getHolidaysUseCase = GetHolidaysUseCase(holidayRepository, getCurrentProfileUseCase),
 
-            setInfoExpandedUseCase = SetInfoExpandedUseCase(keyValueRepository),
             isInfoExpandedUseCase = IsInfoExpandedUseCase(keyValueRepository),
 
             hasUnreadNewsUseCase = HasUnreadNewsUseCase(messageRepository),

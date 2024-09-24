@@ -58,7 +58,6 @@ import es.jvbabi.vplanplus.ui.common.Transition.slideInFromBottom
 import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
-import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -230,27 +229,6 @@ private fun NavGraphBuilder.mainScreens(
     navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit
 ) {
     composable(
-        route = Screen.HomeScreen.route + "/{startDate}",
-        enterTransition = { fadeIn(tween(300)) },
-        exitTransition = { fadeOut(tween(300)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = { fadeOut(tween(300)) },
-        arguments = listOf(
-            navArgument("startDate") {
-                type = NavType.StringType
-                nullable = true
-                defaultValue = null
-            }
-        )
-    ) {
-        HomeScreen(
-            navHostController = navController,
-            navBar = navBar,
-            startDate = LocalDate.parse(it.arguments?.getString("startDate") ?: LocalDate.now().toString())
-        )
-    }
-
-    composable(
         route = Screen.HomeScreen.route,
         enterTransition = { fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(300)) },
@@ -259,8 +237,7 @@ private fun NavGraphBuilder.mainScreens(
     ) {
         HomeScreen(
             navHostController = navController,
-            navBar = navBar,
-            startDate = LocalDate.now()
+            navBar = navBar
         )
     }
 

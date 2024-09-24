@@ -16,8 +16,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Day
-import es.jvbabi.vplanplus.domain.model.DayDataState
-import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
@@ -25,9 +23,7 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
-import es.jvbabi.vplanplus.util.DateUtils.progress
 import es.jvbabi.vplanplus.worker.SyncWorker
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -40,8 +36,6 @@ class HomeViewModel @Inject constructor(
     private val homeUseCases: HomeUseCases
 ) : ViewModel() {
     var state by mutableStateOf(HomeState())
-
-    private var uiUpdateJobs: Map<LocalDate, Job> = emptyMap()
 
     init {
         viewModelScope.launch oneTimeData@{
@@ -105,42 +99,8 @@ class HomeViewModel @Inject constructor(
                     holidays = holidays
                 )
             }.collect {
-                val identityHasChanged = state.currentProfile != it.currentProfile
                 state = it
-
-                if (identityHasChanged) restartUiUpdateJobs()
             }
-        }
-    }
-
-    fun setSelectedDate(date: LocalDate) {
-        state = state.copy(selectedDate = date)
-        triggerLessonUiSync(date)
-        repeat(4) {
-            triggerLessonUiSync(date.minusDays(it.toLong()))
-            triggerLessonUiSync(date.plusDays(it.toLong()))
-        }
-    }
-
-    private fun restartUiUpdateJobs() {
-        uiUpdateJobs.values.forEach { it.cancel() }
-        uiUpdateJobs = emptyMap()
-        state = state.copy(days = emptyMap())
-        setSelectedDate(state.selectedDate)
-    }
-
-    private fun triggerLessonUiSync(date: LocalDate) {
-        if (state.days.containsKey(date) || state.currentProfile == null) return
-        viewModelScope.launch {
-            homeUseCases.getDayUseCase(date, state.currentProfile!!).collect {
-                state = state.copy(days = state.days + (date to it))
-            }
-        }
-    }
-
-    fun onInfoExpandChange(expanded: Boolean) {
-        viewModelScope.launch {
-            homeUseCases.setInfoExpandedUseCase(expanded)
         }
     }
 
@@ -194,7 +154,6 @@ data class HomeState(
     val currentTime: ZonedDateTime = ZonedDateTime.now(),
     val currentProfile: Profile? = null,
     val days: Map<LocalDate, Day> = emptyMap(),
-    val selectedDate: LocalDate = LocalDate.now(),
     val bookings: List<RoomBooking> = emptyList(),
     val homework: List<PersonalizedHomework> = emptyList(),
     val infoExpanded: Boolean = false,
@@ -214,10 +173,4 @@ data class HomeState(
 
     val hasInvalidVppIdSession: Boolean = false,
     val hasMissingVppIdToProfileLinks: Boolean = false
-) {
-    val nextSchoolDayWithData: LocalDate?
-        get() = days.entries.firstOrNull { it.key.isAfter(currentTime.toLocalDate()) && it.value.state == DayDataState.DATA && it.value.type == DayType.NORMAL }?.key
-
-    val autoNextDay: Boolean
-        get() = nextSchoolDayWithData != null && days.entries.firstOrNull { it.key.isEqual(currentTime.toLocalDate()) }?.value?.lessons?.none { currentTime.progress(it.start, it.end) < 1f } ?: true
-}
+)

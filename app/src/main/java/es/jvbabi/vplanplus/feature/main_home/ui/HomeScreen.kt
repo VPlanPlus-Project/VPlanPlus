@@ -3,68 +3,39 @@ package es.jvbabi.vplanplus.feature.main_home.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PageSize
-import androidx.compose.foundation.pager.PagerDefaults
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.Menu
-import es.jvbabi.vplanplus.feature.main_home.ui.components.DayPager
-import es.jvbabi.vplanplus.feature.main_home.ui.components.DayView
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
 import es.jvbabi.vplanplus.feature.main_home.ui.components.ImportantHeader
-import es.jvbabi.vplanplus.feature.main_home.ui.components.LastSyncText
-import es.jvbabi.vplanplus.feature.main_home.ui.components.PlanHeader
 import es.jvbabi.vplanplus.feature.main_home.ui.components.QuickActions
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredentialsBanner
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
-import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
@@ -79,32 +50,22 @@ import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
-import kotlinx.coroutines.delay
-import java.time.LocalDate
 import java.time.ZonedDateTime
-import java.time.temporal.ChronoUnit
-
-const val PAGER_SIZE = 365*2
 
 @Composable
 fun HomeScreen(
     navHostController: NavHostController,
     navBar: @Composable (expanded: Boolean) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    startDate: LocalDate = LocalDate.now()
 ) {
     val state = homeViewModel.state
     val context = LocalContext.current
-
-    LaunchedEffect(key1 = startDate) { homeViewModel.setSelectedDate(startDate) }
 
     HomeScreenContent(
         navBar = navBar,
         state = state,
         onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) },
         onOpenMenu = homeViewModel::onMenuOpenedChange,
-        onSetSelectedDate = homeViewModel::setSelectedDate,
-        onInfoExpandChange = homeViewModel::onInfoExpandChange,
         onVersionHintsClosed = homeViewModel::hideVersionHintsDialog,
 
         onSwitchProfile = homeViewModel::switchProfile,
@@ -140,14 +101,11 @@ fun HomeScreen(
     )
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreenContent(
     navBar: @Composable (expanded: Boolean) -> Unit,
     state: HomeState,
     onOpenMenu: (state: Boolean) -> Unit = {},
-    onSetSelectedDate: (date: LocalDate) -> Unit = {},
-    onInfoExpandChange: (to: Boolean) -> Unit = {},
     onBookRoomClicked: () -> Unit,
     onOpenSearch: () -> Unit = {},
 
@@ -187,26 +145,7 @@ fun HomeScreenContent(
         )
     }
 
-
-    val contentPagerState = rememberPagerState(pageCount = { PAGER_SIZE }, initialPage = PAGER_SIZE / 2)
     val lazyListState = rememberLazyListState()
-
-    LaunchedEffect(key1 = state.selectedDate) {
-        contentPagerState.animateScrollToPage(page = LocalDate.now().until(state.selectedDate, ChronoUnit.DAYS).toInt() + PAGER_SIZE / 2)
-    }
-
-    LaunchedEffect(key1 = state.autoNextDay) {
-        if (state.autoNextDay) onSetSelectedDate(state.nextSchoolDayWithData ?: return@LaunchedEffect) }
-
-    LaunchedEffect(key1 = contentPagerState.settledPage) {
-        val date = LocalDate.now().plusDays(contentPagerState.targetPage.toLong() - PAGER_SIZE / 2)
-        onSetSelectedDate(date)
-
-        delay(150)
-        if (!contentPagerState.isScrollInProgress && lazyListState.firstVisibleItemIndex > 1) {
-            lazyListState.animateScrollToItem(1, 0)
-        }
-    }
 
     Scaffold(
         bottomBar = { navBar(!keyboardAsState().value) },
@@ -255,101 +194,12 @@ fun HomeScreenContent(
                     )
 
                     QuickActions(
-                        modifier = Modifier.padding(vertical = 16.dp),
-                        nextSchoolDayWithData = state.nextSchoolDayWithData,
-                        selectedDate = state.selectedDate,
+                        modifier = Modifier.padding(vertical = 8.dp),
                         onNewHomeworkClicked = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues() },
                         onFindAvailableRoomClicked = onBookRoomClicked,
-                        onPrepareNextDayClicked = { onSetSelectedDate(state.nextSchoolDayWithData ?: state.currentTime.toLocalDate().plusDays(1L)) },
                         onSendFeedback = onSendFeedback,
                         allowHomeworkQuickAction = (state.currentProfile as? ClassProfile)?.isHomeworkEnabled ?: false
                     )
-                }
-                stickyHeader dateSelector@{
-                    Column(Modifier.background(MaterialTheme.colorScheme.background)) {
-                        PlanHeader(
-                            modifier = Modifier.padding(bottom = 4.dp),
-                            currentDate = state.currentTime.toLocalDate(),
-                            selectedDate = state.selectedDate,
-                            onSetSelectedDate = onSetSelectedDate,
-                        )
-                        DayPager(
-                            selectedDate = state.selectedDate,
-                            today = state.currentTime.toLocalDate(),
-                            onDateSelected = onSetSelectedDate,
-                            holidays = state.holidays
-                        )
-                    }
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(16.dp)
-                            .drawWithContent {
-                                drawContent()
-                                drawRect(brush = Brush.verticalGradient(listOf(Color.DarkGray.copy(alpha = .3f), Color.DarkGray.copy(alpha = 0f))), topLeft = Offset(0f, 0f), size = size)
-                            }
-                    ) {}
-                }
-                item {
-                    HorizontalPager(
-                        state = contentPagerState,
-                        modifier = Modifier.fillMaxSize(),
-                        pageSize = PageSize.Fill,
-                        verticalAlignment = Alignment.Top,
-                        flingBehavior = PagerDefaults.flingBehavior(
-                            state = contentPagerState,
-                            snapAnimationSpec = tween(100)
-                        ),
-                        beyondViewportPageCount = 7
-                    ) contentHost@{
-                        val date = LocalDate.now().plusDays(it.toLong() - PAGER_SIZE / 2)
-                        val day = state.days[date]
-
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalArrangement = Arrangement.Center,
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) content@{
-                            val start by rememberSaveable { mutableLongStateOf(System.currentTimeMillis() / 1000) }
-                            val timeOffset = 1
-                            AnimatedVisibility(visible = day == null && start + timeOffset < System.currentTimeMillis() / 1000) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    LinearProgressIndicator(Modifier.fillMaxWidth(.5f))
-                                    Text(
-                                        text = stringResource(id = R.string.home_longerThanExpected),
-                                        textAlign = TextAlign.Center,
-                                        modifier = Modifier.padding(top = 16.dp, start = 8.dp, end = 8.dp)
-                                    )
-                                }
-                            }
-
-                            val animationDuration = 300
-                            AnimatedVisibility(
-                                modifier = Modifier.fillMaxSize(),
-                                visible = day != null,
-                                enter = fadeIn(animationSpec = tween(animationDuration)) + slideInVertically(initialOffsetY = { 50 }, animationSpec = tween(animationDuration)),
-                                exit = fadeOut(animationSpec = tween(animationDuration))
-                            ) dayViewRoot@{
-                                Column {
-                                    if (day?.lessons?.size == 0 && day.type == DayType.NORMAL) NoData(date)
-                                    else DayView(
-                                        day = day,
-                                        currentTime = state.currentTime,
-                                        showCountdown = state.currentTime.toLocalDate().isEqual(date),
-                                        isInfoExpanded = if (state.currentTime.toLocalDate().isEqual(date)) state.infoExpanded else null,
-                                        currentProfile = state.currentProfile,
-                                        bookings = state.bookings,
-                                        homework = state.homework,
-                                        onChangeInfoExpandState = onInfoExpandChange,
-                                        onAddHomework = { defaultLesson -> addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(defaultLessonId = defaultLesson?.defaultLessonId) },
-                                        onBookRoomClicked = onBookRoomClicked,
-                                        hideFinishedLessons = state.hideFinishedLessons,
-                                    )
-                                }
-                            }
-                            LastSyncText(lastSync = state.lastSync, modifier = Modifier.padding(horizontal = 16.dp))
-                        }
-                    }
                 }
             }
         }
@@ -392,8 +242,6 @@ private fun HomeScreenPreview() {
         ),
         onBookRoomClicked = {},
         onOpenMenu = {},
-        onSetSelectedDate = {},
-        onInfoExpandChange = {},
         onSwitchProfile = {},
     )
 }
