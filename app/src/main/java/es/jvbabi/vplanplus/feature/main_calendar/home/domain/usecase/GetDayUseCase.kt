@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -50,7 +51,12 @@ class GetDayUseCase(
                 val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it) } ?: flow { emit(emptyList()) }
                 val gradesFlow = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it).map { grades -> grades.filter { grade -> grade.givenAt == date } } } ?: flow { emit(emptyList()) }
                 combine(homeworkFlow, gradesFlow) { homework, grades ->
-                    schoolDay.copy(homework = homework.filter { it.homework.until.toLocalDate() == date || (!it.allDone() && it.homework.until.toLocalDate().isBefore(LocalDate.now())) }.sortedBy { "${it.homework.until.toEpochSecond()}__${it.homework.defaultLesson?.subject}" }, grades = grades)
+                    schoolDay.copy(
+                        homework = homework
+                            .filter { it is PersonalizedHomework.LocalHomework || (it is PersonalizedHomework.CloudHomework && !it.isHidden) }
+                            .filter { it.homework.until.toLocalDate() == date || (!it.allDone() && it.homework.until.toLocalDate().isBefore(LocalDate.now())) }.sortedBy { "${it.homework.until.toEpochSecond()}__${it.homework.defaultLesson?.subject}" },
+                        grades = grades
+                    )
                 }.collect {
                     schoolDay = it
                     emit(schoolDay)
