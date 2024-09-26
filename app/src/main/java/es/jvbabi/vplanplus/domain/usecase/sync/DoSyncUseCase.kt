@@ -37,6 +37,7 @@ import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGrad
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
@@ -214,12 +215,12 @@ class DoSyncUseCase(
         )
 
         val createDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
-        val lastPlanUpdate = ZonedDateTime.of(
+        val lastPlanUpdate = vPlanData.wPlanDataObject.head!!.timestampString?.let { ZonedDateTime.of(
             LocalDateTime.parse(
-                vPlanData.wPlanDataObject.head!!.timestampString!!,
+                it,
                 createDateFormatter
             ), ZoneId.of("Europe/Berlin")
-        )
+        ) } ?: planDate.atStartOfDay()
 
         val school = schoolRepository.getSchoolBySp24Id(vPlanData.sp24SchoolId)!!
 
