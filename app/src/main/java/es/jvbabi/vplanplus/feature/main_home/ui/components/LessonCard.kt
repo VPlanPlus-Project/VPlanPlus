@@ -281,8 +281,8 @@ private fun SubjectText(originalSubject: String?, changedSubject: String? = null
         Text(
             text =
                 if (changedSubject == "-" && originalSubject != null) stringResource(id = R.string.home_activeDayNextLessonCanceled, originalSubject)
-                else originalSubject ?: "-",
-            color = if (changedSubject == "-" || originalSubject == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+                else changedSubject ?: originalSubject ?: "-",
+            color = if (changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.SemiBold)
         )
     }
