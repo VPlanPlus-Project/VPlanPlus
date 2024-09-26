@@ -2,7 +2,6 @@ package es.jvbabi.vplanplus.feature.main_home.ui
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -11,16 +10,24 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -32,8 +39,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,6 +51,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.LessonBlock
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
 import es.jvbabi.vplanplus.feature.main_home.ui.components.ImportantHeader
@@ -48,12 +59,12 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.QuickActions
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredentialsBanner
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentLesson
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
-import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
@@ -125,7 +136,6 @@ fun HomeScreen(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreenContent(
     navBar: @Composable (expanded: Boolean) -> Unit,
@@ -191,7 +201,7 @@ fun HomeScreenContent(
             )
             Collapsable(
                 expand = state.hasMissingVppIdToProfileLinks || state.hasInvalidVppIdSession
-            ) { ImportantHeader(Modifier.padding(horizontal = 16.dp)) }
+            ) { ImportantHeader(Modifier.padding(horizontal = 8.dp)) }
             Collapsable(expand = state.hasInvalidVppIdSession) {
                 InfoCard(
                     imageVector = Icons.Default.NoAccounts,
@@ -201,23 +211,23 @@ fun HomeScreenContent(
                     buttonAction1 = onIgnoreInvalidVppIdSessions,
                     buttonText2 = stringResource(id = R.string.fix),
                     buttonAction2 = onFixVppIdSessionClicked,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
                 )
             }
             Collapsable(expand = state.hasMissingVppIdToProfileLinks) {
                 MissingVppIdLinkToProfileCard(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                     onFixClicked = onFixVppIdLinksClicked
                 )
             }
             BadCredentialsBanner(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp),
                 expand = state.currentProfile.getSchool().credentialsValid == false,
                 onFixCredentialsClicked = onFixCredentialsClicked
             )
 
             QuickActions(
-                modifier = Modifier.padding(vertical = 8.dp),
+                modifier = Modifier.padding(bottom = 8.dp),
                 onNewHomeworkClicked = {
                     addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues()
                 },
@@ -235,8 +245,8 @@ fun HomeScreenContent(
                     .padding(bottom = 8.dp)
                     .fillMaxSize(),
                 verticalAlignment = Alignment.Top
-            ) {
-                if (it == 0) { // today
+            ) { page ->
+                if (page == 0) { // today
                     AnimatedContent(
                         targetState = state.today != null,
                         transitionSpec = {
@@ -252,23 +262,67 @@ fun HomeScreenContent(
                                 .fillMaxSize()
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            Text("Heute")
-                            Text(state.today.date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+                            Row(verticalAlignment = Alignment.CenterVertically) title@{
+                                Icon(
+                                    imageVector = Icons.Default.CalendarToday,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(start = 16.dp, end = 8.dp)
+                                        .size(20.dp)
+                                )
+                                Column {
+                                    Text(
+                                        text = stringResource(id = R.string.home_planToday),
+                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    )
+                                    Text(
+                                        text = state.today.date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
                             val currentOrNextLessons = state.today.getCurrentOrNextLesson()
                             if (currentOrNextLessons != null) {
-                                currentOrNextLessons.lessons.forEach { currentOrNextLesson ->
-                                    RowVerticalCenter {
-                                        Text(currentOrNextLesson.subject)
-                                        Spacer4Dp()
-                                        Text(currentOrNextLesson.start.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                        Spacer4Dp()
-                                        Text(currentOrNextLesson.end.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(8.dp)
+                                        .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp))
+                                        .clip(RoundedCornerShape(12.dp))
+                                        .background(MaterialTheme.colorScheme.primaryContainer)
+                                ) {
+                                    currentOrNextLessons.lessons.forEach { currentOrNextLesson ->
+                                        CurrentLesson(currentOrNextLesson)
                                     }
                                 }
                                 HorizontalDivider()
                             }
-                            state.today.lessons.forEach { lesson ->
-                                Text(lesson.subject)
+                            val followingLessons = state.today.lessons
+                                .filter { it.lessonNumber > (currentOrNextLessons?.lessons?.firstOrNull()?.lessonNumber ?: -1) }
+                                .groupBy { it.lessonNumber }
+                            if (followingLessons.isNotEmpty()) {
+                                Spacer8Dp()
+                                Text(
+                                    "Im Anschluss",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    modifier = Modifier.padding(horizontal = 8.dp)
+                                )
+                                Spacer4Dp()
+                                Column(
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp)
+                                        .clip(RoundedCornerShape(16.dp)),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    followingLessons
+                                        .forEach { (lessonNumber, lessons) ->
+                                            LessonBlock(
+                                                lessonNumber,
+                                                lessons,
+                                            )
+                                        }
+                                }
                             }
                         }
                     }

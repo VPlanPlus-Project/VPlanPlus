@@ -110,7 +110,7 @@ private fun QuickActionButton(modifier: Modifier = Modifier, icon: ImageVector, 
             imageVector = icon,
             contentDescription = null,
             modifier = Modifier
-                .padding(start = 16.dp, end = 4.dp)
+                .padding(start = 16.dp, end = 8.dp)
                 .size(24.dp),
             tint = MaterialTheme.colorScheme.onSurfaceVariant
         )
