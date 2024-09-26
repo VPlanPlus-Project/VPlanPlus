@@ -97,8 +97,7 @@ class CalendarViewModel @Inject constructor(
     private fun startDayUiSync(date: LocalDate) {
         if (uiSyncJobs[date]?.isActive == true) return
         uiSyncJobs[date] = viewModelScope.launch {
-            val profile = state.currentProfile ?: return@launch
-            calendarViewUseCases.getDayUseCase(date, profile).collect { day ->
+            calendarViewUseCases.getDayUseCase(date).collect { day ->
                 state = state.copy(
                     days = state.days + (date to day),
                     version = state.version.coerceAtLeast(0)

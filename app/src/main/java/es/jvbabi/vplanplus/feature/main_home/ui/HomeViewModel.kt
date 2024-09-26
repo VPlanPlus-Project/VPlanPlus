@@ -15,10 +15,10 @@ import androidx.work.WorkManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.BuildConfig
 import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.Day
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
@@ -50,6 +50,9 @@ class HomeViewModel @Inject constructor(
         }
         viewModelScope.launch {
             homeUseCases.getCurrentTimeUseCase().collect { state = state.copy(currentTime = it) }
+        }
+        viewModelScope.launch {
+            startUiSync()
         }
         viewModelScope.launch {
             combine(
@@ -104,6 +107,14 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun startUiSync() {
+        viewModelScope.launch {
+            homeUseCases.getDayUseCase(LocalDate.now()).collect {
+                state = state.copy(today = it)
+            }
+        }
+    }
+
     fun onMenuOpenedChange(opened: Boolean) {
         state = state.copy(menuOpened = opened)
     }
@@ -153,7 +164,7 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val currentTime: ZonedDateTime = ZonedDateTime.now(),
     val currentProfile: Profile? = null,
-    val days: Map<LocalDate, Day> = emptyMap(),
+    val today: SchoolDay? = null,
     val bookings: List<RoomBooking> = emptyList(),
     val homework: List<PersonalizedHomework> = emptyList(),
     val infoExpanded: Boolean = false,

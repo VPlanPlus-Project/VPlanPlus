@@ -12,14 +12,15 @@ import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
+import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetCurrentDataVersionUseCase
-import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHolidaysUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHomeworkUseCase
@@ -52,6 +53,8 @@ object HomeModule {
         messageRepository: MessageRepository,
         vppIdRepository: VppIdRepository,
         holidayRepository: HolidayRepository,
+        timetableRepository: TimetableRepository,
+        gradeRepository: GradeRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
         @ApplicationContext context: Context
@@ -61,7 +64,11 @@ object HomeModule {
             getCurrentTimeUseCase = getCurrentTimeUseCase,
             getDayUseCase = GetDayUseCase(
                 planRepository = planRepository,
-                getCurrentDataVersionUseCase = GetCurrentDataVersionUseCase(keyValueRepository)
+                keyValueRepository = keyValueRepository,
+                homeworkRepository = homeworkRepository,
+                gradeRepository = gradeRepository,
+                timetableRepository = timetableRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
             ),
             getProfilesUseCase = GetProfilesUseCase(profileRepository),
             changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),

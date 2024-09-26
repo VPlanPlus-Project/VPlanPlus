@@ -33,7 +33,14 @@ object CalendarModule {
         timetableRepository: TimetableRepository
     ): CalendarViewUseCases = CalendarViewUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
-        getDayUseCase = GetDayUseCase(planRepository, keyValueRepository, homeworkRepository, gradeRepository, timetableRepository),
+        getDayUseCase = GetDayUseCase(
+            planRepository = planRepository,
+            keyValueRepository = keyValueRepository,
+            homeworkRepository = homeworkRepository,
+            gradeRepository = gradeRepository,
+            timetableRepository = timetableRepository,
+            getCurrentProfileUseCase = getCurrentProfileUseCase
+        ),
         getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
 
         canShowTimetableInfoBannerUseCase = CanShowTimetableInfoBannerUseCase(keyValueRepository),
