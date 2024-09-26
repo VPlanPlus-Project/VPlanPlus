@@ -1,9 +1,16 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -13,8 +20,10 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NoAccounts
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -44,6 +53,8 @@ import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
@@ -55,6 +66,7 @@ import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -113,6 +125,7 @@ fun HomeScreen(
     )
 }
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun HomeScreenContent(
     navBar: @Composable (expanded: Boolean) -> Unit,
@@ -224,12 +237,40 @@ fun HomeScreenContent(
                 verticalAlignment = Alignment.Top
             ) {
                 if (it == 0) { // today
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ) {
-
+                    AnimatedContent(
+                        targetState = state.today != null,
+                        transitionSpec = {
+                            (slideInVertically { height -> height } + fadeIn()).togetherWith(
+                                slideOutVertically { height -> -height } + fadeOut())
+                        },
+                        label = "Today",
+                        modifier = Modifier.fillMaxSize()
+                    ) { isTodayVisible ->
+                        if (!isTodayVisible || state.today == null) return@AnimatedContent
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .verticalScroll(rememberScrollState())
+                        ) {
+                            Text("Heute")
+                            Text(state.today.date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")))
+                            val currentOrNextLessons = state.today.getCurrentOrNextLesson()
+                            if (currentOrNextLessons != null) {
+                                currentOrNextLessons.lessons.forEach { currentOrNextLesson ->
+                                    RowVerticalCenter {
+                                        Text(currentOrNextLesson.subject)
+                                        Spacer4Dp()
+                                        Text(currentOrNextLesson.start.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                        Spacer4Dp()
+                                        Text(currentOrNextLesson.end.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                    }
+                                }
+                                HorizontalDivider()
+                            }
+                            state.today.lessons.forEach { lesson ->
+                                Text(lesson.subject)
+                            }
+                        }
                     }
                 } else { // next
 
