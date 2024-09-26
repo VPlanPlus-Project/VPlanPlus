@@ -32,7 +32,7 @@ data class SchoolDay(
             .filter { it.value < 0 }
             .maxByOrNull { it.value }
             .let { it?.key?.lessonNumber ?: -1 }
-            .let { previousLessonNumber -> lessons.groupBy { it.lessonNumber }.minByOrNull { it.key }?.value}
+            .let { lastLessonNumber -> lessons.groupBy { it.lessonNumber }[lastLessonNumber+1]}
 
         return lessonsAfterReferenceTime?.let { CurrentOrNextLesson(it, false) }
     }
