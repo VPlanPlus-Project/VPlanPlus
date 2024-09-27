@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.util.VersionTools
 
 @Composable
@@ -53,11 +54,8 @@ fun QuickActions(
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             )
         }
-        LazyRow(
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .fillMaxWidth(),
-        ) {
+        Spacer8Dp()
+        LazyRow(Modifier.fillMaxWidth()) {
             item { Spacer(Modifier.width(8.dp)) }
             if (allowHomeworkQuickAction) item {
                 QuickActionButton(

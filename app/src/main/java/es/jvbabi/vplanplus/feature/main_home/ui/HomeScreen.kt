@@ -24,9 +24,9 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -40,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -65,10 +64,12 @@ import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
+import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
@@ -77,7 +78,6 @@ import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -191,6 +191,7 @@ fun HomeScreenContent(
         containerColor = MaterialTheme.colorScheme.surface,
     ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
+            Spacer4Dp()
             Head(
                 profile = state.currentProfile,
                 currentTime = state.currentTime,
@@ -199,6 +200,7 @@ fun HomeScreenContent(
                 onProfileClicked = { onOpenMenu(true) },
                 onSearchClicked = onOpenSearch,
             )
+            Spacer8Dp()
             Collapsable(
                 expand = state.hasMissingVppIdToProfileLinks || state.hasInvalidVppIdSession
             ) { ImportantHeader(Modifier.padding(horizontal = 8.dp)) }
@@ -237,7 +239,7 @@ fun HomeScreenContent(
                     ?: false
             )
 
-            Spacer8Dp()
+            Spacer16Dp()
 
             HorizontalPager(
                 state = pagerState,
@@ -262,56 +264,82 @@ fun HomeScreenContent(
                                 .fillMaxSize()
                                 .verticalScroll(rememberScrollState())
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically) title@{
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .padding(start = 16.dp, end = 8.dp)
-                                        .size(20.dp)
-                                )
-                                Column {
-                                    Text(
-                                        text = stringResource(id = R.string.home_planToday),
-                                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
-                                    )
-                                    Text(
-                                        text = state.today.date.format(DateTimeFormatter.ofPattern("dd.MM.yyyy")),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
                             val currentOrNextLessons = state.today.getCurrentOrNextLesson()
-                            if (currentOrNextLessons != null) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(8.dp)
-                                        .shadow(elevation = 4.dp, shape = RoundedCornerShape(12.dp))
-                                        .clip(RoundedCornerShape(12.dp))
-                                        .background(MaterialTheme.colorScheme.primaryContainer)
-                                ) {
-                                    currentOrNextLessons.lessons.forEach { currentOrNextLesson ->
-                                        CurrentLesson(currentOrNextLesson)
+                            currentOrNextLessons?.let { currentOrNextLesson ->
+                                Row(verticalAlignment = Alignment.CenterVertically) title@{
+                                    Icon(
+                                        imageVector = Icons.Default.CalendarToday,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .padding(start = 16.dp, end = 8.dp)
+                                            .size(20.dp)
+                                    )
+                                    Column {
+                                        Text(
+                                            text = if (currentOrNextLesson.isCurrent) "Aktuell" else "Als nächstes",
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontWeight = FontWeight.SemiBold
+                                            ),
+                                        )
+                                        Text(
+                                            text = currentOrNextLesson.lessons.first().lessonNumber.toLocalizedString() + " Stunde",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
                                     }
                                 }
-                                HorizontalDivider()
+
+                                Spacer8Dp()
+
+                                Column(
+                                    modifier = Modifier
+                                        .padding(horizontal = 12.dp)
+                                        .fillMaxWidth()
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .background(MaterialTheme.colorScheme.surface),
+                                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    currentOrNextLesson.lessons.forEach { lesson ->
+                                        CurrentLesson(lesson)
+                                    }
+                                }
                             }
+
                             val followingLessons = state.today.lessons
                                 .filter { it.lessonNumber > (currentOrNextLessons?.lessons?.firstOrNull()?.lessonNumber ?: -1) }
                                 .groupBy { it.lessonNumber }
+
                             if (followingLessons.isNotEmpty()) {
+                                Spacer16Dp()
+
+                                Row(verticalAlignment = Alignment.CenterVertically) title@{
+                                    Icon(
+                                        imageVector = Icons.Default.CalendarMonth,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .padding(start = 16.dp, end = 8.dp)
+                                            .size(20.dp)
+                                    )
+                                    Column {
+                                        Text(
+                                            text = "Weitere Stunden",
+                                            style = MaterialTheme.typography.titleMedium.copy(
+                                                fontWeight = FontWeight.SemiBold
+                                            ),
+                                        )
+                                        Text(
+                                            text = "${followingLessons.size} Stunden verbleibend",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+
                                 Spacer8Dp()
-                                Text(
-                                    "Im Anschluss",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    modifier = Modifier.padding(horizontal = 8.dp)
-                                )
-                                Spacer4Dp()
+
                                 Column(
                                     modifier = Modifier
-                                        .padding(horizontal = 8.dp)
+                                        .padding(horizontal = 12.dp)
                                         .clip(RoundedCornerShape(16.dp)),
                                     verticalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
@@ -320,6 +348,7 @@ fun HomeScreenContent(
                                             LessonBlock(
                                                 lessonNumber,
                                                 lessons,
+                                                MaterialTheme.colorScheme.surfaceVariant
                                             )
                                         }
                                 }

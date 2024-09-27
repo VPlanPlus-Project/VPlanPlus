@@ -246,7 +246,7 @@
     <string name="home_activeDayWeekendTitle">Weekend</string>
     <string name="home_activeDayWeekendSubtitle">It\'s weekend 🎉</string>
     <string name="home_activeDayBooking">(booked)</string>
-    <string name="home_activeBookedBy">Booked by %1$s for class %2$s</string>
+    <string name="home_activeBookedBy">Room booked by %1$s</string>
     <string name="searchAvailableRoom_bookingDetailCancel">Cancel booking</string>
     <string name="searchAvailableRoom_cancelSuccess">The room booking was canceled successfully</string>
     <string name="searchAvailableRoom_cancelNotFound">This booking wasn\'t found. It might be canceled already.</string>
@@ -800,4 +800,5 @@
     <string name="calendar_dayTypeWeekend">Weekend</string>
     <string name="calendar_dayTypeHoliday">Holiday</string>
     <string name="calendar_dayTypeNextDay">To %1$s</string>
+    <string name="unknown">unknown</string>
 </resources>

@@ -248,7 +248,7 @@
     <string name="home_activeDayWeekendTitle">Wochenende</string>
     <string name="home_activeDayWeekendSubtitle">Es ist Wochenende 🎉 Gönne dir etwas Entspannung von den letzten Tagen.</string>
     <string name="home_activeDayBooking">(gebucht)</string>
-    <string name="home_activeBookedBy">Gebucht von %1$s für Klasse %2$s</string>
+    <string name="home_activeBookedBy">Raum von %1$s gebucht</string>
     <string name="searchAvailableRoom_bookingDetailCancel">Buchung zurücknehmen</string>
     <string name="searchAvailableRoom_cancelSuccess">Deine Raumbuchung wurde erfolgreich zurückgenommen</string>
     <string name="searchAvailableRoom_cancelNotFound">Deine Buchung konnte nicht mehr aufgefunden werden, Möglicherweise ist sie bereits storniert.</string>
@@ -797,4 +797,5 @@
     <string name="calendar_dayTypeWeekend">Wochenende</string>
     <string name="calendar_dayTypeHoliday">Ferien/Feiertag</string>
     <string name="calendar_dayTypeNextDay">Zu %1$s</string>
+    <string name="unknown">Unbekannt</string>
 </resources>

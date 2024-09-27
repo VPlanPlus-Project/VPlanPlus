@@ -5,18 +5,23 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MeetingRoom
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -27,9 +32,12 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
+import es.jvbabi.vplanplus.ui.common.orUnknown
 import es.jvbabi.vplanplus.ui.preview.Lessons
 import es.jvbabi.vplanplus.util.DateUtils.progress
+import es.jvbabi.vplanplus.util.toDp
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
@@ -38,23 +46,24 @@ fun CurrentLesson(lesson: Lesson) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.primaryContainer)
+            .clip(RoundedCornerShape(4.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
             .clickable {  }
     ) {
-        RowVerticalCenter(
+        Row(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(8.dp)
+            modifier = Modifier
+                .padding(12.dp)
         ) {
             val lessonSubjectIsChanged = lesson is Lesson.SubstitutionPlanLesson && lesson.changedSubject != null
-            val lessonRoomIsChanged = lesson is Lesson.SubstitutionPlanLesson && lesson.roomIsChanged
-            val lessonTeacherIsChanged = lesson is Lesson.SubstitutionPlanLesson && lesson.teacherIsChanged
             SubjectIcon(
                 lesson.subject,
-                tint = if (lessonSubjectIsChanged) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimary,
+                tint = if (lessonSubjectIsChanged) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier
                     .size(32.dp)
+                    .shadow(elevation = 2.dp, shape = RoundedCornerShape(8.dp))
                     .clip(RoundedCornerShape(8.dp))
-                    .background(if (lessonSubjectIsChanged) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primary)
+                    .background(if (lessonSubjectIsChanged) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.primaryContainer)
                     .padding(6.dp)
             )
             Column(Modifier.weight(1f)) {
@@ -68,7 +77,7 @@ fun CurrentLesson(lesson: Lesson) {
                             ) else lesson.changedSubject ?: lesson.subject
                         },
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            color = if (lesson is Lesson.SubstitutionPlanLesson && lesson.changedSubject != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontWeight = FontWeight.SemiBold,
                             lineHeight = MaterialTheme.typography.bodyMedium.fontSize
                         )
@@ -81,17 +90,12 @@ fun CurrentLesson(lesson: Lesson) {
                             val defaultStyle = MaterialTheme.typography.bodySmall
                                 .copy(lineHeight = MaterialTheme.typography.bodySmall.fontSize)
                                 .toSpanStyle()
-                            val defaultErrorStyle = defaultStyle.copy(
-                                color = MaterialTheme.colorScheme.error
-                            )
                             val defaultSecondaryStyle = defaultStyle.copy(
                                 color = MaterialTheme.colorScheme.secondary
                             )
 
                             withStyle(defaultStyle) {
-                                withStyle(if (lessonRoomIsChanged) defaultErrorStyle else defaultStyle) {
-                                    append(lesson.rooms.joinToString(", ") { it.name })
-                                }
+                                append(lesson.rooms.joinToString(", ") { it.name })
 
                                 if (lesson is Lesson.SubstitutionPlanLesson && lesson.roomBooking != null) {
                                     if (lesson.rooms.isNotEmpty()) append(", ")
@@ -110,31 +114,62 @@ fun CurrentLesson(lesson: Lesson) {
                     text = buildAnnotatedString {
                         val defaultStyle = MaterialTheme.typography.labelMedium
                             .copy(
-                                color = Color.Gray, fontWeight = FontWeight.Light,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Light,
                                 lineHeight = MaterialTheme.typography.labelMedium.fontSize
                             )
                             .toSpanStyle()
-
-                        val defaultErrorStyle = defaultStyle
-                            .copy(color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Light)
 
                         withStyle(defaultStyle) {
                             append(lesson.start.format(DateTimeFormatter.ofPattern("HH:mm")))
                             append(" - ")
                             append(lesson.end.format(DateTimeFormatter.ofPattern("HH:mm")))
-                            append(" $DOT ")
-                        }
-                        withStyle(if (lessonTeacherIsChanged) defaultErrorStyle else defaultStyle) {
+                            if (lesson.teachers.isNotEmpty()) append(" $DOT ")
                             append(lesson.teachers.joinToString(", ") { it.acronym })
                         }
                     }
                 )
+                if (lesson is Lesson.SubstitutionPlanLesson && (lesson.info != null || lesson.roomBooking != null)) {
+                    Spacer4Dp()
+                    if (lesson.info != null) {
+                        RowVerticalCenter {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .padding(end = 2.dp)
+                                    .size(MaterialTheme.typography.bodySmall.lineHeight.toDp())
+                            )
+                            Text(
+                                text = lesson.info,
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                    if (lesson.roomBooking != null) {
+                        RowVerticalCenter {
+                            Icon(
+                                imageVector = Icons.Default.MeetingRoom,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .padding(end = 2.dp)
+                                    .size(MaterialTheme.typography.bodySmall.lineHeight.toDp())
+                            )
+                            Text(
+                                text = stringResource(R.string.home_activeBookedBy, lesson.roomBooking.bookedBy?.name.orUnknown()),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    }
+                }
             }
         }
         Box(
             modifier = Modifier
                 .align(Alignment.BottomStart)
-                .padding(horizontal = 8.dp)
+                .padding(horizontal = 16.dp)
                 .fillMaxWidth(
                     ZonedDateTime
                         .now()
