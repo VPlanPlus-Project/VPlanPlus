@@ -49,6 +49,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.LessonBlock
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
@@ -300,7 +301,7 @@ fun HomeScreenContent(
                                     verticalArrangement = Arrangement.spacedBy(2.dp)
                                 ) {
                                     currentOrNextLesson.lessons.forEach { lesson ->
-                                        CurrentLesson(lesson)
+                                        CurrentLesson(lesson, state.today.homework.filter { it.homework.defaultLesson == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson && it.homework.defaultLesson != null })
                                     }
                                 }
                             }
@@ -328,7 +329,7 @@ fun HomeScreenContent(
                                             ),
                                         )
                                         Text(
-                                            text = "${followingLessons.size} Stunden verbleibend",
+                                            text = "${followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size} Stunden verbleibend",
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onSurfaceVariant
                                         )

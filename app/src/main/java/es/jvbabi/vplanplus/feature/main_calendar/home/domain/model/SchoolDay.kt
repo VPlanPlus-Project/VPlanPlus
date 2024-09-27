@@ -28,10 +28,11 @@ data class SchoolDay(
         if (currentLessons.isNotEmpty()) return CurrentOrNextLesson(currentLessons, true)
 
         val lessonsAfterReferenceTime = lessons
-            .associateWith { referenceTime.until(it.end, ChronoUnit.SECONDS) }
+            .associate { it.lessonNumber to referenceTime.until(it.end, ChronoUnit.SECONDS).toInt() }
             .filter { it.value < 0 }
+            .ifEmpty { mapOf(lessons.minOf { it.lessonNumber }-1 to -1) }
             .maxByOrNull { it.value }
-            .let { it?.key?.lessonNumber ?: -1 }
+            .let { it?.key ?: -1 }
             .let { lastLessonNumber -> lessons.groupBy { it.lessonNumber }[lastLessonNumber+1]}
 
         return lessonsAfterReferenceTime?.let { CurrentOrNextLesson(it, false) }

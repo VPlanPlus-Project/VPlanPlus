@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material3.Icon
@@ -30,19 +31,29 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.orUnknown
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.Lessons
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.util.DateUtils.progress
 import es.jvbabi.vplanplus.util.toDp
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun CurrentLesson(lesson: Lesson) {
+fun CurrentLesson(
+    lesson: Lesson,
+    homeworkForLesson: List<PersonalizedHomework>
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -129,9 +140,9 @@ fun CurrentLesson(lesson: Lesson) {
                         }
                     }
                 )
-                if (lesson is Lesson.SubstitutionPlanLesson && (lesson.info != null || lesson.roomBooking != null)) {
+                if ((lesson is Lesson.SubstitutionPlanLesson && (lesson.info != null || lesson.roomBooking != null)) || homeworkForLesson.isNotEmpty()) {
                     Spacer4Dp()
-                    if (lesson.info != null) {
+                    if (lesson is Lesson.SubstitutionPlanLesson && lesson.info != null) {
                         RowVerticalCenter {
                             Icon(
                                 imageVector = Icons.Default.Info,
@@ -147,7 +158,7 @@ fun CurrentLesson(lesson: Lesson) {
                             )
                         }
                     }
-                    if (lesson.roomBooking != null) {
+                    if (lesson is Lesson.SubstitutionPlanLesson && lesson.roomBooking != null) {
                         RowVerticalCenter {
                             Icon(
                                 imageVector = Icons.Default.MeetingRoom,
@@ -161,6 +172,24 @@ fun CurrentLesson(lesson: Lesson) {
                                 text = stringResource(R.string.home_activeBookedBy, lesson.roomBooking.bookedBy?.name.orUnknown()),
                                 style = MaterialTheme.typography.bodySmall
                             )
+                        }
+                    }
+                    if (homeworkForLesson.isNotEmpty()) {
+                        RowVerticalCenter {
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.MenuBook,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .padding(end = 2.dp)
+                                    .size(MaterialTheme.typography.bodySmall.lineHeight.toDp())
+                            )
+                            homeworkForLesson.forEach { homework ->
+                                Text(
+                                    text = homework.tasks.joinToString(", ") { it.content },
+                                    style = MaterialTheme.typography.bodySmall
+                                )
+                            }
                         }
                     }
                 }
@@ -185,5 +214,21 @@ fun CurrentLesson(lesson: Lesson) {
 @Composable
 @Preview(showBackground = true)
 private fun CurrentLessonPreview() {
-    CurrentLesson(Lessons.generateLessons(1, true).first())
+    val school = SchoolPreview.generateRandomSchool()
+    val group = GroupPreview.generateGroup(school)
+    val profile = ProfilePreview.generateClassProfile(group)
+    val homework = PersonalizedHomework.LocalHomework(
+        homework = HomeworkCore.LocalHomework(
+            id = -1,
+            defaultLesson = null,
+            tasks = listOf(HomeworkTaskCore(id = -1, homeworkId = -1, content = "Task A")),
+            until = ZonedDateTime.now(),
+            profile = profile,
+            documents = emptyList(),
+            createdAt = ZonedDateTime.now().minusDays(1L)
+        ),
+        profile = profile,
+        tasks = listOf(HomeworkTaskDone(id = -1, homeworkId = -1, isDone = false, content = "Task A")),
+    )
+    CurrentLesson(Lessons.generateLessons(1, true).first(), listOf(homework))
 }
