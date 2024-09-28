@@ -113,6 +113,11 @@ class HomeViewModel @Inject constructor(
                 state = state.copy(today = it)
             }
         }
+        viewModelScope.launch {
+            homeUseCases.getNextSchoolDayUseCase().collect {
+                state = state.copy(nextSchoolDay = it)
+            }
+        }
     }
 
     fun onMenuOpenedChange(opened: Boolean) {
@@ -183,5 +188,7 @@ data class HomeState(
     val server: VppIdServer = servers.first(),
 
     val hasInvalidVppIdSession: Boolean = false,
-    val hasMissingVppIdToProfileLinks: Boolean = false
+    val hasMissingVppIdToProfileLinks: Boolean = false,
+
+    val nextSchoolDay: SchoolDay? = null
 )

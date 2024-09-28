@@ -31,6 +31,7 @@ import java.time.LocalDate
 @Composable
 fun HomeworkSection(
     showSection: Boolean,
+    includeTitle: Boolean = true,
     homework: List<PersonalizedHomework>,
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit,
     currentProfile: Profile,
@@ -43,8 +44,10 @@ fun HomeworkSection(
         modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
     ) {
         Column {
-            Title()
-            Spacer4Dp()
+            if (includeTitle) {
+                Title()
+                Spacer4Dp()
+            }
             Column(
                 modifier = Modifier.clip(RoundedCornerShape(16.dp)),
                 verticalArrangement = Arrangement.spacedBy(2.dp)

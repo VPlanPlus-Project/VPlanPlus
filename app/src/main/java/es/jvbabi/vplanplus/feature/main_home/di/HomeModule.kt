@@ -25,6 +25,7 @@ import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLesso
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHolidaysUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetLastSyncUseCase
+import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetNextSchoolDayUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetProfilesUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetRoomBookingsForTodayUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetVersionHintsUseCase
@@ -93,7 +94,14 @@ object HomeModule {
             ignoreInvalidVppIdSessionsUseCase = IgnoreInvalidVppIdSessionsUseCase(keyValueRepository),
             hasMissingVppIdToProfileLinksUseCase = HasMissingVppIdToProfileLinksUseCase(keyValueRepository),
 
-            getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository)
+            getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
+            getNextSchoolDayUseCase = GetNextSchoolDayUseCase(
+                keyValueRepository = keyValueRepository,
+                planRepository = planRepository,
+                homeworkRepository = homeworkRepository,
+                timetableRepository = timetableRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase
+            )
         )
     }
 }

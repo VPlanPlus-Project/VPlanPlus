@@ -801,4 +801,8 @@
     <string name="calendar_dayTypeHoliday">Holiday</string>
     <string name="calendar_dayTypeNextDay">To %1$s</string>
     <string name="unknown">unknown</string>
+    <string name="home_subjects">Subjects</string>
+    <string name="home_nextDayTitleWithDate">Preparation for %1$s</string>
+    <string name="home_homeworkTitle">Homework</string>
+    <string name="home_subejctsHomework">%1$d/%2$d homework done</string>
 </resources>

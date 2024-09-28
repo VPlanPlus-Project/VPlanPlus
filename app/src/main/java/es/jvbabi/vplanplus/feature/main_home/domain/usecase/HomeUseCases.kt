@@ -19,6 +19,8 @@ data class HomeUseCases(
     val getHideFinishedLessonsUseCase: GetHideFinishedLessonsUseCase,
     val getHolidaysUseCase: GetHolidaysUseCase,
 
+    val getNextSchoolDayUseCase: GetNextSchoolDayUseCase,
+
     val isInfoExpandedUseCase: IsInfoExpandedUseCase,
 
     val hasUnreadNewsUseCase: HasUnreadNewsUseCase,

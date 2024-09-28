@@ -12,18 +12,18 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.NextWeek
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.NoAccounts
@@ -51,6 +51,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.homework.HomeworkSection
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.LessonBlock
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
@@ -64,10 +65,14 @@ import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
+import es.jvbabi.vplanplus.ui.common.DOT
+import es.jvbabi.vplanplus.ui.common.Grid
 import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
+import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
@@ -78,7 +83,10 @@ import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
+import es.jvbabi.vplanplus.util.DateUtils
+import java.time.LocalDate
 import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -133,7 +141,8 @@ fun HomeScreen(
         onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
         onFixCredentialsClicked = { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentProfile?.getSchool()?.id}") },
-        onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) }
+        onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) },
+        onOpenHomework = { homeworkId -> navHostController.navigate("${Screen.HomeworkDetailScreen.route}/$homeworkId") },
     )
 }
 
@@ -160,6 +169,8 @@ fun HomeScreenContent(
 
     onFixCredentialsClicked: () -> Unit = {},
 
+    onOpenHomework: (homeworkId: Int) -> Unit = {},
+
     onSendFeedback: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
@@ -184,8 +195,6 @@ fun HomeScreenContent(
             initialValues = addHomeworkSheetInitialValues ?: AddHomeworkSheetInitialValues()
         )
     }
-
-    val pagerState = rememberPagerState { 2 }
 
     Scaffold(
         bottomBar = { navBar(!keyboardAsState().value) },
@@ -242,122 +251,249 @@ fun HomeScreenContent(
 
             Spacer16Dp()
 
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .fillMaxSize(),
-                verticalAlignment = Alignment.Top
-            ) { page ->
-                if (page == 0) { // today
-                    AnimatedContent(
-                        targetState = state.today != null,
-                        transitionSpec = {
-                            (slideInVertically { height -> height } + fadeIn()).togetherWith(
-                                slideOutVertically { height -> -height } + fadeOut())
-                        },
-                        label = "Today",
-                        modifier = Modifier.fillMaxSize()
-                    ) { isTodayVisible ->
-                        if (!isTodayVisible || state.today == null) return@AnimatedContent
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState())
-                        ) {
-                            val currentOrNextLessons = state.today.getCurrentOrNextLesson()
-                            currentOrNextLessons?.let { currentOrNextLesson ->
-                                Row(verticalAlignment = Alignment.CenterVertically) title@{
-                                    Icon(
-                                        imageVector = Icons.Default.CalendarToday,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .padding(start = 16.dp, end = 8.dp)
-                                            .size(20.dp)
-                                    )
-                                    Column {
-                                        Text(
-                                            text = if (currentOrNextLesson.isCurrent) "Aktuell" else "Als nächstes",
-                                            style = MaterialTheme.typography.titleMedium.copy(
-                                                fontWeight = FontWeight.SemiBold
-                                            ),
-                                        )
-                                        Text(
-                                            text = currentOrNextLesson.lessons.first().lessonNumber.toLocalizedString() + " Stunde",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-
-                                Spacer8Dp()
-
-                                Column(
+            AnimatedContent(
+                targetState = state.today != null,
+                transitionSpec = {
+                    (slideInVertically { height -> height } + fadeIn()).togetherWith(
+                        slideOutVertically { height -> -height } + fadeOut())
+                },
+                label = "Today",
+                modifier = Modifier.fillMaxSize()
+            ) { isTodayVisible ->
+                if (!isTodayVisible || state.today == null) return@AnimatedContent
+                if (!state.today.isDayOver()) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        val currentOrNextLessons = state.today.getCurrentOrNextLesson()
+                        currentOrNextLessons?.let { currentOrNextLesson ->
+                            Row(verticalAlignment = Alignment.CenterVertically) title@{
+                                Icon(
+                                    imageVector = Icons.Default.CalendarToday,
+                                    contentDescription = null,
                                     modifier = Modifier
-                                        .padding(horizontal = 12.dp)
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(MaterialTheme.colorScheme.surface),
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    currentOrNextLesson.lessons.forEach { lesson ->
-                                        CurrentLesson(lesson, state.today.homework.filter { it.homework.defaultLesson == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson && it.homework.defaultLesson != null })
-                                    }
+                                        .padding(start = 16.dp, end = 8.dp)
+                                        .size(20.dp)
+                                )
+                                Column {
+                                    Text(
+                                        text = if (currentOrNextLesson.isCurrent) "Aktuell" else "Als nächstes",
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.SemiBold
+                                        ),
+                                    )
+                                    Text(
+                                        text = currentOrNextLesson.lessons.first().lessonNumber.toLocalizedString() + " Stunde",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
                                 }
                             }
 
-                            val followingLessons = state.today.lessons
-                                .filter { it.lessonNumber > (currentOrNextLessons?.lessons?.firstOrNull()?.lessonNumber ?: -1) }
-                                .groupBy { it.lessonNumber }
+                            Spacer8Dp()
 
-                            if (followingLessons.isNotEmpty()) {
-                                Spacer16Dp()
-
-                                Row(verticalAlignment = Alignment.CenterVertically) title@{
-                                    Icon(
-                                        imageVector = Icons.Default.CalendarMonth,
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .padding(start = 16.dp, end = 8.dp)
-                                            .size(20.dp)
-                                    )
-                                    Column {
-                                        Text(
-                                            text = "Weitere Stunden",
-                                            style = MaterialTheme.typography.titleMedium.copy(
-                                                fontWeight = FontWeight.SemiBold
-                                            ),
-                                        )
-                                        Text(
-                                            text = "${followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size} Stunden verbleibend",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                                        )
-                                    }
-                                }
-
-                                Spacer8Dp()
-
-                                Column(
-                                    modifier = Modifier
-                                        .padding(horizontal = 12.dp)
-                                        .clip(RoundedCornerShape(16.dp)),
-                                    verticalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    followingLessons
-                                        .forEach { (lessonNumber, lessons) ->
-                                            LessonBlock(
-                                                lessonNumber,
-                                                lessons,
-                                                MaterialTheme.colorScheme.surfaceVariant
-                                            )
-                                        }
+                            Column(
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp)
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(MaterialTheme.colorScheme.surface),
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                currentOrNextLesson.lessons.forEach { lesson ->
+                                    CurrentLesson(
+                                        lesson,
+                                        state.today.homework.filter { it.homework.defaultLesson == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson && it.homework.defaultLesson != null })
                                 }
                             }
                         }
-                    }
-                } else { // next
 
+                        val followingLessons = state.today.lessons
+                            .filter {
+                                it.lessonNumber > (currentOrNextLessons?.lessons?.firstOrNull()?.lessonNumber
+                                    ?: -1)
+                            }
+                            .groupBy { it.lessonNumber }
+
+                        if (followingLessons.isNotEmpty()) {
+                            Spacer16Dp()
+
+                            Row(verticalAlignment = Alignment.CenterVertically) title@{
+                                Icon(
+                                    imageVector = Icons.Default.CalendarMonth,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .padding(start = 16.dp, end = 8.dp)
+                                        .size(20.dp)
+                                )
+                                Column {
+                                    Text(
+                                        text = "Weitere Stunden",
+                                        style = MaterialTheme.typography.titleMedium.copy(
+                                            fontWeight = FontWeight.SemiBold
+                                        ),
+                                    )
+                                    Text(
+                                        text = "${followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size} Stunden verbleibend",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
+                            }
+
+                            Spacer8Dp()
+
+                            Column(
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp)
+                                    .clip(RoundedCornerShape(16.dp)),
+                                verticalArrangement = Arrangement.spacedBy(2.dp)
+                            ) {
+                                followingLessons
+                                    .forEach { (lessonNumber, lessons) ->
+                                        LessonBlock(
+                                            lessonNumber,
+                                            lessons,
+                                            MaterialTheme.colorScheme.surfaceVariant
+                                        )
+                                    }
+                            }
+                        }
+                    }
+                    if (state.nextSchoolDay != null) {
+                        Text(
+                            text = state.nextSchoolDay.toString(),
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.SemiBold
+                            ),
+                        )
+                    }
+                }
+                if (state.nextSchoolDay != null) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) title@{
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.NextWeek,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .padding(start = 16.dp, end = 8.dp)
+                                    .size(20.dp)
+                            )
+                            Column {
+                                Text(
+                                    text = run {
+                                        val localizedRelativeDate = DateUtils.localizedRelativeDate(LocalContext.current, state.nextSchoolDay.date)
+                                        if (localizedRelativeDate == null) stringResource(R.string.home_nextDayTitle)
+                                        else stringResource(R.string.home_nextDayTitleWithDate, localizedRelativeDate)
+                                    },
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.SemiBold
+                                    ),
+                                )
+                                Text(
+                                    text = buildString {
+                                        append(state.nextSchoolDay.date.format(DateTimeFormatter.ofPattern("EEE, dd. MMM yyyy")))
+                                        val start = state.nextSchoolDay.actualLessons().minOfOrNull { it.start }
+                                        val end = state.nextSchoolDay.actualLessons().maxOfOrNull { it.end }
+                                        if (start == null || end == null) return@buildString
+                                        append(" $DOT ")
+                                        append(state.nextSchoolDay.lessons.minOf { it.start }.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                        append(" - ")
+                                        append(state.nextSchoolDay.lessons.maxOf { it.end }.format(DateTimeFormatter.ofPattern("HH:mm")))
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+
+                        Spacer8Dp()
+
+                        Text(
+                            text = stringResource(R.string.home_subjects),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .padding(start = 16.dp, end = 8.dp)
+                                .fillMaxWidth()
+                        )
+                        Spacer4Dp()
+                        val subjects = state.nextSchoolDay.lessons
+                            .map { it.displaySubject }
+                            .filter { it != "-" }
+                            .toSet()
+                        Grid(
+                            modifier = Modifier
+                                .padding(horizontal = 12.dp)
+                                .clip(RoundedCornerShape(16.dp)),
+                            columns = 2,
+                            padding = 2.dp,
+                            content = List(subjects.size) {
+                                @Composable { _, _, index ->
+                                    RowVerticalCenter(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(4.dp))
+                                            .background(MaterialTheme.colorScheme.surfaceContainer)
+                                            .fillMaxSize()
+                                            .padding(4.dp),
+                                    ) {
+                                        SubjectIcon(
+                                            subject = subjects.elementAt(index),
+                                            modifier = Modifier
+                                                .padding(4.dp)
+                                                .size(24.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                        Column {
+                                            val homeworkForSubject = state.nextSchoolDay.homework.filter { it.homework.defaultLesson?.subject == subjects.elementAt(index) }
+                                            Text(
+                                                text = subjects.elementAt(index),
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurface
+                                            )
+                                            if (homeworkForSubject.isNotEmpty()) {
+                                                Text(
+                                                    text = stringResource(R.string.home_subejctsHomework, homeworkForSubject.count { it.allDone() }, homeworkForSubject.size),
+                                                    style = MaterialTheme.typography.labelSmall,
+                                                    color = MaterialTheme.colorScheme.onSurface,
+                                                    maxLines = 1
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        )
+
+                        if (state.nextSchoolDay.homework.isNotEmpty()) {
+                            Spacer8Dp()
+                            Text(
+                                text = stringResource(R.string.home_homeworkTitle),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .padding(start = 16.dp, end = 8.dp)
+                                    .fillMaxWidth()
+                            )
+                            Spacer4Dp()
+                            Box(Modifier.padding(horizontal = 4.dp)) {
+                                HomeworkSection(
+                                    contextDate = LocalDate.now(),
+                                    homework = state.nextSchoolDay.homework,
+                                    onOpenHomeworkScreen = onOpenHomework,
+                                    currentProfile = state.currentProfile,
+                                    showSection = true,
+                                    includeTitle = false
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

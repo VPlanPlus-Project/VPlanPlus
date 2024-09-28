@@ -798,4 +798,8 @@
     <string name="calendar_dayTypeHoliday">Ferien/Feiertag</string>
     <string name="calendar_dayTypeNextDay">Zu %1$s</string>
     <string name="unknown">Unbekannt</string>
+    <string name="home_subjects">Fächer</string>
+    <string name="home_nextDayTitleWithDate">Vorbereitung für %1$s</string>
+    <string name="home_homeworkTitle">Hausaufgaben</string>
+    <string name="home_subejctsHomework">%1$d/%2$d HAs erledigt</string>
 </resources>

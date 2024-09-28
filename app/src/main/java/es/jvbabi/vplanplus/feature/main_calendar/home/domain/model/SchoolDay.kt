@@ -30,12 +30,20 @@ data class SchoolDay(
         val lessonsAfterReferenceTime = lessons
             .associate { it.lessonNumber to referenceTime.until(it.end, ChronoUnit.SECONDS).toInt() }
             .filter { it.value < 0 }
-            .ifEmpty { mapOf(lessons.minOf { it.lessonNumber }-1 to -1) }
+            .ifEmpty { mapOf(lessons.minOfOrNull { it.lessonNumber }?.minus(1) to -1) }
             .maxByOrNull { it.value }
             .let { it?.key ?: -1 }
             .let { lastLessonNumber -> lessons.groupBy { it.lessonNumber }[lastLessonNumber+1]}
 
         return lessonsAfterReferenceTime?.let { CurrentOrNextLesson(it, false) }
+    }
+
+    fun isDayOver(): Boolean {
+        return lessons.any { it.end.isBefore(ZonedDateTime.now()) } || lessons.isEmpty()
+    }
+
+    fun actualLessons(): List<Lesson> {
+        return lessons.filter { it.displaySubject != "-" }
     }
 }
 
