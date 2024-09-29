@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DayType
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -30,7 +31,8 @@ class GetDayUseCase(
     private val gradeRepository: GradeRepository,
     private val lessonRepository: LessonRepository,
     private val timetableRepository: TimetableRepository,
-    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
+    private val holidayRepository: HolidayRepository,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend operator fun invoke(date: LocalDate): Flow<SchoolDay> {
@@ -58,7 +60,7 @@ class GetDayUseCase(
                 schoolDay = schoolDay.copy(
                     lessons = lessons,
                     info = day?.info,
-                    type = DayType.NORMAL,
+                    type = if (holidayRepository.isHoliday(profile.getSchool().id, date)) DayType.HOLIDAY else if (date.dayOfWeek.value > profile.getSchool().daysPerWeek) DayType.WEEKEND else DayType.NORMAL,
                     dataType = dataType
                 )
                 emit(schoolDay)

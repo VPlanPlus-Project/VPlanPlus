@@ -72,7 +72,8 @@ object HomeModule {
                 gradeRepository = gradeRepository,
                 timetableRepository = timetableRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
-                lessonRepository = lessonRepository
+                lessonRepository = lessonRepository,
+                holidayRepository = holidayRepository
             ),
             getProfilesUseCase = GetProfilesUseCase(profileRepository),
             changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
