@@ -203,8 +203,10 @@ data class TimeSpan(
 
 @Composable
 fun LocalDate.formatDayDuration(compareTo: LocalDate): String {
-    return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false) ?: run {
-        if (compareTo.isAfter(this)) return stringResource(id = R.string.home_inNDays, this.until(compareTo, ChronoUnit.DAYS))
-        else return stringResource(id = R.string.home_NdaysAgo, compareTo.until(this, ChronoUnit.DAYS))
+    val date = this
+    return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false).let { relativeDate ->
+        if (relativeDate != ";DATE" && relativeDate != null) return@let relativeDate
+        if (compareTo.isAfter(date)) return@let stringResource(id = R.string.home_inNDays, date.until(compareTo, ChronoUnit.DAYS))
+        else return@let stringResource(id = R.string.home_NdaysAgo, compareTo.until(date, ChronoUnit.DAYS))
     }
 }

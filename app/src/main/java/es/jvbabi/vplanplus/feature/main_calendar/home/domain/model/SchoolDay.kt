@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.util.DateUtils.between
+import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
@@ -39,7 +40,7 @@ data class SchoolDay(
     }
 
     fun isDayOver(): Boolean {
-        return lessons.any { it.end.isBefore(ZonedDateTime.now()) } || lessons.isEmpty()
+        return lessons.isEmpty() || ZonedDateTime.now().progress(lessons.minOf { it.start }, lessons.maxOf { it.end }) !in 0f..1f
     }
 
     fun actualLessons(): List<Lesson> {

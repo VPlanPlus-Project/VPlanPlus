@@ -805,4 +805,9 @@
     <string name="home_nextDayTitleWithDate">Preparation for %1$s</string>
     <string name="home_homeworkTitle">Homework</string>
     <string name="home_subejctsHomework">%1$d/%2$d homework done</string>
+    <string name="home_todayCurrentLessonNow">Now</string>
+    <string name="home_todayCurrentLessonNext">Next</string>
+    <string name="home_lessonNumber">%1$s lesson</string>
+    <string name="home_furtherLessons">Further lessons</string>
+    <string name="home_remainingLessons">%1$d remaining lessons</string>
 </resources>

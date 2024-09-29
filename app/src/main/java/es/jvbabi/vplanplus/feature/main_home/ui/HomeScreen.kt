@@ -1,38 +1,30 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.CalendarToday
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -40,7 +32,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,20 +41,23 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
-import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.LessonBlock
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
 import es.jvbabi.vplanplus.feature.main_home.ui.components.ImportantHeader
 import es.jvbabi.vplanplus.feature.main_home.ui.components.NoData
+import es.jvbabi.vplanplus.feature.main_home.ui.components.PagerSwitcher
 import es.jvbabi.vplanplus.feature.main_home.ui.components.QuickActions
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredentialsBanner
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
-import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentLesson
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.HomeworkSection
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Info
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Subjects
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Title
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentLesson
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentOrNextTitle
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.FurtherLessonsBlock
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.FurtherLessonsTitle
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
@@ -74,7 +68,6 @@ import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
-import es.jvbabi.vplanplus.ui.common.toLocalizedString
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.PreviewFunction
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
@@ -83,6 +76,8 @@ import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.runComposable
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 import java.time.ZonedDateTime
 
 @Composable
@@ -248,131 +243,44 @@ fun HomeScreenContent(
 
             Spacer16Dp()
 
-            AnimatedContent(
-                targetState = state.today != null,
-                transitionSpec = {
-                    (slideInVertically { height -> height } + fadeIn()).togetherWith(
-                        slideOutVertically { height -> -height } + fadeOut())
-                },
-                label = "Today",
-                modifier = Modifier.fillMaxSize()
-            ) { isTodayVisible ->
-                if (!isTodayVisible || state.today == null) return@AnimatedContent
-                if (!state.today.isDayOver()) {
-                    Column(
+            val todayHasData = state.today != null
+            val todayIsOver = state.today?.isDayOver() ?: false
+            val nextDayHasData = state.nextSchoolDay != null
+
+            Box(Modifier.fillMaxSize()) {
+                if ((todayHasData && !nextDayHasData)) {
+                    TodayContent(state.today ?: return@Column)
+                } else if (todayHasData) {
+                    val pagerState = rememberPagerState(initialPage = if (todayIsOver) 1 else 0) { 2 }
+                    val scope = rememberCoroutineScope()
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize()
+                    ) { page ->
+                        when (page) {
+                            0 -> TodayContent(state.today ?: return@HorizontalPager)
+                            1 -> NextDayPreparation(
+                                nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
+                                currentProfile = state.currentProfile,
+                                onOpenHomework = onOpenHomework
+                            )
+                        }
+                    }
+                    PagerSwitcher(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        val currentOrNextLessons = state.today.getCurrentOrNextLesson()
-                        currentOrNextLessons?.let { currentOrNextLesson ->
-                            Row(verticalAlignment = Alignment.CenterVertically) title@{
-                                Icon(
-                                    imageVector = Icons.Default.CalendarToday,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .padding(start = 16.dp, end = 8.dp)
-                                        .size(20.dp)
-                                )
-                                Column {
-                                    Text(
-                                        text = if (currentOrNextLesson.isCurrent) "Aktuell" else "Als nächstes",
-                                        style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.SemiBold
-                                        ),
-                                    )
-                                    Text(
-                                        text = currentOrNextLesson.lessons.first().lessonNumber.toLocalizedString() + " Stunde",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            Spacer8Dp()
-
-                            Column(
-                                modifier = Modifier
-                                    .padding(horizontal = 12.dp)
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.surface),
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                currentOrNextLesson.lessons.forEach { lesson ->
-                                    CurrentLesson(
-                                        lesson,
-                                        state.today.homework.filter { it.homework.defaultLesson == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson && it.homework.defaultLesson != null })
-                                }
-                            }
-                        }
-
-                        val followingLessons = state.today.lessons
-                            .filter {
-                                it.lessonNumber > (currentOrNextLessons?.lessons?.firstOrNull()?.lessonNumber
-                                    ?: -1)
-                            }
-                            .groupBy { it.lessonNumber }
-
-                        if (followingLessons.isNotEmpty()) {
-                            Spacer16Dp()
-
-                            Row(verticalAlignment = Alignment.CenterVertically) title@{
-                                Icon(
-                                    imageVector = Icons.Default.CalendarMonth,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .padding(start = 16.dp, end = 8.dp)
-                                        .size(20.dp)
-                                )
-                                Column {
-                                    Text(
-                                        text = "Weitere Stunden",
-                                        style = MaterialTheme.typography.titleMedium.copy(
-                                            fontWeight = FontWeight.SemiBold
-                                        ),
-                                    )
-                                    Text(
-                                        text = "${followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size} Stunden verbleibend",
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
-
-                            Spacer8Dp()
-
-                            Column(
-                                modifier = Modifier
-                                    .padding(horizontal = 12.dp)
-                                    .clip(RoundedCornerShape(16.dp)),
-                                verticalArrangement = Arrangement.spacedBy(2.dp)
-                            ) {
-                                followingLessons
-                                    .forEach { (lessonNumber, lessons) ->
-                                        LessonBlock(
-                                            lessonNumber,
-                                            lessons,
-                                            MaterialTheme.colorScheme.surfaceVariant
-                                        )
-                                    }
-                            }
-                        }
-                    }
-                    if (state.nextSchoolDay != null) {
-                        Text(
-                            text = state.nextSchoolDay.toString(),
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.SemiBold
-                            ),
-                        )
-                    }
+                            .padding(bottom = 16.dp)
+                            .align(Alignment.BottomCenter),
+                        swipeProgress = pagerState.currentPage + pagerState.currentPageOffsetFraction,
+                        nextDate = state.nextSchoolDay?.date ?: LocalDate.now(),
+                        onSelectPage = { scope.launch { pagerState.animateScrollToPage(it) } }
+                    )
+                } else if (nextDayHasData) {
+                    NextDayPreparation(
+                        nextSchoolDay = state.nextSchoolDay ?: return@Column,
+                        currentProfile = state.currentProfile,
+                        onOpenHomework = onOpenHomework
+                    )
                 }
-                if (state.nextSchoolDay != null) NextDayPreparation(
-                    nextSchoolDay = state.nextSchoolDay,
-                    currentProfile = state.currentProfile,
-                    onOpenHomework = onOpenHomework
-                )
             }
         }
     }
@@ -430,6 +338,52 @@ fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Compos
         exit = shrinkVertically(tween(250))
     ) {
         content()
+    }
+}
+
+@Composable
+private fun TodayContent(
+    today: SchoolDay,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        val currentOrNextLessons = today.getCurrentOrNextLesson()
+        currentOrNextLessons?.let { currentOrNextLesson ->
+            CurrentOrNextTitle(isCurrent = currentOrNextLesson.isCurrent, lessonNumber = currentOrNextLesson.lessons.first().lessonNumber)
+            Spacer8Dp()
+
+            Column(
+                modifier = Modifier
+                    .padding(horizontal = 12.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.surface),
+                verticalArrangement = Arrangement.spacedBy(2.dp)
+            ) {
+                currentOrNextLesson.lessons.forEach { lesson ->
+                    CurrentLesson(
+                        lesson,
+                        today.homework.filter { it.homework.defaultLesson == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson && it.homework.defaultLesson != null })
+                }
+            }
+        }
+
+        val followingLessons = today.lessons
+            .filter {
+                it.lessonNumber > (currentOrNextLessons?.lessons?.firstOrNull()?.lessonNumber
+                    ?: -1)
+            }
+            .groupBy { it.lessonNumber }
+
+        if (followingLessons.isNotEmpty()) {
+            Spacer16Dp()
+            FurtherLessonsTitle(followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size)
+            Spacer8Dp()
+            FurtherLessonsBlock(followingLessons)
+        }
     }
 }
 
