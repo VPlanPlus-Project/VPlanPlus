@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
@@ -41,7 +42,9 @@ class GetDayUseCase(
             if (profile == null) return@flatMapLatest flowOf(schoolDay)
             flow {
                 val day = planRepository.getDayForProfile(profile, date, version.toLong()).first()
+                val dataType: DataType
                 val lessons = if (day.state == DayDataState.NO_DATA) {
+                    dataType = DataType.TIMETABLE
                     when (profile) {
                         is ClassProfile -> timetableRepository.getTimetableForGroup(
                             profile.group,
@@ -50,12 +53,14 @@ class GetDayUseCase(
                         else -> emptyList()
                     }
                 } else {
+                    dataType = DataType.SUBSTITUTION_PLAN
                     day.getEnabledLessons(profile)
                 }
                 schoolDay = schoolDay.copy(
                     lessons = lessons,
                     info = day.info,
-                    type = day.type
+                    type = day.type,
+                    dataType = dataType
                 )
                 emit(schoolDay)
 
