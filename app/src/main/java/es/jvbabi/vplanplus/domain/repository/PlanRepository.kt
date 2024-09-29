@@ -14,6 +14,8 @@ interface PlanRepository {
     fun getDayForGroup(groupId: Int, date: LocalDate, version: Long): Flow<Day>
     fun getDayForRoom(roomId: Int, date: LocalDate, version: Long): Flow<Day>
 
+    fun getDayInfoForSchool(schoolId: Int, date: LocalDate, version: Long): Flow<Plan?>
+
     suspend fun createPlan(plan: Plan)
     suspend fun deleteAllPlans()
     suspend fun deletePlansByVersion(version: Long)

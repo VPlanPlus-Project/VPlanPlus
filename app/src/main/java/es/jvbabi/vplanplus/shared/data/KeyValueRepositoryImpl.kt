@@ -6,7 +6,7 @@ import es.jvbabi.vplanplus.domain.model.KeyValue
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 
 class KeyValueRepositoryImpl(private val keyValueDao: KeyValueDao) : KeyValueRepository {
     override suspend fun get(key: String): String? {
@@ -22,11 +22,8 @@ class KeyValueRepositoryImpl(private val keyValueDao: KeyValueDao) : KeyValueRep
         return keyValueDao.getFlow(key = key).distinctUntilChanged()
     }
 
-    override fun getFlowOrDefault(key: String, defaultValue: String) = flow {
-        keyValueDao.getFlow(key = key).collect {
-            if (it == null) emit(defaultValue)
-            else emit(it)
-        }
+    override fun getFlowOrDefault(key: String, defaultValue: String) = keyValueDao.getFlow(key = key).map {
+        it ?: defaultValue
     }
 
     override suspend fun getOrDefault(key: String, defaultValue: String): String {

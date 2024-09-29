@@ -7,6 +7,7 @@ import androidx.room.Upsert
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbGrade
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.combined.CGrade
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 abstract class GradeDao {
@@ -21,6 +22,10 @@ abstract class GradeDao {
     @Transaction
     @Query("SELECT * FROM grade WHERE vpp_id = :vppId")
     abstract fun getGradesByUser(vppId: Int): Flow<List<CGrade>>
+
+    @Transaction
+    @Query("SELECT * FROM grade WHERE vpp_id = :vppId AND given_at = :givenAt")
+    abstract fun getGradesByUserAndGivenAt(vppId: Int, givenAt: LocalDate): Flow<List<CGrade>>
 
     @Transaction
     @Query("SELECT * FROM grade WHERE id = :id")

@@ -1,9 +1,10 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.ClassProfile
-import es.jvbabi.vplanplus.domain.model.DayDataState
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
+import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
@@ -27,6 +28,7 @@ class GetDayUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val homeworkRepository: HomeworkRepository,
     private val gradeRepository: GradeRepository,
+    private val lessonRepository: LessonRepository,
     private val timetableRepository: TimetableRepository,
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase
 ) {
@@ -41,44 +43,32 @@ class GetDayUseCase(
         }.flatMapLatest { (version, profile) ->
             if (profile == null) return@flatMapLatest flowOf(schoolDay)
             flow {
-                val day = planRepository.getDayForProfile(profile, date, version.toLong()).first()
+                val day = planRepository.getDayInfoForSchool(profile.getSchool().id, date, version.toLong()).first()
                 val dataType: DataType
-                val lessons = if (day.state == DayDataState.NO_DATA) {
+                val lessons = if (day == null) {
                     dataType = DataType.TIMETABLE
                     when (profile) {
-                        is ClassProfile -> timetableRepository.getTimetableForGroup(
-                            profile.group,
-                            date
-                        )
+                        is ClassProfile -> timetableRepository.getTimetableForGroup(profile.group, date)
                         else -> emptyList()
                     }
                 } else {
                     dataType = DataType.SUBSTITUTION_PLAN
-                    day.getEnabledLessons(profile)
-                }
+                    lessonRepository.getLessonsForProfile(profile, date, version.toLong()).first()
+                }.orEmpty()
                 schoolDay = schoolDay.copy(
                     lessons = lessons,
-                    info = day.info,
-                    type = day.type,
+                    info = day?.info,
+                    type = DayType.NORMAL,
                     dataType = dataType
                 )
                 emit(schoolDay)
 
-                val homeworkFlow =
-                    (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it) }
-                        ?: flow { emit(emptyList()) }
-                val gradesFlow = (profile as? ClassProfile)?.vppId?.let {
-                    gradeRepository.getGradesByUser(it)
-                        .map { grades -> grades.filter { grade -> grade.givenAt == date } }
-                } ?: flow { emit(emptyList()) }
+                val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it) } ?: flow { emit(emptyList()) }
+                val gradesFlow = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it, date).map { grades -> grades.filter { grade -> grade.givenAt == date } } } ?: flow { emit(emptyList()) }
                 combine(homeworkFlow, gradesFlow) { homework, grades ->
                     schoolDay.copy(
                         homework = homework
-                            .filter { it is PersonalizedHomework.LocalHomework || (it is PersonalizedHomework.CloudHomework && !it.isHidden) }
-                            .filter {
-                                it.homework.until.toLocalDate() == date || (!it.allDone() && it.homework.until.toLocalDate()
-                                    .isBefore(LocalDate.now()))
-                            }
+                            .filter { (it is PersonalizedHomework.LocalHomework || (it is PersonalizedHomework.CloudHomework && !it.isHidden)) && (it.homework.until.toLocalDate() == date || (!it.allDone() && it.homework.until.toLocalDate().isBefore(LocalDate.now()))) }
                             .sortedBy { "${it.homework.until.toEpochSecond()}__${it.homework.defaultLesson?.subject}" },
                         grades = grades
                     )
