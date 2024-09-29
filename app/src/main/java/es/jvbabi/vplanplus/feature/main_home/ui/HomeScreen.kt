@@ -56,6 +56,7 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.Less
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
 import es.jvbabi.vplanplus.feature.main_home.ui.components.ImportantHeader
+import es.jvbabi.vplanplus.feature.main_home.ui.components.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.components.QuickActions
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredentialsBanner
@@ -413,63 +414,65 @@ fun HomeScreenContent(
                             }
                         }
 
-                        Spacer8Dp()
-
-                        Text(
-                            text = stringResource(R.string.home_subjects),
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier
-                                .padding(start = 16.dp, end = 8.dp)
-                                .fillMaxWidth()
-                        )
-                        Spacer4Dp()
-                        val subjects = state.nextSchoolDay.lessons
-                            .map { it.displaySubject }
-                            .filter { it != "-" }
-                            .toSet()
-                        Grid(
-                            modifier = Modifier
-                                .padding(horizontal = 12.dp)
-                                .clip(RoundedCornerShape(16.dp)),
-                            columns = 2,
-                            padding = 2.dp,
-                            content = List(subjects.size) {
-                                @Composable { _, _, index ->
-                                    RowVerticalCenter(
-                                        modifier = Modifier
-                                            .clip(RoundedCornerShape(4.dp))
-                                            .background(MaterialTheme.colorScheme.surfaceContainer)
-                                            .fillMaxSize()
-                                            .padding(4.dp),
-                                    ) {
-                                        SubjectIcon(
-                                            subject = subjects.elementAt(index),
+                        if (state.nextSchoolDay.lessons.isNotEmpty()) {
+                            Spacer8Dp()
+                            Text(
+                                text = stringResource(R.string.home_subjects),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .padding(start = 16.dp, end = 8.dp)
+                                    .fillMaxWidth()
+                            )
+                            Spacer4Dp()
+                            val subjects = state.nextSchoolDay.lessons
+                                .map { it.displaySubject }
+                                .filter { it != "-" }
+                                .toSet()
+                            Grid(
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp)
+                                    .clip(RoundedCornerShape(16.dp)),
+                                columns = 2,
+                                padding = 2.dp,
+                                content = List(subjects.size) {
+                                    @Composable { _, _, index ->
+                                        RowVerticalCenter(
                                             modifier = Modifier
-                                                .padding(4.dp)
-                                                .size(24.dp),
-                                            tint = MaterialTheme.colorScheme.primary
-                                        )
-                                        Column {
-                                            val homeworkForSubject = state.nextSchoolDay.homework.filter { it.homework.defaultLesson?.subject == subjects.elementAt(index) }
-                                            Text(
-                                                text = subjects.elementAt(index),
-                                                style = MaterialTheme.typography.bodySmall,
-                                                color = MaterialTheme.colorScheme.onSurface
+                                                .clip(RoundedCornerShape(4.dp))
+                                                .background(MaterialTheme.colorScheme.surfaceContainer)
+                                                .fillMaxSize()
+                                                .padding(4.dp),
+                                        ) {
+                                            SubjectIcon(
+                                                subject = subjects.elementAt(index),
+                                                modifier = Modifier
+                                                    .padding(4.dp)
+                                                    .size(24.dp),
+                                                tint = MaterialTheme.colorScheme.primary
                                             )
-                                            if (homeworkForSubject.isNotEmpty()) {
+                                            Column {
+                                                val homeworkForSubject = state.nextSchoolDay.homework.filter { it.homework.defaultLesson?.subject == subjects.elementAt(index) }
                                                 Text(
-                                                    text = stringResource(R.string.home_subejctsHomework, homeworkForSubject.count { it.allDone() }, homeworkForSubject.size),
-                                                    style = MaterialTheme.typography.labelSmall,
-                                                    color = MaterialTheme.colorScheme.onSurface,
-                                                    maxLines = 1
+                                                    text = subjects.elementAt(index),
+                                                    style = MaterialTheme.typography.bodySmall,
+                                                    color = MaterialTheme.colorScheme.onSurface
                                                 )
+                                                if (homeworkForSubject.isNotEmpty()) {
+                                                    Text(
+                                                        text = stringResource(R.string.home_subejctsHomework, homeworkForSubject.count { it.allDone() }, homeworkForSubject.size),
+                                                        style = MaterialTheme.typography.labelSmall,
+                                                        color = MaterialTheme.colorScheme.onSurface,
+                                                        maxLines = 1
+                                                    )
+                                                }
                                             }
                                         }
                                     }
                                 }
-                            }
-                        )
+                            )
+                        }
+                        else NoData()
 
                         if (state.nextSchoolDay.homework.isNotEmpty()) {
                             Spacer8Dp()
