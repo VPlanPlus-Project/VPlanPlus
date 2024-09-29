@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -33,6 +34,7 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
+import es.jvbabi.vplanplus.util.DateUtils
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import kotlin.math.pow
@@ -43,7 +45,8 @@ fun HomeworkItem(
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit,
     currentProfile: Profile,
     hw: PersonalizedHomework,
-    contextDate: LocalDate
+    contextDate: LocalDate,
+    showUntil: Boolean = true
 ) {
     RowVerticalCenter(
         modifier = Modifier
@@ -56,7 +59,7 @@ fun HomeworkItem(
     ) {
         ProgressRing(hw, contextDate)
         Column {
-            Title(hw, currentProfile, contextDate)
+            Title(hw, currentProfile, contextDate, showUntil)
             Tasks(hw)
         }
     }
@@ -92,7 +95,8 @@ private fun Tasks(hw: PersonalizedHomework) {
 private fun Title(
     hw: PersonalizedHomework,
     currentProfile: Profile,
-    contextDate: LocalDate
+    contextDate: LocalDate,
+    showUntil: Boolean = true
 ) {
     RowVerticalCenter(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -108,7 +112,6 @@ private fun Title(
             color = if (!hw.allDone() && hw.homework.until.toLocalDate().isBefore(contextDate)) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface
         )
 
-        // Save location and creator
         Text(
             text = when (hw) {
                 is PersonalizedHomework.LocalHomework -> stringResource(
@@ -127,6 +130,19 @@ private fun Title(
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         )
+
+        if (showUntil) {
+            Text(
+                text = stringResource(
+                    id = R.string.homework_dueTo,
+                    DateUtils.localizedRelativeDate(LocalContext.current, hw.homework.until.toLocalDate(), true) ?: ""
+                ),
+                style = MaterialTheme.typography.bodySmall.copy(
+                    fontWeight = FontWeight.Light,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            )
+        }
     }
 }
 

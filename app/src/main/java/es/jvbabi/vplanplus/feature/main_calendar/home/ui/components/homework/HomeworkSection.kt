@@ -32,6 +32,7 @@ import java.time.LocalDate
 fun HomeworkSection(
     showSection: Boolean,
     includeTitle: Boolean = true,
+    includeUntil: Boolean = true,
     homework: List<PersonalizedHomework>,
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit,
     currentProfile: Profile,
@@ -57,7 +58,8 @@ fun HomeworkSection(
                         onOpenHomeworkScreen = onOpenHomeworkScreen,
                         currentProfile = currentProfile,
                         hw = hw,
-                        contextDate = contextDate
+                        contextDate = contextDate,
+                        showUntil = includeUntil
                     )
                 }
             }

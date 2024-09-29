@@ -435,7 +435,8 @@ private fun DayPager(
                                 homework = day.homework,
                                 onOpenHomeworkScreen = onOpenHomeworkScreen,
                                 currentProfile = state.currentProfile!!,
-                                contextDate = date
+                                contextDate = date,
+                                includeUntil = false
                             )
 
                             LessonsSection(

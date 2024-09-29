@@ -492,7 +492,8 @@ fun HomeScreenContent(
                                     onOpenHomeworkScreen = onOpenHomework,
                                     currentProfile = state.currentProfile,
                                     showSection = true,
-                                    includeTitle = false
+                                    includeTitle = false,
+                                    includeUntil = true
                                 )
                             }
                         }

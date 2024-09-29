@@ -82,7 +82,7 @@ class GetNextSchoolDayUseCase(
                             .filter { it is PersonalizedHomework.LocalHomework || (it is PersonalizedHomework.CloudHomework && !it.isHidden) }
                             .filter {
                                 it.homework.until.toLocalDate() == startDate || (!it.allDone() && it.homework.until.toLocalDate()
-                                    .isBefore(LocalDate.now()))
+                                    .isBefore(startDate))
                             }
                             .sortedBy { "${it.homework.until.toEpochSecond()}__${it.homework.defaultLesson?.subject}" }
                     )
