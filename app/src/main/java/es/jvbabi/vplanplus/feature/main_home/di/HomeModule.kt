@@ -8,6 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
+import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -55,6 +56,7 @@ object HomeModule {
         vppIdRepository: VppIdRepository,
         holidayRepository: HolidayRepository,
         timetableRepository: TimetableRepository,
+        lessonRepository: LessonRepository,
         gradeRepository: GradeRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
@@ -69,7 +71,8 @@ object HomeModule {
                 homeworkRepository = homeworkRepository,
                 gradeRepository = gradeRepository,
                 timetableRepository = timetableRepository,
-                getCurrentProfileUseCase = getCurrentProfileUseCase
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
+                lessonRepository = lessonRepository
             ),
             getProfilesUseCase = GetProfilesUseCase(profileRepository),
             changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
