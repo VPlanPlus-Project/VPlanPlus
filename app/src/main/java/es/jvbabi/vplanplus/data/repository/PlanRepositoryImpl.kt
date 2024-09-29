@@ -22,6 +22,7 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.util.UUID
 
@@ -33,6 +34,12 @@ class PlanRepositoryImpl(
     private val lessonRepository: LessonRepository,
     private val planDao: PlanDao
 ) : PlanRepository {
+    override fun getDayInfoForSchool(schoolId: Int, date: LocalDate, version: Long): Flow<Plan?> {
+        return planDao.getPlanByDate(schoolId, date, version).map {
+            it?.toModel()
+        }
+    }
+
     override fun getDayForProfile(profile: Profile, date: LocalDate, version: Long): Flow<Day> {
         return when (profile) {
             is ClassProfile -> getDayForGroup(profile.group.groupId, date, version)

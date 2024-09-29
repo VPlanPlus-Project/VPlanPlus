@@ -7,6 +7,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import es.jvbabi.vplanplus.data.model.DbPlanData
 import es.jvbabi.vplanplus.data.model.combined.CPlanData
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 
 @Dao
@@ -18,6 +19,10 @@ abstract class PlanDao {
     @Transaction
     @Query("SELECT * FROM plan_data WHERE school_id = :schoolId AND plan_date = :date")
     abstract suspend fun getPlanByDate(schoolId: Int, date: LocalDate): CPlanData?
+
+    @Transaction
+    @Query("SELECT * FROM plan_data WHERE school_id = :schoolId AND plan_date = :date AND version = :version")
+    abstract fun getPlanByDate(schoolId: Int, date: LocalDate, version: Long): Flow<CPlanData?>
 
     @Query("SELECT plan_date FROM plan_data")
     abstract suspend fun getLocalPlanDates(): List<LocalDate>
