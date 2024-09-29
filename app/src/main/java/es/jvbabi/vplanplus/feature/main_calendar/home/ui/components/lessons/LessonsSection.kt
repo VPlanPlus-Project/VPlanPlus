@@ -46,7 +46,7 @@ fun LessonsSection(
         Column {
             Column(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = 8.dp)
                     .fillMaxWidth()
             ) {
                 Spacer8Dp()
