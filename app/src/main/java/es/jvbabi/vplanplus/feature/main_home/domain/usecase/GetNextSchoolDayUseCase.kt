@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
@@ -55,7 +56,9 @@ class GetNextSchoolDayUseCase(
                     return@flow
                 }
 
+                val dataType: DataType
                 val lessons = if (day.state == DayDataState.NO_DATA) {
+                    dataType = DataType.TIMETABLE
                     when (profile) {
                         is ClassProfile -> timetableRepository.getTimetableForGroup(
                             profile.group,
@@ -64,6 +67,7 @@ class GetNextSchoolDayUseCase(
                         else -> emptyList()
                     }
                 } else {
+                    dataType = DataType.SUBSTITUTION_PLAN
                     day.getEnabledLessons(profile)
                 }
 
@@ -71,7 +75,8 @@ class GetNextSchoolDayUseCase(
                     date = startDate,
                     lessons = lessons,
                     info = day.info,
-                    type = day.type
+                    type = day.type,
+                    dataType = dataType
                 )
                 val homeworkFlow =
                     (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it) }

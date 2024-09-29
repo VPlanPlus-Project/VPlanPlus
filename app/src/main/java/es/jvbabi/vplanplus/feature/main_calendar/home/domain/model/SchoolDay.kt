@@ -16,9 +16,10 @@ data class SchoolDay(
     val lessons: List<Lesson>,
     val homework: List<PersonalizedHomework> = emptyList(),
     val grades: List<Grade> = emptyList(),
-    val type: DayType = DayType.NORMAL
+    val type: DayType = DayType.NORMAL,
+    val dataType: DataType
 ) {
-    constructor(date: LocalDate) : this(date, null, emptyList())
+    constructor(date: LocalDate) : this(date, null, emptyList(), dataType = DataType.NO_DATA)
 
     fun getCurrentLessons(referenceTime: ZonedDateTime = ZonedDateTime.now()): List<Lesson> {
         return lessons.filter { referenceTime.between(it.start, it.end) }
@@ -52,3 +53,7 @@ data class CurrentOrNextLesson(
     val lessons: List<Lesson>,
     val isCurrent: Boolean
 )
+
+enum class DataType {
+    SUBSTITUTION_PLAN, TIMETABLE, NO_DATA
+}

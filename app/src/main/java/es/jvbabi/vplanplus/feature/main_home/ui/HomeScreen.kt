@@ -40,6 +40,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
@@ -243,7 +244,7 @@ fun HomeScreenContent(
 
             Spacer16Dp()
 
-            val todayHasData = state.today != null
+            val todayHasData = state.today != null && state.today.dataType != DataType.NO_DATA
             val todayIsOver = state.today?.isDayOver() ?: false
             val nextDayHasData = state.nextSchoolDay != null
 

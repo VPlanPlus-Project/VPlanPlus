@@ -76,6 +76,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarDateHead
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButton
@@ -561,7 +562,8 @@ private fun CalendarScreenPreview() {
                     date = LocalDate.now(),
 //                    info = "This is an information for all students!",
                     lessons = listOf(),
-                    type = DayType.HOLIDAY
+                    type = DayType.HOLIDAY,
+                    dataType = DataType.NO_DATA
                 )
             ),
             lastSync = ZonedDateTimeConverter().timestampToZonedDateTime(0)
