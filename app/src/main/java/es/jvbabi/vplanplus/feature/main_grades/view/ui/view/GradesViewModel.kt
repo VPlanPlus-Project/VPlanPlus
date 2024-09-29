@@ -61,7 +61,7 @@ class GradesViewModel @Inject constructor(
                         if (state.value.authenticationState == AuthenticationState.AUTHENTICATED) AuthenticationState.AUTHENTICATED
                         else if (isBiometricSetUp && isBiometricEnabled) AuthenticationState.NONE
                         else AuthenticationState.AUTHENTICATED,
-                    isSek2 = grades.any { it.interval.type == "Sek II" },
+                    isSek2 = grades.any { it.interval.isSek2 },
                     intervals = grades.groupBy { it.interval }.keys.associateWith { interval ->
                         state.value.intervals.getOrDefault(interval, true)
                     }
