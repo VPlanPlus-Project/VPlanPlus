@@ -430,14 +430,16 @@ private fun DayPager(
                             )
                         }
                         item {
-                            HomeworkSection(
-                                showSection = (state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters) && day.homework.isNotEmpty(),
-                                homework = day.homework,
-                                onOpenHomeworkScreen = onOpenHomeworkScreen,
-                                currentProfile = state.currentProfile!!,
-                                contextDate = date,
-                                includeUntil = false
-                            )
+                            Box(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                                HomeworkSection(
+                                    showSection = (state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters) && day.homework.isNotEmpty(),
+                                    homework = day.homework,
+                                    onOpenHomeworkScreen = onOpenHomeworkScreen,
+                                    currentProfile = state.currentProfile!!,
+                                    contextDate = date,
+                                    includeUntil = false
+                                )
+                            }
 
                             LessonsSection(
                                 state = state,

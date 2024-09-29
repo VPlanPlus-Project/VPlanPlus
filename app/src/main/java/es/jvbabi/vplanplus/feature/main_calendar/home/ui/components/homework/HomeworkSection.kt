@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -41,8 +40,7 @@ fun HomeworkSection(
     androidx.compose.animation.AnimatedVisibility(
         visible = showSection,
         enter = expandVertically(),
-        exit = shrinkVertically(),
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+        exit = shrinkVertically()
     ) {
         Column {
             if (includeTitle) {

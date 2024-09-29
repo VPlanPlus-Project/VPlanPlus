@@ -12,7 +12,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,10 +22,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.NextWeek
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -52,7 +49,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
-import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.homework.HomeworkSection
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.LessonBlock
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
@@ -63,18 +60,18 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformati
 import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredentialsBanner
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentLesson
+import es.jvbabi.vplanplus.feature.main_home.ui.components.next.HomeworkSection
+import es.jvbabi.vplanplus.feature.main_home.ui.components.next.Info
+import es.jvbabi.vplanplus.feature.main_home.ui.components.next.Subjects
+import es.jvbabi.vplanplus.feature.main_home.ui.components.next.Title
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
-import es.jvbabi.vplanplus.ui.common.DOT
-import es.jvbabi.vplanplus.ui.common.Grid
 import es.jvbabi.vplanplus.ui.common.InfoCard
-import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
-import es.jvbabi.vplanplus.ui.common.SubjectIcon
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.common.toLocalizedString
@@ -85,10 +82,8 @@ import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
 import es.jvbabi.vplanplus.ui.screens.Screen
-import es.jvbabi.vplanplus.util.DateUtils
-import java.time.LocalDate
+import es.jvbabi.vplanplus.util.runComposable
 import java.time.ZonedDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
 fun HomeScreen(
@@ -373,157 +368,11 @@ fun HomeScreenContent(
                         )
                     }
                 }
-                if (state.nextSchoolDay != null) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .verticalScroll(rememberScrollState())
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) title@{
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.NextWeek,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .padding(start = 16.dp, end = 8.dp)
-                                    .size(20.dp)
-                            )
-                            Column {
-                                Text(
-                                    text = run {
-                                        val localizedRelativeDate = DateUtils.localizedRelativeDate(LocalContext.current, state.nextSchoolDay.date)
-                                        if (localizedRelativeDate == null) stringResource(R.string.home_nextDayTitle)
-                                        else stringResource(R.string.home_nextDayTitleWithDate, localizedRelativeDate)
-                                    },
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.SemiBold
-                                    ),
-                                )
-                                Text(
-                                    text = buildString {
-                                        append(state.nextSchoolDay.date.format(DateTimeFormatter.ofPattern("EEE, dd. MMM yyyy")))
-                                        val start = state.nextSchoolDay.actualLessons().minOfOrNull { it.start }
-                                        val end = state.nextSchoolDay.actualLessons().maxOfOrNull { it.end }
-                                        if (start == null || end == null) return@buildString
-                                        append(" $DOT ")
-                                        append(state.nextSchoolDay.lessons.minOf { it.start }.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                        append(" - ")
-                                        append(state.nextSchoolDay.lessons.maxOf { it.end }.format(DateTimeFormatter.ofPattern("HH:mm")))
-                                    },
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-
-                        if (!state.nextSchoolDay.info.isNullOrBlank()) {
-                            Spacer8Dp()
-                            RowVerticalCenter(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                modifier = Modifier
-                                    .padding(horizontal = 12.dp)
-                                    .fillMaxWidth()
-                                    .clip(RoundedCornerShape(16.dp))
-                                    .background(MaterialTheme.colorScheme.surfaceContainer)
-                                    .padding(16.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Info,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                                Text(
-                                    text = state.nextSchoolDay.info,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
-                            }
-                        }
-                        if (state.nextSchoolDay.lessons.isNotEmpty()) {
-                            Spacer8Dp()
-                            Text(
-                                text = stringResource(R.string.home_subjects),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier
-                                    .padding(start = 16.dp, end = 8.dp)
-                                    .fillMaxWidth()
-                            )
-                            Spacer4Dp()
-                            val subjects = state.nextSchoolDay.lessons
-                                .map { it.displaySubject }
-                                .filter { it != "-" }
-                                .toSet()
-                            Grid(
-                                modifier = Modifier
-                                    .padding(horizontal = 12.dp)
-                                    .clip(RoundedCornerShape(16.dp)),
-                                columns = 2,
-                                padding = 2.dp,
-                                content = List(subjects.size) {
-                                    @Composable { _, _, index ->
-                                        RowVerticalCenter(
-                                            modifier = Modifier
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(MaterialTheme.colorScheme.surfaceContainer)
-                                                .fillMaxSize()
-                                                .padding(4.dp),
-                                        ) {
-                                            SubjectIcon(
-                                                subject = subjects.elementAt(index),
-                                                modifier = Modifier
-                                                    .padding(4.dp)
-                                                    .size(24.dp),
-                                                tint = MaterialTheme.colorScheme.primary
-                                            )
-                                            Column {
-                                                val homeworkForSubject = state.nextSchoolDay.homework.filter { it.homework.defaultLesson?.subject == subjects.elementAt(index) }
-                                                Text(
-                                                    text = subjects.elementAt(index),
-                                                    style = MaterialTheme.typography.bodySmall,
-                                                    color = MaterialTheme.colorScheme.onSurface
-                                                )
-                                                if (homeworkForSubject.isNotEmpty()) {
-                                                    Text(
-                                                        text = stringResource(R.string.home_subejctsHomework, homeworkForSubject.count { it.allDone() }, homeworkForSubject.size),
-                                                        style = MaterialTheme.typography.labelSmall,
-                                                        color = MaterialTheme.colorScheme.onSurface,
-                                                        maxLines = 1
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            )
-                        }
-                        else NoData()
-
-
-                        if (state.nextSchoolDay.homework.isNotEmpty()) {
-                            Spacer8Dp()
-                            Text(
-                                text = stringResource(R.string.home_homeworkTitle),
-                                style = MaterialTheme.typography.titleMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier
-                                    .padding(start = 16.dp, end = 8.dp)
-                                    .fillMaxWidth()
-                            )
-                            Spacer4Dp()
-                            Box(Modifier.padding(horizontal = 4.dp)) {
-                                HomeworkSection(
-                                    contextDate = LocalDate.now(),
-                                    homework = state.nextSchoolDay.homework,
-                                    onOpenHomeworkScreen = onOpenHomework,
-                                    currentProfile = state.currentProfile,
-                                    showSection = true,
-                                    includeTitle = false,
-                                    includeUntil = true
-                                )
-                            }
-                        }
-                    }
-                }
+                if (state.nextSchoolDay != null) NextDayPreparation(
+                    nextSchoolDay = state.nextSchoolDay,
+                    currentProfile = state.currentProfile,
+                    onOpenHomework = onOpenHomework
+                )
             }
         }
     }
@@ -581,5 +430,45 @@ fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Compos
         exit = shrinkVertically(tween(250))
     ) {
         content()
+    }
+}
+
+@Composable
+private fun NextDayPreparation(
+    nextSchoolDay: SchoolDay,
+    currentProfile: Profile?,
+    onOpenHomework: (homeworkId: Int) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+    ) {
+        Column(Modifier.padding(horizontal = 12.dp)) {
+            runComposable title@{
+                val start = nextSchoolDay.actualLessons().minOfOrNull { it.start }?.toLocalTime()
+                val end = nextSchoolDay.actualLessons().maxOfOrNull { it.end }?.toLocalTime()
+                Title(nextSchoolDay.date, start, end)
+            }
+            Info(info = nextSchoolDay.info)
+            runComposable subjects@{
+                val subjects = nextSchoolDay.lessons
+                    .map { it.displaySubject }
+                    .filter { it != "-" }
+                    .toSet()
+                    .associateWith { subject ->
+                        val homework =
+                            nextSchoolDay.homework.filter { it.homework.defaultLesson?.subject == subject }
+                        (homework.count { it.allDone() } to homework.size)
+                    }
+                Subjects(subjects)
+            }
+            if (nextSchoolDay.lessons.isEmpty()) NoData()
+            HomeworkSection(
+                homework = nextSchoolDay.homework,
+                onOpenHomework = onOpenHomework,
+                currentProfile = currentProfile
+            )
+        }
     }
 }
