@@ -60,10 +60,10 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformati
 import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredentialsBanner
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentLesson
-import es.jvbabi.vplanplus.feature.main_home.ui.components.next.HomeworkSection
-import es.jvbabi.vplanplus.feature.main_home.ui.components.next.Info
-import es.jvbabi.vplanplus.feature.main_home.ui.components.next.Subjects
-import es.jvbabi.vplanplus.feature.main_home.ui.components.next.Title
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.HomeworkSection
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Info
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Subjects
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Title
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues

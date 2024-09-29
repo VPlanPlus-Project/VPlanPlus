@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.main_home.ui.components.next
+package es.jvbabi.vplanplus.feature.main_home.ui.components.content.next
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
