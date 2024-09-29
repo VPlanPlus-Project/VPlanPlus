@@ -26,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.NextWeek
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -414,6 +415,29 @@ fun HomeScreenContent(
                             }
                         }
 
+                        if (!state.nextSchoolDay.info.isNullOrBlank()) {
+                            Spacer8Dp()
+                            RowVerticalCenter(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier
+                                    .padding(horizontal = 12.dp)
+                                    .fillMaxWidth()
+                                    .clip(RoundedCornerShape(16.dp))
+                                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                                    .padding(16.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Text(
+                                    text = state.nextSchoolDay.info,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
                         if (state.nextSchoolDay.lessons.isNotEmpty()) {
                             Spacer8Dp()
                             Text(
@@ -473,6 +497,7 @@ fun HomeScreenContent(
                             )
                         }
                         else NoData()
+
 
                         if (state.nextSchoolDay.homework.isNotEmpty()) {
                             Spacer8Dp()
