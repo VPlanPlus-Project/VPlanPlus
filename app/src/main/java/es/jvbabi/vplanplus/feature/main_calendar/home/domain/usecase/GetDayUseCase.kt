@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase
 
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DayType
+import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
@@ -56,7 +57,12 @@ class GetDayUseCase(
                 } else {
                     dataType = DataType.SUBSTITUTION_PLAN
                     lessonRepository.getLessonsForProfile(profile, date, version.toLong()).first()
-                }.orEmpty()
+                }
+                    .orEmpty()
+                    .filter { lesson ->
+                        if (profile is ClassProfile && lesson is Lesson.SubstitutionPlanLesson) profile.isDefaultLessonEnabled(lesson.defaultLesson?.vpId)
+                        else true
+                    }
                 schoolDay = schoolDay.copy(
                     lessons = lessons,
                     info = day?.info,

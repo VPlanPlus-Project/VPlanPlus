@@ -27,6 +27,9 @@ abstract class PlanDao {
     @Query("SELECT plan_date FROM plan_data")
     abstract suspend fun getLocalPlanDates(): List<LocalDate>
 
+    @Query("SELECT plan_date FROM plan_data WHERE school_id = :schoolId")
+    abstract suspend fun getLocalPlanDatesForSchool(schoolId: Int): List<LocalDate>
+
     @Query("DELETE FROM plan_data")
     abstract suspend fun deleteAllPlans()
 

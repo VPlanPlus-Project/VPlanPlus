@@ -46,6 +46,30 @@ object HomeModule {
 
     @Provides
     @Singleton
+    fun provideGetDayUseCase(
+        planRepository: PlanRepository,
+        keyValueRepository: KeyValueRepository,
+        homeworkRepository: HomeworkRepository,
+        gradeRepository: GradeRepository,
+        lessonRepository: LessonRepository,
+        timetableRepository: TimetableRepository,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
+        holidayRepository: HolidayRepository,
+    ): GetDayUseCase {
+        return GetDayUseCase(
+            planRepository = planRepository,
+            keyValueRepository = keyValueRepository,
+            homeworkRepository = homeworkRepository,
+            gradeRepository = gradeRepository,
+            timetableRepository = timetableRepository,
+            getCurrentProfileUseCase = getCurrentProfileUseCase,
+            lessonRepository = lessonRepository,
+            holidayRepository = holidayRepository,
+        )
+    }
+
+    @Provides
+    @Singleton
     fun provideHomUseCases(
         keyValueRepository: KeyValueRepository,
         planRepository: PlanRepository,
@@ -55,26 +79,15 @@ object HomeModule {
         messageRepository: MessageRepository,
         vppIdRepository: VppIdRepository,
         holidayRepository: HolidayRepository,
-        timetableRepository: TimetableRepository,
-        lessonRepository: LessonRepository,
-        gradeRepository: GradeRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
+        getDayUseCase: GetDayUseCase,
         @ApplicationContext context: Context
     ): HomeUseCases {
         return HomeUseCases(
             getCurrentProfileUseCase = getCurrentProfileUseCase,
             getCurrentTimeUseCase = getCurrentTimeUseCase,
-            getDayUseCase = GetDayUseCase(
-                planRepository = planRepository,
-                keyValueRepository = keyValueRepository,
-                homeworkRepository = homeworkRepository,
-                gradeRepository = gradeRepository,
-                timetableRepository = timetableRepository,
-                getCurrentProfileUseCase = getCurrentProfileUseCase,
-                lessonRepository = lessonRepository,
-                holidayRepository = holidayRepository
-            ),
+            getDayUseCase = getDayUseCase,
             getProfilesUseCase = GetProfilesUseCase(profileRepository),
             changeProfileUseCase = ChangeProfileUseCase(keyValueRepository),
             getHomeworkUseCase = GetHomeworkUseCase(
@@ -100,11 +113,10 @@ object HomeModule {
 
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             getNextSchoolDayUseCase = GetNextSchoolDayUseCase(
-                keyValueRepository = keyValueRepository,
                 planRepository = planRepository,
-                homeworkRepository = homeworkRepository,
-                timetableRepository = timetableRepository,
-                getCurrentProfileUseCase = getCurrentProfileUseCase
+                holidayRepository = holidayRepository,
+                getCurrentProfileUseCase = getCurrentProfileUseCase,
+                getDayUseCase = getDayUseCase
             )
         )
     }
