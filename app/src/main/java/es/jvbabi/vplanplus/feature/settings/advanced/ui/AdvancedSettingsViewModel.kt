@@ -101,8 +101,8 @@ class AdvancedSettingsViewModel @Inject constructor(
                 is AdvancedSettingsEvent.SendCrashReports -> {
                     _state.value = _state.value.copy(hasUnsentCrashLogs = CrashlyticsState.LOADING)
                     Firebase.crashlytics.sendUnsentReports()
-                    delay(1000)
-                    _state.value = _state.value.copy(hasUnsentCrashLogs = CrashlyticsState.HAS_CRASHES)
+                    delay(500)
+                    _state.value = _state.value.copy(hasUnsentCrashLogs = CrashlyticsState.NONE)
                 }
             }
         }
