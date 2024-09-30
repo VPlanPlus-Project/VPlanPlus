@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
@@ -32,7 +33,8 @@ object CalendarModule {
         homeworkRepository: HomeworkRepository,
         gradeRepository: GradeRepository,
         lessonRepository: LessonRepository,
-        timetableRepository: TimetableRepository
+        timetableRepository: TimetableRepository,
+        holidayRepository: HolidayRepository
     ): CalendarViewUseCases = CalendarViewUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
         getDayUseCase = GetDayUseCase(
@@ -41,7 +43,9 @@ object CalendarModule {
             homeworkRepository = homeworkRepository,
             gradeRepository = gradeRepository,
             lessonRepository = lessonRepository,
-            timetableRepository = timetableRepository
+            timetableRepository = timetableRepository,
+            getCurrentProfileUseCase = getCurrentProfileUseCase,
+            holidayRepository = holidayRepository
         ),
         getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
 

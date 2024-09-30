@@ -76,6 +76,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarDateHead
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButton
@@ -430,13 +431,16 @@ private fun DayPager(
                             )
                         }
                         item {
-                            HomeworkSection(
-                                showSection = (state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters) && day.homework.isNotEmpty(),
-                                homework = day.homework,
-                                onOpenHomeworkScreen = onOpenHomeworkScreen,
-                                currentProfile = state.currentProfile!!,
-                                contextDate = date
-                            )
+                            Box(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                                HomeworkSection(
+                                    showSection = (state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters) && day.homework.isNotEmpty(),
+                                    homework = day.homework,
+                                    onOpenHomeworkScreen = onOpenHomeworkScreen,
+                                    currentProfile = state.currentProfile!!,
+                                    contextDate = date,
+                                    includeUntil = false
+                                )
+                            }
 
                             LessonsSection(
                                 state = state,
@@ -558,7 +562,8 @@ private fun CalendarScreenPreview() {
                     date = LocalDate.now(),
 //                    info = "This is an information for all students!",
                     lessons = listOf(),
-                    type = DayType.HOLIDAY
+                    type = DayType.HOLIDAY,
+                    dataType = DataType.NO_DATA
                 )
             ),
             lastSync = ZonedDateTimeConverter().timestampToZonedDateTime(0)

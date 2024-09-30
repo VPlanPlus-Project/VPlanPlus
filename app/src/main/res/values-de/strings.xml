@@ -248,7 +248,7 @@
     <string name="home_activeDayWeekendTitle">Wochenende</string>
     <string name="home_activeDayWeekendSubtitle">Es ist Wochenende 🎉 Gönne dir etwas Entspannung von den letzten Tagen.</string>
     <string name="home_activeDayBooking">(gebucht)</string>
-    <string name="home_activeBookedBy">Gebucht von %1$s für Klasse %2$s</string>
+    <string name="home_activeBookedBy">Raum von %1$s gebucht</string>
     <string name="searchAvailableRoom_bookingDetailCancel">Buchung zurücknehmen</string>
     <string name="searchAvailableRoom_cancelSuccess">Deine Raumbuchung wurde erfolgreich zurückgenommen</string>
     <string name="searchAvailableRoom_cancelNotFound">Deine Buchung konnte nicht mehr aufgefunden werden, Möglicherweise ist sie bereits storniert.</string>
@@ -485,7 +485,7 @@
         <item quantity="one">Eine Hausaufgabe</item>
         <item quantity="other">%1$d Hausaufgaben</item>
     </plurals>
-    <string name="home_planToday">Plan für heute (%1$s)</string>
+    <string name="home_planToday">Plan für heute</string>
     <string name="search_nothingFound">Nichts gefunden</string>
     <string name="search_nothingFoundText">Wir haben unser bestes gegeben, aber \'%1$s\' konnten wir nicht finden.</string>
     <string name="search_lessons">%1$s Stunden</string>
@@ -797,4 +797,14 @@
     <string name="calendar_dayTypeWeekend">Wochenende</string>
     <string name="calendar_dayTypeHoliday">Ferien/Feiertag</string>
     <string name="calendar_dayTypeNextDay">Zu %1$s</string>
+    <string name="unknown">Unbekannt</string>
+    <string name="home_subjects">Fächer</string>
+    <string name="home_nextDayTitleWithDate">Vorbereitung für %1$s</string>
+    <string name="home_homeworkTitle">Hausaufgaben</string>
+    <string name="home_subejctsHomework">%1$d/%2$d HAs erledigt</string>
+    <string name="home_todayCurrentLessonNow">Aktuell</string>
+    <string name="home_todayCurrentLessonNext">Als nächstes</string>
+    <string name="home_lessonNumber">%1$s Stunde</string>
+    <string name="home_furtherLessons">Weitere Stunden</string>
+    <string name="home_remainingLessons">%1$d Stunden verbleibend</string>
 </resources>

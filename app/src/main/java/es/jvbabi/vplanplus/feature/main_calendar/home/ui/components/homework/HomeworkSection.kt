@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
@@ -31,6 +30,8 @@ import java.time.LocalDate
 @Composable
 fun HomeworkSection(
     showSection: Boolean,
+    includeTitle: Boolean = true,
+    includeUntil: Boolean = true,
     homework: List<PersonalizedHomework>,
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit,
     currentProfile: Profile,
@@ -39,12 +40,13 @@ fun HomeworkSection(
     androidx.compose.animation.AnimatedVisibility(
         visible = showSection,
         enter = expandVertically(),
-        exit = shrinkVertically(),
-        modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
+        exit = shrinkVertically()
     ) {
         Column {
-            Title()
-            Spacer4Dp()
+            if (includeTitle) {
+                Title()
+                Spacer4Dp()
+            }
             Column(
                 modifier = Modifier.clip(RoundedCornerShape(16.dp)),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -54,7 +56,8 @@ fun HomeworkSection(
                         onOpenHomeworkScreen = onOpenHomeworkScreen,
                         currentProfile = currentProfile,
                         hw = hw,
-                        contextDate = contextDate
+                        contextDate = contextDate,
+                        showUntil = includeUntil
                     )
                 }
             }

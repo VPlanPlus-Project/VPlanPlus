@@ -10,4 +10,7 @@ data class Interval(
     val to: LocalDate,
     val includedIntervalId: Long?,
     val yearId: Long,
-)
+) {
+    val isSek2: Boolean
+        get() = type == "Sek II" || type.matches(Regex("JG( )?\\d{2}"))
+}

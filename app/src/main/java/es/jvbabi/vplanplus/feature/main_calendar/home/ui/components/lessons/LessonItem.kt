@@ -12,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -37,12 +38,13 @@ import java.util.UUID
 
 @Composable
 fun LessonItem(
-    lesson: Lesson
+    lesson: Lesson,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
 ) {
     RowVerticalCenter(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .background(backgroundColor)
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
@@ -110,7 +112,7 @@ private fun LessonTitle(
         val text = buildAnnotatedString {
             withStyle(defaultStyle) {
                 withStyle(titleFont) {
-                    if (changedSubject === "-") append(stringResource(id = R.string.home_activeDayNextLessonCanceled, regularSubject))
+                    if (changedSubject == "-") append(stringResource(id = R.string.home_activeDayNextLessonCanceled, regularSubject))
                     else append(changedSubject ?: regularSubject)
                 }
                 append("  ")

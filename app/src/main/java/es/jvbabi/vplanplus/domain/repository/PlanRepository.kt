@@ -20,4 +20,5 @@ interface PlanRepository {
     suspend fun deleteAllPlans()
     suspend fun deletePlansByVersion(version: Long)
     suspend fun getLocalPlanDates(): List<LocalDate>
+    suspend fun getLocalPlaDatesForSchool(schoolId: Int): List<LocalDate>
 }

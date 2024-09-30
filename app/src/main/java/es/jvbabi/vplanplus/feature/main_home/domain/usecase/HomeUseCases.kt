@@ -4,6 +4,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 
 data class HomeUseCases(
     val getCurrentProfileUseCase: GetCurrentProfileUseCase,
@@ -18,7 +19,8 @@ data class HomeUseCases(
     val getHideFinishedLessonsUseCase: GetHideFinishedLessonsUseCase,
     val getHolidaysUseCase: GetHolidaysUseCase,
 
-    val setInfoExpandedUseCase: SetInfoExpandedUseCase,
+    val getNextSchoolDayUseCase: GetNextSchoolDayUseCase,
+
     val isInfoExpandedUseCase: IsInfoExpandedUseCase,
 
     val hasUnreadNewsUseCase: HasUnreadNewsUseCase,

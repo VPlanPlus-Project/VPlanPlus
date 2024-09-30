@@ -33,6 +33,7 @@ fun Sp24TimetableWarning(
                 onDismiss = onDismiss,
                 onTimetableInfoBannerClicked = onTimetableInfoBannerClicked
             )
+            Spacer8Dp()
         }
     }
 }

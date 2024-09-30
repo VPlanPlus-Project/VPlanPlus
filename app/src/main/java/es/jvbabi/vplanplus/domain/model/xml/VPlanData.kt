@@ -36,7 +36,7 @@ class VpMobilVpXml {
 
 @Root(name = "Kopf", strict = false)
 class WplanVpXmlHead {
-    @field:Element(name = "zeitstempel") var timestampString: String? = null
+    @field:Element(name = "zeitstempel", required = false) var timestampString: String? = null
     @field:Element(name = "DatumPlan") var date: String? = null
 }
 

@@ -17,7 +17,9 @@ data class Grade(
     val year: Year
 ) {
     val actualValue: Int?
-        get() = if (interval.type != "Sek II" && value == 0f) null else value.toInt()
+        get() = if (!interval.isSek2 && value == 0f) null else value.toInt()
+
+
 
     override fun equals(other: Any?): Boolean {
         if (other is Grade) return id == other.id

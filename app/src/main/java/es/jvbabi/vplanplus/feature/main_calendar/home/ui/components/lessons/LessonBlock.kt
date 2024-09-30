@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +33,7 @@ import java.util.UUID
 fun LessonBlock(
     lessonNumber: Int,
     lessons: List<Lesson>,
+    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
 ) {
     Box(
         modifier = Modifier
@@ -39,9 +41,9 @@ fun LessonBlock(
     ) {
         Column {
             lessons.forEachIndexed { i, lesson ->
-                LessonItem(lesson)
+                LessonItem(lesson, backgroundColor)
                 if (i != lessons.lastIndex) HorizontalDivider(Modifier
-                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .background(backgroundColor)
                     .padding(horizontal = 8.dp)
                 )
             }
