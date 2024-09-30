@@ -303,7 +303,7 @@ class MainActivity : FragmentActivity() {
                             }
                         }
 
-                        val hasSetCrashlyticsSettings by mainUseCases.hasSetCrashlyticsSettingsUseCase().collectAsState(initial = false)
+                        val hasSetCrashlyticsSettings by mainUseCases.hasSetCrashlyticsSettingsUseCase().collectAsState(initial = true)
                         if (!hasSetCrashlyticsSettings) {
                             CrashAnalyticsDialog(
                                 onAccept = {
