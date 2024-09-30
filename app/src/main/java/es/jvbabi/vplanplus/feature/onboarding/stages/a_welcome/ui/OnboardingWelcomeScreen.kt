@@ -21,6 +21,8 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -42,7 +44,11 @@ fun OnboardingWelcomeScreen(
             val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             intent.data = android.net.Uri.parse("package:${context.packageName}")
             context.startActivity(intent)
-            Toast.makeText(context, context.getString(R.string.onboarding_crashToast), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.onboarding_crashToast),
+                Toast.LENGTH_LONG
+            ).show()
         }
     )
 }
@@ -56,13 +62,27 @@ fun Welcome(
     var showCloseDialog by rememberSaveable { mutableStateOf(false) }
     BackHandler { showCloseDialog = true }
 
+    var showCrashAnalyticsDialog by rememberSaveable { mutableStateOf(false) }
+    if (showCrashAnalyticsDialog) CrashAnalyticsDialog(
+        onAccept = {
+            Firebase.crashlytics.setCrashlyticsCollectionEnabled(true)
+            showCrashAnalyticsDialog = false
+            onNext()
+        },
+        onDeny = {
+            Firebase.crashlytics.setCrashlyticsCollectionEnabled(false)
+            showCrashAnalyticsDialog = false
+            onNext()
+        }
+    )
+
     OnboardingScreen(
         title = stringResource(id = R.string.app_name),
         text = { Text(text = stringResource(id = R.string.onboarding_welcomeText)) },
         buttonText = stringResource(id = R.string.lets_go),
         isLoading = false,
         enabled = true,
-        onButtonClick = { onNext() },
+        onButtonClick = { showCrashAnalyticsDialog = true },
         content = {
             InfoCard(
                 imageVector = Icons.Default.Error,
@@ -74,7 +94,10 @@ fun Welcome(
         },
         footer = {
             val footerText = buildAnnotatedString {
-                withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(color = MaterialTheme.colorScheme.onSurface)) {
+                withStyle(
+                    MaterialTheme.typography.labelMedium.toSpanStyle()
+                        .copy(color = MaterialTheme.colorScheme.onSurface)
+                ) {
                     append(stringResource(id = R.string.onboarding_welcomeAcceptPrivacyPolicyStart))
                     append(" ")
                     withLink(
@@ -83,7 +106,10 @@ fun Welcome(
                             tag = "PRIVACY_POLICY"
                         )
                     ) {
-                        withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(color = MaterialTheme.colorScheme.primary)) {
+                        withStyle(
+                            MaterialTheme.typography.labelMedium.toSpanStyle()
+                                .copy(color = MaterialTheme.colorScheme.primary)
+                        ) {
                             append(stringResource(id = R.string.onboarding_welcomeAcceptPrivacyPolicy))
                         }
                     }
