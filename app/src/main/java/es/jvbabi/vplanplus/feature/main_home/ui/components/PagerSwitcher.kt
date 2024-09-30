@@ -48,7 +48,7 @@ fun PagerSwitcher(
         modifier = modifier
             .shadow(elevation = 2.dp, shape = RoundedCornerShape(16.dp))
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .background(MaterialTheme.colorScheme.secondaryContainer)
     ) {
         Box(
             modifier = Modifier
@@ -56,7 +56,7 @@ fun PagerSwitcher(
                 .width(lerp(LocalDensity.current.run { width0.toDp() }, LocalDensity.current.run { width1.toDp() }, swipeProgress))
                 .offset { IntOffset(lerp(0f, width0.toFloat(), swipeProgress).roundToInt(), 0) }
                 .clip(RoundedCornerShape(16.dp))
-                .background(MaterialTheme.colorScheme.primaryContainer)
+                .background(MaterialTheme.colorScheme.primary)
         )
         RowVerticalCenter {
             Box(
@@ -69,7 +69,7 @@ fun PagerSwitcher(
                 Text(
                     text = stringResource(R.string.today),
                     style = MaterialTheme.typography.labelLarge,
-                    color = blendColor(MaterialTheme.colorScheme.onSurface, MaterialTheme.colorScheme.onPrimaryContainer, swipeProgress)
+                    color = blendColor(MaterialTheme.colorScheme.onPrimary, MaterialTheme.colorScheme.onSecondaryContainer, swipeProgress)
                 )
             }
             Box(
@@ -82,7 +82,7 @@ fun PagerSwitcher(
                 Text(
                     text = LocalDate.now().formatDayDuration(nextDate),
                     style = MaterialTheme.typography.labelLarge,
-                    color = blendColor(MaterialTheme.colorScheme.onPrimaryContainer, MaterialTheme.colorScheme.onSurface, swipeProgress)
+                    color = blendColor(MaterialTheme.colorScheme.onSecondaryContainer, MaterialTheme.colorScheme.onPrimary, swipeProgress)
                 )
             }
         }
@@ -92,5 +92,5 @@ fun PagerSwitcher(
 @Preview(showBackground = true)
 @Composable
 private fun PagerSwitcherPreview() {
-    PagerSwitcher(swipeProgress = 0.5f, nextDate = LocalDate.now().plusDays(2))
+    PagerSwitcher(swipeProgress = 0.8f, nextDate = LocalDate.now().plusDays(2))
 }
