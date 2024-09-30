@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.onboarding.stages.a_welcome.ui
+package es.jvbabi.vplanplus.ui.common
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,7 +22,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 
 @Composable
 fun CrashAnalyticsDialog(

@@ -21,8 +21,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -62,27 +60,13 @@ fun Welcome(
     var showCloseDialog by rememberSaveable { mutableStateOf(false) }
     BackHandler { showCloseDialog = true }
 
-    var showCrashAnalyticsDialog by rememberSaveable { mutableStateOf(false) }
-    if (showCrashAnalyticsDialog) CrashAnalyticsDialog(
-        onAccept = {
-            Firebase.crashlytics.setCrashlyticsCollectionEnabled(true)
-            showCrashAnalyticsDialog = false
-            onNext()
-        },
-        onDeny = {
-            Firebase.crashlytics.setCrashlyticsCollectionEnabled(false)
-            showCrashAnalyticsDialog = false
-            onNext()
-        }
-    )
-
     OnboardingScreen(
         title = stringResource(id = R.string.app_name),
         text = { Text(text = stringResource(id = R.string.onboarding_welcomeText)) },
         buttonText = stringResource(id = R.string.lets_go),
         isLoading = false,
         enabled = true,
-        onButtonClick = { showCrashAnalyticsDialog = true },
+        onButtonClick = onNext,
         content = {
             InfoCard(
                 imageVector = Icons.Default.Error,

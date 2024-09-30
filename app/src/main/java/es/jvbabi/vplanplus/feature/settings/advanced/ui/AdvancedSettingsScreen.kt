@@ -35,7 +35,7 @@ import androidx.navigation.NavHostController
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.onboarding.stages.a_welcome.ui.CrashAnalyticsDialog
+import es.jvbabi.vplanplus.ui.common.CrashAnalyticsDialog
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.data.FcmTokenReloadState
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.DeletePlanDataDialog
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServerDialog
