@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.data.model
+package es.jvbabi.vplanplus.data.model.vppid
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

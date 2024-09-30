@@ -72,6 +72,9 @@ fun AboutScreen(
         },
         onOpenMastodon = {
             openLink(context, "https://mastodon.social/@vpp_app")
+        },
+        onOpenWhatsApp = {
+            openLink(context, "https://whatsapp.com/channel/0029Vagcelf5q08Vjjc7Of1o")
         }
     )
 }
@@ -86,7 +89,8 @@ private fun AboutContent(
     onOpenPrivacyPolicy: () -> Unit = {},
     onOpenInstagram: () -> Unit = {},
     onOpenThreads: () -> Unit = {},
-    onOpenMastodon: () -> Unit = {}
+    onOpenMastodon: () -> Unit = {},
+    onOpenWhatsApp: () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
@@ -183,6 +187,13 @@ private fun AboutContent(
                     subtitle = "@vpp_app@mastodon.social",
                     type = SettingsType.FUNCTION,
                     doAction = onOpenMastodon
+                )
+                SettingsSetting(
+                    painter = painterResource(id = R.drawable.whatsapp_logo),
+                    title = stringResource(id = R.string.settingsAbout_socialMediaWhatsAppTitle),
+                    subtitle = stringResource(id = R.string.settingsAbout_socialMediaWhatsAppSubtitle),
+                    type = SettingsType.FUNCTION,
+                    doAction = onOpenWhatsApp
                 )
             }
 

@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.usecase.sync.DoSyncUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
+import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.WebAuthTaskUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
@@ -19,6 +20,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -51,6 +53,9 @@ class PushNotificationService : FirebaseMessagingService() {
     @Inject
     lateinit var updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
 
+    @Inject
+    lateinit var webAuthTaskUseCases: WebAuthTaskUseCases
+
     @OptIn(DelicateCoroutinesApi::class)
     override fun onNewToken(token: String) {
         super.onNewToken(token)
@@ -66,18 +71,27 @@ class PushNotificationService : FirebaseMessagingService() {
         super.onMessageReceived(message)
         Log.d("PushNotificationService", "Message received: ${message.data["type"]}")
 
-        val prefix = if (BuildConfig.DEBUG) "DEV_" else ""
+        val isDebug = runBlocking { keyValueRepository.getOrDefault(Keys.FCM_DEBUG_MODE, BuildConfig.DEBUG.toString()).toBoolean() }
+
+        val type = message.data["type"].let {
+            if (isDebug) {
+                if (it?.startsWith("DEV_") != true) return
+                return@let it.removePrefix("DEV_")
+            }
+            return@let it
+        }
 
         GlobalScope.launch {
-            logRecordRepository.log("PushNotificationService", "Message received: ${message.data["type"]}\nDebug: ${BuildConfig.DEBUG}")
-            when (message.data.getOrDefault("type", "")) {
-                prefix + PushNotificationType.NEW_BOOKING -> {
+            logRecordRepository.log("PushNotificationService", "Message received: ${message.data["type"]}\nDebug: $isDebug")
+            when (type) {
+                PushNotificationType.NEW_BOOKING -> {
                     schoolRepository.getSchools().forEach { school ->
                         roomRepository.fetchRoomBookings(school)
                     }
                 }
-                prefix + PushNotificationType.HOMEWORK_CHANGE -> updateHomeworkUseCase(true)
-                prefix + PushNotificationType.UPDATE_PLAN -> doSyncUseCase()
+                PushNotificationType.HOMEWORK_CHANGE -> updateHomeworkUseCase(true)
+                PushNotificationType.UPDATE_PLAN -> doSyncUseCase()
+                PushNotificationType.VPP_AUTH -> webAuthTaskUseCases.getWebAuthTaskUseCase()
             }
         }
     }
@@ -87,4 +101,5 @@ data object PushNotificationType {
     const val NEW_BOOKING = "ROOM_BOOKED"
     const val HOMEWORK_CHANGE = "HOMEWORK_UPDATE"
     const val UPDATE_PLAN = "UPDATE_PLAN"
+    const val VPP_AUTH = "VPP_AUTH"
 }

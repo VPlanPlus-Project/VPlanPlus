@@ -15,8 +15,10 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.Homewo
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.DeleteCacheUseCase
+import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.IsFcmDebugModeUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.ResetBalloonsUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.SetVppIdServerUseCase
+import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.ToggleFcmDebugModeUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
 import javax.inject.Singleton
 
@@ -47,6 +49,8 @@ object AdvancedSettingsModule {
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository),
             updateFcmTokenUseCase = UpdateFcmTokenUseCase(keyValueRepository, updateFirebaseTokenUseCase),
+            toggleFcmDebugModeUseCase = ToggleFcmDebugModeUseCase(keyValueRepository),
+            isFcmDebugModeUseCase = IsFcmDebugModeUseCase(keyValueRepository),
             resetBalloonsUseCase = ResetBalloonsUseCase(keyValueRepository),
             homeworkReminderUseCase = homeworkReminderUseCase
         )

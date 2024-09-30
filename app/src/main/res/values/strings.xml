@@ -110,7 +110,6 @@
     <string name="timetable_holidayTitle">Holiday</string>
     <string name="timetable_holidayText">You don\'t have to go to school today. Feel free to meet friends or tidy up your room.</string>
     <string name="notification_lesson">%1$s with %2$s in %3$s</string>
-    <string name="notification_changedLessons">These lessons were changed:</string>
     <string name="notification_planChangedText">There is a change in plan for %1$s at %2$s for %3$s</string>
     <string name="notification_planChangedTitle">Change of plan</string>
     <string name="home_lastSyncNever">Never synced</string>
@@ -233,7 +232,7 @@
     <string name="home_activeDayNext">Next lesson - %1$s until %2$s</string>
     <string name="home_activeDayNextLessonTitleWith">with</string>
     <string name="home_activeDayNextLessonTitleIn">in</string>
-    <string name="home_activeDayNextLessonCanceled">Canceled</string>
+    <string name="home_activeDayNextLessonCanceled">%1$s canceled</string>
     <string name="home_activeBookRoom">Book a room</string>
     <string name="home_activeRoomBookedBy">%1$s booked room %2$s for this canceled lesson</string>
     <string name="home_activeDaySchoolInformation">Information from your school</string>
@@ -339,7 +338,7 @@
     <string name="notification_homeworkName">Homework</string>
     <string name="notification_homeworkDescription">When someone shared or changed a homework in your class you\'ll get a notification.</string>
     <string name="notification_homeworkNewHomeworkOneTitle">New homework</string>
-    <string name="notification_homeworkNewHomeworkOneContent">%1$s created a homework with %2$s due to %4$s</string>
+    <string name="notification_homeworkNewHomeworkOneContent">%1$s created a homework with %2$s due to %3$s</string>
     <string name="notification_homeworkNewHomeworkOneContentPrefix">%1$s: %2$s</string>
     <plurals name="notification_homeworkNewHomeworkOneContentTasks">
         <item quantity="one">one task</item>
@@ -758,5 +757,31 @@
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Course groups</string>
     <string name="settingsProfileManagementDefaultLesson_lessonsTitle">Lessons</string>
     <string name="onboarding_credentialsUnsupportedSchool">This school is not supported by VPlanPlus. Your school needs to support the \'Wochenplan 6\' module by Stundenplan24.de</string>
+    <string name="profileManagement_detailsLabel">Details</string>
+    <string name="profileManagement_detailsId">ID</string>
+    <string name="profileManagement_detailsSp24Id">SP24-ID</string>
+    <string name="profileManagement_detailsUsername">Username</string>
+    <string name="profileManagement_detailsPassword">Password</string>
+    <string name="profileManagement_detailsName">Name</string>
+    <string name="profileManagement_detailsPreferredDownloadMode">Preferred DL-Mode</string>
+    <string name="profileManagement_detailsDaysPerWeek">Days per week</string>
+    <string name="profileManagement_detailsCredentialsValid">Credentials valid</string>
+    <string name="profileManagement_detailsFullyCompatible">Fully compatible</string>
+    <string name="settingsAbout_socialMediaWhatsAppTitle">WhatsApp-Channel</string>
+    <string name="settingsAbout_socialMediaWhatsAppSubtitle">Get status updates and news in WhatsApp</string>
+    <string name="onboarding_preferredDownloadModeTitle">Preferred download mode</string>
+    <string name="onboarding_preferredDownloadModeWPlan6Text">VPlanPlus preferres the \'Wochenplan 6\' module to download plan data.</string>
+    <string name="onboarding_preferredDownloadModeMobilText">VPlanPlus preferres the \'Indiware Mobil\' module to download the plan data.</string>
+    <string name="onboarding_crashTitle">App crashing?</string>
+    <string name="onboarding_crashText">The app crashes while trying to set up? Try to clear its cache and data in settings.</string>
+    <string name="onboarding_crashButton">Settings</string>
+    <string name="onboarding_crashToast">Click \'Storage and cache\'</string>
+    <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM Events</string>
+    <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Listen to FCM-Events prefixed with DEBUG_. This will cause much uneccessary traffic when used in production.</string>
+    <string name="notification_webAuthTitle">Login with VPlanPlus</string>
+    <string name="notification_webAuthMessage">Someone tries to log in to your vpp.ID. Tap here to verify or deny.</string>
+    <string name="webAuth_title">Verify login request</string>
+    <string name="webAuth_error">Couldn\'t verify, please try again.</string>
+    <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
 
 </resources>

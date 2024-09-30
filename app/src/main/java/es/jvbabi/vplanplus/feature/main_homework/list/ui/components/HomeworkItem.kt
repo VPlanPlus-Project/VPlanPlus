@@ -93,8 +93,10 @@ fun HomeworkCardItem(
 
     var isMarkedToDelete by remember { mutableStateOf(false) }
     var isDeleteDialogOpen by remember { mutableStateOf(false) }
+    var lockActions by remember(resetKey1, resetKey2) { mutableStateOf(false) }
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
+            if (lockActions) return@rememberSwipeToDismissBoxState false
             if (it == SwipeToDismissBoxValue.EndToStart) { // Dismissed to the left (mark as done)
                 onCheckSwiped()
             } else if (it == SwipeToDismissBoxValue.StartToEnd) { // Dismissed to the right (delete)
@@ -106,7 +108,14 @@ fun HomeworkCardItem(
         }
     )
 
-    LaunchedEffect(key1 = resetKey1, key2 = resetKey2) { dismissState.reset() }
+    LaunchedEffect(key1 = resetKey1, key2 = resetKey2, key3 = personalizedHomework) {
+        lockActions = true
+        try {
+            dismissState.reset()
+        } finally {
+            lockActions = false
+        }
+    }
 
     if (isDeleteDialogOpen) {
         YesNoDialog(

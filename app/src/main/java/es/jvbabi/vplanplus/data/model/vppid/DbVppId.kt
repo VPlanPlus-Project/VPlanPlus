@@ -1,9 +1,10 @@
-package es.jvbabi.vplanplus.data.model
+package es.jvbabi.vplanplus.data.model.vppid
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
+import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.domain.model.DbSchool
 import es.jvbabi.vplanplus.domain.model.State
 import java.time.ZonedDateTime

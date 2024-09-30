@@ -6,7 +6,7 @@ import androidx.room.ForeignKey
 import androidx.room.ForeignKey.Companion.CASCADE
 import androidx.room.Index
 import es.jvbabi.vplanplus.data.model.DbGroup
-import es.jvbabi.vplanplus.data.model.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
 import java.time.ZonedDateTime
 import java.util.UUID

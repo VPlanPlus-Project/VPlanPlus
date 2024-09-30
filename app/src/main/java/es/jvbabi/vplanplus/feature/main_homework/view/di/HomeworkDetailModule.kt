@@ -6,6 +6,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.FileRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.main_homework.list.domain.usecase.DeleteHomeworkUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.AddTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.DeleteHomeworkTaskUseCase
 import es.jvbabi.vplanplus.feature.main_homework.view.domain.usecase.EditTaskUseCase
@@ -38,6 +39,7 @@ object HomeworkDetailModule {
         editTaskUseCase = EditTaskUseCase(homeworkRepository),
         addTaskUseCase = AddTaskUseCase(homeworkRepository),
         updateHomeworkVisibilityUseCase = UpdateHomeworkVisibilityUseCase(homeworkRepository),
-        updateDocumentsUseCase = UpdateDocumentsUseCase(homeworkRepository, fileRepository)
+        updateDocumentsUseCase = UpdateDocumentsUseCase(homeworkRepository, fileRepository),
+        deleteHomeworkUseCase = DeleteHomeworkUseCase(homeworkRepository, fileRepository)
     )
 }

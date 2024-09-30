@@ -37,6 +37,7 @@ import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGrad
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
+import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
@@ -214,12 +215,12 @@ class DoSyncUseCase(
         )
 
         val createDateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy, HH:mm")
-        val lastPlanUpdate = ZonedDateTime.of(
+        val lastPlanUpdate = vPlanData.wPlanDataObject.head!!.timestampString?.let { ZonedDateTime.of(
             LocalDateTime.parse(
-                vPlanData.wPlanDataObject.head!!.timestampString!!,
+                it,
                 createDateFormatter
             ), ZoneId.of("Europe/Berlin")
-        )
+        ) } ?: planDate.atStartOfDay()
 
         val school = schoolRepository.getSchoolBySp24Id(vPlanData.sp24SchoolId)!!
 
@@ -497,14 +498,14 @@ class DoSyncUseCase(
 
     private fun buildChangedNotificationString(changedLessons: List<Lesson>): String {
         if (changedLessons.isEmpty()) return ""
-        var changedString = "\n" + context.getString(R.string.notification_changedLessons) + "\n"
+        var changedString = "\n"
         changedLessons.forEach { lesson ->
             changedString += "${lesson.lessonNumber}: ${
                 if (lesson.displaySubject == "-") "-" else
                     context.getString(
                         R.string.notification_lesson,
                         lesson.displaySubject,
-                        lesson.teachers.joinToString(", "),
+                        lesson.teachers.joinToString(", ") { it.acronym },
                         lesson.rooms.joinToString(", ") { it.name }
                     )
             } \n"

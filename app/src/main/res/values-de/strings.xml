@@ -112,7 +112,6 @@
     <string name="timetable_holidayTitle">Feiertag/Ferien</string>
     <string name="timetable_holidayText">Heute musst du nicht in die Schule. Fühle dich frei, triff Freunde oder räume dein Zimmer auf.</string>
     <string name="notification_lesson">%1$s mit %2$s in %3$s</string>
-    <string name="notification_changedLessons">Diese Stunden haben sich verändert:</string>
     <string name="notification_planChangedText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
     <string name="notification_planChangedTitle">Planänderung</string>
     <string name="home_lastSyncNever">Nie synchronisiert</string>
@@ -235,7 +234,7 @@
     <string name="home_activeDayNext">Nächste Stunde von %1$s bis %2$s</string>
     <string name="home_activeDayNextLessonTitleWith">mit</string>
     <string name="home_activeDayNextLessonTitleIn">in</string>
-    <string name="home_activeDayNextLessonCanceled">Entfällt</string>
+    <string name="home_activeDayNextLessonCanceled">%1$s entfällt</string>
     <string name="home_activeBookRoom">Raum buchen</string>
     <string name="home_activeRoomBookedBy">%1$s hat den Raum %2$s für diese Freistunde gebucht</string>
     <string name="home_activeDaySchoolInformation">Informationen deiner Schule</string>
@@ -755,5 +754,31 @@
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Kurse</string>
     <string name="settingsProfileManagementDefaultLesson_lessonsTitle">Stunden</string>
     <string name="onboarding_credentialsUnsupportedSchool">Diese Schule wird von VPlanPlus nicht unterstützt. Deine Schule muss das Modul \'Wochenplan 6\' von Stundenplan24.de unterstützen.</string>
+    <string name="profileManagement_detailsLabel">Details</string>
+    <string name="profileManagement_detailsId">ID</string>
+    <string name="profileManagement_detailsSp24Id">SP24-ID</string>
+    <string name="profileManagement_detailsUsername">Nutzer</string>
+    <string name="profileManagement_detailsPassword">Passwort</string>
+    <string name="profileManagement_detailsName">Name</string>
+    <string name="profileManagement_detailsPreferredDownloadMode">Bevorzugte Quelle</string>
+    <string name="profileManagement_detailsDaysPerWeek">Wochentage</string>
+    <string name="profileManagement_detailsCredentialsValid">Zugangsdaten gültig</string>
+    <string name="profileManagement_detailsFullyCompatible">Vollst. kompatibel</string>
+    <string name="settingsAbout_socialMediaWhatsAppTitle">WhatsApp-Kanal</string>
+    <string name="settingsAbout_socialMediaWhatsAppSubtitle">Erhalte Statusmeldungen und Infos in WhatsApp</string>
+    <string name="onboarding_preferredDownloadModeTitle">Bevorzugter Download-Modus</string>
+    <string name="onboarding_preferredDownloadModeWPlan6Text">VPlanPlus bevorzugt das Modul \'Wochenplan 6\' zum Laden der Plandaten.</string>
+    <string name="onboarding_preferredDownloadModeMobilText">VPlanPlus bevorzugt das Modul \'Indiware Mobil\' zum Laden der Plandaten.</string>
+    <string name="onboarding_crashTitle">Die App stürzt ab?</string>
+    <string name="onboarding_crashText">Falls die App beim Einrichten abstürzt, versuche, App-Daten und App-Cache in den Einstellungen zu löschen.</string>
+    <string name="onboarding_crashButton">Einstellungen</string>
+    <string name="onboarding_crashToast">Tippe auf \'Speicher und Cache\'</string>
+    <string name="notification_webAuthTitle">Mit VPlanPlus anmelden</string>
+    <string name="notification_webAuthMessage">Jemand versucht, sich in deiner vpp.ID anzumelden. Tippe, um die Anfrage zu bestätigen oder anzulehnen.</string>
+    <string name="webAuth_title">Anmeldung bestätigen</string>
+    <string name="webAuth_error">Anmeldung konnte nicht bestätigt werden, bitte erneut versuchen.</string>
+    <string name="webAuth_description">Jemand versucht sich als \'%1$s\' anzumelden. Wenn du das bist, tippe das entsprechende Emoji an. Wenn du nicht versuchst, dich anzumelden, brich bitte ab.</string>
+    <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM-Events verarbeiten</string>
+    <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Auf Debug-FCM-Events hören. Dies wird viel unnötigen Traffic in Production erzeugen.</string>
 
 </resources>
