@@ -385,7 +385,7 @@ private fun DayPager(
 
     HorizontalPager(
         state = contentPagerState,
-        beyondViewportPageCount = 3,
+        beyondViewportPageCount = 1,
         modifier = Modifier.fillMaxSize(),
         pageSize = PageSize.Fill
     ) { currentPage ->
@@ -563,7 +563,8 @@ private fun CalendarScreenPreview() {
 //                    info = "This is an information for all students!",
                     lessons = listOf(),
                     type = DayType.HOLIDAY,
-                    dataType = DataType.NO_DATA
+                    dataType = DataType.NO_DATA,
+                    version = -1
                 )
             ),
             lastSync = ZonedDateTimeConverter().timestampToZonedDateTime(0)

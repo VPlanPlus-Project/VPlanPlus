@@ -67,7 +67,8 @@ class GetDayUseCase(
                     lessons = lessons,
                     info = day?.info,
                     type = if (holidayRepository.isHoliday(profile.getSchool().id, date)) DayType.HOLIDAY else if (date.dayOfWeek.value > profile.getSchool().daysPerWeek) DayType.WEEKEND else DayType.NORMAL,
-                    dataType = dataType
+                    dataType = dataType,
+                    version = version.toLongOrNull() ?: -1L
                 )
                 emit(schoolDay)
 

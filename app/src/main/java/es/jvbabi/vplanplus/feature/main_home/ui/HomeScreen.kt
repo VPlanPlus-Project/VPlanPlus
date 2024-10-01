@@ -23,7 +23,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -79,6 +81,7 @@ import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.runComposable
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 @Composable
@@ -93,49 +96,55 @@ fun HomeScreen(
     HomeScreenContent(
         navBar = navBar,
         state = state,
-        onBookRoomClicked = { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) },
+        onBookRoomClicked = remember { { navHostController.navigate(Screen.SearchAvailableRoomScreen.route) } },
         onOpenMenu = homeViewModel::onMenuOpenedChange,
         onVersionHintsClosed = homeViewModel::hideVersionHintsDialog,
 
         onSwitchProfile = homeViewModel::switchProfile,
-        onManageProfiles = {
+        onManageProfiles = remember { {
             homeViewModel.onMenuOpenedChange(false)
             navHostController.navigate(Screen.SettingsProfileScreen.route)
-        },
-        onManageProfile = {
+        } },
+        onManageProfile = remember {{
             homeViewModel.onMenuOpenedChange(false)
             navHostController.navigate("${Screen.SettingsProfileScreen.route}/${it.id}")
+        } },
+        onOpenNews = remember {
+            {
+                homeViewModel.onMenuOpenedChange(false); navHostController.navigate(
+                Screen.NewsScreen.route
+            )
+            }
         },
-        onOpenNews = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.NewsScreen.route) },
-        onOpenSettings = {
+        onOpenSettings = remember { {
             homeViewModel.onMenuOpenedChange(false); navHostController.navigate(
             Screen.SettingsScreen.route
         )
-        },
-        onPrivacyPolicyClicked = {
+        } },
+        onPrivacyPolicyClicked = remember { {
             openLink(
                 context,
                 "${state.server.uiHost}/privacy"
             )
-        },
-        onRepositoryClicked = {
+        } },
+        onRepositoryClicked = remember {{
             openLink(
                 context,
                 "https://github.com/VPlanPlus-Project/VPlanPlus"
             )
-        },
-        onOpenSearch = { navHostController.navigate(Screen.SearchScreen.route) },
-        onRefreshClicked = {
+        }},
+        onOpenSearch = remember { { navHostController.navigate(Screen.SearchScreen.route) } },
+        onRefreshClicked = remember { {
             homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(
             context
         )
-        },
-        onFixVppIdSessionClicked = { onLogin(context, state.server) },
-        onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
+        } },
+        onFixVppIdSessionClicked = remember { { onLogin(context, state.server) } },
+        onFixVppIdLinksClicked = remember { { navHostController.navigate(Screen.SettingsVppIdScreen.route) } },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
-        onFixCredentialsClicked = { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentProfile?.getSchool()?.id}") },
-        onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) },
-        onOpenHomework = { homeworkId -> navHostController.navigate("${Screen.HomeworkDetailScreen.route}/$homeworkId") },
+        onFixCredentialsClicked = remember { { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentProfile?.getSchool()?.id}") } },
+        onSendFeedback = remember { { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) } },
+        onOpenHomework = remember { { homeworkId -> navHostController.navigate("${Screen.HomeworkDetailScreen.route}/$homeworkId") } },
     )
 }
 
@@ -197,10 +206,10 @@ fun HomeScreenContent(
             Spacer4Dp()
             Head(
                 profile = state.currentProfile,
-                currentTime = state.currentTime,
+                currentTime = ZonedDateTime.of(2022, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC")),
                 isSyncing = state.isSyncRunning,
                 showNotificationDot = state.hasUnreadNews,
-                onProfileClicked = { onOpenMenu(true) },
+                onProfileClicked = remember { { onOpenMenu(true) } },
                 onSearchClicked = onOpenSearch,
             )
             Spacer8Dp()
@@ -248,39 +257,41 @@ fun HomeScreenContent(
             val todayIsOver = state.today?.isDayOver() ?: false
             val nextDayHasData = state.nextSchoolDay != null
 
-            Box(Modifier.fillMaxSize()) {
-                if ((todayHasData && !nextDayHasData)) {
-                    TodayContent(state.today ?: return@Column)
-                } else if (todayHasData) {
-                    val pagerState = rememberPagerState(initialPage = if (todayIsOver) 1 else 0) { 2 }
-                    val scope = rememberCoroutineScope()
-                    HorizontalPager(
-                        state = pagerState,
-                        modifier = Modifier.fillMaxSize()
-                    ) { page ->
-                        when (page) {
-                            0 -> TodayContent(state.today ?: return@HorizontalPager)
-                            1 -> NextDayPreparation(
-                                nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
-                                currentProfile = state.currentProfile,
-                                onOpenHomework = onOpenHomework
-                            )
+            key(state.today?.version) {
+                Box(Modifier.fillMaxSize()) {
+                    if ((todayHasData && !nextDayHasData)) {
+                        TodayContent(state.today ?: return@Column)
+                    } else if (todayHasData) {
+                        val pagerState = rememberPagerState(initialPage = if (todayIsOver) 1 else 0) { 2 }
+                        val scope = rememberCoroutineScope()
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier.fillMaxSize()
+                        ) { page ->
+                            when (page) {
+                                0 -> TodayContent(state.today ?: return@HorizontalPager)
+                                1 -> NextDayPreparation(
+                                    nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
+                                    currentProfile = state.currentProfile,
+                                    onOpenHomework = onOpenHomework
+                                )
+                            }
                         }
+                        PagerSwitcher(
+                            modifier = Modifier
+                                .padding(bottom = 16.dp)
+                                .align(Alignment.BottomCenter),
+                            swipeProgress = pagerState.currentPage + pagerState.currentPageOffsetFraction,
+                            nextDate = state.nextSchoolDay?.date ?: LocalDate.now(),
+                            onSelectPage = { scope.launch { pagerState.animateScrollToPage(it) } }
+                        )
+                    } else if (nextDayHasData) {
+                        NextDayPreparation(
+                            nextSchoolDay = state.nextSchoolDay ?: return@Column,
+                            currentProfile = state.currentProfile,
+                            onOpenHomework = onOpenHomework
+                        )
                     }
-                    PagerSwitcher(
-                        modifier = Modifier
-                            .padding(bottom = 16.dp)
-                            .align(Alignment.BottomCenter),
-                        swipeProgress = pagerState.currentPage + pagerState.currentPageOffsetFraction,
-                        nextDate = state.nextSchoolDay?.date ?: LocalDate.now(),
-                        onSelectPage = { scope.launch { pagerState.animateScrollToPage(it) } }
-                    )
-                } else if (nextDayHasData) {
-                    NextDayPreparation(
-                        nextSchoolDay = state.nextSchoolDay ?: return@Column,
-                        currentProfile = state.currentProfile,
-                        onOpenHomework = onOpenHomework
-                    )
                 }
             }
         }

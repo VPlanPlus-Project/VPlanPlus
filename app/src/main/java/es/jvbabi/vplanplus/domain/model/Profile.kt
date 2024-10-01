@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.domain.model
 
+import androidx.compose.runtime.Immutable
 import java.util.UUID
 
+@Immutable
 sealed class Profile(
     val id: UUID,
     val originalName: String,
