@@ -372,7 +372,7 @@ abstract class VppDatabase : RoomDatabase() {
 
         val migration_42_43 = object : Migration(42, 43) {
             override fun migrate(db: SupportSQLiteDatabase) {
-                db.execSQL("DROP TABLE week;")
+                db.execSQL("DROP TABLE IF EXISTS week")
                 db.execSQL("CREATE TABLE week (" +
                         "school_id INTEGER NOT NULL, " +
                         "week_number INTEGER NOT NULL, " +

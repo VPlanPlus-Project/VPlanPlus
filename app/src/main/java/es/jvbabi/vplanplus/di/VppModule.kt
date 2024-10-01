@@ -156,7 +156,6 @@ object VppModule {
             .addTypeConverter(GradeModifierConverter())
             .addTypeConverter(ZonedDateTimeConverter())
             .addTypeConverter(SchoolDownloadTypeConverter())
-            .allowMainThreadQueries()
             .fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .enableMultiInstanceInvalidation()

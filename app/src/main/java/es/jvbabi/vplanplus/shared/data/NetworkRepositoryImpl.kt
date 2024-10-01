@@ -28,6 +28,7 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.http.parameters
 import io.ktor.util.toByteArray
 import io.ktor.utils.io.ByteReadChannel
+import kotlinx.coroutines.runBlocking
 import java.net.ConnectException
 import java.net.UnknownHostException
 
@@ -290,7 +291,7 @@ class NewsNetworkRepository(
     logRepository: LogRecordRepository?,
     keyValueRepository: KeyValueRepository
 ) : NetworkRepositoryImpl(
-    server = keyValueRepository.getOnMainThread(Keys.VPPID_SERVER) ?: servers.first().apiHost,
+    server = runBlocking { keyValueRepository.get(Keys.VPPID_SERVER) ?: servers.first().apiHost },
     userAgent = userAgent,
     logRepository = logRepository
 )
@@ -309,7 +310,7 @@ class VppIdNetworkRepository(
     logRepository: LogRecordRepository?,
     keyValueRepository: KeyValueRepository
 ) : NetworkRepositoryImpl(
-    server = keyValueRepository.getOnMainThread(Keys.VPPID_SERVER) ?: servers.first().apiHost,
+    server = runBlocking { keyValueRepository.get(Keys.VPPID_SERVER) ?: servers.first().apiHost },
     userAgent = userAgent,
     logRepository = logRepository
 )

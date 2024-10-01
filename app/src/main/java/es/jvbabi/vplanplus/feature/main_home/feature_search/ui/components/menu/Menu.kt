@@ -117,6 +117,7 @@ fun Menu(
                                 profileSwitcher(Modifier.fillMaxWidth())
                                 links(Modifier.fillMaxWidth())
                             }
+                            Spacer8Dp()
                             buttons(Modifier.weight(1f, true))
                         }
                     } else {

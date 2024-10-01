@@ -10,8 +10,6 @@ interface KeyValueRepository {
     suspend fun delete(key: String)
     fun getFlow(key: String): Flow<String?>
     fun getFlowOrDefault(key: String, defaultValue: String): Flow<String>
-
-    fun getOnMainThread(key: String): String?
 }
 
 object Keys {

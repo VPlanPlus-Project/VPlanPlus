@@ -27,7 +27,7 @@ class TimetableRepositoryImpl(
     private val lessonTimeDao: LessonTimeDao,
     private val groupDao: GroupDao
 ) : TimetableRepository {
-    override fun insertTimetableLesson(
+    override suspend fun insertTimetableLesson(
         group: Group,
         dayOfWeek: DayOfWeek,
         week: Week,
@@ -52,7 +52,7 @@ class TimetableRepositoryImpl(
         teachers.forEach { timetableDao.upsertLessonTeacherCrossover(id, it.teacherId) }
     }
 
-    override fun insertTimetableLesson(newTimetableLesson: NewTimetableLesson) {
+    override suspend fun insertTimetableLesson(newTimetableLesson: NewTimetableLesson) {
         val id = UUID.randomUUID()
         timetableDao.upsertTimetable(
             DbTimetable(
@@ -69,7 +69,7 @@ class TimetableRepositoryImpl(
         newTimetableLesson.teachers.forEach { timetableDao.upsertLessonTeacherCrossover(id, it.teacherId) }
     }
 
-    override fun insertTimetableLessons(newTimetableLessons: List<NewTimetableLesson>) {
+    override suspend fun insertTimetableLessons(newTimetableLessons: List<NewTimetableLesson>) {
         val lessonRoomCrossovers = mutableListOf<TimetableRoomCrossover>()
         val lessonTeacherCrossovers = mutableListOf<TimetableTeacherCrossover>()
         val lessons = newTimetableLessons.map {
@@ -94,11 +94,11 @@ class TimetableRepositoryImpl(
 
     }
 
-    override fun deleteFromTimetableById(ids: List<UUID>) {
+    override suspend fun deleteFromTimetableById(ids: List<UUID>) {
         timetableDao.deleteFromTimetableById(ids)
     }
 
-    override fun clearTimetableForSchool(school: School) {
+    override suspend fun clearTimetableForSchool(school: School) {
         timetableDao.clearTimetableForSchool(school.id)
     }
 
