@@ -341,6 +341,11 @@ abstract class VppDatabase : RoomDatabase() {
         val migration_38_39 = object : Migration(38, 39) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE school ADD COLUMN can_use_timetable INTEGER DEFAULT NULL")
+                db.execSQL("DELETE TABLE IF EXISTS `week`")
+                db.execSQL("DELETE TABLE IF EXISTS `week_type`")
+                db.execSQL("DELETE TABLE IF EXISTS `timetable`")
+                db.execSQL("DELETE TABLE IF EXISTS `timetable_room_crossover`")
+                db.execSQL("DELETE TABLE IF EXISTS `timetable_teacher_crossover`")
                 db.execSQL("CREATE TABLE `week` (`school_id` INTEGER NOT NULL, `week_number` INTEGER NOT NULL, `week_type_id` INTEGER NOT NULL, `start_date` INTEGER NOT NULL, `end_date` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
                 db.execSQL("CREATE TABLE `week_type` (`name` TEXT NOT NULL, `school_id` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`school_id`) REFERENCES `school`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
                 db.execSQL("CREATE TABLE `timetable` (`id` TEXT NOT NULL, `class_id` INTEGER NOT NULL, `day_of_week` INTEGER NOT NULL, `week_id` INTEGER, `week_type_id` INTEGER, `lesson_number` INTEGER NOT NULL, `subject` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`class_id`) REFERENCES `group`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`week_id`) REFERENCES `week`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`week_type_id`) REFERENCES `week_type`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
