@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase.onboardingSetupKeys
 import kotlinx.coroutines.flow.first
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.SerialName
@@ -28,7 +29,7 @@ class CheckCredentialsAndInitOnboardingForSchoolUseCase(
 ) {
     suspend operator fun invoke(sp24SchoolId: Int, username: String, password: String): OnboardingInit? {
         val school = schoolRepository.getSchoolBySp24Id(sp24SchoolId)
-
+        onboardingSetupKeys.forEach { keyValueRepository.delete(it) }
 
         val baseDataResponse = baseDataRepository.getBaseData(sp24SchoolId, username, password)
         when (baseDataResponse) {
