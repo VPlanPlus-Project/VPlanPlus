@@ -10,8 +10,6 @@ interface KeyValueRepository {
     suspend fun delete(key: String)
     fun getFlow(key: String): Flow<String?>
     fun getFlowOrDefault(key: String, defaultValue: String): Flow<String>
-
-    fun getOnMainThread(key: String): String?
 }
 
 object Keys {
@@ -71,4 +69,6 @@ object Keys {
     const val MISSING_VPP_ID_TO_PROFILE_CONNECTION = "MISSING_VPP_ID_TO_PROFILE_CONNECTION"
 
     const val LAST_KNOWN_APP_VERSION = "LAST_KNOWN_APP_VERSION"
+
+    const val SHOW_TIMETABLE_INFO_BANNER = "SHOW_TIMETABLE_INFO_BANNER"
 }

@@ -37,6 +37,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
@@ -70,7 +71,11 @@ fun InfoCard(
                 tint = textColor
             )
             Column(modifier = Modifier.padding(start = 16.dp)) {
-                Text(text = title, style = MaterialTheme.typography.titleMedium, color = textColor)
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = textColor
+                )
                 Text(text = text, color = textColor)
             }
         }

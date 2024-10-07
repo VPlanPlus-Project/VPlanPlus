@@ -112,8 +112,8 @@
     <string name="notification_lesson">%1$s with %2$s in %3$s</string>
     <string name="notification_planChangedText">There is a change in plan for %1$s at %2$s for %3$s</string>
     <string name="notification_planChangedTitle">Change of plan</string>
-    <string name="home_lastSyncNever">Never synced</string>
-    <string name="home_lastSync">Last sync: %1$s</string>
+    <string name="calendar_lastSyncNever">Never synced</string>
+    <string name="calendar_lastSync">Last sync: %1$s</string>
     <string name="day_after_tomorrow">;DATE</string>
     <string name="day_before_yesterday">;DATE</string>
     <string name="lesson_cancelFindRoom">Find an available room</string>
@@ -179,7 +179,7 @@
     <string name="onboarding_setupDoneText">VPlanPlus is set up.</string>
     <string name="onboarding_setupDoneLetsGo">Let\'s go!</string>
     <string name="advancedSettings_clearCacheTitle">Delete app cache</string>
-    <string name="advancedSettings_clearCacheDialogText">This deletes the data that originates from the Internet. This data can then be downloaded again. If incorrect data is displayed, deleting the app cache can help.<br />\nThis will be removed from the device:<br />\n- Timetable data<br />\n- Room bookings<br />\n- Grades<br />\n- Cloud homework<br /></string>
+    <string name="advancedSettings_clearCacheDialogText">This deletes the data that originates from the Internet. This data can then be downloaded again. If incorrect data is displayed, deleting the app cache can help.<br />\nThis will be removed from the device:<br />\n- Timetable data<br />\n- Room bookings<br />\n- Grades<br />\n- Cloud homework<br />\n- Timetable<br />\n-Holidays</string>
     <string name="advancedSettings_clearCacheText">This can help if the cache is corrupted.</string>
     <string name="settings_profileDeleteSchool">Delete</string>
     <string name="settings_profileShareSchool">Share</string>
@@ -246,7 +246,7 @@
     <string name="home_activeDayWeekendTitle">Weekend</string>
     <string name="home_activeDayWeekendSubtitle">It\'s weekend 🎉</string>
     <string name="home_activeDayBooking">(booked)</string>
-    <string name="home_activeBookedBy">Booked by %1$s for class %2$s</string>
+    <string name="home_activeBookedBy">Room booked by %1$s</string>
     <string name="searchAvailableRoom_bookingDetailCancel">Cancel booking</string>
     <string name="searchAvailableRoom_cancelSuccess">The room booking was canceled successfully</string>
     <string name="searchAvailableRoom_cancelNotFound">This booking wasn\'t found. It might be canceled already.</string>
@@ -486,7 +486,7 @@
         <item quantity="one">One homework</item>
         <item quantity="other">%1$d homework</item>
     </plurals>
-    <string name="home_planToday">Plan for today (%1$s)</string>
+    <string name="home_planToday">Plan for today</string>
     <string name="search_nothingFound">Nothing found</string>
     <string name="search_nothingFoundText">We tried our best, but \'%1$s\' wasn\'t found anywhere.</string>
     <string name="search_lessons">%1$s lessons</string>
@@ -783,5 +783,31 @@
     <string name="webAuth_title">Verify login request</string>
     <string name="webAuth_error">Couldn\'t verify, please try again.</string>
     <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
-
+    <string name="homework_detailViewDocumentOnline">Online</string>
+    <string name="main_calendar">Calendar</string>
+    <string name="calendar_title">Calendar</string>
+    <string name="calendar_infoTitle">Important information</string>
+    <string name="calendar_dayFilterLessons">Lessons</string>
+    <string name="calendar_dayFilterGrades">Grades</string>
+    <string name="calendar_dayFilterHomework">Homework</string>
+    <string name="calendar_dayLessonNumber">%1$s ln.</string>
+    <string name="profileManagement_detailsCanUseTimetable">Timetable</string>
+    <string name="calendar_timetableBannerTitle">No substitution plan</string>
+    <string name="calendar_timetableBannerText">For this date, no substitution plan is available. VPlanPlus loads the default timetable from different sources depending on your schools setup. However, this cannot apply your lesson filter, since the data does not contain the required information. This is a Stundenplan24.de-problem.</string>
+    <string name="learn_more">Lean more</string>
+    <string name="calendar_substitutionPlan">Substitution plan</string>
+    <string name="calendar_timetable">Timetable</string>
+    <string name="calendar_dayTypeWeekend">Weekend</string>
+    <string name="calendar_dayTypeHoliday">Holiday</string>
+    <string name="calendar_dayTypeNextDay">To %1$s</string>
+    <string name="unknown">unknown</string>
+    <string name="home_subjects">Subjects</string>
+    <string name="home_nextDayTitleWithDate">Preparation for %1$s</string>
+    <string name="home_homeworkTitle">Homework</string>
+    <string name="home_subejctsHomework">%1$d/%2$d homework done</string>
+    <string name="home_todayCurrentLessonNow">Now</string>
+    <string name="home_todayCurrentLessonNext">Next</string>
+    <string name="home_lessonNumber">%1$s lesson</string>
+    <string name="home_furtherLessons">Further lessons</string>
+    <string name="home_remainingLessons">%1$d remaining lessons</string>
 </resources>

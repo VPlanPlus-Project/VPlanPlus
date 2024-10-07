@@ -41,7 +41,8 @@ val onboardingSetupKeys = listOf(
     "onboarding.profile_type",
     "onboarding.profile",
     "onboarding.profile_default_lessons",
-    "onboarding.download_mode"
+    "onboarding.download_mode",
+    "onboarding.can_use_timetable"
 )
 
 class SetupUseCase(
@@ -81,6 +82,7 @@ class SetupUseCase(
             val holidays = Json.decodeFromString<List<Holiday>>(keyValueRepository.get("onboarding.holidays")!!)
             val defaultLessons = Json.decodeFromString<List<OnboardingDefaultLesson>>(keyValueRepository.get("onboarding.default_lessons")!!)
             val downloadMode = SchoolDownloadMode.valueOf(keyValueRepository.get("onboarding.download_mode")!!)
+            val canUseTimetable = keyValueRepository.get("onboarding.can_use_timetable")!!.toBoolean()
             schoolRepository.createSchool(
                 schoolId = schoolId,
                 sp24SchoolId = sp24SchoolId,
@@ -89,7 +91,8 @@ class SetupUseCase(
                 password = password,
                 daysPerWeek = daysPerWeek,
                 fullyCompatible = fullyCompatible,
-                schoolDownloadMode = downloadMode
+                schoolDownloadMode = downloadMode,
+                canUseTimetable = canUseTimetable
             )
             school = schoolRepository.getSchoolFromId(schoolId)!!
             Log.d("SetupUseCase", "School created: $school")

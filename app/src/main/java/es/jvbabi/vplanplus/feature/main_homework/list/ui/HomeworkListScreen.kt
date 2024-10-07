@@ -264,6 +264,7 @@ private fun HomeworkListContent(
                                 HomeworkCardItem(
                                     personalizedHomework = homeworkProfile,
                                     isVisible = isVisible,
+                                    isSwipingEnabled = true,
                                     onClick = { onOpenHomework(homeworkProfile.homework) },
                                     onCheckSwiped = { onEvent(HomeworkListEvent.ToggleHomeworkDone(homeworkProfile)) },
                                     onVisibilityOrDeleteSwiped = { onEvent(HomeworkListEvent.DeleteOrHide(homeworkProfile)) },

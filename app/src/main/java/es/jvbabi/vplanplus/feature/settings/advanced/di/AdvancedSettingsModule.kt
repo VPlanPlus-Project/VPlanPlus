@@ -4,10 +4,12 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
+import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
@@ -35,16 +37,19 @@ object AdvancedSettingsModule {
         homeworkRepository: HomeworkRepository,
         keyValueRepository: KeyValueRepository,
         systemRepository: SystemRepository,
-        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
-        ,
+        timetableRepository: TimetableRepository,
+        holidayRepository: HolidayRepository,
+        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
         homeworkReminderUseCase: HomeworkReminderUseCase
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deleteCacheUseCase = DeleteCacheUseCase(
-                lessonRepository,
-                roomRepository,
-                gradeRepository,
-                homeworkRepository
+                lessonRepository = lessonRepository,
+                roomRepository = roomRepository,
+                gradeRepository = gradeRepository,
+                homeworkRepository = homeworkRepository,
+                timetableRepository = timetableRepository,
+                holidayRepository = holidayRepository
             ),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository),

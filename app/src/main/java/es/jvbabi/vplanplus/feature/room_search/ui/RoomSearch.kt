@@ -361,7 +361,7 @@ private fun RoomSearchContent(
                                     size = Size(width, rowHeight)
                                 )
 
-                                val classText = buildAnnotatedString { append(lesson.`class`.name) }
+                                val classText = buildAnnotatedString { append(lesson.group.name) }
                                 val measuredClass = textMeasurer.measure(
                                     classText,
                                     style = typography.bodyMedium,

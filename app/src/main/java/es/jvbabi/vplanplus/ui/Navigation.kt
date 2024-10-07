@@ -16,6 +16,7 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.CalendarScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.GradesScreen
@@ -57,7 +58,6 @@ import es.jvbabi.vplanplus.ui.common.Transition.slideInFromBottom
 import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
-import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -67,6 +67,7 @@ fun NavigationGraph(
     navController: NavHostController,
     goToOnboarding: Boolean,
     navBar: @Composable (expanded: Boolean) -> Unit,
+    navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit,
     onNavigationChanged: (String?) -> Unit
 ) {
     NavHost(
@@ -79,7 +80,7 @@ fun NavigationGraph(
 
         deepLinks(navController)
         onboarding(navController)
-        mainScreens(navController, navBar)
+        mainScreens(navController, navBar, navRail)
         newsScreens(navController)
         settingsScreens(navController)
         gradesScreens(navController)
@@ -224,29 +225,9 @@ private fun NavGraphBuilder.onboarding(
 
 private fun NavGraphBuilder.mainScreens(
     navController: NavHostController,
-    navBar: @Composable (expanded: Boolean) -> Unit
+    navBar: @Composable (expanded: Boolean) -> Unit,
+    navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit
 ) {
-    composable(
-        route = Screen.HomeScreen.route + "/{startDate}",
-        enterTransition = { fadeIn(tween(300)) },
-        exitTransition = { fadeOut(tween(300)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = { fadeOut(tween(300)) },
-        arguments = listOf(
-            navArgument("startDate") {
-                type = NavType.StringType
-                nullable = true
-                defaultValue = null
-            }
-        )
-    ) {
-        HomeScreen(
-            navHostController = navController,
-            navBar = navBar,
-            startDate = LocalDate.parse(it.arguments?.getString("startDate") ?: LocalDate.now().toString())
-        )
-    }
-
     composable(
         route = Screen.HomeScreen.route,
         enterTransition = { fadeIn(tween(300)) },
@@ -256,8 +237,7 @@ private fun NavGraphBuilder.mainScreens(
     ) {
         HomeScreen(
             navHostController = navController,
-            navBar = navBar,
-            startDate = LocalDate.now()
+            navBar = navBar
         )
     }
 
@@ -269,6 +249,16 @@ private fun NavGraphBuilder.mainScreens(
         popExitTransition = slideOutFromBottom
     ) {
         SearchView(navHostController = navController)
+    }
+
+    composable(
+        route = Screen.CalendarScreen.route,
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        CalendarScreen(navHostController = navController, navBar = navBar, navRail = navRail)
     }
 
     composable(

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class RoomDao {
     @Insert
-    abstract fun insertRoom(room: DbRoom)
+    abstract suspend fun insertRoom(room: DbRoom)
 
     @Query("SELECT * FROM room WHERE id = :roomId")
     @Transaction

@@ -30,9 +30,7 @@
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.VPlanPlus.Splash"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity">
+            android:theme="@style/Theme.VPlanPlus.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -19,15 +19,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -37,7 +41,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.zIndex
 import androidx.core.animation.doOnEnd
-import androidx.core.content.IntentSanitizer
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -188,9 +191,11 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             while (!initDone) delay(50)
             setContent {
-                isAppInDarkMode.value =
-                    appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
+                isAppInDarkMode.value = appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
                 VPlanPlusTheme(cs = colorScheme.value, darkTheme = isAppInDarkMode.value) {
+                    LaunchedEffect(key1 = Unit) {
+                        enableEdgeToEdge()
+                    }
                     navController = rememberNavController()
 
                     var selectedIndex by rememberSaveable {
@@ -212,15 +217,23 @@ class MainActivity : FragmentActivity() {
                             label = { Text(text = stringResource(id = R.string.main_home)) },
                             route = Screen.HomeScreen.route
                         ),
-                        if (currentProfile is ClassProfile) NavigationBarItem(
+                        NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 1) return@NavigationBarItem
                                 selectedIndex = 1
-                                navController!!.navigate(Screen.HomeworkScreen.route) {
-                                    popUpTo(
-                                        Screen.HomeScreen.route
-                                    )
-                                }
+                                navController!!.navigate(Screen.CalendarScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                            },
+                            icon = {
+                                Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null)
+                            },
+                            label = { Text(text = stringResource(id = R.string.main_calendar)) },
+                            route = Screen.CalendarScreen.route
+                        ),
+                        if (currentProfile is ClassProfile) NavigationBarItem(
+                            onClick = {
+                                if (selectedIndex == 2) return@NavigationBarItem
+                                selectedIndex = 2
+                                navController!!.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
                                 Icon(
@@ -233,8 +246,8 @@ class MainActivity : FragmentActivity() {
                         ) else null,
                         if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
-                                if (selectedIndex == 2) return@NavigationBarItem
-                                selectedIndex = 2
+                                if (selectedIndex == 3) return@NavigationBarItem
+                                selectedIndex = 3
                                 navController!!.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
@@ -254,18 +267,17 @@ class MainActivity : FragmentActivity() {
                             enter = expandVertically(tween(250)),
                             exit = shrinkVertically(tween(250))
                         ) {
-                            NavigationBar(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            ) {
-                                navBarItems.forEachIndexed { index, item ->
-                                    NavigationBarItem(
-                                        selected = index == selectedIndex,
-                                        onClick = item.onClick,
-                                        icon = item.icon,
-                                        label = item.label
-                                    )
-                                }
-                            }
+                            navBarItems.BottomBar(selectedIndex)
+                        }
+                    }
+
+                    val navRail = @Composable { expanded: Boolean, fab: @Composable () -> Unit ->
+                        AnimatedVisibility(
+                            visible = expanded,
+                            enter = expandVertically(tween(250)),
+                            exit = shrinkVertically(tween(250))
+                        ) {
+                            navBarItems.RailBar(selectedIndex, fab)
                         }
                     }
 
@@ -280,6 +292,7 @@ class MainActivity : FragmentActivity() {
                                 navController = navController!!,
                                 goToOnboarding = goToOnboarding!!,
                                 navBar = navBar,
+                                navRail = navRail,
                                 onNavigationChanged = { route ->
                                     val item =
                                         navBarItems.firstOrNull { route?.startsWith(it.route) == true }
@@ -367,29 +380,41 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        this.finish()
-        val sanitized = IntentSanitizer.Builder()
-            .allowExtra("profileId", String::class.java)
-            .allowExtra("dateStr", String::class.java)
-            .allowExtra("screen", String::class.java)
-            .allowData { true }
-            .allowFlags(0x10000000)
-            .allowAnyComponent()
-            .allowPackage { true }
-            .allowAction(Intent.ACTION_VIEW)
-            .allowCategory(Intent.CATEGORY_BROWSABLE)
-            .build()
-            .sanitizeByFiltering(intent)
-        startActivity(sanitized)
-        processIntent(intent)
-    }
-
     private fun doInit(calledBySplashScreen: Boolean) {
         if (!calledBySplashScreen) setTheme(R.style.Theme_VPlanPlus)
         enableEdgeToEdge()
+    }
+}
+
+@Composable
+fun List<NavigationBarItem>.BottomBar(selectedIndex: Int) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
+    ) {
+        forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = index == selectedIndex,
+                onClick = item.onClick,
+                icon = item.icon,
+                label = item.label
+            )
+        }
+    }
+}
+
+@Composable
+fun List<NavigationBarItem>.RailBar(selectedIndex: Int, fab: @Composable () -> Unit) {
+    NavigationRail(
+        header = { fab() }
+    ) {
+        forEachIndexed { index, item ->
+            NavigationRailItem(
+                selected = index == selectedIndex,
+                onClick = item.onClick,
+                icon = item.icon,
+                label = item.label
+            )
+        }
     }
 }
 

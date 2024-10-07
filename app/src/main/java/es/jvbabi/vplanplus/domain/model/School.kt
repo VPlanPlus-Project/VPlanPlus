@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.domain.model
 
+import androidx.compose.runtime.Immutable
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 
+@Immutable
 data class School(
      val id: Int,
     val sp24SchoolId: Int,
@@ -11,7 +13,8 @@ data class School(
     val daysPerWeek: Int,
     val fullyCompatible: Boolean,
     val credentialsValid: Boolean? = null,
-    val schoolDownloadMode: SchoolDownloadMode
+    val schoolDownloadMode: SchoolDownloadMode,
+    val canUseTimetable: Boolean?
 ) {
     override fun hashCode(): Int {
         var result = id.hashCode()

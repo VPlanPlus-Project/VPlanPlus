@@ -114,8 +114,8 @@
     <string name="notification_lesson">%1$s mit %2$s in %3$s</string>
     <string name="notification_planChangedText">Es gibt eine Planänderung für %1$s bei %2$s (%3$s)</string>
     <string name="notification_planChangedTitle">Planänderung</string>
-    <string name="home_lastSyncNever">Nie synchronisiert</string>
-    <string name="home_lastSync">Zuletzt synchronisiert: %1$s</string>
+    <string name="calendar_lastSyncNever">Nie synchronisiert</string>
+    <string name="calendar_lastSync">Zuletzt synchronisiert: %1$s</string>
     <string name="day_after_tomorrow">Übermorgen</string>
     <string name="day_before_yesterday">Vorgestern</string>
     <string name="lesson_cancelFindRoom">Leeren Raum suchen</string>
@@ -181,7 +181,7 @@
     <string name="onboarding_setupDoneText">VPlanPlus ist fertig eingerichtet.</string>
     <string name="onboarding_setupDoneLetsGo">Auf geht\'s!</string>
     <string name="advancedSettings_clearCacheTitle">App-Cache löschen</string>
-    <string name="advancedSettings_clearCacheDialogText">Dies löscht die Daten, welche aus dem Internet stammen. Diese Daten können anschließend erneut heruntergeladen werden. Falls falsche Daten angezeigt werden, kann das Löschen des App-Caches helfen.<br />\nKonkret werden folgende Daten von diesem Gerät entfernt:<br />\n- Stundenplandaten<br />\n- Raumbuchen<br />\n- Noten<br />\n- Cloud-Hausaufgaben</string>
+    <string name="advancedSettings_clearCacheDialogText">Dies löscht die Daten, welche aus dem Internet stammen. Diese Daten können anschließend erneut heruntergeladen werden. Falls falsche Daten angezeigt werden, kann das Löschen des App-Caches helfen.<br />\nKonkret werden folgende Daten von diesem Gerät entfernt:<br />\n- Stundenplandaten<br />\n- Raumbuchen<br />\n- Noten<br />\n- Cloud-Hausaufgaben<br />\n- Stundenplan<br />\n- Ferien</string>
     <string name="advancedSettings_clearCacheText">Dies kann helfen, wenn der Cache beschädigt ist.</string>
     <string name="settings_profileDeleteSchool">Löschen</string>
     <string name="settings_profileShareSchool">Teilen</string>
@@ -248,7 +248,7 @@
     <string name="home_activeDayWeekendTitle">Wochenende</string>
     <string name="home_activeDayWeekendSubtitle">Es ist Wochenende 🎉 Gönne dir etwas Entspannung von den letzten Tagen.</string>
     <string name="home_activeDayBooking">(gebucht)</string>
-    <string name="home_activeBookedBy">Gebucht von %1$s für Klasse %2$s</string>
+    <string name="home_activeBookedBy">Raum von %1$s gebucht</string>
     <string name="searchAvailableRoom_bookingDetailCancel">Buchung zurücknehmen</string>
     <string name="searchAvailableRoom_cancelSuccess">Deine Raumbuchung wurde erfolgreich zurückgenommen</string>
     <string name="searchAvailableRoom_cancelNotFound">Deine Buchung konnte nicht mehr aufgefunden werden, Möglicherweise ist sie bereits storniert.</string>
@@ -485,7 +485,7 @@
         <item quantity="one">Eine Hausaufgabe</item>
         <item quantity="other">%1$d Hausaufgaben</item>
     </plurals>
-    <string name="home_planToday">Plan für heute (%1$s)</string>
+    <string name="home_planToday">Plan für heute</string>
     <string name="search_nothingFound">Nichts gefunden</string>
     <string name="search_nothingFoundText">Wir haben unser bestes gegeben, aber \'%1$s\' konnten wir nicht finden.</string>
     <string name="search_lessons">%1$s Stunden</string>
@@ -780,5 +780,31 @@
     <string name="webAuth_description">Jemand versucht sich als \'%1$s\' anzumelden. Wenn du das bist, tippe das entsprechende Emoji an. Wenn du nicht versuchst, dich anzumelden, brich bitte ab.</string>
     <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM-Events verarbeiten</string>
     <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Auf Debug-FCM-Events hören. Dies wird viel unnötigen Traffic in Production erzeugen.</string>
-
+    <string name="homework_detailViewDocumentOnline">Online</string>
+    <string name="main_calendar">Kalender</string>
+    <string name="calendar_title">Kalender</string>
+    <string name="calendar_infoTitle">Aktuelle Informationen</string>
+    <string name="calendar_dayFilterLessons">Stunden</string>
+    <string name="calendar_dayFilterGrades">Noten</string>
+    <string name="calendar_dayFilterHomework">Hausaufgaben</string>
+    <string name="calendar_dayLessonNumber">%1$s Std</string>
+    <string name="profileManagement_detailsCanUseTimetable">Stundenplan</string>
+    <string name="calendar_timetableBannerTitle">Kein Vertretungsplan</string>
+    <string name="calendar_timetableBannerText">Für dieses Datum ist kein Vertretungsplan verfügbar. VPlanPlus lädt den Stundenplan abhängig von deiner Schule. Jedoch kann der Stundenfilter hier nicht greifen, da die Stundenplandaten diese Informationen nicht mitliefern. Dies ist ein Stundenplan24.de-Problem.</string>
+    <string name="learn_more">Mehr dazu</string>
+    <string name="calendar_substitutionPlan">Vertretungsplan</string>
+    <string name="calendar_timetable">Stundenplan</string>
+    <string name="calendar_dayTypeWeekend">Wochenende</string>
+    <string name="calendar_dayTypeHoliday">Ferien/Feiertag</string>
+    <string name="calendar_dayTypeNextDay">Zu %1$s</string>
+    <string name="unknown">Unbekannt</string>
+    <string name="home_subjects">Fächer</string>
+    <string name="home_nextDayTitleWithDate">Vorbereitung für %1$s</string>
+    <string name="home_homeworkTitle">Hausaufgaben</string>
+    <string name="home_subejctsHomework">%1$d/%2$d HAs erledigt</string>
+    <string name="home_todayCurrentLessonNow">Aktuell</string>
+    <string name="home_todayCurrentLessonNext">Als nächstes</string>
+    <string name="home_lessonNumber">%1$s Stunde</string>
+    <string name="home_furtherLessons">Weitere Stunden</string>
+    <string name="home_remainingLessons">%1$d Stunden verbleibend</string>
 </resources>

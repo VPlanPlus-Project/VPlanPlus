@@ -40,6 +40,10 @@ object DateUtils {
         return ZonedDateTime.of(1970, 1, 1, this.hour, this.minute, this.second, this.nano, this.zone)
     }
 
+    fun epoch(): ZonedDateTime {
+        return ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))
+    }
+
     fun localizedRelativeDate(context: Context, localDate: LocalDate, fallbackToDefaultFormatting: Boolean = true): String? {
         val result = when (localDate) {
             LocalDate.now() -> {
@@ -170,6 +174,14 @@ object DateUtils {
         return this.withHour(0).withMinute(0).withSecond(0).withNano(0)
     }
 
+    fun LocalDate.atStartOfWeek(): LocalDate {
+        return this.withDayOfWeek(1)
+    }
+
+    fun LocalDate.atStartOfMonth(): LocalDate {
+        return minusDays(dayOfMonth.toLong() - 1)
+    }
+
     fun ZonedDateTime.isAfterOrEqual(other: ZonedDateTime): Boolean {
         return this.isAfter(other) || this.isEqual(other)
     }
@@ -191,8 +203,10 @@ data class TimeSpan(
 
 @Composable
 fun LocalDate.formatDayDuration(compareTo: LocalDate): String {
-    return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false) ?: run {
-        if (compareTo.isAfter(this)) return stringResource(id = R.string.home_inNDays, this.until(compareTo, ChronoUnit.DAYS))
-        else return stringResource(id = R.string.home_NdaysAgo, compareTo.until(this, ChronoUnit.DAYS))
+    val date = this
+    return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false).let { relativeDate ->
+        if (relativeDate != ";DATE" && relativeDate != null) return@let relativeDate
+        if (compareTo.isAfter(date)) return@let stringResource(id = R.string.home_inNDays, date.until(compareTo, ChronoUnit.DAYS))
+        else return@let stringResource(id = R.string.home_NdaysAgo, compareTo.until(date, ChronoUnit.DAYS))
     }
 }
