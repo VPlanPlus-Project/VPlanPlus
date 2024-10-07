@@ -39,4 +39,8 @@ class HolidayRepositoryImpl(
         else if (date.dayOfWeek.value > school.daysPerWeek) DayType.WEEKEND
         else DayType.NORMAL
     }
+
+    override suspend fun deleteAll() {
+        holidayDao.deleteAll()
+    }
 }

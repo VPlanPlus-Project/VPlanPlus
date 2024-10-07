@@ -181,7 +181,7 @@
     <string name="onboarding_setupDoneText">VPlanPlus ist fertig eingerichtet.</string>
     <string name="onboarding_setupDoneLetsGo">Auf geht\'s!</string>
     <string name="advancedSettings_clearCacheTitle">App-Cache löschen</string>
-    <string name="advancedSettings_clearCacheDialogText">Dies löscht die Daten, welche aus dem Internet stammen. Diese Daten können anschließend erneut heruntergeladen werden. Falls falsche Daten angezeigt werden, kann das Löschen des App-Caches helfen.<br />\nKonkret werden folgende Daten von diesem Gerät entfernt:<br />\n- Stundenplandaten<br />\n- Raumbuchen<br />\n- Noten<br />\n- Cloud-Hausaufgaben<br />\n- Stundenplan</string>
+    <string name="advancedSettings_clearCacheDialogText">Dies löscht die Daten, welche aus dem Internet stammen. Diese Daten können anschließend erneut heruntergeladen werden. Falls falsche Daten angezeigt werden, kann das Löschen des App-Caches helfen.<br />\nKonkret werden folgende Daten von diesem Gerät entfernt:<br />\n- Stundenplandaten<br />\n- Raumbuchen<br />\n- Noten<br />\n- Cloud-Hausaufgaben<br />\n- Stundenplan<br />\n- Ferien</string>
     <string name="advancedSettings_clearCacheText">Dies kann helfen, wenn der Cache beschädigt ist.</string>
     <string name="settings_profileDeleteSchool">Löschen</string>
     <string name="settings_profileShareSchool">Teilen</string>

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase
 
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
@@ -11,7 +12,8 @@ class DeleteCacheUseCase(
     private val roomRepository: RoomRepository,
     private val gradeRepository: GradeRepository,
     private val homeworkRepository: HomeworkRepository,
-    private val timetableRepository: TimetableRepository
+    private val timetableRepository: TimetableRepository,
+    private val holidayRepository: HolidayRepository
 ) {
     suspend operator fun invoke() {
         lessonRepository.deleteAllLessons()
@@ -19,5 +21,6 @@ class DeleteCacheUseCase(
         gradeRepository.dropAll()
         homeworkRepository.clearCache()
         timetableRepository.clearCache()
+        holidayRepository.deleteAll()
     }
 }

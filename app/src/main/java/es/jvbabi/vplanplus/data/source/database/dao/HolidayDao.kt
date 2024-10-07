@@ -24,4 +24,7 @@ abstract class HolidayDao {
 
     @Delete
     abstract suspend fun deleteHoliday(holiday: Holiday)
+
+    @Query("DELETE FROM holiday")
+    abstract suspend fun deleteAll()
 }

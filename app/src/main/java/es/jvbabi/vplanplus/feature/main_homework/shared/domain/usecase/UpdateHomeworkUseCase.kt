@@ -79,7 +79,7 @@ class UpdateHomeworkUseCase(
                             vppId = downloadedHomeworkItem.createdBy,
                             defaultLessonVpId = downloadedHomeworkItem.defaultLesson?.vpId
                         )
-                        if (!profile.isDefaultLessonEnabled(downloadedHomeworkItem.defaultLesson?.vpId)) {
+                        if (downloadedHomeworkItem.shouldBeHidden(profile)) {
                             val hw = homeworkRepository.getHomeworkById(homeworkId).first() as HomeworkCore.CloudHomework
                             homeworkRepository.changeHomeworkVisibilityDb(hw, profile, true)
                         }
@@ -142,6 +142,7 @@ class UpdateHomeworkUseCase(
             .filter { it.id !in initialExisting.map { existing -> existing.id } } // is new
             .filter { it.createdBy.id !in activeVppIds.map { vppId -> vppId.id } } // is not created by current user
             .filter { profiles.any { profile -> profile.isDefaultLessonEnabled(it.defaultLesson?.vpId) } }
+            .filter { profiles.any { profile -> !it.shouldBeHidden(profile) } } // is not hidden
 
         if (notificationNewHomeworkItems.isEmpty()) return stopUpdate(true)
         if (notificationNewHomeworkItems.size == 1) { // detailed notification
@@ -181,3 +182,6 @@ class UpdateHomeworkUseCase(
         return stopUpdate(true)
     }
 }
+
+private fun HomeworkCore.CloudHomework.shouldBeHidden(profile: ClassProfile): Boolean =
+    !profile.isDefaultLessonEnabled(defaultLesson?.vpId) || until.toLocalDate().isBefore(LocalDate.now().minusDays(3))

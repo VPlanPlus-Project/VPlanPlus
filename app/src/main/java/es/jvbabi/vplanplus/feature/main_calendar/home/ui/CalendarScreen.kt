@@ -68,6 +68,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -141,7 +142,7 @@ private fun CalendarScreenContent(
     onTimetableInfoBannerClicked: () -> Unit = {},
     doAction: (action: CalendarViewAction) -> Unit = {},
     navBar: @Composable (Boolean) -> Unit = {},
-    navRail: @Composable (Boolean, fab: @Composable () -> Unit) -> Unit = { _, _ ->},
+    navRail: @Composable (Boolean, fab: @Composable () -> Unit) -> Unit = { _, _ -> },
     state: CalendarViewState
 ) {
 
@@ -235,7 +236,18 @@ private fun CalendarScreenContent(
     val displayHeadSize = if (!isScrolling) animateCurrentHeadSize else currentHeadSize
 
     Scaffold(
-        topBar = { if (localConfiguration.orientation == Configuration.ORIENTATION_PORTRAIT) TopBar(onBack = onBack, selectDate = { doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK)) }) },
+        topBar = {
+            if (localConfiguration.orientation == Configuration.ORIENTATION_PORTRAIT) TopBar(
+                onBack = onBack,
+                selectDate = {
+                    doAction(
+                        CalendarViewAction.SelectDate(
+                            it,
+                            DateSelectCause.CALENDAR_CLICK
+                        )
+                    )
+                })
+        },
         floatingActionButton = {
             CalendarFloatingActionButton(
                 isVisible = closest != calendarSelectHeightLarge,
@@ -292,26 +304,42 @@ private fun CalendarScreenContent(
                     onTimetableInfoBannerClicked = onTimetableInfoBannerClicked,
                 )
             }
-        }
-        else {
+        } else {
             Row {
                 navRail(true) {
                     Column {
                         Spacer8Dp()
-                        FloatingActionButton(onClick = { addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }) { Icon(Icons.Default.Add, null) }
+                        FloatingActionButton(onClick = {
+                            addHomeworkSheetInitialValues =
+                                AddHomeworkSheetInitialValues(until = state.selectedDate)
+                        }) { Icon(Icons.Default.Add, null) }
                     }
                 }
                 val topBarHeight = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .background(Brush.linearGradient(listOf(NavigationRailDefaults.ContainerColor, MaterialTheme.colorScheme.surface))),
+                        .background(
+                            Brush.linearGradient(
+                                listOf(
+                                    NavigationRailDefaults.ContainerColor,
+                                    MaterialTheme.colorScheme.surface
+                                )
+                            )
+                        ),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Spacer(Modifier.height(topBarHeight/2))
+                    Spacer(Modifier.height(topBarHeight / 2))
                     CalendarDateHead(
                         firstVisibleDate = firstVisibleDate,
-                        onClickToday = { doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK)) }
+                        onClickToday = {
+                            doAction(
+                                CalendarViewAction.SelectDate(
+                                    it,
+                                    DateSelectCause.CALENDAR_CLICK
+                                )
+                            )
+                        }
                     )
                     Box(
                         modifier = Modifier
@@ -336,7 +364,7 @@ private fun CalendarScreenContent(
                     modifier = Modifier
                         .weight(1f)
                         .padding(horizontal = 8.dp)
-                        .padding(top = topBarHeight/2)
+                        .padding(top = topBarHeight / 2)
                         .background(MaterialTheme.colorScheme.surface)
                 ) {
                     DayPager(
@@ -391,7 +419,8 @@ private fun DayPager(
     ) { currentPage ->
         val date = LocalDate.now()
             .plusDays(getOffsetFromMiddle(CONTENT_PAGER_SIZE, currentPage).toLong())
-        val day = remember(state.version, state.days.size) { state.days[date] ?: SchoolDay(date = date) }
+        val day =
+            remember(state.version, state.days.size) { state.days[date] ?: SchoolDay(date = date) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -478,6 +507,41 @@ private fun DayPager(
                                 }
                             }
 
+                            if (day.dataType == DataType.NO_DATA) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillParentMaxSize()
+                                        .padding(horizontal = 12.dp),
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.undraw_schedule_re_2vro),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(148.dp)
+                                    )
+                                    Spacer16Dp()
+                                    Text(
+                                        text = stringResource(id = R.string.home_noData),
+                                        style = MaterialTheme.typography.headlineMedium.copy(
+                                            brush = Brush.horizontalGradient(
+                                                listOf(
+                                                    MaterialTheme.colorScheme.primary,
+                                                    MaterialTheme.colorScheme.secondary
+                                                )
+                                            )
+                                        ),
+                                        textAlign = TextAlign.Center
+                                    )
+                                    Text(
+                                        text = stringResource(id = R.string.home_noDataText),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        textAlign = TextAlign.Center
+                                    )
+
+                                }
+                            }
+
                             when (day.type) {
                                 DayType.WEEKEND, DayType.HOLIDAY -> {
                                     Column(
@@ -541,8 +605,10 @@ private fun DayPager(
                                 else -> Unit
                             }
                         }
-                        if(localConfiguration.orientation == Configuration.ORIENTATION_LANDSCAPE) item {
-                            val bottomBarHeight = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+                        if (localConfiguration.orientation == Configuration.ORIENTATION_LANDSCAPE) item {
+                            val bottomBarHeight =
+                                WindowInsets.navigationBars.asPaddingValues()
+                                    .calculateBottomPadding()
                             Spacer(Modifier.height(bottomBarHeight))
                         }
                     }
@@ -571,7 +637,11 @@ private fun CalendarScreenPreview() {
         ),
         navRail = { _, fab ->
             fab()
-            NavigationRailItem(selected = true, onClick = { }, label = { Text("Home") }, icon = { Icon(Icons.Default.Home, null) })
+            NavigationRailItem(
+                selected = true,
+                onClick = { },
+                label = { Text("Home") },
+                icon = { Icon(Icons.Default.Home, null) })
         }
     )
 }

@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
@@ -37,6 +38,7 @@ object AdvancedSettingsModule {
         keyValueRepository: KeyValueRepository,
         systemRepository: SystemRepository,
         timetableRepository: TimetableRepository,
+        holidayRepository: HolidayRepository,
         updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
         homeworkReminderUseCase: HomeworkReminderUseCase
     ): AdvancedSettingsUseCases {
@@ -46,7 +48,8 @@ object AdvancedSettingsModule {
                 roomRepository = roomRepository,
                 gradeRepository = gradeRepository,
                 homeworkRepository = homeworkRepository,
-                timetableRepository = timetableRepository
+                timetableRepository = timetableRepository,
+                holidayRepository = holidayRepository
             ),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository),

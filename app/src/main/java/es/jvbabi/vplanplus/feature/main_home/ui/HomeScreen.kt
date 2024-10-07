@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_home.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandHorizontally
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
@@ -9,6 +10,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,7 +23,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NoAccounts
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -39,6 +43,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -72,6 +77,7 @@ import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
@@ -277,7 +283,10 @@ fun HomeScreenContent(
 
             Box(Modifier.fillMaxSize()) {
                 if ((todayHasData && !nextDayHasData)) {
-                    Box(Modifier.fillMaxSize().align(Alignment.Center)) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .align(Alignment.Center)) {
                         TodayContent(state.today ?: return@Column)
                     }
                 } else if (todayHasData) {
@@ -312,6 +321,13 @@ fun HomeScreenContent(
                         currentProfile = state.currentProfile,
                         onOpenHomework = onOpenHomework
                     )
+                } else {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .padding(16.dp)) {
+                        NoData(onRefreshClicked)
+                    }
                 }
             }
         }
@@ -497,5 +513,64 @@ private fun NoLessonsContent(
                 )
             )
         )
+    }
+}
+
+@Composable
+private fun NoData(
+    onRefresh: () -> Unit
+) {
+    var isLoading by rememberSaveable { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .defaultMinSize(minHeight = 148.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = R.drawable.undraw_schedule_re_2vro),
+            contentDescription = null,
+            modifier = Modifier.size(148.dp)
+        )
+        Spacer16Dp()
+        Text(
+            text = stringResource(id = R.string.home_noData),
+            style = MaterialTheme.typography.headlineMedium.copy(
+                brush = Brush.horizontalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
+                )
+            ),
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = stringResource(id = R.string.home_noDataText),
+            style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer8Dp()
+
+        OutlinedButton(
+            onClick = { isLoading = true; onRefresh() },
+            enabled = !isLoading
+        ) {
+            RowVerticalCenter {
+                AnimatedVisibility(
+                    visible = isLoading,
+                    enter = expandHorizontally(),
+                    exit = shrinkVertically()
+                ) {
+                    Row {
+                        CircularProgressIndicator(modifier = Modifier.size(16.dp))
+                        Spacer4Dp()
+                    }
+                }
+                Text(text = stringResource(id = R.string.home_menuRefresh))
+            }
+        }
     }
 }

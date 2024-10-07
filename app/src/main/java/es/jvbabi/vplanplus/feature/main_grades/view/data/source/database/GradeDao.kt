@@ -13,7 +13,7 @@ import java.time.LocalDate
 abstract class GradeDao {
 
     @Upsert
-    abstract fun upsert(grade: DbGrade)
+    abstract suspend fun upsert(grade: DbGrade)
 
     @Transaction
     @Query("SELECT * FROM grade")
@@ -32,8 +32,8 @@ abstract class GradeDao {
     abstract fun getGradeById(id: Long): Flow<CGrade>
 
     @Query("DELETE FROM grade")
-    abstract fun dropAll()
+    abstract suspend fun dropAll()
 
     @Query("DELETE FROM grade WHERE id = :id")
-    abstract fun deleteById(id: Long)
+    abstract suspend fun deleteById(id: Long)
 }

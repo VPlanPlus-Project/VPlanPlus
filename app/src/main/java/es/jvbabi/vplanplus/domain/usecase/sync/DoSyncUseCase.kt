@@ -14,8 +14,11 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
+import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
+import es.jvbabi.vplanplus.domain.repository.BaseDataResponse
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
@@ -74,6 +77,8 @@ class DoSyncUseCase(
     private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val planRepository: PlanRepository,
     private val systemRepository: SystemRepository,
+    private val holidayRepository: HolidayRepository,
+    private val baseDataRepository: BaseDataRepository,
     private val notificationRepository: NotificationRepository,
     private val timetableRepository: TimetableRepository,
     private val weekRepository: WeekRepository,
@@ -123,7 +128,20 @@ class DoSyncUseCase(
             roomRepository.fetchRoomBookings(school)
             times.add("RoomBookings" to System.currentTimeMillis())
 
+            val baseDataResponse = baseDataRepository.getBaseData(school.sp24SchoolId, school.username, school.password)
+            val baseData = (baseDataResponse as? BaseDataResponse.Success)?.baseData
+            times.add("BaseData Download" to System.currentTimeMillis())
+            if (baseData != null) {
+                val holidays = holidayRepository.getHolidaysBySchoolId(school.id).map { it.date }
+                val holidaysToRemove = holidays.filter { it in baseData.holidays }
+                if (holidaysToRemove.isNotEmpty()) holidayRepository.deleteHolidaysBySchoolId(school.id)
+
+                val newHolidays = baseData.holidays.filter { it !in holidays || holidaysToRemove.isNotEmpty() }
+                newHolidays.forEach { holidayRepository.insertHoliday(school.id, it) }
+            }
+
             if (school.canUseTimetable != false) {
+
                 logRecordRepository.log(
                     "Sync.Timetable",
                     "Syncing timetable for school ${school.name}"
