@@ -12,7 +12,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.firebase.crashlytics)
-
+    
     id("kotlin-parcelize")
 }
 

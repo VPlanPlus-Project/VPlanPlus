@@ -199,8 +199,8 @@ class MainActivity : FragmentActivity() {
             setContent {
                 val scope = rememberCoroutineScope()
 
-                isAppInDarkMode.value =
-                    appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
+                isAppInDarkMode.value = appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
+                
                 VPlanPlusTheme(cs = colorScheme.value, darkTheme = isAppInDarkMode.value) {
                     LaunchedEffect(key1 = Unit) {
                         enableEdgeToEdge()
