@@ -50,7 +50,7 @@ class UpdateCalendarUseCase(
                                     ),
                                     title = stringRepository.getString(R.string.calendarRecord_title, lesson.displaySubject, lesson.lessonNumber),
                                     calendarId = calendar.id,
-                                    location = stringRepository.getString(R.string.calendarRecord_location, lesson.rooms.joinToString(", ") { it.name }, profile.getSchool().name),
+                                    location = if (lesson.rooms.isEmpty()) profile.getSchool().name else stringRepository.getString(R.string.calendarRecord_location, lesson.rooms.joinToString(", ") { it.name }, profile.getSchool().name),
                                     timeZone = TimeZone.getTimeZone("UTC"),
                                 )
                             )
