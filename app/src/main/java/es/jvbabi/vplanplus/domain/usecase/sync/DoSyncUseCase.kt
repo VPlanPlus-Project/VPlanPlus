@@ -42,6 +42,7 @@ import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
+import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
@@ -49,6 +50,8 @@ import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -698,7 +701,13 @@ class DoSyncUseCase(
             ),
             message,
             R.drawable.vpp,
-            OpenScreenTask(route = "plan/${notificationData.profile.id}/${notificationData.date}")
+            OpenScreenTask(route = Json.encodeToString(
+                NotificationDestination(
+                    screen = "calendar",
+                    profileId = notificationData.profile.id.toString(),
+                    payload = Json.encodeToString(Screen.CalendarScreen(notificationData.date))
+                )
+            ))
         )
     }
 

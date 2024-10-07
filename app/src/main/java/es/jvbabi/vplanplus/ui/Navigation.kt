@@ -58,6 +58,9 @@ import es.jvbabi.vplanplus.ui.common.Transition.slideInFromBottom
 import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -251,14 +254,19 @@ private fun NavGraphBuilder.mainScreens(
         SearchView(navHostController = navController)
     }
 
-    composable(
-        route = Screen.CalendarScreen.route,
+    composable<Screen.CalendarScreen>(
         enterTransition = { fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(300)) },
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = { fadeOut(tween(300)) }
-    ) {
-        CalendarScreen(navHostController = navController, navBar = navBar, navRail = navRail)
+    ) { navStackEntry ->
+        val args = navStackEntry.toRoute<Screen.CalendarScreen>()
+        CalendarScreen(
+            navHostController = navController,
+            startDate = LocalDate.parse(args.dateString),
+            navBar = navBar,
+            navRail = navRail
+        )
     }
 
     composable(
@@ -514,3 +522,10 @@ private fun NavGraphBuilder.gradesScreens(navController: NavHostController) {
         GradeCalculatorScreen(navHostController = navController, grades = grades.toList(), isSek2 = it.arguments?.getBoolean("isSek2")?: false)
     }
 }
+
+@Serializable
+data class NotificationDestination(
+    @SerialName("profile_id") val profileId: String? = null,
+    @SerialName("screen") val screen: String,
+    @SerialName("payload") val payload: String? = null
+)

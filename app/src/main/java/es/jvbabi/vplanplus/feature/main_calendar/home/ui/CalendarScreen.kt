@@ -114,10 +114,15 @@ fun CalendarScreen(
     navHostController: NavHostController,
     navBar: @Composable (isVisible: Boolean) -> Unit,
     navRail: @Composable (isVisible: Boolean, fab: @Composable () -> Unit) -> Unit,
-    viewModel: CalendarViewModel = hiltViewModel()
+    viewModel: CalendarViewModel = hiltViewModel(),
+    startDate: LocalDate
 ) {
     val state = viewModel.state
     val context = LocalContext.current
+
+    LaunchedEffect(startDate) {
+        viewModel.doAction(CalendarViewAction.SelectDate(startDate, DateSelectCause.CALENDAR_CLICK))
+    }
 
     CalendarScreenContent(
         onBack = { navHostController.navigateUp() },
