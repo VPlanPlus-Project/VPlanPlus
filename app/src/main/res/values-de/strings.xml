@@ -780,5 +780,14 @@
     <string name="webAuth_description">Jemand versucht sich als \'%1$s\' anzumelden. Wenn du das bist, tippe das entsprechende Emoji an. Wenn du nicht versuchst, dich anzumelden, brich bitte ab.</string>
     <string name="advancedSettings_settingsListenForFCMDebugTitle">Debug FCM-Events verarbeiten</string>
     <string name="advancedSettings_settingsListenForFCMDebugSubtitle">Auf Debug-FCM-Events hören. Dies wird viel unnötigen Traffic in Production erzeugen.</string>
+    <string name="advancedSettings_sendFirebaseReportsTitle">Absturzmeldungen senden</string>
+    <string name="advancedSettings_sendFirebaseReportsHasCrashes">Es wurden einige Abstürze festgestellt. Hilf den Entwicklern, den Fehler zu verstehen, indem du ihn sendest. Es werden keine persönlichen Informationen beigefügt.</string>
+    <string name="advancedSettings_sendFirebaseReportsHasNoCrashes">Aktuell existieren keine Absturzberichte</string>
+    <string name="onboarding_crashAnalyticsDialogTitle">Absturzmeldungen senden?</string>
+    <string name="onboarding_crashAnalyticsDialogText">VPlanPlus erstellt vollständig anonyme Absturzberichte, wenn die App abstürzen sollte. Wenn du VPlanPlus erlaubst, diese Berichte automatisch an uns zu senden, hilft uns dies in der Entwicklung der App weiter.</string>
+    <string name="onboarding_crashAnalyticsDialogAllow">Automat. senden erlauben</string>
+    <string name="onboarding_crashAnalyticsDialogDeny">Nicht zustimmen</string>
+    <string name="advancedSettings_updateCrashlyticsSettingsTitle">Automatische Berichterstattung</string>
+    <string name="advancedSettings_updateCrashlyticsSettingsSubtitle">Ändere, ob VPlanPlus automatisch Fehlermeldungen senden soll.</string>
 
 </resources>
