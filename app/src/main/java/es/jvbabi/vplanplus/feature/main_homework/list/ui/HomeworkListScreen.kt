@@ -89,7 +89,7 @@ fun HomeworkListScreen(
         state = state,
         navBar = { navBar(true) },
         onEvent = viewModel::onEvent,
-        onOpenHomework = { homework -> navHostController.navigate(Screen.HomeworkDetailScreen.route + "/${homework.id}") },
+        onOpenHomework = { homework -> navHostController.navigate(Screen.HomeworkDetailScreen(homework.id)) },
         onOpenInHome = { date -> navHostController.navigate(Screen.HomeScreen.route + "/$date") }
     )
 }

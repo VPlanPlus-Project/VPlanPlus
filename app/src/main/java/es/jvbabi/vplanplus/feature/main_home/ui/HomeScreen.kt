@@ -168,7 +168,7 @@ fun HomeScreen(
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
         onFixCredentialsClicked = remember { { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentProfile?.getSchool()?.id}") } },
         onSendFeedback = remember { { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) } },
-        onOpenHomework = remember { { homeworkId -> navHostController.navigate("${Screen.HomeworkDetailScreen.route}/$homeworkId") } },
+        onOpenHomework = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
     )
 }
 

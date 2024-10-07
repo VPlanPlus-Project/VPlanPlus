@@ -282,15 +282,9 @@ private fun NavGraphBuilder.mainScreens(
         )
     }
 
-    composable(
-        route = Screen.HomeworkDetailScreen.route + "/{homeworkId}",
-        arguments = listOf(
-            navArgument(name = "homeworkId") {
-                type = NavType.IntType
-            }
-        )
-    ) {
-        HomeworkDetailScreen(navHostController = navController, homeworkId = it.arguments!!.getInt("homeworkId"))
+    composable<Screen.HomeworkDetailScreen> { backStackEntry ->
+        val args = backStackEntry.toRoute<Screen.HomeworkDetailScreen>()
+        HomeworkDetailScreen(navHostController = navController, homeworkId = args.homeworkId)
     }
 
     composable(

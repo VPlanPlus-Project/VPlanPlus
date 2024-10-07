@@ -30,7 +30,11 @@ sealed class Screen(val route: String) {
     }
 
     data object HomeworkScreen: Screen("homework_screen")
-    data object HomeworkDetailScreen : Screen("homework_detail_screen")
+
+    @Serializable
+    data class HomeworkDetailScreen(
+        val homeworkId: Int
+    ) : Screen("homework_detail_screen")
 
     data object GradesScreen: Screen("grades")
     data object GradesCalculatorScreen: Screen("grades/calculator")

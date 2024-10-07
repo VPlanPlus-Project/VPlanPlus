@@ -126,7 +126,7 @@ fun CalendarScreen(
 
     CalendarScreenContent(
         onBack = { navHostController.navigateUp() },
-        onOpenHomeworkScreen = { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen.route + "/$homeworkId") },
+        onOpenHomeworkScreen = { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) },
         onTimetableInfoBannerClicked = {
             openLink(
                 context,
