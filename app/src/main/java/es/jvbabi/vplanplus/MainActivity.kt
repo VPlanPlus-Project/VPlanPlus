@@ -353,6 +353,9 @@ class MainActivity : FragmentActivity() {
                             if (destinationData.payload == null) navController!!.navigate(Screen.CalendarScreen)
                             else navController!!.navigate(Json.decodeFromString<Screen.CalendarScreen>(destinationData.payload))
                         }
+                        "grades" -> {
+                            navController!!.navigate(Screen.GradesScreen.route)
+                        }
                     }
                 } else when (destination) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)

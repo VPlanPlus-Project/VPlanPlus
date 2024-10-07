@@ -701,7 +701,7 @@ class DoSyncUseCase(
             ),
             message,
             R.drawable.vpp,
-            OpenScreenTask(route = Json.encodeToString(
+            OpenScreenTask(destination = Json.encodeToString(
                 NotificationDestination(
                     screen = "calendar",
                     profileId = notificationData.profile.id.toString(),
