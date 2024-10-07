@@ -30,7 +30,14 @@ class GetNextSchoolDayUseCase(
                     val date = dates.firstOrNull { date ->
                         date.dayOfWeek.value < profile.getSchool().daysPerWeek &&
                                 holidays.none { holiday -> holiday.date.isEqual(date) }
-                    } ?: return@flow
+                    } ?: run firstDayAfterHolidays@{
+                        val currentHoliday = holidays.firstOrNull { it.date.isEqual(LocalDate.now()) }
+                        var date = currentHoliday?.date ?: LocalDate.now()
+                        while (date.dayOfWeek.value >= profile.getSchool().daysPerWeek || holidays.any { it.date.isEqual(date) }) {
+                            date = date.plusDays(1)
+                        }
+                        date
+                    }
 
                     getDayUseCase(date).collect {
                         emit(it)

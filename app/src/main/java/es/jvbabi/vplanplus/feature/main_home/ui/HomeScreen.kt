@@ -277,7 +277,9 @@ fun HomeScreenContent(
 
             Box(Modifier.fillMaxSize()) {
                 if ((todayHasData && !nextDayHasData)) {
-                    TodayContent(state.today ?: return@Column)
+                    Box(Modifier.fillMaxSize().align(Alignment.Center)) {
+                        TodayContent(state.today ?: return@Column)
+                    }
                 } else if (todayHasData) {
                     val pagerState =
                         rememberPagerState(initialPage = if (todayIsOver) 1 else 0) { 2 }
