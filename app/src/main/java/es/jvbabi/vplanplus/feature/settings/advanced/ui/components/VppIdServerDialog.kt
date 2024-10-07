@@ -15,7 +15,7 @@ import es.jvbabi.vplanplus.ui.common.SelectDialog
  */
 val servers = listOf(
     VppIdServer("https://vplan.plus"),
-    VppIdServer("https://development.vplan.plus"),
+    VppIdServer("https://development.vplan.plus", authHost = "https://development.auth.vplan.plus"),
     VppIdServer("https://vpp.magnix.cluster.jvbabi.es"),
     VppIdServer("https://vpp-api.localhost.cluster.jvbabi.es", "https://vpp-ui.localhost.cluster.jvbabi.es"),
     VppIdServer("https://julius.familie-babies.de")
@@ -44,7 +44,8 @@ fun VppIdServerDialog(
 
 data class VppIdServer(
     val apiHost: String,
-    val uiHost: String = apiHost
+    val uiHost: String = apiHost,
+    val authHost: String = apiHost,
 ) : Comparable<VppIdServer> {
     override fun compareTo(other: VppIdServer): Int {
         return apiHost.compareTo(other.apiHost)

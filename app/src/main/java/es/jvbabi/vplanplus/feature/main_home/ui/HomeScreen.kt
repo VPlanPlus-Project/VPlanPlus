@@ -4,13 +4,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
@@ -20,10 +23,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NoAccounts
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -32,7 +35,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,6 +45,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
@@ -101,14 +107,18 @@ fun HomeScreen(
         onVersionHintsClosed = homeViewModel::hideVersionHintsDialog,
 
         onSwitchProfile = homeViewModel::switchProfile,
-        onManageProfiles = remember { {
-            homeViewModel.onMenuOpenedChange(false)
-            navHostController.navigate(Screen.SettingsProfileScreen.route)
-        } },
-        onManageProfile = remember {{
-            homeViewModel.onMenuOpenedChange(false)
-            navHostController.navigate("${Screen.SettingsProfileScreen.route}/${it.id}")
-        } },
+        onManageProfiles = remember {
+            {
+                homeViewModel.onMenuOpenedChange(false)
+                navHostController.navigate(Screen.SettingsProfileScreen.route)
+            }
+        },
+        onManageProfile = remember {
+            {
+                homeViewModel.onMenuOpenedChange(false)
+                navHostController.navigate("${Screen.SettingsProfileScreen.route}/${it.id}")
+            }
+        },
         onOpenNews = remember {
             {
                 homeViewModel.onMenuOpenedChange(false); navHostController.navigate(
@@ -116,29 +126,37 @@ fun HomeScreen(
             )
             }
         },
-        onOpenSettings = remember { {
-            homeViewModel.onMenuOpenedChange(false); navHostController.navigate(
-            Screen.SettingsScreen.route
-        )
-        } },
-        onPrivacyPolicyClicked = remember { {
-            openLink(
-                context,
-                "${state.server.uiHost}/privacy"
+        onOpenSettings = remember {
+            {
+                homeViewModel.onMenuOpenedChange(false); navHostController.navigate(
+                Screen.SettingsScreen.route
             )
-        } },
-        onRepositoryClicked = remember {{
-            openLink(
-                context,
-                "https://github.com/VPlanPlus-Project/VPlanPlus"
-            )
-        }},
+            }
+        },
+        onPrivacyPolicyClicked = remember {
+            {
+                openLink(
+                    context,
+                    "${state.server.uiHost}/privacy"
+                )
+            }
+        },
+        onRepositoryClicked = remember {
+            {
+                openLink(
+                    context,
+                    "https://github.com/VPlanPlus-Project/VPlanPlus"
+                )
+            }
+        },
         onOpenSearch = remember { { navHostController.navigate(Screen.SearchScreen.route) } },
-        onRefreshClicked = remember { {
-            homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(
-            context
-        )
-        } },
+        onRefreshClicked = remember {
+            {
+                homeViewModel.onMenuOpenedChange(false); homeViewModel.onRefreshClicked(
+                context
+            )
+            }
+        },
         onFixVppIdSessionClicked = remember { { onLogin(context, state.server) } },
         onFixVppIdLinksClicked = remember { { navHostController.navigate(Screen.SettingsVppIdScreen.route) } },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
@@ -257,41 +275,41 @@ fun HomeScreenContent(
             val todayIsOver = state.today?.isDayOver() ?: false
             val nextDayHasData = state.nextSchoolDay != null
 
-            key(state.today?.version) {
-                Box(Modifier.fillMaxSize()) {
-                    if ((todayHasData && !nextDayHasData)) {
-                        TodayContent(state.today ?: return@Column)
-                    } else if (todayHasData) {
-                        val pagerState = rememberPagerState(initialPage = if (todayIsOver) 1 else 0) { 2 }
-                        val scope = rememberCoroutineScope()
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier.fillMaxSize()
-                        ) { page ->
-                            when (page) {
-                                0 -> TodayContent(state.today ?: return@HorizontalPager)
-                                1 -> NextDayPreparation(
-                                    nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
-                                    currentProfile = state.currentProfile,
-                                    onOpenHomework = onOpenHomework
-                                )
-                            }
+            Box(Modifier.fillMaxSize()) {
+                if ((todayHasData && !nextDayHasData)) {
+                    TodayContent(state.today ?: return@Column)
+                } else if (todayHasData) {
+                    val pagerState =
+                        rememberPagerState(initialPage = if (todayIsOver) 1 else 0) { 2 }
+                    val scope = rememberCoroutineScope()
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) { page ->
+                        when (page) {
+                            0 -> TodayContent(state.today ?: return@HorizontalPager)
+                            1 -> NextDayPreparation(
+                                nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
+                                currentProfile = state.currentProfile,
+                                onOpenHomework = onOpenHomework
+                            )
                         }
-                        PagerSwitcher(
-                            modifier = Modifier
-                                .padding(bottom = 16.dp)
-                                .align(Alignment.BottomCenter),
-                            swipeProgress = pagerState.currentPage + pagerState.currentPageOffsetFraction,
-                            nextDate = state.nextSchoolDay?.date ?: LocalDate.now(),
-                            onSelectPage = { scope.launch { pagerState.animateScrollToPage(it) } }
-                        )
-                    } else if (nextDayHasData) {
-                        NextDayPreparation(
-                            nextSchoolDay = state.nextSchoolDay ?: return@Column,
-                            currentProfile = state.currentProfile,
-                            onOpenHomework = onOpenHomework
-                        )
                     }
+                    PagerSwitcher(
+                        modifier = Modifier
+                            .padding(bottom = 16.dp)
+                            .align(Alignment.BottomCenter),
+                        swipeProgress = pagerState.currentPage + pagerState.currentPageOffsetFraction,
+                        nextDate = state.nextSchoolDay?.date ?: LocalDate.now(),
+                        onSelectPage = { scope.launch { pagerState.animateScrollToPage(it) } }
+                    )
+                } else if (nextDayHasData) {
+                    NextDayPreparation(
+                        nextSchoolDay = state.nextSchoolDay ?: return@Column,
+                        currentProfile = state.currentProfile,
+                        onOpenHomework = onOpenHomework
+                    )
                 }
             }
         }
@@ -364,7 +382,10 @@ private fun TodayContent(
     ) {
         val currentOrNextLessons = today.getCurrentOrNextLesson()
         currentOrNextLessons?.let { currentOrNextLesson ->
-            CurrentOrNextTitle(isCurrent = currentOrNextLesson.isCurrent, lessonNumber = currentOrNextLesson.lessons.first().lessonNumber)
+            CurrentOrNextTitle(
+                isCurrent = currentOrNextLesson.isCurrent,
+                lessonNumber = currentOrNextLesson.lessons.first().lessonNumber
+            )
             Spacer8Dp()
 
             Column(
@@ -395,6 +416,10 @@ private fun TodayContent(
             FurtherLessonsTitle(followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size)
             Spacer8Dp()
             FurtherLessonsBlock(followingLessons)
+        }
+
+        if (today.type != DayType.NORMAL) {
+            NoLessonsContent(isHoliday = today.type == DayType.HOLIDAY)
         }
     }
 }
@@ -436,5 +461,39 @@ private fun NextDayPreparation(
                 currentProfile = currentProfile
             )
         }
+        if (nextSchoolDay.type != DayType.NORMAL) {
+            NoLessonsContent(isHoliday = nextSchoolDay.type == DayType.HOLIDAY)
+        }
+    }
+}
+
+@Composable
+private fun NoLessonsContent(
+    isHoliday: Boolean,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .defaultMinSize(minHeight = 148.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Image(
+            painter = painterResource(id = if (isHoliday) R.drawable.undraw_beach_day else R.drawable.undraw_fun_moments),
+            contentDescription = null,
+            modifier = Modifier.size(148.dp)
+        )
+        Spacer16Dp()
+        Text(
+            text = stringResource(id = if (isHoliday) R.string.calendar_dayTypeHoliday else R.string.calendar_dayTypeWeekend),
+            style = MaterialTheme.typography.headlineMedium.copy(
+                brush = Brush.horizontalGradient(
+                    listOf(
+                        MaterialTheme.colorScheme.primary,
+                        MaterialTheme.colorScheme.secondary
+                    )
+                )
+            )
+        )
     }
 }
