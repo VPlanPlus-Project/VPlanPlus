@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 44,
-    "identityHash": "9fa7b8001e7fa5d4b64fdb77aae50390",
+    "identityHash": "0826972466fcf89e9ca6b017045d7a38",
     "entities": [
       {
         "tableName": "lesson",
@@ -2980,7 +2980,7 @@
       },
       {
         "tableName": "exams",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `date` INTEGER NOT NULL, `subject` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `type` TEXT NOT NULL, `created_by` INTEGER NOT NULL, `group_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`created_by`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`group_id`) REFERENCES `group`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `date` INTEGER NOT NULL, `subject` INTEGER NOT NULL, `title` TEXT NOT NULL, `description` TEXT NOT NULL, `type` TEXT NOT NULL, `created_by` INTEGER, `group_id` INTEGER NOT NULL, `created_at` INTEGER NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`created_by`) REFERENCES `vpp_id`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`group_id`) REFERENCES `group`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )",
         "fields": [
           {
             "fieldPath": "id",
@@ -3022,7 +3022,7 @@
             "fieldPath": "createdBy",
             "columnName": "created_by",
             "affinity": "INTEGER",
-            "notNull": true
+            "notNull": false
           },
           {
             "fieldPath": "groupId",
@@ -3101,7 +3101,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9fa7b8001e7fa5d4b64fdb77aae50390')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '0826972466fcf89e9ca6b017045d7a38')"
     ]
   }
 }

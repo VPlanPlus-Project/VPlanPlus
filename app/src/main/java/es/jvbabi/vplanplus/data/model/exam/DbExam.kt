@@ -40,7 +40,7 @@ data class DbExam(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "description") val description: String,
     @ColumnInfo(name = "type") val type: String,
-    @ColumnInfo(name = "created_by") val createdBy: Int,
+    @ColumnInfo(name = "created_by") val createdBy: Int?,
     @ColumnInfo(name = "group_id") val groupId: Int,
     @ColumnInfo(name = "created_at") val createdAt: ZonedDateTime
 )
