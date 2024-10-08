@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_home.feature_search.ui
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -165,7 +166,11 @@ fun SearchViewContent(
     }
 
     LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
+        try {
+            focusRequester.requestFocus()
+        } catch (e: IllegalStateException) {
+            Log.w("SearchView", "Focus request failed")
+        }
     }
 }
 
