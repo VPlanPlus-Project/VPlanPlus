@@ -72,7 +72,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Personalize
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
 import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
-import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.rememberDefaultBalloon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.runComposable
@@ -276,7 +275,6 @@ private fun HomeworkListContent(
                                 )
                                 if (canShowDemo) hasDrawnFirstVisibleHomework = true
                             }
-                            item { Spacer8Dp() }
                         }
                     }
                 }

@@ -185,6 +185,7 @@ fun HomeworkCardItem(
                 }
             }
             SwipeToDismissBox(
+                modifier = Modifier.padding(bottom = 8.dp),
                 state = dismissState,
                 enableDismissFromEndToStart = !isDemoRunning && isSwipingEnabled,
                 enableDismissFromStartToEnd = !isDemoRunning && isSwipingEnabled,
