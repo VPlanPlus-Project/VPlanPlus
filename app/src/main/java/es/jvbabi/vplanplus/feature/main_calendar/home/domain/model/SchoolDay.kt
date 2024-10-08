@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.domain.model
 
+import androidx.compose.runtime.Immutable
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
@@ -10,6 +11,7 @@ import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.temporal.ChronoUnit
 
+@Immutable
 data class SchoolDay(
     val date: LocalDate,
     val info: String? = null,
@@ -17,9 +19,10 @@ data class SchoolDay(
     val homework: List<PersonalizedHomework> = emptyList(),
     val grades: List<Grade> = emptyList(),
     val type: DayType = DayType.NORMAL,
-    val dataType: DataType
+    val dataType: DataType,
+    val version: Long
 ) {
-    constructor(date: LocalDate) : this(date, null, emptyList(), dataType = DataType.NO_DATA)
+    constructor(date: LocalDate) : this(date, null, emptyList(), dataType = DataType.NO_DATA, version = -1)
 
     fun getCurrentLessons(referenceTime: ZonedDateTime = ZonedDateTime.now()): List<Lesson> {
         return lessons.filter { referenceTime.between(it.start, it.end) }

@@ -156,7 +156,6 @@ object VppModule {
             .addTypeConverter(GradeModifierConverter())
             .addTypeConverter(ZonedDateTimeConverter())
             .addTypeConverter(SchoolDownloadTypeConverter())
-            .allowMainThreadQueries()
             .fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .enableMultiInstanceInvalidation()
@@ -514,6 +513,8 @@ object VppModule {
         systemRepository: SystemRepository,
         notificationRepository: NotificationRepository,
         timetableRepository: TimetableRepository,
+        holidayRepository: HolidayRepository,
+        baseDataRepository: BaseDataRepository,
         weekRepository: WeekRepository,
         updateCalendarUseCase: UpdateCalendarUseCase,
         updateHomeworkUseCase: UpdateHomeworkUseCase,
@@ -540,7 +541,9 @@ object VppModule {
         updateHomeworkUseCase = updateHomeworkUseCase,
         updateGradesUseCase = updateGradesUseCase,
         weekRepository = weekRepository,
-        timetableRepository = timetableRepository
+        timetableRepository = timetableRepository,
+        holidayRepository = holidayRepository,
+        baseDataRepository = baseDataRepository
     )
 
     @Provides

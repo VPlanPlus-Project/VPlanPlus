@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.ui.screens
 
 import kotlinx.serialization.Serializable
+import java.time.LocalDate
 
 @Serializable
 sealed class Screen(val route: String) {
@@ -21,10 +22,19 @@ sealed class Screen(val route: String) {
 
     data object AccountAddedScreen: Screen("account_added_screen")
 
-    data object CalendarScreen: Screen("calendar")
+    @Serializable
+    data class CalendarScreen(
+        val dateString: String = LocalDate.now().toString()
+    ): Screen("calendar") {
+        constructor(date: LocalDate): this(date.toString())
+    }
 
     data object HomeworkScreen: Screen("homework_screen")
-    data object HomeworkDetailScreen : Screen("homework_detail_screen")
+
+    @Serializable
+    data class HomeworkDetailScreen(
+        val homeworkId: Int
+    ) : Screen("homework_detail_screen")
 
     data object GradesScreen: Screen("grades")
     data object GradesCalculatorScreen: Screen("grades/calculator")

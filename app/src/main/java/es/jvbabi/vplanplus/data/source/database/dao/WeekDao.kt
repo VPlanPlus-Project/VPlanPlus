@@ -11,13 +11,13 @@ import es.jvbabi.vplanplus.data.model.combined.CWeekType
 @Dao
 abstract class WeekDao {
     @Upsert
-    abstract fun upsertWeekType(weekType: DbWeekType)
+    abstract suspend fun upsertWeekType(weekType: DbWeekType)
 
     @Query("SELECT * FROM week_type WHERE school_id = :schoolId")
     abstract suspend fun getWeekTypesBySchool(schoolId: Int): List<CWeekType>
 
     @Upsert
-    abstract fun upsertWeek(week: DbWeek)
+    abstract suspend fun upsertWeek(week: DbWeek)
 
     @Query("SELECT * FROM week WHERE school_id = :schoolId")
     abstract suspend fun getWeeksBySchool(schoolId: Int): List<CWeek>

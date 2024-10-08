@@ -33,8 +33,4 @@ class KeyValueRepositoryImpl(private val keyValueDao: KeyValueDao) : KeyValueRep
     override suspend fun delete(key: String) {
         keyValueDao.delete(key = key)
     }
-
-    override fun getOnMainThread(key: String): String? {
-        return keyValueDao.getOnMainThread(key = key)
-    }
 }

@@ -86,7 +86,7 @@ Suche deine Schule einfach mit <kbd>Strg</kbd> + <kbd>F</kbd>.
 | Schiller-Gymnasium Hameln                                                                                                        | 53018234 | ✅          | ❌                  |
 | Gymnasium Dresden-Pieschen                                                                                                       | 10490187 | ✅          | ✅                  |
 | Pestalozzi-Schule Demmin                                                                                                         | 40142395 | ✅          | ❌                  |
-| 20. Schule - Oberschule der Stadt Leipzig                                                                                        | 10560769 | ✅          | ❌                  |
+| 20. Schule - Oberschule der Stadt Leipzig                                                                                        | 10560769 | ✅          | ✅                  |
 
 Ist deine Schule kompatibel, aber nicht aufgelistet? Modifiziere diese Datei und erstelle einen Pull-Request um es
 anderen Schülern/Lehrern an der Schule einfacher zu machen.

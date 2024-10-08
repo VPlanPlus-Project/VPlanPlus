@@ -70,6 +70,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.OpenTaskNotificationOn
 import es.jvbabi.vplanplus.ui.common.CrashAnalyticsDialog
 import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.NavigationGraph
+import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.overlay.vpp_web_auth.VppIdAuthWrapper
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
@@ -79,7 +80,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
+import kotlinx.serialization.json.Json
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -199,6 +200,7 @@ class MainActivity : FragmentActivity() {
                 val scope = rememberCoroutineScope()
 
                 isAppInDarkMode.value = appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
+                
                 VPlanPlusTheme(cs = colorScheme.value, darkTheme = isAppInDarkMode.value) {
                     LaunchedEffect(key1 = Unit) {
                         enableEdgeToEdge()
@@ -222,19 +224,19 @@ class MainActivity : FragmentActivity() {
                                 )
                             },
                             label = { Text(text = stringResource(id = R.string.main_home)) },
-                            route = Screen.HomeScreen.route
+                            screen = Screen.HomeScreen
                         ),
                         NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 1) return@NavigationBarItem
                                 selectedIndex = 1
-                                navController!!.navigate(Screen.CalendarScreen.route) { popUpTo(Screen.HomeScreen.route) }
+                                navController!!.navigate(Screen.CalendarScreen()) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
                                 Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null)
                             },
                             label = { Text(text = stringResource(id = R.string.main_calendar)) },
-                            route = Screen.CalendarScreen.route
+                            screen = Screen.CalendarScreen()
                         ),
                         if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
@@ -249,7 +251,7 @@ class MainActivity : FragmentActivity() {
                                 )
                             },
                             label = { Text(text = stringResource(id = R.string.main_homework)) },
-                            route = Screen.HomeworkScreen.route
+                            screen = Screen.HomeworkScreen
                         ) else null,
                         if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
@@ -264,7 +266,7 @@ class MainActivity : FragmentActivity() {
                                 )
                             },
                             label = { Text(text = stringResource(id = R.string.main_grades)) },
-                            route = Screen.GradesScreen.route
+                            screen = Screen.GradesScreen
                         ) else null
                     )
 
@@ -302,7 +304,7 @@ class MainActivity : FragmentActivity() {
                                 navRail = navRail,
                                 onNavigationChanged = { route ->
                                     val item =
-                                        navBarItems.firstOrNull { route?.startsWith(it.route) == true }
+                                        navBarItems.firstOrNull { route?.startsWith(it.screen.route) == true || route?.startsWith(it.screen::class.qualifiedName?:"-") == true }
                                     if (item != null && navBarItems.indexOf(item) != selectedIndex) {
                                         selectedIndex = navBarItems.indexOf(item)
                                         Log.d("Navigation", "Selected index: $selectedIndex")
@@ -362,19 +364,31 @@ class MainActivity : FragmentActivity() {
             showSplashScreen = false
             lifecycleScope.launch {
                 while (currentProfile == null || navController == null) delay(50)
-                val screen = intent.getStringExtra("screen") ?: Screen.HomeScreen.route
-                if (screen.startsWith("plan/")) {
-                    val args = screen.split("/")
-                    val profileId = UUID.fromString(args[1])
-                    val date = LocalDate.parse(args[2])
-                    mainUseCases.setCurrentProfileUseCase(profileId)
-                    navController!!.navigate(Screen.HomeScreen.route + "/$date")
-                } else when (screen) {
+                val destination = intent.getStringExtra("screen") ?: Screen.HomeScreen.route
+                if (destination.startsWith("{")) {
+                    val destinationData = Json.decodeFromString<NotificationDestination>(destination)
+                    if (destinationData.profileId != null) {
+                        mainUseCases.setCurrentProfileUseCase(UUID.fromString(destinationData.profileId))
+                    }
+                    when (destinationData.screen) {
+                        "calendar" -> {
+                            if (destinationData.payload == null) navController!!.navigate(Screen.CalendarScreen)
+                            else navController!!.navigate(Json.decodeFromString<Screen.CalendarScreen>(destinationData.payload))
+                        }
+                        "grades" -> {
+                            navController!!.navigate(Screen.GradesScreen.route)
+                        }
+                        "homework/item" -> {
+                            if (destinationData.payload == null) return@launch
+                            navController!!.navigate(Json.decodeFromString<Screen.HomeworkDetailScreen>(destinationData.payload))
+                        }
+                    }
+                } else when (destination) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
                     "homework" -> navController!!.navigate(Screen.HomeworkScreen.route)
                     else -> {
-                        Log.d("MainActivity.Intent", "Navigating to $screen")
-                        navController!!.navigate(screen)
+                        Log.d("MainActivity.Intent", "Navigating to $destination")
+                        navController!!.navigate(destination)
                     }
                 }
             }
@@ -441,7 +455,7 @@ fun List<NavigationBarItem>.RailBar(selectedIndex: Int, fab: @Composable () -> U
 
 data class NavigationBarItem(
     val onClick: () -> Unit,
-    val route: String,
+    val screen: Screen,
     val icon: @Composable () -> Unit,
     val label: @Composable () -> Unit
 )

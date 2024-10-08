@@ -47,13 +47,15 @@ class GetDayUseCase(
             if (profile == null) return@flatMapLatest flowOf(schoolDay)
             flow {
                 val day = planRepository.getDayInfoForSchool(profile.getSchool().id, date, version.toLong()).first()
-                val dataType: DataType
+                var dataType: DataType
                 val lessons = if (day == null) {
                     dataType = DataType.TIMETABLE
-                    when (profile) {
+                    val lessons = when (profile) {
                         is ClassProfile -> timetableRepository.getTimetableForGroup(profile.group, date)
                         else -> emptyList()
                     }
+                    if (lessons.isEmpty()) dataType = DataType.NO_DATA
+                    lessons
                 } else {
                     dataType = DataType.SUBSTITUTION_PLAN
                     lessonRepository.getLessonsForProfile(profile, date, version.toLong()).first()
@@ -63,11 +65,14 @@ class GetDayUseCase(
                         if (profile is ClassProfile && lesson is Lesson.SubstitutionPlanLesson) profile.isDefaultLessonEnabled(lesson.defaultLesson?.vpId)
                         else true
                     }
+
+                val isHoliday = holidayRepository.isHoliday(profile.getSchool().id, date)
                 schoolDay = schoolDay.copy(
-                    lessons = lessons,
+                    lessons = if (isHoliday) emptyList() else lessons,
                     info = day?.info,
-                    type = if (holidayRepository.isHoliday(profile.getSchool().id, date)) DayType.HOLIDAY else if (date.dayOfWeek.value > profile.getSchool().daysPerWeek) DayType.WEEKEND else DayType.NORMAL,
-                    dataType = dataType
+                    type = if (isHoliday) DayType.HOLIDAY else if (date.dayOfWeek.value > profile.getSchool().daysPerWeek) DayType.WEEKEND else DayType.NORMAL,
+                    dataType = dataType,
+                    version = version.toLongOrNull() ?: -1L
                 )
                 emit(schoolDay)
 

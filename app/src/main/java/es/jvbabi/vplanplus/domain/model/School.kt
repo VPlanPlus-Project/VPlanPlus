@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.domain.model
 
+import androidx.compose.runtime.Immutable
 import es.jvbabi.vplanplus.shared.data.BasicAuthentication
 
+@Immutable
 data class School(
      val id: Int,
     val sp24SchoolId: Int,
