@@ -837,4 +837,10 @@
     <string name="examsNew_details_skip">Skip</string>
     <string name="examsNew_details_save">Save</string>
     <string name="calendar_dayFilterExams">Exams</string>
+    <string name="examsDetails_date">At %1$s, %2$s</string>
+    <string name="examsDetails_warning">This assessment is coming up soon</string>
+    <string name="examsDetails_warningText">Only %1$d days left. Get ready!</string>
+    <string name="examsDetails_imReadyButton">I\'m ready</string>
+    <string name="examsDetails_type">Category</string>
+    <string name="examsDetails_description">Details</string>
 </resources>

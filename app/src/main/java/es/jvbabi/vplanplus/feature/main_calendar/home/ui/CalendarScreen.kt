@@ -129,6 +129,7 @@ fun CalendarScreen(
     CalendarScreenContent(
         onBack = navHostController::navigateUp,
         onOpenHomeworkScreen = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
+        onOpenExamScreen = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
         onOpenNewExam = remember { { navHostController.navigate(Screen.NewExamScreen) } },
         onTimetableInfoBannerClicked = remember { {
             openLink(
@@ -147,6 +148,7 @@ fun CalendarScreen(
 private fun CalendarScreenContent(
     onBack: () -> Unit = {},
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit = {},
+    onOpenExamScreen: (examId: Int) -> Unit = {},
     onOpenNewExam: () -> Unit = {},
     onTimetableInfoBannerClicked: () -> Unit = {},
     doAction: (action: CalendarViewAction) -> Unit = {},
@@ -317,6 +319,7 @@ private fun CalendarScreenContent(
                     contentPagerState = contentPagerState,
                     doAction = doAction,
                     onOpenHomeworkScreen = onOpenHomeworkScreen,
+                    onOpenExamScreen = onOpenExamScreen,
                     onTimetableInfoBannerClicked = onTimetableInfoBannerClicked,
                 )
             }
@@ -388,6 +391,7 @@ private fun CalendarScreenContent(
                         contentPagerState = contentPagerState,
                         doAction = doAction,
                         onOpenHomeworkScreen = onOpenHomeworkScreen,
+                        onOpenExamScreen = onOpenExamScreen,
                         onTimetableInfoBannerClicked = onTimetableInfoBannerClicked
                     )
                 }
@@ -402,6 +406,7 @@ private fun DayPager(
     contentPagerState: PagerState,
     doAction: (action: CalendarViewAction) -> Unit,
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit,
+    onOpenExamScreen: (examId: Int) -> Unit,
     onTimetableInfoBannerClicked: () -> Unit,
 ) {
     val localConfiguration = LocalConfiguration.current
@@ -481,7 +486,8 @@ private fun DayPager(
                                 ExamSection(
                                     showSection = (state.enabledFilters.isEmpty() || DayViewFilter.EXAMS in state.enabledFilters) && day.exams.isNotEmpty(),
                                     exams = day.exams,
-                                    currentProfile = state.currentProfile!!
+                                    currentProfile = state.currentProfile!!,
+                                    onOpenExamScreen = onOpenExamScreen
                                 )
                             }
                             Box(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {

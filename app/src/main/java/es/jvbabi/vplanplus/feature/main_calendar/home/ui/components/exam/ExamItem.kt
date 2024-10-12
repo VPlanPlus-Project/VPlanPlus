@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -28,13 +29,15 @@ import es.jvbabi.vplanplus.ui.common.SubjectIcon
 @Composable
 fun ExamItem(
     currentProfile: Profile,
-    exam: Exam
+    exam: Exam,
+    onOpenExamScreen: (examId: Int) -> Unit
 ) {
     RowVerticalCenter(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(4.dp))
             .background(MaterialTheme.colorScheme.surfaceContainer)
+            .clickable { onOpenExamScreen(exam.id) }
             .padding(8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {

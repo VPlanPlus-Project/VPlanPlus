@@ -9,6 +9,8 @@ import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.exams.data.repository.ExamRepositoryImpl
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.ExamDetailsUseCases
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.GetExamUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.NewExamUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.SaveExamUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.GetDefaultLessonsUseCase
@@ -44,4 +46,14 @@ object ExamModule {
             )
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideExamDetailsUseCases(
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
+        examRepository: ExamRepository,
+    ) = ExamDetailsUseCases(
+        getExamUseCase = GetExamUseCase(examRepository),
+        getCurrentProfileUseCase = getCurrentProfileUseCase
+    )
 }

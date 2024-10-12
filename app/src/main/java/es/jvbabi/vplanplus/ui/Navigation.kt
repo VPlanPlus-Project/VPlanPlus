@@ -15,6 +15,7 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.google.gson.Gson
+import es.jvbabi.vplanplus.feature.exams.ui.details.ExamDetailsScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.CalendarScreen
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam.NewExamScreen
@@ -105,6 +106,14 @@ private fun NavGraphBuilder.examScreens(navController: NavHostController) {
         popExitTransition = slideOutFromBottom
     ) {
         NewExamScreen(navHostController = navController)
+    }
+
+    composable<Screen.ExamDetailsScreen> { backStackEntry ->
+        val args = backStackEntry.toRoute<Screen.ExamDetailsScreen>()
+        ExamDetailsScreen(
+            navHostController = navController,
+            examId = args.examId
+        )
     }
 }
 

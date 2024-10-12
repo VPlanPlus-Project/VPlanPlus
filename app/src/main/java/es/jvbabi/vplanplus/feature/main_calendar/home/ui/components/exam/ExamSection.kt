@@ -31,7 +31,8 @@ fun ExamSection(
     showSection: Boolean,
     includeTitle: Boolean = true,
     exams: List<Exam>,
-    currentProfile: Profile
+    currentProfile: Profile,
+    onOpenExamScreen: (examId: Int) -> Unit
 ) {
     androidx.compose.animation.AnimatedVisibility(
         visible = showSection,
@@ -50,7 +51,8 @@ fun ExamSection(
                 exams.forEach { exam ->
                     ExamItem(
                         currentProfile = currentProfile,
-                        exam = exam
+                        exam = exam,
+                        onOpenExamScreen = onOpenExamScreen
                     )
                 }
             }

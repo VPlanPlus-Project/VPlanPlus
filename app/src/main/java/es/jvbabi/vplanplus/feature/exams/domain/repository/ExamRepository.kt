@@ -33,4 +33,6 @@ interface ExamRepository {
         date: LocalDate? = null,
         group: Group? = null
     ): Flow<List<Exam>>
+
+    fun getExamById(id: Int): Flow<Exam>
 }

@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.time.format.FormatStyle
 import java.time.temporal.ChronoUnit
+import java.util.Locale
 
 
 object DateUtils {
@@ -202,11 +203,14 @@ data class TimeSpan(
 }
 
 @Composable
-fun LocalDate.formatDayDuration(compareTo: LocalDate): String {
+fun LocalDate.formatDayDuration(compareTo: LocalDate, capitalize: Boolean = true): String {
     val date = this
     return DateUtils.localizedRelativeDate(LocalContext.current, compareTo, false).let { relativeDate ->
         if (relativeDate != ";DATE" && relativeDate != null) return@let relativeDate
         if (compareTo.isAfter(date)) return@let stringResource(id = R.string.home_inNDays, date.until(compareTo, ChronoUnit.DAYS))
         else return@let stringResource(id = R.string.home_NdaysAgo, compareTo.until(date, ChronoUnit.DAYS))
+    }.let { relativeDate ->
+        if (capitalize) relativeDate.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
+        else relativeDate.replaceFirstChar { it.lowercaseChar() }
     }
 }

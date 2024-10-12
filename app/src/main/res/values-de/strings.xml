@@ -834,4 +834,10 @@
     <string name="examsNew_details_skip">Überspringen</string>
     <string name="examsNew_details_save">Speichern</string>
     <string name="calendar_dayFilterExams">Leistungserh.</string>
+    <string name="examsDetails_date">Am %1$s, %2$s</string>
+    <string name="examsDetails_warning">Diese Leistungserhebung findet bald statt.</string>
+    <string name="examsDetails_warningText">Nur noch %1$d Tage verbleibend. Bereite dich vor!</string>
+    <string name="examsDetails_imReadyButton">Bereit</string>
+    <string name="examsDetails_type">Kategorie</string>
+    <string name="examsDetails_description">Details</string>
 </resources>
