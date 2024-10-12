@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CalendarViewUseCases
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CanShowTimetableInfoBannerUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.DismissTimetableInfoBannerUseCase
@@ -34,7 +35,8 @@ object CalendarModule {
         gradeRepository: GradeRepository,
         lessonRepository: LessonRepository,
         timetableRepository: TimetableRepository,
-        holidayRepository: HolidayRepository
+        holidayRepository: HolidayRepository,
+        examRepository: ExamRepository
     ): CalendarViewUseCases = CalendarViewUseCases(
         getCurrentProfileUseCase = getCurrentProfileUseCase,
         getDayUseCase = GetDayUseCase(
@@ -45,7 +47,8 @@ object CalendarModule {
             lessonRepository = lessonRepository,
             timetableRepository = timetableRepository,
             getCurrentProfileUseCase = getCurrentProfileUseCase,
-            holidayRepository = holidayRepository
+            holidayRepository = holidayRepository,
+            examRepository = examRepository
         ),
         getLastSyncUseCase = GetLastSyncUseCase(keyValueRepository),
 

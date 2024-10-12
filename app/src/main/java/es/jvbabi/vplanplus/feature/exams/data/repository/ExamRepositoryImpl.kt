@@ -44,4 +44,8 @@ class ExamRepositoryImpl(
         )
         return examDao.getExam(examId).map { it.toModel() }
     }
+
+    override fun getExams(date: LocalDate?, group: Group?): Flow<List<Exam>> =
+        examDao.getExams(date, group?.groupId)
+            .map { exams -> exams.map { it.toModel() } }
 }

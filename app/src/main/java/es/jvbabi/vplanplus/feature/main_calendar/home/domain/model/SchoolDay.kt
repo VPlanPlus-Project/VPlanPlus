@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_calendar.home.domain.model
 
 import androidx.compose.runtime.Immutable
 import es.jvbabi.vplanplus.domain.model.DayType
+import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Grade
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
@@ -18,6 +19,7 @@ data class SchoolDay(
     val lessons: List<Lesson>,
     val homework: List<PersonalizedHomework> = emptyList(),
     val grades: List<Grade> = emptyList(),
+    val exams: List<Exam> = emptyList(),
     val type: DayType = DayType.NORMAL,
     val dataType: DataType,
     val version: Long

@@ -52,7 +52,7 @@ fun ColumnScope.Week(
                 Day(
                     date = day.date,
                     homework = day.homework.filter { it.homework.until.toLocalDate() == day.date },
-                    exams = 0,
+                    exams = day.exams.filter { it.date == day.date },
                     isToday = day.date == LocalDate.now(),
                     isSelected = day.date == selectedDay,
                     displayMonth = displayMonth,

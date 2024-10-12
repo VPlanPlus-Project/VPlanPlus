@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,6 +36,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer2Dp
@@ -54,7 +56,7 @@ fun Day(
     isSelected: Boolean,
     isToday: Boolean,
     homework: List<PersonalizedHomework>,
-    exams: Int,
+    exams: List<Exam>,
     displayMonth: Month?,
     state: DayDisplayState,
     progress: Float,
@@ -143,20 +145,23 @@ fun Day(
                     }
                 }
 
-                repeat(exams) {
-                    Box(
+                exams.forEach { exam ->
+                    RowVerticalCenter (
                         modifier = Modifier
                             .height(14.dp)
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(50))
-                            .background(Color.Red),
-                        contentAlignment = Alignment.CenterStart
+                            .background(exam.getBackgroundColor()),
+                        horizontalArrangement = Arrangement.Start
                     ) {
+                        Spacer2Dp()
+                        Icon(if (exam.date.isBefore(LocalDate.now())) Icons.Default.Check else Icons.Default.Edit, null, modifier = Modifier.size(12.dp), tint = exam.getTextColor())
+                        Spacer2Dp()
                         Text(
-                            text = "Test/KA",
-                            color = Color.White,
+                            text = exam.subject?.subject ?: stringResource(id = R.string.homework_noSubject),
+                            color = exam.getTextColor(),
                             style = MaterialTheme.typography.labelSmall,
-                            modifier = Modifier.padding(horizontal = 4.dp)
+                            textDecoration = if (exam.date.isBefore(LocalDate.now())) TextDecoration.LineThrough else null,
                         )
                     }
                 }
@@ -176,13 +181,13 @@ fun Day(
                             .background(hw.getBackgroundColor()),
                     )
                 }
-                repeat(exams) {
+                exams.forEach { exam ->
                     Box(
                         modifier = Modifier
                             .padding(1.dp)
                             .size(6.dp)
                             .clip(RoundedCornerShape(50))
-                            .background(Color.Red)
+                            .background(exam.getBackgroundColor())
                     )
                 }
             }
@@ -198,7 +203,7 @@ private fun WeekendPreview() {
         isSelected = false,
         isToday = true,
         homework = emptyList(),
-        exams = 0,
+        exams = emptyList(),
         displayMonth = Month.JANUARY,
         state = DayDisplayState.SMALL,
         progress = 1f
@@ -213,7 +218,7 @@ private fun SelectedPreview() {
         isSelected = true,
         isToday = false,
         homework = emptyList(),
-        exams = 0,
+        exams = emptyList(),
         displayMonth = Month.JANUARY,
         state = DayDisplayState.SMALL,
         progress = 1f
@@ -228,7 +233,7 @@ private fun DetailedPreview() {
         isSelected = false,
         isToday = false,
         homework = emptyList(),
-        exams = 2,
+        exams = emptyList(),
         displayMonth = Month.JANUARY,
         state = DayDisplayState.DETAILED,
         progress = 1f
@@ -252,6 +257,22 @@ private fun PersonalizedHomework.getBackgroundColor(): Color {
         overdue -> homeworkOverdue
         else -> homeworkNotDone
     }
+}
+
+@Composable
+private fun Exam.getBackgroundColor(): Color {
+    val examInPast = MaterialTheme.colorScheme.surfaceContainer
+    val examTodayOrLater = MaterialTheme.colorScheme.tertiary
+    if (date.isBefore(LocalDate.now())) return examInPast
+    return examTodayOrLater
+}
+
+@Composable
+private fun Exam.getTextColor(): Color {
+    val examInPast = MaterialTheme.colorScheme.onSurface
+    val examTodayOrLater = MaterialTheme.colorScheme.onTertiary
+    if (date.isBefore(LocalDate.now())) return examInPast
+    return examTodayOrLater
 }
 
 @Composable

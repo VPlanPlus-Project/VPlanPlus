@@ -28,4 +28,9 @@ interface ExamRepository {
         author: VppId?,
         createdAt: ZonedDateTime = ZonedDateTime.now()
     ): Flow<Exam>
+
+    fun getExams(
+        date: LocalDate? = null,
+        group: Group? = null
+    ): Flow<List<Exam>>
 }

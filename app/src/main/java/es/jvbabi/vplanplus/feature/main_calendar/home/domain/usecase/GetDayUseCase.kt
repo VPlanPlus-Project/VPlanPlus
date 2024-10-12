@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
@@ -34,6 +35,7 @@ class GetDayUseCase(
     private val timetableRepository: TimetableRepository,
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
     private val holidayRepository: HolidayRepository,
+    private val examRepository: ExamRepository
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend operator fun invoke(date: LocalDate): Flow<SchoolDay> {
@@ -78,12 +80,18 @@ class GetDayUseCase(
 
                 val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it) } ?: flow { emit(emptyList()) }
                 val gradesFlow = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it, date).map { grades -> grades.filter { grade -> grade.givenAt == date } } } ?: flow { emit(emptyList()) }
-                combine(homeworkFlow, gradesFlow) { homework, grades ->
+                val examsFlow = examRepository.getExams()
+                combine(
+                    homeworkFlow,
+                    gradesFlow,
+                    examsFlow
+                ) { homework, grades, exams ->
                     schoolDay.copy(
                         homework = homework
                             .filter { (it is PersonalizedHomework.LocalHomework || (it is PersonalizedHomework.CloudHomework && !it.isHidden)) && (it.homework.until.toLocalDate() == date || (!it.allDone() && it.homework.until.toLocalDate().isBefore(LocalDate.now()))) }
                             .sortedBy { "${it.homework.until.toEpochSecond()}__${it.homework.defaultLesson?.subject}" },
-                        grades = grades
+                        grades = grades,
+                        exams = exams
                     )
                 }.collect {
                     schoolDay = it

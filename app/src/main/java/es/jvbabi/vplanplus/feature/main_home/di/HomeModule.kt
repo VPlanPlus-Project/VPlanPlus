@@ -19,6 +19,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
@@ -55,6 +56,7 @@ object HomeModule {
         timetableRepository: TimetableRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         holidayRepository: HolidayRepository,
+        examRepository: ExamRepository
     ): GetDayUseCase {
         return GetDayUseCase(
             planRepository = planRepository,
@@ -65,6 +67,7 @@ object HomeModule {
             getCurrentProfileUseCase = getCurrentProfileUseCase,
             lessonRepository = lessonRepository,
             holidayRepository = holidayRepository,
+            examRepository = examRepository
         )
     }
 
