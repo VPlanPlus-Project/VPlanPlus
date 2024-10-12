@@ -63,7 +63,7 @@ fun InfoCard(
             .background(backgroundColor)
             .padding(start = 4.dp)
     ) {
-        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
@@ -79,6 +79,8 @@ fun InfoCard(
                 Text(text = text, color = textColor)
             }
         }
+
+        if (buttonText1 == null && buttonText2 == null) Spacer(modifier = Modifier.size(16.dp))
 
         if (buttonText1 != null) Row(
             modifier = Modifier

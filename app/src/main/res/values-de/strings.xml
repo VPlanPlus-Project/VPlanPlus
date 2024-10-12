@@ -840,4 +840,10 @@
     <string name="examsDetails_imReadyButton">Bereit</string>
     <string name="examsDetails_type">Kategorie</string>
     <string name="examsDetails_description">Details</string>
+    <string name="examsDetails_editing">Bearbeiten</string>
+    <string name="examsDetails_titleUpdated">Thema aktualisiert</string>
+    <string name="undo">Rückgängig</string>
+    <string name="examsDetails_typeUpdated">Kategorie aktualisiert</string>
+    <string name="examsDetails_descriptionEmpty">Keine Details angegeben</string>
+    <string name="examsDetails_descriptionUpdated">Details aktualisiert</string>
 </resources>

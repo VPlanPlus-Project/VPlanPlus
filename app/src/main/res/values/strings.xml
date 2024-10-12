@@ -843,4 +843,10 @@
     <string name="examsDetails_imReadyButton">I\'m ready</string>
     <string name="examsDetails_type">Category</string>
     <string name="examsDetails_description">Details</string>
+    <string name="examsDetails_editing">Editing</string>
+    <string name="examsDetails_titleUpdated">Topic updated</string>
+    <string name="undo">Undo</string>
+    <string name="examsDetails_typeUpdated">Category updated</string>
+    <string name="examsDetails_descriptionEmpty">No details given</string>
+    <string name="examsDetails_descriptionUpdated">Details updated</string>
 </resources>
