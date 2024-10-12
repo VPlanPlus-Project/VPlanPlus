@@ -35,4 +35,6 @@ interface ExamRepository {
     ): Flow<List<Exam>>
 
     fun getExamById(id: Int): Flow<Exam>
+
+    suspend fun updateExamLocally(exam: Exam)
 }

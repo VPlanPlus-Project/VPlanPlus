@@ -52,4 +52,18 @@ class ExamRepositoryImpl(
     override fun getExamById(id: Int): Flow<Exam> {
         return examDao.getExam(id).map { it.toModel() }
     }
+
+    override suspend fun updateExamLocally(exam: Exam) {
+        examDao.saveExam(DbExam(
+            id = exam.id,
+            subject = exam.subject?.vpId,
+            date = exam.date,
+            type = exam.type.name,
+            title = exam.title,
+            description = exam.description,
+            createdAt = exam.createdAt,
+            createdBy = exam.createdBy?.id,
+            groupId = exam.group.groupId
+        ))
+    }
 }

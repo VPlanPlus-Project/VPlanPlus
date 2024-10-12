@@ -72,7 +72,7 @@ class ExamDetailsViewModel @Inject constructor(
                         canCancelUpdateTitleJob = false
                         state = state.copy(editModeUpdatingTitleState = UpdatingState.UPDATING)
                         previousTitle = state.exam?.title
-                        delay(300)
+                        examDetailsUseCases.updateTitleUseCase(state.exam!!.id, event.newTitle)
                         state = state.copy(editModeUpdatingTitleState = UpdatingState.DONE, canUndoTitleUpdate = true)
                         canCancelUpdateTitleJob = true
                         delay(3000)
@@ -85,7 +85,7 @@ class ExamDetailsViewModel @Inject constructor(
                 state = state.copy(editModeUpdatingTitleState = UpdatingState.UPDATING, editModeTitle = previousTitle)
                 canCancelUpdateTitleJob = false
                 viewModelScope.launch {
-                    delay(1000)
+                    examDetailsUseCases.updateTitleUseCase(state.exam!!.id, previousTitle ?: state.exam!!.title)
                     state = state.copy(
                         editModeTitle = previousTitle,
                         canUndoTitleUpdate = false,
@@ -104,7 +104,7 @@ class ExamDetailsViewModel @Inject constructor(
                 canCancelUpdateDateJob = false
                 updateDateJob?.cancel()
                 updateDateJob = viewModelScope.launch {
-                    delay(1000)
+                    examDetailsUseCases.updateDateUseCase(state.exam!!.id, event.newDate)
                     state = state.copy(
                         editModeDate = event.newDate,
                         canUndoDateUpdate = true,
@@ -120,7 +120,7 @@ class ExamDetailsViewModel @Inject constructor(
                 state = state.copy(editModeUpdatingDateState = UpdatingState.UPDATING, editModeDate = previousDate)
                 canCancelUpdateDateJob = false
                 updateDateJob = viewModelScope.launch {
-                    delay(1000)
+                    examDetailsUseCases.updateDateUseCase(state.exam!!.id, previousDate ?: state.exam!!.date)
                     state = state.copy(
                         editModeDate = previousDate,
                         canUndoDateUpdate = false,
@@ -139,7 +139,7 @@ class ExamDetailsViewModel @Inject constructor(
                 canCancelUpdateTypeJob = false
                 updateTypeJob?.cancel()
                 updateTypeJob = viewModelScope.launch {
-                    delay(1000)
+                    examDetailsUseCases.updateCategoryUseCase(state.exam!!.id, event.newType)
                     state = state.copy(
                         editModeType = event.newType,
                         canUndoTypeUpdate = true,
@@ -155,7 +155,7 @@ class ExamDetailsViewModel @Inject constructor(
                 state = state.copy(editModeUpdatingTypeState = UpdatingState.UPDATING, editModeType = previousType)
                 canCancelUpdateTypeJob = false
                 updateTypeJob = viewModelScope.launch {
-                    delay(1000)
+                    examDetailsUseCases.updateCategoryUseCase(state.exam!!.id, previousType ?: state.exam!!.type)
                     state = state.copy(
                         editModeType = previousType,
                         canUndoTypeUpdate = false,
@@ -176,6 +176,7 @@ class ExamDetailsViewModel @Inject constructor(
                         canCancelUpdateDescriptionJob = false
                         state = state.copy(editModeUpdatingDescriptionState = UpdatingState.UPDATING)
                         previousDescription = state.exam?.description
+                        examDetailsUseCases.updateExamDetailsUseCase(state.exam!!.id, event.newDescription)
                         delay(300)
                         state = state.copy(editModeUpdatingDescriptionState = UpdatingState.DONE, canUndoDescriptionUpdate = true)
                         canCancelUpdateDescriptionJob = true
@@ -189,7 +190,7 @@ class ExamDetailsViewModel @Inject constructor(
                 state = state.copy(editModeUpdatingDescriptionState = UpdatingState.UPDATING, editModeDescription = previousDescription)
                 canCancelUpdateDescriptionJob = false
                 updateDescriptionJob = viewModelScope.launch {
-                    delay(1000)
+                    examDetailsUseCases.updateExamDetailsUseCase(state.exam!!.id, previousDescription ?: state.exam!!.description)
                     state = state.copy(
                         editModeDescription = previousDescription,
                         canUndoDescriptionUpdate = false,

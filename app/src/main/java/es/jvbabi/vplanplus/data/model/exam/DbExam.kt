@@ -36,7 +36,7 @@ import java.time.ZonedDateTime
 data class DbExam(
     @ColumnInfo(name = "id") val id: Int,
     @ColumnInfo(name = "date") val date: LocalDate,
-    @ColumnInfo(name = "subject") val subject: Int,
+    @ColumnInfo(name = "subject") val subject: Int?,
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "description") val description: String?,
     @ColumnInfo(name = "type") val type: String,

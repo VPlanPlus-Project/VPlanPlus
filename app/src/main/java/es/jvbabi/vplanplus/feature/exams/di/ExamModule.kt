@@ -11,6 +11,10 @@ import es.jvbabi.vplanplus.feature.exams.data.repository.ExamRepositoryImpl
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.ExamDetailsUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.GetExamUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamCategoryUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamDateUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamDetailsUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamTitleUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.NewExamUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.SaveExamUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.GetDefaultLessonsUseCase
@@ -54,6 +58,11 @@ object ExamModule {
         examRepository: ExamRepository,
     ) = ExamDetailsUseCases(
         getExamUseCase = GetExamUseCase(examRepository),
-        getCurrentProfileUseCase = getCurrentProfileUseCase
+        getCurrentProfileUseCase = getCurrentProfileUseCase,
+
+        updateTitleUseCase = UpdateExamTitleUseCase(examRepository, getCurrentProfileUseCase),
+        updateDateUseCase = UpdateExamDateUseCase(examRepository, getCurrentProfileUseCase),
+        updateCategoryUseCase = UpdateExamCategoryUseCase(examRepository, getCurrentProfileUseCase),
+        updateExamDetailsUseCase = UpdateExamDetailsUseCase(examRepository, getCurrentProfileUseCase)
     )
 }
