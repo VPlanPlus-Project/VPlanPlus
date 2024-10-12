@@ -277,7 +277,7 @@ fun HomeScreenContent(
 
             Spacer16Dp()
 
-            val todayHasData = state.today != null && state.today.dataType != DataType.NO_DATA
+            val todayHasData = state.today != null && (state.today.dataType != DataType.NO_DATA || state.today.type != DayType.NORMAL)
             val todayIsOver = state.today?.isDayOver() ?: false
             val nextDayHasData = state.nextSchoolDay != null
 

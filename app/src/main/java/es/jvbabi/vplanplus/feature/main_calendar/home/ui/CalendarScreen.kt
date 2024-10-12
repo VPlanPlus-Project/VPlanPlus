@@ -537,41 +537,6 @@ private fun DayPager(
                                 }
                             }
 
-                            if (day.dataType == DataType.NO_DATA) {
-                                Column(
-                                    modifier = Modifier
-                                        .fillParentMaxSize()
-                                        .padding(horizontal = 12.dp),
-                                    verticalArrangement = Arrangement.Center,
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ) {
-                                    Image(
-                                        painter = painterResource(id = R.drawable.undraw_schedule_re_2vro),
-                                        contentDescription = null,
-                                        modifier = Modifier.size(148.dp)
-                                    )
-                                    Spacer16Dp()
-                                    Text(
-                                        text = stringResource(id = R.string.home_noData),
-                                        style = MaterialTheme.typography.headlineMedium.copy(
-                                            brush = Brush.horizontalGradient(
-                                                listOf(
-                                                    MaterialTheme.colorScheme.primary,
-                                                    MaterialTheme.colorScheme.secondary
-                                                )
-                                            )
-                                        ),
-                                        textAlign = TextAlign.Center
-                                    )
-                                    Text(
-                                        text = stringResource(id = R.string.home_noDataText),
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        textAlign = TextAlign.Center
-                                    )
-
-                                }
-                            }
-
                             when (day.type) {
                                 DayType.WEEKEND, DayType.HOLIDAY -> {
                                     Column(
@@ -632,7 +597,42 @@ private fun DayPager(
                                     }
                                 }
 
-                                else -> Unit
+                                else -> {
+                                    if (day.dataType == DataType.NO_DATA) {
+                                        Column(
+                                            modifier = Modifier
+                                                .fillParentMaxSize()
+                                                .padding(horizontal = 12.dp),
+                                            verticalArrangement = Arrangement.Center,
+                                            horizontalAlignment = Alignment.CenterHorizontally
+                                        ) {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.undraw_schedule_re_2vro),
+                                                contentDescription = null,
+                                                modifier = Modifier.size(148.dp)
+                                            )
+                                            Spacer16Dp()
+                                            Text(
+                                                text = stringResource(id = R.string.home_noData),
+                                                style = MaterialTheme.typography.headlineMedium.copy(
+                                                    brush = Brush.horizontalGradient(
+                                                        listOf(
+                                                            MaterialTheme.colorScheme.primary,
+                                                            MaterialTheme.colorScheme.secondary
+                                                        )
+                                                    )
+                                                ),
+                                                textAlign = TextAlign.Center
+                                            )
+                                            Text(
+                                                text = stringResource(id = R.string.home_noDataText),
+                                                style = MaterialTheme.typography.bodyMedium,
+                                                textAlign = TextAlign.Center
+                                            )
+
+                                        }
+                                    }
+                                }
                             }
                         }
                         if (localConfiguration.orientation == Configuration.ORIENTATION_LANDSCAPE) item {

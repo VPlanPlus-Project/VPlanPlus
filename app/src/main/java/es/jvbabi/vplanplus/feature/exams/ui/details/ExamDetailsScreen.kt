@@ -226,8 +226,8 @@ private fun ExamDetailsContent(
                                     onValueChange = { doAction(ExamDetailsEvent.UpdateTitle(it)) },
                                     singleLine = true,
                                     readOnly = !state.isUserAllowedToEdit || state.editModeUpdatingTitleState == UpdatingState.UPDATING,
-                                    enabled = scrollBehavior.state.collapsedFraction == 0f && state.isUserAllowedToEdit && state.editModeUpdatingTitleState != UpdatingState.UPDATING,
-                                    textStyle = MaterialTheme.typography.headlineSmall,
+                                    enabled = scrollBehavior.state.collapsedFraction == 0f && state.isUserAllowedToEdit,
+                                    textStyle = MaterialTheme.typography.headlineSmall.copy(color = MaterialTheme.colorScheme.onSurface),
                                     modifier = Modifier.fillMaxWidth().padding(start = 4.dp)
                                 )
                             }

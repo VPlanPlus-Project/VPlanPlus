@@ -819,7 +819,7 @@
     <string name="examsNew_noType">z.B. Klassenarbeit, mdl. Test</string>
     <string name="exam_type_shortTest">Leistungskontrolle</string>
     <string name="exam_type_project">Projekt</string>
-    <string name="exam_type_classTest">Klassenarbeit</string>
+    <string name="exam_type_classTest">Klassenarbeit/Klausur</string>
     <string name="exam_type_oral">Mündlich</string>
     <string name="exam_type_other">Sonstiges</string>
     <string name="saveType_local">Dieses Gerät</string>
