@@ -29,6 +29,9 @@ sealed class Screen(val route: String) {
         constructor(date: LocalDate): this(date.toString())
     }
 
+    @Serializable
+    data object NewExamScreen: Screen("new_exam_screen")
+
     data object HomeworkScreen: Screen("homework_screen")
 
     @Serializable

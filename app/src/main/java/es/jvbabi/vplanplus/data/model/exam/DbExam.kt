@@ -38,7 +38,7 @@ data class DbExam(
     @ColumnInfo(name = "date") val date: LocalDate,
     @ColumnInfo(name = "subject") val subject: Int,
     @ColumnInfo(name = "title") val title: String,
-    @ColumnInfo(name = "description") val description: String,
+    @ColumnInfo(name = "description") val description: String?,
     @ColumnInfo(name = "type") val type: String,
     @ColumnInfo(name = "created_by") val createdBy: Int?,
     @ColumnInfo(name = "group_id") val groupId: Int,

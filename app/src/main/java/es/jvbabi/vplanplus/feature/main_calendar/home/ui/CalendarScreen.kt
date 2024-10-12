@@ -34,6 +34,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Hexagon
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -125,14 +126,15 @@ fun CalendarScreen(
     }
 
     CalendarScreenContent(
-        onBack = { navHostController.navigateUp() },
-        onOpenHomeworkScreen = { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) },
-        onTimetableInfoBannerClicked = {
+        onBack = navHostController::navigateUp,
+        onOpenHomeworkScreen = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
+        onOpenNewExam = remember { { navHostController.navigate(Screen.NewExamScreen) } },
+        onTimetableInfoBannerClicked = remember { {
             openLink(
                 context,
                 "https://vplan.plus/faq/stundenplan-filter-funktioniert-nicht"
             )
-        },
+        } },
         navBar = navBar,
         navRail = navRail,
         doAction = viewModel::doAction,
@@ -144,6 +146,7 @@ fun CalendarScreen(
 private fun CalendarScreenContent(
     onBack: () -> Unit = {},
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit = {},
+    onOpenNewExam: () -> Unit = {},
     onTimetableInfoBannerClicked: () -> Unit = {},
     doAction: (action: CalendarViewAction) -> Unit = {},
     navBar: @Composable (Boolean) -> Unit = {},
@@ -254,12 +257,19 @@ private fun CalendarScreenContent(
                 })
         },
         floatingActionButton = {
-            CalendarFloatingActionButton(
-                isVisible = closest != calendarSelectHeightLarge,
-                onClick = {
-                    addHomeworkSheetInitialValues =
-                        AddHomeworkSheetInitialValues(until = state.selectedDate)
-                })
+            Column {
+                CalendarFloatingActionButton(
+                    isVisible = closest != calendarSelectHeightLarge,
+                    onClick = {
+                        addHomeworkSheetInitialValues =
+                            AddHomeworkSheetInitialValues(until = state.selectedDate)
+                    })
+                FloatingActionButton(
+                    onClick = onOpenNewExam
+                ) {
+                    Icon(Icons.Default.Hexagon, null)
+                }
+            }
         },
         bottomBar = { navBar(localConfiguration.orientation == Configuration.ORIENTATION_PORTRAIT && addHomeworkSheetInitialValues == null) },
         containerColor = MaterialTheme.colorScheme.surface

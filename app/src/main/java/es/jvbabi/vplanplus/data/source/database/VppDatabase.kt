@@ -43,6 +43,7 @@ import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
+import es.jvbabi.vplanplus.data.source.database.dao.ExamDao
 import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
@@ -197,6 +198,8 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val teacherDao: TeacherDao
     abstract val gradeDao: GradeDao
     abstract val yearDao: YearDao
+
+    abstract val examDao: ExamDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {

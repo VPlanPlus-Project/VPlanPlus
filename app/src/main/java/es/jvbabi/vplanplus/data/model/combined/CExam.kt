@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.exam.DbExam
 import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.domain.model.Exam
+import es.jvbabi.vplanplus.domain.model.ExamType
 
 data class CExam(
     @Embedded val exam: DbExam,
@@ -33,7 +34,7 @@ data class CExam(
             date = exam.date,
             title = exam.title,
             description = exam.description,
-            type = exam.type,
+            type = try { ExamType.valueOf(exam.type) } catch (e: IllegalArgumentException) { ExamType.OTHER },
             createdBy = createdBy?.toModel(),
             group = group.toModel(),
             createdAt = exam.createdAt

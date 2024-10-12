@@ -190,6 +190,10 @@ enum class SaveType {
     LOCAL, CLOUD, SHARED
 }
 
+fun SaveType.isOnline(): Boolean {
+    return this == SaveType.CLOUD || this == SaveType.SHARED
+}
+
 data class NewHomeworkDocument(
     val uri: Uri,
     val type: HomeworkDocumentType,

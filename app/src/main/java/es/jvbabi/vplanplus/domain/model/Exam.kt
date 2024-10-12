@@ -8,9 +8,13 @@ data class Exam(
     val subject: DefaultLesson?,
     val date: LocalDate,
     val title: String,
-    val description: String,
-    val type: String,
+    val description: String?,
+    val type: ExamType,
     val createdBy: VppId?,
     val group: Group,
     val createdAt: ZonedDateTime
 )
+
+enum class ExamType {
+    SHORT_TEST, PROJECT, CLASS_TEST, ORAL, OTHER
+}

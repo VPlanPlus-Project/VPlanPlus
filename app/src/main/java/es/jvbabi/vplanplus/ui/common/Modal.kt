@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -91,7 +92,7 @@ fun Option(
     modifier: Modifier = Modifier,
     title: String,
     subtitle: String? = null,
-    icon: ImageVector,
+    icon: ImageVector?,
     state: Boolean,
     enabled: Boolean,
     onClick: () -> Unit
@@ -107,12 +108,12 @@ fun Option(
             .height(56.dp)
             .background(background)
             .padding(vertical = 8.dp, horizontal = 16.dp)) {
-        Icon(
+        if (icon != null) Icon(
             imageVector = icon,
             contentDescription = null,
             tint = if (enabled) contentColor else disabledContentColor,
             modifier = Modifier.size(24.dp)
-        )
+        ) else Spacer(Modifier.size(24.dp))
         Column(Modifier.padding(start = 16.dp)) {
             Text(text = title, style = MaterialTheme.typography.bodyLarge, color = if (enabled) contentColor else disabledContentColor)
             if (!subtitle.isNullOrBlank()) Text(text = subtitle, style = MaterialTheme.typography.labelMedium, color = if (enabled) contentColor else disabledContentColor)

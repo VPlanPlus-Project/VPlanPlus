@@ -17,6 +17,7 @@ import androidx.navigation.toRoute
 import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.CalendarScreen
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam.NewExamScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.GradesScreen
@@ -88,9 +89,22 @@ fun NavigationGraph(
         settingsScreens(navController)
         gradesScreens(navController)
 
+        examScreens(navController)
+
         composable(route = Screen.SearchAvailableRoomScreen.route) {
             RoomSearch(navHostController = navController)
         }
+    }
+}
+
+private fun NavGraphBuilder.examScreens(navController: NavHostController) {
+    composable<Screen.NewExamScreen>(
+        enterTransition = slideInFromBottom,
+        exitTransition = slideOutFromBottom,
+        popEnterTransition = slideInFromBottom,
+        popExitTransition = slideOutFromBottom
+    ) {
+        NewExamScreen(navHostController = navController)
     }
 }
 
