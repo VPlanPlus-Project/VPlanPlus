@@ -129,7 +129,7 @@ sealed class CalendarViewAction {
 }
 
 enum class DayViewFilter {
-    GRADES, LESSONS, HOMEWORK
+    GRADES, LESSONS, HOMEWORK, EXAMS
 }
 
 enum class DateSelectCause {

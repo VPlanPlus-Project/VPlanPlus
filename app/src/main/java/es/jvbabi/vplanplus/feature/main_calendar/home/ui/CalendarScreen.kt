@@ -88,6 +88,7 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.FullMonthPag
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.ScrollableDateSelector
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.TopBar
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.TypeFilters
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.ExamSection
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.homework.HomeworkSection
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.LessonsSection
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.components.grades.GradeRecord
@@ -470,11 +471,19 @@ private fun DayPager(
                                 hasLessons = day.lessons.isNotEmpty(),
                                 hasHomework = day.homework.isNotEmpty(),
                                 hasGrades = day.grades.isNotEmpty(),
+                                hasExams = day.exams.isNotEmpty(),
                                 enabledFilters = state.enabledFilters,
                                 toggleFilter = { doAction(CalendarViewAction.ToggleFilter(it)) }
                             )
                         }
                         item {
+                            Box(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
+                                ExamSection(
+                                    showSection = (state.enabledFilters.isEmpty() || DayViewFilter.EXAMS in state.enabledFilters) && day.exams.isNotEmpty(),
+                                    exams = day.exams,
+                                    currentProfile = state.currentProfile!!
+                                )
+                            }
                             Box(Modifier.padding(horizontal = 8.dp, vertical = 4.dp)) {
                                 HomeworkSection(
                                     showSection = (state.enabledFilters.isEmpty() || DayViewFilter.HOMEWORK in state.enabledFilters) && day.homework.isNotEmpty(),

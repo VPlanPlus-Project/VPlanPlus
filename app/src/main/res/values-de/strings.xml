@@ -833,4 +833,5 @@
     <string name="examsNew_details_placeholder">Gib weitere Details an (optional)</string>
     <string name="examsNew_details_skip">Überspringen</string>
     <string name="examsNew_details_save">Speichern</string>
+    <string name="calendar_dayFilterExams">Leistungserh.</string>
 </resources>

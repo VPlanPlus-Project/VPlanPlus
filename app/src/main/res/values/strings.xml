@@ -836,4 +836,5 @@
     <string name="examsNew_details_placeholder">Enter more details (optional)</string>
     <string name="examsNew_details_skip">Skip</string>
     <string name="examsNew_details_save">Save</string>
+    <string name="calendar_dayFilterExams">Exams</string>
 </resources>

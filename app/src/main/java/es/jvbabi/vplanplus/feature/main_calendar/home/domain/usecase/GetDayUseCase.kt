@@ -80,7 +80,7 @@ class GetDayUseCase(
 
                 val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it) } ?: flow { emit(emptyList()) }
                 val gradesFlow = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it, date).map { grades -> grades.filter { grade -> grade.givenAt == date } } } ?: flow { emit(emptyList()) }
-                val examsFlow = examRepository.getExams()
+                val examsFlow = examRepository.getExams(date, (profile as? ClassProfile)?.group)
                 combine(
                     homeworkFlow,
                     gradesFlow,

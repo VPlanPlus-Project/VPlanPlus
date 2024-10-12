@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.fadeIn
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.School
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
@@ -30,6 +32,7 @@ fun TypeFilters(
     hasLessons: Boolean,
     hasHomework: Boolean,
     hasGrades: Boolean,
+    hasExams: Boolean,
     enabledFilters: List<DayViewFilter>,
     toggleFilter: (DayViewFilter) -> Unit,
 ) {
@@ -102,6 +105,26 @@ fun TypeFilters(
                     }
                 }
             }
+            item {
+                AnimatedVisibility(
+                    visible = hasExams,
+                    enter = expandHorizontally(),
+                    exit = shrinkVertically()
+                ) {
+                    Row {
+                        FilterChip(
+                            selected = DayViewFilter.EXAMS in enabledFilters,
+                            onClick = { toggleFilter(DayViewFilter.EXAMS) },
+                            label = { Text(text = stringResource(id = R.string.calendar_dayFilterExams)) },
+                            leadingIcon = {
+                                if (DayViewFilter.EXAMS in enabledFilters) Icon(Icons.Default.Check, contentDescription = null)
+                                else Icon(Icons.Default.Edit, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                            }
+                        )
+                        Spacer8Dp()
+                    }
+                }
+            }
         }
     }
 }
@@ -113,6 +136,7 @@ private fun TypeFiltersPreview() {
         hasLessons = true,
         hasHomework = true,
         hasGrades = true,
+        hasExams = false,
         enabledFilters = listOf(DayViewFilter.HOMEWORK, DayViewFilter.GRADES),
         toggleFilter = {}
     )
@@ -125,6 +149,7 @@ private fun TypeFiltersNoLessonsPreview() {
         hasLessons = false,
         hasHomework = true,
         hasGrades = true,
+        hasExams = false,
         enabledFilters = listOf(DayViewFilter.HOMEWORK, DayViewFilter.GRADES),
         toggleFilter = {}
     )
@@ -137,6 +162,7 @@ private fun TypeFiltersNoHomeworkPreview() {
         hasLessons = true,
         hasHomework = false,
         hasGrades = true,
+        hasExams = true,
         enabledFilters = listOf(DayViewFilter.HOMEWORK, DayViewFilter.GRADES),
         toggleFilter = {}
     )
