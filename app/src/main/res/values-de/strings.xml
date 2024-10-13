@@ -846,4 +846,5 @@
     <string name="examsDetails_typeUpdated">Kategorie aktualisiert</string>
     <string name="examsDetails_descriptionEmpty">Keine Details angegeben</string>
     <string name="examsDetails_descriptionUpdated">Details aktualisiert</string>
+    <string name="calendar_newExam">Neue Leistungserh.</string>
 </resources>

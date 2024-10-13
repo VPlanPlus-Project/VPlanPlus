@@ -17,7 +17,7 @@ import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 
 @Composable
 @Preview
-fun CalendarFloatingActionButton(
+fun CalendarFloatingActionButtonNewExam(
     isVisible: Boolean = true,
     onClick: () -> Unit = {},
 ) {
@@ -30,7 +30,7 @@ fun CalendarFloatingActionButton(
             RowVerticalCenter {
                 Icon(Icons.Default.Add, contentDescription = null)
                 Spacer4Dp()
-                Text(text = stringResource(id = R.string.home_quickActionsNewHomework))
+                Text(text = stringResource(id = R.string.calendar_newExam))
             }
         }
     }

@@ -849,4 +849,5 @@
     <string name="examsDetails_typeUpdated">Category updated</string>
     <string name="examsDetails_descriptionEmpty">No details given</string>
     <string name="examsDetails_descriptionUpdated">Details updated</string>
+    <string name="calendar_newExam">New exam</string>
 </resources>

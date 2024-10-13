@@ -34,7 +34,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Hexagon
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -81,7 +80,8 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarDateHead
-import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButton
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButtonNewExam
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButtonNewHomework
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DateBar
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DayInfoCard
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.FullMonthPager
@@ -261,17 +261,18 @@ private fun CalendarScreenContent(
         },
         floatingActionButton = {
             Column {
-                CalendarFloatingActionButton(
+                CalendarFloatingActionButtonNewHomework(
                     isVisible = closest != calendarSelectHeightLarge,
                     onClick = {
                         addHomeworkSheetInitialValues =
                             AddHomeworkSheetInitialValues(until = state.selectedDate)
-                    })
-                FloatingActionButton(
+                    }
+                )
+                Spacer8Dp()
+                CalendarFloatingActionButtonNewExam(
+                    isVisible = closest != calendarSelectHeightLarge,
                     onClick = onOpenNewExam
-                ) {
-                    Icon(Icons.Default.Hexagon, null)
-                }
+                )
             }
         },
         bottomBar = { navBar(localConfiguration.orientation == Configuration.ORIENTATION_PORTRAIT && addHomeworkSheetInitialValues == null) },
@@ -332,6 +333,8 @@ private fun CalendarScreenContent(
                             addHomeworkSheetInitialValues =
                                 AddHomeworkSheetInitialValues(until = state.selectedDate)
                         }) { Icon(Icons.Default.Add, null) }
+                        Spacer8Dp()
+                        FloatingActionButton(onClick = onOpenNewExam) { Icon(Icons.Default.Add, null) } // TODO: Merge into one
                     }
                 }
                 val topBarHeight = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
