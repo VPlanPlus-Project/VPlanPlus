@@ -53,7 +53,7 @@ fun TypeSection(
                 )
                 .verticalScroll(rememberScrollState())
         ) {
-            ExamType.entries.forEach { type ->
+            ExamType.values.forEach { type ->
                 Option(
                     title = stringResource(type.stringResource()),
                     subtitle = null,

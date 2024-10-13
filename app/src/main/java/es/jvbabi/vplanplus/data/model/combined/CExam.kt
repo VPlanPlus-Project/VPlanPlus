@@ -34,7 +34,7 @@ data class CExam(
             date = exam.date,
             title = exam.title,
             description = exam.description,
-            type = try { ExamType.valueOf(exam.type) } catch (e: IllegalArgumentException) { ExamType.OTHER },
+            type = ExamType.of(exam.type),
             createdBy = createdBy?.toModel(),
             group = group.toModel(),
             createdAt = exam.createdAt

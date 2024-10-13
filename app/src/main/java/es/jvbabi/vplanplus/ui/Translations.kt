@@ -8,11 +8,11 @@ import es.jvbabi.vplanplus.feature.main_homework.add.ui.SaveType
 @Composable
 fun ExamType.stringResource(): Int {
     return when (this) {
-        ExamType.SHORT_TEST -> R.string.exam_type_shortTest
-        ExamType.PROJECT -> R.string.exam_type_project
-        ExamType.CLASS_TEST -> R.string.exam_type_classTest
-        ExamType.ORAL -> R.string.exam_type_oral
-        ExamType.OTHER -> R.string.exam_type_other
+        is ExamType.ShortTest -> R.string.exam_type_shortTest
+        is ExamType.Project -> R.string.exam_type_project
+        is ExamType.ClassTest -> R.string.exam_type_classTest
+        is ExamType.Oral -> R.string.exam_type_oral
+        is ExamType.Other -> R.string.exam_type_other
     }
 }
 

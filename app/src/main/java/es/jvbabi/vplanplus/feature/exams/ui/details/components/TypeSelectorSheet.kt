@@ -45,7 +45,7 @@ fun TypeSelectorSheet(
                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                 .verticalScroll(rememberScrollState())
         ) {
-            ExamType.entries.forEach {
+            ExamType.values.forEach {
                 Option(
                     title = stringResource(it.stringResource()),
                     subtitle = null,
@@ -66,5 +66,5 @@ fun TypeSelectorSheet(
 @Composable
 @Preview
 private fun TypeSelectorSheetPreview() {
-    TypeSelectorSheet(currentType = ExamType.PROJECT, rememberModalBottomSheetState(), {})
+    TypeSelectorSheet(currentType = ExamType.Project, rememberModalBottomSheetState(), {})
 }
