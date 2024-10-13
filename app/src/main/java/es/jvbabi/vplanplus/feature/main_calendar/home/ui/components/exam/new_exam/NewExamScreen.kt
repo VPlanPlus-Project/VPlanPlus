@@ -124,6 +124,15 @@ private fun NewExamContent(
                 onHeaderClicked = { doAction(NewExamUiEvent.OnStorageClicked) },
                 onTypeSelected = { doAction(NewExamUiEvent.OnStorageSelected(it)) }
             )
+            
+            if (state.date != null && state.type != null) ReminderSection(
+                selectedDays = state.remindDaysBefore,
+                selectedDate = state.date,
+                selectedType = state.type,
+                isContentExpanded = state.isReminderExpanded,
+                onHeaderClicked = { doAction(NewExamUiEvent.OnReminderClicked) },
+                onRemindDaysBeforeSelected = { doAction(NewExamUiEvent.OnRemindDaysBeforeSelected(it)) }
+            )
         }
     }
 }

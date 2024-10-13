@@ -65,6 +65,7 @@ class NewExamViewModel @Inject constructor(
                 hideAllSections()
                 _state.value = _state.value.copy(
                     type = event.type,
+                    remindDaysBefore = null,
                     isTopicExpanded = state.value.topic == null
                 )
             }
@@ -106,7 +107,19 @@ class NewExamViewModel @Inject constructor(
                 hideAllSections()
                 _state.value = _state.value.copy(
                     saveAndShare = event.saveAndShare,
-                    isSubjectsExpanded = state.value.subject == null
+                    isSubjectsExpanded = state.value.subject == null,
+                    isReminderExpanded = state.value.remindDaysBefore == null
+                )
+            }
+
+            is NewExamUiEvent.OnReminderClicked -> {
+                val before = _state.value.isReminderExpanded
+                hideAllSections()
+                _state.value = _state.value.copy(isReminderExpanded = !before)
+            }
+            is NewExamUiEvent.OnRemindDaysBeforeSelected -> {
+                _state.value = _state.value.copy(
+                    remindDaysBefore = event.days
                 )
             }
 
@@ -137,7 +150,8 @@ class NewExamViewModel @Inject constructor(
             isTypeExpanded = false,
             isTopicExpanded = false,
             isDetailsExpanded = false,
-            isStorageExpanded = false
+            isStorageExpanded = false,
+            isReminderExpanded = false
         )
     }
 
@@ -183,6 +197,9 @@ data class NewExamState(
     val saveAndShare: SaveType? = null,
     val isStorageExpanded: Boolean = false,
 
+    val isReminderExpanded: Boolean = false,
+    val remindDaysBefore: List<Int>? = null,
+
     val saveSuccess: Boolean? = null
 ) {
     val canSave: Boolean
@@ -212,6 +229,9 @@ sealed class NewExamUiEvent {
 
     data object OnStorageClicked: NewExamUiEvent()
     data class OnStorageSelected(val saveAndShare: SaveType): NewExamUiEvent()
+
+    data object OnReminderClicked: NewExamUiEvent()
+    data class OnRemindDaysBeforeSelected(val days: List<Int>): NewExamUiEvent()
 
     data object OnSaveClicked: NewExamUiEvent()
 }
