@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
@@ -51,10 +51,10 @@ fun ReminderSection(
         isContentExpanded = isContentExpanded,
     ) {
         LazyRow(
-            modifier = Modifier.padding(horizontal = 16.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            item { Spacer8Dp() }
             repeat(7) {
                 val date = selectedDate.minusDays(7 - it.toLong())
                 if (date.isBefore(LocalDate.now())) return@repeat
@@ -118,6 +118,7 @@ fun ReminderSection(
                     }
                     Text(selectedDate.format(DateTimeFormatter.ofPattern("d. MM")))
                 }
+                Spacer8Dp()
             }
         }
     }
