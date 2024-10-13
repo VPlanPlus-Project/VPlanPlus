@@ -13,16 +13,16 @@ data class Exam(
     val createdBy: VppId?,
     val group: Group,
     val createdAt: ZonedDateTime,
-    val remindDaysBefore: List<Int>
+    val remindDaysBefore: Set<Int>
 )
 
 sealed class ExamType(
     val code: String,
-    val remindDaysBefore: List<Int> = listOf(1, 2)
+    val remindDaysBefore: Set<Int> = setOf(1, 2)
 ) {
     data object ShortTest : ExamType(code = "SHORT_TEST")
-    data object Project : ExamType(code = "PROJECT", remindDaysBefore = listOf(7, 5, 3, 1))
-    data object ClassTest : ExamType(code = "CLASS_TEST", remindDaysBefore = listOf(4, 2, 1))
+    data object Project : ExamType(code = "PROJECT", remindDaysBefore = setOf(7, 5, 3, 1))
+    data object ClassTest : ExamType(code = "CLASS_TEST", remindDaysBefore = setOf(4, 2, 1))
     data object Oral : ExamType(code = "ORAL")
     data object Other : ExamType(code = "OTHER")
 

@@ -201,6 +201,14 @@ class ExamDetailsViewModel @Inject constructor(
                     if (state.editModeUpdatingDescriptionState == UpdatingState.DONE) state = state.copy(editModeUpdatingDescriptionState = UpdatingState.IDLE)
                 }
             }
+
+            is ExamDetailsEvent.UpdateReminderDays -> {
+                if (state.exam?.id != null) {
+                    viewModelScope.launch {
+                        examDetailsUseCases.updateReminderDaysUseCase(state.exam!!.id, event.newDays)
+                    }
+                }
+            }
         }
     }
 }
@@ -241,6 +249,8 @@ sealed class ExamDetailsEvent {
 
     data class UpdateDescription(val newDescription: String): ExamDetailsEvent()
     data object UndoDescriptionUpdate: ExamDetailsEvent()
+
+    data class UpdateReminderDays(val newDays: Set<Int>): ExamDetailsEvent()
 }
 
 enum class UpdatingState {

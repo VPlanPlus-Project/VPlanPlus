@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.GetExamUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamCategoryUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamDateUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamDetailsUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamReminderDaysUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamTitleUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.NewExamUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.SaveExamUseCase
@@ -63,6 +64,7 @@ object ExamModule {
         updateTitleUseCase = UpdateExamTitleUseCase(examRepository, getCurrentProfileUseCase),
         updateDateUseCase = UpdateExamDateUseCase(examRepository, getCurrentProfileUseCase),
         updateCategoryUseCase = UpdateExamCategoryUseCase(examRepository, getCurrentProfileUseCase),
-        updateExamDetailsUseCase = UpdateExamDetailsUseCase(examRepository, getCurrentProfileUseCase)
+        updateExamDetailsUseCase = UpdateExamDetailsUseCase(examRepository, getCurrentProfileUseCase),
+        updateReminderDaysUseCase = UpdateExamReminderDaysUseCase(examRepository, getCurrentProfileUseCase)
     )
 }

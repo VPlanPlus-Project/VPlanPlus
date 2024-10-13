@@ -24,7 +24,7 @@ class ExamRepositoryImpl(
         details: String?,
         profile: ClassProfile,
         createdAt: ZonedDateTime,
-        remindDaysBefore: List<Int>?
+        remindDaysBefore: Set<Int>?
     ): Flow<Exam> {
         val examId = id ?: examDao.getCurrentLocalExamId().minus(1)
 

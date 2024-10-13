@@ -21,7 +21,7 @@ class SaveExamUseCase(
         topic: String,
         details: String?,
         saveType: SaveType,
-        remindDaysBefore: List<Int>?
+        remindDaysBefore: Set<Int>?
     ): Boolean {
         val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 

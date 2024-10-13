@@ -9,5 +9,6 @@ data class ExamDetailsUseCases(
     val updateTitleUseCase: UpdateExamTitleUseCase,
     val updateDateUseCase: UpdateExamDateUseCase,
     val updateCategoryUseCase: UpdateExamCategoryUseCase,
-    val updateExamDetailsUseCase: UpdateExamDetailsUseCase
+    val updateExamDetailsUseCase: UpdateExamDetailsUseCase,
+    val updateReminderDaysUseCase: UpdateExamReminderDaysUseCase
 )

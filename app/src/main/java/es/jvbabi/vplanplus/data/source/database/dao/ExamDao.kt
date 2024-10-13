@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.source.database.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import es.jvbabi.vplanplus.data.model.combined.CExam
 import es.jvbabi.vplanplus.data.model.exam.DbExam
@@ -17,9 +18,11 @@ abstract class ExamDao {
     @Upsert
     abstract suspend fun saveExam(exam: DbExam)
 
+    @Transaction
     @Query("SELECT * FROM exams WHERE id = :id")
     abstract fun getExam(id: Int): Flow<CExam>
 
+    @Transaction
     @Query("SELECT * FROM exams WHERE (date = :date OR :date IS NULL) AND (group_id = :groupId OR :groupId IS NULL)")
     abstract fun getExams(date: LocalDate?, groupId: Int?): Flow<List<CExam>>
 

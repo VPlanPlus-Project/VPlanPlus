@@ -26,7 +26,7 @@ interface ExamRepository {
         details: String?,
         profile: ClassProfile,
         createdAt: ZonedDateTime = ZonedDateTime.now(),
-        remindDaysBefore: List<Int>? = null
+        remindDaysBefore: Set<Int>? = null
     ): Flow<Exam>
 
     fun getExams(

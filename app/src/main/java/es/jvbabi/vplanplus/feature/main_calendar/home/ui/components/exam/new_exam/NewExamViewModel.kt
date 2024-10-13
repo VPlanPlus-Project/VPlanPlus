@@ -199,7 +199,7 @@ data class NewExamState(
     val isStorageExpanded: Boolean = false,
 
     val isReminderExpanded: Boolean = false,
-    val remindDaysBefore: List<Int>? = null,
+    val remindDaysBefore: Set<Int>? = null,
 
     val saveSuccess: Boolean? = null
 ) {
@@ -232,7 +232,7 @@ sealed class NewExamUiEvent {
     data class OnStorageSelected(val saveAndShare: SaveType): NewExamUiEvent()
 
     data object OnReminderClicked: NewExamUiEvent()
-    data class OnRemindDaysBeforeSelected(val days: List<Int>): NewExamUiEvent()
+    data class OnRemindDaysBeforeSelected(val days: Set<Int>): NewExamUiEvent()
 
     data object OnSaveClicked: NewExamUiEvent()
 }

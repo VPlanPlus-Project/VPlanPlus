@@ -53,6 +53,7 @@ data class CExam(
             remindDaysBefore = if (exam.useDefaultNotifications) type.remindDaysBefore else reminders
                 .filter { it.profileId == (contextProfile?.id ?: it.profileId) }
                 .map { it.daysBefore }
+                .toSet()
         )
     }
 }

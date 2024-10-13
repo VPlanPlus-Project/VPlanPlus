@@ -31,12 +31,12 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun ReminderSection(
-    selectedDays: List<Int>?,
+    selectedDays: Set<Int>?,
     selectedDate: LocalDate,
     selectedType: ExamType,
     isContentExpanded: Boolean,
     onHeaderClicked: () -> Unit,
-    onRemindDaysBeforeSelected: (days: List<Int>) -> Unit
+    onRemindDaysBeforeSelected: (days: Set<Int>) -> Unit
 ) {
     Section(
         title = {
@@ -50,76 +50,93 @@ fun ReminderSection(
         isVisible = true,
         isContentExpanded = isContentExpanded,
     ) {
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            item { Spacer8Dp() }
-            repeat(7) {
-                val date = selectedDate.minusDays(7 - it.toLong())
-                if (date.isBefore(LocalDate.now())) return@repeat
-                item {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Text(text = date.format(DateTimeFormatter.ofPattern("EE")))
-                        AnimatedContent(
-                            targetState = (selectedDays ?: selectedType.remindDaysBefore).contains(7 - it),
-                            label = "isDaySelected"
-                        ) { isDaySelected ->
-                            Box(
-                                modifier = Modifier
-                                    .size(48.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .background(if (isDaySelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainer)
-                                    .clickable { onRemindDaysBeforeSelected((selectedDays ?: selectedType.remindDaysBefore).toMutableList().apply { if (isDaySelected) remove(7 - it) else add(7 - it) }) },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = if (isDaySelected) Icons.Default.NotificationsActive else Icons.Default.NotificationsOff,
-                                    modifier = Modifier.size(16.dp),
-                                    contentDescription = null,
-                                    tint = if (isDaySelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
-                                )
-                            }
-                        }
-                        Text(text = date.format(DateTimeFormatter.ofPattern("d. MM")))
-                    }
-                }
-            }
-            item {
-                VerticalDivider(Modifier.height(48.dp))
-            }
+        ExamReminderSelector(selectedDate, selectedDays, selectedType, onRemindDaysBeforeSelected)
+    }
+}
+
+@Composable
+fun ExamReminderSelector(
+    selectedDate: LocalDate,
+    selectedDays: Set<Int>?,
+    selectedType: ExamType,
+    onRemindDaysBeforeSelected: (days: Set<Int>) -> Unit
+) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        item { Spacer8Dp() }
+        repeat(7) {
+            val date = selectedDate.minusDays(7 - it.toLong())
+            if (date.isBefore(LocalDate.now())) return@repeat
             item {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Text(
-                        text = "Termin",
-                        style = MaterialTheme.typography.labelLarge,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.errorContainer),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Edit,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = MaterialTheme.colorScheme.onErrorContainer
-                        )
+                    Text(text = date.format(DateTimeFormatter.ofPattern("EE")))
+                    AnimatedContent(
+                        targetState = (selectedDays
+                            ?: selectedType.remindDaysBefore).contains(7 - it),
+                        label = "isDaySelected"
+                    ) { isDaySelected ->
+                        Box(
+                            modifier = Modifier
+                                .size(48.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(if (isDaySelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceContainer)
+                                .clickable {
+                                    onRemindDaysBeforeSelected(
+                                        (selectedDays
+                                            ?: selectedType.remindDaysBefore)
+                                            .toMutableSet()
+                                            .apply { if (isDaySelected) remove(7 - it) else add(7 - it) })
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = if (isDaySelected) Icons.Default.NotificationsActive else Icons.Default.NotificationsOff,
+                                modifier = Modifier.size(16.dp),
+                                contentDescription = null,
+                                tint = if (isDaySelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                            )
+                        }
                     }
-                    Text(selectedDate.format(DateTimeFormatter.ofPattern("d. MM")))
+                    Text(text = date.format(DateTimeFormatter.ofPattern("d. MM")))
                 }
-                Spacer8Dp()
             }
+        }
+        item {
+            VerticalDivider(Modifier.height(48.dp))
+        }
+        item {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = "Termin",
+                    style = MaterialTheme.typography.labelLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Box(
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(MaterialTheme.colorScheme.errorContainer),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                }
+                Text(selectedDate.format(DateTimeFormatter.ofPattern("d. MM")))
+            }
+            Spacer8Dp()
         }
     }
 }

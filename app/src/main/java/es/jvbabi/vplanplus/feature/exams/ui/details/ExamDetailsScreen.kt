@@ -67,6 +67,7 @@ import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.ExamType
 import es.jvbabi.vplanplus.feature.exams.ui.details.components.DateSelectorSheet
 import es.jvbabi.vplanplus.feature.exams.ui.details.components.TypeSelectorSheet
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam.ExamReminderSelector
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
@@ -304,7 +305,7 @@ private fun ExamDetailsContent(
     ) { innerPadding ->
         AnimatedContent(
             targetState = state.exam,
-            contentKey = { it?.hashCode() },
+            contentKey = { it?.id },
             transitionSpec = { fadeIn(animationSpec = tween()) togetherWith fadeOut(animationSpec = tween()) },
             label = "exam"
         ) { exam ->
@@ -458,6 +459,14 @@ private fun ExamDetailsContent(
                         }
                     }
                 }
+                Column(Modifier.padding(bottom = 12.dp)) {
+                    ExamReminderSelector(
+                        selectedDate = state.editModeDate ?: exam.date,
+                        selectedDays = state.exam?.remindDaysBefore,
+                        selectedType = state.editModeType ?: exam.type,
+                        onRemindDaysBeforeSelected = { doAction(ExamDetailsEvent.UpdateReminderDays(it)) }
+                    )
+                }
             }
         }
     }
@@ -481,7 +490,7 @@ private fun ExamDetailsScreenPreview() {
                 group = group,
                 createdAt = ZonedDateTime.now().minusDays(3L),
                 subject = DefaultLesson(UUID.randomUUID(), 1, "DEU", null, group, null),
-                remindDaysBefore = listOf(1, 2)
+                remindDaysBefore = setOf(1, 2)
             ),
             currentProfile = profile
         )
