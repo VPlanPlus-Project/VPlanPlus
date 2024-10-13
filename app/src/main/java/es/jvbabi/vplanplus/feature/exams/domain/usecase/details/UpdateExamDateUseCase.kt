@@ -22,6 +22,6 @@ class UpdateExamDateUseCase(
             TODO("Online")
         }
 
-        examRepository.updateExamLocally(exam.copy(date = newDate))
+        examRepository.updateExamLocally(exam.copy(date = newDate), currentProfile)
     }
 }

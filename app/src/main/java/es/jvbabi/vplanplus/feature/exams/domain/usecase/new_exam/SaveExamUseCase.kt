@@ -20,7 +20,8 @@ class SaveExamUseCase(
         type: ExamType,
         topic: String,
         details: String?,
-        saveType: SaveType
+        saveType: SaveType,
+        remindDaysBefore: List<Int>?
     ): Boolean {
         val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
@@ -37,8 +38,8 @@ class SaveExamUseCase(
             type = type,
             topic = topic,
             details = details,
-            group = profile.group,
-            author = profile.vppId,
+            profile = profile,
+            remindDaysBefore = remindDaysBefore
         ).first().let { true }
     }
 }

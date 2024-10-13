@@ -480,7 +480,8 @@ private fun ExamDetailsScreenPreview() {
                 createdBy = null,
                 group = group,
                 createdAt = ZonedDateTime.now().minusDays(3L),
-                subject = DefaultLesson(UUID.randomUUID(), 1, "DEU", null, group, null)
+                subject = DefaultLesson(UUID.randomUUID(), 1, "DEU", null, group, null),
+                remindDaysBefore = listOf(1, 2)
             ),
             currentProfile = profile
         )

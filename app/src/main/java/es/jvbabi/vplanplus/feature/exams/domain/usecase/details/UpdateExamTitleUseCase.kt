@@ -21,6 +21,6 @@ class UpdateExamTitleUseCase(
             TODO("Online")
         }
 
-        examRepository.updateExamLocally(exam.copy(title = newTitle))
+        examRepository.updateExamLocally(exam.copy(title = newTitle), currentProfile)
     }
 }

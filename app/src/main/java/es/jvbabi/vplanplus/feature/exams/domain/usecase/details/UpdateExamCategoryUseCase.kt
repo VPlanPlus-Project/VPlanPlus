@@ -22,6 +22,6 @@ class UpdateExamCategoryUseCase(
             TODO("Online")
         }
 
-        examRepository.updateExamLocally(exam.copy(type = newCategory))
+        examRepository.updateExamLocally(exam.copy(type = newCategory), currentProfile)
     }
 }

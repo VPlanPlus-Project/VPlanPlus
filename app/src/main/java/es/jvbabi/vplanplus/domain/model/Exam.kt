@@ -12,7 +12,8 @@ data class Exam(
     val type: ExamType,
     val createdBy: VppId?,
     val group: Group,
-    val createdAt: ZonedDateTime
+    val createdAt: ZonedDateTime,
+    val remindDaysBefore: List<Int>
 )
 
 sealed class ExamType(

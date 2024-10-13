@@ -21,6 +21,7 @@ import es.jvbabi.vplanplus.data.model.DbTimetable
 import es.jvbabi.vplanplus.data.model.DbWeek
 import es.jvbabi.vplanplus.data.model.DbWeekType
 import es.jvbabi.vplanplus.data.model.exam.DbExam
+import es.jvbabi.vplanplus.data.model.exam.DbExamReminder
 import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkProfileData
@@ -129,9 +130,10 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbYear::class,
         DbInterval::class,
 
-        DbExam::class
+        DbExam::class,
+        DbExamReminder::class
     ],
-    version = 44,
+    version = 45,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -152,6 +154,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 39, to = 40), // sp24 is data in week available
         AutoMigration(from = 41, to = 42), // key value index
         AutoMigration(from = 43, to = 44), // add exams
+        AutoMigration(from = 44, to = 45), // add exam reminders
     ],
 )
 @TypeConverters(

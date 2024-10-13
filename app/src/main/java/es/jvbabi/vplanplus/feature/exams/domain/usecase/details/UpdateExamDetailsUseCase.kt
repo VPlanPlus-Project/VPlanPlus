@@ -21,6 +21,6 @@ class UpdateExamDetailsUseCase(
             TODO("Online")
         }
 
-        examRepository.updateExamLocally(exam.copy(description = newDetails))
+        examRepository.updateExamLocally(exam.copy(description = newDetails), currentProfile)
     }
 }

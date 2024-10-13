@@ -5,7 +5,9 @@ import androidx.room.Relation
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.exam.DbExam
+import es.jvbabi.vplanplus.data.model.exam.DbExamReminder
 import es.jvbabi.vplanplus.data.model.vppid.DbVppId
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.ExamType
 
@@ -25,19 +27,32 @@ data class CExam(
         parentColumn = "subject",
         entityColumn = "vp_id",
         entity = DbDefaultLesson::class
-    ) val defaultLessons: List<CDefaultLesson>
+    ) val defaultLessons: List<CDefaultLesson>,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "exam_id",
+        entity = DbExamReminder::class
+    ) val reminders: List<DbExamReminder>
 ) {
-    fun toModel(): Exam {
+
+    /**
+     * @param contextProfile The profile of the user who is currently viewing the exam, null if it is not relevant. This affects the reminder days.
+     */
+    fun toModel(contextProfile: ClassProfile?): Exam {
+        val type = ExamType.of(exam.type)
         return Exam(
             id = exam.id,
             subject = defaultLessons.firstOrNull { it.`class`.group.id == group.group.id }?.toModel(),
             date = exam.date,
             title = exam.title,
             description = exam.description,
-            type = ExamType.of(exam.type),
+            type = type,
             createdBy = createdBy?.toModel(),
             group = group.toModel(),
-            createdAt = exam.createdAt
+            createdAt = exam.createdAt,
+            remindDaysBefore = if (exam.useDefaultNotifications) type.remindDaysBefore else reminders
+                .filter { it.profileId == (contextProfile?.id ?: it.profileId) }
+                .map { it.daysBefore }
         )
     }
 }

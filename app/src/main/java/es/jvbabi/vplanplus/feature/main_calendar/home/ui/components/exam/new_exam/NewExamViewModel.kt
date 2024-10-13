@@ -133,7 +133,8 @@ class NewExamViewModel @Inject constructor(
                         type = state.value.type ?: return@launch,
                         topic = state.value.topic ?: return@launch,
                         details = state.value.details,
-                        saveType = state.value.saveAndShare ?: return@launch
+                        saveType = state.value.saveAndShare ?: return@launch,
+                        remindDaysBefore = state.value.remindDaysBefore
                     )
                     _state.value = _state.value.copy(
                         saveSuccess = result
