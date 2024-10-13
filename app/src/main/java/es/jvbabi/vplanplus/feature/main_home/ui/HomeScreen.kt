@@ -64,6 +64,7 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.QuickActions
 import es.jvbabi.vplanplus.feature.main_home.ui.components.VersionHintsInformation
 import es.jvbabi.vplanplus.feature.main_home.ui.components.banners.BadCredentialsBanner
 import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLinkToProfileCard
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.ExamList
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.HomeworkSection
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Info
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Subjects
@@ -169,6 +170,7 @@ fun HomeScreen(
         onFixCredentialsClicked = remember { { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentProfile?.getSchool()?.id}") } },
         onSendFeedback = remember { { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) } },
         onOpenHomework = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
+        onOpenExam = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
     )
 }
 
@@ -196,6 +198,7 @@ fun HomeScreenContent(
     onFixCredentialsClicked: () -> Unit = {},
 
     onOpenHomework: (homeworkId: Int) -> Unit = {},
+    onOpenExam: (examId: Int) -> Unit = {},
 
     onSendFeedback: () -> Unit = {},
 
@@ -303,7 +306,8 @@ fun HomeScreenContent(
                             1 -> NextDayPreparation(
                                 nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
                                 currentProfile = state.currentProfile,
-                                onOpenHomework = onOpenHomework
+                                onOpenHomework = onOpenHomework,
+                                onOpenExam = onOpenExam
                             )
                         }
                     }
@@ -319,7 +323,8 @@ fun HomeScreenContent(
                     NextDayPreparation(
                         nextSchoolDay = state.nextSchoolDay ?: return@Column,
                         currentProfile = state.currentProfile,
-                        onOpenHomework = onOpenHomework
+                        onOpenHomework = onOpenHomework,
+                        onOpenExam = onOpenExam
                     )
                 } else {
                     Box(
@@ -447,19 +452,27 @@ private fun NextDayPreparation(
     nextSchoolDay: SchoolDay,
     currentProfile: Profile?,
     onOpenHomework: (homeworkId: Int) -> Unit,
+    onOpenExam: (examId: Int) -> Unit,
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
-        Column(Modifier.padding(horizontal = 12.dp)) {
+        Column(
+            Modifier.padding(horizontal = 12.dp)
+        ) {
             runComposable title@{
                 val start = nextSchoolDay.actualLessons().minOfOrNull { it.start }?.toLocalTime()
                 val end = nextSchoolDay.actualLessons().maxOfOrNull { it.end }?.toLocalTime()
                 Title(nextSchoolDay.date, start, end)
             }
-            Info(info = nextSchoolDay.info)
+            Column(
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Info(info = nextSchoolDay.info)
+                ExamList(nextSchoolDay, onOpenExam)
+            }
             runComposable subjects@{
                 val subjects = nextSchoolDay.lessons
                     .map { it.displaySubject }

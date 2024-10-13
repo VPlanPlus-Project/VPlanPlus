@@ -54,7 +54,8 @@ fun InfoCard(
     buttonText2: String? = null,
     buttonAction2: () -> Unit = {},
     backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
+    textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
+    onClick: (() -> Unit)? = null
 ) {
     Column(
         modifier = modifier
@@ -62,6 +63,7 @@ fun InfoCard(
             .clip(RoundedCornerShape(8.dp))
             .background(backgroundColor)
             .padding(start = 4.dp)
+            .then(onClick?.let { Modifier.clickable { onClick() } } ?: Modifier)
     ) {
         Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(
