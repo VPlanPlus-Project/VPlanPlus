@@ -422,7 +422,9 @@ private fun TodayContent(
                 currentOrNextLesson.lessons.forEach { lesson ->
                     CurrentLesson(
                         lesson,
-                        today.homework.filter { it.homework.defaultLesson == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson && it.homework.defaultLesson != null })
+                        today.homework.filter { it.homework.defaultLesson == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson && it.homework.defaultLesson != null },
+                        today.exams.filter { it.subject?.vpId == (lesson as? Lesson.SubstitutionPlanLesson)?.defaultLesson?.vpId }
+                    )
                 }
             }
         }

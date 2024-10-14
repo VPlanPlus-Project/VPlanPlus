@@ -22,8 +22,6 @@ import androidx.compose.material.icons.automirrored.filled.ShortText
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -69,9 +67,7 @@ import es.jvbabi.vplanplus.feature.exams.ui.details.components.DateSelectorSheet
 import es.jvbabi.vplanplus.feature.exams.ui.details.components.TypeSelectorSheet
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam.ExamReminderSelector
 import es.jvbabi.vplanplus.ui.common.BackIcon
-import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
-import es.jvbabi.vplanplus.ui.common.Spacer12Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.noRippleClickable
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
@@ -83,7 +79,6 @@ import es.jvbabi.vplanplus.util.toDp
 import java.time.LocalDate
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import java.util.UUID
 
 @Composable
@@ -175,7 +170,7 @@ private fun ExamDetailsContent(
                 title = {
                     AnimatedContent(
                         targetState = state.exam,
-                        contentKey = { it?.hashCode() },
+                        contentKey = { it?.id },
                         transitionSpec = {
                             fadeIn(animationSpec = tween()) togetherWith fadeOut(
                                 animationSpec = tween()
@@ -214,12 +209,7 @@ private fun ExamDetailsContent(
                                             tint = Color.Gray
                                         )
 
-                                        else -> Icon(
-                                            imageVector = Icons.Default.Edit,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(24.dp),
-                                            tint = Color.Gray
-                                        )
+                                        else -> Unit
                                     }
                                 }
                                 BasicTextField(
@@ -273,12 +263,7 @@ private fun ExamDetailsContent(
                                             tint = Color.Gray
                                         )
 
-                                        else -> Icon(
-                                            imageVector = Icons.Default.Edit,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(16.dp),
-                                            tint = Color.Gray
-                                        )
+                                        else -> Unit
                                     }
                                 }
 
@@ -318,26 +303,14 @@ private fun ExamDetailsContent(
             Column(
                 modifier = Modifier
                     .padding(innerPadding)
-                    .padding(horizontal = 8.dp)
                     .padding(top = 8.dp)
                     .fillMaxSize()
                     .verticalScroll(rememberScrollState())
             ) {
-                LocalDate.now().until(exam.date, ChronoUnit.DAYS).let { daysLeft ->
-                    if (daysLeft > 4) return@let
-                    InfoCard(
-                        imageVector = Icons.Default.Warning,
-                        title = stringResource(id = R.string.examsDetails_warning),
-                        text = stringResource(id = R.string.examsDetails_warningText, daysLeft),
-                        buttonText1 = stringResource(id = R.string.examsDetails_imReadyButton),
-                        buttonAction1 = {}
-                    )
-                    Spacer12Dp()
-                }
-
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
                         .padding(bottom = 12.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .clickable { showTypeSelector = true }
@@ -380,12 +353,7 @@ private fun ExamDetailsContent(
                                 tint = Color.Gray
                             )
 
-                            else -> Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp),
-                                tint = Color.Gray
-                            )
+                            else -> Unit
                         }
                     }
                 }
@@ -394,6 +362,7 @@ private fun ExamDetailsContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 8.dp)
                         .padding(bottom = 12.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .noRippleClickable { descriptionFocusRequester.requestFocus() }
@@ -450,12 +419,7 @@ private fun ExamDetailsContent(
                                 tint = Color.Gray
                             )
 
-                            else -> Icon(
-                                imageVector = Icons.Default.Edit,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp),
-                                tint = Color.Gray
-                            )
+                            else -> Unit
                         }
                     }
                 }
@@ -464,7 +428,8 @@ private fun ExamDetailsContent(
                         selectedDate = state.editModeDate ?: exam.date,
                         selectedDays = state.exam?.remindDaysBefore,
                         selectedType = state.editModeType ?: exam.type,
-                        onRemindDaysBeforeSelected = { doAction(ExamDetailsEvent.UpdateReminderDays(it)) }
+                        onRemindDaysBeforeSelected = { doAction(ExamDetailsEvent.UpdateReminderDays(it)) },
+                        onExamDateClicked = { showDatePickerDialog = true }
                     )
                 }
             }

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MeetingRoom
 import androidx.compose.material3.Icon
@@ -26,10 +27,12 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
@@ -52,7 +55,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun CurrentLesson(
     lesson: Lesson,
-    homeworkForLesson: List<PersonalizedHomework>
+    homeworkForLesson: List<PersonalizedHomework>,
+    examsForLesson: List<Exam>
 ) {
     Box(
         modifier = Modifier
@@ -187,6 +191,26 @@ fun CurrentLesson(
                             homeworkForLesson.forEach { homework ->
                                 Text(
                                     text = homework.tasks.joinToString(", ") { it.content },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+                    }
+                    if (examsForLesson.isNotEmpty()) {
+                        RowVerticalCenter {
+                            Icon(
+                                imageVector = Icons.Default.Edit,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .padding(end = 2.dp)
+                                    .size(MaterialTheme.typography.bodySmall.lineHeight.toDp())
+                            )
+                            examsForLesson.forEach { exam ->
+                                Text(
+                                    text = exam.title,
                                     style = MaterialTheme.typography.bodySmall
                                 )
                             }
@@ -230,5 +254,5 @@ private fun CurrentLessonPreview() {
         profile = profile,
         tasks = listOf(HomeworkTaskDone(id = -1, homeworkId = -1, isDone = false, content = "Task A")),
     )
-    CurrentLesson(Lessons.generateLessons(1, true).first(), listOf(homework))
+    CurrentLesson(Lessons.generateLessons(1, true).first(), listOf(homework), emptyList())
 }

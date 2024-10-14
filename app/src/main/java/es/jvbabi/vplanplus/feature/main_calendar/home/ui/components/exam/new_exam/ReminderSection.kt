@@ -59,7 +59,8 @@ fun ExamReminderSelector(
     selectedDate: LocalDate,
     selectedDays: Set<Int>?,
     selectedType: ExamType,
-    onRemindDaysBeforeSelected: (days: Set<Int>) -> Unit
+    onRemindDaysBeforeSelected: (days: Set<Int>) -> Unit,
+    onExamDateClicked: (() -> Unit)? = null
 ) {
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -124,7 +125,8 @@ fun ExamReminderSelector(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(RoundedCornerShape(8.dp))
-                        .background(MaterialTheme.colorScheme.errorContainer),
+                        .background(MaterialTheme.colorScheme.errorContainer)
+                        .then(onExamDateClicked?.let { Modifier.clickable { onExamDateClicked() } } ?: Modifier),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
