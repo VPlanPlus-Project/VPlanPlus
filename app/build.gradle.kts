@@ -134,6 +134,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.hilt.navigation.compose)
     implementation(libs.hilt.work)
+    implementation(libs.places)
     testImplementation(libs.junit)
     ksp(libs.hilt.android.compiler)
     ksp(libs.hilt.compiler)

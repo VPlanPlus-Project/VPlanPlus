@@ -55,6 +55,18 @@ object HomeModule {
 
     @Provides
     @Singleton
+    fun provideGetNextSchoolDayUseCase(
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
+        getNextDayUseCase: GetNextDayUseCase,
+    ): GetNextSchoolDayUseCase {
+        return GetNextSchoolDayUseCase(
+            getCurrentProfileUseCase = getCurrentProfileUseCase,
+            getNextDayUseCase = getNextDayUseCase,
+        )
+    }
+
+    @Provides
+    @Singleton
     fun provideHomeUseCases(
         keyValueRepository: KeyValueRepository,
         homeworkRepository: HomeworkRepository,
@@ -66,7 +78,7 @@ object HomeModule {
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
         getDayUseCase: GetDayUseCase,
-        getNextDayUseCase: GetNextDayUseCase,
+        getNextSchoolDayUseCase: GetNextSchoolDayUseCase,
         @ApplicationContext context: Context
     ): HomeUseCases {
         return HomeUseCases(
@@ -97,10 +109,7 @@ object HomeModule {
             hasMissingVppIdToProfileLinksUseCase = HasMissingVppIdToProfileLinksUseCase(keyValueRepository),
 
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
-            getNextSchoolDayUseCase = GetNextSchoolDayUseCase(
-                getCurrentProfileUseCase = getCurrentProfileUseCase,
-                getNextDayUseCase = getNextDayUseCase
-            )
+            getNextSchoolDayUseCase = getNextSchoolDayUseCase,
         )
     }
 }

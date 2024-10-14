@@ -71,4 +71,6 @@ sealed class Screen(val route: String) {
     data object NewsScreen: Screen("news_screen")
 
     data object NewsDetailScreen: Screen("news_screen")
+
+    @Serializable data object NdpScreen: Screen("ndp_screen")
 }

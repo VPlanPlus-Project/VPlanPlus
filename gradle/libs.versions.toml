@@ -46,6 +46,7 @@ runner = "1.6.1"
 simpleXml = "2.7.1"
 truthVersion = "1.1.3"
 workRuntimeKtx = "2.9.0"
+places = "4.0.0"
 
 [libraries]
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
@@ -104,6 +105,7 @@ test-core = { module = "androidx.test:core", version.ref = "coreVersion" }
 test-core-ktx = { module = "androidx.test:core-ktx", version.ref = "coreKtxVersion" }
 ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 work-runtime-ktx = { module = "androidx.work:work-runtime-ktx", version.ref = "workRuntimeKtx" }
+places = { group = "com.google.android.libraries.places", name = "places", version.ref = "places" }
 
 [bundles]
 compose = ["compose-ui", "compose-navigation", "compose-ui-graphics", "compose-ui-tooling", "compose-ui-tooling-preview"]

@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NoAccounts
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -171,6 +172,9 @@ fun HomeScreen(
         onSendFeedback = remember { { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) } },
         onOpenHomework = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
         onOpenExam = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
+
+
+        onDeveloperNdpClicked = remember { { navHostController.navigate(Screen.NdpScreen) } }
     )
 }
 
@@ -202,7 +206,9 @@ fun HomeScreenContent(
 
     onSendFeedback: () -> Unit = {},
 
-    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
+    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {},
+
+    onDeveloperNdpClicked: () -> Unit = {}
 ) {
     if (state.currentProfile == null) return
 
@@ -230,6 +236,9 @@ fun HomeScreenContent(
         containerColor = MaterialTheme.colorScheme.surface,
     ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
+            Button(onClick = onDeveloperNdpClicked) {
+                Text("NDP")
+            }
             Spacer4Dp()
             Head(
                 profile = state.currentProfile,

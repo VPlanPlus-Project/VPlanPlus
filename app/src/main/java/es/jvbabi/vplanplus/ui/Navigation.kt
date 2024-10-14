@@ -26,6 +26,7 @@ import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchView
 import es.jvbabi.vplanplus.feature.main_home.ui.HomeScreen
 import es.jvbabi.vplanplus.feature.main_homework.list.ui.HomeworkListScreen
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.HomeworkDetailScreen
+import es.jvbabi.vplanplus.feature.ndp.ui.guided.NdpHostScreen
 import es.jvbabi.vplanplus.feature.news.ui.NewsScreen
 import es.jvbabi.vplanplus.feature.news.ui.detail.NewsDetailScreen
 import es.jvbabi.vplanplus.feature.onboarding.stages.a_welcome.ui.OnboardingWelcomeScreen
@@ -319,6 +320,15 @@ private fun NavGraphBuilder.mainScreens(
         popExitTransition = { fadeOut(tween(300)) }
     ) {
         GradesScreen(navHostController = navController, navBar = navBar)
+    }
+
+    composable<Screen.NdpScreen>(
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) {
+        NdpHostScreen(navHostController = navController)
     }
 }
 
