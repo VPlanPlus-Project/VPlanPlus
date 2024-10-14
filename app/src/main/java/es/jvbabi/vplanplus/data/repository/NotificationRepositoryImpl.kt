@@ -18,6 +18,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationOnClickTask
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_NDP
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_NEWS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ROOM_BOOKINGS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYNC
@@ -35,6 +36,7 @@ class NotificationRepositoryImpl(
         channelId: String,
         id: Int,
         title: String,
+        subtitle: String?,
         message: String,
         icon: Int,
         onClickTask: NotificationOnClickTask?,
@@ -89,6 +91,7 @@ class NotificationRepositoryImpl(
                 NotificationCompat.BigTextStyle()
                     .bigText(message)
             )
+            .setSubText(subtitle)
             .setSmallIcon(icon)
             .setContentIntent(onClickTask?.let { taskToIntent(it) })
             .setAutoCancel(true)
@@ -129,40 +132,46 @@ class NotificationRepositoryImpl(
 
     override fun createSystemChannels(context: Context) {
         createChannel(
-            CHANNEL_ID_GRADES,
-            context.getString(R.string.grades_notificationTitle),
-            context.getString(R.string.grades_notificationDescription),
-            NotificationManager.IMPORTANCE_HIGH
+            channelId = CHANNEL_ID_GRADES,
+            name = context.getString(R.string.grades_notificationTitle),
+            description = context.getString(R.string.grades_notificationDescription),
+            importance = NotificationManager.IMPORTANCE_HIGH
         )
         createChannel(
-            CHANNEL_ID_NEWS,
-            context.getString(R.string.notification_newsName),
-            context.getString(R.string.notification_newsDescription),
-            NotificationManager.IMPORTANCE_DEFAULT
+            channelId = CHANNEL_ID_NEWS,
+            name = context.getString(R.string.notification_newsName),
+            description = context.getString(R.string.notification_newsDescription),
+            importance = NotificationManager.IMPORTANCE_DEFAULT
         )
         createChannel(
-            CHANNEL_ID_SYNC,
-            context.getString(R.string.notification_syncName),
-            context.getString(R.string.notification_syncDescription),
-            NotificationManager.IMPORTANCE_NONE
+            channelId = CHANNEL_ID_SYNC,
+            name = context.getString(R.string.notification_syncName),
+            description = context.getString(R.string.notification_syncDescription),
+            importance = NotificationManager.IMPORTANCE_NONE
         )
         createChannel(
-            CHANNEL_ID_ROOM_BOOKINGS,
-            context.getString(R.string.notification_roomBookingsName),
-            context.getString(R.string.notification_roomBookingsDescription),
-            NotificationManager.IMPORTANCE_DEFAULT
+            channelId = CHANNEL_ID_ROOM_BOOKINGS,
+            name = context.getString(R.string.notification_roomBookingsName),
+            description = context.getString(R.string.notification_roomBookingsDescription),
+            importance = NotificationManager.IMPORTANCE_DEFAULT
         )
         createChannel(
-            CHANNEL_ID_HOMEWORK,
-            context.getString(R.string.notification_homeworkName),
-            context.getString(R.string.notification_homeworkDescription),
-            NotificationManager.IMPORTANCE_HIGH
+            channelId = CHANNEL_ID_HOMEWORK,
+            name = context.getString(R.string.notification_homeworkName),
+            description = context.getString(R.string.notification_homeworkDescription),
+            importance = NotificationManager.IMPORTANCE_HIGH
         )
         createChannel(
-            CHANNEL_ID_SYSTEM,
-            context.getString(R.string.notification_systemName),
-            context.getString(R.string.notification_systemDescription),
-            NotificationManager.IMPORTANCE_HIGH
+            channelId = CHANNEL_ID_SYSTEM,
+            name = context.getString(R.string.notification_systemName),
+            description = context.getString(R.string.notification_systemDescription),
+            importance = NotificationManager.IMPORTANCE_HIGH
+        )
+        createChannel(
+            channelId = CHANNEL_ID_NDP,
+            name = context.getString(R.string.notification_ndpName),
+            description = context.getString(R.string.notification_ndpDescription),
+            importance = NotificationManager.IMPORTANCE_HIGH
         )
     }
 

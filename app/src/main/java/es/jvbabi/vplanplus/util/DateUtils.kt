@@ -8,9 +8,11 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.util.DateUtils.between
 import es.jvbabi.vplanplus.util.DateUtils.isAfterOrEqual
 import es.jvbabi.vplanplus.util.DateUtils.isBeforeOrEqual
+import java.math.RoundingMode
 import java.time.Instant
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -190,6 +192,25 @@ object DateUtils {
     fun ZonedDateTime.isBeforeOrEqual(other: ZonedDateTime): Boolean {
         return this.isBefore(other) || this.isEqual(other)
     }
+
+    fun LocalTime.roundToMinutes(minutes: Int, r: RoundingMode? = null): LocalTime {
+        require(60 % minutes == 0) { "The interval must divide 60 evenly." }
+
+        val minuteOffset = this.minute % minutes
+        return when (r) {
+            RoundingMode.CEILING -> this.plusMinutes((minutes - minuteOffset).toLong() % minutes)
+            RoundingMode.FLOOR -> this.minusMinutes(minuteOffset.toLong())
+            null -> {
+                if (minuteOffset >= minutes / 2) {
+                    this.plusMinutes((minutes - minuteOffset).toLong())
+                } else {
+                    this.minusMinutes(minuteOffset.toLong())
+                }
+            }
+            else -> throw IllegalArgumentException("Rounding mode $r not supported")
+        }
+    }
+
 }
 
 data class TimeSpan(

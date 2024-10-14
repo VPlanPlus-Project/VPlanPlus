@@ -853,4 +853,27 @@
     <string name="home_examsTitle">%1$s: Exam coming up</string>
     <string name="examsDetails_deleteTitle">Delete exam?</string>
     <string name="examsDetails_deleteMessage">Do you really want to delete this exam? This cannot be undone.</string>
+    <string name="advancedSettings_settingsDeveloperModeTitle">Developer mode</string>
+    <string name="advancedSettings_settingsDeveloperModeSubtitle">Shows some more options and trigger buttons, might be used in future for some live testing stuff, can cause problems with alpha-features.</string>
+    <string name="ndp_notificationTitleTomorrow">Get ready for tomorrow!</string>
+    <string name="ndp_notificationTitle">Prepare for your next school day at %1$s!</string>
+    <plurals name="ndp_notificationHomework">
+        <item quantity="one">One homework (%2$s)</item>
+        <item quantity="other">%1$d homework (%2$s)</item>
+    </plurals>
+    <plurals name="ndp_notificationAssessments">
+        <item quantity="one">One assessment (%2$s)</item>
+        <item quantity="other">%1$d assessments (%2$s)</item>
+    </plurals>
+    <plurals name="ndp_notificationExamsReminder">
+        <item quantity="one">Reminder for one assessment later</item>
+        <item quantity="other">Reminder for %1$d assessments later</item>
+    </plurals>
+    <plurals name="ndp_notificationLessons">
+        <item quantity="one">One lesson</item>
+        <item quantity="other">%1$d lessons</item>
+    </plurals>
+    <string name="ndp_notificationMoreInfo">Tap to prepare</string>
+    <string name="notification_ndpName">Next Day Preparation</string>
+    <string name="notification_ndpDescription">Prepare yourself for tomorrow</string>
 </resources>

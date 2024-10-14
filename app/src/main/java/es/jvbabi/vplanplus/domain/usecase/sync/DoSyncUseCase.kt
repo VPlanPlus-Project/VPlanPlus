@@ -331,7 +331,7 @@ class DoSyncUseCase(
                         title = context.getString(R.string.notification_syncErrorCredentialsIncorrectTitle),
                         message = context.getString(R.string.notification_syncErrorCredentialsIncorrectText, school.username, school.sp24SchoolId, school.name),
                         icon = R.drawable.vpp,
-                        OpenScreenTask("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${school.id}")
+                        onClickTask = OpenScreenTask("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${school.id}")
                     )
                     return@school
                 }
@@ -688,20 +688,20 @@ class DoSyncUseCase(
         }
 
         notificationRepository.sendNotification(
-            "PROFILE_${notificationData.profile.id.toString().lowercase()}",
-            MathTools.cantor(
+            channelId = "PROFILE_${notificationData.profile.id.toString().lowercase()}",
+            id = MathTools.cantor(
                 notificationData.profile.id.hashCode(),
                 notificationData.date.toString().replace("-", "").toInt()
             ),
-            context.getString(
+            title = context.getString(
                 when (notificationData.notificationType) {
                     SyncNotificationType.NEW_PLAN -> R.string.notification_newPlanTitle
                     SyncNotificationType.CHANGED_LESSONS -> R.string.notification_planChangedTitle
                 }
             ),
-            message,
-            R.drawable.vpp,
-            OpenScreenTask(destination = Json.encodeToString(
+            message = message,
+            icon = R.drawable.vpp,
+            onClickTask = OpenScreenTask(destination = Json.encodeToString(
                 NotificationDestination(
                     screen = "calendar",
                     profileId = notificationData.profile.id.toString(),

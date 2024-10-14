@@ -42,6 +42,7 @@ import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.notifications.ui.NotificationsSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementTask
 import es.jvbabi.vplanplus.feature.settings.profile.ui.UpdateCredentialsTask
@@ -494,6 +495,10 @@ private fun NavGraphBuilder.settingsScreens(
         popExitTransition = exitSlideTransitionRight
     ) {
         HomeworkSettingsScreen(navController)
+    }
+
+    composable<Screen.SettingsNotificationsScreen> {
+        NotificationsSettingsScreen(navHostController = navController)
     }
 
     composable(

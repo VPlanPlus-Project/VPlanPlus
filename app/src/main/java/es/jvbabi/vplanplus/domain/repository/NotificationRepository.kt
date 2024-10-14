@@ -9,6 +9,7 @@ interface NotificationRepository {
         channelId: String,
         id: Int,
         title: String,
+        subtitle: String? = null,
         message: String,
         icon: Int,
         onClickTask: NotificationOnClickTask? = null,
@@ -32,6 +33,7 @@ interface NotificationRepository {
         const val CHANNEL_ID_NEWS = "news"
         const val CHANNEL_ID_SYNC = "sync"
         const val CHANNEL_ID_HOMEWORK = "homework"
+        const val CHANNEL_ID_NDP = "ndp"
 
         const val CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK = 7000
         const val CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK = CHANNEL_DEFAULT_NOTIFICATION_ID_HOMEWORK + 1

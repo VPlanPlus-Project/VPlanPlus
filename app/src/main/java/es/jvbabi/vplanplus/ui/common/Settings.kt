@@ -79,6 +79,7 @@ fun SettingsSetting(
     isLoading: Boolean = false,
     titleOverflow: TextOverflow = TextOverflow.Visible,
     subtitleOverflow: TextOverflow = TextOverflow.Visible,
+    customContentAutoPadding: Boolean = false,
     customContent: @Composable () -> Unit = {},
 ) {
     Settings(
@@ -93,6 +94,7 @@ fun SettingsSetting(
         titleOverflow = titleOverflow,
         subtitleOverflow = subtitleOverflow,
         customContent = customContent,
+        customContentAutoPadding = customContentAutoPadding,
         imageDrawer = {
             if (painter != null) {
                 Icon(
@@ -123,6 +125,7 @@ private fun Settings(
     titleOverflow: TextOverflow = TextOverflow.Visible,
     subtitleOverflow: TextOverflow = TextOverflow.Visible,
     customContent: @Composable () -> Unit = {},
+    customContentAutoPadding: Boolean,
     imageDrawer: @Composable () -> Unit = {},
 ) {
     Column {
@@ -197,13 +200,15 @@ private fun Settings(
                         )
                     }
 
-                    SettingsType.FUNCTION -> {
-                        // TODO
-                    }
+                    SettingsType.FUNCTION -> Unit
                 }
             }
         }
-        customContent()
+        if (customContentAutoPadding) {
+            Box(modifier = Modifier.padding(top = 4.dp, start = 68.dp, end = 16.dp)) {
+                customContent()
+            }
+        } else customContent()
     }
 }
 
@@ -221,6 +226,7 @@ fun SettingsSetting(
     isLoading: Boolean = false,
     titleOverflow: TextOverflow = TextOverflow.Visible,
     subtitleOverflow: TextOverflow = TextOverflow.Visible,
+    customContentAutoPadding: Boolean = false,
     customContent: @Composable () -> Unit = {},
 ) {
     Settings(
@@ -234,6 +240,7 @@ fun SettingsSetting(
         isLoading = isLoading,
         titleOverflow = titleOverflow,
         subtitleOverflow = subtitleOverflow,
+        customContentAutoPadding = customContentAutoPadding,
         customContent = customContent,
         imageDrawer = {
             if (icon != null) {
@@ -287,7 +294,8 @@ fun SettingsOptionNoIconPreview() {
         type = SettingsType.NUMERIC_INPUT,
         checked = true,
         doAction = {},
-        enabled = true
+        enabled = true,
+        customContentAutoPadding = true
     ) {
         Text(text = "Custom content")
     }
@@ -490,7 +498,8 @@ fun TimePickerSettings(
                     Box(modifier = Modifier.size(56.dp))
                 }
             }
-        }
+        },
+        customContentAutoPadding = false
     )
 }
 

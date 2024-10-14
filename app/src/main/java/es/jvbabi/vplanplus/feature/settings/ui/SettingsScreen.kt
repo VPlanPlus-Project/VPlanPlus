@@ -12,6 +12,7 @@ import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Build
 import androidx.compose.material.icons.outlined.DataObject
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -107,6 +108,13 @@ fun SettingsScreen(navController: NavHostController) {
                 doAction = {
                     navController.navigate(Screen.SettingsHomeworkScreen.route)
                 }
+            )
+            SettingsSetting(
+                icon = Icons.Outlined.Notifications,
+                title = "Notifications",
+                subtitle = "Manage notifications",
+                type = SettingsType.FUNCTION,
+                doAction = { navController.navigate(Screen.SettingsNotificationsScreen) }
             )
             SettingsSetting(
                 icon = Icons.Outlined.DataObject,

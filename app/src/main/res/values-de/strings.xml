@@ -850,4 +850,27 @@
     <string name="home_examsTitle">Leistungserhebung in %1$s</string>
     <string name="examsDetails_deleteTitle">Leistungserh. löschen?</string>
     <string name="examsDetails_deleteMessage">Möchtest du diese Leistungserhebung wirklich löschen? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="advancedSettings_settingsDeveloperModeTitle">Entwicklermodus</string>
+    <string name="advancedSettings_settingsDeveloperModeSubtitle">Zeigt einige weitere Optionen und Trigger-Schaltflächen, könnte in Zukunft für einige Live-Tests verwendet werden, kann Probleme mit Alpha-Funktionen verursachen.</string>
+    <string name="ndp_notificationTitleTomorrow">Bereite dich auf morgen vor!</string>
+    <string name="ndp_notificationTitle">Bereite dich für deinen nächsten Schultag am %1$s vor!</string>
+    <plurals name="ndp_notificationHomework">
+        <item quantity="one">Eine Hausaufgabe (%2$s)</item>
+        <item quantity="other">%1$d Hausaufgaben (%2$s)</item>
+    </plurals>
+    <plurals name="ndp_notificationAssessments">
+        <item quantity="one">Eine Leistungserhebung (%2$s)</item>
+        <item quantity="other">%1$d Leistungserhebungen (%2$s)</item>
+    </plurals>
+    <plurals name="ndp_notificationExamsReminder">
+        <item quantity="one">Erinnerung an eine spätere Leistungserhebung</item>
+        <item quantity="other">Erinnerung an %1$d spätere Leistungserhebungen</item>
+    </plurals>
+    <plurals name="ndp_notificationLessons">
+        <item quantity="one">Eine Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
+    </plurals>
+    <string name="ndp_notificationMoreInfo">Tippen zur Vorbereitung</string>
+    <string name="notification_ndpName">Tagesvorbereitung</string>
+    <string name="notification_ndpDescription">Bereite dich auf morgen vor</string>
 </resources>
