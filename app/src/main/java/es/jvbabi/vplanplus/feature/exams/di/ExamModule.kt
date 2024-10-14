@@ -9,6 +9,7 @@ import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.exams.data.repository.ExamRepositoryImpl
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.DeleteExamUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.ExamDetailsUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.GetExamUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamCategoryUseCase
@@ -65,6 +66,7 @@ object ExamModule {
         updateDateUseCase = UpdateExamDateUseCase(examRepository, getCurrentProfileUseCase),
         updateCategoryUseCase = UpdateExamCategoryUseCase(examRepository, getCurrentProfileUseCase),
         updateExamDetailsUseCase = UpdateExamDetailsUseCase(examRepository, getCurrentProfileUseCase),
-        updateReminderDaysUseCase = UpdateExamReminderDaysUseCase(examRepository, getCurrentProfileUseCase)
+        updateReminderDaysUseCase = UpdateExamReminderDaysUseCase(examRepository, getCurrentProfileUseCase),
+        deleteExamUseCase = DeleteExamUseCase(examRepository, getCurrentProfileUseCase)
     )
 }

@@ -16,7 +16,7 @@ class UpdateExamCategoryUseCase(
     ) {
         val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return
 
-        val exam = examRepository.getExamById(examId).first()
+        val exam = examRepository.getExamById(examId).first() ?: return
 
         if (exam.id > 0) {
             TODO("Online")

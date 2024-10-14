@@ -848,4 +848,6 @@
     <string name="examsDetails_descriptionUpdated">Details aktualisiert</string>
     <string name="calendar_newExam">Neue Leistungserh.</string>
     <string name="home_examsTitle">Leistungserhebung in %1$s</string>
+    <string name="examsDetails_deleteTitle">Leistungserh. löschen?</string>
+    <string name="examsDetails_deleteMessage">Möchtest du diese Leistungserhebung wirklich löschen? Dies kann nicht rückgängig gemacht werden.</string>
 </resources>

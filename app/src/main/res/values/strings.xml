@@ -851,4 +851,6 @@
     <string name="examsDetails_descriptionUpdated">Details updated</string>
     <string name="calendar_newExam">New exam</string>
     <string name="home_examsTitle">%1$s: Exam coming up</string>
+    <string name="examsDetails_deleteTitle">Delete exam?</string>
+    <string name="examsDetails_deleteMessage">Do you really want to delete this exam? This cannot be undone.</string>
 </resources>

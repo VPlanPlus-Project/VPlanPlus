@@ -209,6 +209,12 @@ class ExamDetailsViewModel @Inject constructor(
                     }
                 }
             }
+
+            is ExamDetailsEvent.DeleteExam -> {
+                viewModelScope.launch {
+                    if (examDetailsUseCases.deleteExamUseCase(state.exam!!.id)) event.onSuccess.invoke()
+                }
+            }
         }
     }
 }
@@ -251,6 +257,8 @@ sealed class ExamDetailsEvent {
     data object UndoDescriptionUpdate: ExamDetailsEvent()
 
     data class UpdateReminderDays(val newDays: Set<Int>): ExamDetailsEvent()
+
+    data class DeleteExam(val onSuccess: () -> Unit): ExamDetailsEvent()
 }
 
 enum class UpdatingState {

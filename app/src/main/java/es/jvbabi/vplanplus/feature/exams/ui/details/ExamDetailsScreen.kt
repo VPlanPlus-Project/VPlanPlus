@@ -64,6 +64,7 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.ExamType
 import es.jvbabi.vplanplus.feature.exams.ui.details.components.DateSelectorSheet
+import es.jvbabi.vplanplus.feature.exams.ui.details.components.DeleteDialog
 import es.jvbabi.vplanplus.feature.exams.ui.details.components.TypeSelectorSheet
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam.ExamReminderSelector
 import es.jvbabi.vplanplus.ui.common.BackIcon
@@ -129,6 +130,12 @@ private fun ExamDetailsContent(
         sheetState = datePickerSheetState,
         onDismiss = { showDatePickerDialog = false },
         onSetDate = { doAction(ExamDetailsEvent.UpdateDate(it)) }
+    )
+
+    var showDeleteDialog by rememberSaveable { mutableStateOf(false) }
+    if (showDeleteDialog) DeleteDialog(
+        onYes = { doAction(ExamDetailsEvent.DeleteExam(onBack)) },
+        onNo = { showDeleteDialog = false }
     )
 
     LaunchedEffect(key1 = state.editModeUpdatingTitleState) {
@@ -275,7 +282,7 @@ private fun ExamDetailsContent(
                     IconButton(onBack) { BackIcon() }
                 },
                 actions = {
-                    if (state.isUserAllowedToEdit) IconButton(onClick = {}) {
+                    if (state.isUserAllowedToEdit) IconButton(onClick = { showDeleteDialog = true }) {
                         Icon(
                             Icons.Default.Delete,
                             null

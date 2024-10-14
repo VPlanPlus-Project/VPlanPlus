@@ -37,10 +37,12 @@ interface ExamRepository {
     fun getExamById(
         id: Int,
         profile: ClassProfile? = null
-    ): Flow<Exam>
+    ): Flow<Exam?>
 
     suspend fun updateExamLocally(
         exam: Exam,
         profile: ClassProfile
     )
+
+    suspend fun deleteExamLocallyById(examId: Int)
 }

@@ -20,7 +20,7 @@ abstract class ExamDao {
 
     @Transaction
     @Query("SELECT * FROM exams WHERE id = :id")
-    abstract fun getExam(id: Int): Flow<CExam>
+    abstract fun getExam(id: Int): Flow<CExam?>
 
     @Transaction
     @Query("SELECT * FROM exams WHERE (date = :date OR :date IS NULL) AND (group_id = :groupId OR :groupId IS NULL)")
@@ -31,4 +31,7 @@ abstract class ExamDao {
 
     @Query("DELETE FROM exam_reminders WHERE exam_id = :examId")
     abstract suspend fun deleteExamReminders(examId: Int)
+
+    @Query("DELETE FROM exams WHERE id = :examId")
+    abstract suspend fun deleteExamById(examId: Int)
 }

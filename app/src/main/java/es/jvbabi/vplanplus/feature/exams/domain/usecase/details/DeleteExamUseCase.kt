@@ -5,17 +5,17 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import kotlinx.coroutines.flow.first
 
-class UpdateExamReminderDaysUseCase(
+class DeleteExamUseCase(
     private val examRepository: ExamRepository,
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase
 ) {
-    suspend operator fun invoke(
-        examId: Int,
-        newDays: Set<Int>
-    ) {
-        val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return
-        val exam = examRepository.getExamById(examId).first() ?: return
+    suspend operator fun invoke(examId: Int): Boolean {
+        val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
-        examRepository.updateExamLocally(exam.copy(remindDaysBefore = newDays), currentProfile)
+        if (examId > 0) {
+            TODO("Online")
+        }
+        examRepository.deleteExamLocallyById(examId)
+        return true
     }
 }

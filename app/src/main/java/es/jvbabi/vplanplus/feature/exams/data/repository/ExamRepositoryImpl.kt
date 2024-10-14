@@ -45,15 +45,15 @@ class ExamRepositoryImpl(
         remindDaysBefore?.forEach { daysBefore ->
             examDao.insertExamReminder(examId, profile.id, daysBefore)
         }
-        return examDao.getExam(examId).map { it.toModel(profile) }
+        return examDao.getExam(examId).map { it!!.toModel(profile) }
     }
 
     override fun getExams(date: LocalDate?, profile: ClassProfile?): Flow<List<Exam>> =
         examDao.getExams(date, profile?.group?.groupId)
             .map { exams -> exams.map { it.toModel(profile) } }
 
-    override fun getExamById(id: Int, profile: ClassProfile?): Flow<Exam> {
-        return examDao.getExam(id).map { it.toModel(profile) }
+    override fun getExamById(id: Int, profile: ClassProfile?): Flow<Exam?> {
+        return examDao.getExam(id).map { it?.toModel(profile) }
     }
 
     override suspend fun updateExamLocally(
@@ -78,5 +78,9 @@ class ExamRepositoryImpl(
                 examDao.insertExamReminder(exam.id, profile.id, daysBefore)
             }
         }
+    }
+
+    override suspend fun deleteExamLocallyById(examId: Int) {
+        examDao.deleteExamById(examId)
     }
 }
