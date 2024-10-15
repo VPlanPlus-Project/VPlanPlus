@@ -883,4 +883,5 @@
         <item quantity="one">Eine Leistungserhebung</item>
         <item quantity="other">%1$d Leistungserhebungen</item>
     </plurals>
+    <string name="ndp_guidedHomeworkSkipButton">Hausaufgaben überspringen</string>
 </resources>

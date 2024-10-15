@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.feature.ndp.ui.guided
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,12 +17,14 @@ import androidx.compose.material.icons.filled.SkipNext
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -53,6 +57,7 @@ fun NdpHomeworkScreen(
     homework: List<PersonalizedHomework>,
     onToggleTask: (task: HomeworkTaskDone) -> Unit,
     onHide: (homework: PersonalizedHomework) -> Unit,
+    onOpenHomework: (homework: PersonalizedHomework) -> Unit,
     onContinue: () -> Unit,
     currentStage: NdpStage
 ) {
@@ -68,8 +73,10 @@ fun NdpHomeworkScreen(
         }
     }
     LaunchedEffect(homework) {
+        Log.d("LE", "CurrentStage: ${currentStage.name}")
         if (currentStage != NdpStage.HOMEWORK) return@LaunchedEffect
         val currentIndex = homework.indexOfFirst { !it.allDone() }
+        Log.d("LE", "CurrentIndex: $currentIndex")
         if (currentIndex != -1) {
             try {
                 listState.animateScrollToItem(currentIndex)
@@ -93,9 +100,24 @@ fun NdpHomeworkScreen(
                 NdpHomeworkListItem(
                     homework = homeworkItem,
                     onToggleTask = onToggleTask,
-                    onHide = onHide
+                    onHide = onHide,
+                    onOpenHomework = onOpenHomework
                 )
                 Spacer8Dp()
+            }
+            item {
+                Box(Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = onContinue,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    ) {
+                        RowVerticalCenter {
+                            Icon(Icons.Default.SkipNext, contentDescription = null)
+                            Spacer4Dp()
+                            Text(stringResource(R.string.ndp_guidedHomeworkSkipButton))
+                        }
+                    }
+                }
             }
         }
     }
@@ -105,13 +127,15 @@ fun NdpHomeworkScreen(
 private fun NdpHomeworkListItem(
     homework: PersonalizedHomework,
     onToggleTask: (task: HomeworkTaskDone) -> Unit,
-    onHide: (homework: PersonalizedHomework) -> Unit
+    onHide: (homework: PersonalizedHomework) -> Unit,
+    onOpenHomework: (homework: PersonalizedHomework) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(MaterialTheme.colorScheme.primaryContainer)
+            .clickable { onOpenHomework(homework) }
             .padding(8.dp)
     ) {
         RowVerticalCenterSpaceBetweenFill(
@@ -218,6 +242,7 @@ private fun NdpHomeworkScreenPreview() {
         onToggleTask = {},
         onHide = {},
         onContinue = {},
+        onOpenHomework = {},
         currentStage = NdpStage.HOMEWORK
     )
 }

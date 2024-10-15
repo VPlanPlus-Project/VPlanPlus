@@ -886,4 +886,5 @@
         <item quantity="one">One assessment</item>
         <item quantity="other">%1$d assessments</item>
     </plurals>
+    <string name="ndp_guidedHomeworkSkipButton">Skip homework for now</string>
 </resources>

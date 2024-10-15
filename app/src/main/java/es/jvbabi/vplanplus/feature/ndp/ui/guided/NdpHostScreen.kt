@@ -42,6 +42,7 @@ import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
 import es.jvbabi.vplanplus.util.lerp
 import es.jvbabi.vplanplus.util.toFloat
@@ -57,6 +58,7 @@ fun NdpHostScreen(
 ) {
     NdpHostScreenContent(
         state = viewModel.state,
+        onOpenHomework = { navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId = it.homework.id)) },
         doAction = viewModel::doAction
     )
 }
@@ -64,6 +66,7 @@ fun NdpHostScreen(
 @Composable
 private fun NdpHostScreenContent(
     state: NdpHostState,
+    onOpenHomework: (homework: PersonalizedHomework) -> Unit,
     doAction: (NdpEvent) -> Unit
 ) {
     val pagerState = rememberPagerState(state.displayStage.ordinal) { state.currentStage.ordinal + 1 }
@@ -120,6 +123,7 @@ private fun NdpHostScreenContent(
                         onToggleTask = { task -> doAction(NdpEvent.ToggleTask(task)) },
                         onHide = { homework -> doAction(NdpEvent.HideHomework(homework)) },
                         onContinue = { doAction(NdpEvent.FinishHomework) },
+                        onOpenHomework = onOpenHomework,
                         currentStage = state.currentStage
                     )
                 }
@@ -260,6 +264,7 @@ private fun NdpHostScreenPreview() {
             currentStage = NdpStage.LESSONS,
             displayStage = NdpStage.LESSONS
         ),
+        onOpenHomework = {},
         doAction = {}
     )
 }
