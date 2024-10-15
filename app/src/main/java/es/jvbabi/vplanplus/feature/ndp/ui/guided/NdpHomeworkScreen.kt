@@ -161,6 +161,13 @@ private fun NdpHomeworkListItem(
                         color = Color.Gray
                     )
                 }
+                if (homework.homework.defaultLesson?.courseGroup != null) {
+                    Text(
+                        text = " ${homework.homework.defaultLesson?.courseGroup}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
             }
             if (homework is PersonalizedHomework.CloudHomework) TextButton(onClick = { onHide(homework) }) {
                 RowVerticalCenter {
