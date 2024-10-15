@@ -163,7 +163,7 @@ private fun NdpHomeworkListItem(
                 }
                 if (homework.homework.defaultLesson?.courseGroup != null) {
                     Text(
-                        text = " ${homework.homework.defaultLesson?.courseGroup}",
+                        text = " $DOT ${homework.homework.defaultLesson?.courseGroup}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
