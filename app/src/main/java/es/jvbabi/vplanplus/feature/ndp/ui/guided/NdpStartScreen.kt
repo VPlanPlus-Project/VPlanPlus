@@ -7,10 +7,14 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +32,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.util.blendColor
 import java.time.LocalDate
@@ -55,7 +58,7 @@ fun NdpStartScreenContent(
         label = "animationOffset"
     )
     val colorScheme = MaterialTheme.colorScheme
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer(clip = true)
@@ -96,38 +99,46 @@ fun NdpStartScreenContent(
                 }
                 drawContent()
             }
-            .padding(16.dp)
-        ,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = stringResource(R.string.ndp_guidedWelcomeHeadline),
-            style = MaterialTheme.typography.headlineMedium,
-            textAlign = TextAlign.Center
-        )
-        Spacer4Dp()
-        Text(
-            text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)),
-            style = MaterialTheme.typography.bodyMedium,
-            textAlign = TextAlign.Center
-        )
-        Spacer4Dp()
-        Text(
-            text = pluralStringResource(R.plurals.ndp_guidedWelcomeHomework, homework, homework),
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center
-        )
-        Text(
-            text = pluralStringResource(R.plurals.ndp_guidedWelcomeAssessment, assessments, assessments),
-            style = MaterialTheme.typography.bodySmall,
-            textAlign = TextAlign.Center
-        )
-        Spacer16Dp()
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+                .align(Alignment.Center),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                text = stringResource(R.string.ndp_guidedWelcomeHeadline),
+                style = MaterialTheme.typography.headlineMedium,
+                textAlign = TextAlign.Center
+            )
+            Spacer4Dp()
+            Text(
+                text = date.format(DateTimeFormatter.ofLocalizedDate(FormatStyle.FULL)),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+            Spacer4Dp()
+            Text(
+                text = pluralStringResource(R.plurals.ndp_guidedWelcomeHomework, homework, homework),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center
+            )
+            Text(
+                text = pluralStringResource(R.plurals.ndp_guidedWelcomeAssessment, assessments, assessments),
+                style = MaterialTheme.typography.bodySmall,
+                textAlign = TextAlign.Center
+            )
+        }
         Button(
             onClick = onStart,
-            enabled = enabled
-        ) { Text(stringResource(R.string.ndp_guidedStartButton)) }
+            enabled = enabled,
+            modifier = Modifier.align(Alignment.BottomEnd)
+        ) {
+            Icon(Icons.AutoMirrored.Default.ArrowForward, contentDescription = null)
+            Spacer4Dp()
+            Text(stringResource(R.string.ndp_guidedStartButton))
+        }
     }
 }
 
