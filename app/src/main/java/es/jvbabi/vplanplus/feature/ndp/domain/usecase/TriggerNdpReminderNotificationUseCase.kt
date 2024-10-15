@@ -97,7 +97,7 @@ class TriggerNdpReminderNotificationUseCase(
                         append("\n")
                         append("\t\uD83D\uDCF2 ")
                         append(stringRepository.getString(R.string.ndp_notificationMoreInfo))
-                        removeSuffix("\n")
+                        removeSurrounding("\n")
                     },
                     id = 5
                 )
