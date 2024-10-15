@@ -5,5 +5,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTas
 
 data class NdpGuidedUseCases(
     val toggleTaskDoneStateUseCase: ChangeTaskDoneStateUseCase,
-    val toggleHomeworkHiddenUseCase: ToggleHomeworkHiddenStateUseCase
+    val toggleHomeworkHiddenUseCase: ToggleHomeworkHiddenStateUseCase,
+
+    val getExamsToGetRemindedUseCase: GetExamsToGetRemindedUseCase
 )

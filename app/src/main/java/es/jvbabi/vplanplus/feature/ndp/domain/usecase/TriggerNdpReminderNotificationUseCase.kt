@@ -38,7 +38,7 @@ class TriggerNdpReminderNotificationUseCase(
                 val examsToGetNotifiedButNotTomorrow = examRepository
                     .getExams(profile = profile)
                     .first()
-                    .filter { LocalDate.now().until(it.date).days in it.remindDaysBefore }
+                    .filter { LocalDate.now().until(it.date).days in it.assessmentReminders.map { reminder -> reminder.daysBefore } }
                     .filter { it !in nextDay.exams }
 
                 if (nextDay.homework.isEmpty() && nextDay.exams.isEmpty() && nextDay.lessons.isEmpty() && examsToGetNotifiedButNotTomorrow.isEmpty()) return@forEach

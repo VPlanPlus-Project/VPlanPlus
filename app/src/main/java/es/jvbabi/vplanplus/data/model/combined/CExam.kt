@@ -32,7 +32,7 @@ data class CExam(
         parentColumn = "id",
         entityColumn = "exam_id",
         entity = DbExamReminder::class
-    ) val reminders: List<DbExamReminder>
+    ) val reminders: List<CExamReminder>
 ) {
 
     /**
@@ -50,10 +50,7 @@ data class CExam(
             createdBy = createdBy?.toModel(),
             group = group.toModel(),
             createdAt = exam.createdAt,
-            remindDaysBefore = if (exam.useDefaultNotifications) type.remindDaysBefore else reminders
-                .filter { it.profileId == (contextProfile?.id ?: it.profileId) }
-                .map { it.daysBefore }
-                .toSet()
+            assessmentReminders = reminders.map { it.toModel() }.filter { it.profile.id == (contextProfile?.id ?: it.profile.id) }.toSet()
         )
     }
 }

@@ -91,7 +91,11 @@ private fun NdpHostScreenContent(
             NdpBar(subsegments = 1, progress = (state.currentStage.ordinal > NdpStage.START.ordinal).toFloat())
             if (state.nextSchoolDay.homework.isNotEmpty()) NdpBar(subsegments = state.nextSchoolDay.homework.size, progress = (state.nextSchoolDay.homework.count { it.allDone() }
                 .toFloat() / state.nextSchoolDay.homework.size) * (state.currentStage.ordinal >= NdpStage.HOMEWORK.ordinal).toFloat())
-            NdpBar(subsegments = 2, progress = 0f)
+            if (state.nextSchoolDay.lessons.isNotEmpty()) NdpBar(subsegments = 1, progress = (state.currentStage.ordinal > NdpStage.LESSONS.ordinal).toFloat())
+            (state.nextSchoolDay.exams.size + state.examsToGetReminded.size).let { examsToPrepareFor ->
+                if (examsToPrepareFor == 0) return@let
+                NdpBar(subsegments = examsToPrepareFor, progress = (state.currentStage.ordinal >= NdpStage.EXAMS.ordinal).toFloat())
+            }
         }
 
         HorizontalPager(
@@ -112,7 +116,20 @@ private fun NdpHostScreenContent(
                     NdpHomeworkScreen(
                         homework = state.nextSchoolDay.homework,
                         onToggleTask = { task -> doAction(NdpEvent.ToggleTask(task)) },
-                        onHide = { homework -> doAction(NdpEvent.HideHomework(homework)) }
+                        onHide = { homework -> doAction(NdpEvent.HideHomework(homework)) },
+                        onContinue = { doAction(NdpEvent.FinishHomework) },
+                        currentStage = state.currentStage
+                    )
+                }
+                NdpStage.LESSONS -> {
+                    NdpLessonsScreen(
+                        lessons = state.nextSchoolDay.lessons,
+                        onContinue = { doAction(NdpEvent.FinishLessons) }
+                    )
+                }
+                NdpStage.EXAMS -> {
+                    NdpAssessmentScreen(
+                        assessments = state.nextSchoolDay.exams.associateWith { true }.plus(state.examsToGetReminded.associateWith { false })
                     )
                 }
             }
@@ -238,8 +255,8 @@ private fun NdpHostScreenPreview() {
                 grades = emptyList(),
                 lessons = emptyList(),
             ),
-            currentStage = NdpStage.HOMEWORK,
-            displayStage = NdpStage.HOMEWORK
+            currentStage = NdpStage.LESSONS,
+            displayStage = NdpStage.LESSONS
         ),
         doAction = {}
     )

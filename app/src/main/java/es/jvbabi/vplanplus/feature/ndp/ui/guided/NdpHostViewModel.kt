@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetNextSchoolDayUseCase
@@ -17,11 +18,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("UNCHECKED_CAST")
 @HiltViewModel
 class NdpHostViewModel @Inject constructor(
     private val getNextSchoolDayUseCase: GetNextSchoolDayUseCase,
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
-    private val ndpGuidedUseCases: NdpGuidedUseCases
+    private val ndpGuidedUseCases: NdpGuidedUseCases,
 ) : ViewModel() {
     var state by mutableStateOf(NdpHostState())
         private set
@@ -31,14 +33,18 @@ class NdpHostViewModel @Inject constructor(
             combine(
                 listOf(
                     getNextSchoolDayUseCase(fast = false),
-                    getCurrentProfileUseCase()
+                    getCurrentProfileUseCase(),
+                    ndpGuidedUseCases.getExamsToGetRemindedUseCase()
                 )
             ) { data ->
                 val schoolDay = data[0] as SchoolDay?
                 val profile = data[1] as ClassProfile?
+                val examsToGetReminded = (data[2] as List<Exam>).filter { it !in schoolDay?.exams.orEmpty() }
+
                 state.copy(
                     nextSchoolDay = schoolDay,
-                    currentProfile = profile
+                    currentProfile = profile,
+                    examsToGetReminded = examsToGetReminded
                 )
             }.collect { state = it }
         }
@@ -60,19 +66,23 @@ class NdpHostViewModel @Inject constructor(
                     }
                 }
             }
+            is NdpEvent.FinishHomework -> state = state.copy(displayStage = NdpStage.LESSONS, currentStage = NdpStage.LESSONS)
+            is NdpEvent.FinishLessons -> state = state.copy(displayStage = NdpStage.EXAMS, currentStage = NdpStage.EXAMS)
         }
     }
 }
 
 enum class NdpStage {
-    START, HOMEWORK
+    START, HOMEWORK, LESSONS, EXAMS
 }
 
 data class NdpHostState(
     val currentProfile: ClassProfile? = null,
     val nextSchoolDay: SchoolDay? = null,
     val displayStage: NdpStage = NdpStage.START,
-    val currentStage: NdpStage = NdpStage.START
+    val currentStage: NdpStage = NdpStage.START,
+
+    val examsToGetReminded: List<Exam> = emptyList()
 )
 
 sealed class NdpEvent {
@@ -81,4 +91,8 @@ sealed class NdpEvent {
 
     data class ToggleTask(val task: HomeworkTaskDone): NdpEvent()
     data class HideHomework(val homework: PersonalizedHomework): NdpEvent()
+
+    data object FinishHomework: NdpEvent()
+
+    data object FinishLessons: NdpEvent()
 }

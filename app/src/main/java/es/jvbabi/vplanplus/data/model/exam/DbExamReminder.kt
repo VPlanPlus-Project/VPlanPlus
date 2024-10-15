@@ -10,10 +10,10 @@ import java.util.UUID
 
 @Entity(
     tableName = "exam_reminders",
-    primaryKeys = ["id"],
+    primaryKeys = ["exam_id", "profile_id", "days_before"],
     indices = [
-        Index(value = ["id"], unique = true),
         Index(value = ["exam_id"]),
+        Index(value = ["profile_id"]),
     ],
     foreignKeys = [
         ForeignKey(
@@ -31,8 +31,8 @@ import java.util.UUID
     ]
 )
 data class DbExamReminder(
-    @ColumnInfo(name = "id") val id: Int,
     @ColumnInfo(name = "days_before") val daysBefore: Int,
     @ColumnInfo(name = "exam_id") val examId: Int,
     @ColumnInfo(name = "profile_id") val profileId: UUID,
+    @ColumnInfo(name = "has_dismissed", defaultValue = "false") val hasDismissed: Boolean,
 )

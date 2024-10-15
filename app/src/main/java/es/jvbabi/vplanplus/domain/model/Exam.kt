@@ -13,7 +13,13 @@ data class Exam(
     val createdBy: VppId?,
     val group: Group,
     val createdAt: ZonedDateTime,
-    val remindDaysBefore: Set<Int>
+    val assessmentReminders: Set<AssessmentReminder>
+)
+
+data class AssessmentReminder(
+    val daysBefore: Int,
+    val hasDismissed: Boolean = false,
+    val profile: ClassProfile
 )
 
 sealed class ExamType(

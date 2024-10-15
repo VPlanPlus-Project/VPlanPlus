@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.AssessmentReminder
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.ExamType
@@ -433,7 +434,7 @@ private fun ExamDetailsContent(
                 Column(Modifier.padding(bottom = 12.dp)) {
                     ExamReminderSelector(
                         selectedDate = state.editModeDate ?: exam.date,
-                        selectedDays = state.exam?.remindDaysBefore,
+                        selectedDays = state.exam?.assessmentReminders?.filter { it.profile.id == state.currentProfile?.id }?.map { it.daysBefore }?.toSet(),
                         selectedType = state.editModeType ?: exam.type,
                         onRemindDaysBeforeSelected = { doAction(ExamDetailsEvent.UpdateReminderDays(it)) },
                         onExamDateClicked = { showDatePickerDialog = true }
@@ -462,7 +463,10 @@ private fun ExamDetailsScreenPreview() {
                 group = group,
                 createdAt = ZonedDateTime.now().minusDays(3L),
                 subject = DefaultLesson(UUID.randomUUID(), 1, "DEU", null, group, null),
-                remindDaysBefore = setOf(1, 2)
+                assessmentReminders = setOf(
+                    AssessmentReminder(profile = profile, daysBefore = 1),
+                    AssessmentReminder(profile = profile, daysBefore = 2)
+                )
             ),
             currentProfile = profile
         )

@@ -3,8 +3,10 @@ package es.jvbabi.vplanplus.data.source.database
 import android.database.sqlite.SQLiteException
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteColumn
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
@@ -133,7 +135,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbExam::class,
         DbExamReminder::class
     ],
-    version = 45,
+    version = 46,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -155,6 +157,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 41, to = 42), // key value index
         AutoMigration(from = 43, to = 44), // add exams
         AutoMigration(from = 44, to = 45), // add exam reminders
+        AutoMigration(from = 45, to = 46, spec = Migration45To46::class), // add exams reminders/hasDismissed
     ],
 )
 @TypeConverters(
@@ -404,3 +407,7 @@ abstract class VppDatabase : RoomDatabase() {
         }
     }
 }
+
+@DeleteColumn(tableName = "exams", columnName = "use_default_notifications")
+@DeleteColumn(tableName = "exam_reminders", columnName = "id")
+private class Migration45To46 : AutoMigrationSpec

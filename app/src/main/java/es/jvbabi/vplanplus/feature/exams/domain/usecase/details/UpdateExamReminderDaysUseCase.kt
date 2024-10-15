@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.exams.domain.usecase.details
 
+import es.jvbabi.vplanplus.domain.model.AssessmentReminder
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
@@ -16,6 +17,11 @@ class UpdateExamReminderDaysUseCase(
         val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return
         val exam = examRepository.getExamById(examId).first() ?: return
 
-        examRepository.updateExamLocally(exam.copy(remindDaysBefore = newDays), currentProfile)
+        examRepository.updateExamLocally(exam.copy(
+            assessmentReminders = exam.assessmentReminders
+                .filter { it.profile.id != currentProfile.id || it.daysBefore in newDays }
+                .plus(newDays.filter { daysBefore -> daysBefore !in exam.assessmentReminders.filter { it.profile.id == currentProfile.id }.map { it.daysBefore } }.map { AssessmentReminder(profile = currentProfile, daysBefore = it) })
+                .toSet()
+        ), currentProfile)
     }
 }

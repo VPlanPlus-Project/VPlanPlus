@@ -52,20 +52,31 @@ import java.util.UUID
 fun NdpHomeworkScreen(
     homework: List<PersonalizedHomework>,
     onToggleTask: (task: HomeworkTaskDone) -> Unit,
-    onHide: (homework: PersonalizedHomework) -> Unit
+    onHide: (homework: PersonalizedHomework) -> Unit,
+    onContinue: () -> Unit,
+    currentStage: NdpStage
 ) {
     val listState = rememberLazyListState()
     LaunchedEffect(remember{ derivedStateOf { listState.firstVisibleItemIndex }}, listState.isScrollInProgress) {
         if (!listState.isScrollInProgress) {
-            val index = listState.firstVisibleItemIndex + (listState.firstVisibleItemScrollOffset > listState.layoutInfo.visibleItemsInfo.first { it.index == listState.firstVisibleItemIndex }.size / 2).toInt()
-            if (listState.firstVisibleItemScrollOffset != 0) listState.animateScrollToItem(index)
+            val index = listState.firstVisibleItemIndex + (listState.firstVisibleItemScrollOffset > (listState.layoutInfo.visibleItemsInfo.firstOrNull { it.index == listState.firstVisibleItemIndex } ?: return@LaunchedEffect).size / 2).toInt()
+            try {
+                if (listState.firstVisibleItemScrollOffset != 0) listState.animateScrollToItem(index)
+            } catch (e: NoSuchElementException) {
+                // Do nothing
+            }
         }
     }
     LaunchedEffect(homework) {
+        if (currentStage != NdpStage.HOMEWORK) return@LaunchedEffect
         val currentIndex = homework.indexOfFirst { !it.allDone() }
         if (currentIndex != -1) {
-            listState.animateScrollToItem(currentIndex)
-        }
+            try {
+                listState.animateScrollToItem(currentIndex)
+            } catch (e: NoSuchElementException) {
+                // Do nothing
+            }
+        } else onContinue()
     }
     Column(
         modifier = Modifier
@@ -205,6 +216,8 @@ private fun NdpHomeworkScreenPreview() {
             ),
         ),
         onToggleTask = {},
-        onHide = {}
+        onHide = {},
+        onContinue = {},
+        currentStage = NdpStage.HOMEWORK
     )
 }

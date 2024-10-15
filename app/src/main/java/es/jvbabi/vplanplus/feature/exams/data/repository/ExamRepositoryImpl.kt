@@ -38,8 +38,7 @@ class ExamRepositoryImpl(
                 description = details,
                 createdAt = createdAt,
                 createdBy = if (examId < 0) null else profile.vppId?.id,
-                groupId = profile.group.groupId,
-                useDefaultNotifications = remindDaysBefore == null
+                groupId = profile.group.groupId
             )
         )
         remindDaysBefore?.forEach { daysBefore ->
@@ -69,13 +68,12 @@ class ExamRepositoryImpl(
             description = exam.description,
             createdAt = exam.createdAt,
             createdBy = exam.createdBy?.id,
-            groupId = exam.group.groupId,
-            useDefaultNotifications = exam.remindDaysBefore == exam.type.remindDaysBefore
+            groupId = exam.group.groupId
         ))
         examDao.deleteExamReminders(exam.id)
-        if (exam.remindDaysBefore != exam.type.remindDaysBefore) {
-            exam.remindDaysBefore.forEach { daysBefore ->
-                examDao.insertExamReminder(exam.id, profile.id, daysBefore)
+        if (exam.assessmentReminders != exam.type.remindDaysBefore) {
+            exam.assessmentReminders.forEach { reminder ->
+                examDao.insertExamReminder(exam.id, reminder.profile.id, reminder.daysBefore)
             }
         }
     }
