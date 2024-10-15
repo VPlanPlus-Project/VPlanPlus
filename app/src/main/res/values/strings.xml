@@ -878,4 +878,12 @@
     <string name="notification_ndpDescription">Prepare yourself for tomorrow</string>
     <string name="ndp_guidedWelcomeHeadline">Let\'s prepare for the next school day!</string>
     <string name="ndp_guidedStartButton">Let\'s go!</string>
+    <plurals name="ndp_guidedWelcomeHomework">
+        <item quantity="one">One homework</item>
+        <item quantity="other">%1$d homework</item>
+    </plurals>
+    <plurals name="ndp_guidedWelcomeAssessment">
+        <item quantity="one">One assessment</item>
+        <item quantity="other">%1$d assessments</item>
+    </plurals>
 </resources>

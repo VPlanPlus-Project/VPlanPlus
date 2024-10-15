@@ -873,6 +873,14 @@
     <string name="ndp_notificationMoreInfo">Tippen zur Vorbereitung</string>
     <string name="notification_ndpName">Tagesvorbereitung</string>
     <string name="notification_ndpDescription">Bereite dich auf morgen vor</string>
-    <string name="ndp_guidedWelcomeHeadline">Bereite dich auf den nächsten Schultag vor!</string>
+    <string name="ndp_guidedWelcomeHeadline">Bereite dich auf den nächsten Schultag vor.</string>
     <string name="ndp_guidedStartButton">Beginnen</string>
+    <plurals name="ndp_guidedWelcomeHomework">
+        <item quantity="one">Eine Hausaufgabe</item>
+        <item quantity="other">%1$d Hausaufgaben</item>
+    </plurals>
+    <plurals name="ndp_guidedWelcomeAssessment">
+        <item quantity="one">Eine Leistungserhebung</item>
+        <item quantity="other">%1$d Leistungserhebungen</item>
+    </plurals>
 </resources>

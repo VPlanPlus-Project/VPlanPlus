@@ -110,6 +110,8 @@ private fun NdpHostScreenContent(
                     NdpStartScreenContent(
                         date = state.nextSchoolDay.date,
                         enabled = state.currentStage == NdpStage.START,
+                        homework = state.nextSchoolDay.homework.size,
+                        assessments = state.nextSchoolDay.exams.size
                     ) { doAction(NdpEvent.Start) }
                 }
                 NdpStage.HOMEWORK -> {

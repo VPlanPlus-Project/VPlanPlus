@@ -22,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -39,6 +40,8 @@ import kotlin.math.ceil
 fun NdpStartScreenContent(
     date: LocalDate,
     enabled: Boolean,
+    homework: Int,
+    assessments: Int,
     onStart: () -> Unit
 ) {
     val animationOffset = rememberInfiniteTransition(label = "animation")
@@ -109,6 +112,17 @@ fun NdpStartScreenContent(
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center
         )
+        Spacer4Dp()
+        Text(
+            text = pluralStringResource(R.plurals.ndp_guidedWelcomeHomework, homework, homework),
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = pluralStringResource(R.plurals.ndp_guidedWelcomeAssessment, assessments, assessments),
+            style = MaterialTheme.typography.bodySmall,
+            textAlign = TextAlign.Center
+        )
         Spacer16Dp()
         Button(
             onClick = onStart,
@@ -122,6 +136,8 @@ fun NdpStartScreenContent(
 private fun NdpStartScreenPreview() {
     NdpStartScreenContent(
         date = LocalDate.now().plusDays(1),
-        enabled = false
+        enabled = false,
+        homework = 2,
+        assessments = 1
     ) {}
 }
