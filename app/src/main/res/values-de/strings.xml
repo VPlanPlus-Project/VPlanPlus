@@ -884,4 +884,8 @@
         <item quantity="other">%1$d Leistungserhebungen</item>
     </plurals>
     <string name="ndp_guidedHomeworkSkipButton">Hausaufgaben überspringen</string>
+    <string name="ndp_guidedLessonStart">Schulbeginn um %1$s</string>
+    <string name="ndp_guidedLessonEnd">Schulschluss um %1$s</string>
+    <string name="ndp_guidedLessonNumber">%1$s Stunde</string>
+    <string name="ndp_guidedHomeworkLessonsAcknowledge">Vorbereitet</string>
 </resources>

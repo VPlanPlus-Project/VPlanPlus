@@ -887,4 +887,8 @@
         <item quantity="other">%1$d assessments</item>
     </plurals>
     <string name="ndp_guidedHomeworkSkipButton">Skip homework for now</string>
+    <string name="ndp_guidedLessonStart">Begin at %1$s</string>
+    <string name="ndp_guidedLessonEnd">Until %1$s</string>
+    <string name="ndp_guidedLessonNumber">%1$s lesson</string>
+    <string name="ndp_guidedHomeworkLessonsAcknowledge">Prepared</string>
 </resources>

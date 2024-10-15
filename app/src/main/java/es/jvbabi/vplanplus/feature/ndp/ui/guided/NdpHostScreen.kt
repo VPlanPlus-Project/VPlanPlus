@@ -131,6 +131,7 @@ private fun NdpHostScreenContent(
                 NdpStage.LESSONS -> {
                     NdpLessonsScreen(
                         lessons = state.nextSchoolDay.lessons,
+                        enabled = state.currentStage == NdpStage.LESSONS,
                         onContinue = { doAction(NdpEvent.FinishLessons) }
                     )
                 }

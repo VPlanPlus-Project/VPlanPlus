@@ -94,7 +94,7 @@ fun NdpHomeworkScreen(
             modifier = Modifier
                 .padding(horizontal = 8.dp)
                 .padding(top = 8.dp)
-                .fillMaxSize(),
+                .weight(1f),
             state = listState
         ) {
             items(homework) { homeworkItem ->
@@ -106,19 +106,17 @@ fun NdpHomeworkScreen(
                 )
                 Spacer8Dp()
             }
-            item {
-                Box(Modifier.fillMaxWidth()) {
-                    OutlinedButton(
-                        onClick = onContinue,
-                        modifier = Modifier.align(Alignment.CenterEnd),
-                        enabled = enabled
-                    ) {
-                        RowVerticalCenter {
-                            Icon(Icons.Default.SkipNext, contentDescription = null)
-                            Spacer4Dp()
-                            Text(stringResource(R.string.ndp_guidedHomeworkSkipButton))
-                        }
-                    }
+        }
+        Box(Modifier.fillMaxWidth()) {
+            OutlinedButton(
+                onClick = onContinue,
+                modifier = Modifier.align(Alignment.CenterEnd),
+                enabled = enabled
+            ) {
+                RowVerticalCenter {
+                    Icon(Icons.Default.SkipNext, contentDescription = null)
+                    Spacer4Dp()
+                    Text(stringResource(R.string.ndp_guidedHomeworkSkipButton))
                 }
             }
         }
