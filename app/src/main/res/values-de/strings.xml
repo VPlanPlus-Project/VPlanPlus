@@ -873,4 +873,6 @@
     <string name="ndp_notificationMoreInfo">Tippen zur Vorbereitung</string>
     <string name="notification_ndpName">Tagesvorbereitung</string>
     <string name="notification_ndpDescription">Bereite dich auf morgen vor</string>
+    <string name="ndp_guidedWelcomeHeadline">Bereite dich auf den nächsten Schultag vor!</string>
+    <string name="ndp_guidedStartButton">Beginnen</string>
 </resources>
