@@ -133,7 +133,9 @@ fun NdpStartScreenContent(
         Button(
             onClick = onStart,
             enabled = enabled,
-            modifier = Modifier.align(Alignment.BottomEnd)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(8.dp)
         ) {
             Icon(Icons.AutoMirrored.Default.ArrowForward, contentDescription = null)
             Spacer4Dp()

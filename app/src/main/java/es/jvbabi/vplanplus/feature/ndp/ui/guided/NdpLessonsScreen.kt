@@ -136,7 +136,9 @@ fun NdpLessonsScreen(
         Box(Modifier.fillMaxWidth()) {
             OutlinedButton(
                 onClick = onContinue,
-                modifier = Modifier.align(Alignment.CenterEnd),
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .padding(8.dp),
                 enabled = enabled
             ) {
                 RowVerticalCenter {
