@@ -13,11 +13,11 @@ class GetNextSchoolDayUseCase(
     private val getNextDayUseCase: GetNextDayUseCase,
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke(): Flow<SchoolDay?> {
+    suspend operator fun invoke(fast: Boolean = true): Flow<SchoolDay?> {
         return getCurrentProfileUseCase()
             .flatMapLatest { profile ->
                 if (profile == null) return@flatMapLatest flowOf(null)
-                return@flatMapLatest getNextDayUseCase(profile)
+                return@flatMapLatest getNextDayUseCase(profile, fast = fast)
             }
     }
 }

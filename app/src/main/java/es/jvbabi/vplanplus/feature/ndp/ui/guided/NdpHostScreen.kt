@@ -89,7 +89,8 @@ private fun NdpHostScreenContent(
             horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             NdpBar(subsegments = 1, progress = (state.currentStage.ordinal > NdpStage.START.ordinal).toFloat())
-            if (state.nextSchoolDay.homework.isNotEmpty()) NdpBar(subsegments = state.nextSchoolDay.homework.size, progress = .8f)
+            if (state.nextSchoolDay.homework.isNotEmpty()) NdpBar(subsegments = state.nextSchoolDay.homework.size, progress = (state.nextSchoolDay.homework.count { it.allDone() }
+                .toFloat() / state.nextSchoolDay.homework.size) * (state.currentStage.ordinal >= NdpStage.HOMEWORK.ordinal).toFloat())
             NdpBar(subsegments = 2, progress = 0f)
         }
 
@@ -109,7 +110,9 @@ private fun NdpHostScreenContent(
                 }
                 NdpStage.HOMEWORK -> {
                     NdpHomeworkScreen(
-                        homework = state.nextSchoolDay.homework
+                        homework = state.nextSchoolDay.homework,
+                        onToggleTask = { task -> doAction(NdpEvent.ToggleTask(task)) },
+                        onHide = { homework -> doAction(NdpEvent.HideHomework(homework)) }
                     )
                 }
             }

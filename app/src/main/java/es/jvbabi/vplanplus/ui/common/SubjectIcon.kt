@@ -27,7 +27,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 
 @Composable
-fun SubjectIcon(subject: String?, modifier: Modifier, tint: Color = Color.Unspecified) {
+fun SubjectIcon(modifier: Modifier = Modifier, subject: String?, tint: Color = Color.Unspecified) {
     Icon(imageVector = subject.getSubjectIcon(), contentDescription = null, modifier = modifier, tint = tint)
 }
 

@@ -72,7 +72,7 @@ fun CurrentLesson(
         ) {
             val lessonSubjectIsChanged = lesson is Lesson.SubstitutionPlanLesson && lesson.changedSubject != null
             SubjectIcon(
-                lesson.subject,
+                subject = lesson.subject,
                 tint = if (lessonSubjectIsChanged) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier
                     .size(32.dp)
