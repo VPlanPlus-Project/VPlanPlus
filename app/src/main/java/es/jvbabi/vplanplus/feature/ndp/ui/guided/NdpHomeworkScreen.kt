@@ -59,7 +59,8 @@ fun NdpHomeworkScreen(
     onHide: (homework: PersonalizedHomework) -> Unit,
     onOpenHomework: (homework: PersonalizedHomework) -> Unit,
     onContinue: () -> Unit,
-    currentStage: NdpStage
+    currentStage: NdpStage,
+    enabled: Boolean
 ) {
     val listState = rememberLazyListState()
     LaunchedEffect(remember{ derivedStateOf { listState.firstVisibleItemIndex }}, listState.isScrollInProgress) {
@@ -109,7 +110,8 @@ fun NdpHomeworkScreen(
                 Box(Modifier.fillMaxWidth()) {
                     OutlinedButton(
                         onClick = onContinue,
-                        modifier = Modifier.align(Alignment.CenterEnd)
+                        modifier = Modifier.align(Alignment.CenterEnd),
+                        enabled = enabled
                     ) {
                         RowVerticalCenter {
                             Icon(Icons.Default.SkipNext, contentDescription = null)
@@ -250,6 +252,7 @@ private fun NdpHomeworkScreenPreview() {
         onHide = {},
         onContinue = {},
         onOpenHomework = {},
+        enabled = false,
         currentStage = NdpStage.HOMEWORK
     )
 }

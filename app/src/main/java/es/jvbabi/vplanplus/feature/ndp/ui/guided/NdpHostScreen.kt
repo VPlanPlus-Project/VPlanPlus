@@ -124,7 +124,8 @@ private fun NdpHostScreenContent(
                         onHide = { homework -> doAction(NdpEvent.HideHomework(homework)) },
                         onContinue = { doAction(NdpEvent.FinishHomework) },
                         onOpenHomework = onOpenHomework,
-                        currentStage = state.currentStage
+                        currentStage = state.currentStage,
+                        enabled = state.currentStage == NdpStage.HOMEWORK
                     )
                 }
                 NdpStage.LESSONS -> {
