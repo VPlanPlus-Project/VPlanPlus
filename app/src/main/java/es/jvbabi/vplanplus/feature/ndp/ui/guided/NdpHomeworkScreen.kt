@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.feature.ndp.ui.guided
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -32,6 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
@@ -60,6 +60,7 @@ fun NdpHomeworkScreen(
     onOpenHomework: (homework: PersonalizedHomework) -> Unit,
     onContinue: () -> Unit,
     currentStage: NdpStage,
+    currentProfile: ClassProfile,
     enabled: Boolean
 ) {
     val listState = rememberLazyListState()
@@ -74,10 +75,8 @@ fun NdpHomeworkScreen(
         }
     }
     LaunchedEffect(homework) {
-        Log.d("LE", "CurrentStage: ${currentStage.name}")
         if (currentStage != NdpStage.HOMEWORK) return@LaunchedEffect
         val currentIndex = homework.indexOfFirst { !it.allDone() }
-        Log.d("LE", "CurrentIndex: $currentIndex")
         if (currentIndex != -1) {
             try {
                 listState.animateScrollToItem(currentIndex)
@@ -100,6 +99,7 @@ fun NdpHomeworkScreen(
             items(homework) { homeworkItem ->
                 NdpHomeworkListItem(
                     homework = homeworkItem,
+                    currentProfile = currentProfile,
                     onToggleTask = onToggleTask,
                     onHide = onHide,
                     onOpenHomework = onOpenHomework
@@ -128,6 +128,7 @@ fun NdpHomeworkScreen(
 @Composable
 private fun NdpHomeworkListItem(
     homework: PersonalizedHomework,
+    currentProfile: ClassProfile,
     onToggleTask: (task: HomeworkTaskDone) -> Unit,
     onHide: (homework: PersonalizedHomework) -> Unit,
     onOpenHomework: (homework: PersonalizedHomework) -> Unit
@@ -171,7 +172,7 @@ private fun NdpHomeworkListItem(
                     )
                 }
             }
-            if (homework is PersonalizedHomework.CloudHomework) TextButton(onClick = { onHide(homework) }) {
+            if (homework is PersonalizedHomework.CloudHomework && homework.homework.createdBy != currentProfile.vppId) TextButton(onClick = { onHide(homework) }) {
                 RowVerticalCenter {
                     Icon(Icons.Default.SkipNext, contentDescription = null)
                     Spacer4Dp()
@@ -253,6 +254,7 @@ private fun NdpHomeworkScreenPreview() {
         onContinue = {},
         onOpenHomework = {},
         enabled = false,
+        currentProfile = profile,
         currentStage = NdpStage.HOMEWORK
     )
 }

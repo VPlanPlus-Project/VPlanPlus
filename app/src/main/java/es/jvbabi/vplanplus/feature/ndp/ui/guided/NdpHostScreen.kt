@@ -32,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
+import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
@@ -59,14 +60,22 @@ fun NdpHostScreen(
     NdpHostScreenContent(
         state = viewModel.state,
         onOpenHomework = { navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId = it.homework.id)) },
+        onOpenAssessment = { navHostController.navigate(Screen.ExamDetailsScreen(examId = it.id)) },
         doAction = viewModel::doAction
     )
+
+    LaunchedEffect(viewModel.state.currentStage) {
+        if (viewModel.state.currentStage == NdpStage.DONE) {
+            navHostController.navigate(Screen.HomeScreen.route) { popUpTo(0) }
+        }
+    }
 }
 
 @Composable
 private fun NdpHostScreenContent(
     state: NdpHostState,
     onOpenHomework: (homework: PersonalizedHomework) -> Unit,
+    onOpenAssessment: (exam: Exam) -> Unit,
     doAction: (NdpEvent) -> Unit
 ) {
     val pagerState = rememberPagerState(state.displayStage.ordinal) { state.currentStage.ordinal + 1 }
@@ -79,7 +88,7 @@ private fun NdpHostScreenContent(
             .padding(WindowInsets.safeContent.asPaddingValues())
             .padding(top = 8.dp)
     ) {
-        if (state.nextSchoolDay == null) {
+        if (state.nextSchoolDay == null || state.currentProfile == null) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -125,6 +134,7 @@ private fun NdpHostScreenContent(
                         onContinue = { doAction(NdpEvent.FinishHomework) },
                         onOpenHomework = onOpenHomework,
                         currentStage = state.currentStage,
+                        currentProfile = state.currentProfile,
                         enabled = state.currentStage == NdpStage.HOMEWORK
                     )
                 }
@@ -137,9 +147,13 @@ private fun NdpHostScreenContent(
                 }
                 NdpStage.EXAMS -> {
                     NdpAssessmentScreen(
-                        assessments = state.nextSchoolDay.exams.associateWith { true }.plus(state.examsToGetReminded.associateWith { false })
+                        assessments = state.nextSchoolDay.exams.associateWith { true }.plus(state.examsToGetReminded.associateWith { false }),
+                        enabled = state.currentStage == NdpStage.EXAMS,
+                        onContinue = { doAction(NdpEvent.FinishAssessments) },
+                        onOpenAssessment = onOpenAssessment
                     )
                 }
+                NdpStage.DONE -> Unit
             }
         }
     }
@@ -267,6 +281,7 @@ private fun NdpHostScreenPreview() {
             displayStage = NdpStage.LESSONS
         ),
         onOpenHomework = {},
+        onOpenAssessment = {},
         doAction = {}
     )
 }

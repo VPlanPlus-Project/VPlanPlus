@@ -56,6 +56,7 @@ fun NdpLessonsScreen(
 
             Spacer16Dp()
             RowVerticalCenter {
+                Spacer8Dp()
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowForward,
                     contentDescription = null
@@ -66,13 +67,15 @@ fun NdpLessonsScreen(
                         lessons.minOf { it.start }
                             .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
                     ),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
 
+            Spacer8Dp()
+
             Column(
                 modifier = Modifier
-                    .padding(vertical = 8.dp)
+                    .padding(8.dp)
                     .clip(RoundedCornerShape(16.dp)),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
@@ -117,7 +120,10 @@ fun NdpLessonsScreen(
                 }
             }
 
+            Spacer8Dp()
+
             RowVerticalCenter {
+                Spacer8Dp()
                 Icon(
                     imageVector = Icons.AutoMirrored.Default.ArrowBack,
                     contentDescription = null
@@ -128,7 +134,7 @@ fun NdpLessonsScreen(
                         lessons.maxOf { it.end }
                             .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT))
                     ),
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleSmall
                 )
             }
         }

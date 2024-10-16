@@ -891,4 +891,7 @@
     <string name="ndp_guidedLessonEnd">Until %1$s</string>
     <string name="ndp_guidedLessonNumber">%1$s lesson</string>
     <string name="ndp_guidedHomeworkLessonsAcknowledge">Prepared</string>
+    <string name="ndp_guidedAssessmentDone">Done</string>
+    <string name="ndp_guidedAssessmentNextDay">This assessment will take place at the next school day.</string>
+    <string name="ndp_guidedAssessmentReminder">This is just a reminder you set on this assessment</string>
 </resources>

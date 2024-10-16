@@ -68,12 +68,13 @@ class NdpHostViewModel @Inject constructor(
             }
             is NdpEvent.FinishHomework -> state = state.copy(displayStage = NdpStage.LESSONS, currentStage = NdpStage.LESSONS)
             is NdpEvent.FinishLessons -> state = state.copy(displayStage = NdpStage.EXAMS, currentStage = NdpStage.EXAMS)
+            is NdpEvent.FinishAssessments -> state = state.copy(displayStage = NdpStage.DONE, currentStage = NdpStage.DONE)
         }
     }
 }
 
 enum class NdpStage {
-    START, HOMEWORK, LESSONS, EXAMS
+    START, HOMEWORK, LESSONS, EXAMS, DONE
 }
 
 data class NdpHostState(
@@ -95,4 +96,6 @@ sealed class NdpEvent {
     data object FinishHomework: NdpEvent()
 
     data object FinishLessons: NdpEvent()
+
+    data object FinishAssessments: NdpEvent()
 }

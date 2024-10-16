@@ -888,4 +888,7 @@
     <string name="ndp_guidedLessonEnd">Schulschluss um %1$s</string>
     <string name="ndp_guidedLessonNumber">%1$s Stunde</string>
     <string name="ndp_guidedHomeworkLessonsAcknowledge">Vorbereitet</string>
+    <string name="ndp_guidedAssessmentDone">Fertig</string>
+    <string name="ndp_guidedAssessmentNextDay">Diese Leistungserhebung findet am nächsten Schultag statt.</string>
+    <string name="ndp_guidedAssessmentReminder">Dies ist nur eine Erinnerung, welche du für diese Leistungserhebung eingerichtet hast.</string>
 </resources>
