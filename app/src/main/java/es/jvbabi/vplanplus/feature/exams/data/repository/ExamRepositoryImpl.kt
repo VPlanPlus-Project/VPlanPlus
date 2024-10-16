@@ -42,7 +42,8 @@ class ExamRepositoryImpl(
             )
         )
         remindDaysBefore?.forEach { daysBefore ->
-            examDao.insertExamReminder(examId, profile.id, daysBefore)
+            if (LocalDate.now().until(date).days < daysBefore) return@forEach
+            examDao.insertExamReminder(examId, profile.id, daysBefore, false)
         }
         return examDao.getExam(examId).map { it!!.toModel(profile) }
     }
@@ -73,7 +74,8 @@ class ExamRepositoryImpl(
         examDao.deleteExamReminders(exam.id)
         if (exam.assessmentReminders != exam.type.remindDaysBefore) {
             exam.assessmentReminders.forEach { reminder ->
-                examDao.insertExamReminder(exam.id, reminder.profile.id, reminder.daysBefore)
+                if (LocalDate.now().until(exam.date).days < reminder.daysBefore) return@forEach
+                examDao.insertExamReminder(exam.id, reminder.profile.id, reminder.daysBefore, reminder.hasDismissed)
             }
         }
     }

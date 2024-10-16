@@ -15,6 +15,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.Homewo
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
 import es.jvbabi.vplanplus.feature.ndp.domain.usecase.TriggerNdpReminderNotificationUseCase
 import es.jvbabi.vplanplus.feature.ndp.domain.usecase.guided.GetExamsToGetRemindedUseCase
+import es.jvbabi.vplanplus.feature.ndp.domain.usecase.guided.MarkExamRemindersAsViewedUseCase
 import es.jvbabi.vplanplus.feature.ndp.domain.usecase.guided.NdpGuidedUseCases
 import javax.inject.Singleton
 
@@ -48,6 +49,8 @@ object NdpModule {
         toggleHomeworkHiddenUseCase = ToggleHomeworkHiddenStateUseCase(homeworkRepository),
         toggleTaskDoneStateUseCase = ChangeTaskDoneStateUseCase(homeworkRepository),
 
-        getExamsToGetRemindedUseCase = GetExamsToGetRemindedUseCase(examRepository, getCurrentProfileUseCase)
+        getExamsToGetRemindedUseCase = GetExamsToGetRemindedUseCase(examRepository, getCurrentProfileUseCase),
+
+        markExamRemindersAsViewedUseCase = MarkExamRemindersAsViewedUseCase(examRepository, getCurrentProfileUseCase)
     )
 }

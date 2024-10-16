@@ -68,7 +68,12 @@ class NdpHostViewModel @Inject constructor(
             }
             is NdpEvent.FinishHomework -> state = state.copy(displayStage = NdpStage.LESSONS, currentStage = NdpStage.LESSONS)
             is NdpEvent.FinishLessons -> state = state.copy(displayStage = NdpStage.EXAMS, currentStage = NdpStage.EXAMS)
-            is NdpEvent.FinishAssessments -> state = state.copy(displayStage = NdpStage.DONE, currentStage = NdpStage.DONE)
+            is NdpEvent.FinishAssessments -> {
+                viewModelScope.launch {
+                    ndpGuidedUseCases.markExamRemindersAsViewedUseCase(state.nextSchoolDay?.exams.orEmpty().plus(state.examsToGetReminded))
+                    state = state.copy(displayStage = NdpStage.DONE, currentStage = NdpStage.DONE)
+                }
+            }
         }
     }
 }

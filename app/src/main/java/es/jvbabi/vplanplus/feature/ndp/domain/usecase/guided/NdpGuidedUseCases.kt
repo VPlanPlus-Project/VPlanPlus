@@ -7,5 +7,7 @@ data class NdpGuidedUseCases(
     val toggleTaskDoneStateUseCase: ChangeTaskDoneStateUseCase,
     val toggleHomeworkHiddenUseCase: ToggleHomeworkHiddenStateUseCase,
 
-    val getExamsToGetRemindedUseCase: GetExamsToGetRemindedUseCase
+    val getExamsToGetRemindedUseCase: GetExamsToGetRemindedUseCase,
+
+    val markExamRemindersAsViewedUseCase: MarkExamRemindersAsViewedUseCase
 )

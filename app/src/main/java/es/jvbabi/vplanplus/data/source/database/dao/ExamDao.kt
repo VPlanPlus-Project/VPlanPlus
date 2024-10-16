@@ -26,8 +26,8 @@ abstract class ExamDao {
     @Query("SELECT * FROM exams WHERE (date = :date OR :date IS NULL) AND (group_id = :groupId OR :groupId IS NULL)")
     abstract fun getExams(date: LocalDate?, groupId: Int?): Flow<List<CExam>>
 
-    @Query("INSERT OR REPLACE INTO exam_reminders (exam_id, profile_id, days_before) VALUES (:examId, :profileId, :daysBefore)")
-    abstract suspend fun insertExamReminder(examId: Int, profileId: UUID, daysBefore: Int)
+    @Query("INSERT OR REPLACE INTO exam_reminders (exam_id, profile_id, days_before, has_dismissed) VALUES (:examId, :profileId, :daysBefore, :hasDismissed)")
+    abstract suspend fun insertExamReminder(examId: Int, profileId: UUID, daysBefore: Int, hasDismissed: Boolean)
 
     @Query("DELETE FROM exam_reminders WHERE exam_id = :examId")
     abstract suspend fun deleteExamReminders(examId: Int)
