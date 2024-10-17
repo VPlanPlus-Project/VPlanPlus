@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,8 +24,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -174,7 +175,7 @@ fun HomeScreen(
         onOpenExam = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
 
 
-        onDeveloperNdpClicked = remember { { navHostController.navigate(Screen.NdpScreen) } }
+        onNdpClicked = remember { { navHostController.navigate(Screen.NdpScreen) } }
     )
 }
 
@@ -208,7 +209,7 @@ fun HomeScreenContent(
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {},
 
-    onDeveloperNdpClicked: () -> Unit = {}
+    onNdpClicked: () -> Unit = {}
 ) {
     if (state.currentProfile == null) return
 
@@ -236,9 +237,6 @@ fun HomeScreenContent(
         containerColor = MaterialTheme.colorScheme.surface,
     ) { paddingValues ->
         Column(Modifier.padding(paddingValues)) {
-            Button(onClick = onDeveloperNdpClicked) {
-                Text("NDP")
-            }
             Spacer4Dp()
             Head(
                 profile = state.currentProfile,
@@ -287,6 +285,15 @@ fun HomeScreenContent(
                     ?: false
             )
 
+            Spacer8Dp()
+
+            NdpCard(
+                modifier = Modifier.padding(horizontal = 12.dp),
+                openHomework = state.nextSchoolDay?.homework.orEmpty().count { !it.allDone() },
+                unreviewedAssessments = state.nextSchoolDay?.exams.orEmpty().count { it.assessmentReminders.any { reminder -> reminder.daysBefore == LocalDate.now().until(it.date).days && reminder.profile.id == state.currentProfile.id && !reminder.hasDismissed } },
+                onClick = onNdpClicked
+            )
+
             Spacer16Dp()
 
             val todayHasData = state.today != null && (state.today.dataType != DataType.NO_DATA || state.today.type != DayType.NORMAL)
@@ -310,14 +317,16 @@ fun HomeScreenContent(
                         modifier = Modifier.fillMaxSize(),
                         verticalAlignment = Alignment.CenterVertically
                     ) { page ->
-                        when (page) {
-                            0 -> TodayContent(state.today ?: return@HorizontalPager)
-                            1 -> NextDayPreparation(
-                                nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
-                                currentProfile = state.currentProfile,
-                                onOpenHomework = onOpenHomework,
-                                onOpenExam = onOpenExam
-                            )
+                        Column {
+                            when (page) {
+                                0 -> TodayContent(state.today ?: return@HorizontalPager)
+                                1 -> NextDayPreparation(
+                                    nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
+                                    currentProfile = state.currentProfile,
+                                    onOpenHomework = onOpenHomework,
+                                    onOpenExam = onOpenExam
+                                )
+                            }
                         }
                     }
                     PagerSwitcher(
@@ -597,4 +606,51 @@ private fun NoData(
             }
         }
     }
+}
+
+@Composable
+private fun NdpCard(
+    modifier: Modifier = Modifier,
+    openHomework: Int,
+    unreviewedAssessments: Int,
+    onClick: () -> Unit,
+) {
+    if (openHomework + unreviewedAssessments == 0) return
+
+    RowVerticalCenter(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .padding(16.dp)
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.mindfulness),
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+        Spacer8Dp()
+        Column {
+            Text(
+                text = stringResource(R.string.home_ndpCardTitle),
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+            Text(
+                text = "Noch $openHomework offene Hausaufgaben und $unreviewedAssessments offene Leistungserhebungen. Tippe zum Beginnen.",
+                style = MaterialTheme.typography.bodySmall,
+            )
+        }
+    }
+}
+
+@Composable
+@Preview
+private fun NdpCardPreview() {
+    NdpCard(
+        openHomework = 2,
+        unreviewedAssessments = 1,
+        onClick = {}
+    )
 }

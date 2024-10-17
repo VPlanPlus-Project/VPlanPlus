@@ -894,4 +894,5 @@
     <string name="ndp_guidedAssessmentDone">Done</string>
     <string name="ndp_guidedAssessmentNextDay">This assessment will take place at the next school day.</string>
     <string name="ndp_guidedAssessmentReminder">This is just a reminder you set on this assessment</string>
+    <string name="home_ndpCardTitle">Prepare yourself for the next school day</string>
 </resources>

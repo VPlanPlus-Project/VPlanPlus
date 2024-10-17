@@ -891,4 +891,5 @@
     <string name="ndp_guidedAssessmentDone">Fertig</string>
     <string name="ndp_guidedAssessmentNextDay">Diese Leistungserhebung findet am nächsten Schultag statt.</string>
     <string name="ndp_guidedAssessmentReminder">Dies ist nur eine Erinnerung, welche du für diese Leistungserhebung eingerichtet hast.</string>
+    <string name="home_ndpCardTitle">Vorbereitung für den nächsten Schultag</string>
 </resources>
