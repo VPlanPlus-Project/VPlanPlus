@@ -149,6 +149,7 @@ private fun NdpHostScreenContent(
                     NdpAssessmentScreen(
                         assessments = state.nextSchoolDay.exams.associateWith { true }.plus(state.examsToGetReminded.associateWith { false }),
                         enabled = state.currentStage == NdpStage.EXAMS,
+                        currentStage = state.currentStage,
                         onContinue = { doAction(NdpEvent.FinishAssessments) },
                         onOpenAssessment = onOpenAssessment
                     )
