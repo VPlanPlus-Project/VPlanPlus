@@ -111,8 +111,8 @@ fun SettingsScreen(navController: NavHostController) {
             )
             SettingsSetting(
                 icon = Icons.Outlined.Notifications,
-                title = "Notifications",
-                subtitle = "Manage notifications",
+                title = stringResource(R.string.settings_notificationsTitle),
+                subtitle = stringResource(R.string.settings_notificationsSubtitle),
                 type = SettingsType.FUNCTION,
                 doAction = { navController.navigate(Screen.SettingsNotificationsScreen) }
             )

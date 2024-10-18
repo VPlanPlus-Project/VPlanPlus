@@ -106,7 +106,7 @@ private fun NdpHostScreenContent(
             if (state.nextSchoolDay.lessons.isNotEmpty()) NdpBar(subsegments = 1, progress = (state.currentStage.ordinal > NdpStage.LESSONS.ordinal).toFloat())
             (state.nextSchoolDay.exams.size + state.examsToGetReminded.size).let { examsToPrepareFor ->
                 if (examsToPrepareFor == 0) return@let
-                NdpBar(subsegments = examsToPrepareFor, progress = (state.currentStage.ordinal >= NdpStage.EXAMS.ordinal).toFloat())
+                NdpBar(subsegments = examsToPrepareFor, progress = (state.currentStage.ordinal > NdpStage.EXAMS.ordinal).toFloat())
             }
         }
 

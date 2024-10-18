@@ -12,6 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.EditNotifications
+import androidx.compose.material.icons.filled.NotificationAdd
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -25,10 +26,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.Link
@@ -68,7 +71,7 @@ private fun NotificationsSettingsContent(
         topBar = {
             LargeTopAppBar(
                 title = {
-                    Text(text = "Notifications")
+                    Text(text = stringResource(R.string.settingsNotification_title))
                 },
                 navigationIcon = {
                     IconButton(onBack) { BackIcon() }
@@ -91,9 +94,9 @@ private fun NotificationsSettingsContent(
             ) {
                 InfoCard(
                     imageVector = Icons.Default.NotificationsOff,
-                    title = "Notifications are disabled",
-                    text = "You can enable notifications in the app settings.",
-                    buttonText1 = "Open settings",
+                    title = stringResource(R.string.notificationSettings_notificationsDisabledBannerTitle),
+                    text = stringResource(R.string.notificationSettings_notificationsDisabledBannerText),
+                    buttonText1 = stringResource(R.string.to_settings),
                     buttonAction1 = onOpenNotificationSettings,
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
                 )
@@ -105,24 +108,24 @@ private fun NotificationsSettingsContent(
             ) {
                 SettingsSetting(
                     icon = Icons.Default.EditNotifications,
-                    title = "Device notifications",
-                    subtitle = "Enable or disable notifications for different events.",
+                    title = stringResource(R.string.notificationSettings_notificationCategoriesTitle),
+                    subtitle = stringResource(R.string.notificationSettings_notificationCategoriesSubtitle),
                     type = SettingsType.FUNCTION,
                     doAction = onOpenNotificationSettings
                 )
             }
-            SettingsCategory(title = "Preparation") {
+            SettingsCategory(title = stringResource(R.string.notificationSettings_ndpTitle)) {
                 SettingsSetting(
                     icon = Icons.Default.AutoAwesome,
-                    title = "Automatic reminder time",
-                    subtitle = "Automatically determine when the reminder time is based on your schedule and usage behavior.",
+                    title = stringResource(R.string.notificationSettings_ndpAutoReminderTimeTitle),
+                    subtitle = stringResource(R.string.notificationSettings_ndpAutoReminderTimeSubtitle),
                     type = SettingsType.TOGGLE,
                     customContentAutoPadding = true,
                     doAction = { onAction(NotificationSettingsEvent.ToggleAutomaticReminderTime) },
                     checked = state.isAutomaticReminderTimeEnabled,
                     enabled = state.canSendNotifications,
                     customContent = {
-                        Link("","Learn more") // TODO: add link
+                        Link("", stringResource(R.string.learn_more)) // TODO: add link
                     }
                 )
                 if (state.isDeveloperModeEnabled) {
@@ -139,6 +142,15 @@ private fun NotificationsSettingsContent(
                         doAction = { onAction(NotificationSettingsEvent.TriggerNdpReminderNotification) }
                     )
                 }
+            }
+            SettingsCategory(title = stringResource(R.string.settingsNotification_homeworkTitle)) {
+                SettingsSetting(
+                    icon = Icons.Default.NotificationAdd,
+                    title = stringResource(R.string.settingsNotification_homeworkAddTitle),
+                    subtitle = stringResource(R.string.settingsNotification_homeworkAddSubtitle),
+                    type = SettingsType.FUNCTION,
+                    doAction = {}
+                )
             }
         }
     }

@@ -895,4 +895,17 @@
     <string name="ndp_guidedAssessmentNextDay">This assessment will take place at the next school day.</string>
     <string name="ndp_guidedAssessmentReminder">This is just a reminder you set on this assessment</string>
     <string name="home_ndpCardTitle">Prepare yourself for the next school day</string>
+    <string name="settings_notificationsTitle">Notifications</string>
+    <string name="settings_notificationsSubtitle">Manage reminders etc.</string>
+    <string name="settingsNotification_homeworkTitle">Homework</string>
+    <string name="settingsNotification_homeworkAddTitle">New homework</string>
+    <string name="settingsNotification_homeworkAddSubtitle">Get notified about new homework in your class.</string>
+    <string name="settingsNotification_title">Notifications</string>
+    <string name="notificationSettings_notificationsDisabledBannerTitle">Notifications disabled</string>
+    <string name="notificationSettings_notificationsDisabledBannerText">VPlanPlus cannot send notifications since they are disabled by Androoid. Please enable them in settings.</string>
+    <string name="notificationSettings_notificationCategoriesTitle">Notification channels</string>
+    <string name="notificationSettings_notificationCategoriesSubtitle">Toggle different categories of notifications</string>
+    <string name="notificationSettings_ndpTitle">Next school day preparation</string>
+    <string name="notificationSettings_ndpAutoReminderTimeTitle">Automatic reminder time</string>
+    <string name="notificationSettings_ndpAutoReminderTimeSubtitle">Sets the reminder time automatically based on your schedule and usage behaviour.</string>
 </resources>

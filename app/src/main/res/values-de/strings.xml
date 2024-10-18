@@ -892,4 +892,17 @@
     <string name="ndp_guidedAssessmentNextDay">Diese Leistungserhebung findet am nächsten Schultag statt.</string>
     <string name="ndp_guidedAssessmentReminder">Dies ist nur eine Erinnerung, welche du für diese Leistungserhebung eingerichtet hast.</string>
     <string name="home_ndpCardTitle">Vorbereitung für den nächsten Schultag</string>
+    <string name="settings_notificationsTitle">Benachrichtigungen</string>
+    <string name="settings_notificationsSubtitle">Verwalte Erinnerungen etc.</string>
+    <string name="settingsNotification_homeworkTitle">Hausaufgaben</string>
+    <string name="settingsNotification_homeworkAddTitle">Neue Hausaufgaben</string>
+    <string name="settingsNotification_homeworkAddSubtitle">Erhalte Benachrichtigungen über neue Hausaufgaben in deiner Klasse.</string>
+    <string name="settingsNotification_title">Benachrichtigungen</string>
+    <string name="notificationSettings_notificationsDisabledBannerTitle">Benachrichtigungen deaktiviert</string>
+    <string name="notificationSettings_notificationsDisabledBannerText">VPlanPlus kann keine Benachrichtigungen senden, da diese aktuell deaktiviert sind. Aktiviere Benachrichtigungen in den Einstellungen.</string>
+    <string name="notificationSettings_notificationCategoriesTitle">Benachrichtigungskategorien</string>
+    <string name="notificationSettings_notificationCategoriesSubtitle">Schalte verschiedene Kategorien an Benachrichtigungen ein oder aus.</string>
+    <string name="notificationSettings_ndpTitle">Vorbereitung auf den nächsten Schultag</string>
+    <string name="notificationSettings_ndpAutoReminderTimeTitle">Automatische Erinnerungszeit</string>
+    <string name="notificationSettings_ndpAutoReminderTimeSubtitle">Setzt die Erinnerungszeit automatisch anhand deines Stunden-/Vertretungsplanes und deines Nutzungsverhaltens.</string>
 </resources>
