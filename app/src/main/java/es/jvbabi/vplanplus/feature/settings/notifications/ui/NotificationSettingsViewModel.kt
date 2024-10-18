@@ -28,16 +28,19 @@ class NotificationSettingsViewModel @Inject constructor(
                 listOf<Flow<Any>>(
                     notificationSettingsUseCases.isNotificationsEnabledUseCase(),
                     notificationSettingsUseCases.isAutomaticReminderTimeEnabledUseCase(),
-                    isDeveloperModeEnabledUseCase()
+                    isDeveloperModeEnabledUseCase(),
+                    notificationSettingsUseCases.isNotificationOnNewHomeworkEnabledUseCase()
                 )
             ) { data ->
                 val canSendNotifications = data[0] as Boolean
                 val isAutomaticReminderTimeEnabled = data[1] as Boolean
                 val isDeveloperModeEnabled = data[2] as Boolean
+                val isNotificationOnNewHomeworkEnabled = data[3] as Boolean
 
                 state.copy(
                     canSendNotifications = canSendNotifications,
                     isAutomaticReminderTimeEnabled = isAutomaticReminderTimeEnabled,
+                    sendNotificationOnNewHomework = isNotificationOnNewHomeworkEnabled,
 
                     isDeveloperModeEnabled = isDeveloperModeEnabled
                 )
@@ -62,6 +65,11 @@ class NotificationSettingsViewModel @Inject constructor(
                     notificationSettingsUseCases.developerTriggerNdpReminderNotificationUseCase()
                 }
             }
+            is NotificationSettingsEvent.ToggleNewHomeworkNotification -> {
+                viewModelScope.launch {
+                    notificationSettingsUseCases.toggleNotificationOnNewHomeworkUseCase()
+                }
+            }
         }
     }
 }
@@ -70,7 +78,9 @@ data class NotificationSettingsState(
     val canSendNotifications: Boolean = true,
     val isAutomaticReminderTimeEnabled: Boolean = true,
 
-    val isDeveloperModeEnabled: Boolean = false
+    val isDeveloperModeEnabled: Boolean = false,
+
+    val sendNotificationOnNewHomework: Boolean = false
 )
 
 sealed class NotificationSettingsEvent {
@@ -78,4 +88,6 @@ sealed class NotificationSettingsEvent {
 
     data object UpdateAutomaticTimes: NotificationSettingsEvent()
     data object TriggerNdpReminderNotification: NotificationSettingsEvent()
+
+    data object ToggleNewHomeworkNotification: NotificationSettingsEvent()
 }

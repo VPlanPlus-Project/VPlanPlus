@@ -19,7 +19,6 @@ import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.HomeworkRepositoryImpl
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import javax.inject.Singleton
 
@@ -65,7 +64,6 @@ object HomeworkModule {
     ): HomeworkRepository {
         return HomeworkRepositoryImpl(
             homeworkDao = db.homeworkDao,
-            homeworkNotificationTimeDao = db.homeworkNotificationTimeDao,
             homeworkDocumentDao = db.homeworkDocumentDao,
             keyValueDao = db.keyValueDao,
             vppIdRepository = vppIdRepository,
@@ -74,20 +72,4 @@ object HomeworkModule {
             context = context
         )
     }
-
-    @Provides
-    @Singleton
-    fun provideHomeworkReminderUseCase(
-        homeworkRepository: HomeworkRepository,
-        profileRepository: ProfileRepository,
-        notificationRepository: NotificationRepository,
-        stringRepository: StringRepository,
-        keyValueRepository: KeyValueRepository,
-    ) = HomeworkReminderUseCase(
-        homeworkRepository = homeworkRepository,
-        profileRepository = profileRepository,
-        notificationRepository = notificationRepository,
-        stringRepository = stringRepository,
-        keyValueRepository = keyValueRepository,
-    )
 }

@@ -4,6 +4,7 @@ import android.database.sqlite.SQLiteException
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.DeleteColumn
+import androidx.room.DeleteTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
@@ -17,8 +18,6 @@ import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbRoom
 import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
-import es.jvbabi.vplanplus.data.model.vppid.DbVppId
-import es.jvbabi.vplanplus.data.model.vppid.DbVppIdToken
 import es.jvbabi.vplanplus.data.model.DbTimetable
 import es.jvbabi.vplanplus.data.model.DbWeek
 import es.jvbabi.vplanplus.data.model.DbWeekType
@@ -33,6 +32,8 @@ import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
 import es.jvbabi.vplanplus.data.model.profile.DbRoomProfile
 import es.jvbabi.vplanplus.data.model.profile.DbTeacherProfile
 import es.jvbabi.vplanplus.data.model.sp24.SPlanInWeek
+import es.jvbabi.vplanplus.data.model.vppid.DbVppId
+import es.jvbabi.vplanplus.data.model.vppid.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -58,7 +59,6 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
 import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
-import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
@@ -85,7 +85,6 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.GradeDa
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.TeacherDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
-import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 
 @Database(
     entities = [
@@ -124,7 +123,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbHomeworkTask::class,
         DbHomeworkTaskDone::class,
         DbHomeworkDocument::class,
-        DbPreferredNotificationTime::class,
 
         DbSubject::class,
         DbTeacher::class,
@@ -135,7 +133,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbExam::class,
         DbExamReminder::class
     ],
-    version = 46,
+    version = 47,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -158,6 +156,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 43, to = 44), // add exams
         AutoMigration(from = 44, to = 45), // add exam reminders
         AutoMigration(from = 45, to = 46, spec = Migration45To46::class), // add exams reminders/hasDismissed
+        AutoMigration(from = 46, to = 47, spec = Migration46To47::class), // remove homework notification time
     ],
 )
 @TypeConverters(
@@ -192,7 +191,6 @@ abstract class VppDatabase : RoomDatabase() {
 
     abstract val homeworkDao: HomeworkDao
     abstract val homeworkDocumentDao: HomeworkDocumentDao
-    abstract val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao
 
     abstract val timetableDao: TimetableDao
     abstract val weekDao: WeekDao
@@ -411,3 +409,6 @@ abstract class VppDatabase : RoomDatabase() {
 @DeleteColumn(tableName = "exams", columnName = "use_default_notifications")
 @DeleteColumn(tableName = "exam_reminders", columnName = "id")
 private class Migration45To46 : AutoMigrationSpec
+
+@DeleteTable(tableName = "preferred_notification_time")
+private class Migration46To47 : AutoMigrationSpec

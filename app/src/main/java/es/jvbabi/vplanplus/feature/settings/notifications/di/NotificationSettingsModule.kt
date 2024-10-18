@@ -14,8 +14,10 @@ import es.jvbabi.vplanplus.domain.usecase.general.IsNotificationsEnabledUseCase
 import es.jvbabi.vplanplus.feature.ndp.domain.usecase.TriggerNdpReminderNotificationUseCase
 import es.jvbabi.vplanplus.feature.ndp.domain.usecase.UpdateDynamicTimesUseCase
 import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.IsAutomaticReminderTimeEnabledUseCase
+import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.IsNotificationOnNewHomeworkEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.NotificationSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.SetAutomaticReminderTimeEnabledUseCase
+import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.ToggleShowNotificationOnNewHomeworkUseCase
 import javax.inject.Singleton
 
 @Module
@@ -46,7 +48,10 @@ object NotificationSettingsModule {
                 keyValueRepository = keyValueRepository,
                 alarmManagerRepository = alarmManagerRepository
             ),
-            developerTriggerNdpReminderNotificationUseCase = triggerNdpReminderNotificationUseCase
+            developerTriggerNdpReminderNotificationUseCase = triggerNdpReminderNotificationUseCase,
+
+            isNotificationOnNewHomeworkEnabledUseCase = IsNotificationOnNewHomeworkEnabledUseCase(keyValueRepository),
+            toggleNotificationOnNewHomeworkUseCase = ToggleShowNotificationOnNewHomeworkUseCase(keyValueRepository)
         )
     }
 }

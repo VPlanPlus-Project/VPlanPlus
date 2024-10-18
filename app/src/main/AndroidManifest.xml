@@ -5,7 +5,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
-    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.READ_CALENDAR" />
 
@@ -57,7 +57,9 @@
                 <data android:pathPrefix="/android" />
             </intent-filter>
 
-            <intent-filter android:autoVerify="true">
+            <intent-filter
+                android:autoVerify="true"
+                tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
 
                 <category android:name="android.intent.category.DEFAULT" />
@@ -100,7 +102,6 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".android.receiver.AlarmReceiver" />
-        <receiver android:name=".android.receiver.HomeworkRemindLaterReceiver" />
     </application>
 
 </manifest>

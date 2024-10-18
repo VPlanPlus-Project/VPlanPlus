@@ -148,8 +148,9 @@ private fun NotificationsSettingsContent(
                     icon = Icons.Default.NotificationAdd,
                     title = stringResource(R.string.settingsNotification_homeworkAddTitle),
                     subtitle = stringResource(R.string.settingsNotification_homeworkAddSubtitle),
-                    type = SettingsType.FUNCTION,
-                    doAction = {}
+                    type = SettingsType.TOGGLE,
+                    checked = state.sendNotificationOnNewHomework,
+                    doAction = { onAction(NotificationSettingsEvent.ToggleNewHomeworkNotification) }
                 )
             }
         }

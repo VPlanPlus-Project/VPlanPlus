@@ -11,5 +11,8 @@ data class NotificationSettingsUseCases(
     val setAutomaticReminderTimeEnabledUseCase: SetAutomaticReminderTimeEnabledUseCase,
 
     val developerUpdateDynamicTimesUseCase: UpdateDynamicTimesUseCase,
-    val developerTriggerNdpReminderNotificationUseCase: TriggerNdpReminderNotificationUseCase
+    val developerTriggerNdpReminderNotificationUseCase: TriggerNdpReminderNotificationUseCase,
+
+    val isNotificationOnNewHomeworkEnabledUseCase: IsNotificationOnNewHomeworkEnabledUseCase,
+    val toggleNotificationOnNewHomeworkUseCase: ToggleShowNotificationOnNewHomeworkUseCase
 )

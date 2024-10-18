@@ -6,7 +6,6 @@ interface AlarmManagerRepository {
     fun canRequestAlarm(): Boolean
 
     companion object {
-        const val TAG_HOMEWORK_NOTIFICATION = "homework_notification"
         const val TAG_NDP_REMINDER = "ndp_reminder"
     }
 }

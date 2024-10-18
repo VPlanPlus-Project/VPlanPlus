@@ -4,7 +4,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -64,13 +63,11 @@ object MainModule {
         homeworkRepository: HomeworkRepository,
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
-        alarmManagerRepository: AlarmManagerRepository,
         updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ): SetUpUseCase {
         return SetUpUseCase(
             keyValueRepository = keyValueRepository,
             homeworkRepository = homeworkRepository,
-            alarmManagerRepository = alarmManagerRepository,
             vppIdRepository = vppIdRepository,
             testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository),
             updateFirebaseTokenUseCase = updateFirebaseTokenUseCase

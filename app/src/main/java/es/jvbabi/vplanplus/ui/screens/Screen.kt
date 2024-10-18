@@ -61,8 +61,6 @@ sealed class Screen(val route: String) {
     data object SettingsAdvancedScreen: Screen("settings/advanced")
     data object SettingsAdvancedLogScreen: Screen("settings/advanced/logs")
 
-    data object SettingsHomeworkScreen: Screen("settings/homework")
-
     @Serializable data object SettingsNotificationsScreen: Screen("settings/notifications")
 
     data object SettingsHelpFeedbackScreen: Screen("settings/help_feedback")
