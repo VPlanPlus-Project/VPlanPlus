@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.settings.notifications.ui
 
 import android.content.Intent
 import android.provider.Settings
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Column
@@ -38,6 +39,7 @@ import es.jvbabi.vplanplus.ui.common.Link
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
+import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 
 @Composable
 fun NotificationsSettingsScreen(
@@ -128,7 +130,18 @@ private fun NotificationsSettingsContent(
                         Link(state.currentServer.uiHost + "/faq/ndp-usage-behaviour", stringResource(R.string.learn_more))
                     }
                 )
-                if (state.isDeveloperModeEnabled) {
+                AnimatedVisibility(
+                    visible = !state.isAutomaticReminderTimeEnabled,
+                    enter = expandVertically(),
+                    exit = shrinkVertically()
+                ) {
+                    Column {
+                        Spacer16Dp()
+                        NdpNotificationTimeSelector()
+                    }
+                }
+
+                if (state.isDeveloperModeEnabled && state.isAutomaticReminderTimeEnabled) {
                     SettingsSetting(
                         title = "Update automatic times",
                         subtitle = "Update automatic times based on schedule and user behaviour information.",
