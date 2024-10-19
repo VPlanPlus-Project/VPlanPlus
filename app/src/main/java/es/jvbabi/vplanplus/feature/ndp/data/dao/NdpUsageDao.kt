@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.ndp.data.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import es.jvbabi.vplanplus.feature.ndp.data.model.DbNdpProfileTime
 import java.time.LocalDate
 import java.time.LocalTime
 import java.util.UUID
@@ -16,4 +17,7 @@ abstract class NdpUsageDao {
 
     @Query("UPDATE ndp_profile_time SET has_completed = 1 WHERE profile_id = :profileId AND date = :date")
     abstract suspend fun finishNdp(profileId: UUID, date: LocalDate)
+
+    @Query("SELECT * FROM ndp_profile_time WHERE profile_id = :profileId AND has_completed = 1")
+    abstract suspend fun getNdpStartsOfPast(profileId: UUID): List<DbNdpProfileTime>
 }

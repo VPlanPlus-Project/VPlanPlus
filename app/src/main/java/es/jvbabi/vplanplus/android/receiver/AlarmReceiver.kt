@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
+import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository.Companion.TAG_NDP_REMINDER
 import es.jvbabi.vplanplus.feature.ndp.domain.usecase.TriggerNdpReminderNotificationUseCase
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class AlarmReceiver : BroadcastReceiver() {
 
     @Inject lateinit var triggerNdpReminderNotificationUseCase: TriggerNdpReminderNotificationUseCase
+    @Inject lateinit var alarmManagerRepository: AlarmManagerRepository
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -24,17 +26,18 @@ class AlarmReceiver : BroadcastReceiver() {
             return
         }
 
-        val tag = intent.getStringExtra("tag") ?: run {
-            Log.e("AlarmReceiver", "Tag is null")
+        val alarmId = intent.getStringExtra("id")?.toInt() ?: run {
+            Log.e("AlarmReceiver", "Intent does not contain id")
             return
         }
 
-        Log.i("AlarmReceiver", "Alarm triggered with tag $tag")
         GlobalScope.launch {
-            when (tag) {
-                TAG_NDP_REMINDER -> {
-                    triggerNdpReminderNotificationUseCase()
-                }
+            val alarm = alarmManagerRepository.getAlarmById(alarmId) ?: run {
+                Log.e("AlarmReceiver", "Alarm with id $alarmId not found")
+                return@launch
+            }
+            if (alarm.tags.contains(TAG_NDP_REMINDER)) {
+                triggerNdpReminderNotificationUseCase()
             }
         }
     }

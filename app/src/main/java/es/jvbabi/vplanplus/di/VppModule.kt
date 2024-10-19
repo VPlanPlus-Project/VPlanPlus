@@ -738,8 +738,14 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideAlarmManagerRepository(@ApplicationContext context: Context): AlarmManagerRepository {
-        return AlarmManagerRepositoryImpl(context)
+    fun provideAlarmManagerRepository(
+        @ApplicationContext context: Context,
+        db: VppDatabase
+    ): AlarmManagerRepository {
+        return AlarmManagerRepositoryImpl(
+            context = context,
+            alarmDao = db.alamDao
+        )
     }
 
     @Provides

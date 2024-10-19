@@ -125,13 +125,13 @@ private fun NotificationsSettingsContent(
                     checked = state.isAutomaticReminderTimeEnabled,
                     enabled = state.canSendNotifications,
                     customContent = {
-                        Link("", stringResource(R.string.learn_more)) // TODO: add link
+                        Link(state.currentServer.uiHost + "/faq/ndp-usage-behaviour", stringResource(R.string.learn_more))
                     }
                 )
                 if (state.isDeveloperModeEnabled) {
                     SettingsSetting(
                         title = "Update automatic times",
-                        subtitle = "Update automatic times based on schedule and drop user behaviour information.",
+                        subtitle = "Update automatic times based on schedule and user behaviour information.",
                         type = SettingsType.FUNCTION,
                         doAction = { onAction(NotificationSettingsEvent.UpdateAutomaticTimes) }
                     )

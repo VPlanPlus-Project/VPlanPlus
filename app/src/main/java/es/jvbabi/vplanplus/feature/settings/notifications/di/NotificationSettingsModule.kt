@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.IsNotificationsEnabledUseCase
+import es.jvbabi.vplanplus.feature.ndp.domain.repository.NdpUsageRepository
 import es.jvbabi.vplanplus.feature.ndp.domain.usecase.TriggerNdpReminderNotificationUseCase
 import es.jvbabi.vplanplus.feature.ndp.domain.usecase.UpdateDynamicTimesUseCase
 import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.IsAutomaticReminderTimeEnabledUseCase
@@ -33,6 +34,7 @@ object NotificationSettingsModule {
         timetableRepository: TimetableRepository,
         profileRepository: ProfileRepository,
         alarmManagerRepository: AlarmManagerRepository,
+        ndpUsageRepository: NdpUsageRepository,
         triggerNdpReminderNotificationUseCase: TriggerNdpReminderNotificationUseCase
     ): NotificationSettingsUseCases {
         return NotificationSettingsUseCases(
@@ -46,7 +48,8 @@ object NotificationSettingsModule {
                 timetableRepository = timetableRepository,
                 profileRepository = profileRepository,
                 keyValueRepository = keyValueRepository,
-                alarmManagerRepository = alarmManagerRepository
+                alarmManagerRepository = alarmManagerRepository,
+                ndpUsageRepository = ndpUsageRepository
             ),
             developerTriggerNdpReminderNotificationUseCase = triggerNdpReminderNotificationUseCase,
 

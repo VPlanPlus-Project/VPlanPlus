@@ -10,6 +10,7 @@ import androidx.room.TypeConverters
 import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.jvbabi.vplanplus.data.model.DbAlarm
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbLesson
@@ -47,6 +48,7 @@ import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableTeacherCrossover
+import es.jvbabi.vplanplus.data.source.database.dao.AlarmDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.ExamDao
 import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
@@ -136,9 +138,11 @@ import es.jvbabi.vplanplus.feature.ndp.data.model.DbNdpProfileTime
         DbExam::class,
         DbExamReminder::class,
 
-        DbNdpProfileTime::class
+        DbNdpProfileTime::class,
+
+        DbAlarm::class
     ],
-    version = 48,
+    version = 49,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -163,6 +167,7 @@ import es.jvbabi.vplanplus.feature.ndp.data.model.DbNdpProfileTime
         AutoMigration(from = 45, to = 46, spec = Migration45To46::class), // add exams reminders/hasDismissed
         AutoMigration(from = 46, to = 47, spec = Migration46To47::class), // remove homework notification time
         AutoMigration(from = 47, to = 48), // add ndp_profile_time
+        AutoMigration(from = 48, to = 49), // add alarm
     ],
 )
 @TypeConverters(
@@ -213,6 +218,8 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val examDao: ExamDao
 
     abstract val ndpUsageDao: NdpUsageDao
+
+    abstract val alamDao: AlarmDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {

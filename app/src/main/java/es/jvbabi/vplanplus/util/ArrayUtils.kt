@@ -18,6 +18,7 @@ fun <E> Collection<E>.randomSubList(size: Int = 5, forceSize: Boolean = true): M
 }
 
 fun Collection<Number>.median(): Double {
+    if (isEmpty()) return Double.NaN
     val list = this.sortedBy { it.toDouble() }
     return if (list.size % 2 == 0) (list[list.size / 2].toDouble() + list[(list.size - 1) / 2].toDouble()) / 2
     else list[list.size / 2].toDouble()

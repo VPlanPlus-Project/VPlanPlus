@@ -26,7 +26,7 @@ import java.util.UUID
 )
 data class DbNdpProfileTime(
     @ColumnInfo(name = "profile_id") val profileId: UUID,
-    @ColumnInfo(name = "date") val timestamp: LocalDate,
+    @ColumnInfo(name = "date") val date: LocalDate,
     @ColumnInfo(name = "time") val time: LocalTime,
     @ColumnInfo(name = "has_completed") val hasCompleted: Boolean,
 )

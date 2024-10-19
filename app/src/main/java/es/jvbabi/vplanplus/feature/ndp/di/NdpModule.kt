@@ -39,12 +39,14 @@ object NdpModule {
         notificationRepository: NotificationRepository,
         stringRepository: StringRepository,
         examRepository: ExamRepository,
+        ndpUsageRepository: NdpUsageRepository,
         getNextDayUseCase: GetNextDayUseCase
     ) = TriggerNdpReminderNotificationUseCase(
         profileRepository = profileRepository,
         notificationRepository = notificationRepository,
         stringRepository = stringRepository,
         examRepository = examRepository,
+        ndpUsageRepository = ndpUsageRepository,
         getNextDayUseCase = getNextDayUseCase
     )
 

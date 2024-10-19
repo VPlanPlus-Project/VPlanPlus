@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetNextDayUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
+import es.jvbabi.vplanplus.feature.ndp.domain.repository.NdpUsageRepository
 import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.util.maxLength
 import kotlinx.coroutines.flow.first
@@ -24,6 +25,7 @@ class TriggerNdpReminderNotificationUseCase(
     private val notificationRepository: NotificationRepository,
     private val stringRepository: StringRepository,
     private val examRepository: ExamRepository,
+    private val ndpUsageRepository: NdpUsageRepository,
     private val getNextDayUseCase: GetNextDayUseCase
 ) {
     suspend operator fun invoke() {
@@ -32,6 +34,9 @@ class TriggerNdpReminderNotificationUseCase(
             .first()
             .filterIsInstance<ClassProfile>()
             .forEach { profile ->
+                ndpUsageRepository.getNdpStartsOfPast(profile, LocalDate.now().dayOfWeek).last().let {
+                    if (it.toLocalDate() == LocalDate.now()) return@forEach // ndp already started
+                }
                 val nextDay = getNextDayUseCase(profile, fast = false).first()
 
                 val examsToGetNotifiedButNotTomorrow = examRepository

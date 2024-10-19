@@ -6,7 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.NotificationSettingsUseCases
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -16,7 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class NotificationSettingsViewModel @Inject constructor(
     private val notificationSettingsUseCases: NotificationSettingsUseCases,
-    private val isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase
+    private val isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase,
+    private val getCurrentServerUseCase: GetVppIdServerUseCase
 ): ViewModel() {
 
     var state by mutableStateOf(NotificationSettingsState())
@@ -29,15 +33,18 @@ class NotificationSettingsViewModel @Inject constructor(
                     notificationSettingsUseCases.isNotificationsEnabledUseCase(),
                     notificationSettingsUseCases.isAutomaticReminderTimeEnabledUseCase(),
                     isDeveloperModeEnabledUseCase(),
-                    notificationSettingsUseCases.isNotificationOnNewHomeworkEnabledUseCase()
+                    notificationSettingsUseCases.isNotificationOnNewHomeworkEnabledUseCase(),
+                    getCurrentServerUseCase()
                 )
             ) { data ->
                 val canSendNotifications = data[0] as Boolean
                 val isAutomaticReminderTimeEnabled = data[1] as Boolean
                 val isDeveloperModeEnabled = data[2] as Boolean
                 val isNotificationOnNewHomeworkEnabled = data[3] as Boolean
+                val currentServer = data[4] as VppIdServer
 
                 state.copy(
+                    currentServer = currentServer,
                     canSendNotifications = canSendNotifications,
                     isAutomaticReminderTimeEnabled = isAutomaticReminderTimeEnabled,
                     sendNotificationOnNewHomework = isNotificationOnNewHomeworkEnabled,
@@ -75,6 +82,8 @@ class NotificationSettingsViewModel @Inject constructor(
 }
 
 data class NotificationSettingsState(
+    val currentServer: VppIdServer = servers.first(),
+
     val canSendNotifications: Boolean = true,
     val isAutomaticReminderTimeEnabled: Boolean = true,
 
