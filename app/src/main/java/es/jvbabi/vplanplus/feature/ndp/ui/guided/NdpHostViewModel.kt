@@ -30,6 +30,7 @@ class NdpHostViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            ndpGuidedUseCases.onNdpStartedUseCase()
             combine(
                 listOf(
                     getNextSchoolDayUseCase(fast = false),
@@ -71,6 +72,7 @@ class NdpHostViewModel @Inject constructor(
             is NdpEvent.FinishAssessments -> {
                 viewModelScope.launch {
                     ndpGuidedUseCases.markExamRemindersAsViewedUseCase(state.nextSchoolDay?.exams.orEmpty().plus(state.examsToGetReminded))
+                    ndpGuidedUseCases.onNdpFinishedUseCase()
                     state = state.copy(displayStage = NdpStage.DONE, currentStage = NdpStage.DONE)
                 }
             }

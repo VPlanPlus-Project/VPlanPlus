@@ -32,6 +32,7 @@ import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
+import es.jvbabi.vplanplus.data.source.database.converter.LocalTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.SchoolDownloadTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
@@ -155,6 +156,7 @@ object VppModule {
             .addMigrations(VppDatabase.migration_40_41)
             .addMigrations(VppDatabase.migration_42_43)
             .addTypeConverter(LocalDateConverter())
+            .addTypeConverter(LocalTimeConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
             .addTypeConverter(VppIdStateConverter())

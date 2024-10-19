@@ -37,6 +37,7 @@ import es.jvbabi.vplanplus.data.model.vppid.DbVppIdToken
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
+import es.jvbabi.vplanplus.data.source.database.converter.LocalTimeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ProfileCalendarTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.SchoolDownloadTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.UuidConverter
@@ -85,6 +86,8 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.GradeDa
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.TeacherDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
+import es.jvbabi.vplanplus.feature.ndp.data.dao.NdpUsageDao
+import es.jvbabi.vplanplus.feature.ndp.data.model.DbNdpProfileTime
 
 @Database(
     entities = [
@@ -131,9 +134,11 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
         DbInterval::class,
 
         DbExam::class,
-        DbExamReminder::class
+        DbExamReminder::class,
+
+        DbNdpProfileTime::class
     ],
-    version = 47,
+    version = 48,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -157,10 +162,12 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
         AutoMigration(from = 44, to = 45), // add exam reminders
         AutoMigration(from = 45, to = 46, spec = Migration45To46::class), // add exams reminders/hasDismissed
         AutoMigration(from = 46, to = 47, spec = Migration46To47::class), // remove homework notification time
+        AutoMigration(from = 47, to = 48), // add ndp_profile_time
     ],
 )
 @TypeConverters(
     LocalDateConverter::class,
+    LocalTimeConverter::class,
     ProfileCalendarTypeConverter::class,
     UuidConverter::class,
     DayDataTypeConverter::class,
@@ -204,6 +211,8 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val yearDao: YearDao
 
     abstract val examDao: ExamDao
+
+    abstract val ndpUsageDao: NdpUsageDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {
