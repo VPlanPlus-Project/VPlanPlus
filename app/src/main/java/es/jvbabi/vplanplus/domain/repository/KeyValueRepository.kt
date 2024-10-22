@@ -13,6 +13,7 @@ interface KeyValueRepository {
 }
 
 object Keys {
+    const val APP_DEVELOPER_MODE = "APP_DEVELOPER_MODE"
     const val ACTIVE_PROFILE = "ACTIVE_PROFILE"
 
     const val SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE =
