@@ -31,11 +31,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
@@ -137,7 +135,7 @@ fun Day(
                         Icon(if (hw.allDone()) Icons.Default.Check else Icons.AutoMirrored.Default.MenuBook, null, modifier = Modifier.size(12.dp), tint = hw.getTextColor())
                         Spacer2Dp()
                         Text(
-                            text = hw.homework.defaultLesson?.subject ?: stringResource(id = R.string.homework_noSubject),
+                            text = hw.homework.defaultLesson?.subject ?: "?",
                             color = hw.getTextColor(),
                             style = MaterialTheme.typography.labelSmall,
                             textDecoration = if (hw.allDone()) TextDecoration.LineThrough else null,
@@ -158,7 +156,7 @@ fun Day(
                         Icon(if (exam.date.isBefore(LocalDate.now())) Icons.Default.Check else Icons.Default.Edit, null, modifier = Modifier.size(12.dp), tint = exam.getTextColor())
                         Spacer2Dp()
                         Text(
-                            text = exam.subject?.subject ?: stringResource(id = R.string.homework_noSubject),
+                            text = exam.subject?.subject ?: "?",
                             color = exam.getTextColor(),
                             style = MaterialTheme.typography.labelSmall,
                             textDecoration = if (exam.date.isBefore(LocalDate.now())) TextDecoration.LineThrough else null,
