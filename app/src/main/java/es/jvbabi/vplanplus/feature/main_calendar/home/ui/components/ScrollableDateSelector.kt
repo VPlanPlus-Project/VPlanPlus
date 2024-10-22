@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Box
@@ -59,6 +60,8 @@ fun ScrollableDateSelector(
     setClosest: (Float) -> Unit,
     doAction: (action: CalendarViewAction) -> Unit
 ) {
+    val allowBackHandlerToMediumMonthSelector: @Composable () -> Unit = { BackHandler {  if (!isAnimating) setClosest(calendarSelectHeightMedium) } }
+    val allowBackHandlerToWeekSelector: @Composable () -> Unit = { BackHandler { if (!isAnimating) setClosest(calendarSelectHeightSmall) } }
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -135,8 +138,10 @@ fun ScrollableDateSelector(
                     largeMaxHeight = with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp
                 )
             }
-        } else if (isMoving && displayHeadSize in calendarSelectHeightSmall..calendarSelectHeightMedium) {
+        }
+        else if (isMoving && displayHeadSize in calendarSelectHeightSmall..calendarSelectHeightMedium) {
             // show month without pager
+            allowBackHandlerToWeekSelector()
             val firstDayOfMonth = state.selectedDate.atStartOfMonth()
             val firstDayOfFirstWeekOfMonth = firstDayOfMonth.atStartOfWeek()
             val weekHeaderMiddleHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
@@ -167,8 +172,10 @@ fun ScrollableDateSelector(
                     }
                 }
             }
-        } else if (!isMoving && displayHeadSize == calendarSelectHeightMedium) {
+        }
+        else if (!isMoving && displayHeadSize == calendarSelectHeightMedium) {
             // Show Month with pager
+            allowBackHandlerToWeekSelector()
             val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2) { MONTH_PAGER_SIZE }
             LaunchedEffect(key1 = monthPager.settledPage) {
                 val monthStart = LocalDate.now().atStartOfMonth().plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.settledPage).toLong())
@@ -214,8 +221,10 @@ fun ScrollableDateSelector(
                     }
                 }
             }
-        } else if (isMoving && displayHeadSize in calendarSelectHeightMedium..calendarSelectHeightLarge) {
+        }
+        else if (isMoving && displayHeadSize in calendarSelectHeightMedium..calendarSelectHeightLarge) {
             // show month without pager
+            allowBackHandlerToMediumMonthSelector()
             val firstDayOfMonth = state.selectedDate.atStartOfMonth()
             val firstDayOfFirstWeekOfMonth = firstDayOfMonth.atStartOfWeek()
             val weekHeaderMiddleHeight = (with(LocalDensity.current) { calendarSelectHeightMedium.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
@@ -243,8 +252,10 @@ fun ScrollableDateSelector(
                     if (weekOffset != 4) HorizontalDivider(modifier = Modifier.alpha(transitionProgress))
                 }
             }
-        } else {
+        }
+        else {
             // show month with pager
+            allowBackHandlerToMediumMonthSelector()
             FullMonthPager(
                 calendarSelectHeightLarge,
                 setFirstVisibleDate,
