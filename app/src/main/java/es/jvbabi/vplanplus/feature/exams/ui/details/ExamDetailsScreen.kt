@@ -62,7 +62,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Exam
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.feature.exams.ui.details.components.DateSelectorSheet
 import es.jvbabi.vplanplus.feature.exams.ui.details.components.DeleteDialog
 import es.jvbabi.vplanplus.feature.exams.ui.details.components.TypeSelectorSheet
@@ -117,7 +117,7 @@ private fun ExamDetailsContent(
     var showTypeSelector by rememberSaveable { mutableStateOf(false) }
     val typeSelectorSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     if (showTypeSelector) TypeSelectorSheet(
-        currentType = state.editModeType ?: state.exam?.type ?: ExamType.Project,
+        currentType = state.editModeType ?: state.exam?.type ?: ExamCategory.Project,
         sheetState = typeSelectorSheetState,
         onTypeSelected = { doAction(ExamDetailsEvent.UpdateType(it)) },
         onDismiss = { showTypeSelector = false }
@@ -454,7 +454,7 @@ private fun ExamDetailsScreenPreview() {
         state = ExamDetailsState(
             exam = Exam(
                 id = -1,
-                type = ExamType.Project,
+                type = ExamCategory.Project,
                 date = LocalDate.now().plusDays(1),
                 title = "Example",
                 description = null,

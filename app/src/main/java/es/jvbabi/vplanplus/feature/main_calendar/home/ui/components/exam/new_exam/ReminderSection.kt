@@ -6,14 +6,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -22,35 +27,67 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ReminderSection(
+fun AddExamReminderSection(
     selectedDays: Set<Int>?,
-    selectedDate: LocalDate,
-    selectedType: ExamType,
-    isContentExpanded: Boolean,
-    onHeaderClicked: () -> Unit,
+    selectedDate: LocalDate?,
+    selectedCategory: ExamCategory?,
     onRemindDaysBeforeSelected: (days: Set<Int>) -> Unit
 ) {
-    Section(
-        title = {
-            TitleRow(
-                title = "Reminder",
-                subtitle = "Select how many days in advance you want to be reminded",
-                icon = Icons.Default.NotificationsActive,
-                onClick = onHeaderClicked
-            )
-        },
-        isVisible = true,
-        isContentExpanded = isContentExpanded,
+    AddExamItem(
+        willBeHorizontalScrollable = true,
+        icon = {
+            AnimatedContent(
+                targetState = selectedDays != null,
+                label = "userHasChanged"
+            ) { userHasChanged ->
+                Icon(
+                    imageVector = if (userHasChanged) Icons.Filled.Notifications else Icons.Outlined.Notifications,
+                    contentDescription = null,
+                    tint = if (userHasChanged || (selectedDate != null && selectedCategory != null)) MaterialTheme.colorScheme.onSurface else Color.Gray,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
     ) {
-        ExamReminderSelector(selectedDate, selectedDays, selectedType, onRemindDaysBeforeSelected)
+        AnimatedContent(
+            targetState = selectedDate != null && selectedCategory != null,
+            label = "is reminder enabled"
+        ) { isEnabled ->
+            if (isEnabled) ExamReminderSelector(
+                selectedDate = selectedDate!!,
+                selectedDays = selectedDays,
+                selectedType = selectedCategory!!,
+                startPadding = 40.dp,
+                onRemindDaysBeforeSelected = onRemindDaysBeforeSelected
+            ) else {
+                Box(
+                    modifier = Modifier
+                        .height(48.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .padding(start = 48.dp)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.CenterStart
+                ) {
+                    Text(
+                        text = stringResource(id = R.string.examsNew_reminderDisabled),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -58,7 +95,8 @@ fun ReminderSection(
 fun ExamReminderSelector(
     selectedDate: LocalDate,
     selectedDays: Set<Int>?,
-    selectedType: ExamType,
+    selectedType: ExamCategory,
+    startPadding: Dp? = null,
     onRemindDaysBeforeSelected: (days: Set<Int>) -> Unit,
     onExamDateClicked: (() -> Unit)? = null
 ) {
@@ -66,7 +104,7 @@ fun ExamReminderSelector(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        item { Spacer8Dp() }
+        item { startPadding?.let { Spacer(Modifier.size(it)) } ?: Spacer8Dp() }
         repeat(7) {
             val date = selectedDate.minusDays(7 - it.toLong())
             if (date.isBefore(LocalDate.now())) return@repeat

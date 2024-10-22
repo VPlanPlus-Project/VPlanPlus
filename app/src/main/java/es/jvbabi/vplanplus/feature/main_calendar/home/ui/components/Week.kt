@@ -21,8 +21,9 @@ import kotlin.math.abs
 @Composable
 fun ColumnScope.Week(
     days: List<SchoolDay>,
-    selectedDay: LocalDate,
+    selectedDay: LocalDate?,
     onDayClicked: (date: LocalDate) -> Unit = {},
+    checkIfDayIsSelectable: (day: SchoolDay) -> Boolean = { true },
     state: DayDisplayState,
     progress: Float,
     smallMaxHeight: Dp,
@@ -55,6 +56,7 @@ fun ColumnScope.Week(
                     exams = day.exams.filter { it.date == day.date },
                     isToday = day.date == LocalDate.now(),
                     isSelected = day.date == selectedDay,
+                    isClickable = checkIfDayIsSelectable(day),
                     displayMonth = displayMonth,
                     onClick = { onDayClicked(day.date) },
                     state = state,

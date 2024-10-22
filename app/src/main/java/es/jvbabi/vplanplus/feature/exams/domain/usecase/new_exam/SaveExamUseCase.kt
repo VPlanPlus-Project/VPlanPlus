@@ -2,7 +2,7 @@ package es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam
 
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.SaveType
@@ -17,7 +17,7 @@ class SaveExamUseCase(
     suspend operator fun invoke(
         subject: DefaultLesson,
         date: LocalDate,
-        type: ExamType,
+        type: ExamCategory,
         topic: String,
         details: String?,
         saveType: SaveType,

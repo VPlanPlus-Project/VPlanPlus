@@ -68,6 +68,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -629,6 +630,14 @@ object VppModule {
         return GetProfilesUseCase(
             profileRepository = profileRepository,
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideIsDeveloperModeEnabledUseCase(
+        keyValueRepository: KeyValueRepository
+    ): IsDeveloperModeEnabledUseCase {
+        return IsDeveloperModeEnabledUseCase(keyValueRepository)
     }
 
     @Provides

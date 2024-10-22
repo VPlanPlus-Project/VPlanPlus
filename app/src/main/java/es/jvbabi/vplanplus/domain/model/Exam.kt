@@ -9,26 +9,26 @@ data class Exam(
     val date: LocalDate,
     val title: String,
     val description: String?,
-    val type: ExamType,
+    val type: ExamCategory,
     val createdBy: VppId?,
     val group: Group,
     val createdAt: ZonedDateTime,
     val remindDaysBefore: Set<Int>
 )
 
-sealed class ExamType(
+sealed class ExamCategory(
     val code: String,
     val remindDaysBefore: Set<Int> = setOf(1, 2)
 ) {
-    data object ShortTest : ExamType(code = "SHORT_TEST")
-    data object Project : ExamType(code = "PROJECT", remindDaysBefore = setOf(7, 5, 3, 1))
-    data object ClassTest : ExamType(code = "CLASS_TEST", remindDaysBefore = setOf(4, 2, 1))
-    data object Oral : ExamType(code = "ORAL")
-    data object Other : ExamType(code = "OTHER")
+    data object ShortTest : ExamCategory(code = "SHORT_TEST")
+    data object Project : ExamCategory(code = "PROJECT", remindDaysBefore = setOf(7, 5, 3, 1))
+    data object ClassTest : ExamCategory(code = "CLASS_TEST", remindDaysBefore = setOf(4, 2, 1))
+    data object Oral : ExamCategory(code = "ORAL")
+    data object Other : ExamCategory(code = "OTHER")
 
     companion object {
         val values = listOf(ShortTest, Project, ClassTest, Oral, Other)
-        fun of(type: String): ExamType {
+        fun of(type: String): ExamCategory {
             return values.firstOrNull { it.code == type } ?: Other
         }
     }

@@ -7,6 +7,7 @@ import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.feature.exams.data.repository.ExamRepositoryImpl
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.DeleteExamUseCase
@@ -17,8 +18,10 @@ import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamDateUs
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamDetailsUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamReminderDaysUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamTitleUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.GetCurrentLessonsUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.NewExamUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.SaveExamUseCase
+import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.GetDefaultLessonsUseCase
 import javax.inject.Singleton
 
@@ -39,13 +42,15 @@ object ExamModule {
     fun provideNewExamUseCases(
         defaultLessonRepository: DefaultLessonRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
-
+        isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase,
+        getDayUseCase: GetDayUseCase,
         examRepository: ExamRepository
     ): NewExamUseCases {
         return NewExamUseCases(
             getDefaultLessonsUseCase = GetDefaultLessonsUseCase(defaultLessonRepository, getCurrentProfileUseCase),
             getCurrentProfileUseCase = getCurrentProfileUseCase,
-
+            isDeveloperModeEnabled = isDeveloperModeEnabledUseCase,
+            getCurrentLessonsUseCase = GetCurrentLessonsUseCase(getDayUseCase, getCurrentProfileUseCase),
             saveExamUseCase = SaveExamUseCase(
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
                 examRepository = examRepository

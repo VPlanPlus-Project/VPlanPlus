@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Exam
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.ExamDetailsUseCases
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -34,7 +34,7 @@ class ExamDetailsViewModel @Inject constructor(
 
     private var updateTypeJob: Job? = null
     private var canCancelUpdateTypeJob = true
-    private var previousType: ExamType? = null
+    private var previousType: ExamCategory? = null
 
     private var updateDescriptionJob: Job? = null
     private var canCancelUpdateDescriptionJob = true
@@ -231,7 +231,7 @@ data class ExamDetailsState(
     val canUndoDateUpdate: Boolean = false,
     val editModeUpdatingDateState: UpdatingState = UpdatingState.IDLE,
 
-    val editModeType: ExamType? = null,
+    val editModeType: ExamCategory? = null,
     val canUndoTypeUpdate: Boolean = false,
     val editModeUpdatingTypeState: UpdatingState = UpdatingState.IDLE,
 
@@ -250,7 +250,7 @@ sealed class ExamDetailsEvent {
     data class UpdateDate(val newDate: LocalDate): ExamDetailsEvent()
     data object UndoDateUpdate: ExamDetailsEvent()
 
-    data class UpdateType(val newType: ExamType): ExamDetailsEvent()
+    data class UpdateType(val newType: ExamCategory): ExamDetailsEvent()
     data object UndoTypeUpdate: ExamDetailsEvent()
 
     data class UpdateDescription(val newDescription: String): ExamDetailsEvent()

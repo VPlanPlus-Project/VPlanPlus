@@ -2,17 +2,17 @@ package es.jvbabi.vplanplus.ui
 
 import androidx.compose.runtime.Composable
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.SaveType
 
 @Composable
-fun ExamType.stringResource(): Int {
+fun ExamCategory.stringResource(): Int {
     return when (this) {
-        is ExamType.ShortTest -> R.string.exam_type_shortTest
-        is ExamType.Project -> R.string.exam_type_project
-        is ExamType.ClassTest -> R.string.exam_type_classTest
-        is ExamType.Oral -> R.string.exam_type_oral
-        is ExamType.Other -> R.string.exam_type_other
+        is ExamCategory.ShortTest -> R.string.exam_type_shortTest
+        is ExamCategory.Project -> R.string.exam_type_project
+        is ExamCategory.ClassTest -> R.string.exam_type_classTest
+        is ExamCategory.Oral -> R.string.exam_type_oral
+        is ExamCategory.Other -> R.string.exam_type_other
     }
 }
 

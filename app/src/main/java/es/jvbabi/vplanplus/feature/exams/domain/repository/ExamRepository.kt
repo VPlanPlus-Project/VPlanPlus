@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.feature.exams.domain.repository
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Exam
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -21,7 +21,7 @@ interface ExamRepository {
         id: Int? = null,
         subject: DefaultLesson,
         date: LocalDate,
-        type: ExamType,
+        type: ExamCategory,
         topic: String,
         details: String?,
         profile: ClassProfile,

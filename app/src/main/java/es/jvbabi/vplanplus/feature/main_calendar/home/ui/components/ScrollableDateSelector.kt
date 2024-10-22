@@ -257,14 +257,16 @@ fun ScrollableDateSelector(
             // show month with pager
             allowBackHandlerToMediumMonthSelector()
             FullMonthPager(
-                calendarSelectHeightLarge,
-                setFirstVisibleDate,
-                state,
-                doAction,
-                setIsAnimating,
-                setClosest,
-                calendarSelectHeightSmall,
-                calendarSelectHeightMedium
+                calendarSelectHeightLarge = calendarSelectHeightLarge,
+                setFirstVisibleDate = setFirstVisibleDate,
+                days = state.days,
+                selectedDate = state.selectedDate,
+                currentSelectCause = state.currentSelectCause,
+                setIsAnimating = setIsAnimating,
+                setClosest = setClosest,
+                calendarSelectHeightSmall = calendarSelectHeightSmall,
+                calendarSelectHeightMedium = calendarSelectHeightMedium,
+                selectDate = { date, currentSelectCause -> doAction(CalendarViewAction.SelectDate(date, currentSelectCause)) }
             )
         }
     }
@@ -298,16 +300,19 @@ fun CalendarDateHead(
 fun FullMonthPager(
     calendarSelectHeightLarge: Float?,
     setFirstVisibleDate: (LocalDate) -> Unit,
-    state: CalendarViewState,
-    doAction: (action: CalendarViewAction) -> Unit,
-    setIsAnimating: (Boolean) -> Unit,
-    setClosest: (Float) -> Unit,
-    calendarSelectHeightSmall: Float,
-    calendarSelectHeightMedium: Float
+    days: Map<LocalDate, SchoolDay>,
+    checkIfDayIsSelectable: (day: SchoolDay) -> Boolean = { true },
+    selectedDate: LocalDate?,
+    currentSelectCause: DateSelectCause = DateSelectCause.CALENDAR_CLICK,
+    setIsAnimating: (Boolean) -> Unit = {},
+    setClosest: (Float) -> Unit = {},
+    calendarSelectHeightSmall: Float = 0f,
+    calendarSelectHeightMedium: Float = 0f,
+    selectDate: (date: LocalDate, cause: DateSelectCause) -> Unit,
 ) {
     val weekHeaderLargeHeight = if (calendarSelectHeightLarge == null) null else
         (with(LocalDensity.current) { calendarSelectHeightLarge.toDp() } - HEADER_STATIC_HEIGHT_DP.dp) / 5
-    val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2 - state.selectedDate.atStartOfMonth()
+    val monthPager = rememberPagerState(initialPage = MONTH_PAGER_SIZE / 2 - (selectedDate ?: LocalDate.now()).atStartOfMonth()
         .until(
             LocalDate.now().atStartOfMonth(),
             ChronoUnit.MONTHS
@@ -317,15 +322,15 @@ fun FullMonthPager(
         val monthStart = LocalDate.now().atStartOfMonth()
             .plusMonths(getOffsetFromMiddle(monthPager.pageCount, monthPager.targetPage).toLong())
         setFirstVisibleDate(monthStart)
-        if (state.selectedDate.atStartOfMonth() == monthStart) return@LaunchedEffect
+        if ((selectedDate ?: LocalDate.now()) .atStartOfMonth() == monthStart) return@LaunchedEffect
 
-        doAction(CalendarViewAction.SelectDate(if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now() else monthStart, DateSelectCause.CALENDAR_SWIPE))
+        selectDate(if (LocalDate.now().atStartOfMonth() == monthStart.atStartOfMonth()) LocalDate.now() else monthStart, DateSelectCause.CALENDAR_SWIPE)
     }
 
-    LaunchedEffect(state.selectedDate) {
-        if (state.currentSelectCause == DateSelectCause.CALENDAR_SWIPE) return@LaunchedEffect
+    LaunchedEffect(selectedDate) {
+        if (currentSelectCause == DateSelectCause.CALENDAR_SWIPE) return@LaunchedEffect
         monthPager.animateScrollToPage(
-            MONTH_PAGER_SIZE / 2 - state.selectedDate.atStartOfMonth()
+            MONTH_PAGER_SIZE / 2 - (selectedDate ?: LocalDate.now()).atStartOfMonth()
                 .until(
                     LocalDate.now().atStartOfMonth(),
                     ChronoUnit.MONTHS
@@ -346,16 +351,17 @@ fun FullMonthPager(
             repeat(5) { weekOffset ->
                 val weekStart = monthStart.plusWeeks(weekOffset.toLong())
                 Week(
-                    selectedDay = state.selectedDate,
+                    selectedDay = selectedDate,
                     state = DayDisplayState.DETAILED,
                     progress = 1f,
                     days = List(7) { index ->
                         val date = weekStart.plusDays(index.toLong())
-                        state.days[date] ?: SchoolDay(date)
+                        days[date] ?: SchoolDay(date)
                     },
                     displayMonth = month,
+                    checkIfDayIsSelectable = checkIfDayIsSelectable,
                     onDayClicked = {
-                        doAction(CalendarViewAction.SelectDate(it, DateSelectCause.CALENDAR_CLICK))
+                        selectDate(it, DateSelectCause.CALENDAR_CLICK)
                         if (calendarSelectHeightLarge == null) return@Week
                         setIsAnimating(false)
                         setClosest(calendarSelectHeightLarge)

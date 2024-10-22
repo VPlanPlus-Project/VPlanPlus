@@ -807,9 +807,9 @@
     <string name="home_lessonNumber">%1$s Stunde</string>
     <string name="home_furtherLessons">Weitere Stunden</string>
     <string name="home_remainingLessons">%1$d Stunden verbleibend</string>
-    <string name="examsNew_until">Datum</string>
-    <string name="examsNew_subject">Fach</string>
-    <string name="examsNew_type">Typ</string>
+    <string name="examsNew_until">Datum auswählen</string>
+    <string name="examsNew_subject">Fach auswählen</string>
+    <string name="examsNew_category">Kategorie auswählen</string>
     <string name="examsNew_share">Freigeben</string>
     <string name="examsNew_topic">Thema</string>
     <string name="examsNew_details">Details</string>
@@ -826,11 +826,12 @@
     <string name="saveType_cloud">vpp.ID</string>
     <string name="saveType_shared">vpp.ID, mit Klasse geteilt</string>
     <string name="examsNew_shareNotSelected">Nicht ausgewählt</string>
+    <string name="examsNew_savePlaceholder">Wähle Speicherort und Freigabe aus</string>
     <string name="examsNew_save">Speichern</string>
     <string name="examsNew_topic_noTopic">Kein Thema</string>
     <string name="examsNew_topic_placeholder">z.B. \'Grundlagen der Geometrie\'</string>
     <string name="examsNew_details_noDetails">Keine Details</string>
-    <string name="examsNew_details_placeholder">Gib weitere Details an (optional)</string>
+    <string name="examsNew_details_placeholder">Weitere Details (optional)</string>
     <string name="examsNew_details_skip">Überspringen</string>
     <string name="examsNew_details_save">Speichern</string>
     <string name="calendar_dayFilterExams">Leistungserh.</string>
@@ -850,4 +851,14 @@
     <string name="home_examsTitle">Leistungserhebung in %1$s</string>
     <string name="examsDetails_deleteTitle">Leistungserh. löschen?</string>
     <string name="examsDetails_deleteMessage">Möchtest du diese Leistungserhebung wirklich löschen? Dies kann nicht rückgängig gemacht werden.</string>
+    <string name="examsNew_subjectLabelWithTeacher">Fach %1$s bei %2$s</string>
+    <string name="examsNew_subjectLabelWithoutTeacher">Fach %1$s</string>
+
+    <string name="advancedSettings_settingsDeveloperModeTitle">Entwicklermodus</string>
+    <string name="advancedSettings_settingsDeveloperModeSubtitle">Zeigt einige weitere Optionen und Trigger-Schaltflächen, könnte in Zukunft für einige Live-Tests verwendet werden, kann Probleme mit Alpha-Funktionen verursachen.</string>
+    <string name="examsNew_reminderDisabled">Wähle zuerst ein Datum und eine Kategorie aus</string>
+    <string name="examsNew_saveDevice">Dieses Gerät</string>
+    <string name="examsNew_saveVppId">Deine vpp.ID</string>
+    <string name="examsNew_saveShared">Deine vpp.ID, freigegeben</string>
+    <string name="examsNew_saveVppIdSharedText">%1$s, freigegeben an %2$s</string>
 </resources>

@@ -1,26 +1,15 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Save
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
-import es.jvbabi.vplanplus.R
 
 
 @Composable
@@ -44,100 +33,25 @@ fun NewExamScreen(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun NewExamContent(
     state: NewExamState,
     onBack: () -> Unit = {},
     doAction: (action: NewExamUiEvent) -> Unit = {}
 ) {
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(stringResource(R.string.examsNew_title))
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = onBack
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = stringResource(android.R.string.cancel)
-                        )
-                    }
-                },
-                actions = {
-                    IconButton(
-                        onClick = { doAction(NewExamUiEvent.OnSaveClicked) },
-                        enabled = state.canSave
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Save,
-                            contentDescription = stringResource(R.string.examsNew_save)
-                        )
-                    }
-                }
-            )
-        }
-    ) { paddingValues ->
-        Column(Modifier.padding(paddingValues)) {
-            SubjectSection(
-                subjects = state.subjects,
-                selectedSubject = state.subject,
-                isExpanded = state.isSubjectsExpanded,
-                onHeaderClicked = { doAction(NewExamUiEvent.OnSubjectsClicked) },
-                onSubjectClicked = { doAction(NewExamUiEvent.OnSubjectSelected(it)) }
-            )
-
-            DateSection(
-                selectedDate = state.date,
-                isContentExpanded = state.isDateExpanded,
-                onHeaderClicked = { doAction(NewExamUiEvent.OnDateClicked) },
-                onDateSelected = { doAction(NewExamUiEvent.OnDateSelected(it)) }
-            )
-
-            TypeSection(
-                selectedType = state.type,
-                isContentExpanded = state.isTypeExpanded,
-                onHeaderClicked = { doAction(NewExamUiEvent.OnTypeClicked) },
-                onTypeSelected = { doAction(NewExamUiEvent.OnTypeSelected(it)) }
-            )
-
-            TopicSection(
-                currentTopic = state.topic,
-                isContentExpanded = state.isTopicExpanded,
-                onHeaderClicked = { doAction(NewExamUiEvent.OnTopicClicked) },
-                onTopicSelected = { doAction(NewExamUiEvent.OnTopicSelected(it)) }
-            )
-
-            DetailsSection(
-                currentDetails = state.details,
-                isContentExpanded = state.isDetailsExpanded,
-                onHeaderClicked = { doAction(NewExamUiEvent.OnDetailsClicked) },
-                onDetailsSelected = { doAction(NewExamUiEvent.OnDetailsSelected(it)) }
-            )
-
-            StorageSection(
-                currentState = state.saveAndShare,
-                isContentExpanded = state.isStorageExpanded,
-                onHeaderClicked = { doAction(NewExamUiEvent.OnStorageClicked) },
-                onTypeSelected = { doAction(NewExamUiEvent.OnStorageSelected(it)) }
-            )
-            
-            if (state.date != null && state.type != null) ReminderSection(
-                selectedDays = state.remindDaysBefore,
-                selectedDate = state.date,
-                selectedType = state.type,
-                isContentExpanded = state.isReminderExpanded,
-                onHeaderClicked = { doAction(NewExamUiEvent.OnReminderClicked) },
-                onRemindDaysBeforeSelected = { doAction(NewExamUiEvent.OnRemindDaysBeforeSelected(it)) }
-            )
-        }
+    Column(Modifier.fillMaxSize()) root@{
+        HeadNavigation(onBack) { doAction(NewExamUiEvent.OnSaveClicked) }
+        AddExamTitleSection(state.topic) { doAction(NewExamUiEvent.UpdateTitle(it)) }
+        AddExamDateSection(state.date) { doAction(NewExamUiEvent.UpdateDate(it)) }
+        AddExamSubjectSection(state.subjects, state.currentLessons, state.subject, state.isDeveloperModeEnabled) { doAction(NewExamUiEvent.UpdateSubject(it)) }
+        AddExamCategorySection(state.category) { doAction(NewExamUiEvent.UpdateCategory(it)) }
+        AddExamReminderSection(state.remindDaysBefore, state.date, state.category) { doAction(NewExamUiEvent.UpdateReminderDays(it)) }
+        AddExamDetailsSection(state.details) { doAction(NewExamUiEvent.UpdateDescription(it)) }
+        if (state.currentProfile?.vppId != null) AddExamStorageSection(state.storeType, state.currentProfile.vppId.name, state.currentProfile.group.name) { doAction(NewExamUiEvent.UpdateStoreType(it)) }
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun NewExamScreenPreview() {
     NewExamContent(

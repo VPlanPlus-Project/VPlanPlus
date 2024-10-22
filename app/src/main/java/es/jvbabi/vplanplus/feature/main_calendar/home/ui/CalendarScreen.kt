@@ -373,12 +373,10 @@ private fun CalendarScreenContent(
                         FullMonthPager(
                             calendarSelectHeightLarge = null,
                             setFirstVisibleDate = { firstVisibleDate = it },
-                            state = state,
-                            doAction = doAction,
-                            setIsAnimating = {},
-                            setClosest = {},
-                            calendarSelectHeightSmall = 0f,
-                            calendarSelectHeightMedium = 0f
+                            days = state.days,
+                            selectedDate = state.selectedDate,
+                            currentSelectCause = state.currentSelectCause,
+                            selectDate = { date, currentSelectCause -> doAction(CalendarViewAction.SelectDate(date, currentSelectCause)) },
                         )
                     }
                 }

@@ -5,7 +5,7 @@ import es.jvbabi.vplanplus.data.source.database.dao.ExamDao
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Exam
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,7 +19,7 @@ class ExamRepositoryImpl(
         id: Int?,
         subject: DefaultLesson,
         date: LocalDate,
-        type: ExamType,
+        type: ExamCategory,
         topic: String,
         details: String?,
         profile: ClassProfile,

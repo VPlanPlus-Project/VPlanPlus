@@ -810,9 +810,9 @@
     <string name="home_lessonNumber">%1$s lesson</string>
     <string name="home_furtherLessons">Further lessons</string>
     <string name="home_remainingLessons">%1$d remaining lessons</string>
-    <string name="examsNew_until">Date</string>
-    <string name="examsNew_subject">Subject</string>
-    <string name="examsNew_type">Type</string>
+    <string name="examsNew_until">Select date</string>
+    <string name="examsNew_subject">Choose subject</string>
+    <string name="examsNew_category">Select the type</string>
     <string name="examsNew_share">Share</string>
     <string name="examsNew_topic">Topic</string>
     <string name="examsNew_details">Details</string>
@@ -830,10 +830,11 @@
     <string name="saveType_shared">vpp.ID, shared with class</string>
     <string name="examsNew_shareNotSelected">Not selected</string>
     <string name="examsNew_save">Save</string>
+    <string name="examsNew_savePlaceholder">Select storage location and share type</string>
     <string name="examsNew_topic_noTopic">No topic yet</string>
     <string name="examsNew_topic_placeholder">e.g. \'Basics of geometry\'</string>
     <string name="examsNew_details_noDetails">No details</string>
-    <string name="examsNew_details_placeholder">Enter more details (optional)</string>
+    <string name="examsNew_details_placeholder">More details (optional)</string>
     <string name="examsNew_details_skip">Skip</string>
     <string name="examsNew_details_save">Save</string>
     <string name="calendar_dayFilterExams">Exams</string>
@@ -853,4 +854,13 @@
     <string name="home_examsTitle">%1$s: Exam coming up</string>
     <string name="examsDetails_deleteTitle">Delete exam?</string>
     <string name="examsDetails_deleteMessage">Do you really want to delete this exam? This cannot be undone.</string>
+    <string name="examsNew_subjectLabelWithTeacher">Subject %1$s with %2$s</string>
+    <string name="examsNew_subjectLabelWithoutTeacher">Subject %1$s</string>
+    <string name="advancedSettings_settingsDeveloperModeTitle">Developer mode</string>
+    <string name="advancedSettings_settingsDeveloperModeSubtitle">Shows some more options and trigger buttons, might be used in future for some live testing stuff, can cause problems with alpha-features.</string>
+    <string name="examsNew_reminderDisabled">Select a date and a category first</string>
+    <string name="examsNew_saveDevice">This device</string>
+    <string name="examsNew_saveVppId">Your vpp.ID</string>
+    <string name="examsNew_saveShared">Your vpp.ID, shared</string>
+    <string name="examsNew_saveVppIdSharedText">%1$s, shared with %2$s</string>
 </resources>

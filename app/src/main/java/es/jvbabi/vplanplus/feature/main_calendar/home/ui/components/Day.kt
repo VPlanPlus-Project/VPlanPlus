@@ -39,6 +39,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.Personalize
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer2Dp
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
+import es.jvbabi.vplanplus.ui.common.grayScale
 import es.jvbabi.vplanplus.util.blendColor
 import java.time.LocalDate
 import java.time.Month
@@ -52,6 +53,7 @@ import java.time.Month
 fun Day(
     date: LocalDate,
     isSelected: Boolean,
+    isClickable: Boolean,
     isToday: Boolean,
     homework: List<PersonalizedHomework>,
     exams: List<Exam>,
@@ -65,7 +67,7 @@ fun Day(
         modifier = Modifier
             .fillMaxSize()
             .clip(RoundedCornerShape(8.dp))
-            .clickable { onClick() },
+            .then(if (isClickable) Modifier.clickable { onClick() } else Modifier.grayScale()),
         verticalArrangement = Arrangement.spacedBy(2.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -199,6 +201,7 @@ private fun WeekendPreview() {
     Day(
         date = LocalDate.of(2024, 1, 14),
         isSelected = false,
+        isClickable = false,
         isToday = true,
         homework = emptyList(),
         exams = emptyList(),
@@ -214,6 +217,7 @@ private fun SelectedPreview() {
     Day(
         date = LocalDate.of(2024, 1, 14),
         isSelected = true,
+        isClickable = true,
         isToday = false,
         homework = emptyList(),
         exams = emptyList(),
@@ -229,6 +233,7 @@ private fun DetailedPreview() {
     Day(
         date = LocalDate.of(2024, 2, 14),
         isSelected = false,
+        isClickable = true,
         isToday = false,
         homework = emptyList(),
         exams = emptyList(),

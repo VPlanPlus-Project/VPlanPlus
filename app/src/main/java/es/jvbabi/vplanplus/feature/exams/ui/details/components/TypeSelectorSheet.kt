@@ -19,7 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.ui.common.Option
 import es.jvbabi.vplanplus.ui.stringResource
 import kotlinx.coroutines.launch
@@ -27,9 +27,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TypeSelectorSheet(
-    currentType: ExamType,
+    currentType: ExamCategory,
     sheetState: SheetState,
-    onTypeSelected: (type: ExamType) -> Unit,
+    onTypeSelected: (type: ExamCategory) -> Unit,
     onDismiss: () -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
@@ -45,7 +45,7 @@ fun TypeSelectorSheet(
                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                 .verticalScroll(rememberScrollState())
         ) {
-            ExamType.values.forEach {
+            ExamCategory.values.forEach {
                 Option(
                     title = stringResource(it.stringResource()),
                     subtitle = null,
@@ -66,5 +66,5 @@ fun TypeSelectorSheet(
 @Composable
 @Preview
 private fun TypeSelectorSheetPreview() {
-    TypeSelectorSheet(currentType = ExamType.Project, rememberModalBottomSheetState(), {})
+    TypeSelectorSheet(currentType = ExamCategory.Project, rememberModalBottomSheetState(), {})
 }

@@ -9,7 +9,7 @@ import es.jvbabi.vplanplus.data.model.exam.DbExamReminder
 import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Exam
-import es.jvbabi.vplanplus.domain.model.ExamType
+import es.jvbabi.vplanplus.domain.model.ExamCategory
 
 data class CExam(
     @Embedded val exam: DbExam,
@@ -39,7 +39,7 @@ data class CExam(
      * @param contextProfile The profile of the user who is currently viewing the exam, null if it is not relevant. This affects the reminder days.
      */
     fun toModel(contextProfile: ClassProfile?): Exam {
-        val type = ExamType.of(exam.type)
+        val type = ExamCategory.of(exam.type)
         return Exam(
             id = exam.id,
             subject = defaultLessons.firstOrNull { it.`class`.group.id == group.group.id }?.toModel(),
