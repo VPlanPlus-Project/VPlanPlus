@@ -13,12 +13,14 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.LessonBlock
 
 @Composable
-fun FurtherLessonsBlock(
-    followingLessons: Map<Int, List<Lesson>>
+fun LessonsForDayBlock(
+    modifier: Modifier = Modifier,
+    followingLessons: Map<Int, List<Lesson>>,
+    horizontalPadding: Boolean = true
 ) {
     Column(
-        modifier = Modifier
-            .padding(horizontal = 12.dp)
+        modifier = modifier
+            .padding(horizontal = if (horizontalPadding) 12.dp else 0.dp)
             .clip(RoundedCornerShape(16.dp)),
         verticalArrangement = Arrangement.spacedBy(2.dp)
     ) {

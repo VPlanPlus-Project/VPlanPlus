@@ -67,11 +67,10 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.cards.MissingVppIdLin
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.ExamList
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.HomeworkSection
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Info
-import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Subjects
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Title
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentLesson
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentOrNextTitle
-import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.FurtherLessonsBlock
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.LessonsForDayBlock
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.FurtherLessonsTitle
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
@@ -440,7 +439,7 @@ private fun TodayContent(
             Spacer16Dp()
             FurtherLessonsTitle(followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size)
             Spacer8Dp()
-            FurtherLessonsBlock(followingLessons)
+            LessonsForDayBlock(followingLessons = followingLessons)
         }
 
         if (today.type != DayType.NORMAL) {
@@ -460,6 +459,7 @@ private fun NextDayPreparation(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .padding(bottom = 52.dp)
     ) {
         Column(
             Modifier.padding(horizontal = 12.dp)
@@ -471,21 +471,17 @@ private fun NextDayPreparation(
             }
             Column(
                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(top = 8.dp)
             ) {
                 Info(info = nextSchoolDay.info)
                 ExamList(nextSchoolDay, onOpenExam)
             }
             runComposable subjects@{
-                val subjects = nextSchoolDay.lessons
-                    .map { it.displaySubject }
-                    .filter { it != "-" }
-                    .toSet()
-                    .associateWith { subject ->
-                        val homework =
-                            nextSchoolDay.homework.filter { it.homework.defaultLesson?.subject == subject }
-                        (homework.count { it.allDone() } to homework.size)
-                    }
-                Subjects(subjects)
+                LessonsForDayBlock(
+                    modifier = Modifier.padding(top = 8.dp),
+                    followingLessons = nextSchoolDay.lessons.groupBy { it.lessonNumber },
+                    horizontalPadding = false
+                )
             }
             if (nextSchoolDay.lessons.isEmpty()) NoData()
             HomeworkSection(
