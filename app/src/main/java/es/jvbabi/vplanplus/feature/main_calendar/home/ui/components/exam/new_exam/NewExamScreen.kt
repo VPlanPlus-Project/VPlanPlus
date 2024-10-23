@@ -62,6 +62,9 @@ fun NewExamBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(Unit) { viewModel.doAction(NewExamUiEvent.OnInit) }
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,

@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.NewExamUseCases
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.SaveType
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
@@ -21,6 +22,7 @@ class NewExamViewModel @Inject constructor(
 ) : ViewModel() {
     private val _state = MutableStateFlow(NewExamState())
     val state = _state.asStateFlow()
+    private var flowJob: Job? = null
 
     fun doAction(event: NewExamUiEvent) {
         when (event) {
@@ -49,11 +51,18 @@ class NewExamViewModel @Inject constructor(
                     )
                 }
             }
+            is NewExamUiEvent.OnInit -> init()
         }
     }
 
     init {
-        viewModelScope.launch {
+        init()
+    }
+
+    private fun init() {
+        flowJob?.cancel()
+        _state.value = NewExamState()
+        flowJob = viewModelScope.launch {
             _state.value = _state.value.copy(subjects = newExamUseCases.getDefaultLessonsUseCase())
             combine(
                 listOf(
@@ -100,13 +109,14 @@ data class NewExamState(
 )
 
 sealed class NewExamUiEvent {
-    data class UpdateTitle(val to: String): NewExamUiEvent()
-    data class UpdateDate(val to: LocalDate): NewExamUiEvent()
-    data class UpdateSubject(val to: DefaultLesson): NewExamUiEvent()
-    data class UpdateCategory(val to: ExamCategory): NewExamUiEvent()
-    data class UpdateReminderDays(val to: Set<Int>): NewExamUiEvent()
-    data class UpdateDescription(val to: String): NewExamUiEvent()
-    data class UpdateStoreType(val to: SaveType): NewExamUiEvent()
+    data class UpdateTitle(val to: String) : NewExamUiEvent()
+    data class UpdateDate(val to: LocalDate) : NewExamUiEvent()
+    data class UpdateSubject(val to: DefaultLesson) : NewExamUiEvent()
+    data class UpdateCategory(val to: ExamCategory) : NewExamUiEvent()
+    data class UpdateReminderDays(val to: Set<Int>) : NewExamUiEvent()
+    data class UpdateDescription(val to: String) : NewExamUiEvent()
+    data class UpdateStoreType(val to: SaveType) : NewExamUiEvent()
 
-    data object OnSaveClicked: NewExamUiEvent()
+    data object OnSaveClicked : NewExamUiEvent()
+    data object OnInit : NewExamUiEvent()
 }
