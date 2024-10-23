@@ -33,8 +33,8 @@ fun AddExamTitleSection(
             placeholder = { Text(text = stringResource(R.string.examsNew_topic), style = MaterialTheme.typography.headlineMedium, color = Color.Gray) },
             textStyle = MaterialTheme.typography.headlineMedium,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 focusedIndicatorColor = Color.Transparent
             ),

@@ -32,7 +32,7 @@ fun AddExamItem(
     willBeHorizontalScrollable: Boolean = false,
     content: @Composable () -> Unit
 ) {
-    val surface = MaterialTheme.colorScheme.surface
+    val surface = MaterialTheme.colorScheme.surfaceContainer
     var height by remember { mutableIntStateOf(0) }
     Box(
         modifier = Modifier

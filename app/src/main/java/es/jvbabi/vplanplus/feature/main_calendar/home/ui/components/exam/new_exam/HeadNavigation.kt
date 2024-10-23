@@ -20,7 +20,7 @@ fun HeadNavigation(
     onBack: () -> Unit,
     onSave: () -> Unit
 ) {
-    RowVerticalCenterSpaceBetweenFill(Modifier.padding(horizontal = 8.dp)) {
+    RowVerticalCenterSpaceBetweenFill(Modifier.padding(start = 8.dp, end = 16.dp, bottom = 8.dp)) {
         IconButton(onBack) {
             Icon(Icons.Default.Close, contentDescription = stringResource(android.R.string.cancel))
         }

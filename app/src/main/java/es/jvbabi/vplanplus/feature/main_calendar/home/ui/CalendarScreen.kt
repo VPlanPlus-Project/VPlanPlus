@@ -89,6 +89,7 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.ScrollableDa
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.TopBar
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.TypeFilters
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.ExamSection
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam.NewExamBottomSheet
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.homework.HomeworkSection
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.LessonsSection
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.components.grades.GradeRecord
@@ -130,7 +131,6 @@ fun CalendarScreen(
         onBack = navHostController::navigateUp,
         onOpenHomeworkScreen = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
         onOpenExamScreen = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
-        onOpenNewExam = remember { { navHostController.navigate(Screen.NewExamScreen) } },
         onTimetableInfoBannerClicked = remember { {
             openLink(
                 context,
@@ -149,13 +149,15 @@ private fun CalendarScreenContent(
     onBack: () -> Unit = {},
     onOpenHomeworkScreen: (homeworkId: Int) -> Unit = {},
     onOpenExamScreen: (examId: Int) -> Unit = {},
-    onOpenNewExam: () -> Unit = {},
     onTimetableInfoBannerClicked: () -> Unit = {},
     doAction: (action: CalendarViewAction) -> Unit = {},
     navBar: @Composable (Boolean) -> Unit = {},
     navRail: @Composable (Boolean, fab: @Composable () -> Unit) -> Unit = { _, _ -> },
     state: CalendarViewState
 ) {
+
+    var showNewAssessmentBottomSheet by rememberSaveable { mutableStateOf(false) }
+    if (showNewAssessmentBottomSheet) NewExamBottomSheet { showNewAssessmentBottomSheet = false }
 
     var addHomeworkSheetInitialValues by rememberSaveable<MutableState<AddHomeworkSheetInitialValues?>> {
         mutableStateOf(
@@ -271,7 +273,7 @@ private fun CalendarScreenContent(
                 Spacer8Dp()
                 CalendarFloatingActionButtonNewExam(
                     isVisible = closest != calendarSelectHeightLarge,
-                    onClick = onOpenNewExam
+                    onClick = { showNewAssessmentBottomSheet = true }
                 )
             }
         },
@@ -334,7 +336,7 @@ private fun CalendarScreenContent(
                                 AddHomeworkSheetInitialValues(until = state.selectedDate)
                         }) { Icon(Icons.Default.Add, null) }
                         Spacer8Dp()
-                        FloatingActionButton(onClick = onOpenNewExam) { Icon(Icons.Default.Add, null) } // TODO: Merge into one
+                        FloatingActionButton(onClick = { showNewAssessmentBottomSheet = true }) { Icon(Icons.Default.Add, null) } // TODO: Merge into one
                     }
                 }
                 val topBarHeight = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
