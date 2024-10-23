@@ -66,9 +66,9 @@ fun AddExamReminderSection(
             label = "is reminder enabled"
         ) { isEnabled ->
             if (isEnabled) ExamReminderSelector(
-                selectedDate = selectedDate!!,
+                selectedDate = selectedDate ?: LocalDate.now(),
                 selectedDays = selectedDays,
-                selectedType = selectedCategory!!,
+                selectedType = selectedCategory ?: ExamCategory.Other,
                 startPadding = 40.dp,
                 onRemindDaysBeforeSelected = onRemindDaysBeforeSelected
             ) else {
