@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -81,7 +82,7 @@ fun Modal(
     CustomModal(sheetState, onDismiss) {
         entries.forEach { entry ->
             Option(
-                title = entry.title,
+                title = OptionTextTitle(entry.title),
                 subtitle = entry.subtitle,
                 icon = entry.icon,
                 state = entry.isSelected,
@@ -95,7 +96,7 @@ fun Modal(
 @Composable
 fun Option(
     modifier: Modifier = Modifier,
-    title: String,
+    title: OptionText,
     subtitle: String? = null,
     icon: ImageVector?,
     state: Boolean,
@@ -110,7 +111,7 @@ fun Option(
         modifier
             .fillMaxWidth()
             .then(if (enabled) Modifier.clickable { onClick() } else Modifier)
-            .height(56.dp)
+            .defaultMinSize(minHeight = 56.dp)
             .background(background)
             .padding(vertical = 8.dp, horizontal = 16.dp)) {
         if (icon != null) Icon(
@@ -120,7 +121,7 @@ fun Option(
             modifier = Modifier.size(24.dp)
         ) else Spacer(Modifier.size(24.dp))
         Column(Modifier.padding(start = 16.dp)) {
-            Text(text = title, style = MaterialTheme.typography.bodyLarge, color = if (enabled) contentColor else disabledContentColor)
+            title.Display(enabled)
             if (!subtitle.isNullOrBlank()) Text(text = subtitle, style = MaterialTheme.typography.labelMedium, color = if (enabled) contentColor else disabledContentColor)
         }
     }
@@ -130,7 +131,7 @@ fun Option(
 @Composable
 private fun OptionPreview() {
     Option(
-        title = stringResource(id = R.string.addHomework_saveVppId),
+        title = OptionTextTitle(stringResource(id = R.string.addHomework_saveVppId)),
         subtitle = stringResource(id = R.string.addHomework_saveVppIdNoVppId),
         icon = Icons.Default.CloudQueue,
         state = true,
@@ -152,5 +153,25 @@ fun SmallDragHandler() {
                 .clip(RoundedCornerShape(50))
                 .background(MaterialTheme.colorScheme.onSurfaceVariant)
         )
+    }
+}
+
+interface OptionText {
+    @Composable fun Display(isEnabled: Boolean)
+}
+
+class OptionTextTitle(val title: String) : OptionText {
+    @Composable override fun Display(isEnabled: Boolean) {
+        Text(text = title, style = MaterialTheme.typography.bodyLarge, color = if (isEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+class OptionCustomText(val text: String, val after: @Composable () -> Unit) : OptionText {
+    @Composable override fun Display(isEnabled: Boolean) {
+        RowVerticalCenter {
+            Text(text = text, style = MaterialTheme.typography.bodyLarge, color = if (isEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer8Dp()
+            after()
+        }
     }
 }

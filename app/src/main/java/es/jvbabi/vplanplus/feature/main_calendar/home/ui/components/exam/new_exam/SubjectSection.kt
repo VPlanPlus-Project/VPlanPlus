@@ -42,6 +42,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.Option
+import es.jvbabi.vplanplus.ui.common.OptionTextTitle
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.getSubjectIcon
 import kotlinx.coroutines.launch
@@ -79,11 +80,11 @@ fun AddExamSubjectSection(
                 ) {
                     remember { subjects.sortedBy { it.subject } }.forEach { subject ->
                         Option(
-                            title = buildString {
+                            title = OptionTextTitle(buildString {
                                 append(subject.subject)
                                 if (subject.courseGroup != null) append (" (${subject.courseGroup})")
                                 if (isDeveloperModeEnabled) append(" $DOT VP-ID: ${subject.vpId}")
-                            },
+                            }),
                             subtitle = subject.teacher?.acronym ?: stringResource(id = R.string.addHomework_lessonSubtitleNoTeacher),
                             icon = subject.subject.getSubjectIcon(),
                             state = subject.vpId == selectedSubject?.vpId,

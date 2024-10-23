@@ -21,6 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.ui.common.Option
+import es.jvbabi.vplanplus.ui.common.OptionTextTitle
 import es.jvbabi.vplanplus.ui.stringResource
 import kotlinx.coroutines.launch
 
@@ -47,7 +48,7 @@ fun TypeSelectorSheet(
         ) {
             ExamCategory.values.forEach {
                 Option(
-                    title = stringResource(it.stringResource()),
+                    title = OptionTextTitle(stringResource(it.stringResource())),
                     subtitle = null,
                     onClick = {
                         onTypeSelected(it)

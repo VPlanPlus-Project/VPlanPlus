@@ -39,7 +39,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.SaveType
+import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.Option
+import es.jvbabi.vplanplus.ui.common.OptionCustomText
+import es.jvbabi.vplanplus.ui.common.OptionTextTitle
 import es.jvbabi.vplanplus.ui.stringResource
 import kotlinx.coroutines.launch
 
@@ -70,7 +73,7 @@ fun AddExamStorageSection(
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                 ) options@{
                     Option(
-                        title = stringResource(id = R.string.examsNew_saveDevice),
+                        title = OptionTextTitle(stringResource(id = R.string.examsNew_saveDevice)),
                         icon = Icons.Default.PhoneAndroid,
                         state = currentState == SaveType.LOCAL,
                         enabled = true,
@@ -82,11 +85,11 @@ fun AddExamStorageSection(
                     )
                     HorizontalDivider()
                     Option(
-                        title = stringResource(id = R.string.examsNew_saveVppId),
+                        title = OptionCustomText(stringResource(id = R.string.examsNew_saveVppId)) { Badge(MaterialTheme.colorScheme.secondary, "Coming soon") },
                         subtitle = vppIdName,
                         icon = Icons.Default.CloudQueue,
                         state = currentState == SaveType.CLOUD,
-                        enabled = true,
+                        enabled = false,
                         modifier = Modifier.border(width = .25.dp, color = MaterialTheme.colorScheme.outline),
                         onClick = {
                             onTypeSelected(SaveType.CLOUD)
@@ -95,11 +98,11 @@ fun AddExamStorageSection(
                     )
                     HorizontalDivider()
                     Option(
-                        title = stringResource(id = R.string.examsNew_saveShared),
+                        title = OptionCustomText(stringResource(id = R.string.examsNew_saveShared)) { Badge(MaterialTheme.colorScheme.secondary, "Coming soon") },
                         subtitle = stringResource(id = R.string.examsNew_saveVppIdSharedText, vppIdName, groupName),
                         icon = Icons.Default.CloudQueue,
                         state = currentState == SaveType.SHARED,
-                        enabled = true,
+                        enabled = false,
                         modifier = Modifier.border(width = .25.dp, color = MaterialTheme.colorScheme.outline),
                         onClick = {
                             onTypeSelected(SaveType.SHARED)
