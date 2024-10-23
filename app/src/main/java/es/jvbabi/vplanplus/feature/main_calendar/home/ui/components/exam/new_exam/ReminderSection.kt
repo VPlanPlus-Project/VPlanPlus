@@ -76,7 +76,7 @@ fun AddExamReminderSection(
                     modifier = Modifier
                         .height(48.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .padding(start = 48.dp)
+                        .padding(start = 56.dp)
                         .fillMaxWidth(),
                     contentAlignment = Alignment.CenterStart
                 ) {
