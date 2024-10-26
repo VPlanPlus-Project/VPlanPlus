@@ -15,7 +15,7 @@ abstract class RoomDao {
 
     @Query("SELECT * FROM room WHERE id = :roomId")
     @Transaction
-    abstract fun getRoomById(roomId: Int): CRoom?
+    abstract fun getRoomById(roomId: Int): Flow<CRoom?>
 
     @Query("SELECT * FROM room")
     @Transaction

@@ -44,7 +44,7 @@ class RoomRepositoryImpl(
     }
 
     override suspend fun getRoomById(roomId: Int): Room? {
-        return roomDao.getRoomById(roomId)?.toModel()
+        return roomDao.getRoomById(roomId).first()?.toModel()
     }
 
     override suspend fun createRoom(room: Room) {
