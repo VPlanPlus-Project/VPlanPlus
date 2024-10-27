@@ -568,7 +568,7 @@
         <item quantity="other">%1$d profiles connected</item>
     </plurals>
     <string name="vppIdSettingsManagement_linkedProfilesTitle">Linked profiles</string>
-    <string name="vppIdSettingsManagement_noProfilesPossible">No Profiles for class %1$s found. Please create one.</string>
+    <string name="vppIdSettingsManagement_noProfilesPossible">No profiles for class %1$s found. Please create one.</string>
     <string name="vppIdSettingsManagement_selectProfilesText">Select profiles which should be linked to this vpp.ID. This is required to use vpp.ID functionality when a selected profile is active.</string>
     <string name="vppIdLink_autoConnect">This vpp.ID is automatically connected to profile %1$s.</string>
     <string name="vppIdLink_noSuitableProfiles">There are no suitable profiles for class %1$s on this device right now. You\'ll need to create a new profile for this class and link your vpp.ID to it afterwards.</string>
@@ -783,5 +783,14 @@
     <string name="webAuth_title">Verify login request</string>
     <string name="webAuth_error">Couldn\'t verify, please try again.</string>
     <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
+    <string name="advancedSettings_sendFirebaseReportsTitle">Send crash info</string>
+    <string name="advancedSettings_sendFirebaseReportsHasCrashes">Some crashes have been detected. Help the developers to understand the error by sending it. No personal information will be attached.</string>
+    <string name="advancedSettings_sendFirebaseReportsHasNoCrashes">There are no crashes</string>
+    <string name="onboarding_crashAnalyticsDialogTitle">Send crashes?</string>
+    <string name="onboarding_crashAnalyticsDialogText">VPlanPlus creates fully anonymous reports when the app crashes. Automatically sending them to the developers drastically helps us to improve the app.</string>
+    <string name="onboarding_crashAnalyticsDialogAllow">Allow automatic sending</string>
+    <string name="onboarding_crashAnalyticsDialogDeny">Deny</string>
+    <string name="advancedSettings_updateCrashlyticsSettingsTitle">Automatic crash sending</string>
+    <string name="advancedSettings_updateCrashlyticsSettingsSubtitle">Update if the app should automatically send crash reports.</string>
 
 </resources>

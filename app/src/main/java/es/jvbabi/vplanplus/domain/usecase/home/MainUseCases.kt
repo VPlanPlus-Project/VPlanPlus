@@ -12,4 +12,6 @@ data class MainUseCases(
     val getHomeworkUseCase: GetHomeworkUseCase,
     val getAppThemeUseCase: GetAppThemeUseCase,
     val getSyncIntervalMinutesUseCase: GetSyncIntervalMinutesUseCase,
+    val hasSetCrashlyticsSettingsUseCase: HasSetCrashlyticsSettingsUseCase,
+    val setCrashlyticsSettingsUseCase: SetCrashlyticsSettingsUseCase,
 )

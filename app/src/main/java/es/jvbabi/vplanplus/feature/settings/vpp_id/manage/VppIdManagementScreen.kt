@@ -3,9 +3,12 @@ package es.jvbabi.vplanplus.feature.settings.vpp_id.manage
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.AutoDelete
@@ -27,6 +30,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -168,55 +172,62 @@ fun VppIdManagementContent(
                     )
                 )
             )
-            Setting(
-                IconSettingsState(
-                    title = stringResource(id = R.string.vppIdSettingsManagement_linkedProfilesTitle),
-                    subtitle =
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(scrollBehavior.nestedScrollConnection)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                Setting(
+                    IconSettingsState(
+                        title = stringResource(id = R.string.vppIdSettingsManagement_linkedProfilesTitle),
+                        subtitle =
                         if (state.profiles.isEmpty()) stringResource(id = R.string.vppIdSettingsManagement_noProfilesPossible, state.vppId.groupName)
                         else if (state.profiles.count { (it as? ClassProfile)?.vppId == state.vppId } == 0) stringResource(id = R.string.vppIdSettings_noProfilesConnected)
                         else state.profiles.filter { (it as? ClassProfile)?.vppId == state.vppId }.joinToString(", ") { it.displayName },
-                    enabled = state.profiles.isNotEmpty(),
-                    type = SettingsType.FUNCTION,
-                    doAction = { showLinkedProfilesSelectDialog = true },
-                    imageVector = Icons.Default.SupervisorAccount
+                        enabled = state.profiles.isNotEmpty(),
+                        type = SettingsType.FUNCTION,
+                        doAction = { showLinkedProfilesSelectDialog = true },
+                        imageVector = Icons.Default.SupervisorAccount
+                    )
                 )
-            )
-            SettingsCategory(
-                title = stringResource(id = R.string.vppIdSettingsManagement_sessionsTitle)
-            ) {
-                when (state.sessionsState) {
-                    SessionState.LOADING -> FullWidthLoadingCircle()
-                    SessionState.ERROR -> RetrySessions(onFetchSessions)
-                    else -> {
-                        state.sessions.forEach { session ->
-                            SessionEntry(session) { onSessionClosed(session) }
+                SettingsCategory(
+                    title = stringResource(id = R.string.vppIdSettingsManagement_sessionsTitle)
+                ) {
+                    when (state.sessionsState) {
+                        SessionState.LOADING -> FullWidthLoadingCircle()
+                        SessionState.ERROR -> RetrySessions(onFetchSessions)
+                        else -> {
+                            state.sessions.forEach { session ->
+                                SessionEntry(session) { onSessionClosed(session) }
+                            }
                         }
                     }
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.tertiary,
+                    Row(
                         modifier = Modifier
-                            .size(16.dp)
-                    )
-                    Text(text = stringResource(id = R.string.vppIdSettingsManagement_sessionsCloseInfo), modifier = Modifier.padding(start = 8.dp))
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier
+                                .size(16.dp)
+                        )
+                        Text(text = stringResource(id = R.string.vppIdSettingsManagement_sessionsCloseInfo), modifier = Modifier.padding(start = 8.dp))
+                    }
                 }
+                Setting(IconSettingsState(
+                    type = SettingsType.FUNCTION,
+                    title = stringResource(id = R.string.vppIdSettingsManagement_requestDeletion),
+                    subtitle = stringResource(id = R.string.vppIdSettingsManagement_requestDeletionSubtitle),
+                    imageVector = Icons.Default.AutoDelete,
+                    enabled = true,
+                    isLoading = false,
+                    doAction = { onDeletionRequested() }
+                ))
             }
-            Setting(IconSettingsState(
-                type = SettingsType.FUNCTION,
-                title = stringResource(id = R.string.vppIdSettingsManagement_requestDeletion),
-                subtitle = stringResource(id = R.string.vppIdSettingsManagement_requestDeletionSubtitle),
-                imageVector = Icons.Default.AutoDelete,
-                enabled = true,
-                isLoading = false,
-                doAction = { onDeletionRequested() }
-            ))
         }
     }
 }
