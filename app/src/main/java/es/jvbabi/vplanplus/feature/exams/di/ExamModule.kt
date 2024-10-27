@@ -23,6 +23,7 @@ import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.NewExamUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.SaveExamUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.GetDefaultLessonsUseCase
+import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import javax.inject.Singleton
 
 @Module
@@ -32,9 +33,10 @@ object ExamModule {
     @Provides
     @Singleton
     fun provideExamRepository(
-        db: VppDatabase
+        db: VppDatabase,
+        vppIdNetworkRepository: VppIdNetworkRepository
     ): ExamRepository {
-        return ExamRepositoryImpl(db.examDao)
+        return ExamRepositoryImpl(db.examDao, vppIdNetworkRepository)
     }
 
     @Provides

@@ -29,6 +29,21 @@ interface ExamRepository {
         remindDaysBefore: Set<Int>? = null
     ): Flow<Exam>
 
+    /**
+     * @param id If null, will create a new exam. If not null, will update the exam with the given id.
+     */
+    suspend fun upsertExamCloud(
+        id: Int? = null,
+        subject: DefaultLesson,
+        date: LocalDate,
+        type: ExamCategory,
+        topic: String,
+        details: String?,
+        profile: ClassProfile,
+        createdAt: ZonedDateTime = ZonedDateTime.now(),
+        isPublic: Boolean,
+    ): Result<Int>
+
     fun getExams(
         date: LocalDate? = null,
         profile: ClassProfile?
