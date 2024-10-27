@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.feature.main_homework.add.ui
 
 import android.net.Uri
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -129,11 +130,13 @@ class AddHomeworkViewModel @Inject constructor(
     }
 
     private fun addDocument(documentUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents + NewHomeworkDocument(documentUri, HomeworkDocumentType.PDF, name = null))
+        val fileSize = documentUri.toFile().readBytes().size.toLong()
+        state.value = state.value.copy(documents = state.value.documents + NewHomeworkDocument(documentUri, HomeworkDocumentType.PDF, size = fileSize, name = null))
     }
 
     private fun addImage(imageUri: Uri) {
-        state.value = state.value.copy(documents = state.value.documents + NewHomeworkDocument(imageUri, HomeworkDocumentType.JPG, name = null))
+        val fileSize = imageUri.toFile().readBytes().size.toLong()
+        state.value = state.value.copy(documents = state.value.documents + NewHomeworkDocument(imageUri, HomeworkDocumentType.JPG, size = fileSize, name = null))
     }
 
     private fun removeDocument(documentUri: Uri) {
@@ -187,10 +190,15 @@ enum class SaveType {
     LOCAL, CLOUD, SHARED
 }
 
+fun SaveType.isOnline(): Boolean {
+    return this == SaveType.CLOUD || this == SaveType.SHARED
+}
+
 data class NewHomeworkDocument(
     val uri: Uri,
     val type: HomeworkDocumentType,
     val name: String? = null,
+    val size: Long,
     val uploadProgress: Float? = null
 )
 

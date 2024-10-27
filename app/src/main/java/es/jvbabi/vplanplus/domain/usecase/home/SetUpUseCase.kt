@@ -22,7 +22,7 @@ class SetUpUseCase(
     private val homeworkRepository: HomeworkRepository,
     private val vppIdRepository: VppIdRepository,
     private val testForMissingVppIdToProfileConnectionsUseCase: TestForMissingVppIdToProfileConnectionsUseCase,
-    private val updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
+    private val updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
 ) {
 
     suspend operator fun invoke() {
@@ -32,6 +32,7 @@ class SetUpUseCase(
             keyValueRepository.set(Keys.MISSING_VPP_ID_TO_PROFILE_CONNECTION, testForMissingVppIdToProfileConnectionsUseCase(true).toString())
             updateFirebaseTokens()
             createHomeworkReminder()
+            homeworkRepository.updateHomeworkDocumentsFileState()
         } catch (e: IOException) {
             Log.i("SetUpUseCase", "Error, Firebase services might not be available at the moment: ${e.message}")
         }

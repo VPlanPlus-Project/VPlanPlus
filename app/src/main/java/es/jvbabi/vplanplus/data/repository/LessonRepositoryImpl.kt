@@ -30,14 +30,12 @@ class LessonRepositoryImpl(
 
     override fun getLessonsForGroup(group: Group, date: LocalDate, version: Long): Flow<List<Lesson>?> {
         val timestamp = converter.zonedDateTimeToTimestamp(ZonedDateTime.of(date, LocalTime.MIN, ZoneId.of("UTC")))
-        return lessonDao.getLessons(timestamp = timestamp, version = version)
+        return lessonDao.getLessonsByGroup(timestamp = timestamp, version = version, group.groupId)
             .map { lessons ->
                 (if (lessons.isEmpty()) null
                 else lessons.map { lesson ->
                     lesson.toModel()
-                }).let { modeledLessons ->
-                    modeledLessons?.filter { it.`class`.groupId == group.groupId }
-                }
+                })
             }
     }
 
@@ -72,11 +70,11 @@ class LessonRepositoryImpl(
         return lessonDao.getLessons(timestamp = timestamp, version = version).map { lessons ->
             lessons
                 .map { it.toModel() }
-                .filter { it.`class`.school.id == school.id || it.teachers.any { t -> t.school.id == school.id } || it.rooms.any { r -> r.school.id == school.id } }
+                .filter { it.group.school.id == school.id || it.teachers.any { t -> t.school.id == school.id } || it.rooms.any { r -> r.school.id == school.id } }
         }
     }
 
-    override suspend fun getLessonsForProfile(
+    override fun getLessonsForProfile(
         profile: Profile,
         date: LocalDate,
         version: Long

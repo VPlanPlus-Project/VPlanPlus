@@ -14,8 +14,8 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun LastSyncText(modifier: Modifier = Modifier, lastSync: ZonedDateTime?) {
     var text = lastSync.toText()
-    text = if (text == null) stringResource(id = R.string.home_lastSyncNever)
-    else stringResource(id = R.string.home_lastSync, text)
+    text = if (text == null) stringResource(id = R.string.calendar_lastSyncNever)
+    else stringResource(id = R.string.calendar_lastSync, text)
     Text(
         text = text,
         style = MaterialTheme.typography.labelMedium,

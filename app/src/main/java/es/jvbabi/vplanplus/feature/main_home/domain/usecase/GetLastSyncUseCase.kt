@@ -8,6 +8,11 @@ import kotlinx.coroutines.flow.map
 class GetLastSyncUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
+
+    /**
+     * Get the timestamp of the last successful sync.
+     * @return The timestamp of the last successful sync. If no sync has been performed yet, the epoch timestamp is returned.
+     */
     operator fun invoke() =
         keyValueRepository
             .getFlow(Keys.LAST_SYNC_TS)
