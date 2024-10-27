@@ -11,41 +11,56 @@ import es.jvbabi.vplanplus.data.repository.ResponseDataWrapper
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDocumentDao
+import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao
 import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkDocumentId
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkId
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkTaskId
+import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
 import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
 import es.jvbabi.vplanplus.shared.data.Response
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.android.Android
+import io.ktor.client.plugins.onDownload
+import io.ktor.client.request.get
+import io.ktor.client.request.headers
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
+import io.ktor.util.toByteArray
+import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.io.File
 import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.LocalTime
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class HomeworkRepositoryImpl(
     private val homeworkDao: HomeworkDao,
     private val homeworkDocumentDao: HomeworkDocumentDao,
+    private val keyValueDao: KeyValueDao,
     private val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao,
     private val vppIdRepository: VppIdRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
@@ -90,16 +105,26 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun downloadHomeworkDocument(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray? {
-        if (vppId == null) vppIdNetworkRepository.authentication = group.school.buildAccess().buildVppAuthentication()
-        else vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
-
-        val response = vppIdNetworkRepository.doRequestRaw(
-            path = "/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework/$homeworkId/document/$homeworkDocumentId/content",
-            requestMethod = HttpMethod.Get
-        )
-        if (response.response != HttpStatusCode.OK || response.data == null) return null
-        return response.data
+    override suspend fun downloadHomeworkDocument(
+        vppId: VppId.ActiveVppId?,
+        group: Group,
+        homeworkId: Int,
+        homeworkDocumentId: Int,
+        onDownloading: (sent: Long, total: Long) -> Unit
+    ): ByteArray? {
+        val client = HttpClient(Android)
+        val server = keyValueDao.get(Keys.VPPID_SERVER) ?: servers.first().apiHost
+        Log.d("HomeworkRepositoryImpl", "Downloading document $homeworkDocumentId from $server")
+        val response = client.get("$server/api/$API_VERSION/school/${group.school.id}/group/${group.groupId}/homework/$homeworkId/document/$homeworkDocumentId/content") {
+            headers {
+                (if (vppId == null) group.school.buildAccess().buildVppAuthentication()
+                else BearerAuthentication(vppId.vppIdToken)).toHeader().let { append(it.first, it.second) }
+            }
+            onDownload { bytesSentTotal, contentLength -> onDownloading(bytesSentTotal, contentLength) }
+        }
+        if (!response.status.isSuccess()) return null
+        val channel: ByteReadChannel = response.body()
+        return channel.toByteArray()
     }
 
     override suspend fun downloadHomeworkDocumentMetadata(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument? {
@@ -112,11 +137,19 @@ class HomeworkRepositoryImpl(
         )
         if (response.response != HttpStatusCode.OK || response.data == null) return null
         val data = ResponseDataWrapper.fromJson<HomeworkDocumentResponse>(response.data)!!
-        return HomeworkDocument(
+        val exists = File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == homeworkDocumentId } ?: false
+        return if (exists) HomeworkDocument.SavedHomeworkDocument(
+            documentId = homeworkDocumentId,
+            homeworkId = homeworkId,
+            type = HomeworkDocumentType.fromExtension(data.extension),
+            name = data.name,
+            size = data.size
+        ) else HomeworkDocument.OnlineHomeworkDocument(
             name = data.name,
             type = HomeworkDocumentType.fromExtension(data.extension),
             documentId = homeworkDocumentId,
-            homeworkId = homeworkId
+            homeworkId = homeworkId,
+            size = data.size
         )
     }
 
@@ -126,8 +159,11 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun getAllByProfile(profile: ClassProfile): Flow<List<PersonalizedHomework>> {
-        return homeworkDao.getByGroupId(profile.group.groupId).map {
+    override suspend fun getAllByProfile(profile: ClassProfile, until: LocalDate?): Flow<List<PersonalizedHomework>> {
+        return if (until != null) homeworkDao.getByGroupIdAndDate(profile.group.groupId, ZonedDateTime.of(until, LocalTime.MIN, ZoneId.of("UTC"))).map {
+            it.map { homework -> homework.toProfileModel(profile) }
+        }
+        else homeworkDao.getByGroupId(profile.group.groupId).map {
             it.map { homework -> homework.toProfileModel(profile) }
         }
     }
@@ -155,6 +191,21 @@ class HomeworkRepositoryImpl(
         )
         if (result.response != HttpStatusCode.OK) return null
         return Unit
+    }
+
+    override suspend fun updateHomeworkDocumentsFileState() {
+        homeworkDocumentDao.getAllHomeworkDocuments().first().forEach { homeworkDocument ->
+            val file = File(context.filesDir, "homework_documents").listFiles()?.find { it.name.substringBefore(".").toInt() == homeworkDocument.id }
+            homeworkDocumentDao.updateHomeworkDocumentIsDownloaded(
+                homeworkDocument.id,
+                file != null
+            )
+            if (file == null) return@forEach
+            homeworkDocumentDao.updateHomeworkDocumentSize(
+                homeworkDocument.id,
+                file.readBytes().size.toLong()
+            )
+        }
     }
 
     override suspend fun changeDueDateDb(homework: HomeworkCore, newDate: ZonedDateTime) {
@@ -220,20 +271,29 @@ class HomeworkRepositoryImpl(
         }
     }
 
-    override suspend fun addDocumentDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId {
+    override suspend fun addDocumentDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long, isDownloaded: Boolean?): HomeworkDocumentId {
         val id = documentId ?: (findLocalDocumentId() - 1)
         homeworkDocumentDao.upsertHomeworkDocument(
             DbHomeworkDocument(
                 id,
                 fileName = name,
                 homeworkId = homeworkId.toLong(),
-                fileType = type.extension
+                fileType = type.extension,
+                isDownloaded = isDownloaded ?: File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == id } ?: false,
+                size = size
             )
         )
         return id
     }
 
-    override suspend fun addDocumentCloud(vppId: VppId.ActiveVppId, name: String, homeworkId: Int, type: HomeworkDocumentType, content: ByteArray, onUploading: (sent: Long, total: Long) -> Unit): Response<Boolean, Int?> {
+    override suspend fun addDocumentCloud(
+        vppId: VppId.ActiveVppId,
+        name: String,
+        homeworkId: Int,
+        type: HomeworkDocumentType,
+        content: ByteArray,
+        onUploading: (sent: Long, total: Long) -> Unit
+    ): Response<Boolean, Int?> {
         if (vppId.group?.school == null) return Response(false, null)
         vppIdNetworkRepository.authentication = BearerAuthentication(vppId.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
@@ -241,14 +301,22 @@ class HomeworkRepositoryImpl(
             requestBody = content,
             requestMethod = HttpMethod.Post,
             queries = mapOf("file_name" to name + "." + type.extension),
-            onUploading = { sent, of -> onUploading(sent, of) }
+            onUploading = { sent, _ -> onUploading(sent, content.size.toLong()) }
         )
         if (response.response?.isSuccess() != true) return Response(false, null)
         val data = response.data ?: return Response(false, null)
         return Response(false, ResponseDataWrapper.fromJson<UploadDocumentResponse>(data)!!.id)
     }
 
-    override suspend fun addHomeworkDb(homeworkId: Int?, clazzProfile: ClassProfile?, defaultLessonVpId: Int?, dueTo: ZonedDateTime, vppId: VppId?, isPublic: Boolean, createdAt: ZonedDateTime): HomeworkId {
+    override suspend fun addHomeworkDb(
+        homeworkId: Int?,
+        clazzProfile: ClassProfile?,
+        defaultLessonVpId: Int?,
+        dueTo: ZonedDateTime,
+        vppId: VppId?,
+        isPublic: Boolean,
+        createdAt: ZonedDateTime
+    ): HomeworkId {
         val id = homeworkId ?: (findLocalId() - 1)
         homeworkDao.insert(
             DbHomework(
@@ -503,7 +571,8 @@ private data class ChangeDueToDateRequest(
 private data class HomeworkDocumentResponse(
     @SerializedName("file_name") val name: String,
     @SerializedName("file_type") val extension: String,
-    @SerializedName("id") val id: Int
+    @SerializedName("id") val id: Int,
+    @SerializedName("file_size") val size: Long
 )
 
 private data class RenameDocumentRequest(

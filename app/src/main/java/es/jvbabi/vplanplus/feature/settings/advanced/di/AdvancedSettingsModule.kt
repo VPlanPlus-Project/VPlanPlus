@@ -4,11 +4,14 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
+import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
@@ -18,6 +21,7 @@ import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.DeleteCacheU
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.IsFcmDebugModeUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.ResetBalloonsUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.SetVppIdServerUseCase
+import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.ToggleDeveloperModeUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.ToggleFcmDebugModeUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
 import javax.inject.Singleton
@@ -35,16 +39,20 @@ object AdvancedSettingsModule {
         homeworkRepository: HomeworkRepository,
         keyValueRepository: KeyValueRepository,
         systemRepository: SystemRepository,
-        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
-        ,
-        homeworkReminderUseCase: HomeworkReminderUseCase
+        timetableRepository: TimetableRepository,
+        holidayRepository: HolidayRepository,
+        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
+        homeworkReminderUseCase: HomeworkReminderUseCase,
+        isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
             deleteCacheUseCase = DeleteCacheUseCase(
-                lessonRepository,
-                roomRepository,
-                gradeRepository,
-                homeworkRepository
+                lessonRepository = lessonRepository,
+                roomRepository = roomRepository,
+                gradeRepository = gradeRepository,
+                homeworkRepository = homeworkRepository,
+                timetableRepository = timetableRepository,
+                holidayRepository = holidayRepository
             ),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository),
@@ -52,7 +60,8 @@ object AdvancedSettingsModule {
             toggleFcmDebugModeUseCase = ToggleFcmDebugModeUseCase(keyValueRepository),
             isFcmDebugModeUseCase = IsFcmDebugModeUseCase(keyValueRepository),
             resetBalloonsUseCase = ResetBalloonsUseCase(keyValueRepository),
-            homeworkReminderUseCase = homeworkReminderUseCase
+            homeworkReminderUseCase = homeworkReminderUseCase,
+            toggleDeveloperModeUseCase = ToggleDeveloperModeUseCase(keyValueRepository, isDeveloperModeEnabledUseCase)
         )
     }
 }

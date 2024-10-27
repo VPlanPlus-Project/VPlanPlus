@@ -47,7 +47,7 @@ class NotificationRepositoryImpl(
             when (task) {
                 is OpenScreenTask -> {
                     val intent = Intent(appContext, MainActivity::class.java)
-                        .putExtra("screen", task.route)
+                        .putExtra("screen", task.destination)
 
                     PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 }
