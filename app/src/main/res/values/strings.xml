@@ -568,7 +568,7 @@
         <item quantity="other">%1$d profiles connected</item>
     </plurals>
     <string name="vppIdSettingsManagement_linkedProfilesTitle">Linked profiles</string>
-    <string name="vppIdSettingsManagement_noProfilesPossible">No Profiles for class %1$s found. Please create one.</string>
+    <string name="vppIdSettingsManagement_noProfilesPossible">No profiles for class %1$s found. Please create one.</string>
     <string name="vppIdSettingsManagement_selectProfilesText">Select profiles which should be linked to this vpp.ID. This is required to use vpp.ID functionality when a selected profile is active.</string>
     <string name="vppIdLink_autoConnect">This vpp.ID is automatically connected to profile %1$s.</string>
     <string name="vppIdLink_noSuitableProfiles">There are no suitable profiles for class %1$s on this device right now. You\'ll need to create a new profile for this class and link your vpp.ID to it afterwards.</string>
