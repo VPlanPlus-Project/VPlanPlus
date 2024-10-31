@@ -28,7 +28,7 @@ interface ExamRepository {
         profile: ClassProfile,
         createdAt: ZonedDateTime = ZonedDateTime.now(),
         remindDaysBefore: Set<Int>? = null,
-        createdBy: VppId? = null,
+        createdBy: VppId?,
         isPublic: Boolean = false
     ): Flow<Exam>
 
@@ -58,11 +58,5 @@ interface ExamRepository {
         profile: ClassProfile? = null
     ): Flow<Exam?>
 
-    @Deprecated("Use updateExam instead")
-    suspend fun updateExamLocally(
-        exam: Exam,
-        profile: ClassProfile
-    )
-
-    suspend fun deleteExamLocallyById(examId: Int)
+    suspend fun deleteExamById(examId: Int, profile: ClassProfile?, onlyLocal: Boolean = false)
 }

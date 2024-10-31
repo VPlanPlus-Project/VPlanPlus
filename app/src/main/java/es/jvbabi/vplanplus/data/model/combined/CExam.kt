@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.ExamCategory
+import es.jvbabi.vplanplus.domain.model.VppId
 
 data class CExam(
     @Embedded val exam: DbExam,
@@ -58,7 +59,7 @@ data class CExam(
             title = exam.title,
             description = exam.description,
             type = type,
-            createdBy = createdBy!!.toModel(),
+            createdBy = createdBy?.toModel() ?: VppId.Unknown(),
             group = group.toModel(),
             createdAt = exam.createdAt,
             isPublic = exam.isPublic,

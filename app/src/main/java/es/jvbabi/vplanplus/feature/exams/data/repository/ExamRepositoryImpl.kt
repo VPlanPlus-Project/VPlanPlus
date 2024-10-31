@@ -23,8 +23,8 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class ExamRepositoryImpl(
@@ -82,15 +82,17 @@ class ExamRepositoryImpl(
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/entity/assessment",
             requestMethod = HttpMethod.Post,
-            requestBody = Gson().toJson(NewExamRequest(
-                date = createdAt.toEpochSecond(),
-                subject = "sp24.${profile.getSchool().sp24SchoolId}.${subject.vpId}",
-                title = topic,
-                description = details,
-                isPublic = isPublic,
-                groupId = profile.group.groupId,
-                type = type.code,
-            ))
+            requestBody = Gson().toJson(
+                NewExamRequest(
+                    date = createdAt.toEpochSecond(),
+                    subject = "sp24.${profile.getSchool().sp24SchoolId}.${subject.vpId}",
+                    title = topic,
+                    description = details,
+                    isPublic = isPublic,
+                    groupId = profile.group.groupId,
+                    type = type.code,
+                )
+            )
         )
         if (response.response != HttpStatusCode.Created) return Result.failure(Exception("Error creating exam"))
         return Result.success(ResponseDataWrapper.fromJson<NewExamResponse>(response.data)!!.id)
@@ -137,33 +139,17 @@ class ExamRepositoryImpl(
         return examDao.getExam(id).map { it?.toModel(profile) }
     }
 
-    @Deprecated("Use updateExam instead")
-    override suspend fun updateExamLocally(
-        exam: Exam,
-        profile: ClassProfile
-    ) {
-        examDao.saveExam(DbExam(
-            id = exam.id,
-            subject = exam.subject?.vpId,
-            date = exam.date,
-            type = exam.type.code,
-            title = exam.title,
-            description = exam.description,
-            createdAt = exam.createdAt,
-            createdBy = (exam as? Exam.Cloud)?.createdBy?.id,
-            groupId = exam.group.groupId,
-            useDefaultNotifications = exam.remindDaysBefore == exam.type.remindDaysBefore,
-            isPublic = (exam as? Exam.Cloud)?.isPublic ?: false
-        ))
-        examDao.deleteExamReminders(exam.id)
-        if (exam.remindDaysBefore != exam.type.remindDaysBefore) {
-            exam.remindDaysBefore.forEach { daysBefore ->
-                examDao.insertExamReminder(exam.id, profile.id, daysBefore)
-            }
+    override suspend fun deleteExamById(examId: Int, profile: ClassProfile?, onlyLocal: Boolean) {
+        if (examId > 0 && !onlyLocal) {
+            if (profile?.vppId?.vppIdToken == null) throw Exception("No VPP-ID found for profile")
+            vppIdNetworkRepository.authentication = BearerAuthentication(profile.vppId.vppIdToken)
+            vppIdNetworkRepository.doRequest(
+                path = "/api/$API_VERSION/entity/assessment/${examId}",
+                requestMethod = HttpMethod.Delete,
+                requestBody = null,
+            )
         }
-    }
 
-    override suspend fun deleteExamLocallyById(examId: Int) {
         examDao.deleteExamById(examId)
     }
 }
@@ -191,7 +177,7 @@ private class PatchExamDiffAdapter : TypeAdapter<Pair<Exam.Cloud, Exam.Cloud>>()
         if (before.description != after.description) out.name("description").value(after.description)
         if (before.type != after.type) out.name("type").value(after.type.code)
         if (before.isPublic != after.isPublic) out.name("is_public").value(after.isPublic)
-        if (before.date != after.date) out.name("date").value(Instant.from(after.date).epochSecond)
+        if (before.date != after.date) out.name("date").value(after.date.atStartOfDay(ZoneId.of("UTC")).toEpochSecond())
         out.endObject()
     }
 

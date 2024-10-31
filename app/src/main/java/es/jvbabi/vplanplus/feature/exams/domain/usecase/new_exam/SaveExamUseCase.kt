@@ -45,7 +45,9 @@ class SaveExamUseCase(
             topic = topic,
             details = details,
             profile = profile,
-            remindDaysBefore = remindDaysBefore
+            remindDaysBefore = remindDaysBefore,
+            createdBy = if (saveType.isOnline()) profile.vppId else null,
+            isPublic = saveType == SaveType.SHARED
         ).first().let { true }
     }
 }
