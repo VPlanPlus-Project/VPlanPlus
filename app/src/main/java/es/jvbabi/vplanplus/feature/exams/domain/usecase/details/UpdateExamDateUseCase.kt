@@ -13,11 +13,11 @@ class UpdateExamDateUseCase(
     suspend operator fun invoke(
         examId: Int,
         newDate: LocalDate
-    ) {
-        val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return
+    ): Boolean {
+        val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
-        val exam = examRepository.getExamById(examId).first() ?: return
+        val exam = examRepository.getExamById(examId).first() ?: return false
 
-        examRepository.updateExam(exam.copy(date = newDate), currentProfile)
+        return examRepository.updateExam(exam.copy(date = newDate), currentProfile).isSuccess
     }
 }

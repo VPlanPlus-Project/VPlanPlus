@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.exams.ui.details
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.automirrored.filled.ShortText
 import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -138,8 +140,16 @@ private fun ExamDetailsContent(
         onNo = { showDeleteDialog = false }
     )
 
+    LaunchedEffect(state.wasChangeSuccessful) {
+        if (!state.wasChangeSuccessful) Toast.makeText(
+            context,
+            context.getString(R.string.something_went_wrong),
+            Toast.LENGTH_SHORT
+        ).show()
+    }
+
     LaunchedEffect(key1 = state.editModeUpdatingTitleState) {
-        if (state.editModeUpdatingTitleState != UpdatingState.DONE || !state.canUndoTitleUpdate) return@LaunchedEffect
+        if (state.editModeUpdatingTitleState != UpdatingState.SUCCESS || !state.canUndoTitleUpdate) return@LaunchedEffect
         val result = snackbarHostState.showSnackbar(
             message = context.getString(R.string.examsDetails_titleUpdated),
             withDismissAction = true,
@@ -150,7 +160,7 @@ private fun ExamDetailsContent(
     }
 
     LaunchedEffect(key1 = state.editModeUpdatingTypeState) {
-        if (state.editModeUpdatingTypeState != UpdatingState.DONE || !state.canUndoTypeUpdate) return@LaunchedEffect
+        if (state.editModeUpdatingTypeState != UpdatingState.SUCCESS || !state.canUndoTypeUpdate) return@LaunchedEffect
         val result = snackbarHostState.showSnackbar(
             message = context.getString(R.string.examsDetails_typeUpdated),
             withDismissAction = true,
@@ -161,7 +171,7 @@ private fun ExamDetailsContent(
     }
 
     LaunchedEffect(key1 = state.editModeUpdatingDescriptionState) {
-        if (state.editModeUpdatingDescriptionState != UpdatingState.DONE || !state.canUndoDescriptionUpdate) return@LaunchedEffect
+        if (state.editModeUpdatingDescriptionState != UpdatingState.SUCCESS || !state.canUndoDescriptionUpdate) return@LaunchedEffect
         val result = snackbarHostState.showSnackbar(
             message = context.getString(R.string.examsDetails_descriptionUpdated),
             withDismissAction = true,
@@ -209,8 +219,15 @@ private fun ExamDetailsContent(
                                             )
                                         )
 
-                                        UpdatingState.DONE -> Icon(
+                                        UpdatingState.SUCCESS -> Icon(
                                             imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp),
+                                            tint = Color.Gray
+                                        )
+
+                                        UpdatingState.FAILURE -> Icon(
+                                            imageVector = Icons.Default.Error,
                                             contentDescription = null,
                                             modifier = Modifier.size(24.dp),
                                             tint = Color.Gray
@@ -263,8 +280,15 @@ private fun ExamDetailsContent(
                                             )
                                         )
 
-                                        UpdatingState.DONE -> Icon(
+                                        UpdatingState.SUCCESS -> Icon(
                                             imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                            tint = Color.Gray
+                                        )
+
+                                        UpdatingState.FAILURE -> Icon(
+                                            imageVector = Icons.Default.Error,
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp),
                                             tint = Color.Gray
@@ -353,8 +377,14 @@ private fun ExamDetailsContent(
                     ) { updatingState ->
                         when (updatingState) {
                             UpdatingState.UPDATING -> CircularProgressIndicator(Modifier.size(24.dp))
-                            UpdatingState.DONE -> Icon(
+                            UpdatingState.SUCCESS -> Icon(
                                 imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Gray
+                            )
+                            UpdatingState.FAILURE -> Icon(
+                                imageVector = Icons.Default.Error,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
                                 tint = Color.Gray
@@ -419,8 +449,14 @@ private fun ExamDetailsContent(
                     ) { updatingState ->
                         when (updatingState) {
                             UpdatingState.UPDATING -> CircularProgressIndicator(Modifier.size(24.dp))
-                            UpdatingState.DONE -> Icon(
+                            UpdatingState.SUCCESS -> Icon(
                                 imageVector = Icons.Default.Check,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp),
+                                tint = Color.Gray
+                            )
+                            UpdatingState.FAILURE -> Icon(
+                                imageVector = Icons.Default.Error,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp),
                                 tint = Color.Gray

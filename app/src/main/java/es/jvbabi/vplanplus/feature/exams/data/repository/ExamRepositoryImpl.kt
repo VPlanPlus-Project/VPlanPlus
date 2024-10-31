@@ -139,6 +139,19 @@ class ExamRepositoryImpl(
         return examDao.getExam(id).map { it?.toModel(profile) }
     }
 
+    override suspend fun downloadAssessments(profile: ClassProfile): Result<List<ExamsResponse>> {
+        vppIdNetworkRepository.authentication = profile.vppId?.vppIdToken?.let { BearerAuthentication(it) }
+        val response = vppIdNetworkRepository.doRequest(
+            path = "/api/$API_VERSION/entity/assessment",
+            requestMethod = HttpMethod.Get,
+            requestBody = null,
+            queries = mapOf("filter_group" to profile.group.groupId.toString())
+        )
+        if (response.response != HttpStatusCode.OK) return Result.failure(Exception("Response ${response.response}: ${response.data}"))
+        val data = ResponseDataWrapper.fromJson<List<ExamsResponse>>(response.data) ?: return Result.failure(Exception("No data or wrong data format: ${response.data}"))
+        return Result.success(data)
+    }
+
     override suspend fun deleteExamById(examId: Int, profile: ClassProfile?, onlyLocal: Boolean) {
         if (examId > 0 && !onlyLocal) {
             if (profile?.vppId?.vppIdToken == null) throw Exception("No VPP-ID found for profile")
@@ -151,6 +164,10 @@ class ExamRepositoryImpl(
         }
 
         examDao.deleteExamById(examId)
+    }
+
+    override suspend fun clearCache() {
+        examDao.clearCache()
     }
 }
 
@@ -166,6 +183,19 @@ private data class NewExamRequest(
 
 private data class NewExamResponse(
     @SerializedName("assessment_id") val id: Int
+)
+
+data class ExamsResponse(
+    @SerializedName("id") val id: Int,
+    @SerializedName("subject") val subject: String,
+    @SerializedName("title") val title: String,
+    @SerializedName("description") val description: String,
+    @SerializedName("group") val groupId: Int,
+    @SerializedName("is_public") val isPublic: Boolean,
+    @SerializedName("date") val date: Int,
+    @SerializedName("type") val type: String,
+    @SerializedName("created_by") val createdBy: Int,
+    @SerializedName("created_at") val createdAt: Int,
 )
 
 private class PatchExamDiffAdapter : TypeAdapter<Pair<Exam.Cloud, Exam.Cloud>>() {

@@ -6,10 +6,14 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetDefaultLessonByIdentifierUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.feature.exams.data.repository.ExamRepositoryImpl
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.UpdateAssessmentsUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.DeleteExamUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.ExamDetailsUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.GetExamUseCase
@@ -21,6 +25,7 @@ import es.jvbabi.vplanplus.feature.exams.domain.usecase.details.UpdateExamTitleU
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.GetCurrentLessonsUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.NewExamUseCases
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.new_exam.SaveExamUseCase
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.main_homework.add.domain.usecase.GetDefaultLessonsUseCase
 import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
@@ -75,5 +80,21 @@ object ExamModule {
         updateExamDetailsUseCase = UpdateExamDetailsUseCase(examRepository, getCurrentProfileUseCase),
         updateReminderDaysUseCase = UpdateExamReminderDaysUseCase(examRepository, getCurrentProfileUseCase),
         deleteExamUseCase = DeleteExamUseCase(examRepository, getCurrentProfileUseCase)
+    )
+
+    @Provides
+    @Singleton
+    fun provideUpdateAssessmentUseCase(
+        examRepository: ExamRepository,
+        profileRepository: ProfileRepository,
+        logRecordRepository: LogRecordRepository,
+        vppIdRepository: VppIdRepository,
+        getDefaultLessonByIdentifierUseCase: GetDefaultLessonByIdentifierUseCase
+    ): UpdateAssessmentsUseCase = UpdateAssessmentsUseCase(
+        examRepository = examRepository,
+        profileRepository = profileRepository,
+        logRepository = logRecordRepository,
+        vppIdRepository = vppIdRepository,
+        getDefaultLessonByIdentifierUseCase = getDefaultLessonByIdentifierUseCase
     )
 }

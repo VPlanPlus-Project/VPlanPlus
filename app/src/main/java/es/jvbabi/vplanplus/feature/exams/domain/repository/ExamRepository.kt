@@ -5,6 +5,7 @@ import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.feature.exams.data.repository.ExamsResponse
 import kotlinx.coroutines.flow.Flow
 import java.time.LocalDate
 import java.time.ZonedDateTime
@@ -58,5 +59,12 @@ interface ExamRepository {
         profile: ClassProfile? = null
     ): Flow<Exam?>
 
+    suspend fun downloadAssessments(profile: ClassProfile): Result<List<ExamsResponse>>
+
     suspend fun deleteExamById(examId: Int, profile: ClassProfile?, onlyLocal: Boolean = false)
+
+    /**
+     * Delete all Cloud Exams locally
+     */
+    suspend fun clearCache()
 }
