@@ -17,10 +17,6 @@ class UpdateExamDetailsUseCase(
 
         val exam = examRepository.getExamById(examId).first() ?: return
 
-        if (exam.id > 0) {
-            TODO("Online")
-        }
-
-        examRepository.updateExamLocally(exam.copy(description = newDetails), currentProfile)
+        examRepository.updateExam(exam.copy(description = newDetails), currentProfile)
     }
 }

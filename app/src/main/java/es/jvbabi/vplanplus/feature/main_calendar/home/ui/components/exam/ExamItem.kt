@@ -63,7 +63,6 @@ private fun Title(
     RowVerticalCenter(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        // Subject
         Text(
             text = exam.subject?.subject ?: stringResource(id = R.string.homework_noSubject),
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
@@ -71,7 +70,7 @@ private fun Title(
         )
 
         Text(
-            text = when (exam.createdBy) {
+            text = when (exam.getAuthor()) {
                 null -> stringResource(id = R.string.homework_thisDevice)
                 (currentProfile as? ClassProfile)?.vppId -> stringResource(id = R.string.homework_you)
                 else -> exam.createdBy.name

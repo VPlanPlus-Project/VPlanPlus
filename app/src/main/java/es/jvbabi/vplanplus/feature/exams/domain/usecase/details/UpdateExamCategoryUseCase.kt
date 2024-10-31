@@ -18,10 +18,6 @@ class UpdateExamCategoryUseCase(
 
         val exam = examRepository.getExamById(examId).first() ?: return
 
-        if (exam.id > 0) {
-            TODO("Online")
-        }
-
-        examRepository.updateExamLocally(exam.copy(type = newCategory), currentProfile)
+        examRepository.updateExam(exam.copy(type = newCategory), currentProfile)
     }
 }

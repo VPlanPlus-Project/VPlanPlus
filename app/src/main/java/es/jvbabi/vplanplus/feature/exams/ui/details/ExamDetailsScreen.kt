@@ -452,13 +452,12 @@ private fun ExamDetailsScreenPreview() {
     val profile = ProfilePreview.generateClassProfile(group)
     ExamDetailsContent(
         state = ExamDetailsState(
-            exam = Exam(
+            exam = Exam.Local(
                 id = -1,
                 type = ExamCategory.Project,
                 date = LocalDate.now().plusDays(1),
                 title = "Example",
                 description = null,
-                createdBy = null,
                 group = group,
                 createdAt = ZonedDateTime.now().minusDays(3L),
                 subject = DefaultLesson(UUID.randomUUID(), 1, "DEU", null, group, null),

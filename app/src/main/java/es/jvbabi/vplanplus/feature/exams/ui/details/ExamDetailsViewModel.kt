@@ -240,7 +240,7 @@ data class ExamDetailsState(
     val editModeUpdatingDescriptionState: UpdatingState = UpdatingState.IDLE,
 ) {
     val isUserAllowedToEdit: Boolean
-        get() = exam != null && (exam.id < 0 || exam.createdBy?.id == currentProfile?.vppId?.id)
+        get() = exam != null && ((exam is Exam.Cloud && exam.createdBy?.id == currentProfile?.vppId?.id) || exam is Exam.Local)
 }
 
 sealed class ExamDetailsEvent {

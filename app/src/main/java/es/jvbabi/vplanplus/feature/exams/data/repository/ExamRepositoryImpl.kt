@@ -1,7 +1,11 @@
 package es.jvbabi.vplanplus.feature.exams.data.repository
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import com.google.gson.TypeAdapter
 import com.google.gson.annotations.SerializedName
+import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonWriter
 import es.jvbabi.vplanplus.data.model.exam.DbExam
 import es.jvbabi.vplanplus.data.repository.ResponseDataWrapper
 import es.jvbabi.vplanplus.data.source.database.dao.ExamDao
@@ -9,6 +13,7 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.ExamCategory
+import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.BearerAuthentication
@@ -16,7 +21,9 @@ import es.jvbabi.vplanplus.shared.data.VppIdNetworkRepository
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import java.time.Instant
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -33,7 +40,9 @@ class ExamRepositoryImpl(
         details: String?,
         profile: ClassProfile,
         createdAt: ZonedDateTime,
-        remindDaysBefore: Set<Int>?
+        remindDaysBefore: Set<Int>?,
+        createdBy: VppId?,
+        isPublic: Boolean
     ): Flow<Exam> {
         val examId = id ?: examDao.getCurrentLocalExamId().minus(1)
 
@@ -46,9 +55,10 @@ class ExamRepositoryImpl(
                 title = topic,
                 description = details,
                 createdAt = createdAt,
-                createdBy = if (examId < 0) null else profile.vppId?.id,
+                createdBy = if (examId < 0) null else createdBy?.id,
                 groupId = profile.group.groupId,
-                useDefaultNotifications = remindDaysBefore == null
+                useDefaultNotifications = remindDaysBefore == null,
+                isPublic = isPublic,
             )
         )
         remindDaysBefore?.forEach { daysBefore ->
@@ -57,8 +67,7 @@ class ExamRepositoryImpl(
         return examDao.getExam(examId).map { it!!.toModel(profile) }
     }
 
-    override suspend fun upsertExamCloud(
-        id: Int?,
+    override suspend fun insertExamCloud(
         subject: DefaultLesson,
         date: LocalDate,
         type: ExamCategory,
@@ -68,7 +77,6 @@ class ExamRepositoryImpl(
         createdAt: ZonedDateTime,
         isPublic: Boolean
     ): Result<Int> {
-        if (id != null) TODO("Not implemented yet")
         assert(profile.vppId != null) { "No VPP-ID found for profile" }
         vppIdNetworkRepository.authentication = BearerAuthentication(profile.vppId!!.vppIdToken)
         val response = vppIdNetworkRepository.doRequest(
@@ -88,6 +96,39 @@ class ExamRepositoryImpl(
         return Result.success(ResponseDataWrapper.fromJson<NewExamResponse>(response.data)!!.id)
     }
 
+    override suspend fun updateExam(exam: Exam, profile: ClassProfile): Result<Boolean> {
+        val oldExam = getExamById(exam.id, profile).first() ?: return Result.success(false)
+        if (exam is Exam.Cloud && !exam.equalsContent(oldExam)) {
+            // Update exam in cloud
+            vppIdNetworkRepository.authentication = BearerAuthentication(profile.vppId!!.vppIdToken)
+            val response = vppIdNetworkRepository.doRequest(
+                path = "/api/$API_VERSION/entity/assessment/${exam.id}",
+                requestMethod = HttpMethod.Patch,
+                requestBody = GsonBuilder()
+                    .registerTypeAdapter(Pair::class.java, PatchExamDiffAdapter())
+                    .create()
+                    .toJson(oldExam to exam),
+            )
+            if (response.response != HttpStatusCode.OK) return Result.failure(Exception("Error updating exam"))
+        }
+        examDao.saveExam(
+            DbExam(
+                id = exam.id,
+                title = exam.title,
+                description = exam.description,
+                isPublic = (exam as? Exam.Cloud)?.isPublic ?: false,
+                groupId = profile.group.groupId,
+                type = exam.type.code,
+                date = exam.date,
+                createdAt = exam.createdAt,
+                subject = exam.subject?.vpId,
+                createdBy = (exam as? Exam.Cloud)?.createdBy?.id,
+                useDefaultNotifications = false
+            )
+        )
+        return Result.success(true)
+    }
+
     override fun getExams(date: LocalDate?, profile: ClassProfile?): Flow<List<Exam>> =
         examDao.getExams(date, profile?.group?.groupId)
             .map { exams -> exams.map { it.toModel(profile) } }
@@ -96,6 +137,7 @@ class ExamRepositoryImpl(
         return examDao.getExam(id).map { it?.toModel(profile) }
     }
 
+    @Deprecated("Use updateExam instead")
     override suspend fun updateExamLocally(
         exam: Exam,
         profile: ClassProfile
@@ -108,9 +150,10 @@ class ExamRepositoryImpl(
             title = exam.title,
             description = exam.description,
             createdAt = exam.createdAt,
-            createdBy = exam.createdBy?.id,
+            createdBy = (exam as? Exam.Cloud)?.createdBy?.id,
             groupId = exam.group.groupId,
-            useDefaultNotifications = exam.remindDaysBefore == exam.type.remindDaysBefore
+            useDefaultNotifications = exam.remindDaysBefore == exam.type.remindDaysBefore,
+            isPublic = (exam as? Exam.Cloud)?.isPublic ?: false
         ))
         examDao.deleteExamReminders(exam.id)
         if (exam.remindDaysBefore != exam.type.remindDaysBefore) {
@@ -138,3 +181,21 @@ private data class NewExamRequest(
 private data class NewExamResponse(
     @SerializedName("assessment_id") val id: Int
 )
+
+private class PatchExamDiffAdapter : TypeAdapter<Pair<Exam.Cloud, Exam.Cloud>>() {
+    override fun write(out: JsonWriter, value: Pair<Exam.Cloud, Exam.Cloud>?) {
+        val (before, after) = value ?: return
+        assert(before.id == after.id)
+        out.beginObject()
+        if (before.title != after.title) out.name("title").value(after.title)
+        if (before.description != after.description) out.name("description").value(after.description)
+        if (before.type != after.type) out.name("type").value(after.type.code)
+        if (before.isPublic != after.isPublic) out.name("is_public").value(after.isPublic)
+        if (before.date != after.date) out.name("date").value(Instant.from(after.date).epochSecond)
+        out.endObject()
+    }
+
+    override fun read(reader: JsonReader): Pair<Exam.Cloud, Exam.Cloud>? {
+        throw NotImplementedError("Not yet implemented")
+    }
+}

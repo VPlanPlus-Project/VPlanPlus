@@ -18,10 +18,6 @@ class UpdateExamDateUseCase(
 
         val exam = examRepository.getExamById(examId).first() ?: return
 
-        if (exam.id > 0) {
-            TODO("Online")
-        }
-
-        examRepository.updateExamLocally(exam.copy(date = newDate), currentProfile)
+        examRepository.updateExam(exam.copy(date = newDate), currentProfile)
     }
 }

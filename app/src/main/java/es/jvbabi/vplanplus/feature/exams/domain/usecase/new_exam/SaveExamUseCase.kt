@@ -26,7 +26,7 @@ class SaveExamUseCase(
         val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
         val id = if (saveType.isOnline()) {
-            examRepository.upsertExamCloud(
+            examRepository.insertExamCloud(
                 subject = subject,
                 date = date,
                 type = type,

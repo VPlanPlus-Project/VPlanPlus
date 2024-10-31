@@ -2,19 +2,83 @@ package es.jvbabi.vplanplus.domain.model
 
 import java.time.LocalDate
 import java.time.ZonedDateTime
+import kotlin.contracts.ExperimentalContracts
+import kotlin.contracts.contract
 
-data class Exam(
+sealed class Exam(
     val id: Int,
     val subject: DefaultLesson?,
     val date: LocalDate,
     val title: String,
     val description: String?,
     val type: ExamCategory,
-    val createdBy: VppId?,
     val group: Group,
     val createdAt: ZonedDateTime,
     val remindDaysBefore: Set<Int>
-)
+) {
+    class Local(
+        id: Int,
+        subject: DefaultLesson?,
+        date: LocalDate,
+        title: String,
+        description: String?,
+        type: ExamCategory,
+        group: Group,
+        createdAt: ZonedDateTime,
+        remindDaysBefore: Set<Int>
+    ) : Exam(id, subject, date, title, description, type, group, createdAt, remindDaysBefore)
+
+    class Cloud(
+        id: Int,
+        subject: DefaultLesson?,
+        date: LocalDate,
+        title: String,
+        description: String?,
+        type: ExamCategory,
+        val createdBy: VppId,
+        val isPublic: Boolean,
+        group: Group,
+        createdAt: ZonedDateTime,
+        remindDaysBefore: Set<Int>
+    ): Exam(id, subject, date, title, description, type, group, createdAt, remindDaysBefore)
+
+    fun copy(
+        id: Int = this.id,
+        subject: DefaultLesson? = this.subject,
+        date: LocalDate = this.date,
+        title: String = this.title,
+        description: String? = this.description,
+        type: ExamCategory = this.type,
+        group: Group = this.group,
+        createdAt: ZonedDateTime = this.createdAt,
+        remindDaysBefore: Set<Int> = this.remindDaysBefore
+    ) = when (this) {
+        is Local -> Local(id, subject, date, title, description, type, group, createdAt, remindDaysBefore)
+        is Cloud -> Cloud(id, subject, date, title, description, type, createdBy, isPublic, group, createdAt, remindDaysBefore)
+    }
+
+    @OptIn(ExperimentalContracts::class)
+    fun getAuthor(): VppId? {
+        contract {
+            returns(null) implies (this@Exam is Local)
+            returnsNotNull() implies (this@Exam is Cloud)
+        }
+        return when (this) {
+            is Local -> null
+            is Cloud -> createdBy
+        }
+    }
+
+    fun equalsContent(other: Exam): Boolean {
+        return this.id == other.id &&
+                this.subject == other.subject &&
+                this.date == other.date &&
+                this.type == other.type &&
+                this.title == other.title &&
+                this.description == other.description &&
+                this.createdAt == other.createdAt
+    }
+}
 
 sealed class ExamCategory(
     val code: String,
