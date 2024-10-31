@@ -31,9 +31,6 @@ sealed class Screen(val route: String) {
     }
 
     @Serializable
-    data object NewExamScreen: Screen("new_exam_screen")
-
-    @Serializable
     data class ExamDetailsScreen(
         @SerialName("exam_id") val examId: Int
     ) : Screen("exam_details_screen")
