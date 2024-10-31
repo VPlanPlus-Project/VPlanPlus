@@ -51,7 +51,7 @@ class NewExamViewModel @Inject constructor(
                     )
                 }
             }
-            is NewExamUiEvent.OnInit -> init()
+            is NewExamUiEvent.OnInit -> init(date = event.date)
         }
     }
 
@@ -59,9 +59,11 @@ class NewExamViewModel @Inject constructor(
         init()
     }
 
-    private fun init() {
+    private fun init(
+        date: LocalDate? = null
+    ) {
         flowJob?.cancel()
-        _state.value = NewExamState()
+        _state.value = NewExamState(date = date)
         flowJob = viewModelScope.launch {
             _state.value = _state.value.copy(subjects = newExamUseCases.getDefaultLessonsUseCase())
             combine(
@@ -118,5 +120,7 @@ sealed class NewExamUiEvent {
     data class UpdateStoreType(val to: SaveType) : NewExamUiEvent()
 
     data object OnSaveClicked : NewExamUiEvent()
-    data object OnInit : NewExamUiEvent()
+    data class OnInit(
+        val date: LocalDate? = null
+    ) : NewExamUiEvent()
 }

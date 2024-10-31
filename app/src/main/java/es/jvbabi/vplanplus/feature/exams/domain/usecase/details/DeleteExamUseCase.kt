@@ -12,10 +12,7 @@ class DeleteExamUseCase(
     suspend operator fun invoke(examId: Int): Boolean {
         val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
-        if (examId > 0) {
-            TODO("Online")
-        }
-        examRepository.deleteExamLocallyById(examId)
+        examRepository.deleteExamById(examId, profile)
         return true
     }
 }

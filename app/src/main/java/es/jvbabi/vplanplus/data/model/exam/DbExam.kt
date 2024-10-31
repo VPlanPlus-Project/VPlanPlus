@@ -42,6 +42,7 @@ data class DbExam(
     @ColumnInfo(name = "type") val type: String,
     @ColumnInfo(name = "created_by") val createdBy: Int?,
     @ColumnInfo(name = "group_id") val groupId: Int,
+    @ColumnInfo(name = "is_public", defaultValue = "false") val isPublic: Boolean,
     @ColumnInfo(name = "created_at") val createdAt: ZonedDateTime,
     @ColumnInfo(name = "use_default_notifications", defaultValue = "true") val useDefaultNotifications: Boolean,
 )

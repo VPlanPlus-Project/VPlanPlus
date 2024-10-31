@@ -13,6 +13,7 @@ import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
@@ -39,6 +40,7 @@ object AdvancedSettingsModule {
         homeworkRepository: HomeworkRepository,
         keyValueRepository: KeyValueRepository,
         systemRepository: SystemRepository,
+        examRepository: ExamRepository,
         timetableRepository: TimetableRepository,
         holidayRepository: HolidayRepository,
         updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
@@ -52,7 +54,8 @@ object AdvancedSettingsModule {
                 gradeRepository = gradeRepository,
                 homeworkRepository = homeworkRepository,
                 timetableRepository = timetableRepository,
-                holidayRepository = holidayRepository
+                holidayRepository = holidayRepository,
+                examRepository = examRepository
             ),
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             setVppIdServerUseCase = SetVppIdServerUseCase(keyValueRepository, systemRepository),

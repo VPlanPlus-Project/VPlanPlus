@@ -72,11 +72,13 @@ class ExamDetailsViewModel @Inject constructor(
                         canCancelUpdateTitleJob = false
                         state = state.copy(editModeUpdatingTitleState = UpdatingState.UPDATING)
                         previousTitle = state.exam?.title
-                        examDetailsUseCases.updateTitleUseCase(state.exam!!.id, event.newTitle)
-                        state = state.copy(editModeUpdatingTitleState = UpdatingState.DONE, canUndoTitleUpdate = true)
+                        state = state.copy(
+                            editModeUpdatingTitleState = examDetailsUseCases.updateTitleUseCase(state.exam!!.id, event.newTitle).asChangeResultToUpdatingState(),
+                            canUndoTitleUpdate = true,
+                        )
                         canCancelUpdateTitleJob = true
                         delay(3000)
-                        if (state.editModeUpdatingTitleState == UpdatingState.DONE) state = state.copy(editModeUpdatingTitleState = UpdatingState.IDLE)
+                        if (state.editModeUpdatingTitleState == UpdatingState.SUCCESS) state = state.copy(editModeUpdatingTitleState = UpdatingState.IDLE)
                     }
                 }
             }
@@ -85,15 +87,14 @@ class ExamDetailsViewModel @Inject constructor(
                 state = state.copy(editModeUpdatingTitleState = UpdatingState.UPDATING, editModeTitle = previousTitle)
                 canCancelUpdateTitleJob = false
                 viewModelScope.launch {
-                    examDetailsUseCases.updateTitleUseCase(state.exam!!.id, previousTitle ?: state.exam!!.title)
                     state = state.copy(
                         editModeTitle = previousTitle,
                         canUndoTitleUpdate = false,
-                        editModeUpdatingTitleState = UpdatingState.DONE
+                        editModeUpdatingTitleState = examDetailsUseCases.updateTitleUseCase(state.exam!!.id, previousTitle ?: state.exam!!.title).asChangeResultToUpdatingState(),
                     )
                     canCancelUpdateTitleJob = true
-                    delay(3000)
-                    if (state.editModeUpdatingTitleState == UpdatingState.DONE) state = state.copy(editModeUpdatingTitleState = UpdatingState.IDLE)
+                    delay(3000) // wait if user inputs more
+                    if (state.editModeUpdatingTitleState == UpdatingState.SUCCESS) state = state.copy(editModeUpdatingTitleState = UpdatingState.IDLE)
                 }
             }
 
@@ -104,15 +105,14 @@ class ExamDetailsViewModel @Inject constructor(
                 canCancelUpdateDateJob = false
                 updateDateJob?.cancel()
                 updateDateJob = viewModelScope.launch {
-                    examDetailsUseCases.updateDateUseCase(state.exam!!.id, event.newDate)
                     state = state.copy(
                         editModeDate = event.newDate,
                         canUndoDateUpdate = true,
-                        editModeUpdatingDateState = UpdatingState.DONE
+                        editModeUpdatingDateState = examDetailsUseCases.updateDateUseCase(state.exam!!.id, event.newDate).asChangeResultToUpdatingState()
                     )
                     canCancelUpdateDateJob = true
-                    delay(3000)
-                    if (state.editModeUpdatingDateState == UpdatingState.DONE) state = state.copy(editModeUpdatingDateState = UpdatingState.IDLE)
+                    delay(3000) // wait if user inputs more
+                    if (state.editModeUpdatingDateState == UpdatingState.SUCCESS) state = state.copy(editModeUpdatingDateState = UpdatingState.IDLE)
                 }
             }
             is ExamDetailsEvent.UndoDateUpdate -> {
@@ -124,11 +124,11 @@ class ExamDetailsViewModel @Inject constructor(
                     state = state.copy(
                         editModeDate = previousDate,
                         canUndoDateUpdate = false,
-                        editModeUpdatingDateState = UpdatingState.DONE
+                        editModeUpdatingDateState = examDetailsUseCases.updateDateUseCase(state.exam!!.id, previousDate ?: state.exam!!.date).asChangeResultToUpdatingState()
                     )
                     canCancelUpdateDateJob = true
-                    delay(3000)
-                    if (state.editModeUpdatingDateState == UpdatingState.DONE) state = state.copy(editModeUpdatingDateState = UpdatingState.IDLE)
+                    delay(3000) // wait if user inputs more
+                    if (state.editModeUpdatingDateState == UpdatingState.SUCCESS) state = state.copy(editModeUpdatingDateState = UpdatingState.IDLE)
                 }
             }
 
@@ -139,15 +139,14 @@ class ExamDetailsViewModel @Inject constructor(
                 canCancelUpdateTypeJob = false
                 updateTypeJob?.cancel()
                 updateTypeJob = viewModelScope.launch {
-                    examDetailsUseCases.updateCategoryUseCase(state.exam!!.id, event.newType)
                     state = state.copy(
                         editModeType = event.newType,
                         canUndoTypeUpdate = true,
-                        editModeUpdatingTypeState = UpdatingState.DONE
+                        editModeUpdatingTypeState = examDetailsUseCases.updateCategoryUseCase(state.exam!!.id, event.newType).asChangeResultToUpdatingState(),
                     )
                     canCancelUpdateTypeJob = true
-                    delay(3000)
-                    if (state.editModeUpdatingTypeState == UpdatingState.DONE) state = state.copy(editModeUpdatingTypeState = UpdatingState.IDLE)
+                    delay(3000) // wait if user inputs more
+                    if (state.editModeUpdatingTypeState == UpdatingState.SUCCESS) state = state.copy(editModeUpdatingTypeState = UpdatingState.IDLE)
                 }
             }
             is ExamDetailsEvent.UndoTypeUpdate -> {
@@ -155,15 +154,14 @@ class ExamDetailsViewModel @Inject constructor(
                 state = state.copy(editModeUpdatingTypeState = UpdatingState.UPDATING, editModeType = previousType)
                 canCancelUpdateTypeJob = false
                 updateTypeJob = viewModelScope.launch {
-                    examDetailsUseCases.updateCategoryUseCase(state.exam!!.id, previousType ?: state.exam!!.type)
                     state = state.copy(
                         editModeType = previousType,
                         canUndoTypeUpdate = false,
-                        editModeUpdatingTypeState = UpdatingState.DONE
+                        editModeUpdatingTypeState = examDetailsUseCases.updateCategoryUseCase(state.exam!!.id, previousType ?: state.exam!!.type).asChangeResultToUpdatingState(),
                     )
                     canCancelUpdateTypeJob = true
                     delay(3000)
-                    if (state.editModeUpdatingTypeState == UpdatingState.DONE) state = state.copy(editModeUpdatingTypeState = UpdatingState.IDLE)
+                    if (state.editModeUpdatingTypeState == UpdatingState.SUCCESS) state = state.copy(editModeUpdatingTypeState = UpdatingState.IDLE)
                 }
             }
 
@@ -176,12 +174,13 @@ class ExamDetailsViewModel @Inject constructor(
                         canCancelUpdateDescriptionJob = false
                         state = state.copy(editModeUpdatingDescriptionState = UpdatingState.UPDATING)
                         previousDescription = state.exam?.description
-                        examDetailsUseCases.updateExamDetailsUseCase(state.exam!!.id, event.newDescription)
-                        delay(300)
-                        state = state.copy(editModeUpdatingDescriptionState = UpdatingState.DONE, canUndoDescriptionUpdate = true)
+                        state = state.copy(
+                            editModeUpdatingDescriptionState = examDetailsUseCases.updateExamDetailsUseCase(state.exam!!.id, event.newDescription).asChangeResultToUpdatingState(),
+                            canUndoDescriptionUpdate = true
+                        )
                         canCancelUpdateDescriptionJob = true
                         delay(3000)
-                        if (state.editModeUpdatingDescriptionState == UpdatingState.DONE) state = state.copy(editModeUpdatingDescriptionState = UpdatingState.IDLE)
+                        if (state.editModeUpdatingDescriptionState == UpdatingState.SUCCESS) state = state.copy(editModeUpdatingDescriptionState = UpdatingState.IDLE)
                     }
                 }
             }
@@ -190,15 +189,14 @@ class ExamDetailsViewModel @Inject constructor(
                 state = state.copy(editModeUpdatingDescriptionState = UpdatingState.UPDATING, editModeDescription = previousDescription)
                 canCancelUpdateDescriptionJob = false
                 updateDescriptionJob = viewModelScope.launch {
-                    examDetailsUseCases.updateExamDetailsUseCase(state.exam!!.id, previousDescription ?: state.exam!!.description)
                     state = state.copy(
                         editModeDescription = previousDescription,
                         canUndoDescriptionUpdate = false,
-                        editModeUpdatingDescriptionState = UpdatingState.DONE
+                        editModeUpdatingDescriptionState = examDetailsUseCases.updateExamDetailsUseCase(state.exam!!.id, previousDescription ?: state.exam!!.description).asChangeResultToUpdatingState()
                     )
                     canCancelUpdateDescriptionJob = true
                     delay(3000)
-                    if (state.editModeUpdatingDescriptionState == UpdatingState.DONE) state = state.copy(editModeUpdatingDescriptionState = UpdatingState.IDLE)
+                    if (state.editModeUpdatingDescriptionState == UpdatingState.SUCCESS) state = state.copy(editModeUpdatingDescriptionState = UpdatingState.IDLE)
                 }
             }
 
@@ -240,7 +238,10 @@ data class ExamDetailsState(
     val editModeUpdatingDescriptionState: UpdatingState = UpdatingState.IDLE,
 ) {
     val isUserAllowedToEdit: Boolean
-        get() = exam != null && (exam.id < 0 || exam.createdBy?.id == currentProfile?.vppId?.id)
+        get() = exam != null && ((exam is Exam.Cloud && exam.createdBy.id == currentProfile?.vppId?.id) || exam is Exam.Local)
+
+    val wasChangeSuccessful: Boolean
+        get() = listOf(editModeUpdatingTitleState, editModeUpdatingDescriptionState, editModeUpdatingDateState, editModeUpdatingTypeState).none { it == UpdatingState.FAILURE }
 }
 
 sealed class ExamDetailsEvent {
@@ -264,5 +265,8 @@ sealed class ExamDetailsEvent {
 enum class UpdatingState {
     IDLE,
     UPDATING,
-    DONE
+    SUCCESS,
+    FAILURE
 }
+
+private fun Boolean.asChangeResultToUpdatingState() = if (this) UpdatingState.SUCCESS else UpdatingState.FAILURE

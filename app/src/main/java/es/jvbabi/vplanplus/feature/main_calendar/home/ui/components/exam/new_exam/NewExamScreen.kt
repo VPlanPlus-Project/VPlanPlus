@@ -26,44 +26,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.ui.common.SmallDragHandler
 import kotlinx.coroutines.launch
-
-
-@Composable
-fun NewExamScreen(
-    navHostController: NavHostController,
-    viewModel: NewExamViewModel = hiltViewModel()
-) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
-    NewExamContent(
-        state = state,
-        onBack = navHostController::navigateUp,
-        doAction = viewModel::doAction
-    )
-
-    LaunchedEffect(state.saveSuccess) {
-        if (state.saveSuccess == true) {
-            navHostController.navigateUp()
-        }
-    }
-}
+import java.time.LocalDate
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewExamBottomSheet(
     viewModel: NewExamViewModel = hiltViewModel(),
+    date: LocalDate? = null,
     onDismissRequest: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) { viewModel.doAction(NewExamUiEvent.OnInit) }
+    LaunchedEffect(Unit) {
+        viewModel.doAction(NewExamUiEvent.OnInit(date = date))
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,

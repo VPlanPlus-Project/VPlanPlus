@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Exam
 import es.jvbabi.vplanplus.domain.model.ExamCategory
+import es.jvbabi.vplanplus.domain.model.VppId
 
 data class CExam(
     @Embedded val exam: DbExam,
@@ -40,16 +41,28 @@ data class CExam(
      */
     fun toModel(contextProfile: ClassProfile?): Exam {
         val type = ExamCategory.of(exam.type)
-        return Exam(
+        if (exam.id < 0) return Exam.Local(
             id = exam.id,
             subject = defaultLessons.firstOrNull { it.`class`.group.id == group.group.id }?.toModel(),
             date = exam.date,
             title = exam.title,
             description = exam.description,
             type = type,
-            createdBy = createdBy?.toModel(),
             group = group.toModel(),
             createdAt = exam.createdAt,
+            remindDaysBefore = type.remindDaysBefore
+        )
+        return Exam.Cloud(
+            id = exam.id,
+            subject = defaultLessons.firstOrNull { it.`class`.group.id == group.group.id }?.toModel(),
+            date = exam.date,
+            title = exam.title,
+            description = exam.description,
+            type = type,
+            createdBy = createdBy?.toModel() ?: VppId.Unknown(),
+            group = group.toModel(),
+            createdAt = exam.createdAt,
+            isPublic = exam.isPublic,
             remindDaysBefore = if (exam.useDefaultNotifications) type.remindDaysBefore else reminders
                 .filter { it.profileId == (contextProfile?.id ?: it.profileId) }
                 .map { it.daysBefore }

@@ -67,6 +67,7 @@ import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetDefaultLessonByIdentifierUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
@@ -100,6 +101,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.UpdateMissingLinksStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.UpdateAssessmentsUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
@@ -519,7 +521,8 @@ object VppModule {
         weekRepository: WeekRepository,
         updateCalendarUseCase: UpdateCalendarUseCase,
         updateHomeworkUseCase: UpdateHomeworkUseCase,
-        updateGradesUseCase: UpdateGradesUseCase
+        updateGradesUseCase: UpdateGradesUseCase,
+        updateAssessmentsUseCase: UpdateAssessmentsUseCase,
     ) = DoSyncUseCase(
         context = context,
         keyValueRepository = keyValueRepository,
@@ -541,6 +544,7 @@ object VppModule {
         updateCalendarUseCase = updateCalendarUseCase,
         updateHomeworkUseCase = updateHomeworkUseCase,
         updateGradesUseCase = updateGradesUseCase,
+        updateAssessmentsUseCase = updateAssessmentsUseCase,
         weekRepository = weekRepository,
         timetableRepository = timetableRepository,
         holidayRepository = holidayRepository,
@@ -660,6 +664,18 @@ object VppModule {
                 biometricRepository = biometricRepository,
                 stringRepository = stringRepository
             )
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetDefaultLessonByIdentifierUseCase(
+        schoolRepository: SchoolRepository,
+        defaultLessonRepository: DefaultLessonRepository
+    ): GetDefaultLessonByIdentifierUseCase {
+        return GetDefaultLessonByIdentifierUseCase(
+            schoolRepository = schoolRepository,
+            defaultLessonRepository = defaultLessonRepository
         )
     }
 

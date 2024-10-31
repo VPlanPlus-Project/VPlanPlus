@@ -16,6 +16,6 @@ class UpdateExamReminderDaysUseCase(
         val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return
         val exam = examRepository.getExamById(examId).first() ?: return
 
-        examRepository.updateExamLocally(exam.copy(remindDaysBefore = newDays), currentProfile)
+        examRepository.updateExam(exam.copy(remindDaysBefore = newDays), currentProfile)
     }
 }
