@@ -164,7 +164,7 @@ private fun LessonSubtitle(
 private fun LessonItemPreview() {
     val school = SchoolPreview.generateRandomSchool()
     val group = GroupPreview.generateGroup(school)
-    val lessonTimes = LessonTime.fallbackTime(group.groupId, 1)
+    val lessonTimes = LessonTime.fallbackTime(group.groupId, 1, emptyList())
 
     val subject1 = "Math"
     val teacher1 = TeacherPreview.teacher(school)
