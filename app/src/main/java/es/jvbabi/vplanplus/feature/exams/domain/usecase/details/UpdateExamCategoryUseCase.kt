@@ -13,15 +13,11 @@ class UpdateExamCategoryUseCase(
     suspend operator fun invoke(
         examId: Int,
         newCategory: ExamCategory
-    ) {
-        val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return
+    ): Boolean {
+        val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
-        val exam = examRepository.getExamById(examId).first() ?: return
+        val exam = examRepository.getExamById(examId).first() ?: return false
 
-        if (exam.id > 0) {
-            TODO("Online")
-        }
-
-        examRepository.updateExamLocally(exam.copy(type = newCategory), currentProfile)
+        return examRepository.updateExam(exam.copy(type = newCategory), currentProfile).isSuccess
     }
 }

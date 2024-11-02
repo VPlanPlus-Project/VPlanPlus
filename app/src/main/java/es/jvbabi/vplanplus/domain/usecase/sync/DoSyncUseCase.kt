@@ -39,6 +39,7 @@ import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.UpdateAssessmentsUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
@@ -87,7 +88,8 @@ class DoSyncUseCase(
     private val weekRepository: WeekRepository,
     private val updateCalendarUseCase: UpdateCalendarUseCase,
     private val updateHomeworkUseCase: UpdateHomeworkUseCase,
-    private val updateGradesUseCase: UpdateGradesUseCase
+    private val updateGradesUseCase: UpdateGradesUseCase,
+    private val updateAssessmentsUseCase: UpdateAssessmentsUseCase,
 ) {
     suspend operator fun invoke(): Boolean {
 
@@ -100,6 +102,7 @@ class DoSyncUseCase(
 
         logRecordRepository.log("Sync.Homework", "Syncing homework")
         updateHomeworkUseCase(currentVersion != -1L)
+        updateAssessmentsUseCase()
 
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 

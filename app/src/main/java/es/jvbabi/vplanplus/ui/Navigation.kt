@@ -18,7 +18,6 @@ import com.google.gson.Gson
 import es.jvbabi.vplanplus.feature.exams.ui.details.ExamDetailsScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.CalendarScreen
-import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam.NewExamScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.GradesScreen
@@ -99,15 +98,6 @@ fun NavigationGraph(
 }
 
 private fun NavGraphBuilder.examScreens(navController: NavHostController) {
-    composable<Screen.NewExamScreen>(
-        enterTransition = slideInFromBottom,
-        exitTransition = slideOutFromBottom,
-        popEnterTransition = slideInFromBottom,
-        popExitTransition = slideOutFromBottom
-    ) {
-        NewExamScreen(navHostController = navController)
-    }
-
     composable<Screen.ExamDetailsScreen> { backStackEntry ->
         val args = backStackEntry.toRoute<Screen.ExamDetailsScreen>()
         ExamDetailsScreen(

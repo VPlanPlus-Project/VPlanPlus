@@ -157,13 +157,11 @@ private fun CalendarScreenContent(
 ) {
 
     var showNewAssessmentBottomSheet by rememberSaveable { mutableStateOf(false) }
-    if (showNewAssessmentBottomSheet) NewExamBottomSheet { showNewAssessmentBottomSheet = false }
+    if (showNewAssessmentBottomSheet) NewExamBottomSheet(
+        date = state.selectedDate
+    ) { showNewAssessmentBottomSheet = false }
 
-    var addHomeworkSheetInitialValues by rememberSaveable<MutableState<AddHomeworkSheetInitialValues?>> {
-        mutableStateOf(
-            null
-        )
-    }
+    var addHomeworkSheetInitialValues by rememberSaveable<MutableState<AddHomeworkSheetInitialValues?>> { mutableStateOf(null) }
     if (addHomeworkSheetInitialValues != null) {
         AddHomeworkSheet(
             onClose = { addHomeworkSheetInitialValues = null },

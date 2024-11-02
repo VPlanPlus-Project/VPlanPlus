@@ -14,11 +14,11 @@ import es.jvbabi.vplanplus.ui.common.SelectDialog
  * The first server in the list is the default server.
  */
 val servers = listOf(
-    VppIdServer("https://vplan.plus", authHost = "https://auth.vplan.plus"),
-    VppIdServer("https://development.vplan.plus", authHost = "https://development.auth.vplan.plus"),
-    VppIdServer("https://vpp.magnix.cluster.jvbabi.es"),
-    VppIdServer("https://vpp-api.localhost.cluster.jvbabi.es", "https://vpp-ui.localhost.cluster.jvbabi.es"),
-    VppIdServer("https://julius.familie-babies.de")
+    VppIdServer(apiHost = "https://vplan.plus", authHost = "https://auth.vplan.plus"),
+    VppIdServer(apiHost = "https://development.vplan.plus", authHost = "https://development.auth.vplan.plus"),
+    VppIdServer(apiHost = "https://vpp.magnix.cluster.jvbabi.es", authHost = "https://vppauth.magnix.cluster.jvbabi.es"),
+    VppIdServer(apiHost = "https://vpp-api.localhost.cluster.jvbabi.es", "https://vpp-ui.localhost.cluster.jvbabi.es"),
+    VppIdServer(apiHost = "https://julius.familie-babies.de")
 )
 
 @Composable
