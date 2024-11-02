@@ -382,7 +382,7 @@ private fun TimeInfoPreview() {
             bookings = emptyList()
         ),
         selectedTime = ZonedDateTime.now().withHour(19).withMinute(31),
-        selectedLessonTime = es.jvbabi.vplanplus.util.LessonTime.fallbackTime(0, 1),
+        selectedLessonTime = es.jvbabi.vplanplus.util.LessonTime.fallbackTime(0, 1, emptyList()),
         onClosed = {},
         isBookingRelatedOperationInProgress = true,
         onRequestBookingForSelectedContext = {},
