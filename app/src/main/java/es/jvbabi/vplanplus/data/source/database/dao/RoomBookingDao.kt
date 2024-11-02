@@ -11,35 +11,32 @@ import es.jvbabi.vplanplus.data.model.combined.CRoomBooking
 abstract class RoomBookingDao {
 
     @Upsert
-    abstract fun upsert(roomBooking: DbRoomBooking)
-
-    @Query("DELETE FROM room_booking WHERE `from` < :now")
-    abstract fun deleteOld(now: Long)
+    abstract suspend fun upsert(roomBooking: DbRoomBooking)
 
     @Transaction
     @Query("SELECT * FROM room_booking")
-    abstract fun getAll(): List<CRoomBooking>
+    abstract suspend fun getAll(): List<CRoomBooking>
 
     @Query("DELETE FROM room_booking")
-    abstract fun deleteAll()
+    abstract suspend fun deleteAll()
 
     @Transaction
     @Query("SELECT * FROM room_booking INNER JOIN vpp_id ON room_booking.booked_by = vpp_id.id WHERE vpp_id.group_id = :classId")
-    abstract fun getRoomBookingsByGroup(classId: Int): List<CRoomBooking>
+    abstract suspend fun getRoomBookingsByGroup(classId: Int): List<CRoomBooking>
 
     @Transaction
     @Query("SELECT * FROM room_booking WHERE room_id = :roomId")
-    abstract fun getRoomBookingsByRoom(roomId: Int): List<CRoomBooking>
+    abstract suspend fun getRoomBookingsByRoom(roomId: Int): List<CRoomBooking>
 
     @Transaction
-    open fun upsertAll(roomBookings: List<DbRoomBooking>) {
+    open suspend fun upsertAll(roomBookings: List<DbRoomBooking>) {
         roomBookings.forEach { upsert(it) }
     }
 
     @Query("DELETE FROM room_booking WHERE id = :id")
-    abstract fun deleteById(id: Long)
+    abstract suspend fun deleteById(id: Long)
 
     @Transaction
     @Query("SELECT * FROM room_booking")
-    abstract fun getAllRoomBookings(): List<CRoomBooking>
+    abstract suspend fun getAllRoomBookings(): List<CRoomBooking>
 }

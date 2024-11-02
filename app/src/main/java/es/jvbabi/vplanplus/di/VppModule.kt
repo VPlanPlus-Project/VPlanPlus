@@ -26,7 +26,9 @@ import es.jvbabi.vplanplus.data.repository.RoomRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.SystemRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TeacherRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.TimeRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.TimetableRepositoryImpl
 import es.jvbabi.vplanplus.data.repository.VppIdRepositoryImpl
+import es.jvbabi.vplanplus.data.repository.WeekRepositoryImpl
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -57,13 +59,17 @@ import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.repository.TimeRepository
+import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetDefaultLessonByIdentifierUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.QueryUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.search.SearchUseCases
@@ -95,6 +101,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.UpdateMissingLinksStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.UpdateAssessmentsUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
@@ -142,6 +149,9 @@ object VppModule {
             .addMigrations(VppDatabase.migration_28_29)
             .addMigrations(VppDatabase.migration_29_30)
             .addMigrations(VppDatabase.migration_37_38)
+            .addMigrations(VppDatabase.migration_38_39)
+            .addMigrations(VppDatabase.migration_40_41)
+            .addMigrations(VppDatabase.migration_42_43)
             .addTypeConverter(LocalDateConverter())
             .addTypeConverter(UuidConverter())
             .addTypeConverter(ProfileCalendarTypeConverter())
@@ -149,7 +159,6 @@ object VppModule {
             .addTypeConverter(GradeModifierConverter())
             .addTypeConverter(ZonedDateTimeConverter())
             .addTypeConverter(SchoolDownloadTypeConverter())
-            .allowMainThreadQueries()
             .fallbackToDestructiveMigration()
             .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
             .enableMultiInstanceInvalidation()
@@ -273,9 +282,10 @@ object VppModule {
     @Provides
     @Singleton
     fun provideVPlanRepository(
-        sp24NetworkRepository: Sp24NetworkRepository
+        sp24NetworkRepository: Sp24NetworkRepository,
+        db: VppDatabase
     ): VPlanRepository {
-        return VPlanRepositoryImpl(sp24NetworkRepository)
+        return VPlanRepositoryImpl(sp24NetworkRepository, db.sPlanInWeekDao)
     }
 
     @Provides
@@ -505,9 +515,14 @@ object VppModule {
         db: VppDatabase,
         systemRepository: SystemRepository,
         notificationRepository: NotificationRepository,
+        timetableRepository: TimetableRepository,
+        holidayRepository: HolidayRepository,
+        baseDataRepository: BaseDataRepository,
+        weekRepository: WeekRepository,
         updateCalendarUseCase: UpdateCalendarUseCase,
         updateHomeworkUseCase: UpdateHomeworkUseCase,
-        updateGradesUseCase: UpdateGradesUseCase
+        updateGradesUseCase: UpdateGradesUseCase,
+        updateAssessmentsUseCase: UpdateAssessmentsUseCase,
     ) = DoSyncUseCase(
         context = context,
         keyValueRepository = keyValueRepository,
@@ -528,7 +543,12 @@ object VppModule {
         notificationRepository = notificationRepository,
         updateCalendarUseCase = updateCalendarUseCase,
         updateHomeworkUseCase = updateHomeworkUseCase,
-        updateGradesUseCase = updateGradesUseCase
+        updateGradesUseCase = updateGradesUseCase,
+        updateAssessmentsUseCase = updateAssessmentsUseCase,
+        weekRepository = weekRepository,
+        timetableRepository = timetableRepository,
+        holidayRepository = holidayRepository,
+        baseDataRepository = baseDataRepository
     )
 
     @Provides
@@ -618,6 +638,14 @@ object VppModule {
 
     @Provides
     @Singleton
+    fun provideIsDeveloperModeEnabledUseCase(
+        keyValueRepository: KeyValueRepository
+    ): IsDeveloperModeEnabledUseCase {
+        return IsDeveloperModeEnabledUseCase(keyValueRepository)
+    }
+
+    @Provides
+    @Singleton
     fun provideGeneralSettingsUseCases(
         keyValueRepository: KeyValueRepository,
         biometricRepository: BiometricRepository,
@@ -636,6 +664,18 @@ object VppModule {
                 biometricRepository = biometricRepository,
                 stringRepository = stringRepository
             )
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetDefaultLessonByIdentifierUseCase(
+        schoolRepository: SchoolRepository,
+        defaultLessonRepository: DefaultLessonRepository
+    ): GetDefaultLessonByIdentifierUseCase {
+        return GetDefaultLessonByIdentifierUseCase(
+            schoolRepository = schoolRepository,
+            defaultLessonRepository = defaultLessonRepository
         )
     }
 
@@ -675,4 +715,21 @@ object VppModule {
     fun provideAlarmManagerRepository(@ApplicationContext context: Context): AlarmManagerRepository {
         return AlarmManagerRepositoryImpl(context)
     }
+
+    @Provides
+    @Singleton
+    fun provideTimetableRepository(
+        db: VppDatabase
+    ): TimetableRepository = TimetableRepositoryImpl(
+        timetableDao = db.timetableDao,
+        weekDao = db.weekDao,
+        lessonTimeDao = db.lessonTimeDao,
+        groupDao = db.groupDao
+    )
+
+    @Provides
+    @Singleton
+    fun provideWeekRepository(
+        db: VppDatabase
+    ): WeekRepository = WeekRepositoryImpl(db.weekDao)
 }

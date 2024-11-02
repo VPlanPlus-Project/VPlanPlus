@@ -18,7 +18,8 @@ interface SchoolRepository {
         name: String,
         daysPerWeek: Int,
         fullyCompatible: Boolean,
-        schoolDownloadMode: SchoolDownloadMode
+        schoolDownloadMode: SchoolDownloadMode,
+        canUseTimetable: Boolean
     )
     suspend fun updateSchoolName(schoolId: Int, name: String)
     suspend fun getSchoolNameOnline(schoolId: Int, username: String, password: String): String

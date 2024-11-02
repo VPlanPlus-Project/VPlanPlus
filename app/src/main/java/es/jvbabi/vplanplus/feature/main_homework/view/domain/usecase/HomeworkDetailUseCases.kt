@@ -14,5 +14,6 @@ data class HomeworkDetailUseCases(
     val addTaskUseCase: AddTaskUseCase,
     val updateHomeworkVisibilityUseCase: UpdateHomeworkVisibilityUseCase,
     val updateDocumentsUseCase: UpdateDocumentsUseCase,
-    val deleteHomeworkUseCase: DeleteHomeworkUseCase
+    val deleteHomeworkUseCase: DeleteHomeworkUseCase,
+    val downloadDocumentUseCase: DownloadDocumentUseCase
 )

@@ -33,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.ui.common.Option
+import es.jvbabi.vplanplus.ui.common.OptionTextTitle
 import es.jvbabi.vplanplus.ui.common.getSubjectIcon
 import kotlinx.coroutines.launch
 
@@ -92,7 +93,7 @@ fun SelectDefaultLessonSheet(
                         .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
                 ) {
                     Option(
-                        title = stringResource(id = R.string.addHomework_removeSubjectTitle),
+                        title = OptionTextTitle(stringResource(id = R.string.addHomework_removeSubjectTitle)),
                         icon = Icons.Default.Close,
                         state = false,
                         enabled = true,
@@ -113,10 +114,10 @@ fun SelectDefaultLessonSheet(
             ) {
                 defaultLessons.sortedBy { it.subject }.forEach defaultLessonOptions@{ defaultLesson ->
                     Option(
-                        title = buildString {
+                        title = OptionTextTitle(buildString {
                             append(defaultLesson.subject)
                             if (defaultLesson.courseGroup != null) append (" (${defaultLesson.courseGroup})")
-                        },
+                        }),
                         subtitle = defaultLesson.teacher?.acronym ?: stringResource(id = R.string.addHomework_lessonSubtitleNoTeacher),
                         icon = defaultLesson.getSubjectIcon(), state = defaultLesson == selectedDefaultLesson, enabled = true,
                         modifier = Modifier.border(width = .25.dp, color = MaterialTheme.colorScheme.outline),

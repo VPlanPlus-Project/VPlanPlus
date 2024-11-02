@@ -10,11 +10,10 @@ interface KeyValueRepository {
     suspend fun delete(key: String)
     fun getFlow(key: String): Flow<String?>
     fun getFlowOrDefault(key: String, defaultValue: String): Flow<String>
-
-    fun getOnMainThread(key: String): String?
 }
 
 object Keys {
+    const val APP_DEVELOPER_MODE = "APP_DEVELOPER_MODE"
     const val ACTIVE_PROFILE = "ACTIVE_PROFILE"
 
     const val SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE =
@@ -57,8 +56,6 @@ object Keys {
     const val SETTINGS_PREFERRED_NOTIFICATION_TIME = "SETTINGS_PREFERRED_NOTIFICATION_TIME"
     const val SETTINGS_PREFERRED_NOTIFICATION_TIME_DEFAULT = (60*60*15) + (60*30L) // 15:30
 
-    const val SHOW_HOMEWORK_NOTIFICATION_BANNER = "SHOW_HOMEWORK_NOTIFICATION_BANNER"
-
     const val LAST_VERSION_HINTS_VERSION = "LAST_VERSION_HINTS_VERSION"
 
     const val APP_THEME_MODE = "APP_THEME_MODE"
@@ -71,4 +68,6 @@ object Keys {
     const val MISSING_VPP_ID_TO_PROFILE_CONNECTION = "MISSING_VPP_ID_TO_PROFILE_CONNECTION"
 
     const val LAST_KNOWN_APP_VERSION = "LAST_KNOWN_APP_VERSION"
+
+    const val SHOW_TIMETABLE_INFO_BANNER = "SHOW_TIMETABLE_INFO_BANNER"
 }
