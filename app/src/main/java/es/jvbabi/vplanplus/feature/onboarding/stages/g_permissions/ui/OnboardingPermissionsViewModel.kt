@@ -23,10 +23,10 @@ class OnboardingPermissionsViewModel : ViewModel() {
     fun doAction(action: UiAction) {
         when (action) {
             is Next -> {
-                val next = state.permissions.toList().subList((state.currentIndex?:0), state.permissions.size).indexOfFirst { !it.second }
+                val next = state.permissions.toList().drop((state.currentIndex ?: 0)+1).indexOfFirst { !it.second }
                 updatePermissions(action.context)
                 state = if (next == -1) state.copy(currentIndex = null, allDone = true)
-                else state.copy(currentIndex = next)
+                else state.copy(currentIndex = next + (state.currentIndex ?: 0))
             }
         }
     }
