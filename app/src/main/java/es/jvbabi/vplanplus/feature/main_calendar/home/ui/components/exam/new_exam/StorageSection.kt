@@ -89,7 +89,7 @@ fun AddExamStorageSection(
                         subtitle = vppIdName,
                         icon = Icons.Default.CloudQueue,
                         state = currentState == SaveType.CLOUD,
-                        enabled = false,
+                        enabled = true,
                         modifier = Modifier.border(width = .25.dp, color = MaterialTheme.colorScheme.outline),
                         onClick = {
                             onTypeSelected(SaveType.CLOUD)
@@ -102,7 +102,7 @@ fun AddExamStorageSection(
                         subtitle = stringResource(id = R.string.examsNew_saveVppIdSharedText, vppIdName, groupName),
                         icon = Icons.Default.CloudQueue,
                         state = currentState == SaveType.SHARED,
-                        enabled = false,
+                        enabled = true,
                         modifier = Modifier.border(width = .25.dp, color = MaterialTheme.colorScheme.outline),
                         onClick = {
                             onTypeSelected(SaveType.SHARED)

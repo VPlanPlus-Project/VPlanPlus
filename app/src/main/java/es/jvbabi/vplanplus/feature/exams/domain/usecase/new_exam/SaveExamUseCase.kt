@@ -25,12 +25,18 @@ class SaveExamUseCase(
     ): Boolean {
         val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
-        val id: Int?
-        if (saveType.isOnline()) {
-            id = TODO()
-        } else {
-            id = null
-        }
+        val id = if (saveType.isOnline()) {
+            examRepository.insertExamCloud(
+                subject = subject,
+                date = date,
+                type = type,
+                topic = topic,
+                details = details,
+                profile = profile,
+                isPublic = saveType == SaveType.SHARED,
+            ).getOrNull() ?: return false
+        } else null
+
         return examRepository.upsertExamLocally(
             id = id,
             subject = subject,
@@ -39,7 +45,9 @@ class SaveExamUseCase(
             topic = topic,
             details = details,
             profile = profile,
-            remindDaysBefore = remindDaysBefore
+            remindDaysBefore = remindDaysBefore,
+            createdBy = if (saveType.isOnline()) profile.vppId else null,
+            isPublic = saveType == SaveType.SHARED
         ).first().let { true }
     }
 }

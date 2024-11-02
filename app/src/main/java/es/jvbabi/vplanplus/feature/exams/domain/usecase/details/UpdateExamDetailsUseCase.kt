@@ -12,15 +12,11 @@ class UpdateExamDetailsUseCase(
     suspend operator fun invoke(
         examId: Int,
         newDetails: String?
-    ) {
-        val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return
+    ): Boolean {
+        val currentProfile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
-        val exam = examRepository.getExamById(examId).first() ?: return
+        val exam = examRepository.getExamById(examId).first() ?: return false
 
-        if (exam.id > 0) {
-            TODO("Online")
-        }
-
-        examRepository.updateExamLocally(exam.copy(description = newDetails), currentProfile)
+        return examRepository.updateExam(exam.copy(description = newDetails), currentProfile).isSuccess
     }
 }

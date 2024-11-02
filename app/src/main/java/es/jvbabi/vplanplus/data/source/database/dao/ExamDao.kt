@@ -34,4 +34,7 @@ abstract class ExamDao {
 
     @Query("DELETE FROM exams WHERE id = :examId")
     abstract suspend fun deleteExamById(examId: Int)
+
+    @Query("DELETE FROM exams WHERE id >= 0")
+    abstract suspend fun clearCache()
 }

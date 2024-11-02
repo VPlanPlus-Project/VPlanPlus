@@ -28,7 +28,7 @@ class GetNextSchoolDayUseCase(
                         .filter { it.isAfter(LocalDate.now()) }
                     val holidays = holidayRepository.getHolidaysBySchoolId(profile.getSchool().id)
                     val date = dates.firstOrNull { date ->
-                        date.dayOfWeek.value < profile.getSchool().daysPerWeek &&
+                        date.dayOfWeek.value <= profile.getSchool().daysPerWeek &&
                                 holidays.none { holiday -> holiday.date.isEqual(date) }
                     } ?: run firstDayAfterHolidays@{
                         val currentHoliday = holidays.firstOrNull { it.date.isEqual(LocalDate.now()) } ?: return@firstDayAfterHolidays null
