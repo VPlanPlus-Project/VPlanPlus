@@ -863,4 +863,6 @@
     <string name="examsNew_saveVppId">Your vpp.ID</string>
     <string name="examsNew_saveShared">Your vpp.ID, shared</string>
     <string name="examsNew_saveVppIdSharedText">%1$s, shared with %2$s</string>
+    <string name="examsNew_dateTitle">Select the date</string>
+    <string name="examsNew_dateSubtitle">You need to select a date in the future.</string>
 </resources>

@@ -36,19 +36,21 @@ class NewExamViewModel @Inject constructor(
 
             is NewExamUiEvent.OnSaveClicked -> {
                 viewModelScope.launch {
-                    _state.value = _state.value.copy(saveSuccess = null)
+                    _state.value = _state.value.copy(saveSuccess = null, isLoading = true)
                     val result = newExamUseCases.saveExamUseCase(
                         subject = state.value.subject ?: return@launch,
                         date = state.value.date ?: return@launch,
                         type = state.value.category ?: return@launch,
                         topic = state.value.topic,
                         details = state.value.details,
-                        saveType = state.value.storeType ?: return@launch,
+                        saveType = state.value.storeType ?: SaveType.LOCAL,
                         remindDaysBefore = state.value.remindDaysBefore
                     )
                     _state.value = _state.value.copy(
                         saveSuccess = result
                     )
+                }.invokeOnCompletion {
+                    _state.value = _state.value.copy(isLoading = false)
                 }
             }
             is NewExamUiEvent.OnInit -> init(date = event.date)
@@ -107,8 +109,12 @@ data class NewExamState(
 
     val remindDaysBefore: Set<Int>? = null,
 
-    val saveSuccess: Boolean? = null
-)
+    val saveSuccess: Boolean? = null,
+    val isLoading: Boolean = false
+) {
+    val canSave: Boolean
+        get() = topic.isNotBlank() && date?.isAfter(LocalDate.now()) == true && subject != null && category != null && (storeType != null || currentProfile?.vppId == null)
+}
 
 sealed class NewExamUiEvent {
     data class UpdateTitle(val to: String) : NewExamUiEvent()

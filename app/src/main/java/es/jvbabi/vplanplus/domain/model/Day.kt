@@ -1,8 +1,6 @@
 package es.jvbabi.vplanplus.domain.model
 
-import es.jvbabi.vplanplus.util.DateUtils.progress
 import java.time.LocalDate
-import java.time.ZonedDateTime
 
 enum class DayDataState {
     DATA,
@@ -26,8 +24,4 @@ data class Day(
         lessons.filter {
             it is Lesson.TimetableLesson || (it is Lesson.SubstitutionPlanLesson && (it.defaultLesson == null || (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson.vpId) ?: true))
         }
-
-    fun anyLessonsLeft(time: ZonedDateTime, profile: Profile): Boolean {
-        return getEnabledLessons(profile).any { time.progress(it.start, it.end) < 1.0 }
-    }
 }
