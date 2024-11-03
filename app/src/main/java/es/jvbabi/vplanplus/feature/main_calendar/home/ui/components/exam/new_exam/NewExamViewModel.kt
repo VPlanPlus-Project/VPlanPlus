@@ -43,7 +43,7 @@ class NewExamViewModel @Inject constructor(
                         type = state.value.category ?: return@launch,
                         topic = state.value.topic,
                         details = state.value.details,
-                        saveType = state.value.storeType ?: return@launch,
+                        saveType = state.value.storeType ?: SaveType.LOCAL,
                         remindDaysBefore = state.value.remindDaysBefore
                     )
                     _state.value = _state.value.copy(
@@ -108,7 +108,10 @@ data class NewExamState(
     val remindDaysBefore: Set<Int>? = null,
 
     val saveSuccess: Boolean? = null
-)
+) {
+    val canSave: Boolean
+        get() = topic.isNotBlank() && date?.isAfter(LocalDate.now()) == true && subject != null && category != null && (storeType != null || currentProfile?.vppId == null)
+}
 
 sealed class NewExamUiEvent {
     data class UpdateTitle(val to: String) : NewExamUiEvent()

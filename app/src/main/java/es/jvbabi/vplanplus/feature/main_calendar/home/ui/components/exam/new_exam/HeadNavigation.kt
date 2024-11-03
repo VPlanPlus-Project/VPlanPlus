@@ -1,5 +1,9 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.new_exam
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -17,6 +21,7 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 
 @Composable
 fun HeadNavigation(
+    canSave: Boolean,
     onBack: () -> Unit,
     onSave: () -> Unit
 ) {
@@ -24,8 +29,14 @@ fun HeadNavigation(
         IconButton(onBack) {
             Icon(Icons.Default.Close, contentDescription = stringResource(android.R.string.cancel))
         }
-        Button(onSave) {
-            Text(stringResource(R.string.examsNew_save))
+        AnimatedContent(
+            targetState = canSave,
+            transitionSpec = { fadeIn() togetherWith fadeOut() },
+            label = "save button"
+        ) { canSave ->
+            Button(onSave, enabled = canSave) {
+                Text(stringResource(R.string.examsNew_save))
+            }
         }
     }
 }
@@ -33,5 +44,5 @@ fun HeadNavigation(
 @Composable
 @Preview(showBackground = true)
 private fun HeadNavigationPreview() {
-    HeadNavigation({}, {})
+    HeadNavigation(true, {}, {})
 }
