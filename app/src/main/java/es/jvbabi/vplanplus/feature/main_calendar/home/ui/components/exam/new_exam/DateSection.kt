@@ -17,6 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -41,16 +43,20 @@ fun AddExamDateSection(
     selectedDate: LocalDate?,
     onDateSelected: (date: LocalDate) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
     var showDatePickerModal by rememberSaveable { mutableStateOf(false) }
     val selectDateSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    if (showDatePickerModal) SelectDateModal(
-        title = stringResource(R.string.examsNew_dateTitle),
-        subtitle = stringResource(R.string.examsNew_dateSubtitle),
-        onDismiss = { showDatePickerModal = false },
-        onSelectDate = { onDateSelected(it); showDatePickerModal = false },
-        allowedDays = { it.date.isAfter(LocalDate.now()) },
-        sheetState = selectDateSheetState
-    )
+    if (showDatePickerModal) {
+        LaunchedEffect(Unit) { focusManager.clearFocus() }
+        SelectDateModal(
+            title = stringResource(R.string.examsNew_dateTitle),
+            subtitle = stringResource(R.string.examsNew_dateSubtitle),
+            onDismiss = { showDatePickerModal = false },
+            onSelectDate = { onDateSelected(it); showDatePickerModal = false },
+            allowedDays = { it.date.isAfter(LocalDate.now()) },
+            sheetState = selectDateSheetState
+        )
+    }
     AddExamItem(
         icon = {
             AnimatedContent(
