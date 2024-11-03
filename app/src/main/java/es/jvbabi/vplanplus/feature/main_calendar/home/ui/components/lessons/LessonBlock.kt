@@ -41,7 +41,10 @@ fun LessonBlock(
     ) {
         Column {
             lessons.forEachIndexed { i, lesson ->
-                LessonItem(lesson, backgroundColor)
+                LessonItem(
+                    lesson = lesson,
+                    backgroundColor = backgroundColor
+                )
                 if (i != lessons.lastIndex) HorizontalDivider(Modifier
                     .background(backgroundColor)
                     .padding(horizontal = 8.dp)
