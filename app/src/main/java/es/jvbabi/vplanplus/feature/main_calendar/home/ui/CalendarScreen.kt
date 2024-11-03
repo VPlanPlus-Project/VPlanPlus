@@ -441,8 +441,7 @@ private fun DayPager(
     ) { currentPage ->
         val date = LocalDate.now()
             .plusDays(getOffsetFromMiddle(CONTENT_PAGER_SIZE, currentPage).toLong())
-        val day =
-            remember(state.version, state.days.size) { state.days[date] ?: SchoolDay(date = date) }
+        val day = state.days[date] ?: SchoolDay(date = date)
         Column(
             modifier = Modifier
                 .fillMaxSize()

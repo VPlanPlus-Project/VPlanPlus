@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -24,6 +25,7 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -121,8 +123,10 @@ fun Option(
             modifier = Modifier.size(24.dp)
         ) else Spacer(Modifier.size(24.dp))
         Column(Modifier.padding(start = 16.dp)) {
-            title.Display(enabled)
-            if (!subtitle.isNullOrBlank()) Text(text = subtitle, style = MaterialTheme.typography.labelMedium, color = if (enabled) contentColor else disabledContentColor)
+            CompositionLocalProvider(LocalContentColor provides if (enabled) contentColor else disabledContentColor) {
+                title.Display()
+                if (!subtitle.isNullOrBlank()) Text(text = subtitle, style = MaterialTheme.typography.labelMedium)
+            }
         }
     }
 }
@@ -157,19 +161,19 @@ fun SmallDragHandler() {
 }
 
 interface OptionText {
-    @Composable fun Display(isEnabled: Boolean)
+    @Composable fun Display()
 }
 
 class OptionTextTitle(val title: String) : OptionText {
-    @Composable override fun Display(isEnabled: Boolean) {
-        Text(text = title, style = MaterialTheme.typography.bodyLarge, color = if (isEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+    @Composable override fun Display() {
+        Text(text = title, style = MaterialTheme.typography.bodyLarge)
     }
 }
 
 class OptionCustomText(val text: String, val after: @Composable () -> Unit) : OptionText {
-    @Composable override fun Display(isEnabled: Boolean) {
+    @Composable override fun Display() {
         RowVerticalCenter {
-            Text(text = text, style = MaterialTheme.typography.bodyLarge, color = if (isEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = text, style = MaterialTheme.typography.bodyLarge)
             Spacer8Dp()
             after()
         }

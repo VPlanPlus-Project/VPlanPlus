@@ -82,7 +82,7 @@ private fun NewExamContent(
     doAction: (action: NewExamUiEvent) -> Unit = {}
 ) {
     Column(Modifier.fillMaxSize()) root@{
-        HeadNavigation(onBack) { doAction(NewExamUiEvent.OnSaveClicked) }
+        HeadNavigation(state.canSave, state.isLoading,onBack) { doAction(NewExamUiEvent.OnSaveClicked) }
         AddExamTitleSection(state.topic) { doAction(NewExamUiEvent.UpdateTitle(it)) }
         Column(Modifier.verticalScroll(rememberScrollState())) {
             AddExamDateSection(state.date) { doAction(NewExamUiEvent.UpdateDate(it)) }

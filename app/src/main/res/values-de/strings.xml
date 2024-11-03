@@ -861,4 +861,6 @@
     <string name="examsNew_saveVppId">Deine vpp.ID</string>
     <string name="examsNew_saveShared">Deine vpp.ID, freigegeben</string>
     <string name="examsNew_saveVppIdSharedText">%1$s, freigegeben an %2$s</string>
+    <string name="examsNew_dateTitle">Wähle das Datum aus</string>
+    <string name="examsNew_dateSubtitle">Du musst ein Datum in der Zukunft wählen.</string>
 </resources>
