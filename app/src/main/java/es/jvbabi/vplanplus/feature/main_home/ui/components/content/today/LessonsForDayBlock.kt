@@ -29,6 +29,7 @@ fun LessonsForDayBlock(
                 LessonBlock(
                     lessonNumber = lessonNumber,
                     lessons = lessons,
+                    foregroundColor = MaterialTheme.colorScheme.onSurface,
                     backgroundColor = MaterialTheme.colorScheme.surfaceContainer
                 )
             }
