@@ -11,9 +11,11 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -28,22 +30,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.DOT
-import es.jvbabi.vplanplus.ui.common.dialog.ui.SelectDateDialog
+import es.jvbabi.vplanplus.ui.common.dialog.ui.SelectDateModal
 import es.jvbabi.vplanplus.util.formatDayDuration
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExamDateSection(
     selectedDate: LocalDate?,
     onDateSelected: (date: LocalDate) -> Unit,
 ) {
-    var showDatePickerDialog by rememberSaveable { mutableStateOf(false) }
-    if (showDatePickerDialog) SelectDateDialog(
-        title = "Test",
-        onDismiss = { showDatePickerDialog = false },
-        onSelectDate = { showDatePickerDialog = false; onDateSelected(it) },
-        allowedDays = { it.date.isAfter(LocalDate.now()) }
+    var showDatePickerModal by rememberSaveable { mutableStateOf(false) }
+    val selectDateSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    if (showDatePickerModal) SelectDateModal(
+        title = stringResource(R.string.examsNew_dateTitle),
+        subtitle = stringResource(R.string.examsNew_dateSubtitle),
+        onDismiss = { showDatePickerModal = false },
+        onSelectDate = { onDateSelected(it); showDatePickerModal = false },
+        allowedDays = { it.date.isAfter(LocalDate.now()) },
+        sheetState = selectDateSheetState
     )
     AddExamItem(
         icon = {
@@ -64,7 +70,7 @@ fun AddExamDateSection(
             modifier = Modifier
                 .height(48.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .clickable { showDatePickerDialog = true }
+                .clickable { showDatePickerModal = true }
                 .padding(start = 8.dp)
                 .fillMaxWidth(),
             contentAlignment = Alignment.CenterStart

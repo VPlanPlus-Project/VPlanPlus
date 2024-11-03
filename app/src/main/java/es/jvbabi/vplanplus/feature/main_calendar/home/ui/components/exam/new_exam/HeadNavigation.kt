@@ -5,11 +5,14 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -22,6 +25,7 @@ import es.jvbabi.vplanplus.ui.common.RowVerticalCenterSpaceBetweenFill
 @Composable
 fun HeadNavigation(
     canSave: Boolean,
+    isLoading: Boolean,
     onBack: () -> Unit,
     onSave: () -> Unit
 ) {
@@ -30,12 +34,21 @@ fun HeadNavigation(
             Icon(Icons.Default.Close, contentDescription = stringResource(android.R.string.cancel))
         }
         AnimatedContent(
-            targetState = canSave,
+            targetState = canSave && !isLoading,
             transitionSpec = { fadeIn() togetherWith fadeOut() },
             label = "save button"
         ) { canSave ->
             Button(onSave, enabled = canSave) {
-                Text(stringResource(R.string.examsNew_save))
+                AnimatedContent(
+                    targetState = isLoading,
+                    label = "save button loading state",
+                ) { isLoading ->
+                    if (isLoading) CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    else Text(stringResource(R.string.examsNew_save))
+                }
             }
         }
     }
@@ -44,5 +57,5 @@ fun HeadNavigation(
 @Composable
 @Preview(showBackground = true)
 private fun HeadNavigationPreview() {
-    HeadNavigation(true, {}, {})
+    HeadNavigation(true, true, {}, {})
 }
