@@ -128,6 +128,10 @@ class ExamRepositoryImpl(
                 useDefaultNotifications = false
             )
         )
+        examDao.deleteExamReminders(examId = exam.id)
+        exam.remindDaysBefore.forEach {
+            examDao.insertExamReminder(examId = exam.id, profileId = profile.id, daysBefore = it)
+        }
         return Result.success(true)
     }
 
