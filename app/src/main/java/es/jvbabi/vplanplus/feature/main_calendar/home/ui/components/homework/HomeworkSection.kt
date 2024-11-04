@@ -61,7 +61,6 @@ fun HomeworkSection(
                     )
                 }
             }
-            Spacer8Dp()
         }
     }
 }

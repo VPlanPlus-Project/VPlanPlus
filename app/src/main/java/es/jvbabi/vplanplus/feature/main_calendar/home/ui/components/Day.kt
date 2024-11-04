@@ -145,7 +145,9 @@ fun Day(
                     }
                 }
 
-                exams.forEach { exam ->
+                exams
+                    .filter { it.date == date }
+                    .forEach { exam ->
                     RowVerticalCenter (
                         modifier = Modifier
                             .height(14.dp)

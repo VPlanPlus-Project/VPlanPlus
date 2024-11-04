@@ -52,6 +52,9 @@ data class SchoolDay(
     fun actualLessons(): List<Lesson> {
         return lessons.filter { it.displaySubject != "-" }
     }
+
+    fun actualExams(): List<Exam> = exams.filter { it.date == date }
+    fun examsToGetRemindedOf(): List<Exam> = exams.filter { it.date != date && date.until(it.date).days in it.remindDaysBefore }
 }
 
 data class CurrentOrNextLesson(
