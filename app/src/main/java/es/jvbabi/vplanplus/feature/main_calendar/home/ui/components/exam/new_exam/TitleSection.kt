@@ -53,6 +53,7 @@ fun AddExamTitleSection(
     }
 
     LaunchedEffect(Unit) {
+        if (currentTitle.isNotEmpty()) return@LaunchedEffect
         try { focusRequester.requestFocus() }
         catch (e: Exception) { Log.i("AddExamTitleSection", "Focus request failed") }
     }
@@ -67,5 +68,5 @@ private fun AddExamTitleSectionPreview() {
 @Preview(showBackground = true)
 @Composable
 private fun AddExamTitleSectionPreview2() {
-    AddExamTitleSection("Test", {})
+    AddExamTitleSection("Test") {}
 }

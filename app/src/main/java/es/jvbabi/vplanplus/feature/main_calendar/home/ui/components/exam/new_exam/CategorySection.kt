@@ -25,6 +25,7 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -50,10 +52,12 @@ fun AddExamCategorySection(
     selectedCategory: ExamCategory?,
     onCategorySelected: (category: ExamCategory) -> Unit,
 ) {
+    val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
     var isCategoryModalOpen by rememberSaveable { mutableStateOf(false) }
+    val categorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     if (isCategoryModalOpen) {
-        val categorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+        LaunchedEffect(Unit) { focusManager.clearFocus() }
         ModalBottomSheet(
             onDismissRequest = { isCategoryModalOpen = false },
             sheetState = categorySheetState,

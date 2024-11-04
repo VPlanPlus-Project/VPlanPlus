@@ -89,7 +89,7 @@ fun Day(
                     .clip(RoundedCornerShape(50))
                     .background(blendColor(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0f), MaterialTheme.colorScheme.primaryContainer, isSelectedModifier))
                     .then(
-                        if (isToday && !isSelected) Modifier.border(1.dp, MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(50))
+                        if (isToday && !isSelected) Modifier.border(2.dp, MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(50))
                         else Modifier
                     ),
                 contentAlignment = Alignment.Center
@@ -102,7 +102,7 @@ fun Day(
                 )
 
                 val colorRegardingSelectedMonth =
-                    if (displayMonth != null && displayMonth != date.month) Color.Gray
+                    if ((displayMonth != null && displayMonth != date.month) || !isClickable) Color.Gray
                     else normalColor
                 Text(
                     text = date.dayOfMonth.toString(),
@@ -117,7 +117,7 @@ fun Day(
         }
         Spacer4Dp()
         Box(
-            modifier = Modifier.weight(if (state == DayDisplayState.DETAILED) 1f + 3*progress else 1f, true),
+            modifier = Modifier.weight(if (state == DayDisplayState.DETAILED) 1f + 3*progress else 1f, true).padding(horizontal = 1.dp),
             contentAlignment = Alignment.TopCenter
         ) {
             if (state == DayDisplayState.DETAILED) Column(
