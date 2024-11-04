@@ -80,7 +80,7 @@ class GetDayUseCase(
 
                 val homeworkFlow = (profile as? ClassProfile)?.let { homeworkRepository.getAllByProfile(it) } ?: flow { emit(emptyList()) }
                 val gradesFlow = (profile as? ClassProfile)?.vppId?.let { gradeRepository.getGradesByUser(it, date).map { grades -> grades.filter { grade -> grade.givenAt == date } } } ?: flow { emit(emptyList()) }
-                val examsFlow = (profile as? ClassProfile)?.let { examRepository.getExams(date, (profile as? ClassProfile)) } ?: flow { emit(emptyList()) }
+                val examsFlow = (profile as? ClassProfile)?.let { examRepository.getExams(profile = (profile as? ClassProfile)) } ?: flow { emit(emptyList()) }
                 combine(
                     homeworkFlow,
                     gradesFlow,
@@ -91,7 +91,7 @@ class GetDayUseCase(
                             .filter { (it is PersonalizedHomework.LocalHomework || (it is PersonalizedHomework.CloudHomework && !it.isHidden)) && (it.homework.until.toLocalDate() == date || (!it.allDone() && it.homework.until.toLocalDate().isBefore(LocalDate.now()))) }
                             .sortedBy { "${it.homework.until.toEpochSecond()}__${it.homework.defaultLesson?.subject}" },
                         grades = grades,
-                        exams = exams
+                        exams = exams.filter { it.date == date || date.until(it.date).days in it.remindDaysBefore }
                     )
                 }.collect {
                     schoolDay = it

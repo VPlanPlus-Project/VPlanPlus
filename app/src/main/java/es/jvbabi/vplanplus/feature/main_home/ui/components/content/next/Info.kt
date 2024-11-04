@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
-import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.preview.Text
 
 @Composable
@@ -24,7 +23,6 @@ fun Info(
     info: String?
 ) {
     if ((info ?: "") != "") {
-        Spacer8Dp()
         RowVerticalCenter(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier

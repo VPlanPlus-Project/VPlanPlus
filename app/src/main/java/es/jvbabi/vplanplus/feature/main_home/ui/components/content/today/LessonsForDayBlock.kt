@@ -27,9 +27,10 @@ fun LessonsForDayBlock(
         followingLessons
             .forEach { (lessonNumber, lessons) ->
                 LessonBlock(
-                    lessonNumber,
-                    lessons,
-                    MaterialTheme.colorScheme.surfaceVariant
+                    lessonNumber = lessonNumber,
+                    lessons = lessons,
+                    foregroundColor = MaterialTheme.colorScheme.onSurface,
+                    backgroundColor = MaterialTheme.colorScheme.surfaceContainer
                 )
             }
     }

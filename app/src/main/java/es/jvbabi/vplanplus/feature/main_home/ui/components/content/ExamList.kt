@@ -27,11 +27,11 @@ fun ExamList(
     nextSchoolDay: SchoolDay,
     onOpenExam: (examId: Int) -> Unit
 ) {
-    if (nextSchoolDay.exams.isNotEmpty()) {
+    val exams = nextSchoolDay.actualExams()
+    if (exams.isNotEmpty()) {
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) exams@{
-            val exams = nextSchoolDay.exams
             exams.forEach { exam ->
                 RowVerticalCenter(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),

@@ -312,7 +312,7 @@ private fun HomeworkCard(
                 .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Center
         ) icon@{
-            Icon(imageVector = subject.getSubjectIcon(), contentDescription = subject, modifier = Modifier.size(32.dp), tint = MaterialTheme.colorScheme.primary)
+            Icon(imageVector = subject.getSubjectIcon(), contentDescription = subject, modifier = Modifier.size(32.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
         }
         Column(Modifier.fillMaxWidth()) {
             RowVerticalCenterSpaceBetweenFill title@{

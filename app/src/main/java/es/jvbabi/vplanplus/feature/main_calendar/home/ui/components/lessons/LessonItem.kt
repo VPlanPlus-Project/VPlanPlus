@@ -4,15 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.MeetingRoom
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -26,12 +32,15 @@ import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.SubjectIcon
+import es.jvbabi.vplanplus.ui.common.unknownVppId
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.RoomPreview
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.util.LessonTime
+import es.jvbabi.vplanplus.util.toDp
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.UUID
@@ -39,6 +48,7 @@ import java.util.UUID
 @Composable
 fun LessonItem(
     lesson: Lesson,
+    foregroundColor: Color = MaterialTheme.colorScheme.onSurface,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
 ) {
     RowVerticalCenter(
@@ -63,6 +73,38 @@ fun LessonItem(
                 teachers = lesson.teachers,
                 isTeachersChanged = (lesson as? Lesson.SubstitutionPlanLesson)?.teacherIsChanged ?: false
             )
+            if (lesson is Lesson.SubstitutionPlanLesson && lesson.info != null) {
+                Row {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(MaterialTheme.typography.bodySmall.lineHeight.toDp())
+                    )
+                    Spacer4Dp()
+                    Text(
+                        text = lesson.info,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = foregroundColor
+                    )
+                }
+            }
+            if (lesson is Lesson.SubstitutionPlanLesson && lesson.roomBooking != null) {
+                Row {
+                    Icon(
+                        imageVector = Icons.Default.MeetingRoom,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(MaterialTheme.typography.bodySmall.lineHeight.toDp())
+                    )
+                    Spacer4Dp()
+                    Text(
+                        text = stringResource(R.string.home_activeBookedBy, lesson.roomBooking.bookedBy?.name ?: unknownVppId(LocalContext.current)),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = foregroundColor
+                    )
+                }
+            }
         }
     }
 }
