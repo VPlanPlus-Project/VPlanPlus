@@ -25,6 +25,7 @@ import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
+import java.time.LocalDate
 
 @Composable
 fun ExamSection(
@@ -32,6 +33,7 @@ fun ExamSection(
     includeTitle: Boolean = true,
     exams: List<Exam>,
     currentProfile: Profile,
+    date: LocalDate,
     onOpenExamScreen: (examId: Int) -> Unit
 ) {
     androidx.compose.animation.AnimatedVisibility(
@@ -48,12 +50,31 @@ fun ExamSection(
                 modifier = Modifier.clip(RoundedCornerShape(16.dp)),
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                exams.forEach { exam ->
+                exams
+                    .filter { it.date == date }
+                    .forEach { exam ->
                     ExamItem(
                         currentProfile = currentProfile,
                         exam = exam,
+                        isReminder = false,
                         onOpenExamScreen = onOpenExamScreen
                     )
+                }
+            }
+            exams.filter { it.date != date }.ifEmpty { null }?.let { examsToGetRemindedOf ->
+                Spacer4Dp()
+                Column(
+                    modifier = Modifier.clip(RoundedCornerShape(16.dp)),
+                    verticalArrangement = Arrangement.spacedBy(2.dp)
+                ) {
+                    examsToGetRemindedOf.forEach { exam ->
+                        ExamItem(
+                            currentProfile = currentProfile,
+                            exam = exam,
+                            isReminder = true,
+                            onOpenExamScreen = onOpenExamScreen
+                        )
+                    }
                 }
             }
             Spacer8Dp()

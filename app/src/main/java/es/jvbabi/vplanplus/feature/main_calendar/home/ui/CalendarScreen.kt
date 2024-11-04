@@ -486,6 +486,7 @@ private fun DayPager(
                                 ExamSection(
                                     showSection = (state.enabledFilters.isEmpty() || DayViewFilter.EXAMS in state.enabledFilters) && day.exams.isNotEmpty(),
                                     exams = day.exams,
+                                    date = day.date,
                                     currentProfile = state.currentProfile!!,
                                     onOpenExamScreen = onOpenExamScreen
                                 )

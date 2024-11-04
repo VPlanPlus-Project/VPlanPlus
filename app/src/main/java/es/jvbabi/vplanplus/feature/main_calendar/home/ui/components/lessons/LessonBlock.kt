@@ -33,6 +33,7 @@ import java.util.UUID
 fun LessonBlock(
     lessonNumber: Int,
     lessons: List<Lesson>,
+    foregroundColor: Color = MaterialTheme.colorScheme.onSurface,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer
 ) {
     Box(
@@ -41,7 +42,11 @@ fun LessonBlock(
     ) {
         Column {
             lessons.forEachIndexed { i, lesson ->
-                LessonItem(lesson, backgroundColor)
+                LessonItem(
+                    lesson = lesson,
+                    foregroundColor = foregroundColor,
+                    backgroundColor = backgroundColor
+                )
                 if (i != lessons.lastIndex) HorizontalDivider(Modifier
                     .background(backgroundColor)
                     .padding(horizontal = 8.dp)
