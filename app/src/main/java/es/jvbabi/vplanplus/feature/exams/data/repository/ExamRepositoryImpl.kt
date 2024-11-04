@@ -140,7 +140,7 @@ class ExamRepositoryImpl(
     }
 
     override suspend fun downloadAssessments(profile: ClassProfile): Result<List<ExamsResponse>> {
-        vppIdNetworkRepository.authentication = profile.vppId?.vppIdToken?.let { BearerAuthentication(it) }
+        vppIdNetworkRepository.authentication = profile.vppId?.vppIdToken?.let { BearerAuthentication(it) } ?: profile.getSchool().buildAccess().buildVppAuthentication()
         val response = vppIdNetworkRepository.doRequest(
             path = "/api/$API_VERSION/entity/assessment",
             requestMethod = HttpMethod.Get,
