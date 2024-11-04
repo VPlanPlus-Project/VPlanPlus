@@ -448,11 +448,15 @@ private fun TodayContent(
             }
             .groupBy { it.lessonNumber }
 
-        if (followingLessons.isNotEmpty()) {
+
+        val followingLessonSection: @Composable () -> Unit = {
             Spacer16Dp()
             FurtherLessonsTitle(followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size)
             Spacer8Dp()
             LessonsForDayBlock(followingLessons = followingLessons)
+        }
+        if (followingLessons.isNotEmpty() && currentOrNextLessons != null) {
+            followingLessonSection()
         }
 
         if (today.type != DayType.NORMAL) {
@@ -473,6 +477,10 @@ private fun TodayContent(
                     exams = today.examsToGetRemindedOf()
                 )
             }
+        }
+
+        if (followingLessons.isNotEmpty() && currentOrNextLessons == null) {
+            followingLessonSection()
         }
     }
 }
