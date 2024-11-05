@@ -426,8 +426,6 @@
     <string name="advancedSettings_dialogServerMessage">Only do this for testing purposes. Changing the default server might result in an inconsistent data set. After you set a new server, the app will close itself.</string>
     <string name="advancedSettings_settingsServerDefault">Default server</string>
     <string name="grades_filterTitle">Subjects</string>
-    <string name="settings_homeworkTitle">Homework</string>
-    <string name="settings_subjectsSubtitle">Manage notifications for homework</string>
     <string name="settingsHomework_title">Homework</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Show notification when someone created a new homework</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">You can turn off notifications about new homework and rely on your daily reminders. However, you might lose track about homework created after your reminder when this is turned off.</string>
@@ -868,4 +866,7 @@
     <string name="calendar_dayExamReminder">Reminder for %1$s</string>
     <string name="home_assessmentReminderTitle">Assessment reminders</string>
     <string name="home_assessmentReminderSubtitle">Get prepared!</string>
+    <string name="settings_notificationsTitle">Notifications</string>
+    <string name="settings_notificationsSubtitle">Get notified about new homework and your next school day.</string>
+    <string name="settingsNotifications_title">Notifications</string>
 </resources>

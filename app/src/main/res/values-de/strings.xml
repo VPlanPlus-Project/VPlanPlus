@@ -424,8 +424,6 @@
     <string name="advancedSettings_dialogServerMessage">Tue dies nur zu Testzwecken. Das Wechseln des vpp.ID Servers kann in fehlerhafte Daten resultieren. Nachdem du einen anderen Server ausgewählt hast, wird die App sich schließen.</string>
     <string name="advancedSettings_settingsServerDefault">Standardserver</string>
     <string name="grades_filterTitle">Fächer</string>
-    <string name="settings_homeworkTitle">Hausaufgaben</string>
-    <string name="settings_subjectsSubtitle">Verwalte Benachrichtigungen zu Hausaufgaben</string>
     <string name="settingsHomework_title">Hausaufgaben</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Benachrichtigung, wenn eine neue Hausaufgabe vorliegt</string>
     <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Du kannst Benachrichtigungen über neue Hausaufgaben deaktivieren und dich auf die täglichen Erinnerungen verlassen.</string>
@@ -866,4 +864,7 @@
     <string name="calendar_dayExamReminder">Erinnerung für %1$s</string>
     <string name="home_assessmentReminderTitle">Erinnerungen für Leistungserhebungen</string>
     <string name="home_assessmentReminderSubtitle">Bereite dich langfristig vor!</string>
+    <string name="settings_notificationsTitle">Benachrichtigungen</string>
+    <string name="settings_notificationsSubtitle">Erhalte Infos zu neuen Hausaufgaben und dem nächsten Schultag.</string>
+    <string name="settingsNotifications_title">Benachrichtigungen</string>
 </resources>

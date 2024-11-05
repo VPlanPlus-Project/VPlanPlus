@@ -40,7 +40,7 @@ import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.notifications.NotificationSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementTask
 import es.jvbabi.vplanplus.feature.settings.profile.ui.UpdateCredentialsTask
@@ -476,14 +476,13 @@ private fun NavGraphBuilder.settingsScreens(
         GeneralSettingsScreen(navController)
     }
 
-    composable(
-        route = Screen.SettingsHomeworkScreen.route,
+    composable<Screen.SettingsNotificationsScreen>(
         enterTransition = enterSlideTransitionLeft,
         exitTransition = { fadeOut(tween(300)) },
         popEnterTransition = { fadeIn(tween(300)) },
         popExitTransition = exitSlideTransitionRight
     ) {
-        HomeworkSettingsScreen(navController)
+        NotificationSettingsScreen(navController)
     }
 
     composable(
