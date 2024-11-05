@@ -867,4 +867,8 @@
     <string name="settings_notificationsTitle">Benachrichtigungen</string>
     <string name="settings_notificationsSubtitle">Erhalte Infos zu neuen Hausaufgaben und dem nächsten Schultag.</string>
     <string name="settingsNotifications_title">Benachrichtigungen</string>
+    <string name="settingsNotifications_notificationsDisabledBannerTitle">Benachrichtigungen deaktiviert</string>
+    <string name="settingsNotifications_notificationsDisabledBannerText">VPlanPlus kann keine Benachrichtigungen senden, da diese aktuell deaktiviert sind. Aktiviere Benachrichtigungen in den Einstellungen.</string>
+    <string name="settingsNotifications_notificationCategoriesTitle">Benachrichtigungskategorien</string>
+    <string name="settingsNotifications_notificationCategoriesSubtitle">Schalte verschiedene Kategorien an Benachrichtigungen ein oder aus.</string>
 </resources>

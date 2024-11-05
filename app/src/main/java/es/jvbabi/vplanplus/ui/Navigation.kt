@@ -40,7 +40,7 @@ import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.notifications.NotificationSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.notifications.ui.NotificationSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementTask
 import es.jvbabi.vplanplus.feature.settings.profile.ui.UpdateCredentialsTask

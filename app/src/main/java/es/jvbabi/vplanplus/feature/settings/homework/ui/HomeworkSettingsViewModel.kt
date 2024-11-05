@@ -24,7 +24,7 @@ class HomeworkSettingsViewModel @Inject constructor(
         viewModelScope.launch {
             combine(
                 listOf(
-                    homeworkSettingsUseCases.isShowNotificationOnNewHomeworkUseCase(),
+                    homeworkSettingsUseCases.isNotificationOnNewHomeworkEnabledUseCase(),
                     homeworkSettingsUseCases.isRemindOnUnfinishedHomeworkUseCase(),
                     homeworkSettingsUseCases.getDefaultNotificationTimeUseCase(),
                     homeworkSettingsUseCases.getPreferredHomeworkNotificationTimeUseCase(),

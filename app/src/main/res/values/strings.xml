@@ -869,4 +869,8 @@
     <string name="settings_notificationsTitle">Notifications</string>
     <string name="settings_notificationsSubtitle">Get notified about new homework and your next school day.</string>
     <string name="settingsNotifications_title">Notifications</string>
+    <string name="settingsNotifications_notificationsDisabledBannerTitle">Notifications disabled</string>
+    <string name="settingsNotifications_notificationsDisabledBannerText">VPlanPlus cannot send notifications since they are disabled by Androoid. Please enable them in settings.</string>
+    <string name="settingsNotifications_notificationCategoriesTitle">Notification channels</string>
+    <string name="settingsNotifications_notificationCategoriesSubtitle">Toggle different categories of notifications</string>
 </resources>

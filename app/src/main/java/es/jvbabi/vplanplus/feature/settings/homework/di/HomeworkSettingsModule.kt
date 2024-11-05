@@ -13,12 +13,12 @@ import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.GetDefaultNo
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.GetPreferredHomeworkNotificationTimeUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.HomeworkSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.IsRemindOnUnfinishedHomeworkUseCase
-import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.IsShowNotificationOnNewHomeworkUseCase
+import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.IsNotificationOnNewHomeworkEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.RemovePreferredHomeworkNotificationTimeUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.SetDefaultNotificationTimeUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.SetPreferredHomeworkNotificationTimeUseCase
 import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.SetRemindOnUnfinishedHomeworkUseCase
-import es.jvbabi.vplanplus.feature.settings.homework.domain.usecase.SetShowNotificationOnNewHomeworkUseCase
+import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.SetShowNotificationOnNewHomeworkUseCase
 import javax.inject.Singleton
 
 @Module
@@ -33,7 +33,7 @@ object HomeworkSettingsModule {
         alarmManagerRepository: AlarmManagerRepository,
         setUpUseCase: SetUpUseCase
     ) = HomeworkSettingsUseCases(
-        isShowNotificationOnNewHomeworkUseCase = IsShowNotificationOnNewHomeworkUseCase(keyValueRepository),
+        isNotificationOnNewHomeworkEnabledUseCase = IsNotificationOnNewHomeworkEnabledUseCase(keyValueRepository),
         setShowNotificationOnNewHomeworkUseCase = SetShowNotificationOnNewHomeworkUseCase(keyValueRepository),
         isRemindOnUnfinishedHomeworkUseCase = IsRemindOnUnfinishedHomeworkUseCase(keyValueRepository),
         setRemindOnUnfinishedHomeworkUseCase = SetRemindOnUnfinishedHomeworkUseCase(

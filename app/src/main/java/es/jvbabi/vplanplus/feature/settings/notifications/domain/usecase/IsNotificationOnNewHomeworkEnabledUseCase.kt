@@ -1,10 +1,10 @@
-package es.jvbabi.vplanplus.feature.settings.homework.domain.usecase
+package es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase
 
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import kotlinx.coroutines.flow.flow
 
-class IsShowNotificationOnNewHomeworkUseCase(
+class IsNotificationOnNewHomeworkEnabledUseCase(
     private val keyValueRepository: KeyValueRepository
 ) {
     operator fun invoke() = flow {

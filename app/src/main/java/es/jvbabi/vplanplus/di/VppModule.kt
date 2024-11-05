@@ -403,8 +403,10 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideSystemRepository(): SystemRepository {
-        return SystemRepositoryImpl()
+    fun provideSystemRepository(
+        @ApplicationContext context: Context
+    ): SystemRepository {
+        return SystemRepositoryImpl(context)
     }
 
     // Use cases
