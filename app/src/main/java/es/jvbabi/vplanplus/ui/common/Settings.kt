@@ -1,51 +1,35 @@
 package es.jvbabi.vplanplus.ui.common
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ManageAccounts
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePickerLayoutType
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
-import es.jvbabi.vplanplus.R
 
 @Composable
 fun SettingsCategory(
@@ -70,6 +54,7 @@ fun SettingsSetting(
     painter: Painter? = null,
     iconTint: Color? = MaterialTheme.colorScheme.onSurface,
     title: String,
+    titleBadge: @Composable (() -> Unit)? = null,
     subtitle: String? = null,
     type: SettingsType,
     checked: Boolean? = null,
@@ -83,6 +68,7 @@ fun SettingsSetting(
 ) {
     Settings(
         title = title,
+        titleBadge = titleBadge,
         subtitle = subtitle,
         type = type,
         checked = checked,
@@ -110,9 +96,11 @@ fun SettingsSetting(
     )
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun Settings(
     title: String,
+    titleBadge: @Composable (() -> Unit)? = null,
     subtitle: String? = null,
     type: SettingsType,
     checked: Boolean? = null,
@@ -154,13 +142,19 @@ private fun Settings(
                     } else imageDrawer()
                 }
                 Column {
-                    Text(
-                        text = title,
-                        style = MaterialTheme.typography.titleLarge,
-                        color = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
-                        maxLines = if (titleOverflow != TextOverflow.Visible) 1 else Int.MAX_VALUE,
-                        overflow = titleOverflow
-                    )
+                    FlowRow(
+                        verticalArrangement = Arrangement.Center,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = title,
+                            style = MaterialTheme.typography.titleLarge,
+                            color = if (enabled) MaterialTheme.colorScheme.onSurface else Color.Gray,
+                            maxLines = if (titleOverflow != TextOverflow.Visible) 1 else Int.MAX_VALUE,
+                            overflow = titleOverflow
+                        )
+                        titleBadge?.invoke()
+                    }
                     if (subtitle != null) {
                         Text(
                             text = subtitle,
@@ -212,6 +206,7 @@ fun SettingsSetting(
     icon: ImageVector?,
     iconTint: Color? = null,
     title: String,
+    titleBadge: @Composable (() -> Unit)? = null,
     subtitle: String? = null,
     type: SettingsType,
     checked: Boolean? = null,
@@ -225,6 +220,7 @@ fun SettingsSetting(
 ) {
     Settings(
         title = title,
+        titleBadge = titleBadge,
         subtitle = subtitle,
         type = type,
         checked = checked,
@@ -415,133 +411,3 @@ data class PainterSettingsState(
     subtitleOverflow = subtitleOverflow,
     customContent = customContent
 )
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TimePickerSettings(
-    settingsState: SettingsState,
-    hour: Int = 0,
-    minute: Int = 0,
-) {
-    var showTimePicker by rememberSaveable { mutableStateOf(false) }
-    val timePickerState = rememberTimePickerState(hour, minute)
-
-    if (showTimePicker) {
-        TimePickerDialog(
-            title = stringResource(id = R.string.settingsHomework_defaultNotificationTimeTitle),
-            onDismissRequest = { showTimePicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    showTimePicker = false
-                    settingsState.doAction("${timePickerState.hour}:${timePickerState.minute}")
-                }) {
-                    Text(text = stringResource(id = android.R.string.ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showTimePicker = false }) {
-                    Text(text = stringResource(id = android.R.string.cancel))
-                }
-            },
-        ) {
-            androidx.compose.material3.TimePicker(state = timePickerState, layoutType = TimePickerLayoutType.Vertical)
-        }
-    }
-
-    Settings(
-        title = settingsState.title,
-        subtitle = settingsState.subtitle,
-        type = SettingsType.FUNCTION,
-        checked = settingsState.checked,
-        doAction = {
-            showTimePicker = true
-        },
-        enabled = settingsState.enabled,
-        clickable = settingsState.clickable,
-        isLoading = settingsState.isLoading,
-        titleOverflow = settingsState.titleOverflow,
-        subtitleOverflow = settingsState.subtitleOverflow,
-        customContent = settingsState.customContent,
-        imageDrawer = {
-            if (settingsState is IconSettingsState) {
-                if (settingsState.imageVector != null) {
-                    Icon(
-                        imageVector = settingsState.imageVector,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(start = 12.dp, end = 16.dp)
-                    )
-                } else {
-                    Box(modifier = Modifier.size(56.dp))
-                }
-            } else if (settingsState is PainterSettingsState) {
-                if (settingsState.painter != null) {
-                    Icon(
-                        painter = settingsState.painter,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .padding(start = 12.dp, end = 16.dp)
-                    )
-                } else {
-                    Box(modifier = Modifier.size(56.dp))
-                }
-            }
-        }
-    )
-}
-
-@Composable
-fun TimePickerDialog(
-    title: String,
-    onDismissRequest: () -> Unit,
-    confirmButton: @Composable (() -> Unit),
-    dismissButton: @Composable (() -> Unit)? = null,
-    containerColor: Color = MaterialTheme.colorScheme.surface,
-    content: @Composable () -> Unit,
-) {
-    Dialog(
-        onDismissRequest = onDismissRequest,
-        properties = DialogProperties(
-            usePlatformDefaultWidth = false
-        ),
-    ) {
-        Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
-            modifier = Modifier
-                .width(IntrinsicSize.Min)
-                .height(IntrinsicSize.Min)
-                .background(
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = containerColor
-                ),
-            color = containerColor
-        ) {
-            Column(
-                modifier = Modifier.padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 20.dp),
-                    text = title,
-                )
-                content()
-                Row(
-                    modifier = Modifier
-                        .height(40.dp)
-                        .fillMaxWidth()
-                ) {
-                    Spacer(modifier = Modifier.weight(1f))
-                    dismissButton?.invoke()
-                    confirmButton()
-                }
-            }
-        }
-    }
-}
