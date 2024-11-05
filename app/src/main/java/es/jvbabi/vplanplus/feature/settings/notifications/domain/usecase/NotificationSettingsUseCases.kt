@@ -5,6 +5,8 @@ import es.jvbabi.vplanplus.domain.usecase.general.IsNotificationsEnabledUseCase
 data class NotificationSettingsUseCases(
     val isNotificationsEnabledUseCase: IsNotificationsEnabledUseCase,
 
-    val isNotificationOnNewHomeworkEnabledUseCase: IsNotificationOnNewHomeworkEnabledUseCase,
-    val setShowNotificationOnNewHomeworkUseCase: SetShowNotificationOnNewHomeworkUseCase
+    val isDailyReminderEnabledUseCase: IsDailyReminderEnabledForCurrentProfileUseCase,
+    val setDailyReminderEnabledUseCase: SetDailyReminderEnabledForCurrentProfileUseCase,
+    val getDailyReminderTimeUseCase: GetDailyReminderTimeForCurrentProfileUseCase,
+    val setDailyReminderTimeUseCase: SetDailyReminderTimeForCurrentProfileUseCase,
 )

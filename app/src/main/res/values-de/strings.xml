@@ -425,8 +425,6 @@
     <string name="advancedSettings_settingsServerDefault">Standardserver</string>
     <string name="grades_filterTitle">Fächer</string>
     <string name="settingsHomework_title">Hausaufgaben</string>
-    <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Benachrichtigung, wenn eine neue Hausaufgabe vorliegt</string>
-    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Du kannst Benachrichtigungen über neue Hausaufgaben deaktivieren und dich auf die täglichen Erinnerungen verlassen.</string>
     <string name="settingsHomework_defaultNotificationTimeTitle">Bevorzugte Erinnerungszeit</string>
     <string name="settingsHomework_defaultNotificationTimeSubtitle">Du erhälst eine Benachrichtigung, wenn es unerledigte Hausaufgaben gibt. Aktuell auf %1$s Uhr gesetzt.</string>
     <string name="settingsHomework_reminderNotificationEnabledTitle">An unerledigte Hausaufgaben erinnern</string>
@@ -871,4 +869,7 @@
     <string name="settingsNotifications_notificationsDisabledBannerText">VPlanPlus kann keine Benachrichtigungen senden, da diese aktuell deaktiviert sind. Aktiviere Benachrichtigungen in den Einstellungen.</string>
     <string name="settingsNotifications_notificationCategoriesTitle">Benachrichtigungskategorien</string>
     <string name="settingsNotifications_notificationCategoriesSubtitle">Schalte verschiedene Kategorien an Benachrichtigungen ein oder aus.</string>
+    <string name="settingsNotifications_dailyReminderCategoryTitle">Tägliche Erinnerung</string>
+    <string name="settingsNotifications_dailyReminderSettingsTitle">Tägliche Benachrichtigung senden</string>
+    <string name="settingsNotifications_dailyReminderSettingsSubtitle">Erhalte eine Benachrichtigung, um dich auf den nächsten Schultag vorzubereiten, einschließlich Plänen, Hausaufgaben und Leistungserhebungen.</string>
 </resources>

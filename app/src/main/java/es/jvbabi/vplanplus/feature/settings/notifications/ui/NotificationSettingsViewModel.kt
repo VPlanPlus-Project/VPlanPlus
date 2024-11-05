@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
@@ -14,18 +15,20 @@ import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.Notific
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
+import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltViewModel
+@Suppress("UNCHECKED_CAST")
 class NotificationSettingsViewModel @Inject constructor(
     private val notificationSettingsUseCases: NotificationSettingsUseCases,
     private val isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase,
     private val getCurrentServerUseCase: GetVppIdServerUseCase
-): ViewModel() {
+) : ViewModel() {
 
-    var state by mutableStateOf(NotificationSettingsState())
+    var state by mutableStateOf<NotificationSettingsState?>(null)
         private set
-
 
     init {
         viewModelScope.launch {
@@ -33,23 +36,41 @@ class NotificationSettingsViewModel @Inject constructor(
                 listOf<Flow<Any>>(
                     notificationSettingsUseCases.isNotificationsEnabledUseCase(),
                     isDeveloperModeEnabledUseCase(),
-                    notificationSettingsUseCases.isNotificationOnNewHomeworkEnabledUseCase(),
-                    getCurrentServerUseCase()
+                    getCurrentServerUseCase(),
+                    notificationSettingsUseCases.isDailyReminderEnabledUseCase(),
+                    notificationSettingsUseCases.getDailyReminderTimeUseCase()
                 )
             ) { data ->
                 val canSendNotifications = data[0] as Boolean
                 val isDeveloperModeEnabled = data[1] as Boolean
-                val isNotificationOnNewHomeworkEnabled = data[2] as Boolean
-                val currentServer = data[3] as VppIdServer
+                val currentServer = data[2] as VppIdServer
+                val sendDailyReminder = data[3] as Boolean
+                val dailyReminderTimes = data[4] as Map<DayOfWeek, LocalTime>
 
-                state.copy(
+                (state ?: NotificationSettingsState()).copy(
                     currentServer = currentServer,
                     canSendNotifications = canSendNotifications,
-                    sendNotificationOnNewHomework = isNotificationOnNewHomeworkEnabled,
 
-                    isDeveloperModeEnabled = isDeveloperModeEnabled
+                    isDeveloperModeEnabled = isDeveloperModeEnabled,
+
+                    isDailyReminderEnabled = sendDailyReminder,
+                    dailyReminderTimes = dailyReminderTimes
                 )
             }.collect { state = it }
+        }
+    }
+
+    fun onEvent(event: NotificationSettingsEvent) {
+        val state = state ?: return
+        viewModelScope.launch {
+            when (event) {
+                NotificationSettingsEvent.ToggleDailyReminder -> {
+                    notificationSettingsUseCases.setDailyReminderEnabledUseCase(!state.isDailyReminderEnabled)
+                }
+                is NotificationSettingsEvent.SetDailyReminderTime -> {
+                    notificationSettingsUseCases.setDailyReminderTimeUseCase(event.dayOfWeek.value, event.time)
+                }
+            }
         }
     }
 }
@@ -62,5 +83,11 @@ data class NotificationSettingsState(
 
     val isDeveloperModeEnabled: Boolean = false,
 
-    val sendNotificationOnNewHomework: Boolean = false
+    val isDailyReminderEnabled: Boolean = false,
+    val dailyReminderTimes: Map<DayOfWeek, LocalTime> = emptyMap(),
 )
+
+sealed class NotificationSettingsEvent {
+    data object ToggleDailyReminder : NotificationSettingsEvent()
+    data class SetDailyReminderTime(val dayOfWeek: DayOfWeek, val time: LocalTime) : NotificationSettingsEvent()
+}
