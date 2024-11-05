@@ -55,6 +55,7 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.ExamSection
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
 import es.jvbabi.vplanplus.feature.main_home.ui.components.ImportantHeader
@@ -68,10 +69,11 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.content.ExamList
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.HomeworkSection
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Info
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.next.Title
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.AssessmentReminderTitle
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentLesson
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.CurrentOrNextTitle
-import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.LessonsForDayBlock
 import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.FurtherLessonsTitle
+import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.LessonsForDayBlock
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
@@ -289,7 +291,11 @@ fun HomeScreenContent(
                         Modifier
                             .fillMaxSize()
                             .align(Alignment.Center)) {
-                        TodayContent(state.today ?: return@Column)
+                        TodayContent(
+                            today = state.today ?: return@Column,
+                            currentProfile = state.currentProfile,
+                            onOpenExam = onOpenExam
+                        )
                     }
                 } else if (todayHasData) {
                     val pagerState =
@@ -301,7 +307,11 @@ fun HomeScreenContent(
                         verticalAlignment = Alignment.CenterVertically
                     ) { page ->
                         when (page) {
-                            0 -> TodayContent(state.today ?: return@HorizontalPager)
+                            0 -> TodayContent(
+                                today = state.today ?: return@HorizontalPager,
+                                currentProfile = state.currentProfile,
+                                onOpenExam = onOpenExam
+                            )
                             1 -> NextDayPreparation(
                                 nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
                                 currentProfile = state.currentProfile,
@@ -396,11 +406,14 @@ fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Compos
 @Composable
 private fun TodayContent(
     today: SchoolDay,
+    currentProfile: Profile,
+    onOpenExam: (examId: Int) -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
+            .padding(bottom = 56.dp)
     ) {
         val currentOrNextLessons = today.getCurrentOrNextLesson()
         currentOrNextLessons?.let { currentOrNextLesson ->
@@ -435,15 +448,39 @@ private fun TodayContent(
             }
             .groupBy { it.lessonNumber }
 
-        if (followingLessons.isNotEmpty()) {
+
+        val followingLessonSection: @Composable () -> Unit = {
             Spacer16Dp()
             FurtherLessonsTitle(followingLessons.filter { it.value.all { l -> l.displaySubject != "-" } }.size)
             Spacer8Dp()
             LessonsForDayBlock(followingLessons = followingLessons)
         }
+        if (followingLessons.isNotEmpty() && currentOrNextLessons != null) {
+            followingLessonSection()
+        }
 
         if (today.type != DayType.NORMAL) {
             NoLessonsContent(isHoliday = today.type == DayType.HOLIDAY)
+        }
+
+        if (today.examsToGetRemindedOf().isNotEmpty()) {
+            Spacer16Dp()
+            AssessmentReminderTitle()
+            Spacer8Dp()
+            Column(Modifier.padding(horizontal = 12.dp)) {
+                ExamSection(
+                    showSection = true,
+                    includeTitle = false,
+                    date = today.date,
+                    currentProfile = currentProfile,
+                    onOpenExamScreen = onOpenExam,
+                    exams = today.examsToGetRemindedOf()
+                )
+            }
+        }
+
+        if (followingLessons.isNotEmpty() && currentOrNextLessons == null) {
+            followingLessonSection()
         }
     }
 }
@@ -462,33 +499,30 @@ private fun NextDayPreparation(
             .padding(bottom = 52.dp)
     ) {
         Column(
-            Modifier.padding(horizontal = 12.dp)
+            Modifier.padding(horizontal = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             runComposable title@{
                 val start = nextSchoolDay.actualLessons().minOfOrNull { it.start }?.toLocalTime()
                 val end = nextSchoolDay.actualLessons().maxOfOrNull { it.end }?.toLocalTime()
                 Title(nextSchoolDay.date, start, end)
             }
-            Column(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.padding(top = 8.dp)
-            ) {
-                Info(info = nextSchoolDay.info)
-                ExamList(nextSchoolDay, onOpenExam)
-            }
+            HomeworkSection(
+                homework = nextSchoolDay.homework,
+                onOpenHomework = onOpenHomework,
+                currentProfile = currentProfile,
+                modifier = Modifier.padding(bottom = 4.dp)
+            )
+            Info(info = nextSchoolDay.info)
+            ExamList(nextSchoolDay, onOpenExam)
             runComposable subjects@{
                 LessonsForDayBlock(
-                    modifier = Modifier.padding(top = 8.dp),
+                    modifier = Modifier.padding(vertical = 4.dp),
                     followingLessons = nextSchoolDay.lessons.groupBy { it.lessonNumber },
                     horizontalPadding = false
                 )
             }
             if (nextSchoolDay.lessons.isEmpty()) NoData()
-            HomeworkSection(
-                homework = nextSchoolDay.homework,
-                onOpenHomework = onOpenHomework,
-                currentProfile = currentProfile
-            )
         }
         if (nextSchoolDay.type != DayType.NORMAL) {
             NoLessonsContent(isHoliday = nextSchoolDay.type == DayType.HOLIDAY)

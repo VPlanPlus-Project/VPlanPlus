@@ -863,4 +863,7 @@
     <string name="examsNew_saveVppIdSharedText">%1$s, freigegeben an %2$s</string>
     <string name="examsNew_dateTitle">Wähle das Datum aus</string>
     <string name="examsNew_dateSubtitle">Du musst ein Datum in der Zukunft wählen.</string>
+    <string name="calendar_dayExamReminder">Erinnerung für %1$s</string>
+    <string name="home_assessmentReminderTitle">Erinnerungen für Leistungserhebungen</string>
+    <string name="home_assessmentReminderSubtitle">Bereite dich langfristig vor!</string>
 </resources>
