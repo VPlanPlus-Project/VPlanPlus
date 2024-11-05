@@ -75,14 +75,14 @@ data class CLesson(
             start =
                 (
                     lessonTimes.firstOrNull { it.lessonNumber == lesson.lessonNumber }?.start ?:
-                    es.jvbabi.vplanplus.util.LessonTime.fallbackTime(`class`.group.id, lesson.lessonNumber)
+                    es.jvbabi.vplanplus.util.LessonTime.fallbackTime(`class`.group.id, lesson.lessonNumber, lessonTimes)
                     .start
                 )
                 .withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             end =
                 (
                     lessonTimes.firstOrNull { it.lessonNumber == lesson.lessonNumber }?.end ?:
-                    es.jvbabi.vplanplus.util.LessonTime.fallbackTime(`class`.group.id, lesson.lessonNumber)
+                    es.jvbabi.vplanplus.util.LessonTime.fallbackTime(`class`.group.id, lesson.lessonNumber, lessonTimes)
                     .end
                 ).withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             defaultLesson = defaultLesson?.toModel(),
