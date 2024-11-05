@@ -5,8 +5,8 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.DailyReminderRepository
-import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
+import es.jvbabi.vplanplus.domain.usecase.daily.SendNotificationUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsNotificationsEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.GetDailyReminderTimeForCurrentProfileUseCase
@@ -25,13 +25,16 @@ object NotificationSettingsModule {
     fun provideNotificationSettingsUseCases(
         systemRepository: SystemRepository,
         dailyReminderRepository: DailyReminderRepository,
-        getCurrentProfileUseCase: GetCurrentProfileUseCase
+        getCurrentProfileUseCase: GetCurrentProfileUseCase,
+
+        sendNotificationUseCase: SendNotificationUseCase
     ) = NotificationSettingsUseCases(
         isNotificationsEnabledUseCase = IsNotificationsEnabledUseCase(systemRepository),
 
         isDailyReminderEnabledUseCase = IsDailyReminderEnabledForCurrentProfileUseCase(dailyReminderRepository, getCurrentProfileUseCase),
         setDailyReminderEnabledUseCase = SetDailyReminderEnabledForCurrentProfileUseCase(dailyReminderRepository, getCurrentProfileUseCase),
         getDailyReminderTimeUseCase = GetDailyReminderTimeForCurrentProfileUseCase(dailyReminderRepository, getCurrentProfileUseCase),
-        setDailyReminderTimeUseCase = SetDailyReminderTimeForCurrentProfileUseCase(dailyReminderRepository, getCurrentProfileUseCase)
+        setDailyReminderTimeUseCase = SetDailyReminderTimeForCurrentProfileUseCase(dailyReminderRepository, getCurrentProfileUseCase),
+        sendNotificationUseCase = sendNotificationUseCase
     )
 }

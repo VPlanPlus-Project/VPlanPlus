@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
@@ -70,6 +69,9 @@ class NotificationSettingsViewModel @Inject constructor(
                 is NotificationSettingsEvent.SetDailyReminderTime -> {
                     notificationSettingsUseCases.setDailyReminderTimeUseCase(event.dayOfWeek.value, event.time)
                 }
+                is NotificationSettingsEvent.TriggerNotification -> {
+                    notificationSettingsUseCases.sendNotificationUseCase()
+                }
             }
         }
     }
@@ -90,4 +92,5 @@ data class NotificationSettingsState(
 sealed class NotificationSettingsEvent {
     data object ToggleDailyReminder : NotificationSettingsEvent()
     data class SetDailyReminderTime(val dayOfWeek: DayOfWeek, val time: LocalTime) : NotificationSettingsEvent()
+    data object TriggerNotification: NotificationSettingsEvent()
 }

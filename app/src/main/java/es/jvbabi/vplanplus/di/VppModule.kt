@@ -69,7 +69,9 @@ import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetDayUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetDefaultLessonByIdentifierUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetNextDayUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
@@ -103,9 +105,11 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.GetVppIdDetailsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.UpdateMissingLinksStateUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.VppIdLinkUseCases
+import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.exams.domain.usecase.UpdateAssessmentsUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
+import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
@@ -568,6 +572,40 @@ object VppModule {
     fun provideGetLessonTimesForClassUseCase(lessonTimeRepository: LessonTimeRepository): GetLessonTimesForClassUseCase {
         return GetLessonTimesForClassUseCase(lessonTimeRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideGetDayUseCase(
+        timetableRepository: TimetableRepository,
+        examRepository: ExamRepository,
+        holidayRepository: HolidayRepository,
+        lessonRepository: LessonRepository,
+        homeworkRepository: HomeworkRepository,
+        keyValueRepository: KeyValueRepository,
+        planRepository: PlanRepository,
+        gradeRepository: GradeRepository
+    ) = GetDayUseCase(
+        timetableRepository = timetableRepository,
+        examRepository = examRepository,
+        holidayRepository = holidayRepository,
+        lessonRepository = lessonRepository,
+        homeworkRepository = homeworkRepository,
+        keyValueRepository = keyValueRepository,
+        planRepository = planRepository,
+        gradeRepository = gradeRepository
+    )
+
+    @Provides
+    @Singleton
+    fun provideGetNextDayUseCase(
+        planRepository: PlanRepository,
+        holidayRepository: HolidayRepository,
+        getDayUseCase: GetDayUseCase
+    ) = GetNextDayUseCase(
+        planRepository = planRepository,
+        holidayRepository = holidayRepository,
+        getDayUseCase = getDayUseCase
+    )
 
     @Provides
     @Singleton

@@ -874,4 +874,21 @@
     <string name="settingsNotifications_dailyReminderCategoryTitle">Daily reminder</string>
     <string name="settingsNotifications_dailyReminderSettingsTitle">Send daily reminders</string>
     <string name="settingsNotifications_dailyReminderSettingsSubtitle">Get notified to prepare for your next school day with the next days plan, homework and assessments.</string>
+    <string name="settingsNotifications_triggerTitle">Trigger notification</string>
+    <string name="dailyReminderNotification_title">Prepare your next school day</string>
+    <plurals name="dailyReminderNotification_lessons">
+        <item quantity="one">One lesson</item>
+        <item quantity="other">%1$d lessons</item>
+    </plurals>
+    <plurals name="dailyReminderNotification_homework">
+        <item quantity="one">One homework</item>
+        <item quantity="other">%1$d homework</item>
+    </plurals>
+    <plurals name="dailyReminderNotification_assessments">
+        <item quantity="one">One assessment</item>
+        <item quantity="other">%1$d assessments</item>
+    </plurals>
+    <string name="notification_dailyName">Daily notification</string>
+    <string name="notification_dailyDescription">Get notified about your next school day.</string>
+    <string name="dailyReminderNotification_remind15Minutes">Remind in 15 minutes</string>
 </resources>

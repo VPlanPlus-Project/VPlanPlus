@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.feature.settings.notifications.ui
 import android.content.Intent
 import android.provider.Settings
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -25,6 +26,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.EditNotifications
 import androidx.compose.material.icons.filled.NotificationsActive
 import androidx.compose.material.icons.filled.NotificationsOff
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -50,6 +52,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.BackIcon
+import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.FullSizeLoadingCircle
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
@@ -166,54 +169,56 @@ fun NotificationSettingsContent(
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut()
                 ) {
-                    Row(Modifier.padding(top = 8.dp)) {
-                        val stepMinutes = 15
+                    Column {
+                        Row(Modifier.padding(vertical = 8.dp)) sliders@{
+                            val stepMinutes = 15
 
-                        val getTimeFromMinuteOffset: (minutes: Int) -> LocalTime = { minute ->
-                            LocalTime.of(0, 0).plusMinutes(minute.toLong())
-                        }
+                            val getTimeFromMinuteOffset: (minutes: Int) -> LocalTime = { minute ->
+                                LocalTime.of(0, 0).plusMinutes(minute.toLong())
+                            }
 
-                        val getMinutesFromTime: (time: LocalTime) -> Int = { time ->
-                            time.minute + (time.hour * 60)
-                        }
+                            val getMinutesFromTime: (time: LocalTime) -> Int = { time ->
+                                time.minute + (time.hour * 60)
+                            }
 
-                        repeat(5) { dayOffset ->
-                            val day = DayOfWeek.of(((dayOffset + 6) % 7) + 1)
-                            val time = state.dailyReminderTimes[day] ?: LocalTime.of(15, 30)
-                            var isDragging by remember { mutableStateOf(false) }
-                            var draggingTime by remember { mutableStateOf(time) }
-                            Column(
-                                modifier = Modifier.weight(1f),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                Text(day.getDisplayName(TextStyle.SHORT, Locale.getDefault()))
-                                Column(Modifier.height(300.dp)) slider@{
-                                    Slider(
-                                        orientation = Orientation.Vertical,
-                                        steps = stepMinutes,
-                                        puckContent = {
-                                            Text(
-                                                text = getTimeFromMinuteOffset(it.toInt().nearest(15)).format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)),
-                                                color = MaterialTheme.colorScheme.onPrimary,
-                                                style = MaterialTheme.typography.labelSmall
-                                            )
-                                        },
-                                        range = getMinutesFromTime(LocalTime.of(13, 0)).toFloat()..60*24f,
-                                        puckSize = Size(40.dp, 20.dp),
-                                        onValueChange = { doAction(NotificationSettingsEvent.SetDailyReminderTime(day, getTimeFromMinuteOffset(it.toInt().nearest(15)))) },
-                                        currentValue = getMinutesFromTime(time).toFloat(),
-                                        trackThickness = 2.dp,
-                                        activeTrackColor = MaterialTheme.colorScheme.primary,
-                                        puckColor = MaterialTheme.colorScheme.primary,
-                                        trackColor = MaterialTheme.colorScheme.outline,
-                                        puckPadding = 2.dp,
-                                        onDragChange = { isDraggingSlider, value ->
-                                            isDragging = isDraggingSlider
-                                            draggingTime = getTimeFromMinuteOffset(value.toInt().nearest(15))
-                                        }
-                                    )
-                                }
-                                Box(modifier = Modifier.size(48.dp)) {
+                            repeat(5) { dayOffset ->
+                                val day = DayOfWeek.of(((dayOffset + 6) % 7) + 1)
+                                val time = state.dailyReminderTimes[day] ?: LocalTime.of(15, 30)
+                                var isDragging by remember { mutableStateOf(false) }
+                                var draggingTime by remember { mutableStateOf(time) }
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .animateContentSize(),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(day.getDisplayName(TextStyle.SHORT, Locale.getDefault()))
+                                    Column(Modifier.height(300.dp)) slider@{
+                                        Slider(
+                                            orientation = Orientation.Vertical,
+                                            steps = stepMinutes,
+                                            puckContent = {
+                                                Text(
+                                                    text = getTimeFromMinuteOffset(it.toInt().nearest(15)).format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)),
+                                                    color = MaterialTheme.colorScheme.onPrimary,
+                                                    style = MaterialTheme.typography.labelSmall
+                                                )
+                                            },
+                                            range = getMinutesFromTime(LocalTime.of(13, 0)).toFloat()..60*24f,
+                                            puckSize = Size(40.dp, 20.dp),
+                                            onValueChange = { doAction(NotificationSettingsEvent.SetDailyReminderTime(day, getTimeFromMinuteOffset(it.toInt().nearest(15)))) },
+                                            currentValue = getMinutesFromTime(time).toFloat(),
+                                            trackThickness = 2.dp,
+                                            activeTrackColor = MaterialTheme.colorScheme.primary,
+                                            puckColor = MaterialTheme.colorScheme.primary,
+                                            trackColor = MaterialTheme.colorScheme.outline,
+                                            puckPadding = 2.dp,
+                                            onDragChange = { isDraggingSlider, value ->
+                                                isDragging = isDraggingSlider
+                                                draggingTime = getTimeFromMinuteOffset(value.toInt().nearest(15))
+                                            }
+                                        )
+                                    }
                                     androidx.compose.animation.AnimatedVisibility(
                                         visible = isDragging,
                                         enter = scaleIn() + fadeIn(),
@@ -237,12 +242,35 @@ fun NotificationSettingsContent(
                                 }
                             }
                         }
+
+                        if (state.isDeveloperModeEnabled) SettingsSetting(
+                            icon = Icons.Default.PlayArrow,
+                            title = stringResource(R.string.settingsNotifications_triggerTitle),
+                            titleBadge = { Badge(MaterialTheme.colorScheme.error, "Developer") },
+                            doAction = { doAction(NotificationSettingsEvent.TriggerNotification) },
+                            enabled = true,
+                            type = SettingsType.FUNCTION,
+                        )
                     }
                 }
 
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NotificationSettingsPreview() {
+    NotificationSettingsContent(
+        doAction = {},
+        state = NotificationSettingsState(
+            canSendNotifications = true,
+            isDailyReminderEnabled = true,
+        ),
+        onBack = {},
+        onOpenSystemNotificationSettings = {},
+    )
 }
 
 @Preview

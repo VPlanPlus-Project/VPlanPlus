@@ -872,4 +872,21 @@
     <string name="settingsNotifications_dailyReminderCategoryTitle">Tägliche Erinnerung</string>
     <string name="settingsNotifications_dailyReminderSettingsTitle">Tägliche Benachrichtigung senden</string>
     <string name="settingsNotifications_dailyReminderSettingsSubtitle">Erhalte eine Benachrichtigung, um dich auf den nächsten Schultag vorzubereiten, einschließlich Plänen, Hausaufgaben und Leistungserhebungen.</string>
+    <string name="settingsNotifications_triggerTitle">Benachrichtigung auslösen</string>
+    <string name="dailyReminderNotification_title">Bereite den nächsten Tag vor</string>
+    <plurals name="dailyReminderNotification_lessons">
+        <item quantity="one">Eine Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
+    </plurals>
+    <plurals name="dailyReminderNotification_homework">
+        <item quantity="one">Eine Hausaufgabe</item>
+        <item quantity="other">%1$d Hausaufgaben</item>
+    </plurals>
+    <plurals name="dailyReminderNotification_assessments">
+        <item quantity="one">Eine Leistungserhebung</item>
+        <item quantity="other">%1$d Leistungserhebungen</item>
+    </plurals>
+    <string name="notification_dailyName">Tägliche Benachrichtigung</string>
+    <string name="notification_dailyDescription">Benachrichtigungen über den nächsten Schultag.</string>
+    <string name="dailyReminderNotification_remind15Minutes">In 15 Minuten erinnern</string>
 </resources>
