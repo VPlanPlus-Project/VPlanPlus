@@ -424,11 +424,7 @@
     <string name="advancedSettings_dialogServerMessage">Tue dies nur zu Testzwecken. Das Wechseln des vpp.ID Servers kann in fehlerhafte Daten resultieren. Nachdem du einen anderen Server ausgewählt hast, wird die App sich schließen.</string>
     <string name="advancedSettings_settingsServerDefault">Standardserver</string>
     <string name="grades_filterTitle">Fächer</string>
-    <string name="settings_homeworkTitle">Hausaufgaben</string>
-    <string name="settings_subjectsSubtitle">Verwalte Benachrichtigungen zu Hausaufgaben</string>
     <string name="settingsHomework_title">Hausaufgaben</string>
-    <string name="settingsHomework_showNotificationOnNewHomeworkTitle">Benachrichtigung, wenn eine neue Hausaufgabe vorliegt</string>
-    <string name="settingsHomework_showNotificationOnNewHomeworkSubtitle">Du kannst Benachrichtigungen über neue Hausaufgaben deaktivieren und dich auf die täglichen Erinnerungen verlassen.</string>
     <string name="settingsHomework_defaultNotificationTimeTitle">Bevorzugte Erinnerungszeit</string>
     <string name="settingsHomework_defaultNotificationTimeSubtitle">Du erhälst eine Benachrichtigung, wenn es unerledigte Hausaufgaben gibt. Aktuell auf %1$s Uhr gesetzt.</string>
     <string name="settingsHomework_reminderNotificationEnabledTitle">An unerledigte Hausaufgaben erinnern</string>
@@ -866,4 +862,31 @@
     <string name="calendar_dayExamReminder">Erinnerung für %1$s</string>
     <string name="home_assessmentReminderTitle">Erinnerungen für Leistungserhebungen</string>
     <string name="home_assessmentReminderSubtitle">Bereite dich langfristig vor!</string>
+    <string name="settings_notificationsTitle">Benachrichtigungen</string>
+    <string name="settings_notificationsSubtitle">Erhalte Infos zu neuen Hausaufgaben und dem nächsten Schultag.</string>
+    <string name="settingsNotifications_title">Benachrichtigungen</string>
+    <string name="settingsNotifications_notificationsDisabledBannerTitle">Benachrichtigungen deaktiviert</string>
+    <string name="settingsNotifications_notificationsDisabledBannerText">VPlanPlus kann keine Benachrichtigungen senden, da diese aktuell deaktiviert sind. Aktiviere Benachrichtigungen in den Einstellungen.</string>
+    <string name="settingsNotifications_notificationCategoriesTitle">Benachrichtigungskategorien</string>
+    <string name="settingsNotifications_notificationCategoriesSubtitle">Schalte verschiedene Kategorien an Benachrichtigungen ein oder aus.</string>
+    <string name="settingsNotifications_dailyReminderCategoryTitle">Tägliche Erinnerung</string>
+    <string name="settingsNotifications_dailyReminderSettingsTitle">Tägliche Benachrichtigung senden</string>
+    <string name="settingsNotifications_dailyReminderSettingsSubtitle">Erhalte eine Benachrichtigung, um dich auf den nächsten Schultag vorzubereiten, einschließlich Plänen, Hausaufgaben und Leistungserhebungen.</string>
+    <string name="settingsNotifications_triggerTitle">Benachrichtigung auslösen</string>
+    <string name="dailyReminderNotification_title">Bereite den nächsten Tag vor</string>
+    <plurals name="dailyReminderNotification_lessons">
+        <item quantity="one">Eine Stunde</item>
+        <item quantity="other">%1$d Stunden</item>
+    </plurals>
+    <plurals name="dailyReminderNotification_homework">
+        <item quantity="one">Eine Hausaufgabe</item>
+        <item quantity="other">%1$d Hausaufgaben</item>
+    </plurals>
+    <plurals name="dailyReminderNotification_assessments">
+        <item quantity="one">Eine Leistungserhebung</item>
+        <item quantity="other">%1$d Leistungserhebungen</item>
+    </plurals>
+    <string name="notification_dailyName">Tägliche Benachrichtigung</string>
+    <string name="notification_dailyDescription">Benachrichtigungen über den nächsten Schultag.</string>
+    <string name="dailyReminderNotification_remind15Minutes">In 15 Minuten erinnern</string>
 </resources>

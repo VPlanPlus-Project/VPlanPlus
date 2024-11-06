@@ -11,7 +11,7 @@ class GetCurrentProfileUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val profileRepository: ProfileRepository
 ) {
-    suspend operator fun invoke() = flow {
+    operator fun invoke() = flow {
         combine(
             keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
             profileRepository.getProfiles()

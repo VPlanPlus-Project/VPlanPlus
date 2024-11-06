@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import kotlinx.coroutines.flow.Flow
+import java.time.DayOfWeek
 
 interface KeyValueRepository {
 
@@ -45,9 +47,6 @@ object Keys {
 
     const val VPPID_SERVER = "VPPID_SERVER"
 
-    const val SHOW_NOTIFICATION_ON_NEW_HOMEWORK = "SHOW_NOTIFICATION_ON_NEW_HOMEWORK"
-    const val SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT = "true"
-
     const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK = "SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK"
     const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_DEFAULT = "false"
     const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS = "SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS"
@@ -70,4 +69,10 @@ object Keys {
     const val LAST_KNOWN_APP_VERSION = "LAST_KNOWN_APP_VERSION"
 
     const val SHOW_TIMETABLE_INFO_BANNER = "SHOW_TIMETABLE_INFO_BANNER"
+
+    private const val DAILY_REMINDER_ENABLED = "DAILY_REMINDER_ENABLED"
+    private const val DAILY_REMINDER_TIME = "DAILY_REMINDER_TIME"
+
+    fun isDailyReminderEnabled(profile: ClassProfile) = DAILY_REMINDER_ENABLED + "_" + profile.id
+    fun dailyReminderTime(profile: ClassProfile, dayOfWeek: DayOfWeek) = DAILY_REMINDER_TIME + "_" + profile.id + "_" + dayOfWeek.name
 }

@@ -8,20 +8,16 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
-import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
-import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
-import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.GetNextDayUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
-import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
-import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHolidaysUseCase
@@ -48,34 +44,19 @@ object HomeModule {
     @Provides
     @Singleton
     fun provideGetDayUseCase(
-        planRepository: PlanRepository,
-        keyValueRepository: KeyValueRepository,
-        homeworkRepository: HomeworkRepository,
-        gradeRepository: GradeRepository,
-        lessonRepository: LessonRepository,
-        timetableRepository: TimetableRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
-        holidayRepository: HolidayRepository,
-        examRepository: ExamRepository
+        getDayUseCase: es.jvbabi.vplanplus.domain.usecase.general.GetDayUseCase,
     ): GetDayUseCase {
         return GetDayUseCase(
-            planRepository = planRepository,
-            keyValueRepository = keyValueRepository,
-            homeworkRepository = homeworkRepository,
-            gradeRepository = gradeRepository,
-            timetableRepository = timetableRepository,
             getCurrentProfileUseCase = getCurrentProfileUseCase,
-            lessonRepository = lessonRepository,
-            holidayRepository = holidayRepository,
-            examRepository = examRepository
+            getDayUseCase = getDayUseCase,
         )
     }
 
     @Provides
     @Singleton
-    fun provideHomUseCases(
+    fun provideHomeUseCases(
         keyValueRepository: KeyValueRepository,
-        planRepository: PlanRepository,
         homeworkRepository: HomeworkRepository,
         roomRepository: RoomRepository,
         profileRepository: ProfileRepository,
@@ -85,6 +66,7 @@ object HomeModule {
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         getCurrentTimeUseCase: GetCurrentTimeUseCase,
         getDayUseCase: GetDayUseCase,
+        getNextDayUseCase: GetNextDayUseCase,
         @ApplicationContext context: Context
     ): HomeUseCases {
         return HomeUseCases(
@@ -116,10 +98,8 @@ object HomeModule {
 
             getVppIdServerUseCase = GetVppIdServerUseCase(keyValueRepository),
             getNextSchoolDayUseCase = GetNextSchoolDayUseCase(
-                planRepository = planRepository,
-                holidayRepository = holidayRepository,
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
-                getDayUseCase = getDayUseCase
+                getNextDayUseCase = getNextDayUseCase
             )
         )
     }

@@ -360,6 +360,7 @@ class MainActivity : FragmentActivity() {
                             if (destinationData.payload == null) return@launch
                             navController!!.navigate(Json.decodeFromString<Screen.HomeworkDetailScreen>(destinationData.payload))
                         }
+                        "home" -> Unit
                     }
                 } else when (destination) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
