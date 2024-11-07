@@ -64,9 +64,9 @@ class SetUpUseCase(
         keyValueRepository.set(Keys.INVALID_VPP_SESSION, testMapping.filter { it.second != null }.any { it.second == false }.toString())
     }
 
-    suspend fun createHomeworkReminder() {
+    private suspend fun createHomeworkReminder() {
         repeat(7) { day ->
-            alarmManagerRepository.cancelAlarm("HOMEWORK_REMINDER_${day + 1}")
+            alarmManagerRepository.deleteIf { it.data == "HOMEWORK_REMINDER_${day + 1}" }
         }
         if (
             !keyValueRepository.getOrDefault(
@@ -87,15 +87,15 @@ class SetUpUseCase(
                 if (exception != null) dateTime.plusSeconds(exception.secondsFromMidnight)
                 else dateTime.plusSeconds(defaultTime)
 
-            val epochSeconds = dateTime.atZone(ZoneId.systemDefault()).toInstant().epochSecond
-            if (epochSeconds < System.currentTimeMillis() / 1000) return
+            val epochSeconds = dateTime.atZone(ZoneId.systemDefault())
+            if (epochSeconds.toInstant().epochSecond < System.currentTimeMillis() / 1000) return
 
             Log.i("SetUpUseCase", "Creating alarm for $day at $dateTime/$epochSeconds")
 
-            alarmManagerRepository.setAlarm(
-                epochSeconds,
-                AlarmManagerRepository.TAG_HOMEWORK_NOTIFICATION,
-                "HOMEWORK_REMINDER_${dateTime.dayOfWeek.value}",
+            alarmManagerRepository.addAlarm(
+                time = epochSeconds,
+                tags = listOf(AlarmManagerRepository.TAG_HOMEWORK_NOTIFICATION),
+                data = "HOMEWORK_REMINDER_${dateTime.dayOfWeek.value}",
             )
         }
     }

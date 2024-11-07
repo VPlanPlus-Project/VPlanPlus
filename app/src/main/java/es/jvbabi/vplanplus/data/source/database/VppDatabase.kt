@@ -7,6 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.jvbabi.vplanplus.data.model.DbAlarm
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbLesson
@@ -43,6 +44,7 @@ import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableTeacherCrossover
+import es.jvbabi.vplanplus.data.source.database.dao.AlarmDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.ExamDao
 import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
@@ -131,9 +133,11 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbInterval::class,
 
         DbExam::class,
-        DbExamReminder::class
+        DbExamReminder::class,
+
+        DbAlarm::class
     ],
-    version = 46,
+    version = 47,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -156,6 +160,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 43, to = 44), // add exams
         AutoMigration(from = 44, to = 45), // add exam reminders
         AutoMigration(from = 45, to = 46), // add exam isPublic
+        AutoMigration(from = 46, to = 47), // add alarms
     ],
 )
 @TypeConverters(
@@ -204,6 +209,8 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val yearDao: YearDao
 
     abstract val examDao: ExamDao
+
+    abstract val alarmDao: AlarmDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {
