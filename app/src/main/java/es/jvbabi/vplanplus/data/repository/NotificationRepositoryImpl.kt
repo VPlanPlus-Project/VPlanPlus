@@ -16,6 +16,7 @@ import es.jvbabi.vplanplus.domain.repository.DoActionTask
 import es.jvbabi.vplanplus.domain.repository.NotificationAction
 import es.jvbabi.vplanplus.domain.repository.NotificationOnClickTask
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_DAILY
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_NEWS
@@ -35,6 +36,7 @@ class NotificationRepositoryImpl(
         channelId: String,
         id: Int,
         title: String,
+        subtitle: String?,
         message: String,
         icon: Int,
         onClickTask: NotificationOnClickTask?,
@@ -83,6 +85,7 @@ class NotificationRepositoryImpl(
 
         val builder = NotificationCompat.Builder(appContext, channelId)
             .setContentTitle(title)
+            .setSubText(subtitle)
             .setContentText(message)
             .setPriority(priority)
             .setStyle(
@@ -162,6 +165,12 @@ class NotificationRepositoryImpl(
             CHANNEL_ID_SYSTEM,
             context.getString(R.string.notification_systemName),
             context.getString(R.string.notification_systemDescription),
+            NotificationManager.IMPORTANCE_HIGH
+        )
+        createChannel(
+            CHANNEL_ID_DAILY,
+            context.getString(R.string.notification_dailyName),
+            context.getString(R.string.notification_dailyDescription),
             NotificationManager.IMPORTANCE_HIGH
         )
     }

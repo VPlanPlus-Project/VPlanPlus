@@ -10,3 +10,13 @@ object MathTools {
 fun lerp(start: Float, stop: Float, fraction: Float): Float {
     return start + (stop - start) * fraction
 }
+
+fun Float.nearest(step: Float): Float {
+    if (this % step < step / 2) return this - (this % step)
+    return this + (step - (this % step))
+}
+
+fun Int.nearest(step: Int): Int {
+    if (this % step < step / 2) return this - (this % step)
+    return this + (step - (this % step))
+}

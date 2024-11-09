@@ -34,6 +34,13 @@ class UpdateAssessmentsUseCase(
                     logRepository.log("UpdateAssessmentsUseCase", "Error downloading assessments ${data.exceptionOrNull()}")
                 }
                 val downloadedAssessments = data.getOrNull().orEmpty()
+                    .filter {
+                        val defaultLesson = getDefaultLessonByIdentifierUseCase(it.subject) ?: run {
+                            logRepository.log("UpdateAssessmentsUseCase", "Cannot find default lesson ${it.subject}")
+                            return@filter false
+                        }
+                        profile.isDefaultLessonEnabled(defaultLesson.vpId)
+                    }
 
                 existingAssessments
                     .map { it.id }
