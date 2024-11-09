@@ -46,7 +46,7 @@ class SetUpUseCase(
 
         keyValueRepository.set(Keys.LAST_KNOWN_APP_VERSION, currentVersion.toString())
 
-        if (previousVersion <= 320) migrateHomeworkNotificationSettingsToDailyUseCase()
+        if (previousVersion <= 321) migrateHomeworkNotificationSettingsToDailyUseCase()
     }
 
     private suspend fun testForInvalidSessions() {
