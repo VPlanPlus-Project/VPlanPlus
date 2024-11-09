@@ -19,10 +19,7 @@ data class DbAlarm(
         return Alarm(
             id = id,
             time = time,
-            tags = tags
-                .drop(1)
-                .dropLast(1)
-                .split(";"),
+            tags = tags.split(";"),
             data = data
         )
     }

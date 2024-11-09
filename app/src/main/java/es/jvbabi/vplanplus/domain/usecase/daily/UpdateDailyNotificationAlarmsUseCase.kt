@@ -5,6 +5,8 @@ import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.DailyReminderRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -15,7 +17,7 @@ class UpdateDailyNotificationAlarmsUseCase(
     private val dailyReminderRepository: DailyReminderRepository
 ) {
     suspend operator fun invoke() {
-        alarmManagerRepository.deleteAlarmsByTag(AlarmManagerRepository.TAG_DAILY_REMINDER)
+        alarmManagerRepository.deleteIf { AlarmManagerRepository.TAG_DAILY_REMINDER in it.tags && AlarmManagerRepository.TAG_DAILY_REMINDER_DELAYED !in it.tags }
         repeat(7) { dayOffset ->
             val date = LocalDate.now().plusDays(dayOffset.toLong())
             profileRepository
@@ -29,7 +31,7 @@ class UpdateDailyNotificationAlarmsUseCase(
                     alarmManagerRepository.addAlarm(
                         time = datetime.atZone(ZoneId.systemDefault()),
                         tags = listOf(AlarmManagerRepository.TAG_DAILY_REMINDER),
-                        data = profile.id.toString()
+                        data = Json.encodeToString(DailyReminderNotificationData(profile.id.toString(), 0)),
                     )
                 }
         }

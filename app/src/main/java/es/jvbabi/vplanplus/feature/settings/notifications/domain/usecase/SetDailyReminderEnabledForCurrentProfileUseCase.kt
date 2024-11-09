@@ -13,5 +13,4 @@ class SetDailyReminderEnabledForCurrentProfileUseCase(
         val profile = getCurrentProfileUseCase().first() as? ClassProfile ?: return
         profileRepository.setDailyNotificationEnabled(profile, enabled)
     }
-
 }

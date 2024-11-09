@@ -25,10 +25,12 @@ class AlarmManagerRepositoryImpl(
     override suspend fun addAlarm(time: ZonedDateTime, tags: List<String>, data: String): Alarm {
         val id = alarmDao.insert(
             time = time,
-            tags = tags.joinToString(","),
+            tags = tags.joinToString(";"),
             data = data
         ).toInt()
-        return alarmDao.getAlarmById(id)!!.toModel()
+        val alarm = alarmDao.getAlarmById(id)!!.toModel()
+        createSystemAlarm(context, alarm)
+        return alarm
     }
 
     override suspend fun deleteAlarmById(id: Int) {
@@ -59,19 +61,32 @@ class AlarmManagerRepositoryImpl(
             .getAlarms()
             .map { it.toModel() }
             .forEach { alarm ->
-                val intent = Intent(context, AlarmReceiver::class.java).apply {
-                    putExtra("id", alarm.id)
-                }
-                val pendingIntent = PendingIntent.getBroadcast(
-                    context, alarm.id, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                )
-                service.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC,
-                    alarm.time.toEpochSecond() * 1000,
-                    pendingIntent
-                )
+                createSystemAlarm(context, alarm)
             }
+    }
+
+    private fun createSystemAlarm(context: Context, alarm: Alarm) {
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            putExtra("id", alarm.id)
+        }
+        val pendingIntent = PendingIntent.getBroadcast(
+            context, alarm.id, intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+        if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                service.canScheduleExactAlarms()
+            } else {
+                false
+            }
+        ) service.setExactAndAllowWhileIdle(
+            AlarmManager.RTC,
+            alarm.time.toEpochSecond() * 1000,
+            pendingIntent
+        ) else service.setAndAllowWhileIdle(
+            AlarmManager.RTC,
+            alarm.time.toEpochSecond() * 1000,
+            pendingIntent
+        )
     }
 
     override suspend fun getAlarmById(id: Int): Alarm? {

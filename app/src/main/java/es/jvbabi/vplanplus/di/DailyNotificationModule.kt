@@ -12,6 +12,7 @@ import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.usecase.daily.SendNotificationUseCase
 import es.jvbabi.vplanplus.domain.usecase.daily.UpdateDailyNotificationAlarmsUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetNextDayUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import javax.inject.Singleton
 
 @Module
@@ -21,18 +22,16 @@ object DailyNotificationModule {
     @Provides
     @Singleton
     fun provideSendNotificationUseCase(
-        profileRepository: ProfileRepository,
-        dailyReminderRepository: DailyReminderRepository,
         notificationRepository: NotificationRepository,
         stringRepository: StringRepository,
-        getNextDayUseCase: GetNextDayUseCase
+        getNextDayUseCase: GetNextDayUseCase,
+        isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase
     ): SendNotificationUseCase {
         return SendNotificationUseCase(
-            profileRepository = profileRepository,
-            dailyReminderRepository = dailyReminderRepository,
             notificationRepository = notificationRepository,
             stringRepository = stringRepository,
-            getNextDayUseCase = getNextDayUseCase
+            getNextDayUseCase = getNextDayUseCase,
+            isDeveloperModeEnabledUseCase = isDeveloperModeEnabledUseCase
         )
     }
 

@@ -891,4 +891,5 @@
     <string name="notification_dailyName">Daily notification</string>
     <string name="notification_dailyDescription">Get notified about your next school day.</string>
     <string name="dailyReminderNotification_remind15Minutes">Remind in 15 minutes</string>
+    <string name="dailyReminderNotification_updateTimes">Change reminder time</string>
 </resources>

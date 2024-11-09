@@ -889,4 +889,5 @@
     <string name="notification_dailyName">Tägliche Benachrichtigung</string>
     <string name="notification_dailyDescription">Benachrichtigungen über den nächsten Schultag.</string>
     <string name="dailyReminderNotification_remind15Minutes">In 15 Minuten erinnern</string>
+    <string name="dailyReminderNotification_updateTimes">Zeit anpassen</string>
 </resources>

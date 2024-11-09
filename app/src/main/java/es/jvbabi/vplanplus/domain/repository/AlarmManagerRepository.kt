@@ -15,6 +15,7 @@ interface AlarmManagerRepository {
 
     companion object {
         @Deprecated("") const val TAG_HOMEWORK_NOTIFICATION = "homework_notification"
-        const val TAG_DAILY_REMINDER = "daily_reminder"
+        const val TAG_DAILY_REMINDER = "dra"
+        const val TAG_DAILY_REMINDER_DELAYED = "dra!"
     }
 }

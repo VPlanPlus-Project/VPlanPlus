@@ -75,7 +75,7 @@ class NotificationSettingsViewModel @Inject constructor(
                     notificationSettingsUseCases.setDailyReminderTimeUseCase(event.dayOfWeek.value, event.time)
                 }
                 is NotificationSettingsEvent.TriggerNotification -> {
-                    notificationSettingsUseCases.sendNotificationUseCase()
+                    notificationSettingsUseCases.sendNotificationUseCase(state.currentProfile as? ClassProfile ?: return@launch, 0)
                 }
             }
         }

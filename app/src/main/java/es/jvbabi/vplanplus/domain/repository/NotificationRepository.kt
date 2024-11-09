@@ -56,4 +56,4 @@ interface NotificationOnClickTask
 class OpenScreenTask(val destination: String) : NotificationOnClickTask
 class OpenLinkTask(val url: String) : NotificationOnClickTask
 class DoActionTask(val tag: String, val payload: String? = null): NotificationOnClickTask
-class BroadcastIntentTask(val tag: String): NotificationOnClickTask
+class BroadcastIntentTask(val tag: String, val payload: String? = null): NotificationOnClickTask
