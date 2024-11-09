@@ -46,7 +46,7 @@ class DailyRemindLaterReceiver : BroadcastReceiver() {
         Log.i(this::class.java.simpleName, "Daily remind later clicked for payload $payload")
 
         runBlocking {
-            val time = ZonedDateTime.now().plusSeconds(Keys.SETTINGS_DAILY_LATER_DEFAULT_SECONDS.toLong()),
+            val time = ZonedDateTime.now().plusSeconds(Keys.SETTINGS_DAILY_LATER_DEFAULT_SECONDS.toLong())
             alarmManagerRepository.addAlarm(
                 time = time,
                 tags = listOf(AlarmManagerRepository.TAG_DAILY_REMINDER, AlarmManagerRepository.TAG_DAILY_REMINDER_DELAYED),

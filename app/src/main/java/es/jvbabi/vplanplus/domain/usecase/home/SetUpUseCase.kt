@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.domain.usecase.home
 import android.util.Log
 import com.google.firebase.messaging.FirebaseMessaging
 import es.jvbabi.vplanplus.BuildConfig
+import es.jvbabi.vplanplus.android.receiver.MigrateHomeworkNotificationSettingsToDailyUseCase
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
@@ -20,7 +21,8 @@ class SetUpUseCase(
     private val vppIdRepository: VppIdRepository,
     private val testForMissingVppIdToProfileConnectionsUseCase: TestForMissingVppIdToProfileConnectionsUseCase,
     private val updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
-    private val updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase
+    private val updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase,
+    private val migrateHomeworkNotificationSettingsToDailyUseCase: MigrateHomeworkNotificationSettingsToDailyUseCase
 ) {
 
     suspend operator fun invoke() {
@@ -43,6 +45,8 @@ class SetUpUseCase(
         if (previousVersion == currentVersion) return
 
         keyValueRepository.set(Keys.LAST_KNOWN_APP_VERSION, currentVersion.toString())
+
+        if (previousVersion <= 320) migrateHomeworkNotificationSettingsToDailyUseCase()
     }
 
     private suspend fun testForInvalidSessions() {

@@ -4,6 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.android.receiver.MigrateHomeworkNotificationSettingsToDailyUseCase
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -65,7 +66,8 @@ object MainModule {
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
         updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase,
-        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
+        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
+        getCurrentProfileUseCase: GetCurrentProfileUseCase
     ): SetUpUseCase {
         return SetUpUseCase(
             keyValueRepository = keyValueRepository,
@@ -73,7 +75,8 @@ object MainModule {
             vppIdRepository = vppIdRepository,
             testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository),
             updateFirebaseTokenUseCase = updateFirebaseTokenUseCase,
-            updateDailyNotificationAlarmsUseCase = updateDailyNotificationAlarmsUseCase
+            updateDailyNotificationAlarmsUseCase = updateDailyNotificationAlarmsUseCase,
+            migrateHomeworkNotificationSettingsToDailyUseCase = MigrateHomeworkNotificationSettingsToDailyUseCase(profileRepository, getCurrentProfileUseCase)
         )
     }
 
