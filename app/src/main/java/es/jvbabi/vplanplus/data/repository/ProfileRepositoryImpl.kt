@@ -1,6 +1,5 @@
 package es.jvbabi.vplanplus.data.repository
 
-import android.util.Log
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
@@ -72,7 +71,6 @@ class ProfileRepositoryImpl(
             profileDao.getTeacherProfiles(),
             profileDao.getRoomProfiles()
         ) { classProfiles, teacherProfiles, roomProfiles ->
-            Log.d("ProfileRepositoryImpl", "Getting profile by id: $profileId")
             val profile = classProfiles.firstOrNull { it.classProfile.id == profileId }?.toModel()
                 ?: teacherProfiles.firstOrNull { it.teacherProfile.id == profileId }?.toModel()
                 ?: roomProfiles.firstOrNull { it.roomProfile.id == profileId }?.toModel()

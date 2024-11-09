@@ -15,7 +15,8 @@ class GetCurrentProfileUseCase(
     @OptIn(ExperimentalCoroutinesApi::class)
     operator fun invoke() = keyValueRepository.getFlow(Keys.ACTIVE_PROFILE).flatMapLatest { profileIdString ->
             val profileId = try {
-                UUID.fromString(profileIdString)
+                if (profileIdString == null) null
+                else UUID.fromString(profileIdString)
             } catch (e: IllegalArgumentException) {
                 null
             }
