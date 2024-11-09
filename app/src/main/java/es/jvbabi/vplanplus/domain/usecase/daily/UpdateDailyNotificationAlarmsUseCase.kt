@@ -28,6 +28,7 @@ class UpdateDailyNotificationAlarmsUseCase(
                 .forEach { profile ->
                     val time = dailyReminderRepository.getDailyReminderTime(profile, date.dayOfWeek).first()
                     val datetime = LocalDateTime.of(date, time)
+                    if (datetime.isBefore(LocalDateTime.now())) return@forEach
                     alarmManagerRepository.addAlarm(
                         time = datetime.atZone(ZoneId.systemDefault()),
                         tags = listOf(AlarmManagerRepository.TAG_DAILY_REMINDER),
