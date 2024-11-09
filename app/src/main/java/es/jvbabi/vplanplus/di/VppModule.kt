@@ -248,7 +248,11 @@ object VppModule {
         keyValueRepository: KeyValueRepository,
         logRecordRepository: LogRecordRepository
     ): GroupRepository {
-        return GroupRepositoryImpl(db.groupDao, provideVppIdNetworkRepository(keyValueRepository, logRecordRepository))
+        return GroupRepositoryImpl(
+            groupDao = db.groupDao,
+            schoolDao = db.schoolDao,
+            vppIdNetworkRepository = provideVppIdNetworkRepository(keyValueRepository, logRecordRepository)
+        )
     }
 
     @Provides

@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.data.repository
 
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
+import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.School
 import es.jvbabi.vplanplus.domain.model.SchoolSp24Access
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.first
 
 class GroupRepositoryImpl(
     private val groupDao: GroupDao,
+    private val schoolDao: SchoolDao,
     private val vppIdNetworkRepository: VppIdNetworkRepository
 ) : GroupRepository {
     override suspend fun insertGroup(schoolSp24Access: SchoolSp24Access, groupId: Int?, groupName: String, isClass: Boolean): Boolean {
@@ -39,7 +41,11 @@ class GroupRepositoryImpl(
         schoolId: Int,
         groupName: String
     ): Group? {
-        val group = groupDao.getGroupsBySchoolId(schoolId = schoolId).first().firstOrNull { it.group.name == groupName } ?: return null
+        val group = groupDao.getGroupsBySchoolId(schoolId = schoolId).first().firstOrNull { it.group.name == groupName } ?: run {
+            val updateSuccessful = insertGroup(schoolDao.getSchoolFromId(schoolId)?.toModel()?.buildAccess() ?: return null, null, groupName, true)
+            if (!updateSuccessful) return null
+            return getGroupBySchoolAndName(schoolId, groupName)
+        }
         return group.toModel()
     }
 
