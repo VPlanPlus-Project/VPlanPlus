@@ -9,6 +9,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.android.receiver.DailyRemindLaterReceiver
 import es.jvbabi.vplanplus.android.receiver.HomeworkRemindLaterReceiver
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.BroadcastIntentTask
@@ -26,7 +27,6 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.OpenLinkTask
 import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
-import es.jvbabi.vplanplus.shared.data.PendingIntentCodes.HOMEWORK_REMINDER_REMIND_LATER
 
 class NotificationRepositoryImpl(
     private val appContext: Context,
@@ -69,14 +69,18 @@ class NotificationRepositoryImpl(
                 is BroadcastIntentTask -> {
                     val broadcastClass = when (task.tag) {
                         HomeworkRemindLaterReceiver.TAG -> HomeworkRemindLaterReceiver::class.java
+                        DailyRemindLaterReceiver.TAG -> DailyRemindLaterReceiver::class.java
                         else -> throw IllegalArgumentException("Unknown tag ${task.tag}")
                     }
-                    val intent = Intent(appContext, broadcastClass).putExtra("tag", HomeworkRemindLaterReceiver.TAG)
+                    val intent = Intent(appContext, broadcastClass)
+                        .putExtra("tag", task.tag)
+                        .putExtra("notificationId", id)
+                        .let { if (task.payload != null) it.putExtra("payload", task.payload) else it }
                     PendingIntent.getBroadcast(
                         appContext,
-                        HOMEWORK_REMINDER_REMIND_LATER,
+                        task.tag.hashCode(),
                         intent,
-                        PendingIntent.FLAG_IMMUTABLE
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )
                 }
                 else -> null

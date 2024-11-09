@@ -248,7 +248,11 @@ object VppModule {
         keyValueRepository: KeyValueRepository,
         logRecordRepository: LogRecordRepository
     ): GroupRepository {
-        return GroupRepositoryImpl(db.groupDao, provideVppIdNetworkRepository(keyValueRepository, logRecordRepository))
+        return GroupRepositoryImpl(
+            groupDao = db.groupDao,
+            schoolDao = db.schoolDao,
+            vppIdNetworkRepository = provideVppIdNetworkRepository(keyValueRepository, logRecordRepository)
+        )
     }
 
     @Provides
@@ -762,8 +766,14 @@ object VppModule {
 
     @Provides
     @Singleton
-    fun provideAlarmManagerRepository(@ApplicationContext context: Context): AlarmManagerRepository {
-        return AlarmManagerRepositoryImpl(context)
+    fun provideAlarmManagerRepository(
+        @ApplicationContext context: Context,
+        db: VppDatabase
+    ): AlarmManagerRepository {
+        return AlarmManagerRepositoryImpl(
+            context = context,
+            alarmDao = db.alarmDao
+        )
     }
 
     @Provides

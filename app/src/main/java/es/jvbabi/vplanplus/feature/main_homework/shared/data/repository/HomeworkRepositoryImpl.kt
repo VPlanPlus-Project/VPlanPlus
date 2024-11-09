@@ -12,14 +12,12 @@ import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDocumentDao
 import es.jvbabi.vplanplus.data.source.database.dao.KeyValueDao
-import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
@@ -48,10 +46,8 @@ import io.ktor.util.toByteArray
 import io.ktor.utils.io.ByteReadChannel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.io.File
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -61,7 +57,6 @@ class HomeworkRepositoryImpl(
     private val homeworkDao: HomeworkDao,
     private val homeworkDocumentDao: HomeworkDocumentDao,
     private val keyValueDao: KeyValueDao,
-    private val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao,
     private val vppIdRepository: VppIdRepository,
     private val vppIdNetworkRepository: VppIdNetworkRepository,
     private val defaultLessonRepository: DefaultLessonRepository,
@@ -244,31 +239,6 @@ class HomeworkRepositoryImpl(
 
     override fun isUpdateRunning(): Boolean {
         return isUpdateRunning
-    }
-
-    override suspend fun setPreferredHomeworkNotificationTime(
-        hour: Int,
-        minute: Int,
-        dayOfWeek: DayOfWeek
-    ) {
-        homeworkNotificationTimeDao.insertPreferredHomeworkNotificationTime(
-            DbPreferredNotificationTime(
-                dayOfWeek = dayOfWeek.value,
-                hour = hour,
-                minute = minute,
-                overrideDefault = true
-            )
-        )
-    }
-
-    override suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek) {
-        homeworkNotificationTimeDao.deletePreferredHomeworkNotificationTime(dayOfWeek.value)
-    }
-
-    override fun getPreferredHomeworkNotificationTimes() = flow {
-        homeworkNotificationTimeDao.getPreferredHomeworkNotificationTime().collect { times ->
-            emit(times.map { it.toModel() })
-        }
     }
 
     override suspend fun addDocumentDb(documentId: Int?, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long, isDownloaded: Boolean?): HomeworkDocumentId {

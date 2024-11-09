@@ -22,12 +22,4 @@ class DailyReminderRepositoryImpl(
     override suspend fun setDailyReminderTime(profile: ClassProfile, dayOfWeek: DayOfWeek, time: LocalTime) {
         keyValueRepository.set(Keys.dailyReminderTime(profile, dayOfWeek), time.toSecondOfDay().toString())
     }
-
-    override fun isDailyReminderEnabled(profile: ClassProfile): Flow<Boolean> {
-        return keyValueRepository.getFlow(Keys.isDailyReminderEnabled(profile)).map { (it ?: "true") == "true" }
-    }
-
-    override suspend fun setDailyReminderEnabled(profile: ClassProfile, enabled: Boolean) {
-        keyValueRepository.set(Keys.isDailyReminderEnabled(profile), enabled.toString())
-    }
 }
