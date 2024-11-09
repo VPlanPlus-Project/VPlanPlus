@@ -267,7 +267,7 @@ class DoSyncUseCase(
                             )
                         }
                     }
-                    group.lessons?.forEach { lesson ->
+                    group.lessons?.forEach forEachLesson@{ lesson ->
                         val lessonRooms = getRoomsFromRawData(lesson.roomShort, rooms)
                         val existingLessons = timetable.filter { l ->
                             l.lessonNumber == lesson.lessonNumber &&
@@ -281,7 +281,10 @@ class DoSyncUseCase(
                         if (existingLessons.count() != 1) {
                             newLessons.add(
                                 NewTimetableLesson(
-                                    group = groups.first { it.name == group.schoolClass },
+                                    group = groups.firstOrNull { it.name == group.schoolClass } ?: groupRepository.getGroupBySchoolAndName(school.id, group.schoolClass) ?: run {
+                                        Log.e("Sync.Timetable", "Group ${group.schoolClass} not found")
+                                        return@forEachLesson
+                                    },
                                     weekType = weekTypes.firstOrNull { it.name == lesson.weekType },
                                     lessonNumber = lesson.lessonNumber,
                                     teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },

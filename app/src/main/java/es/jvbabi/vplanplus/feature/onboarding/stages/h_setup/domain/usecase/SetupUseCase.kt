@@ -160,7 +160,7 @@ class SetupUseCase(
 
         Log.d("SetupUseCase", "Creating profile ${selectedProfileType.name}")
         val profileId = when (selectedProfileType) {
-            STUDENT -> profileRepository.createClassProfile(group = classes.first { it.name == selectedProfileEntityName }, isHomeworkEnabled = isFirstProfile)
+            STUDENT -> profileRepository.createClassProfile(group = classes.first { it.name == selectedProfileEntityName }, isHomeworkEnabled = isFirstProfile, isDailyNotificationEnabled = isFirstProfile)
             TEACHER -> profileRepository.createTeacherProfile(teacher = teachers.first { it.acronym == selectedProfileEntityName })
             ROOM -> profileRepository.createRoomProfile(room = rooms.first { it.name == selectedProfileEntityName })
         }
