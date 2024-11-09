@@ -5,8 +5,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import dagger.hilt.android.AndroidEntryPoint
-import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository.Companion.TAG_HOMEWORK_NOTIFICATION
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
+import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
+import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository.Companion.TAG_DAILY_REMINDER
+import es.jvbabi.vplanplus.domain.usecase.daily.SendNotificationUseCase
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -15,7 +16,8 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class AlarmReceiver : BroadcastReceiver() {
 
-    @Inject lateinit var homeworkReminderUseCase: HomeworkReminderUseCase
+    @Inject lateinit var sendDailyNotificationUseCase: SendNotificationUseCase
+    @Inject lateinit var alarmManagerRepository: AlarmManagerRepository
 
     @OptIn(DelicateCoroutinesApi::class)
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -24,18 +26,18 @@ class AlarmReceiver : BroadcastReceiver() {
             return
         }
 
-        val tag = intent.getStringExtra("tag") ?: run {
-            Log.e("AlarmReceiver", "Tag is null")
+        val alarmId = intent.getStringExtra("id")?.toInt() ?: run {
+            Log.e("AlarmReceiver", "Intent does not contain id")
             return
         }
 
-        Log.i("AlarmReceiver", "Alarm triggered with tag $tag")
         GlobalScope.launch {
-            when (tag) {
-                TAG_HOMEWORK_NOTIFICATION -> {
-                    homeworkReminderUseCase()
-                    Log.i("AlarmReceiver", "Homework alarm triggered")
-                }
+            val alarm = alarmManagerRepository.getAlarmById(alarmId) ?: run {
+                Log.e("AlarmReceiver", "Alarm with id $alarmId not found")
+                return@launch
+            }
+            if (alarm.tags.contains(TAG_DAILY_REMINDER)) {
+                sendDailyNotificationUseCase()
             }
         }
     }

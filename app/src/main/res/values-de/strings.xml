@@ -871,7 +871,7 @@
     <string name="settingsNotifications_notificationCategoriesSubtitle">Schalte verschiedene Kategorien an Benachrichtigungen ein oder aus.</string>
     <string name="settingsNotifications_dailyReminderCategoryTitle">Tägliche Erinnerung</string>
     <string name="settingsNotifications_dailyReminderSettingsTitle">Tägliche Benachrichtigung senden</string>
-    <string name="settingsNotifications_dailyReminderSettingsSubtitle">Erhalte eine Benachrichtigung, um dich auf den nächsten Schultag vorzubereiten, einschließlich Plänen, Hausaufgaben und Leistungserhebungen.</string>
+    <string name="settingsNotifications_dailyReminderSettingsSubtitle">Erhalte eine Benachrichtigung, um dich auf den nächsten Schultag vorzubereiten, einschließlich Plänen, Hausaufgaben und Leistungserhebungen. Gilt für Profil %1$s.</string>
     <string name="settingsNotifications_triggerTitle">Benachrichtigung auslösen</string>
     <string name="dailyReminderNotification_title">Bereite den nächsten Tag vor</string>
     <plurals name="dailyReminderNotification_lessons">

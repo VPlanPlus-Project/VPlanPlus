@@ -4,13 +4,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.domain.usecase.daily.UpdateDailyNotificationAlarmsUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetAppThemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
@@ -64,16 +64,16 @@ object MainModule {
         homeworkRepository: HomeworkRepository,
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
-        alarmManagerRepository: AlarmManagerRepository,
+        updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase,
         updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ): SetUpUseCase {
         return SetUpUseCase(
             keyValueRepository = keyValueRepository,
             homeworkRepository = homeworkRepository,
-            alarmManagerRepository = alarmManagerRepository,
             vppIdRepository = vppIdRepository,
             testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository),
-            updateFirebaseTokenUseCase = updateFirebaseTokenUseCase
+            updateFirebaseTokenUseCase = updateFirebaseTokenUseCase,
+            updateDailyNotificationAlarmsUseCase = updateDailyNotificationAlarmsUseCase
         )
     }
 

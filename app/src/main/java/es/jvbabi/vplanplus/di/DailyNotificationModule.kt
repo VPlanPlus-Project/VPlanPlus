@@ -4,11 +4,13 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.DailyReminderRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.usecase.daily.SendNotificationUseCase
+import es.jvbabi.vplanplus.domain.usecase.daily.UpdateDailyNotificationAlarmsUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetNextDayUseCase
 import javax.inject.Singleton
 
@@ -31,6 +33,20 @@ object DailyNotificationModule {
             notificationRepository = notificationRepository,
             stringRepository = stringRepository,
             getNextDayUseCase = getNextDayUseCase
+        )
+    }
+
+    @Provides
+    @Singleton
+    fun provideUpdateDailyNotificationAlarmsUseCase(
+        alarmManagerRepository: AlarmManagerRepository,
+        profileRepository: ProfileRepository,
+        dailyReminderRepository: DailyReminderRepository
+    ): UpdateDailyNotificationAlarmsUseCase {
+        return UpdateDailyNotificationAlarmsUseCase(
+            alarmManagerRepository = alarmManagerRepository,
+            profileRepository = profileRepository,
+            dailyReminderRepository = dailyReminderRepository
         )
     }
 }

@@ -14,6 +14,7 @@ interface AlarmManagerRepository {
     suspend fun getAlarmById(id: Int): Alarm?
 
     companion object {
-        const val TAG_HOMEWORK_NOTIFICATION = "homework_notification"
+        @Deprecated("") const val TAG_HOMEWORK_NOTIFICATION = "homework_notification"
+        const val TAG_DAILY_REMINDER = "daily_reminder"
     }
 }

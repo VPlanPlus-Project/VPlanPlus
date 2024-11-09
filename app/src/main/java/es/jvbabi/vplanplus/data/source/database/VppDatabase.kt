@@ -137,7 +137,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
 
         DbAlarm::class
     ],
-    version = 47,
+    version = 48,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -161,6 +161,7 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 44, to = 45), // add exam reminders
         AutoMigration(from = 45, to = 46), // add exam isPublic
         AutoMigration(from = 46, to = 47), // add alarms
+        AutoMigration(from = 47, to = 48), // add isDailyNotificationEnabled to profile
     ],
 )
 @TypeConverters(

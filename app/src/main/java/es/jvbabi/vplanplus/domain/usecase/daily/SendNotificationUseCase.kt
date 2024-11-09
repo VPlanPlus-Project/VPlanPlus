@@ -36,7 +36,7 @@ class SendNotificationUseCase(
             .getProfiles()
             .first()
             .filterIsInstance<ClassProfile>()
-            .filter { dailyReminderRepository.isDailyReminderEnabled(it).first()}
+            .filter { it.isDailyNotificationEnabled }
             .groupBy {
                 val reminderTime = dailyReminderRepository.getDailyReminderTime(profile = it, dayOfWeek = start.dayOfWeek).first()
                 val zonedReminderTime = start.withHour(reminderTime.hour).withMinute(reminderTime.minute)
@@ -68,7 +68,7 @@ class SendNotificationUseCase(
                         append("\n")
                     }
                     append("\n")
-                    if (homeworkForNextDay.isNotEmpty()) {
+                    if (homeworkForNextDay.isNotEmpty() && profile.isHomeworkEnabled) {
                         append("\uD83D\uDCD3 ")
                         append(stringRepository.getPlural(R.plurals.dailyReminderNotification_homework, homeworkForNextDay.size, homeworkForNextDay.size))
                         append(" (")
@@ -84,7 +84,7 @@ class SendNotificationUseCase(
                         append(")")
                         append("\n")
                     }
-                }
+                }.removeSuffix("\n")
                 notificationRepository.sendNotification(
                     channelId = CHANNEL_ID_DAILY,
                     id = cantor(CHANNEL_DEFAULT_DAILY_ID, profile.id.toString().hashCode()),

@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.data.repository
 
+import android.util.Log
 import es.jvbabi.vplanplus.data.model.DbProfileDefaultLesson
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
@@ -64,12 +65,14 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override fun getProfileById(profileId: UUID) = flow {
+    override fun getProfileById(profileId: UUID) =
+        flow {
         combine(
             profileDao.getClassProfiles(),
             profileDao.getTeacherProfiles(),
             profileDao.getRoomProfiles()
         ) { classProfiles, teacherProfiles, roomProfiles ->
+            Log.d("ProfileRepositoryImpl", "Getting profile by id: $profileId")
             val profile = classProfiles.firstOrNull { it.classProfile.id == profileId }?.toModel()
                 ?: teacherProfiles.firstOrNull { it.teacherProfile.id == profileId }?.toModel()
                 ?: roomProfiles.firstOrNull { it.roomProfile.id == profileId }?.toModel()
@@ -87,6 +90,7 @@ class ProfileRepositoryImpl(
         calendar: Calendar?,
         calendarType: ProfileCalendarType,
         isHomeworkEnabled: Boolean,
+        isDailyNotificationEnabled: Boolean,
         vppId: VppId?
     ): UUID {
         val calendarId = calendar?.id
@@ -100,6 +104,7 @@ class ProfileRepositoryImpl(
             calendarId = calendarId,
             classId = classId,
             isHomeworkEnabled = isHomeworkEnabled,
+            isDailyNotificationEnabled = isDailyNotificationEnabled,
             vppId = vppIdInt
         )
         return profileId
@@ -161,6 +166,10 @@ class ProfileRepositoryImpl(
 
     override suspend fun setHomeworkEnabled(profile: ClassProfile, enabled: Boolean) {
         profileDao.setHomeworkEnabledForClassProfile(profile.id, enabled)
+    }
+
+    override suspend fun setDailyNotificationEnabled(profile: ClassProfile, enabled: Boolean) {
+        profileDao.setDailyNotificationEnabledForClassProfile(profile.id, enabled)
     }
 
     override suspend fun setVppIdForProfile(classProfile: ClassProfile, vppId: VppId.ActiveVppId?) {

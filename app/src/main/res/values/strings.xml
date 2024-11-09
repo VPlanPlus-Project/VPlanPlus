@@ -873,7 +873,7 @@
     <string name="settingsNotifications_notificationCategoriesSubtitle">Toggle different categories of notifications</string>
     <string name="settingsNotifications_dailyReminderCategoryTitle">Daily reminder</string>
     <string name="settingsNotifications_dailyReminderSettingsTitle">Send daily reminders</string>
-    <string name="settingsNotifications_dailyReminderSettingsSubtitle">Get notified to prepare for your next school day with the next days plan, homework and assessments.</string>
+    <string name="settingsNotifications_dailyReminderSettingsSubtitle">Get notified to prepare for your next school day with the next days plan, homework and assessments. Applies for profile %1$s.</string>
     <string name="settingsNotifications_triggerTitle">Trigger notification</string>
     <string name="dailyReminderNotification_title">Prepare your next school day</string>
     <plurals name="dailyReminderNotification_lessons">

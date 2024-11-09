@@ -3,27 +3,23 @@ package es.jvbabi.vplanplus.domain.usecase.general
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import java.util.UUID
 
 class GetCurrentProfileUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val profileRepository: ProfileRepository
 ) {
-    operator fun invoke() = flow {
-        combine(
-            keyValueRepository.getFlow(Keys.ACTIVE_PROFILE),
-            profileRepository.getProfiles()
-        ) { profileId, profiles ->
-            if (profiles.isEmpty() || profileId == null) return@combine null
-            val uuid = try {
-                UUID.fromString(profileId)
-            } catch (e: IllegalArgumentException) {return@combine null }
-            val profile = profiles.firstOrNull { it.id == uuid } ?: return@combine null
-            profile
-        }.collect { profile ->
-            emit(profile)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    operator fun invoke() = keyValueRepository.getFlow(Keys.ACTIVE_PROFILE).flatMapLatest { profileIdString ->
+            val profileId = try {
+                UUID.fromString(profileIdString)
+            } catch (e: IllegalArgumentException) {
+                null
+            }
+            if (profileId == null) return@flatMapLatest flowOf(null)
+            return@flatMapLatest profileRepository.getProfileById(profileId)
         }
-    }
 }
