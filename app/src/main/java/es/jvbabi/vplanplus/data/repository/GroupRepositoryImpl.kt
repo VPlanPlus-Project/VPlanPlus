@@ -18,6 +18,7 @@ class GroupRepositoryImpl(
     private val schoolDao: SchoolDao,
     private val vppIdNetworkRepository: VppIdNetworkRepository
 ) : GroupRepository {
+    private var groupsThatDoNotExist = mutableListOf<String>()
     override suspend fun insertGroup(schoolSp24Access: SchoolSp24Access, groupId: Int?, groupName: String, isClass: Boolean): Boolean {
         val id = groupId ?: run {
             vppIdNetworkRepository.authentication = schoolSp24Access.buildVppAuthentication()
@@ -42,8 +43,12 @@ class GroupRepositoryImpl(
         groupName: String
     ): Group? {
         val group = groupDao.getGroupsBySchoolId(schoolId = schoolId).first().firstOrNull { it.group.name == groupName } ?: run {
+            if ("$schoolId.$groupName" in groupsThatDoNotExist) return null
             val updateSuccessful = insertGroup(schoolDao.getSchoolFromId(schoolId)?.toModel()?.buildAccess() ?: return null, null, groupName, true)
-            if (!updateSuccessful) return null
+            if (!updateSuccessful) {
+                groupsThatDoNotExist.add("$schoolId.$groupName")
+                return null
+            }
             return getGroupBySchoolAndName(schoolId, groupName)
         }
         return group.toModel()
