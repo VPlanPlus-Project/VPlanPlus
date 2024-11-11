@@ -5,10 +5,12 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import es.jvbabi.vplanplus.android.receiver.AlarmReceiver
 import es.jvbabi.vplanplus.data.source.database.dao.AlarmDao
 import es.jvbabi.vplanplus.domain.model.Alarm
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
+import java.time.ZoneId
 import java.time.ZonedDateTime
 
 class AlarmManagerRepositoryImpl(
@@ -23,11 +25,15 @@ class AlarmManagerRepositoryImpl(
     }
 
     override suspend fun addAlarm(time: ZonedDateTime, tags: List<String>, data: String): Alarm {
+        if (time.isBefore(ZonedDateTime.now())) {
+            throw IllegalArgumentException("Alarm scheduled in the past")
+        }
         val id = alarmDao.insert(
             time = time,
             tags = tags.joinToString(";"),
             data = data
         ).toInt()
+        Log.d("AlarmManagerRepository", "Adding alarm $id for $time with tags $tags and data $data")
         val alarm = alarmDao.getAlarmById(id)!!.toModel()
         createSystemAlarm(context, alarm)
         return alarm
@@ -38,6 +44,7 @@ class AlarmManagerRepositoryImpl(
     }
 
     override suspend fun deleteAlarmsByTag(tag: String) {
+        Log.d("AlarmManagerRepository", "Deleting alarms with tag $tag")
         alarmDao
             .getAlarms()
             .filter { it.tags.contains(tag) }
@@ -46,16 +53,26 @@ class AlarmManagerRepositoryImpl(
     }
 
     override suspend fun deleteIf(predicate: (Alarm) -> Boolean) {
+        Log.d("AlarmManagerRepository", "Deleting alarms with predicate $predicate")
         alarmDao.getAlarms().map { it.toModel() }.filter(predicate).forEach { deleteAlarmById(it.id, false) }
+        rebuild()
     }
 
     private suspend fun deleteAlarmById(id: Int, autoRebuild: Boolean = true) {
+        Log.d("AlarmManagerRepository", "Deleting alarm with id $id")
         alarmDao.delete(id)
+        val intent = Intent(context, AlarmReceiver::class.java).apply {
+            putExtra("id", id)
+        }
+        PendingIntent.getBroadcast(
+            context, id, intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE
+        )?.let { service.cancel(it) }
         if (autoRebuild) rebuild()
     }
 
     private suspend fun rebuild() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) service.cancelAll()
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) service.cancelAll()
         alarmDao.deleteOld(ZonedDateTime.now())
         alarmDao
             .getAlarms()
@@ -80,11 +97,11 @@ class AlarmManagerRepositoryImpl(
             }
         ) service.setExactAndAllowWhileIdle(
             AlarmManager.RTC,
-            alarm.time.toEpochSecond() * 1000,
+            alarm.time.withZoneSameInstant(ZoneId.systemDefault()).toEpochSecond() * 1000,
             pendingIntent
         ) else service.setAndAllowWhileIdle(
             AlarmManager.RTC,
-            alarm.time.toEpochSecond() * 1000,
+            alarm.time.withZoneSameInstant(ZoneId.systemDefault()).toEpochSecond() * 1000,
             pendingIntent
         )
     }
