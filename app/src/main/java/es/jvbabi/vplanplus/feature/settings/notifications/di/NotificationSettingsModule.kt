@@ -8,6 +8,7 @@ import es.jvbabi.vplanplus.domain.repository.DailyReminderRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.usecase.daily.SendNotificationUseCase
+import es.jvbabi.vplanplus.domain.usecase.daily.UpdateDailyNotificationAlarmsUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.IsNotificationsEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase.GetDailyReminderTimeForCurrentProfileUseCase
@@ -28,13 +29,14 @@ object NotificationSettingsModule {
         profileRepository: ProfileRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
 
-        sendNotificationUseCase: SendNotificationUseCase
+        sendNotificationUseCase: SendNotificationUseCase,
+        updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase
     ) = NotificationSettingsUseCases(
         isNotificationsEnabledUseCase = IsNotificationsEnabledUseCase(systemRepository),
 
-        setDailyReminderEnabledUseCase = SetDailyReminderEnabledForCurrentProfileUseCase(profileRepository, getCurrentProfileUseCase),
+        setDailyReminderEnabledUseCase = SetDailyReminderEnabledForCurrentProfileUseCase(profileRepository, getCurrentProfileUseCase, updateDailyNotificationAlarmsUseCase),
         getDailyReminderTimeUseCase = GetDailyReminderTimeForCurrentProfileUseCase(dailyReminderRepository, getCurrentProfileUseCase),
-        setDailyReminderTimeUseCase = SetDailyReminderTimeForCurrentProfileUseCase(dailyReminderRepository, getCurrentProfileUseCase),
+        setDailyReminderTimeUseCase = SetDailyReminderTimeForCurrentProfileUseCase(dailyReminderRepository, getCurrentProfileUseCase, updateDailyNotificationAlarmsUseCase),
         sendNotificationUseCase = sendNotificationUseCase
     )
 }
