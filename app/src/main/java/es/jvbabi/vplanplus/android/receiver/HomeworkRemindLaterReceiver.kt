@@ -10,6 +10,7 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import kotlinx.coroutines.runBlocking
+import java.time.ZonedDateTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -31,19 +32,17 @@ class HomeworkRemindLaterReceiver : BroadcastReceiver() {
 
 
         runBlocking {
-            alarmManagerRepository.setAlarm(
-                now() + keyValueRepository.getOrDefault(
+            alarmManagerRepository.addAlarm(
+                time = ZonedDateTime.now().plusSeconds(keyValueRepository.getOrDefault(
                     Keys.SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS,
                     Keys.SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS_DEFAULT
-                ).toLong(),
-                AlarmManagerRepository.TAG_HOMEWORK_NOTIFICATION,
-                "HOMEWORK_REMINDER_LATER"
+                ).toLong()),
+                tags = listOf(AlarmManagerRepository.TAG_HOMEWORK_NOTIFICATION),
+                data = "HOMEWORK_REMINDER_LATER",
             )
         }
         notificationRepository.dismissNotification(NotificationRepository.CHANNEL_HOMEWORK_REMINDER_NOTIFICATION_ID)
     }
-
-    private fun now() = System.currentTimeMillis() / 1000
 
     companion object {
         const val TAG = "HomeworkRemindLaterReceiver"

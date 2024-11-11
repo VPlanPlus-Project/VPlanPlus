@@ -3,10 +3,13 @@ package es.jvbabi.vplanplus.data.source.database
 import android.database.sqlite.SQLiteException
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.jvbabi.vplanplus.data.model.DbAlarm
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbLesson
@@ -43,6 +46,7 @@ import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.TimetableTeacherCrossover
+import es.jvbabi.vplanplus.data.source.database.dao.AlarmDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
 import es.jvbabi.vplanplus.data.source.database.dao.ExamDao
 import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
@@ -56,7 +60,6 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
 import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
-import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
@@ -83,7 +86,6 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.GradeDa
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.TeacherDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
-import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 
 @Database(
     entities = [
@@ -122,7 +124,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbHomeworkTask::class,
         DbHomeworkTaskDone::class,
         DbHomeworkDocument::class,
-        DbPreferredNotificationTime::class,
 
         DbSubject::class,
         DbTeacher::class,
@@ -131,9 +132,11 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbInterval::class,
 
         DbExam::class,
-        DbExamReminder::class
+        DbExamReminder::class,
+
+        DbAlarm::class
     ],
-    version = 46,
+    version = 48,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -156,6 +159,8 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 43, to = 44), // add exams
         AutoMigration(from = 44, to = 45), // add exam reminders
         AutoMigration(from = 45, to = 46), // add exam isPublic
+        AutoMigration(from = 46, to = 47), // add alarms
+        AutoMigration(from = 47, to = 48, spec = Migration_48::class), // add isDailyNotificationEnabled to profile, remove preferred notification time
     ],
 )
 @TypeConverters(
@@ -190,7 +195,6 @@ abstract class VppDatabase : RoomDatabase() {
 
     abstract val homeworkDao: HomeworkDao
     abstract val homeworkDocumentDao: HomeworkDocumentDao
-    abstract val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao
 
     abstract val timetableDao: TimetableDao
     abstract val weekDao: WeekDao
@@ -204,6 +208,8 @@ abstract class VppDatabase : RoomDatabase() {
     abstract val yearDao: YearDao
 
     abstract val examDao: ExamDao
+
+    abstract val alarmDao: AlarmDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {
@@ -405,3 +411,6 @@ abstract class VppDatabase : RoomDatabase() {
         }
     }
 }
+
+@DeleteTable(tableName = "preferred_notification_time")
+private class Migration_48 : AutoMigrationSpec

@@ -83,6 +83,7 @@ data class CClassProfile(
             calendarId = classProfile.calendarId,
             group = group.toModel(),
             isHomeworkEnabled = classProfile.isHomeworkEnabled,
+            isDailyNotificationEnabled = classProfile.isDailyNotificationEnabled,
             defaultLessons = defaultLessons
                 .mapNotNull { defaultLesson ->
                     val defaultLessonModel = defaultLesson.defaultLessons.firstOrNull { it.`class`.school.school.id == group.school.school.id && it.defaultLesson.vpId.toLong() == defaultLesson.profileDefaultLesson.defaultLessonVpId }?.toModel() ?: return@mapNotNull null

@@ -9,10 +9,8 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDoc
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PreferredHomeworkNotificationTime
 import es.jvbabi.vplanplus.shared.data.Response
 import kotlinx.coroutines.flow.Flow
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -47,10 +45,6 @@ interface HomeworkRepository {
     suspend fun clearCache()
 
     fun isUpdateRunning(): Boolean
-
-    suspend fun setPreferredHomeworkNotificationTime(hour: Int, minute: Int, dayOfWeek: DayOfWeek)
-    suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek)
-    fun getPreferredHomeworkNotificationTimes(): Flow<List<PreferredHomeworkNotificationTime>>
 
     suspend fun getDocumentById(id: Int): HomeworkDocument?
 

@@ -1,16 +1,16 @@
-package es.jvbabi.vplanplus.feature.settings.notifications.domain.usecase
+package es.jvbabi.vplanplus.android.receiver
 
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import kotlinx.coroutines.flow.first
 
-class SetDailyReminderEnabledForCurrentProfileUseCase(
+class MigrateHomeworkNotificationSettingsToDailyUseCase(
     private val profileRepository: ProfileRepository,
-    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
-) {
-    suspend operator fun invoke(enabled: Boolean) {
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
+){
+    suspend operator fun invoke() {
         val profile = getCurrentProfileUseCase().first() as? ClassProfile ?: return
-        profileRepository.setDailyNotificationEnabled(profile, enabled)
+        profileRepository.setDailyNotificationEnabled(profile, true)
     }
 }
