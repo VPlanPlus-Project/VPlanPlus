@@ -881,8 +881,8 @@
         <item quantity="other">%1$d lessons</item>
     </plurals>
     <plurals name="dailyReminderNotification_homework">
-        <item quantity="one">One homework</item>
-        <item quantity="other">%1$d homework</item>
+        <item quantity="one">1/1 homework done</item>
+        <item quantity="other">%1$s homework done</item>
     </plurals>
     <plurals name="dailyReminderNotification_assessments">
         <item quantity="one">One assessment</item>
