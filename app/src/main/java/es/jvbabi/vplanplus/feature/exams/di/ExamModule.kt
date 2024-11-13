@@ -6,7 +6,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.data.source.database.VppDatabase
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
+import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetDefaultLessonByIdentifierUseCase
@@ -89,12 +91,16 @@ object ExamModule {
         profileRepository: ProfileRepository,
         logRecordRepository: LogRecordRepository,
         vppIdRepository: VppIdRepository,
+        stringRepository: StringRepository,
+        notificationRepository: NotificationRepository,
         getDefaultLessonByIdentifierUseCase: GetDefaultLessonByIdentifierUseCase
     ): UpdateAssessmentsUseCase = UpdateAssessmentsUseCase(
         examRepository = examRepository,
         profileRepository = profileRepository,
         logRepository = logRecordRepository,
         vppIdRepository = vppIdRepository,
+        stringRepository = stringRepository,
+        notificationRepository = notificationRepository,
         getDefaultLessonByIdentifierUseCase = getDefaultLessonByIdentifierUseCase
     )
 }

@@ -892,4 +892,13 @@
     <string name="notification_dailyDescription">Get notified about your next school day.</string>
     <string name="dailyReminderNotification_remind15Minutes">Remind in 15 minutes</string>
     <string name="dailyReminderNotification_updateTimes">Change reminder time</string>
+    <string name="notification_assessmentsNewTitle">New assessment</string>
+    <string name="notification_assessmentsNewContent">%1$s has created an assessment of type \'%2$s\' at %3$s</string>
+    <string name="notification_assessmentsName">Assessments</string>
+    <string name="notification_assessmentsDescription">Get notified on new assessments in your class.</string>
+    <plurals name="notification_assessmentsNewContent">
+        <item quantity="one">There is one new assessment.</item>
+        <item quantity="other">There are %1$d new assessments.</item>
+    </plurals>
+    <string name="notification_assessmentsMultipleNewTitle">New assessments</string>
 </resources>
