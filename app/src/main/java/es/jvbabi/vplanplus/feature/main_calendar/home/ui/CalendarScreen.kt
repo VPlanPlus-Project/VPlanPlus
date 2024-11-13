@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_calendar.home.ui
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -33,6 +34,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
@@ -57,11 +59,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.layout.positionOnScreen
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -69,7 +74,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -80,8 +85,6 @@ import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarDateHead
-import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButtonNewExam
-import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.CalendarFloatingActionButtonNewHomework
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DateBar
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.DayInfoCard
 import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.FullMonthPager
@@ -95,6 +98,8 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.Less
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.components.grades.GradeRecord
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
+import es.jvbabi.vplanplus.ui.common.MultiFab
+import es.jvbabi.vplanplus.ui.common.MultiFabItem
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
@@ -144,6 +149,7 @@ fun CalendarScreen(
     )
 }
 
+@SuppressLint("UseOfNonLambdaOffsetOverload")
 @Composable
 private fun CalendarScreenContent(
     onBack: () -> Unit = {},
@@ -168,6 +174,9 @@ private fun CalendarScreenContent(
             initialValues = addHomeworkSheetInitialValues ?: AddHomeworkSheetInitialValues()
         )
     }
+
+    var isMultiFabExpanded by remember { mutableStateOf(false) }
+    var multiFabFabPosition by remember { mutableStateOf(Offset.Zero) }
 
     val localDensity = LocalDensity.current
     val localConfiguration = LocalConfiguration.current
@@ -260,18 +269,14 @@ private fun CalendarScreenContent(
                 })
         },
         floatingActionButton = {
-            Column {
-                CalendarFloatingActionButtonNewHomework(
-                    isVisible = closest != calendarSelectHeightLarge,
-                    onClick = {
-                        addHomeworkSheetInitialValues =
-                            AddHomeworkSheetInitialValues(until = state.selectedDate)
-                    }
-                )
-                Spacer8Dp()
-                CalendarFloatingActionButtonNewExam(
-                    isVisible = closest != calendarSelectHeightLarge,
-                    onClick = { showNewAssessmentBottomSheet = true }
+            FloatingActionButton(
+                onClick = { isMultiFabExpanded = !isMultiFabExpanded },
+                modifier = Modifier.onGloballyPositioned { multiFabFabPosition = it.positionOnScreen() },
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier.rotate(animateFloatAsState(if (isMultiFabExpanded) 180+45f else 0f,  label = "close button").value)
                 )
             }
         },
@@ -326,17 +331,7 @@ private fun CalendarScreenContent(
             }
         } else {
             Row {
-                navRail(true) {
-                    Column {
-                        Spacer8Dp()
-                        FloatingActionButton(onClick = {
-                            addHomeworkSheetInitialValues =
-                                AddHomeworkSheetInitialValues(until = state.selectedDate)
-                        }) { Icon(Icons.Default.Add, null) }
-                        Spacer8Dp()
-                        FloatingActionButton(onClick = { showNewAssessmentBottomSheet = true }) { Icon(Icons.Default.Add, null) } // TODO: Merge into one
-                    }
-                }
+                navRail(true) {}
                 val topBarHeight = WindowInsets.systemBars.asPaddingValues().calculateTopPadding()
                 Column(
                     modifier = Modifier
@@ -399,6 +394,26 @@ private fun CalendarScreenContent(
             }
         }
     }
+
+    MultiFab(
+        isVisible = isMultiFabExpanded,
+        items = listOf(
+            MultiFabItem(
+                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
+                text = "Add homework",
+                textSuffix = { Spacer8Dp() },
+                onClick = { isMultiFabExpanded = false; addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }
+            ),
+            MultiFabItem(
+                icon = { Icon(imageVector = Icons.AutoMirrored.Default.MenuBook, contentDescription = null) },
+                text = "Add exam",
+                textSuffix = { Spacer8Dp() },
+                onClick = { isMultiFabExpanded = false; showNewAssessmentBottomSheet = true }
+            )
+        ),
+        fabPosition = multiFabFabPosition,
+        onDismiss = { isMultiFabExpanded = false }
+    )
 }
 
 @Composable
@@ -650,7 +665,7 @@ private fun DayPager(
 }
 
 @Composable
-@PreviewScreenSizes
+@Preview
 private fun CalendarScreenPreview() {
     CalendarScreenContent(
         state = CalendarViewState(
