@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -20,6 +21,7 @@ class UpdateDailyNotificationAlarmsUseCase(
         alarmManagerRepository.deleteIf { AlarmManagerRepository.TAG_DAILY_REMINDER in it.tags && AlarmManagerRepository.TAG_DAILY_REMINDER_DELAYED !in it.tags }
         repeat(7) { dayOffset ->
             val date = LocalDate.now().plusDays(dayOffset.toLong())
+            if (date.dayOfWeek == DayOfWeek.SATURDAY) return@repeat
             profileRepository
                 .getProfiles()
                 .first()

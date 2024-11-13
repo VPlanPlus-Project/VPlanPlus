@@ -78,7 +78,7 @@ class NotificationRepositoryImpl(
                         .let { if (task.payload != null) it.putExtra("payload", task.payload) else it }
                     PendingIntent.getBroadcast(
                         appContext,
-                        task.tag.hashCode(),
+                        id,
                         intent,
                         PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                     )

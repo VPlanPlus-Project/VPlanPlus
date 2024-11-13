@@ -31,6 +31,7 @@ class DailyRemindLaterReceiver : BroadcastReceiver() {
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {
+        Log.d(this::class.java.simpleName, "onReceive")
         if (intent == null || context == null) {
             Log.i(this::class.java.simpleName, "Intent or context is null")
             return
@@ -56,7 +57,10 @@ class DailyRemindLaterReceiver : BroadcastReceiver() {
         }
 
         intent.getIntExtra("notificationId", -1).let { notificationId ->
-            if (notificationId == -1) return@let
+            if (notificationId == -1) {
+                Log.e("DailyRemindLaterReceiver", "notificationId is -1")
+                return@let
+            }
             notificationRepository.dismissNotification(notificationId)
             Log.i("DailyRemindLaterReceiver", "Dismissed notification $notificationId")
         }
