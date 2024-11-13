@@ -21,6 +21,12 @@ fun TextUnit.toDp(): Dp {
     return LocalDensity.current.run { value.toDp() }
 }
 
+@Composable
+fun Float.toDp(): Dp {
+    val value = this
+    return LocalDensity.current.run { value.toDp() }
+}
+
 data class Size(
     val width: Dp,
     val height: Dp
