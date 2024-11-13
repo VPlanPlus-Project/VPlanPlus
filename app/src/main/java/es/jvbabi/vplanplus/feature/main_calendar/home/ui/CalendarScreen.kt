@@ -399,14 +399,14 @@ private fun CalendarScreenContent(
         isVisible = isMultiFabExpanded,
         items = listOf(
             MultiFabItem(
-                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
-                text = "Add homework",
+                icon = { Icon(imageVector = Icons.AutoMirrored.Default.MenuBook, contentDescription = null) },
+                text = stringResource(R.string.calendar_newHomework),
                 textSuffix = { Spacer8Dp() },
                 onClick = { isMultiFabExpanded = false; addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }
             ),
             MultiFabItem(
-                icon = { Icon(imageVector = Icons.AutoMirrored.Default.MenuBook, contentDescription = null) },
-                text = "Add exam",
+                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
+                text = stringResource(R.string.calendar_newExam),
                 textSuffix = { Spacer8Dp() },
                 onClick = { isMultiFabExpanded = false; showNewAssessmentBottomSheet = true }
             )
