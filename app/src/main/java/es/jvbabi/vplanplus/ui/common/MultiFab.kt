@@ -93,7 +93,7 @@ fun MultiFab(
                         }
                         AnimatedVisibility(
                             visible = isItemVisible,
-                            enter = fadeIn(tween(delayMillis = (DefaultDurationMillis/4) * (items.size - i))),
+                            enter = fadeIn(tween(delayMillis = (DefaultDurationMillis/6) * (items.size - i - 1))),
                             exit = fadeOut()
                         ) {
                             RowVerticalCenter {
