@@ -1,11 +1,15 @@
 package es.jvbabi.vplanplus.data.source.database
 
+import android.database.sqlite.SQLiteException
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.AutoMigrationSpec
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import es.jvbabi.vplanplus.data.model.DbAlarm
 import es.jvbabi.vplanplus.data.model.DbDefaultLesson
 import es.jvbabi.vplanplus.data.model.DbGroup
 import es.jvbabi.vplanplus.data.model.DbLesson
@@ -16,6 +20,11 @@ import es.jvbabi.vplanplus.data.model.DbRoomBooking
 import es.jvbabi.vplanplus.data.model.DbSchoolEntity
 import es.jvbabi.vplanplus.data.model.vppid.DbVppId
 import es.jvbabi.vplanplus.data.model.vppid.DbVppIdToken
+import es.jvbabi.vplanplus.data.model.DbTimetable
+import es.jvbabi.vplanplus.data.model.DbWeek
+import es.jvbabi.vplanplus.data.model.DbWeekType
+import es.jvbabi.vplanplus.data.model.exam.DbExam
+import es.jvbabi.vplanplus.data.model.exam.DbExamReminder
 import es.jvbabi.vplanplus.data.model.homework.DbHomework
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkDocument
 import es.jvbabi.vplanplus.data.model.homework.DbHomeworkProfileData
@@ -24,6 +33,7 @@ import es.jvbabi.vplanplus.data.model.homework.DbHomeworkTaskDone
 import es.jvbabi.vplanplus.data.model.profile.DbClassProfile
 import es.jvbabi.vplanplus.data.model.profile.DbRoomProfile
 import es.jvbabi.vplanplus.data.model.profile.DbTeacherProfile
+import es.jvbabi.vplanplus.data.model.sp24.SPlanInWeek
 import es.jvbabi.vplanplus.data.source.database.converter.DayDataTypeConverter
 import es.jvbabi.vplanplus.data.source.database.converter.GradeModifierConverter
 import es.jvbabi.vplanplus.data.source.database.converter.LocalDateConverter
@@ -34,7 +44,11 @@ import es.jvbabi.vplanplus.data.source.database.converter.VppIdStateConverter
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonRoomCrossover
 import es.jvbabi.vplanplus.data.source.database.crossover.LessonTeacherCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.TimetableRoomCrossover
+import es.jvbabi.vplanplus.data.source.database.crossover.TimetableTeacherCrossover
+import es.jvbabi.vplanplus.data.source.database.dao.AlarmDao
 import es.jvbabi.vplanplus.data.source.database.dao.DefaultLessonDao
+import es.jvbabi.vplanplus.data.source.database.dao.ExamDao
 import es.jvbabi.vplanplus.data.source.database.dao.GroupDao
 import es.jvbabi.vplanplus.data.source.database.dao.HolidayDao
 import es.jvbabi.vplanplus.data.source.database.dao.HomeworkDao
@@ -46,15 +60,17 @@ import es.jvbabi.vplanplus.data.source.database.dao.LessonTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.LogRecordDao
 import es.jvbabi.vplanplus.data.source.database.dao.MessageDao
 import es.jvbabi.vplanplus.data.source.database.dao.PlanDao
-import es.jvbabi.vplanplus.data.source.database.dao.PreferredHomeworkNotificationTimeDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomBookingDao
 import es.jvbabi.vplanplus.data.source.database.dao.RoomDao
+import es.jvbabi.vplanplus.data.source.database.dao.SP24SPlanInWeekDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolDao
 import es.jvbabi.vplanplus.data.source.database.dao.SchoolEntityDao
+import es.jvbabi.vplanplus.data.source.database.dao.TimetableDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdDao
 import es.jvbabi.vplanplus.data.source.database.dao.VppIdTokenDao
+import es.jvbabi.vplanplus.data.source.database.dao.WeekDao
 import es.jvbabi.vplanplus.domain.model.DbSchool
 import es.jvbabi.vplanplus.domain.model.Holiday
 import es.jvbabi.vplanplus.domain.model.KeyValue
@@ -70,7 +86,6 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.GradeDa
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.SubjectDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.TeacherDao
 import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
-import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNotificationTime
 
 @Database(
     entities = [
@@ -96,20 +111,32 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         DbProfileDefaultLesson::class,
         LogRecord::class,
 
+        DbTimetable::class,
+        TimetableRoomCrossover::class,
+        TimetableTeacherCrossover::class,
+        DbWeek::class,
+        DbWeekType::class,
+
+        SPlanInWeek::class,
+
         DbHomework::class,
         DbHomeworkProfileData::class,
         DbHomeworkTask::class,
         DbHomeworkTaskDone::class,
         DbHomeworkDocument::class,
-        DbPreferredNotificationTime::class,
 
         DbSubject::class,
         DbTeacher::class,
         DbGrade::class,
         DbYear::class,
-        DbInterval::class
+        DbInterval::class,
+
+        DbExam::class,
+        DbExamReminder::class,
+
+        DbAlarm::class
     ],
-    version = 38,
+    version = 48,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -127,6 +154,13 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.data.model.DbPreferredNo
         AutoMigration(from = 26, to = 27), // add vpp.ID to profile
         AutoMigration(from = 30, to = 31), // add documents
         AutoMigration(from = 36, to = 37), // add courseGroup
+        AutoMigration(from = 39, to = 40), // sp24 is data in week available
+        AutoMigration(from = 41, to = 42), // key value index
+        AutoMigration(from = 43, to = 44), // add exams
+        AutoMigration(from = 44, to = 45), // add exam reminders
+        AutoMigration(from = 45, to = 46), // add exam isPublic
+        AutoMigration(from = 46, to = 47), // add alarms
+        AutoMigration(from = 47, to = 48, spec = Migration_48::class), // add isDailyNotificationEnabled to profile, remove preferred notification time
     ],
 )
 @TypeConverters(
@@ -161,13 +195,21 @@ abstract class VppDatabase : RoomDatabase() {
 
     abstract val homeworkDao: HomeworkDao
     abstract val homeworkDocumentDao: HomeworkDocumentDao
-    abstract val homeworkNotificationTimeDao: PreferredHomeworkNotificationTimeDao
+
+    abstract val timetableDao: TimetableDao
+    abstract val weekDao: WeekDao
+
+    abstract val sPlanInWeekDao: SP24SPlanInWeekDao
 
     // grades
     abstract val subjectDao: SubjectDao
     abstract val teacherDao: TeacherDao
     abstract val gradeDao: GradeDao
     abstract val yearDao: YearDao
+
+    abstract val examDao: ExamDao
+
+    abstract val alarmDao: AlarmDao
 
     companion object {
         val migration_6_7 = object : Migration(6, 7) {
@@ -312,5 +354,63 @@ abstract class VppDatabase : RoomDatabase() {
                 db.execSQL("DROP TABLE school_old;")
             }
         }
+
+        val migration_38_39 = object : Migration(38, 39) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE school ADD COLUMN can_use_timetable INTEGER DEFAULT NULL")
+                db.execSQL("DROP TABLE IF EXISTS `week`")
+                db.execSQL("DROP TABLE IF EXISTS `week_type`")
+                db.execSQL("DROP TABLE IF EXISTS `timetable`")
+                db.execSQL("DROP TABLE IF EXISTS `timetable_room_crossover`")
+                db.execSQL("DROP TABLE IF EXISTS `timetable_teacher_crossover`")
+                db.execSQL("CREATE TABLE `week` (`school_id` INTEGER NOT NULL, `week_number` INTEGER NOT NULL, `week_type_id` INTEGER NOT NULL, `start_date` INTEGER NOT NULL, `end_date` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)")
+                db.execSQL("CREATE TABLE `week_type` (`name` TEXT NOT NULL, `school_id` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`school_id`) REFERENCES `school`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE TABLE `timetable` (`id` TEXT NOT NULL, `class_id` INTEGER NOT NULL, `day_of_week` INTEGER NOT NULL, `week_id` INTEGER, `week_type_id` INTEGER, `lesson_number` INTEGER NOT NULL, `subject` TEXT NOT NULL, PRIMARY KEY(`id`), FOREIGN KEY(`class_id`) REFERENCES `group`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`week_id`) REFERENCES `week`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`week_type_id`) REFERENCES `week_type`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE TABLE `timetable_room_crossover` (`lesson_id` TEXT NOT NULL, `room_id` INTEGER NOT NULL, PRIMARY KEY(`lesson_id`, `room_id`), FOREIGN KEY(`lesson_id`) REFERENCES `timetable`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`room_id`) REFERENCES `room`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE TABLE `timetable_teacher_crossover` (`lesson_id` TEXT NOT NULL, `school_entity_id` TEXT NOT NULL, PRIMARY KEY(`lesson_id`, `school_entity_id`), FOREIGN KEY(`lesson_id`) REFERENCES `timetable`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE , FOREIGN KEY(`school_entity_id`) REFERENCES `school_entity`(`id`) ON UPDATE NO ACTION ON DELETE CASCADE )")
+                db.execSQL("CREATE INDEX `index_timetable_class_id_week_id_week_type_id` ON `timetable` (`class_id`, `week_id`, `week_type_id`)")
+                db.execSQL("CREATE UNIQUE INDEX `index_timetable_id` ON `timetable` (`id`)")
+                db.execSQL("CREATE INDEX `index_timetable_room_crossover_lesson_id` ON `timetable_room_crossover` (`lesson_id`)")
+                db.execSQL("CREATE INDEX `index_timetable_room_crossover_room_id` ON `timetable_room_crossover` (`room_id`)")
+                db.execSQL("CREATE INDEX `index_timetable_teacher_crossover_lesson_id` ON `timetable_teacher_crossover` (`lesson_id`)")
+                db.execSQL("CREATE INDEX `index_timetable_teacher_crossover_school_entity_id` ON `timetable_teacher_crossover` (`school_entity_id`)")
+                db.execSQL("CREATE UNIQUE INDEX `index_week_id` ON `week` (`id`)")
+                db.execSQL("CREATE INDEX `index_week_school_id` ON `week` (`school_id`)")
+                db.execSQL("CREATE UNIQUE INDEX `index_week_type_id_name_school_id` ON `week_type` (`id`, `name`, `school_id`)")
+                db.execSQL("CREATE INDEX `index_week_week_type_id` ON `week` (`week_type_id`)")
+            }
+        }
+
+        val migration_40_41 = object : Migration(40, 41) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                try {
+                    db.execSQL("ALTER TABLE homework_document ADD COLUMN is_downloaded INTEGER NOT NULL DEFAULT false")
+                } catch (_: SQLiteException) { }
+                try {
+                    db.execSQL("ALTER TABLE homework_document ADD COLUMN size INTEGER NOT NULL DEFAULT 0")
+                } catch (_: SQLiteException) { }
+            }
+        }
+
+        val migration_42_43 = object : Migration(42, 43) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("DROP TABLE IF EXISTS week")
+                db.execSQL("CREATE TABLE week (" +
+                        "school_id INTEGER NOT NULL, " +
+                        "week_number INTEGER NOT NULL, " +
+                        "week_type_id INTEGER NOT NULL, " +
+                        "start_date INTEGER NOT NULL, " +
+                        "end_date INTEGER NOT NULL, " +
+                        "id INTEGER NOT NULL, " +
+                        "PRIMARY KEY(id)" +
+                        ");")
+                db.execSQL("CREATE UNIQUE INDEX `index_week_id` ON `week` (`id`)")
+                db.execSQL("CREATE INDEX `index_week_school_id` ON `week` (`school_id`)")
+                db.execSQL("CREATE INDEX `index_week_week_type_id` ON `week` (`week_type_id`)")
+            }
+        }
     }
 }
+
+@DeleteTable(tableName = "preferred_notification_time")
+private class Migration_48 : AutoMigrationSpec

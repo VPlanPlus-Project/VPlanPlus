@@ -27,6 +27,7 @@ interface ProfileRepository {
         calendar: Calendar? = null,
         calendarType: ProfileCalendarType = ProfileCalendarType.NONE,
         isHomeworkEnabled: Boolean,
+        isDailyNotificationEnabled: Boolean,
         vppId: VppId? = null
     ): UUID
 
@@ -53,6 +54,7 @@ interface ProfileRepository {
     suspend fun deleteDefaultLessonStatesFromProfile(classProfile: ClassProfile)
 
     suspend fun setHomeworkEnabled(profile: ClassProfile, enabled: Boolean)
+    suspend fun setDailyNotificationEnabled(profile: ClassProfile, enabled: Boolean)
     suspend fun setVppIdForProfile(classProfile: ClassProfile, vppId: VppId.ActiveVppId?)
     suspend fun setCalendarIdForProfile(profile: Profile, calendarId: Long?)
     suspend fun setCalendarModeForProfile(profile: Profile, calendarMode: ProfileCalendarType)

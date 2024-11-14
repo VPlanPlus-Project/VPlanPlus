@@ -83,7 +83,9 @@ class SaveHomeworkUseCase(
                 documentId = documentId,
                 homeworkId = homeworkId,
                 name = name,
-                type = type
+                type = type,
+                size = content.size.toLong(),
+                isDownloaded = true
             )
             fileRepository.writeBytes("homework_documents", "$documentId.${type.extension}", content)
         }

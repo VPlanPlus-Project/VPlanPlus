@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 38,
-    "identityHash": "8d59142790a9a331ed955b427098806c",
+    "identityHash": "dd5e3bfa392737fb6c9d53b2bd83d71b",
     "entities": [
       {
         "tableName": "lesson",
@@ -426,7 +426,7 @@
       },
       {
         "tableName": "school",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `sp24_school_id` INTEGER NOT NULL, `name` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `days_per_week` INTEGER NOT NULL, `fully_compatible` INTEGER NOT NULL, `credentials_valid` INTEGER DEFAULT NULL, `school_download_mode` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `sp24_school_id` INTEGER NOT NULL, `name` TEXT NOT NULL, `username` TEXT NOT NULL, `password` TEXT NOT NULL, `days_per_week` INTEGER NOT NULL, `fully_compatible` INTEGER NOT NULL, `credentials_valid` INTEGER DEFAULT NULL, `school_download_mode` TEXT NOT NULL, `can_use_timetable` INTEGER, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -482,6 +482,12 @@
             "columnName": "school_download_mode",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "canUseTimetable",
+            "columnName": "can_use_timetable",
+            "affinity": "INTEGER",
+            "notNull": false
           }
         ],
         "primaryKey": {
@@ -2513,7 +2519,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '8d59142790a9a331ed955b427098806c')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'dd5e3bfa392737fb6c9d53b2bd83d71b')"
     ]
   }
 }

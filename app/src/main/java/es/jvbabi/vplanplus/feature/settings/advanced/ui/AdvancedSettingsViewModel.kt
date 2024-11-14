@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentLessonNumberUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.data.FcmTokenReloadState
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
@@ -24,7 +25,8 @@ import javax.inject.Inject
 class AdvancedSettingsViewModel @Inject constructor(
     private val getCurrentLessonNumberUseCase: GetCurrentLessonNumberUseCase,
     private val advancedSettingsUseCases: AdvancedSettingsUseCases,
-    private val getCurrentProfileUseCase: GetCurrentProfileUseCase
+    private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
+    private val isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase
 ) : ViewModel() {
 
     private val _state = mutableStateOf(AdvancedSettingsState())
@@ -39,13 +41,14 @@ class AdvancedSettingsViewModel @Inject constructor(
                 listOf(
                     getCurrentProfileUseCase(),
                     advancedSettingsUseCases.getVppIdServerUseCase(),
-                    advancedSettingsUseCases.isFcmDebugModeUseCase()
+                    advancedSettingsUseCases.isFcmDebugModeUseCase(),
+                    isDeveloperModeEnabledUseCase()
                 )
             ) { data ->
                 val currentProfile = data[0] as Profile
                 val vppIdServer = data[1] as VppIdServer
                 val isFcmDebugModeEnabled = data[2] as Boolean
-
+                val isDeveloperModeEnabled = data[3] as Boolean
 
                 val currentLessonText = if (currentProfile is ClassProfile) {
                     getCurrentLessonNumberUseCase(currentProfile.group).toString()
@@ -60,7 +63,8 @@ class AdvancedSettingsViewModel @Inject constructor(
                     """.trimIndent(),
                     selectedVppIdServer = vppIdServer,
                     currentLessonText = currentLessonText,
-                    isFcmDebugModeEnabled = isFcmDebugModeEnabled
+                    isFcmDebugModeEnabled = isFcmDebugModeEnabled,
+                    isDeveloperModeEnabled = isDeveloperModeEnabled
                 )
             }.collect {
                 _state.value = it
@@ -98,6 +102,7 @@ class AdvancedSettingsViewModel @Inject constructor(
                 is AdvancedSettingsEvent.ResetBalloons -> advancedSettingsUseCases.resetBalloonsUseCase()
                 is AdvancedSettingsEvent.TriggerHomeworkReminder -> advancedSettingsUseCases.homeworkReminderUseCase()
                 is AdvancedSettingsEvent.ToggleFcmDebugMode -> advancedSettingsUseCases.toggleFcmDebugModeUseCase()
+                is AdvancedSettingsEvent.ToggleDeveloperMode -> advancedSettingsUseCases.toggleDeveloperModeUseCase()
                 is AdvancedSettingsEvent.SendCrashReports -> {
                     _state.value = _state.value.copy(hasUnsentCrashLogs = CrashlyticsState.LOADING)
                     Firebase.crashlytics.sendUnsentReports()
@@ -115,10 +120,14 @@ data class AdvancedSettingsState(
     val selectedVppIdServer: VppIdServer = servers.first(),
     val fcmTokenReloadState: FcmTokenReloadState = FcmTokenReloadState.NONE,
     val isFcmDebugModeEnabled: Boolean = false,
-    val hasUnsentCrashLogs: CrashlyticsState = CrashlyticsState.NONE
+    val hasUnsentCrashLogs: CrashlyticsState = CrashlyticsState.NONE,
+
+    val isDeveloperModeEnabled: Boolean = false
 )
 
 sealed class AdvancedSettingsEvent {
+
+    data object ToggleDeveloperMode : AdvancedSettingsEvent()
     data object DeleteCache : AdvancedSettingsEvent()
     data class SetVppIdServer(val server: String?) : AdvancedSettingsEvent()
     data object UpdateFcmToken : AdvancedSettingsEvent()

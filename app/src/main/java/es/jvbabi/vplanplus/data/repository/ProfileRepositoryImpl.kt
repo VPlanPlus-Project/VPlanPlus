@@ -64,7 +64,8 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override fun getProfileById(profileId: UUID) = flow {
+    override fun getProfileById(profileId: UUID) =
+        flow {
         combine(
             profileDao.getClassProfiles(),
             profileDao.getTeacherProfiles(),
@@ -87,6 +88,7 @@ class ProfileRepositoryImpl(
         calendar: Calendar?,
         calendarType: ProfileCalendarType,
         isHomeworkEnabled: Boolean,
+        isDailyNotificationEnabled: Boolean,
         vppId: VppId?
     ): UUID {
         val calendarId = calendar?.id
@@ -100,6 +102,7 @@ class ProfileRepositoryImpl(
             calendarId = calendarId,
             classId = classId,
             isHomeworkEnabled = isHomeworkEnabled,
+            isDailyNotificationEnabled = isDailyNotificationEnabled,
             vppId = vppIdInt
         )
         return profileId
@@ -161,6 +164,10 @@ class ProfileRepositoryImpl(
 
     override suspend fun setHomeworkEnabled(profile: ClassProfile, enabled: Boolean) {
         profileDao.setHomeworkEnabledForClassProfile(profile.id, enabled)
+    }
+
+    override suspend fun setDailyNotificationEnabled(profile: ClassProfile, enabled: Boolean) {
+        profileDao.setDailyNotificationEnabledForClassProfile(profile.id, enabled)
     }
 
     override suspend fun setVppIdForProfile(classProfile: ClassProfile, vppId: VppId.ActiveVppId?) {

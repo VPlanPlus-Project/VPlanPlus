@@ -36,6 +36,9 @@ class BaseDataRepositoryImpl(
         password: String
     ): BaseDataResponse {
         sp24NetworkRepository.authentication = BasicAuthentication(username, password)
+        val splanResponse = sp24NetworkRepository.doRequest("/$sp24SchoolId/splan/sdaten/splank.xml")
+        val canUseTimetable = splanResponse.response == HttpStatusCode.OK
+
         val wplanClassResponse =
             sp24NetworkRepository.doRequest("/$sp24SchoolId/wplan/wdatenk/SPlanKl_Basis.xml")
         if (wplanClassResponse.response == null) return BaseDataResponse.Error
@@ -43,7 +46,8 @@ class BaseDataRepositoryImpl(
         if (wplanClassResponse.response == HttpStatusCode.NotFound || wplanSw1Response.response == HttpStatusCode.NotFound) return getBaseDataUsingMobileData(
             sp24SchoolId,
             username,
-            password
+            password,
+            canUseTimetable
         )
         if (wplanClassResponse.response== HttpStatusCode.Unauthorized) return BaseDataResponse.Unauthorized
         if (wplanClassResponse.response != HttpStatusCode.OK || wplanClassResponse.data == null || wplanSw1Response.data == null) return BaseDataResponse.Error
@@ -76,19 +80,21 @@ class BaseDataRepositoryImpl(
             rooms = roomBaseData?.roomNames,
             downloadMode = SchoolDownloadMode.INDIWARE_WOCHENPLAN_6,
             daysPerWeek = classBaseData.daysPerWeek,
-            holidays = classBaseData.holidays.map { LocalDate.of(it.first.first, it.first.second, it.first.third) }
+            holidays = classBaseData.holidays.map { LocalDate.of(it.first.first, it.first.second, it.first.third) },
+            canUseTimetable = canUseTimetable
         ))
     }
 
     private suspend fun getBaseDataUsingMobileData(
         sp24SchoolId: Int,
         username: String,
-        password: String
+        password: String,
+        canUseTimetable: Boolean
     ): BaseDataResponse {
         sp24NetworkRepository.authentication = BasicAuthentication(username, password)
         val mobileResponse = sp24NetworkRepository.doRequest("/$sp24SchoolId/mobil/mobdaten/Klassen.xml")
         if (mobileResponse.response == HttpStatusCode.Unauthorized) return BaseDataResponse.Unauthorized
         if (mobileResponse.response != HttpStatusCode.OK || mobileResponse.data == null) return BaseDataResponse.Error
-        return BaseDataResponse.Success(MobileBaseData(mobileResponse.data).baseData)
+        return BaseDataResponse.Success(MobileBaseData(mobileResponse.data, canUseTimetable).baseData)
     }
 }

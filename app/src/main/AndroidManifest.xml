@@ -14,6 +14,8 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+
     <application
         android:name=".VppApplication"
         android:allowBackup="true"
@@ -30,9 +32,7 @@
             android:name=".MainActivity"
             android:windowSoftInputMode="adjustResize"
             android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.VPlanPlus.Splash"
-            tools:ignore="DiscouragedApi,LockedOrientationActivity">
+            android:theme="@style/Theme.VPlanPlus.Splash">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -103,6 +103,12 @@
         </receiver>
         <receiver android:name=".android.receiver.AlarmReceiver" />
         <receiver android:name=".android.receiver.HomeworkRemindLaterReceiver" />
+        <receiver android:name=".android.receiver.DailyRemindLaterReceiver" />
+        <receiver android:name=".android.receiver.BootReceiver" android:enabled="true" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
