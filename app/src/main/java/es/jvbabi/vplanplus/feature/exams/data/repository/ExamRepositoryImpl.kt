@@ -24,7 +24,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
 class ExamRepositoryImpl(
@@ -84,7 +86,7 @@ class ExamRepositoryImpl(
             requestMethod = HttpMethod.Post,
             requestBody = Gson().toJson(
                 NewExamRequest(
-                    date = createdAt.toEpochSecond(),
+                    date = date.atTime(LocalTime.MIN).toInstant(ZoneOffset.UTC).epochSecond,
                     subject = "sp24.${profile.getSchool().sp24SchoolId}.${subject.vpId}",
                     title = topic,
                     description = details,

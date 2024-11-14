@@ -1,11 +1,9 @@
 package es.jvbabi.vplanplus.ui
 
-import androidx.compose.runtime.Composable
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ExamCategory
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.SaveType
 
-@Composable
 fun ExamCategory.stringResource(): Int {
     return when (this) {
         is ExamCategory.ShortTest -> R.string.exam_type_shortTest
@@ -16,7 +14,6 @@ fun ExamCategory.stringResource(): Int {
     }
 }
 
-@Composable
 fun SaveType.stringResource(): Int {
     return when (this) {
         SaveType.LOCAL -> R.string.saveType_local
