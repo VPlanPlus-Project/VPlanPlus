@@ -4,6 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import dagger.hilt.android.lifecycle.HiltViewModel
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
@@ -14,6 +16,7 @@ import es.jvbabi.vplanplus.feature.settings.advanced.domain.data.FcmTokenReloadS
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.servers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,6 +33,9 @@ class AdvancedSettingsViewModel @Inject constructor(
     val state: State<AdvancedSettingsState> = _state
 
     init {
+        Firebase.crashlytics.checkForUnsentReports().addOnSuccessListener { hasUnsentCrashLogs ->
+            _state.value = _state.value.copy(hasUnsentCrashLogs = if (hasUnsentCrashLogs) CrashlyticsState.HAS_CRASHES else CrashlyticsState.NONE)
+        }
         viewModelScope.launch {
             combine(
                 listOf(
@@ -97,6 +103,12 @@ class AdvancedSettingsViewModel @Inject constructor(
                 is AdvancedSettingsEvent.TriggerHomeworkReminder -> advancedSettingsUseCases.homeworkReminderUseCase()
                 is AdvancedSettingsEvent.ToggleFcmDebugMode -> advancedSettingsUseCases.toggleFcmDebugModeUseCase()
                 is AdvancedSettingsEvent.ToggleDeveloperMode -> advancedSettingsUseCases.toggleDeveloperModeUseCase()
+                is AdvancedSettingsEvent.SendCrashReports -> {
+                    _state.value = _state.value.copy(hasUnsentCrashLogs = CrashlyticsState.LOADING)
+                    Firebase.crashlytics.sendUnsentReports()
+                    delay(500)
+                    _state.value = _state.value.copy(hasUnsentCrashLogs = CrashlyticsState.NONE)
+                }
             }
         }
     }
@@ -108,6 +120,7 @@ data class AdvancedSettingsState(
     val selectedVppIdServer: VppIdServer = servers.first(),
     val fcmTokenReloadState: FcmTokenReloadState = FcmTokenReloadState.NONE,
     val isFcmDebugModeEnabled: Boolean = false,
+    val hasUnsentCrashLogs: CrashlyticsState = CrashlyticsState.NONE
 
     val isDeveloperModeEnabled: Boolean = false
 )
@@ -123,4 +136,10 @@ sealed class AdvancedSettingsEvent {
     data object TriggerHomeworkReminder: AdvancedSettingsEvent()
 
     data object ToggleFcmDebugMode : AdvancedSettingsEvent()
+
+    data object SendCrashReports : AdvancedSettingsEvent()
+}
+
+enum class CrashlyticsState {
+    NONE, LOADING, HAS_CRASHES
 }
