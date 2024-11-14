@@ -899,4 +899,5 @@
         <item quantity="other">Es gibt %1$d neue Leistungserhebungen.</item>
     </plurals>
     <string name="notification_assessmentsMultipleNewTitle">Neue Leistungserhebungen</string>
+    <string name="calendar_newHomework">Neue Hausaufgabe</string>
 </resources>

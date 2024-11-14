@@ -36,6 +36,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
@@ -399,14 +400,14 @@ private fun CalendarScreenContent(
         isVisible = isMultiFabExpanded,
         items = listOf(
             MultiFabItem(
-                icon = { Icon(imageVector = Icons.Default.Add, contentDescription = null) },
-                text = "Add homework",
+                icon = { Icon(imageVector = Icons.AutoMirrored.Default.MenuBook, contentDescription = null) },
+                text = stringResource(R.string.calendar_newHomework),
                 textSuffix = { Spacer8Dp() },
                 onClick = { isMultiFabExpanded = false; addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }
             ),
             MultiFabItem(
-                icon = { Icon(imageVector = Icons.AutoMirrored.Default.MenuBook, contentDescription = null) },
-                text = "Add exam",
+                icon = { Icon(imageVector = Icons.Default.Edit, contentDescription = null) },
+                text = stringResource(R.string.calendar_newExam),
                 textSuffix = { Spacer8Dp() },
                 onClick = { isMultiFabExpanded = false; showNewAssessmentBottomSheet = true }
             )

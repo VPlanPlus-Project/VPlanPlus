@@ -901,4 +901,5 @@
         <item quantity="other">There are %1$d new assessments.</item>
     </plurals>
     <string name="notification_assessmentsMultipleNewTitle">New assessments</string>
+    <string name="calendar_newHomework">New homework</string>
 </resources>
