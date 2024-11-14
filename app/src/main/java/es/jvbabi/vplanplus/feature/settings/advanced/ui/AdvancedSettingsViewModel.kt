@@ -120,7 +120,7 @@ data class AdvancedSettingsState(
     val selectedVppIdServer: VppIdServer = servers.first(),
     val fcmTokenReloadState: FcmTokenReloadState = FcmTokenReloadState.NONE,
     val isFcmDebugModeEnabled: Boolean = false,
-    val hasUnsentCrashLogs: CrashlyticsState = CrashlyticsState.NONE
+    val hasUnsentCrashLogs: CrashlyticsState = CrashlyticsState.NONE,
 
     val isDeveloperModeEnabled: Boolean = false
 )
