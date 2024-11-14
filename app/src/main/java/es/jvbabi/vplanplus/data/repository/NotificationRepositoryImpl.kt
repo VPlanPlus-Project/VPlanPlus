@@ -17,6 +17,7 @@ import es.jvbabi.vplanplus.domain.repository.DoActionTask
 import es.jvbabi.vplanplus.domain.repository.NotificationAction
 import es.jvbabi.vplanplus.domain.repository.NotificationOnClickTask
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ASSESSMENTS
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_DAILY
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
@@ -176,6 +177,12 @@ class NotificationRepositoryImpl(
             context.getString(R.string.notification_dailyName),
             context.getString(R.string.notification_dailyDescription),
             NotificationManager.IMPORTANCE_HIGH
+        )
+        createChannel(
+            CHANNEL_ID_ASSESSMENTS,
+            context.getString(R.string.notification_assessmentsName),
+            context.getString(R.string.notification_assessmentsDescription),
+            NotificationManager.IMPORTANCE_DEFAULT
         )
     }
 

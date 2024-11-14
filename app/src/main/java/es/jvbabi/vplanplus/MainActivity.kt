@@ -363,6 +363,10 @@ class MainActivity : FragmentActivity() {
                         "settings/notification" -> {
                             navController!!.navigate(Screen.SettingsNotificationsScreen)
                         }
+                        "exam/item" -> {
+                            if (destinationData.payload == null) return@launch
+                            navController!!.navigate(Json.decodeFromString<Screen.ExamDetailsScreen>(destinationData.payload))
+                        }
                         "home" -> Unit
                     }
                 } else when (destination) {

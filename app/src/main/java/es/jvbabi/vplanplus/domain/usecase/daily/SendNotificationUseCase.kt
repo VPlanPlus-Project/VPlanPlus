@@ -48,8 +48,9 @@ class SendNotificationUseCase(
                     .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)))
                 append(" ")
                 val lessonCount = lessons.maxOf { it.lessonNumber } - lessons.minOf { it.lessonNumber } + 1
+                append(" (")
                 append(stringRepository.getPlural(R.plurals.dailyReminderNotification_lessons, lessonCount, lessonCount))
-                append("\n")
+                append(")\n")
             }
             if (!day.info.isNullOrBlank()) {
                 append("ℹ\uFE0F ")
@@ -59,7 +60,7 @@ class SendNotificationUseCase(
             append("\n")
             if (homeworkForNextDay.isNotEmpty() && profile.isHomeworkEnabled) {
                 append("\uD83D\uDCD3 ")
-                append(stringRepository.getPlural(R.plurals.dailyReminderNotification_homework, homeworkForNextDay.size, homeworkForNextDay.size))
+                append(stringRepository.getPlural(R.plurals.dailyReminderNotification_homework, homeworkForNextDay.size, "${homeworkForNextDay.count { it.allDone() }}/${homeworkForNextDay.size}"))
                 append(" (")
                 append(homeworkForNextDay.mapNotNull { it.homework.defaultLesson?.subject }.distinct().sorted().joinToString(", "))
                 append(")")

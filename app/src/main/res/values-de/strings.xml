@@ -879,8 +879,8 @@
         <item quantity="other">%1$d Stunden</item>
     </plurals>
     <plurals name="dailyReminderNotification_homework">
-        <item quantity="one">Eine Hausaufgabe</item>
-        <item quantity="other">%1$d Hausaufgaben</item>
+        <item quantity="one">1/1 Hausaufgabe erledigt</item>
+        <item quantity="other">%1$s Hausaufgaben erledigt</item>
     </plurals>
     <plurals name="dailyReminderNotification_assessments">
         <item quantity="one">Eine Leistungserhebung</item>
@@ -890,4 +890,13 @@
     <string name="notification_dailyDescription">Benachrichtigungen über den nächsten Schultag.</string>
     <string name="dailyReminderNotification_remind15Minutes">In 15 Minuten erinnern</string>
     <string name="dailyReminderNotification_updateTimes">Zeit anpassen</string>
+    <string name="notification_assessmentsNewTitle">Neue Leistungserhebung</string>
+    <string name="notification_assessmentsNewContent">%1$s hat eine Leistungserhebung des Typs \'%2$s\' für %3$s erstellt.</string>
+    <string name="notification_assessmentsName">Leistungserhebungen</string>
+    <string name="notification_assessmentsDescription">Benachrichtigungen für neue Leistungserhebungen in deiner Klasse.</string>
+    <plurals name="notification_assessmentsNewContent">
+        <item quantity="one">Es gibt eine neue Leistungserhebung.</item>
+        <item quantity="other">Es gibt %1$d neue Leistungserhebungen.</item>
+    </plurals>
+    <string name="notification_assessmentsMultipleNewTitle">Neue Leistungserhebungen</string>
 </resources>
