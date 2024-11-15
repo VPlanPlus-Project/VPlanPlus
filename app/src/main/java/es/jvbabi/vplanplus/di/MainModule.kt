@@ -17,7 +17,9 @@ import es.jvbabi.vplanplus.domain.usecase.home.GetAppThemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetSyncIntervalMinutesUseCase
+import es.jvbabi.vplanplus.domain.usecase.home.HasSetCrashlyticsSettingsUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
+import es.jvbabi.vplanplus.domain.usecase.home.SetCrashlyticsSettingsUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
@@ -54,6 +56,8 @@ object MainModule {
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository, getCurrentProfileUseCase),
             getAppThemeUseCase = GetAppThemeUseCase(keyValueRepository),
             getSyncIntervalMinutesUseCase = GetSyncIntervalMinutesUseCase(keyValueRepository),
+            hasSetCrashlyticsSettingsUseCase = HasSetCrashlyticsSettingsUseCase(keyValueRepository),
+            setCrashlyticsSettingsUseCase = SetCrashlyticsSettingsUseCase(keyValueRepository),
             setCurrentProfileUseCase = SetCurrentProfileUseCase(keyValueRepository, profileRepository)
         )
     }
