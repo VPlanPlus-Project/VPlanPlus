@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.android.receiver.MigrateHomeworkNotificationSettingsToDailyUseCase
+import es.jvbabi.vplanplus.domain.usecase.update.MigrateHomeworkNotificationSettingsToDailyUseCase
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -22,6 +22,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.SetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
+import es.jvbabi.vplanplus.domain.usecase.update.EnableAssessmentsOnlyForCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.GetWebAuthTaskUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.PickEmojiUseCase
@@ -76,7 +77,8 @@ object MainModule {
             testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository),
             updateFirebaseTokenUseCase = updateFirebaseTokenUseCase,
             updateDailyNotificationAlarmsUseCase = updateDailyNotificationAlarmsUseCase,
-            migrateHomeworkNotificationSettingsToDailyUseCase = MigrateHomeworkNotificationSettingsToDailyUseCase(profileRepository, getCurrentProfileUseCase)
+            migrateHomeworkNotificationSettingsToDailyUseCase = MigrateHomeworkNotificationSettingsToDailyUseCase(profileRepository, getCurrentProfileUseCase),
+            enableAssessmentsOnlyForCurrentProfileUseCase = EnableAssessmentsOnlyForCurrentProfileUseCase(profileRepository, keyValueRepository)
         )
     }
 

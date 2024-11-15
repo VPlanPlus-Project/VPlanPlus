@@ -745,9 +745,6 @@
     <string name="advancedSettings_resetBalloonsTitle">Reset balloons</string>
     <string name="advancedSettings_resetBalloonsSubtitle">This will reset all dismissed balloons and hints and show them to you once more. You might see balloons that were targeted to new users or to existing users to explain an update to them.</string>
     <string name="advancedSettings_resetBalloonsSuccess">Balloons resetted</string>
-    <string name="advancedSettings_testingTitle">Testing</string>
-    <string name="advancedSettings_testingRunHomeworkReminderTitle">Trigger homework reminder</string>
-    <string name="advancedSettings_testingRunHomeworkReminderSubtitle">This will execute the homework reminder notification instantly. Note that this will only work if there is any homework which you can get reminded of.</string>
     <string name="vppIdSettingsManagement_requestDeletion">Delete your vpp.ID</string>
     <string name="vppIdSettingsManagement_requestDeletionSubtitle">Currently, you cannot delete your vpp.ID yourself. You may request its deletion via your account manager. This will open a browser to proceed.</string>
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Course groups</string>
@@ -902,4 +899,9 @@
     </plurals>
     <string name="notification_assessmentsMultipleNewTitle">New assessments</string>
     <string name="calendar_newHomework">New homework</string>
+    <string name="profileManagement_assessmentsTitle">Assessments</string>
+    <string name="profileManagement_enableAssessmentsTitle">Enable assessments</string>
+    <string name="profileManagement_assessmentsSubtitle">Save assessments in your schedule and get notified about them.</string>
+    <string name="profileSettings_disableAssessmentsTitle">Disable assessments</string>
+    <string name="profileSettings_disableAssessmentsMessage">You have some local assessments saved. If you disable this feature, they will be deleted.</string>
 </resources>

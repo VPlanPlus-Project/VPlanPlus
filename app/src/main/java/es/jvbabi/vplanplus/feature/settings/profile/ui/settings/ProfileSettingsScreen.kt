@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.FilterAlt
+import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material.icons.outlined.CalendarMonth
@@ -46,6 +47,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
+import es.jvbabi.vplanplus.feature.settings.profile.ui.components.dialogs.ConfirmAssessmentsDisableDialog
 import es.jvbabi.vplanplus.feature.settings.profile.ui.components.dialogs.ConfirmHomeworkDisableDialog
 import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.BigButton
@@ -158,6 +160,7 @@ private fun ProfileSettingsScreenContent(
     var isCalendarDialogOpen by rememberSaveable { mutableStateOf(false) }
     var isCalendarPermissionInfoDialogOpenAndSetToTypeOnSuccess by remember<MutableState<ProfileCalendarType?>> { mutableStateOf(null) }
     var isConfirmDisableHomeworkDialogVisible by rememberSaveable { mutableStateOf(false) }
+    var isConfirmDisableAssessmentsDialogVisible by rememberSaveable { mutableStateOf(false) }
 
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -312,8 +315,24 @@ private fun ProfileSettingsScreenContent(
                     type = SettingsType.CHECKBOX,
                     checked = state.profile.isHomeworkEnabled,
                     doAction = {
-                        if (state.profile.isHomeworkEnabled && state.profileHasLocalHomework) isConfirmDisableHomeworkDialogVisible =
-                            true else onEvent(ProfileSettingsEvent.SetHomeworkEnabled(!state.profile.isHomeworkEnabled))
+                        if (state.profile.isHomeworkEnabled && state.profileHasLocalHomework) isConfirmDisableHomeworkDialogVisible = true
+                        else onEvent(ProfileSettingsEvent.SetHomeworkEnabled(!state.profile.isHomeworkEnabled))
+                    }
+                )
+            }
+
+            if (state.profile is ClassProfile) SettingsCategory(
+                title = stringResource(R.string.profileManagement_assessmentsTitle)
+            ) {
+                SettingsSetting(
+                    icon = Icons.Default.Grade,
+                    title = stringResource(id = R.string.profileManagement_enableAssessmentsTitle),
+                    subtitle = stringResource(id = R.string.profileManagement_assessmentsSubtitle),
+                    type = SettingsType.CHECKBOX,
+                    checked = state.profile.isAssessmentsEnabled,
+                    doAction = {
+                        if (state.profile.isAssessmentsEnabled && state.profileHasLocalAssessments) isConfirmDisableAssessmentsDialogVisible = true
+                        else onEvent(ProfileSettingsEvent.SetAssessmentsEnabled(!state.profile.isAssessmentsEnabled))
                     }
                 )
             }
@@ -372,9 +391,19 @@ private fun ProfileSettingsScreenContent(
         }
     )
 
-    if (isConfirmDisableHomeworkDialogVisible) ConfirmHomeworkDisableDialog({
-        isConfirmDisableHomeworkDialogVisible = false; onEvent(ProfileSettingsEvent.SetHomeworkEnabled((state.profile as? ClassProfile)?.isHomeworkEnabled ?: false))
-    }, { isConfirmDisableHomeworkDialogVisible = false })
+    if (isConfirmDisableHomeworkDialogVisible) {
+        ConfirmHomeworkDisableDialog(
+            onConfirm = { isConfirmDisableHomeworkDialogVisible = false; onEvent(ProfileSettingsEvent.SetHomeworkEnabled((state.profile as? ClassProfile)?.isHomeworkEnabled ?: false)) },
+            onDismiss = { isConfirmDisableHomeworkDialogVisible = false }
+        )
+    }
+
+    if (isConfirmDisableAssessmentsDialogVisible) {
+        ConfirmAssessmentsDisableDialog(
+            onConfirm = { isConfirmDisableAssessmentsDialogVisible = false; onEvent(ProfileSettingsEvent.SetAssessmentsEnabled(false)) },
+            onDismiss = { isConfirmDisableAssessmentsDialogVisible = false }
+        )
+    }
 }
 
 @OptIn(PreviewFunction::class)

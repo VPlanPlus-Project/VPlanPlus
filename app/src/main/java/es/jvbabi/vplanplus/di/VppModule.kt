@@ -115,7 +115,9 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHom
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.CheckCredentialsUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.UpdateCredentialsUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasProfileLocalAssessmentsUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasProfileLocalHomeworkUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateAssessmentsEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.SetProfileVppIdUseCase
@@ -620,6 +622,7 @@ object VppModule {
         homeworkRepository: HomeworkRepository,
         keyValueRepository: KeyValueRepository,
         calendarRepository: CalendarRepository,
+        examRepository: ExamRepository,
         notificationRepository: NotificationRepository,
         getCurrentProfileUseCase: GetCurrentProfileUseCase,
         updateCalendarUseCase: UpdateCalendarUseCase,
@@ -663,8 +666,11 @@ object VppModule {
             ),
             checkCredentialsUseCase = CheckCredentialsUseCase(baseDataRepository),
             updateCredentialsUseCase = UpdateCredentialsUseCase(schoolRepository, notificationRepository),
-            hasProfileLocalHomeworkUseCase = HasProfileLocalHomeworkUseCase(homeworkRepository),
-            updateHomeworkEnabledUseCase = UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository)
+            hasProfileLocalHomeworkUseCase = HasProfileLocalHomeworkUseCase(homeworkRepository, getCurrentProfileUseCase),
+            updateHomeworkEnabledUseCase = UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository),
+
+            hasProfileLocalAssessmentsUseCase = HasProfileLocalAssessmentsUseCase(examRepository, getCurrentProfileUseCase),
+            updateAssessmentsEnabledUseCase = UpdateAssessmentsEnabledUseCase(profileRepository, examRepository)
         )
     }
 

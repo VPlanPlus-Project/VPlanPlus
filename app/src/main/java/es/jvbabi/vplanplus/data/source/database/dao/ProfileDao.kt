@@ -25,8 +25,8 @@ abstract class ProfileDao {
     @Query("SELECT * FROM profile_room")
     abstract fun getRoomProfiles(): Flow<List<CRoomProfile>>
 
-    @Query("INSERT INTO profile_class (id, name, custom_name, calendar_mode, calendar_id, class_id, is_homework_enabled, is_daily_notification_enabled, vpp_id) VALUES (:id, :name, :customName, :calendarMode, :calendarId, :classId, :isHomeworkEnabled, :isDailyNotificationEnabled, :vppId)")
-    abstract suspend fun createClassProfile(id: UUID, name: String, customName: String, calendarMode: ProfileCalendarType, calendarId: Long?, classId: Int, isHomeworkEnabled: Boolean, isDailyNotificationEnabled: Boolean, vppId: Int?)
+    @Query("INSERT INTO profile_class (id, name, custom_name, calendar_mode, calendar_id, class_id, is_homework_enabled, is_assessments_enabled, is_daily_notification_enabled, vpp_id) VALUES (:id, :name, :customName, :calendarMode, :calendarId, :classId, :isHomeworkEnabled, :isAssessmentsEnabled, :isDailyNotificationEnabled, :vppId)")
+    abstract suspend fun createClassProfile(id: UUID, name: String, customName: String, calendarMode: ProfileCalendarType, calendarId: Long?, classId: Int, isHomeworkEnabled: Boolean, isAssessmentsEnabled: Boolean, isDailyNotificationEnabled: Boolean, vppId: Int?)
 
     @Query("INSERT INTO profile_teacher (id, name, custom_name, calendar_mode, calendar_id, teacher_id) VALUES (:id, :name, :customName, :calendarMode, :calendarId, :teacherId)")
     abstract suspend fun createTeacherProfile(id: UUID, name: String, customName: String, calendarMode: ProfileCalendarType, calendarId: Long?, teacherId: UUID)
@@ -75,6 +75,9 @@ abstract class ProfileDao {
 
     @Query("UPDATE profile_class SET is_homework_enabled = :enabled WHERE id = :profileId")
     abstract suspend fun setHomeworkEnabledForClassProfile(profileId: UUID, enabled: Boolean)
+
+    @Query("UPDATE profile_class SET is_assessments_enabled = :enabled WHERE id = :profileId")
+    abstract suspend fun setAssessmentEnabledForClassProfile(profileId: UUID, enabled: Boolean)
 
     @Query("UPDATE profile_class SET is_daily_notification_enabled = :enabled WHERE id = :profileId")
     abstract suspend fun setDailyNotificationEnabledForClassProfile(profileId: UUID, enabled: Boolean)

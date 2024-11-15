@@ -136,7 +136,7 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
 
         DbAlarm::class
     ],
-    version = 48,
+    version = 49,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -161,6 +161,7 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
         AutoMigration(from = 45, to = 46), // add exam isPublic
         AutoMigration(from = 46, to = 47), // add alarms
         AutoMigration(from = 47, to = 48, spec = Migration_48::class), // add isDailyNotificationEnabled to profile, remove preferred notification time
+        AutoMigration(from = 48, to = 49), // profile isAssessmentsEnabled
     ],
 )
 @TypeConverters(

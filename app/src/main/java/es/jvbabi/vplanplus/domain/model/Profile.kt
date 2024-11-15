@@ -56,6 +56,7 @@ class ClassProfile(
     calendarId: Long?,
     val group: Group,
     val isHomeworkEnabled: Boolean,
+    val isAssessmentsEnabled: Boolean,
     val isDailyNotificationEnabled: Boolean,
     val defaultLessons: Map<DefaultLesson, Boolean>,
     val vppId: VppId.ActiveVppId?
@@ -77,6 +78,7 @@ class ClassProfile(
         return id == other.id &&
                 group == other.group &&
                 isHomeworkEnabled == other.isHomeworkEnabled &&
+                isAssessmentsEnabled == other.isAssessmentsEnabled &&
                 isDailyNotificationEnabled == other.isDailyNotificationEnabled &&
                 defaultLessons == other.defaultLessons &&
                 vppId == other.vppId &&
@@ -91,6 +93,7 @@ class ClassProfile(
     override fun hashCode(): Int {
         var result = group.hashCode()
         result = 31 * result + isHomeworkEnabled.hashCode()
+        result = 31 * result + isAssessmentsEnabled.hashCode()
         result = 31 * result + isDailyNotificationEnabled.hashCode()
         result = 31 * result + defaultLessons.hashCode()
         result = 31 * result + (vppId?.hashCode() ?: 0)

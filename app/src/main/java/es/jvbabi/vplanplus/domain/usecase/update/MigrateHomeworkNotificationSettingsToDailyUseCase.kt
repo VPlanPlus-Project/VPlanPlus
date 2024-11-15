@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.android.receiver
+package es.jvbabi.vplanplus.domain.usecase.update
 
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository

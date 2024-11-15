@@ -83,6 +83,7 @@ data class CClassProfile(
             calendarId = classProfile.calendarId,
             group = group.toModel(),
             isHomeworkEnabled = classProfile.isHomeworkEnabled,
+            isAssessmentsEnabled = classProfile.isAssessmentsEnabled,
             isDailyNotificationEnabled = classProfile.isDailyNotificationEnabled,
             defaultLessons = defaultLessons
                 .mapNotNull { defaultLesson ->

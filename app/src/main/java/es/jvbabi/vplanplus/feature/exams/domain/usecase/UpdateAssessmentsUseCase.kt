@@ -42,6 +42,7 @@ class UpdateAssessmentsUseCase(
             .getProfiles()
             .first()
             .filterIsInstance<ClassProfile>()
+            .filter { it.isAssessmentsEnabled }
             .forEach { profile ->
                 val existingAssessments = examRepository.getExams(profile = profile).first()
                 val data = examRepository.downloadAssessments(profile)

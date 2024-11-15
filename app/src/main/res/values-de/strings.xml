@@ -742,9 +742,6 @@
     <string name="advancedSettings_resetBalloonsTitle">Tipps (Balloons) zurücksetzen</string>
     <string name="advancedSettings_resetBalloonsSubtitle">Dies wird alle ausgeblendeted Balloons und Hinweise zurücksetzen und erneut anzeigen. Möglicherweise siehst du Hinweise, die sich an neue oder bestehende Nutzer z.B. nach einem Update richten.</string>
     <string name="advancedSettings_resetBalloonsSuccess">Ballons zurückgesetzt</string>
-    <string name="advancedSettings_testingTitle">Test</string>
-    <string name="advancedSettings_testingRunHomeworkReminderTitle">Hausaufgabenerinnerung ausführen</string>
-    <string name="advancedSettings_testingRunHomeworkReminderSubtitle">Dadurch wird die Benachrichtigung zur Hausaufgabenerinnerung sofort ausgeführt. Beachte, dass dies nur funktioniert, wenn es Hausaufgaben gibt, zu den du erinnert werden kannst,</string>
     <string name="vppIdSettingsManagement_requestDeletion">Deine vpp.ID löschen</string>
     <string name="vppIdSettingsManagement_requestDeletionSubtitle">Momentan kannst du deine vpp.ID nicht selbstständig löschen. Du kannst die Löschung mit dem vpp.ID Webinterface beantragen. Dies wird einen Browser öffnen, um fortzufahren.</string>
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Kurse</string>
@@ -900,4 +897,9 @@
     </plurals>
     <string name="notification_assessmentsMultipleNewTitle">Neue Leistungserhebungen</string>
     <string name="calendar_newHomework">Neue Hausaufgabe</string>
+    <string name="profileManagement_assessmentsTitle">Leistungserhebungen</string>
+    <string name="profileManagement_enableAssessmentsTitle">Leistungserhebungen aktivieren</string>
+    <string name="profileManagement_assessmentsSubtitle">Speichere Leistungserhebungen in deinem Plan und erhalte Benachrichtigungen dazu.</string>
+    <string name="profileSettings_disableAssessmentsTitle">Leistungserhebungen deaktivieren</string>
+    <string name="profileSettings_disableAssessmentsMessage">Es existieren aktuell lokale Leistungserhebungen. Diese werden bei Deaktivierung der Funktion gelöscht.</string>
 </resources>

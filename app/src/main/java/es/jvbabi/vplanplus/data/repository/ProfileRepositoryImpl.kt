@@ -88,6 +88,7 @@ class ProfileRepositoryImpl(
         calendar: Calendar?,
         calendarType: ProfileCalendarType,
         isHomeworkEnabled: Boolean,
+        isAssessmentsEnabled: Boolean,
         isDailyNotificationEnabled: Boolean,
         vppId: VppId?
     ): UUID {
@@ -102,6 +103,7 @@ class ProfileRepositoryImpl(
             calendarId = calendarId,
             classId = classId,
             isHomeworkEnabled = isHomeworkEnabled,
+            isAssessmentsEnabled = isAssessmentsEnabled,
             isDailyNotificationEnabled = isDailyNotificationEnabled,
             vppId = vppIdInt
         )
@@ -164,6 +166,10 @@ class ProfileRepositoryImpl(
 
     override suspend fun setHomeworkEnabled(profile: ClassProfile, enabled: Boolean) {
         profileDao.setHomeworkEnabledForClassProfile(profile.id, enabled)
+    }
+
+    override suspend fun setAssessmentEnabled(profile: ClassProfile, enabled: Boolean) {
+        profileDao.setAssessmentEnabledForClassProfile(profile.id, enabled)
     }
 
     override suspend fun setDailyNotificationEnabled(profile: ClassProfile, enabled: Boolean) {

@@ -15,7 +15,8 @@ object ProfilePreview {
     fun generateClassProfile(
         group: Group,
         vppId: VppId.ActiveVppId? = null,
-        isDailyNotificationEnabled: Boolean = true
+        isDailyNotificationEnabled: Boolean = true,
+        isAssessmentsEnabled: Boolean = true
     ): ClassProfile {
         val name = classNames.random()
         return ClassProfile(
@@ -28,6 +29,7 @@ object ProfilePreview {
             vppId = vppId,
             isHomeworkEnabled = true,
             isDailyNotificationEnabled = isDailyNotificationEnabled,
+            isAssessmentsEnabled = isAssessmentsEnabled,
             group = group
         )
     }
