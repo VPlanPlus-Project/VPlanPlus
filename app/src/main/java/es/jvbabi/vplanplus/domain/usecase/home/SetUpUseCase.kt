@@ -49,7 +49,7 @@ class SetUpUseCase(
         keyValueRepository.set(Keys.LAST_KNOWN_APP_VERSION, currentVersion.toString())
 
         if (previousVersion <= 320) migrateHomeworkNotificationSettingsToDailyUseCase()
-        if (previousVersion <= 325) enableAssessmentsOnlyForCurrentProfileUseCase()
+        if (previousVersion <= 328) enableAssessmentsOnlyForCurrentProfileUseCase()
     }
 
     private suspend fun testForInvalidSessions() {

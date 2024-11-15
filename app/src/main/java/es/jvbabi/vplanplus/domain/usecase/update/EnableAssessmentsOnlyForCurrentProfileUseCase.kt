@@ -4,9 +4,7 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.first
 import java.util.UUID
 
 class EnableAssessmentsOnlyForCurrentProfileUseCase(
@@ -23,6 +21,7 @@ class EnableAssessmentsOnlyForCurrentProfileUseCase(
         } ?: return
         profileRepository
             .getProfiles()
+            .first()
             .filterIsInstance<ClassProfile>()
             .filter { it.id == currentProfileId }
             .onEach {
