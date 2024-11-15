@@ -53,7 +53,7 @@ import es.jvbabi.vplanplus.ui.preview.GroupPreview as PreviewClasses
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview as PreviewSchool
 
 fun onLogin(context: Context, server: VppIdServer) {
-    val host = URLBuilder(server.uiHost).host
+    val host = URLBuilder(server.authHost).host
     val clientId = BuildConfig.VPP_CLIENT_ID
     val clientSecret = BuildConfig.VPP_CLIENT_SECRET
     val redirectUri = BuildConfig.VPP_REDIRECT_URI
@@ -62,10 +62,10 @@ fun onLogin(context: Context, server: VppIdServer) {
             protocol = URLProtocol.HTTPS,
             host = host,
             port = 443,
-            pathSegments = listOf("id", "login", "link"),
+            pathSegments = listOf("authorize"),
             parameters = Parameters.build {
                 append("version", BuildConfig.VERSION_CODE.toString())
-                append("name", Build.BRAND + " " + Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")")
+                append("device_name", Build.BRAND + " " + Build.MODEL + " (Android " + Build.VERSION.RELEASE + ")")
                 append("client_id", clientId)
                 append("client_secret", clientSecret)
                 append("redirect_uri", redirectUri)

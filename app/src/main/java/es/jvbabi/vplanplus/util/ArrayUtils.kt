@@ -16,3 +16,7 @@ fun <E> Collection<E>.randomSubList(size: Int = 5, forceSize: Boolean = true): M
     }
     return result
 }
+
+fun <E> MutableCollection<E>.addNotNull(element: E?) {
+    if (element != null) add(element)
+}

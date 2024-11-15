@@ -1,7 +1,9 @@
 package es.jvbabi.vplanplus.domain.model
 
+import androidx.compose.runtime.Immutable
 import java.util.UUID
 
+@Immutable
 sealed class Profile(
     val id: UUID,
     val originalName: String,
@@ -54,6 +56,7 @@ class ClassProfile(
     calendarId: Long?,
     val group: Group,
     val isHomeworkEnabled: Boolean,
+    val isDailyNotificationEnabled: Boolean,
     val defaultLessons: Map<DefaultLesson, Boolean>,
     val vppId: VppId.ActiveVppId?
 ) : Profile(id, originalName, displayName, calendarType, calendarId) {
@@ -74,6 +77,7 @@ class ClassProfile(
         return id == other.id &&
                 group == other.group &&
                 isHomeworkEnabled == other.isHomeworkEnabled &&
+                isDailyNotificationEnabled == other.isDailyNotificationEnabled &&
                 defaultLessons == other.defaultLessons &&
                 vppId == other.vppId &&
                 originalName == other.originalName &&
@@ -87,6 +91,7 @@ class ClassProfile(
     override fun hashCode(): Int {
         var result = group.hashCode()
         result = 31 * result + isHomeworkEnabled.hashCode()
+        result = 31 * result + isDailyNotificationEnabled.hashCode()
         result = 31 * result + defaultLessons.hashCode()
         result = 31 * result + (vppId?.hashCode() ?: 0)
         return result

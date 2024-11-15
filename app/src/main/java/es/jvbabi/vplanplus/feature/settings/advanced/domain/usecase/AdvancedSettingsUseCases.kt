@@ -11,5 +11,7 @@ data class AdvancedSettingsUseCases(
     val isFcmDebugModeUseCase: IsFcmDebugModeUseCase,
     val toggleFcmDebugModeUseCase: ToggleFcmDebugModeUseCase,
     val resetBalloonsUseCase: ResetBalloonsUseCase,
-    val homeworkReminderUseCase: HomeworkReminderUseCase
+    val homeworkReminderUseCase: HomeworkReminderUseCase,
+
+    val toggleDeveloperModeUseCase: ToggleDeveloperModeUseCase
 )

@@ -9,10 +9,9 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDoc
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PreferredHomeworkNotificationTime
 import es.jvbabi.vplanplus.shared.data.Response
 import kotlinx.coroutines.flow.Flow
-import java.time.DayOfWeek
+import java.time.LocalDate
 import java.time.ZonedDateTime
 
 interface HomeworkRepository {
@@ -21,7 +20,7 @@ interface HomeworkRepository {
     suspend fun getProfileHomeworkById(homeworkId: Int, classProfile: ClassProfile): Flow<PersonalizedHomework?>
 
     suspend fun getAll(): Flow<List<HomeworkCore>>
-    suspend fun getAllByProfile(profile: ClassProfile): Flow<List<PersonalizedHomework>>
+    suspend fun getAllByProfile(profile: ClassProfile, until: LocalDate? = null): Flow<List<PersonalizedHomework>>
 
     suspend fun findLocalId(): Int
     suspend fun findLocalTaskId(): Int
@@ -37,7 +36,7 @@ interface HomeworkRepository {
      */
     suspend fun downloadHomework(vppId: VppId.ActiveVppId?, group: Group): List<HomeworkCore.CloudHomework>?
 
-    suspend fun downloadHomeworkDocument(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): ByteArray?
+    suspend fun downloadHomeworkDocument(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int, onDownloading: (sent: Long, total: Long) -> Unit): ByteArray?
 
     suspend fun downloadHomeworkDocumentMetadata(vppId: VppId.ActiveVppId?, group: Group, homeworkId: Int, homeworkDocumentId: Int): HomeworkDocument?
 
@@ -47,10 +46,6 @@ interface HomeworkRepository {
 
     fun isUpdateRunning(): Boolean
 
-    suspend fun setPreferredHomeworkNotificationTime(hour: Int, minute: Int, dayOfWeek: DayOfWeek)
-    suspend fun removePreferredHomeworkNotificationTime(dayOfWeek: DayOfWeek)
-    fun getPreferredHomeworkNotificationTimes(): Flow<List<PreferredHomeworkNotificationTime>>
-
     suspend fun getDocumentById(id: Int): HomeworkDocument?
 
     /**
@@ -59,9 +54,11 @@ interface HomeworkRepository {
      * @param homeworkId The ID of the homework to which the document belongs.
      * @param name The name of the document.
      * @param type The type of the document.
+     * @param size The size of the document in bytes.
+     * @param isDownloaded Whether the document is downloaded. If null, the repository will check if the corresponding file exists.
      * @return The ID of the document, either the one provided or the next available local ID.
      */
-    suspend fun addDocumentDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType): HomeworkDocumentId
+    suspend fun addDocumentDb(documentId: Int? = null, homeworkId: Int, name: String, type: HomeworkDocumentType, size: Long, isDownloaded: Boolean? = null): HomeworkDocumentId
 
     /**
      * Uploads a document to the cloud. This will not save the document to the device, it will only upload it to the cloud. Creating the actual document is the responsibility of the caller.
@@ -258,6 +255,8 @@ interface HomeworkRepository {
      * @see [changeDueDateDb]
      */
     suspend fun changeDueDateCloud(profileHomework: PersonalizedHomework.CloudHomework, newDate: ZonedDateTime): Unit?
+
+    suspend fun updateHomeworkDocumentsFileState()
 }
 
 typealias HomeworkDocumentId = Int

@@ -12,6 +12,8 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.compose.compiler)
     alias(libs.plugins.firebase.crashlytics)
+
+    id("kotlin-parcelize")
 }
 
 android {
@@ -22,7 +24,7 @@ android {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 35
-        versionCode = 317
+        versionCode = 327
         versionName = "VPP_${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}-android-open1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -140,7 +142,6 @@ dependencies {
     ksp(libs.hilt.compiler)
 
     implementation(libs.room.runtime)
-    annotationProcessor(libs.room.compiler)
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
 

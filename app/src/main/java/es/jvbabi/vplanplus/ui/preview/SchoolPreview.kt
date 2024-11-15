@@ -17,11 +17,16 @@ object SchoolPreview {
                     password = "",
                     daysPerWeek = 5,
                     fullyCompatible = true,
-                    schoolDownloadMode = SchoolDownloadMode.INDIWARE_WOCHENPLAN_6
+                    schoolDownloadMode = SchoolDownloadMode.INDIWARE_WOCHENPLAN_6,
+                    canUseTimetable = true
                 )
             )
         }
         return schools
+    }
+
+    fun generateRandomSchool(): School {
+        return generateRandomSchools(1).first()
     }
 
     private fun randomSchoolName(): String {

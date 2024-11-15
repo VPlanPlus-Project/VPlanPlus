@@ -25,12 +25,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.noRippleClickable
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.EditedTask
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.NewTask
 import es.jvbabi.vplanplus.feature.main_homework.view.ui.TaskUpdate
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.common.noRippleClickable
 
 @Composable
 fun Tasks(

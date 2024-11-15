@@ -12,7 +12,11 @@ import java.util.UUID
 
 object ProfilePreview {
 
-    fun generateClassProfile(group: Group, vppId: VppId.ActiveVppId? = null): ClassProfile {
+    fun generateClassProfile(
+        group: Group,
+        vppId: VppId.ActiveVppId? = null,
+        isDailyNotificationEnabled: Boolean = true
+    ): ClassProfile {
         val name = classNames.random()
         return ClassProfile(
             id = UUID.randomUUID(),
@@ -23,6 +27,7 @@ object ProfilePreview {
             defaultLessons = mapOf(),
             vppId = vppId,
             isHomeworkEnabled = true,
+            isDailyNotificationEnabled = isDailyNotificationEnabled,
             group = group
         )
     }

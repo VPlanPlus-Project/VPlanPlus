@@ -14,6 +14,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Update
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DeleteForever
+import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -124,6 +125,14 @@ private fun AdvancedSettingsScreenContent(
             SettingsCategory(
                 title = stringResource(id = R.string.advancedSettings_systemTitle)
             ) {
+                SettingsSetting(
+                    icon = Icons.Outlined.DeveloperMode,
+                    title = stringResource(id = R.string.advancedSettings_settingsDeveloperModeTitle),
+                    subtitle = stringResource(id = R.string.advancedSettings_settingsDeveloperModeSubtitle),
+                    type = SettingsType.TOGGLE,
+                    checked = state.isDeveloperModeEnabled,
+                    doAction = { onEvent(AdvancedSettingsEvent.ToggleDeveloperMode) }
+                )
                 SettingsSetting(
                     icon = Icons.Outlined.FormatListNumbered,
                     title = stringResource(id = R.string.advancedSettings_logsTitle),
