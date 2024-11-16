@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.domain.usecase.calendar
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.CalendarEvent
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.repository.CalendarRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -11,7 +12,6 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import java.util.TimeZone
 
 class UpdateCalendarUseCase(
@@ -22,7 +22,7 @@ class UpdateCalendarUseCase(
     private val stringRepository: StringRepository
 ) {
     suspend operator fun invoke() {
-        val profiles = profileRepository.getProfiles().firstOrNull().orEmpty()
+        val profiles = profileRepository.getProfiles().first()
             .filter { it.calendarType != ProfileCalendarType.NONE && it.calendarId != null }
 
         val dates = planRepository.getLocalPlanDates()
@@ -36,8 +36,8 @@ class UpdateCalendarUseCase(
                 planRepository.getDayForProfile(profile, it, version).first()
             }.forEach { day ->
                 if (profile.calendarType == ProfileCalendarType.LESSON) {
-                    day
-                        .getEnabledLessons(profile)
+                    day.lessons
+                        .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                         .filter { it.displaySubject != "-" }
                         .forEach { lesson ->
                             calendarRepository.insertEvent(
@@ -60,15 +60,15 @@ class UpdateCalendarUseCase(
                         CalendarEvent(
                             calendarId = calendar.id,
                             startTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
-                                day
-                                    .getEnabledLessons(profile)
+                                day.lessons
+                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                                     .filter { it.displaySubject != "-" }
                                     .sortedBy { it.lessonNumber }
                                     .first { it.displaySubject != "-" }.start
                             ),
                             endTimeStamp = ZonedDateTimeConverter().zonedDateTimeToTimestamp(
-                                day
-                                    .getEnabledLessons(profile)
+                                day.lessons
+                                    .filter { (profile as? ClassProfile)?.isDefaultLessonEnabled(it.defaultLesson?.vpId) ?: true }
                                     .filter { it.displaySubject != "-" }
                                     .sortedBy { it.lessonNumber }
                                     .last { it.displaySubject != "-" }.end

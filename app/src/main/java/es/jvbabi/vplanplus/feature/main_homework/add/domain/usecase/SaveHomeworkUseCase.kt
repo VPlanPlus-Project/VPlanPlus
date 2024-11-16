@@ -10,7 +10,6 @@ import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDoc
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.util.sha256
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
@@ -31,7 +30,7 @@ class SaveHomeworkUseCase(
         onDocumentUploadProgress: (Uri, Float) -> Unit
     ): Boolean {
         if (tasks.isEmpty()) return false
-        val profile = (getCurrentProfileUseCase().firstOrNull() as? ClassProfile) ?: return false
+        val profile = (getCurrentProfileUseCase().first() as? ClassProfile) ?: return false
 
         val dueTo = ZonedDateTime.of(until, LocalTime.of(0, 0, 0), ZoneId.of("UTC"))
         var homeworkId: Int? = null
@@ -84,9 +83,7 @@ class SaveHomeworkUseCase(
                 documentId = documentId,
                 homeworkId = homeworkId,
                 name = name,
-                type = type,
-                size = content.size.toLong(),
-                isDownloaded = true
+                type = type
             )
             fileRepository.writeBytes("homework_documents", "$documentId.${type.extension}", content)
         }

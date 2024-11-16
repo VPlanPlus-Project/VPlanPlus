@@ -80,7 +80,6 @@ import kotlin.math.abs
 fun HomeworkCardItem(
     personalizedHomework: PersonalizedHomework,
     isVisible: Boolean,
-    isSwipingEnabled: Boolean = false,
     onClick: () -> Unit,
     onCheckSwiped: () -> Unit,
     onVisibilityOrDeleteSwiped: () -> Unit,
@@ -187,8 +186,8 @@ fun HomeworkCardItem(
             SwipeToDismissBox(
                 modifier = Modifier.padding(bottom = 8.dp),
                 state = dismissState,
-                enableDismissFromEndToStart = !isDemoRunning && isSwipingEnabled,
-                enableDismissFromStartToEnd = !isDemoRunning && isSwipingEnabled,
+                enableDismissFromEndToStart = !isDemoRunning,
+                enableDismissFromStartToEnd = !isDemoRunning,
                 backgroundContent = { SwipeBackground(demoDisplayDirection ?: dismissState.dismissDirection, personalizedHomework.homework is HomeworkCore.LocalHomework || (personalizedHomework is PersonalizedHomework.CloudHomework && personalizedHomework.homework.createdBy.id == personalizedHomework.profile.vppId?.id), personalizedHomework is PersonalizedHomework.CloudHomework && personalizedHomework.isHidden) }
             ) {
                 val demoOffset = animateFloatAsState(
@@ -312,7 +311,7 @@ private fun HomeworkCard(
                 .background(MaterialTheme.colorScheme.primaryContainer),
             contentAlignment = Center
         ) icon@{
-            Icon(imageVector = subject.getSubjectIcon(), contentDescription = subject, modifier = Modifier.size(32.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer)
+            Icon(imageVector = subject.getSubjectIcon(), contentDescription = subject, modifier = Modifier.size(32.dp), tint = MaterialTheme.colorScheme.primary)
         }
         Column(Modifier.fillMaxWidth()) {
             RowVerticalCenterSpaceBetweenFill title@{

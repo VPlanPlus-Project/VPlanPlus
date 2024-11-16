@@ -13,13 +13,11 @@ import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
-import es.jvbabi.vplanplus.domain.usecase.settings.profiles.shared.GetProfileByIdUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.domain.usecase.IsFirstProfileForSchoolUseCase
 import es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase.OnboardingSetupUseCases
 import es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase.SetupUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
-import es.jvbabi.vplanplus.feature.settings.profile.notifications.domain.usecase.ToggleNotificationForProfileUseCase
 import javax.inject.Singleton
 
 @Module
@@ -52,8 +50,6 @@ object OnboardingSetupModule {
             profileRepository = profileRepository,
             updateFcmTokenUseCase = UpdateFcmTokenUseCase(keyValueRepository, updateFirebaseTokenUseCase)
         ),
-        isFirstProfileForSchoolUseCase = IsFirstProfileForSchoolUseCase(keyValueRepository),
-        getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository),
-        toggleNotificationForProfileUseCase = ToggleNotificationForProfileUseCase(profileRepository)
+        isFirstProfileForSchoolUseCase = IsFirstProfileForSchoolUseCase(keyValueRepository)
     )
 }

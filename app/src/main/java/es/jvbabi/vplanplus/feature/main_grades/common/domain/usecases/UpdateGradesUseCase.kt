@@ -21,12 +21,9 @@ import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Interval
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Year
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.SchulverwalterResponse
-import es.jvbabi.vplanplus.ui.NotificationDestination
+import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.MathTools.cantor
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 
 class UpdateGradesUseCase(
     private val profileRepository: ProfileRepository,
@@ -39,7 +36,7 @@ class UpdateGradesUseCase(
     suspend operator fun invoke() {
         val unhealthyProfiles = mutableListOf<ClassProfile>()
         profileRepository
-            .getProfiles().firstOrNull().orEmpty()
+            .getProfiles().first()
             .filterIsInstance<ClassProfile>()
             .filter { it.vppId != null }
             .forEach forEachProfile@{ profile ->
@@ -127,14 +124,7 @@ class UpdateGradesUseCase(
                             icon = R.drawable.vpp,
                             title = stringRepository.getString(R.string.notification_newGradesTitle),
                             message = stringRepository.getString(R.string.notification_newGradeText, "${newGrades.first().value.toInt()}${newGrades.first().modifier.char}", newGrades.first().subject.name),
-                            onClickTask = OpenScreenTask(
-                                destination = Json.encodeToString(
-                                    NotificationDestination(
-                                        screen = "grades",
-                                        profileId = profileRepository.getProfiles().first().firstOrNull { it is ClassProfile && it.vppId == vppId }?.id.toString()
-                                    )
-                                )
-                            )
+                            onClickTask = OpenScreenTask(Screen.GradesScreen.route)
                         )
                     }
                     Log.i("SyncGradesUseCase", "New grades: ${newGrades.size}")

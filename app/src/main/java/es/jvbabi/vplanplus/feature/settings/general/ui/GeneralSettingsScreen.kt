@@ -340,7 +340,7 @@ fun GeneralSettingsContent(
                     title = stringResource(id = R.string.settings_generalGradesProtectTitle),
                     subtitle = stringResource(id = R.string.settings_generalGradesProtectSubtitle),
                     type = SettingsType.TOGGLE,
-                    doAction = { onSetProtectGrades() },
+                    doAction = onSetProtectGrades,
                     checked = state.settings.isBiometricEnabled
                 )
             }

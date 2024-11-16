@@ -16,13 +16,3 @@ fun FullWidthLoadingCircle() {
         CircularProgressIndicator()
     }
 }
-
-@Composable
-fun FullSizeLoadingCircle() {
-    Box(
-        modifier = Modifier.fillMaxWidth(),
-        contentAlignment = Alignment.Center
-    ) {
-        CircularProgressIndicator()
-    }
-}

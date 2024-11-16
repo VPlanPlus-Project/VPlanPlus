@@ -10,10 +10,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.LiveHelp
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.MoreTime
-import androidx.compose.material.icons.filled.Update
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.DeleteForever
-import androidx.compose.material.icons.outlined.DeveloperMode
 import androidx.compose.material.icons.outlined.FormatListNumbered
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
@@ -32,10 +31,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.ui.common.CrashAnalyticsDialog
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.data.FcmTokenReloadState
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.DeletePlanDataDialog
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServerDialog
@@ -78,18 +74,6 @@ private fun AdvancedSettingsScreenContent(
 ) {
     val context = LocalContext.current
 
-    var showCrashAnalyticsDialog by rememberSaveable { mutableStateOf(false) }
-    if (showCrashAnalyticsDialog) CrashAnalyticsDialog(
-        onAccept = {
-            Firebase.crashlytics.setCrashlyticsCollectionEnabled(true)
-            showCrashAnalyticsDialog = false
-        },
-        onDeny = {
-            Firebase.crashlytics.setCrashlyticsCollectionEnabled(false)
-            showCrashAnalyticsDialog = false
-        }
-    )
-
     var showDeleteCacheDialog by rememberSaveable { mutableStateOf(false) }
     if (showDeleteCacheDialog) DeletePlanDataDialog(
         { showDeleteCacheDialog = false; onEvent(AdvancedSettingsEvent.DeleteCache) },
@@ -125,19 +109,11 @@ private fun AdvancedSettingsScreenContent(
                 title = stringResource(id = R.string.advancedSettings_systemTitle)
             ) {
                 SettingsSetting(
-                    icon = Icons.Outlined.DeveloperMode,
-                    title = stringResource(id = R.string.advancedSettings_settingsDeveloperModeTitle),
-                    subtitle = stringResource(id = R.string.advancedSettings_settingsDeveloperModeSubtitle),
-                    type = SettingsType.TOGGLE,
-                    checked = state.isDeveloperModeEnabled,
-                    doAction = { onEvent(AdvancedSettingsEvent.ToggleDeveloperMode) }
-                )
-                SettingsSetting(
                     icon = Icons.Outlined.FormatListNumbered,
                     title = stringResource(id = R.string.advancedSettings_logsTitle),
                     subtitle = stringResource(id = R.string.advancedSettings_logsSubtitle),
                     type = SettingsType.FUNCTION,
-                    doAction = { onLogsClicked() }
+                    doAction = onLogsClicked
                 )
                 SettingsSetting(
                     icon = Icons.Outlined.DeleteForever,
@@ -172,28 +148,6 @@ private fun AdvancedSettingsScreenContent(
                         doAction = { onEvent(AdvancedSettingsEvent.UpdateFcmToken) },
                         enabled = state.fcmTokenReloadState != FcmTokenReloadState.LOADING,
                         isLoading = state.fcmTokenReloadState == FcmTokenReloadState.LOADING
-                    )
-                )
-                Setting(state = PainterSettingsState(
-                    title = stringResource(R.string.advancedSettings_sendFirebaseReportsTitle),
-                    subtitle = when (state.hasUnsentCrashLogs){
-                        CrashlyticsState.HAS_CRASHES -> stringResource(R.string.advancedSettings_sendFirebaseReportsHasCrashes)
-                        CrashlyticsState.LOADING -> stringResource(R.string.loadingData)
-                        else -> stringResource(R.string.advancedSettings_sendFirebaseReportsHasNoCrashes)
-                    },
-                    painter = painterResource(id = R.drawable.destruction),
-                    type = SettingsType.FUNCTION,
-                    enabled = state.hasUnsentCrashLogs == CrashlyticsState.HAS_CRASHES,
-                    isLoading = state.hasUnsentCrashLogs == CrashlyticsState.LOADING,
-                    doAction = { onEvent(AdvancedSettingsEvent.SendCrashReports) }
-                ))
-                Setting(
-                    state = IconSettingsState(
-                        title = stringResource(id = R.string.advancedSettings_updateCrashlyticsSettingsTitle),
-                        subtitle = stringResource(id = R.string.advancedSettings_updateCrashlyticsSettingsSubtitle),
-                        imageVector = Icons.Default.Update,
-                        type = SettingsType.FUNCTION,
-                        doAction = { showCrashAnalyticsDialog = true }
                     )
                 )
                 Setting(state = IconSettingsState(
@@ -252,6 +206,15 @@ private fun AdvancedSettingsScreenContent(
                     type = SettingsType.DISPLAY,
                     enabled = false,
                     doAction = {}
+                )
+            }
+            SettingsCategory(title = stringResource(id = R.string.advancedSettings_testingTitle)) {
+                SettingsSetting(
+                    icon = Icons.Default.Notifications,
+                    title = stringResource(id = R.string.advancedSettings_testingRunHomeworkReminderTitle),
+                    subtitle = stringResource(id = R.string.advancedSettings_testingRunHomeworkReminderSubtitle),
+                    type = SettingsType.FUNCTION,
+                    doAction = { onEvent(AdvancedSettingsEvent.TriggerHomeworkReminder) }
                 )
             }
         }

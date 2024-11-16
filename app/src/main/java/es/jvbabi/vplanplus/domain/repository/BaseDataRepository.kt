@@ -26,8 +26,7 @@ data class BaseData(
     val teachers: List<String>?,
     val rooms: List<String>?,
     val holidays: List<LocalDate>,
-    val downloadMode: SchoolDownloadMode,
-    val canUseTimetable: Boolean
+    val downloadMode: SchoolDownloadMode
 )
 
 data class BaseDataClass(

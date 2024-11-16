@@ -11,13 +11,8 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 abstract class LessonDao {
 
-    @Transaction
     @Query("SELECT * FROM lesson WHERE version = :version AND day = :timestamp")
     abstract fun getLessons(timestamp: Long, version: Long): Flow<List<CLesson>>
-
-    @Transaction
-    @Query("SELECT * FROM lesson WHERE version = :version AND day = :timestamp AND group_id = :groupId")
-    abstract fun getLessonsByGroup(timestamp: Long, version: Long, groupId: Int): Flow<List<CLesson>>
 
     @Upsert
     abstract suspend fun insertLesson(lesson: DbLesson): Long

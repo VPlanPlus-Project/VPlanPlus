@@ -22,10 +22,6 @@ abstract class HomeworkDao {
     @Transaction
     abstract fun getByGroupId(groupId: Int): Flow<List<CHomework>>
 
-    @Query("SELECT * FROM homework WHERE group_id = :groupId AND until = :date")
-    @Transaction
-    abstract fun getByGroupIdAndDate(groupId: Int, date: ZonedDateTime): Flow<List<CHomework>>
-
     @Query("SELECT * FROM homework WHERE id = :homeworkId")
     @Transaction
     abstract fun getById(homeworkId: Int): Flow<CHomework?>

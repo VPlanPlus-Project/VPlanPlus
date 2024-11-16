@@ -141,21 +141,21 @@ private fun AboutContent(
                     icon = Icons.Default.Language,
                     title = stringResource(id = R.string.settingsAbout_websiteTitle),
                     subtitle = "vplan.plus",
-                    doAction = { onOpenWebsite() },
+                    doAction = onOpenWebsite,
                     type = SettingsType.FUNCTION
                 )
                 SettingsSetting(
                     painter = painterResource(id = R.drawable.play_store),
                     title = stringResource(id = R.string.settingsAbout_playStoreTitle),
                     subtitle = stringResource(id = R.string.settingsAbout_playStoreSubtitle),
-                    doAction = { onOpenPlayStore() },
+                    doAction = onOpenPlayStore,
                     type = SettingsType.FUNCTION
                 )
                 SettingsSetting(
                     painter = painterResource(id = R.drawable.github_logo),
                     title = stringResource(id = R.string.settingsAbout_repositoryTitle),
                     subtitle = "VPlanPlus-Project/VPlanPlus",
-                    doAction = { onOpenRepository() },
+                    doAction = onOpenRepository,
                     type = SettingsType.FUNCTION
                 )
                 SettingsSetting(
@@ -163,7 +163,7 @@ private fun AboutContent(
                     title = stringResource(id = R.string.settingsAbout_privacyPolicyTitle),
                     subtitle = stringResource(id = R.string.settingsAbout_privacyPolicySubtitle),
                     type = SettingsType.FUNCTION,
-                    doAction = { onOpenPrivacyPolicy() },
+                    doAction = onOpenPrivacyPolicy,
                 )
             }
             SettingsCategory(title = stringResource(id = R.string.settingsAbout_socialMedia)) {
@@ -172,28 +172,28 @@ private fun AboutContent(
                     title = stringResource(id = R.string.settingsAbout_socialMediaInstagramTitle),
                     subtitle = "@vplanplus",
                     type = SettingsType.FUNCTION,
-                    doAction = { onOpenInstagram() }
+                    doAction = onOpenInstagram
                 )
                 SettingsSetting(
                     painter = painterResource(id = R.drawable.threads_logo),
                     title = stringResource(id = R.string.settingsAbout_socialMediaThreadsTitle),
                     subtitle = "@vplanplus",
                     type = SettingsType.FUNCTION,
-                    doAction = { onOpenThreads() }
+                    doAction = onOpenThreads
                 )
                 SettingsSetting(
                     painter = painterResource(id = R.drawable.mastodon_logo),
                     title = stringResource(id = R.string.settingsAbout_socialMediaMastodonTitle),
                     subtitle = "@vpp_app@mastodon.social",
                     type = SettingsType.FUNCTION,
-                    doAction = { onOpenMastodon() }
+                    doAction = onOpenMastodon
                 )
                 SettingsSetting(
                     painter = painterResource(id = R.drawable.whatsapp_logo),
                     title = stringResource(id = R.string.settingsAbout_socialMediaWhatsAppTitle),
                     subtitle = stringResource(id = R.string.settingsAbout_socialMediaWhatsAppSubtitle),
                     type = SettingsType.FUNCTION,
-                    doAction = { onOpenWhatsApp() }
+                    doAction = onOpenWhatsApp
                 )
             }
 

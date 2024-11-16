@@ -17,8 +17,7 @@ data class CSchool(
             daysPerWeek = school.daysPerWeek,
             fullyCompatible = school.fullyCompatible,
             credentialsValid = school.credentialsValid,
-            schoolDownloadMode = school.schoolDownloadMode,
-            canUseTimetable = school.canUseTimetable
+            schoolDownloadMode = school.schoolDownloadMode
         )
     }
 }

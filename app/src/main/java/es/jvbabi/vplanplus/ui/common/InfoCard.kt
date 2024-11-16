@@ -37,7 +37,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import es.jvbabi.vplanplus.R
@@ -54,8 +53,7 @@ fun InfoCard(
     buttonText2: String? = null,
     buttonAction2: () -> Unit = {},
     backgroundColor: Color = MaterialTheme.colorScheme.primaryContainer,
-    textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer,
-    onClick: (() -> Unit)? = null
+    textColor: Color = MaterialTheme.colorScheme.onPrimaryContainer
 ) {
     Column(
         modifier = modifier
@@ -63,9 +61,8 @@ fun InfoCard(
             .clip(RoundedCornerShape(8.dp))
             .background(backgroundColor)
             .padding(start = 4.dp)
-            .then(onClick?.let { Modifier.clickable { onClick() } } ?: Modifier)
     ) {
-        Row(Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp, top = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+        Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(
                 imageVector = imageVector,
                 contentDescription = null,
@@ -73,16 +70,10 @@ fun InfoCard(
                 tint = textColor
             )
             Column(modifier = Modifier.padding(start = 16.dp)) {
-                Text(
-                    text = title,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = textColor
-                )
+                Text(text = title, style = MaterialTheme.typography.titleMedium, color = textColor)
                 Text(text = text, color = textColor)
             }
         }
-
-        if (buttonText1 == null && buttonText2 == null) Spacer(modifier = Modifier.size(16.dp))
 
         if (buttonText1 != null) Row(
             modifier = Modifier

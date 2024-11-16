@@ -11,8 +11,8 @@ class GetDefaultLessonsUseCase(
     private val getCurrentProfileUseCase: GetCurrentProfileUseCase,
 ) {
 
-    suspend operator fun invoke(): Set<DefaultLesson> {
-        val profile = getCurrentProfileUseCase().first() as? ClassProfile ?: return emptySet()
-        return defaultLessonRepository.getDefaultLessonByGroupId(profile.group.groupId).toSet()
+    suspend operator fun invoke(): List<DefaultLesson> {
+        val profile = getCurrentProfileUseCase().first() as? ClassProfile ?: return emptyList()
+        return defaultLessonRepository.getDefaultLessonByGroupId(profile.group.groupId)
     }
 }

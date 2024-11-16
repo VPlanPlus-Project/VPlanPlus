@@ -26,14 +26,22 @@ object GradesModule {
     @Singleton
     fun provideGradeRepository(
         db: VppDatabase,
-        logRepository: LogRecordRepository
+        logRepository: LogRecordRepository,
+        vppIdRepository: VppIdRepository,
+        notificationRepository: NotificationRepository,
+        stringRepository: StringRepository,
+        logRecordRepository: LogRecordRepository
     ): GradeRepository {
         return GradeRepositoryImpl(
             teacherDao = db.teacherDao,
             subjectDao = db.subjectDao,
             gradeDao = db.gradeDao,
             yearDao = db.yearDao,
+            vppIdRepository = vppIdRepository,
             bsNetworkRepository = provideBsNetworkRepository(logRepository),
+            notificationRepository = notificationRepository,
+            stringRepository = stringRepository,
+            logRecordRepository = logRecordRepository
         )
     }
 

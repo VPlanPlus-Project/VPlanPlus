@@ -58,14 +58,14 @@ data class CLesson(
         entity = DbRoomBooking::class
     ) val roomBooking: CRoomBooking?
 ) {
-    fun toModel(): Lesson.SubstitutionPlanLesson {
+    fun toModel(): Lesson {
         val defaultLesson = defaultLessons.firstOrNull {
             it?.`class`?.group?.id == `class`.group.id
         }
-        return Lesson.SubstitutionPlanLesson(
-            group = `class`.toModel(),
+        return Lesson(
+            `class` = `class`.toModel(),
             lessonNumber = lesson.lessonNumber,
-            subject = defaultLesson?.defaultLesson?.subject ?: "---",
+            originalSubject = defaultLesson?.defaultLesson?.subject,
             changedSubject = lesson.changedSubject,
             teachers = teachers.map { it.toTeacherModel() },
             teacherIsChanged = teachers.map { it.toTeacherModel().teacherId }.sorted() != listOf(defaultLesson?.defaultLesson?.teacherId),
@@ -86,10 +86,7 @@ data class CLesson(
                     .end
                 ).withYear(lesson.day.year).withDayOfYear(lesson.day.dayOfYear),
             defaultLesson = defaultLesson?.toModel(),
-            roomBooking = roomBooking?.toModel(),
-            id = lesson.id,
-            week = null,
-            weekType = null
+            roomBooking = roomBooking?.toModel()
         )
     }
 }

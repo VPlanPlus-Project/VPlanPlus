@@ -88,8 +88,7 @@ class SchoolRepositoryImpl(
         name: String,
         daysPerWeek: Int,
         fullyCompatible: Boolean,
-        schoolDownloadMode: SchoolDownloadMode,
-        canUseTimetable: Boolean
+        schoolDownloadMode: SchoolDownloadMode
     ) {
         schoolDao.insert(
             DbSchool(
@@ -100,8 +99,7 @@ class SchoolRepositoryImpl(
                 name = name,
                 daysPerWeek = daysPerWeek,
                 fullyCompatible = fullyCompatible,
-                schoolDownloadMode = schoolDownloadMode,
-                canUseTimetable = canUseTimetable
+                schoolDownloadMode = schoolDownloadMode
             )
         )
     }

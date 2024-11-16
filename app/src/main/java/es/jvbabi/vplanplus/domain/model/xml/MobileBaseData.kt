@@ -14,10 +14,7 @@ import org.simpleframework.xml.core.Persister
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class MobileBaseData(
-    rawXml: String,
-    couldUseTimetable: Boolean
-) {
+class MobileBaseData(rawXml: String) {
     var baseData: BaseData
 
     init {
@@ -40,8 +37,7 @@ class MobileBaseData(
             teachers = null,
             downloadMode = SchoolDownloadMode.INDIWARE_MOBIL,
             daysPerWeek = rootObject.head?.daysPerWeek ?: 5,
-            holidays = rootObject.holidays.orEmpty().map { LocalDate.parse(it, DateTimeFormatter.ofPattern("yyMMdd")) },
-            canUseTimetable = couldUseTimetable
+            holidays = rootObject.holidays.orEmpty().map { LocalDate.parse(it, DateTimeFormatter.ofPattern("yyMMdd")) }
         )
         1+1
         rootObject.classes

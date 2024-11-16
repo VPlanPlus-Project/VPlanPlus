@@ -9,12 +9,14 @@ import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Teacher
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.model.Year
 import es.jvbabi.vplanplus.shared.data.Response
 import kotlinx.coroutines.flow.Flow
-import java.time.LocalDate
 
 interface GradeRepository {
 
+    @Deprecated("Use usecase instead")
+    suspend fun updateGrades(): List<Grade>
+
     fun getAllGrades(): Flow<List<Grade>>
-    fun getGradesByUser(vppId: VppId, givenAt: LocalDate? = null): Flow<List<Grade>>
+    fun getGradesByUser(vppId: VppId): Flow<List<Grade>>
     suspend fun dropAll()
 
     suspend fun downloadGrades(activeVppId: VppId.ActiveVppId): Response<SchulverwalterResponse, List<DownloadedGrade>?>

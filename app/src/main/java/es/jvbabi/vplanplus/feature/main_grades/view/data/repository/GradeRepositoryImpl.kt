@@ -2,7 +2,13 @@ package es.jvbabi.vplanplus.feature.main_grades.view.data.repository
 
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
+import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.VppId
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository
+import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
+import es.jvbabi.vplanplus.domain.repository.StringRepository
+import es.jvbabi.vplanplus.domain.repository.VppIdRepository
+import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbGrade
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbInterval
 import es.jvbabi.vplanplus.feature.main_grades.view.data.model.DbSubject
@@ -26,6 +32,7 @@ import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
 import es.jvbabi.vplanplus.shared.data.Response
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import java.time.LocalDate
@@ -35,17 +42,68 @@ class GradeRepositoryImpl(
     private val subjectDao: SubjectDao,
     private val gradeDao: GradeDao,
     private val yearDao: YearDao,
-    private val bsNetworkRepository: BsNetworkRepository
+    private val bsNetworkRepository: BsNetworkRepository,
+    private val vppIdRepository: VppIdRepository,
+    private val notificationRepository: NotificationRepository,
+    private val stringRepository: StringRepository,
+    private val logRecordRepository: LogRecordRepository
 ) : GradeRepository {
+
+    @Deprecated("Use usecase instead")
+    override suspend fun updateGrades(): List<Grade> {
+        val vppIds = vppIdRepository.getActiveVppIds().first()
+        val newGrades = mutableListOf<Grade>()
+
+        vppIds.filterIsInstance<VppId.ActiveVppId>().forEach vppId@{ vppId ->
+            try {
+                val responseGrades = downloadGrades(vppId)
+
+                val subjects = subjectDao.getSubjects().first().map { it.toModel() }.toMutableList()
+                val teachers = teacherDao.getAllTeachers().first().map { it.toModel() }.toMutableList()
+                val existingGrades = gradeDao.getGradesByUser(vppId.id).first().map { it.toModel() }.toMutableList()
+
+                responseGrades.value.orEmpty().forEach { dataGrade ->
+                    val existingGrade = existingGrades.firstOrNull { it.id == dataGrade.id }
+//                    if (!subjects.any { s -> s.id == dataGrade.subject.id }) subjects.add(addBsSubjectToDb(dataGrade.subject.id, dataGrade.subject.short, dataGrade.subject.name))
+//                    if (!teachers.any { t -> t.id == dataGrade.givenBy.id }) teachers.add(addBsTeacherToDb(dataGrade.givenBy.id, dataGrade.givenBy.short, dataGrade.givenBy.firstname, dataGrade.teacher.lastname))
+//
+//                                        if (existingGrade == null || "${existingGrade.value.toInt()}${existingGrade.modifier}" != "$gradeNumber$gradeModifier") gradeDao.upsert(
+//                        DbGrade(
+//                            id = dataGrade.id,
+//                            vppId = vppId.id,
+//                            value = gradeNumber.toFloat(),
+//                            modifier = gradeModifier,
+//                            subject = subjects.first { it.id == dataGrade.subject.id }.id,
+//                            teacherId = teachers.first { it.id == dataGrade.teacher.id }.id,
+//                            givenAt = LocalDate.parse(dataGrade.givenAt),
+//                            type = dataGrade.collection.type,
+//                            comment = dataGrade.collection.name,
+//                            interval = dataGrade.collection.intervalId
+//                        )
+//                    )
+                    if (existingGrade == null) {
+                        val new = gradeDao.getGradeById(dataGrade.id).first().toModel()
+                        existingGrades.add(new)
+                        newGrades.add(new)
+                    }
+                }
+            } catch (e: BsUnauthorizedException) {
+                sendBsTokenInvalidNotification()
+            } catch (e: BsRequestFailedException) {
+                logRecordRepository.log("Grades", "Error: BS request failed with ${e.response?.value}")
+            }
+        }
+        return newGrades
+    }
+
     override fun getAllGrades(): Flow<List<Grade>> = flow {
         gradeDao.getAllGrades().collect {
             emit(it.map { g -> g.toModel() })
         }
     }
 
-    override fun getGradesByUser(vppId: VppId, givenAt: LocalDate?): Flow<List<Grade>> {
-        if (givenAt == null) return gradeDao.getGradesByUser(vppId.id).map { it.map { grade -> grade.toModel() } }
-        return gradeDao.getGradesByUserAndGivenAt(vppId.id, givenAt).map { it.map { grade -> grade.toModel() } }
+    override fun getGradesByUser(vppId: VppId): Flow<List<Grade>> {
+        return gradeDao.getGradesByUser(vppId.id).map { it.map { grade -> grade.toModel() } }
     }
 
     override suspend fun dropAll() {
@@ -153,6 +211,17 @@ class GradeRepositoryImpl(
         })
     }
 
+    private suspend fun sendBsTokenInvalidNotification() {
+        notificationRepository.sendNotification(
+            CHANNEL_ID_GRADES,
+            6000,
+            stringRepository.getString(R.string.notification_gradeUnauthorizedTitle),
+            stringRepository.getString(R.string.notification_gradeUnauthorizedContent),
+            R.drawable.vpp,
+            null
+        )
+    }
+
     override suspend fun upsertGrade(grade: Grade) {
         upsertYear(grade.year)
         upsertInterval(grade.year, grade.interval)
@@ -247,4 +316,4 @@ private data class DownloadedSchulverwalterCollection(
 )
 
 class BsUnauthorizedException : Exception("The token is invalid")
-private class BsRequestFailedException(response: HttpStatusCode?) : Exception("The request failed with $response")
+private class BsRequestFailedException(val response: HttpStatusCode?) : Exception("The request failed with $response")

@@ -44,8 +44,6 @@ class UpdateDocumentsUseCase(
                 homeworkId = homework.id,
                 name = newDocument.name,
                 type = HomeworkDocumentType.fromExtension(newDocument.extension),
-                size = content.size.toLong(),
-                isDownloaded = true
             )
             fileRepository.writeBytes("homework_documents", "$documentId.${newDocument.extension}", content)
         }
@@ -73,12 +71,8 @@ sealed class DocumentUpdate(
     class NewDocument(
         uri: Uri,
         name: String = uri.toFile().name,
-        val size: Long,
-        val extension: String,
-        val progress: Float = 0f
-    ) : DocumentUpdate(uri, name) {
-        fun copy(progress: Float = this.progress) = NewDocument(uri, name, size, extension, progress)
-    }
+        val extension: String
+    ) : DocumentUpdate(uri, name)
 
     class EditedDocument(
         uri: Uri,

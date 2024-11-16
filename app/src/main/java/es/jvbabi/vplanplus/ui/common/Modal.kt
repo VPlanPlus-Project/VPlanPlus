@@ -3,21 +3,15 @@ package es.jvbabi.vplanplus.ui.common
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloudQueue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -25,11 +19,8 @@ import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -84,7 +75,7 @@ fun Modal(
     CustomModal(sheetState, onDismiss) {
         entries.forEach { entry ->
             Option(
-                title = OptionTextTitle(entry.title),
+                title = entry.title,
                 subtitle = entry.subtitle,
                 icon = entry.icon,
                 state = entry.isSelected,
@@ -98,9 +89,9 @@ fun Modal(
 @Composable
 fun Option(
     modifier: Modifier = Modifier,
-    title: OptionText,
+    title: String,
     subtitle: String? = null,
-    icon: ImageVector?,
+    icon: ImageVector,
     state: Boolean,
     enabled: Boolean,
     onClick: () -> Unit
@@ -113,20 +104,18 @@ fun Option(
         modifier
             .fillMaxWidth()
             .then(if (enabled) Modifier.clickable { onClick() } else Modifier)
-            .defaultMinSize(minHeight = 56.dp)
+            .height(56.dp)
             .background(background)
             .padding(vertical = 8.dp, horizontal = 16.dp)) {
-        if (icon != null) Icon(
+        Icon(
             imageVector = icon,
             contentDescription = null,
             tint = if (enabled) contentColor else disabledContentColor,
             modifier = Modifier.size(24.dp)
-        ) else Spacer(Modifier.size(24.dp))
+        )
         Column(Modifier.padding(start = 16.dp)) {
-            CompositionLocalProvider(LocalContentColor provides if (enabled) contentColor else disabledContentColor) {
-                title.Display()
-                if (!subtitle.isNullOrBlank()) Text(text = subtitle, style = MaterialTheme.typography.labelMedium)
-            }
+            Text(text = title, style = MaterialTheme.typography.bodyLarge, color = if (enabled) contentColor else disabledContentColor)
+            if (!subtitle.isNullOrBlank()) Text(text = subtitle, style = MaterialTheme.typography.labelMedium, color = if (enabled) contentColor else disabledContentColor)
         }
     }
 }
@@ -135,47 +124,11 @@ fun Option(
 @Composable
 private fun OptionPreview() {
     Option(
-        title = OptionTextTitle(stringResource(id = R.string.addHomework_saveVppId)),
+        title = stringResource(id = R.string.addHomework_saveVppId),
         subtitle = stringResource(id = R.string.addHomework_saveVppIdNoVppId),
         icon = Icons.Default.CloudQueue,
         state = true,
         enabled = true,
         onClick = {}
     )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun SmallDragHandler() {
-    Box(Modifier.fillMaxWidth()) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.Center)
-                .padding(top = 10.dp)
-                .width(32.dp)
-                .height(4.dp)
-                .clip(RoundedCornerShape(50))
-                .background(MaterialTheme.colorScheme.onSurfaceVariant)
-        )
-    }
-}
-
-interface OptionText {
-    @Composable fun Display()
-}
-
-class OptionTextTitle(val title: String) : OptionText {
-    @Composable override fun Display() {
-        Text(text = title, style = MaterialTheme.typography.bodyLarge)
-    }
-}
-
-class OptionCustomText(val text: String, val after: @Composable () -> Unit) : OptionText {
-    @Composable override fun Display() {
-        RowVerticalCenter {
-            Text(text = text, style = MaterialTheme.typography.bodyLarge)
-            Spacer8Dp()
-            after()
-        }
-    }
 }
