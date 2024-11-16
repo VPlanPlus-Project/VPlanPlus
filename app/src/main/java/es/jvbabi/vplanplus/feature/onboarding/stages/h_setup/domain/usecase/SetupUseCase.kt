@@ -1,6 +1,7 @@
 package es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase
 
 import android.util.Log
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileType
 import es.jvbabi.vplanplus.domain.model.ProfileType.ROOM
 import es.jvbabi.vplanplus.domain.model.ProfileType.STUDENT
@@ -20,6 +21,7 @@ import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.domain.usecas
 import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.domain.usecase.OnboardingDefaultLesson
 import es.jvbabi.vplanplus.feature.onboarding.stages.c_credentials.domain.usecase.OnboardingInitClass
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
+import kotlinx.coroutines.flow.first
 import kotlinx.serialization.json.Json
 import java.time.ZoneId
 import java.time.ZonedDateTime
@@ -57,7 +59,7 @@ class SetupUseCase(
     private val keyValueRepository: KeyValueRepository,
     private val updateFcmTokenUseCase: UpdateFcmTokenUseCase
 ) {
-    suspend operator fun invoke(): Boolean {
+    suspend operator fun invoke(): Profile? {
         val json = Json { allowStructuredMapKeys = true }
 
         val schoolId = keyValueRepository.get("onboarding.school_id")!!.toInt()
@@ -160,7 +162,12 @@ class SetupUseCase(
 
         Log.d("SetupUseCase", "Creating profile ${selectedProfileType.name}")
         val profileId = when (selectedProfileType) {
-            STUDENT -> profileRepository.createClassProfile(group = classes.first { it.name == selectedProfileEntityName }, isHomeworkEnabled = isFirstProfile, isDailyNotificationEnabled = isFirstProfile)
+            STUDENT -> profileRepository.createClassProfile(
+                group = classes.first { it.name == selectedProfileEntityName },
+                isHomeworkEnabled = isFirstProfile,
+                isAssessmentsEnabled = isFirstProfile,
+                isNotificationsEnabled = isFirstProfile,
+            )
             TEACHER -> profileRepository.createTeacherProfile(teacher = teachers.first { it.acronym == selectedProfileEntityName })
             ROOM -> profileRepository.createRoomProfile(room = rooms.first { it.name == selectedProfileEntityName })
         }
@@ -176,6 +183,6 @@ class SetupUseCase(
 
         onboardingSetupKeys.forEach { keyValueRepository.delete(it) }
         updateFcmTokenUseCase()
-        return true
+        return profileRepository.getProfileById(profileId).first()
     }
 }

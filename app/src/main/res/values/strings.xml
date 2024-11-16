@@ -745,9 +745,6 @@
     <string name="advancedSettings_resetBalloonsTitle">Reset balloons</string>
     <string name="advancedSettings_resetBalloonsSubtitle">This will reset all dismissed balloons and hints and show them to you once more. You might see balloons that were targeted to new users or to existing users to explain an update to them.</string>
     <string name="advancedSettings_resetBalloonsSuccess">Balloons resetted</string>
-    <string name="advancedSettings_testingTitle">Testing</string>
-    <string name="advancedSettings_testingRunHomeworkReminderTitle">Trigger homework reminder</string>
-    <string name="advancedSettings_testingRunHomeworkReminderSubtitle">This will execute the homework reminder notification instantly. Note that this will only work if there is any homework which you can get reminded of.</string>
     <string name="vppIdSettingsManagement_requestDeletion">Delete your vpp.ID</string>
     <string name="vppIdSettingsManagement_requestDeletionSubtitle">Currently, you cannot delete your vpp.ID yourself. You may request its deletion via your account manager. This will open a browser to proceed.</string>
     <string name="settingsProfileManagementDefaultLesson_courseGroupsTitle">Course groups</string>
@@ -874,8 +871,6 @@
     <string name="calendar_dayExamReminder">Reminder for %1$s</string>
     <string name="home_assessmentReminderTitle">Assessment reminders</string>
     <string name="home_assessmentReminderSubtitle">Get prepared!</string>
-    <string name="settings_notificationsTitle">Notifications</string>
-    <string name="settings_notificationsSubtitle">Get notified about new homework and your next school day.</string>
     <string name="settingsNotifications_title">Notifications</string>
     <string name="settingsNotifications_notificationsDisabledBannerTitle">Notifications disabled</string>
     <string name="settingsNotifications_notificationsDisabledBannerText">VPlanPlus cannot send notifications since they are disabled by Androoid. Please enable them in settings.</string>
@@ -912,4 +907,32 @@
     </plurals>
     <string name="notification_assessmentsMultipleNewTitle">New assessments</string>
     <string name="calendar_newHomework">New homework</string>
+    <string name="profileManagement_assessmentsTitle">Assessments</string>
+    <string name="profileManagement_enableAssessmentsTitle">Enable assessments</string>
+    <string name="profileManagement_assessmentsSubtitle">Save assessments in your schedule and get notified about them.</string>
+    <string name="profileSettings_disableAssessmentsTitle">Disable assessments</string>
+    <string name="profileSettings_disableAssessmentsMessage">You have some local assessments saved. If you disable this feature, they will be deleted.</string>
+    <string name="profileManagement_notificationsTitle">Notifications</string>
+    <string name="profileManagement_profileNotificationsTitle">Notifications for this profile</string>
+    <string name="profileManagement_profileNotificationsSubtitle">Tap to toggle different categories</string>
+    <string name="profileNotificationSettings_notificationsDisabled">Notifications disabled</string>
+    <string name="profileNotificationSettings_notificationsDisabledText">VPlanPlus cannot send notifications to your devices. You can enable notifications in your phones settings.</string>
+    <string name="profileNotificationSettings_profileDisabled">Profile notifications disabled</string>
+    <string name="profileNotificationSettings_profileDisabledText">VPlanPlus cannot send notifications regarding this profile since this notification channel is disabled. You can change this in your devices settings.</string>
+    <string name="profileNotificationSettings_notificationsEnabled">Allow notifications</string>
+    <string name="profileNotificationSettings_title">Profile notifications</string>
+    <string name="profileNotificationSettings_notificationsSettings">Change sound and haptics</string>
+    <string name="profileNotificationSettings_notificationsSettingsSubtitle">Change how notifications for this profile should behave.</string>
+    <string name="profileNotificationSettings_homeworkCategoryTitle">Homework</string>
+    <string name="profileNotificationSettings_homeworkSettingsOnNewHomeworkTitle">Notify on new homework</string>
+    <string name="profileNotificationSettings_homeworkSettingsSubtitle">Get a notification when someone shares a new notification in your class.</string>
+    <string name="profileNotificationSettings_dailyNotificationsTitle">Daily notification</string>
+    <string name="settingsNotifications_planChangedCategory">Plan update</string>
+    <string name="settingsNotifications_planChangedTitle">Plan update</string>
+    <string name="settingsNotifications_planChangedSubtitle">Notification when you\'re affected by a new substitution plan or the first one of your school day got released</string>
+    <string name="settingsNotifications_newAssessmentCategoryTitle">Assessments</string>
+    <string name="settingsNotifications_newAssessmentSettingsTitle">On new assessment</string>
+    <string name="settingsNotifications_newAssessmentSettingsSubtitle">When someone creates a new assessment in your class</string>
+    <string name="onboarding_setupNotificationsTitle">Enable notifications</string>
+    <string name="onboarding_setupNotificationsSubtitle">You can choose which notifications you want to receive in profile settings later.</string>
 </resources>

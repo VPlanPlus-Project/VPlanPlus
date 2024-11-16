@@ -10,6 +10,7 @@ import androidx.compose.animation.graphics.res.rememberAnimatedVectorPainter
 import androidx.compose.animation.graphics.vector.AnimatedImageVector
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,10 +24,12 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsTopHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,7 +40,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -45,6 +51,7 @@ import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
+import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
@@ -64,7 +71,8 @@ fun OnboardingSetupScreen(
                     popUpTo(0)
                 }
             },
-            someErrorOccurred = state.hadError
+            doAction = viewModel::onEvent,
+            state = state,
         )
     }
     AnimatedVisibility(
@@ -80,15 +88,50 @@ fun OnboardingSetupScreen(
 @Composable
 private fun StartAppScreen(
     onClick: () -> Unit,
-    someErrorOccurred: Boolean = false
+    doAction: (action: OnboardingSetupEvent) -> Unit = {},
+    state: OnboardingSetupState,
 ) {
     OnboardingScreen(
-        title = stringResource(id = if (!someErrorOccurred) R.string.onboarding_setupDoneTitle else R.string.unknownError),
-        text = { Text(text = stringResource(id = if (!someErrorOccurred) R.string.onboarding_setupDoneText else R.string.please_try_again)) },
+        title = stringResource(id = if (!state.hadError) R.string.onboarding_setupDoneTitle else R.string.unknownError),
+        text = { Text(text = stringResource(id = if (!state.hadError) R.string.onboarding_setupDoneText else R.string.please_try_again)) },
         buttonText = stringResource(id = R.string.onboarding_setupDoneLetsGo),
         isLoading = false,
-        enabled = !someErrorOccurred,
+        enabled = !state.hadError,
         onButtonClick = { onClick() },
+        footer = {
+            if (!state.isFirstProfile) {
+                RowVerticalCenter(
+                    modifier = Modifier
+                        .padding(bottom = 16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { doAction(OnboardingSetupEvent.ToggleNotifications((state.profile?.notificationsEnabled ?: false).not())) }
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.surfaceVariant)
+                        .padding(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .weight(1f, true)
+                            .padding(horizontal = 8.dp)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.onboarding_setupNotificationsTitle),
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = stringResource(id = R.string.onboarding_setupNotificationsSubtitle),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    Switch(
+                        checked = state.profile?.notificationsEnabled ?: false,
+                        onCheckedChange = { doAction(OnboardingSetupEvent.ToggleNotifications(it)) },
+                    )
+                }
+            }
+        },
         content = {}
     )
     Column(
@@ -165,6 +208,16 @@ private fun SetupScreenSchoolPreview() {
 private fun SetupDonePreview() {
     StartAppScreen(
         onClick = {},
+        state = OnboardingSetupState(isDone = true, hadError = false, isFirstProfile = true),
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_4_XL)
+@Composable
+private fun SetupDonePreviewPixel4XL() {
+    StartAppScreen(
+        onClick = {},
+        state = OnboardingSetupState(isDone = true, hadError = false, isFirstProfile = false),
     )
 }
 
@@ -173,6 +226,6 @@ private fun SetupDonePreview() {
 private fun SetupDoneWithErrorsPreview() {
     StartAppScreen(
         onClick = {},
-        someErrorOccurred = true
+        state = OnboardingSetupState(isDone = true, hadError = true, isFirstProfile = true),
     )
 }

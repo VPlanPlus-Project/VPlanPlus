@@ -100,7 +100,6 @@ class AdvancedSettingsViewModel @Inject constructor(
                 is AdvancedSettingsEvent.SetVppIdServer -> setVppIdServer(event.server)
                 is AdvancedSettingsEvent.UpdateFcmToken -> onUpdateFcmToken()
                 is AdvancedSettingsEvent.ResetBalloons -> advancedSettingsUseCases.resetBalloonsUseCase()
-                is AdvancedSettingsEvent.TriggerHomeworkReminder -> advancedSettingsUseCases.homeworkReminderUseCase()
                 is AdvancedSettingsEvent.ToggleFcmDebugMode -> advancedSettingsUseCases.toggleFcmDebugModeUseCase()
                 is AdvancedSettingsEvent.ToggleDeveloperMode -> advancedSettingsUseCases.toggleDeveloperModeUseCase()
                 is AdvancedSettingsEvent.SendCrashReports -> {
@@ -132,8 +131,6 @@ sealed class AdvancedSettingsEvent {
     data class SetVppIdServer(val server: String?) : AdvancedSettingsEvent()
     data object UpdateFcmToken : AdvancedSettingsEvent()
     data object ResetBalloons : AdvancedSettingsEvent()
-
-    data object TriggerHomeworkReminder: AdvancedSettingsEvent()
 
     data object ToggleFcmDebugMode : AdvancedSettingsEvent()
 
