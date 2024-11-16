@@ -658,7 +658,7 @@ class DoSyncUseCase(
         ) == "true")
 
     private suspend fun sendNewPlanNotification(notificationData: NotificationData) {
-
+        if (!notificationData.profile.notificationsEnabled || !notificationData.profile.notificationSettings.newPlanNotificationSetting.isEnabled()) return
         Log.d(
             "SyncWorker.Notification",
             "Sending ${notificationData.notificationType} for ${notificationData.profile.displayName} at ${

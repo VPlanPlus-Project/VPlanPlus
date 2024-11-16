@@ -10,7 +10,6 @@ import androidx.core.net.toUri
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.android.receiver.DailyRemindLaterReceiver
-import es.jvbabi.vplanplus.android.receiver.HomeworkRemindLaterReceiver
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.BroadcastIntentTask
 import es.jvbabi.vplanplus.domain.repository.DoActionTask
@@ -69,7 +68,6 @@ class NotificationRepositoryImpl(
                 }
                 is BroadcastIntentTask -> {
                     val broadcastClass = when (task.tag) {
-                        HomeworkRemindLaterReceiver.TAG -> HomeworkRemindLaterReceiver::class.java
                         DailyRemindLaterReceiver.TAG -> DailyRemindLaterReceiver::class.java
                         else -> throw IllegalArgumentException("Unknown tag ${task.tag}")
                     }

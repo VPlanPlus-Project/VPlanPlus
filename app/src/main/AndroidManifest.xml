@@ -102,7 +102,6 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".android.receiver.AlarmReceiver" />
-        <receiver android:name=".android.receiver.HomeworkRemindLaterReceiver" />
         <receiver android:name=".android.receiver.DailyRemindLaterReceiver" />
         <receiver android:name=".android.receiver.BootReceiver" android:enabled="true" android:exported="true">
             <intent-filter>

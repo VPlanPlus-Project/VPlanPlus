@@ -26,7 +26,7 @@ class UpdateDailyNotificationAlarmsUseCase(
                 .getProfiles()
                 .first()
                 .filterIsInstance<ClassProfile>()
-                .filter { it.isDailyNotificationEnabled }
+                .filter { it.notificationsEnabled && it.notificationSettings.dailyNotificationSetting.isEnabled() }
                 .forEach { profile ->
                     val time = dailyReminderRepository.getDailyReminderTime(profile, date.dayOfWeek).first()
                     val datetime = LocalDateTime.of(date, time)

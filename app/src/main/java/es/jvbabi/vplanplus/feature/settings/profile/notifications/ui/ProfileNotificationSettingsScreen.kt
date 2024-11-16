@@ -1,4 +1,4 @@
-package es.jvbabi.vplanplus.feature.settings.notifications.ui
+package es.jvbabi.vplanplus.feature.settings.profile.notifications.ui
 
 import android.content.Intent
 import android.provider.Settings
@@ -23,10 +23,12 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddTask
 import androidx.compose.material.icons.filled.EditNotifications
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.NotificationsActive
-import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.TableChart
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -36,6 +38,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -56,10 +59,12 @@ import es.jvbabi.vplanplus.ui.common.BackIcon
 import es.jvbabi.vplanplus.ui.common.Badge
 import es.jvbabi.vplanplus.ui.common.FullSizeLoadingCircle
 import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.ui.common.MainToggle
 import es.jvbabi.vplanplus.ui.common.SettingsCategory
 import es.jvbabi.vplanplus.ui.common.SettingsSetting
 import es.jvbabi.vplanplus.ui.common.SettingsType
 import es.jvbabi.vplanplus.ui.common.Slider
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
 import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.util.Size
@@ -70,35 +75,46 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.format.TextStyle
 import java.util.Locale
+import java.util.UUID
+
 
 @Composable
-fun NotificationSettingsScreen(
-    navController: NavHostController,
-    viewModel: NotificationSettingsViewModel = hiltViewModel()
+fun ProfileNotificationSettingsScreen(
+    navHostController: NavHostController,
+    profileId: UUID,
+    profileNotificationSettingsViewModel: ProfileNotificationSettingsViewModel = hiltViewModel()
 ) {
-    val state = viewModel.state
     val context = LocalContext.current
 
-    NotificationSettingsContent(
-        onBack = { navController.navigateUp() },
-        onOpenSystemNotificationSettings = {
-            val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+    LaunchedEffect(profileId) { profileNotificationSettingsViewModel.init(profileId) }
+    ProfileNotificationSettingsContent(
+        state = profileNotificationSettingsViewModel.state,
+        onBackClicked = navHostController::navigateUp,
+        openDeviceNotificationSettings = {
+            val settingsIntent: Intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
-            context.startActivity(intent)
+            context.startActivity(settingsIntent)
         },
-        doAction = viewModel::onEvent,
-        state = state
+        openChannelSettings = {
+            val settingsIntent: Intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+                .putExtra(Settings.EXTRA_CHANNEL_ID, "PROFILE_${profileNotificationSettingsViewModel.state?.profile?.id.toString().lowercase()}")
+            context.startActivity(settingsIntent)
+        },
+        doAction = profileNotificationSettingsViewModel::onEvent
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NotificationSettingsContent(
-    onBack: () -> Unit,
-    onOpenSystemNotificationSettings: () -> Unit,
-    doAction: (event: NotificationSettingsEvent) -> Unit,
-    state: NotificationSettingsState?
+private fun ProfileNotificationSettingsContent(
+    state: ProfileNotificationSettingsState?,
+    onBackClicked: () -> Unit = {},
+    openDeviceNotificationSettings: () -> Unit = {},
+    openChannelSettings: () -> Unit = {},
+    doAction: (action: ProfileNotificationSettingsEvent) -> Unit = {},
 ) {
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -106,70 +122,118 @@ fun NotificationSettingsContent(
     Scaffold(
         topBar = {
             LargeTopAppBar(
-                title = { Text(text = stringResource(id = R.string.settingsNotifications_title)) },
+                title = { Text(text = stringResource(id = R.string.profileNotificationSettings_title)) },
+                scrollBehavior = scrollBehavior,
                 navigationIcon = {
-                    IconButton(onClick = onBack) {
+                    IconButton(onClick = onBackClicked) {
                         BackIcon()
                     }
-                },
-                scrollBehavior = scrollBehavior
+                }
             )
-        }
-    ) { paddingValues ->
+        },
+    ) { innerPadding ->
+        val canSendProfileNotifications = (state?.profile?.notificationsEnabled ?: true) && state?.notificationState == ProfileNotificationSettingsNotificationState.ENABLED
         if (state == null) {
             FullSizeLoadingCircle()
             return@Scaffold
         }
         Column(
             modifier = Modifier
-                .padding(paddingValues)
                 .fillMaxSize()
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
+                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
+                .nestedScroll(scrollBehavior.nestedScrollConnection)
         ) {
-            androidx.compose.animation.AnimatedVisibility(
-                visible = !state.canSendNotifications,
-                enter = expandVertically(),
-                exit = shrinkVertically()
+            Spacer8Dp()
+            if (state.notificationState != ProfileNotificationSettingsNotificationState.ENABLED) Box(
+                modifier = Modifier
+                    .padding(horizontal = 8.dp)
+                    .padding(bottom = 8.dp)
             ) {
-                InfoCard(
-                    imageVector = Icons.Default.NotificationsOff,
-                    title = stringResource(R.string.settingsNotifications_notificationsDisabledBannerTitle),
-                    text = stringResource(R.string.settingsNotifications_notificationsDisabledBannerText),
-                    buttonText1 = stringResource(R.string.to_settings),
-                    buttonAction1 = onOpenSystemNotificationSettings,
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 8.dp)
-                )
+                when (state.notificationState) {
+                    ProfileNotificationSettingsNotificationState.NOTIFICATIONS_DISABLED -> {
+                        InfoCard(
+                            modifier = Modifier.padding(8.dp),
+                            imageVector = Icons.Default.Error,
+                            title = stringResource(id = R.string.profileNotificationSettings_notificationsDisabled),
+                            text = stringResource(id = R.string.profileNotificationSettings_notificationsDisabledText),
+                            buttonText1 = stringResource(R.string.to_settings),
+                            buttonAction1 = openDeviceNotificationSettings
+                        )
+                    }
+                    ProfileNotificationSettingsNotificationState.PROFILE_DISABLED -> {
+                        InfoCard(
+                            modifier = Modifier.padding(8.dp),
+                            imageVector = Icons.Default.Error,
+                            title = stringResource(id = R.string.profileNotificationSettings_profileDisabled),
+                            text = stringResource(id = R.string.profileNotificationSettings_profileDisabledText),
+                            buttonText1 = stringResource(R.string.to_settings),
+                            buttonAction1 = openChannelSettings
+                        )
+                    }
+                    else -> Unit
+                }
             }
+            MainToggle(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                checked = state.profile.notificationsEnabled && state.notificationState != ProfileNotificationSettingsNotificationState.NOTIFICATIONS_DISABLED,
+                enabled = state.notificationState != ProfileNotificationSettingsNotificationState.NOTIFICATIONS_DISABLED,
+                title = stringResource(R.string.profileNotificationSettings_notificationsEnabled),
+                onToggle = { doAction(ProfileNotificationSettingsEvent.ToggleNotificationForProfile(it)) }
+            )
 
-            androidx.compose.animation.AnimatedVisibility(
-                visible = state.canSendNotifications,
-                enter = expandVertically(),
-                exit = shrinkVertically()
-            ) {
-                SettingsSetting(
-                    icon = Icons.Default.EditNotifications,
-                    title = stringResource(R.string.settingsNotifications_notificationCategoriesTitle),
-                    subtitle = stringResource(R.string.settingsNotifications_notificationCategoriesSubtitle),
-                    type = SettingsType.FUNCTION,
-                    doAction = onOpenSystemNotificationSettings
-                )
-            }
+            Spacer8Dp()
+            SettingsSetting(
+                icon = Icons.Default.EditNotifications,
+                title = stringResource(R.string.profileNotificationSettings_notificationsSettings),
+                subtitle = stringResource(R.string.profileNotificationSettings_notificationsSettingsSubtitle),
+                type = SettingsType.FUNCTION,
+                enabled = true,
+                doAction = { openDeviceNotificationSettings() }
+            )
 
-            if (state.currentProfile is ClassProfile) {
+            if (state.profile is ClassProfile) {
+                if (state.profile.isHomeworkEnabled) SettingsCategory(
+                    title = stringResource(R.string.profileNotificationSettings_homeworkCategoryTitle)
+                ) {
+                    SettingsSetting(
+                        icon = Icons.Default.AddTask,
+                        title = stringResource(R.string.profileNotificationSettings_homeworkSettingsOnNewHomeworkTitle),
+                        subtitle = stringResource(R.string.profileNotificationSettings_homeworkSettingsSubtitle),
+                        type = SettingsType.TOGGLE,
+                        enabled = canSendProfileNotifications,
+                        checked = state.profile.notificationsEnabled && state.profile.notificationSettings.onNewHomeworkNotificationSetting.isEnabled(),
+                        doAction = {
+                            doAction(ProfileNotificationSettingsEvent.ToggleNotificationOnNewHomework(state.profile.notificationSettings.onNewHomeworkNotificationSetting.isEnabled().not()))
+                        }
+                    )
+                }
+
+                if (state.profile.isAssessmentsEnabled) SettingsCategory(title = stringResource(R.string.settingsNotifications_newAssessmentCategoryTitle)) {
+                    SettingsSetting(
+                        icon = Icons.Default.NotificationsActive,
+                        title = stringResource(R.string.settingsNotifications_newAssessmentSettingsTitle),
+                        subtitle = stringResource(R.string.settingsNotifications_newAssessmentSettingsSubtitle, state.profile.displayName),
+                        type = SettingsType.TOGGLE,
+                        checked = state.profile.notificationsEnabled && state.profile.notificationSettings.onNewAssessmentSetting.isEnabled(),
+                        doAction = { doAction(ProfileNotificationSettingsEvent.ToggleNotificationOnNewAssessment(state.profile.notificationSettings.onNewAssessmentSetting.isEnabled().not())) },
+                        enabled = canSendProfileNotifications
+                    )
+                }
+
                 SettingsCategory(title = stringResource(R.string.settingsNotifications_dailyReminderCategoryTitle)) {
                     SettingsSetting(
                         icon = Icons.Default.NotificationsActive,
                         title = stringResource(R.string.settingsNotifications_dailyReminderSettingsTitle),
-                        subtitle = stringResource(R.string.settingsNotifications_dailyReminderSettingsSubtitle, state.currentProfile.displayName),
+                        subtitle = stringResource(R.string.settingsNotifications_dailyReminderSettingsSubtitle, state.profile.displayName),
                         type = SettingsType.TOGGLE,
-                        checked = state.currentProfile.isDailyNotificationEnabled,
-                        doAction = { doAction(NotificationSettingsEvent.ToggleDailyReminder) },
-                        enabled = true
+                        checked = state.profile.notificationsEnabled && state.profile.notificationSettings.dailyNotificationSetting.isEnabled(),
+                        doAction = { doAction(ProfileNotificationSettingsEvent.ToggleDailyReminder(state.profile.notificationSettings.dailyNotificationSetting.isEnabled().not())) },
+                        enabled = canSendProfileNotifications
                     )
 
                     AnimatedVisibility(
-                        visible = state.currentProfile.isDailyNotificationEnabled,
+                        visible = state.profile.notificationsEnabled && state.profile.notificationSettings.dailyNotificationSetting.isEnabled(),
                         enter = expandVertically() + fadeIn(),
                         exit = shrinkVertically() + fadeOut()
                     ) {
@@ -187,7 +251,7 @@ fun NotificationSettingsContent(
 
                                 repeat(5) { dayOffset ->
                                     val day = DayOfWeek.of(((dayOffset + 6) % 7) + 1)
-                                    val time = state.dailyReminderTimes[day] ?: LocalTime.of(15, 30)
+                                    val time = state.dailyReminderTimesForProfile[day] ?: LocalTime.of(15, 30)
                                     var isDragging by remember { mutableStateOf(false) }
                                     var draggingTime by remember { mutableStateOf(time) }
                                     Column(
@@ -210,7 +274,7 @@ fun NotificationSettingsContent(
                                                 },
                                                 range = getMinutesFromTime(LocalTime.of(13, 0)).toFloat()..60*24f,
                                                 puckSize = Size(40.dp, 20.dp),
-                                                onValueChange = { doAction(NotificationSettingsEvent.SetDailyReminderTime(day, getTimeFromMinuteOffset(it.toInt().nearest(15)))) },
+                                                onValueChange = { doAction(ProfileNotificationSettingsEvent.SetDailyReminderTime(day, getTimeFromMinuteOffset(it.toInt().nearest(15)))) },
                                                 currentValue = getMinutesFromTime(time).toFloat(),
                                                 trackThickness = 2.dp,
                                                 activeTrackColor = MaterialTheme.colorScheme.primary,
@@ -251,47 +315,39 @@ fun NotificationSettingsContent(
                                 icon = Icons.Default.PlayArrow,
                                 title = stringResource(R.string.settingsNotifications_triggerTitle),
                                 titleBadge = { Badge(MaterialTheme.colorScheme.error, "Developer") },
-                                doAction = { doAction(NotificationSettingsEvent.TriggerNotification) },
+                                doAction = { doAction(ProfileNotificationSettingsEvent.TriggerNotification) },
                                 enabled = true,
                                 type = SettingsType.FUNCTION,
                             )
                         }
                     }
-
                 }
+            }
+            SettingsCategory(
+                title = stringResource(R.string.settingsNotifications_planChangedCategory)
+            ) {
+                SettingsSetting(
+                    icon = Icons.Default.TableChart,
+                    title = stringResource(R.string.settingsNotifications_planChangedTitle),
+                    subtitle = stringResource(R.string.settingsNotifications_planChangedSubtitle, state.profile.displayName),
+                    type = SettingsType.TOGGLE,
+                    checked = state.profile.notificationsEnabled && state.profile.notificationSettings.newPlanNotificationSetting.isEnabled(),
+                    doAction = { doAction(ProfileNotificationSettingsEvent.ToggleNotificationOnNewPlan(state.profile.notificationSettings.newPlanNotificationSetting.isEnabled().not())) },
+                    enabled = canSendProfileNotifications
+                )
             }
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun NotificationSettingsPreview() {
-    val group = GroupPreview.generateGroup()
-    val profile = ProfilePreview.generateClassProfile(group)
-    NotificationSettingsContent(
-        doAction = {},
-        state = NotificationSettingsState(
-            canSendNotifications = true,
-            currentProfile = profile,
-        ),
-        onBack = {},
-        onOpenSystemNotificationSettings = {},
-    )
-}
-
 @Preview
 @Composable
-fun NotificationSettingsPreviewNoNotifications() {
-    val group = GroupPreview.generateGroup()
-    val profile = ProfilePreview.generateClassProfile(group)
-    NotificationSettingsContent(
-        onBack = {},
-        onOpenSystemNotificationSettings = {},
-        doAction = {},
-        state = NotificationSettingsState(
-            currentProfile = profile,
-            canSendNotifications = false,
+private fun ProfileNotificationSettingsScreenPreview() {
+    val profile = ProfilePreview.generateClassProfile(GroupPreview.generateGroup())
+    ProfileNotificationSettingsContent(
+        state = ProfileNotificationSettingsState(
+            profile = profile,
+            notificationState = ProfileNotificationSettingsNotificationState.ENABLED
         )
     )
 }

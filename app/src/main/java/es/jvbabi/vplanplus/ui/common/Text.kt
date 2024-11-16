@@ -2,6 +2,7 @@ package es.jvbabi.vplanplus.ui.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.TextUnit
 import es.jvbabi.vplanplus.R
 import java.util.Locale
 
@@ -24,4 +25,8 @@ fun String?.orUnknown(capitalize: Boolean = false): String {
     return this ?: stringResource(R.string.unknown).let { unknownString ->
         if (capitalize) unknownString.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() } else unknownString
     }
+}
+
+operator fun TextUnit.plus(other: TextUnit): TextUnit {
+    return TextUnit(value + other.value, type)
 }
