@@ -933,4 +933,6 @@
     <string name="settingsNotifications_newAssessmentCategoryTitle">Assessments</string>
     <string name="settingsNotifications_newAssessmentSettingsTitle">On new assessment</string>
     <string name="settingsNotifications_newAssessmentSettingsSubtitle">When someone creates a new assessment in your class</string>
+    <string name="onboarding_setupNotificationsTitle">Enable notifications</string>
+    <string name="onboarding_setupNotificationsSubtitle">You can choose which notifications you want to receive in profile settings later.</string>
 </resources>

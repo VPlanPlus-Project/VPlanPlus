@@ -67,7 +67,7 @@ class ProfileSettingsViewModel @Inject constructor(
                 is ProfileSettingsEvent.SetCalendar -> setCalendar(event.calendarId)
                 is ProfileSettingsEvent.SetHomeworkEnabled -> updateHomeworkEnabled(event.enabled)
                 is ProfileSettingsEvent.SetAssessmentsEnabled -> profileSettingsUseCases.updateAssessmentsEnabledUseCase(state.profile as? ClassProfile ?: return@launch, event.enabled)
-                is ProfileSettingsEvent.ToggleNotificationForProfile -> profileSettingsUseCases.toggleNotificationForProfileUseCase((state.profile as? ClassProfile) ?: return@launch, event.enabled)
+                is ProfileSettingsEvent.ToggleNotificationForProfile -> profileSettingsUseCases.toggleNotificationForProfileUseCase(state.profile ?: return@launch, event.enabled)
             }
         }
     }

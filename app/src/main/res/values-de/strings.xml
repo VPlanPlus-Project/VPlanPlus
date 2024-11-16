@@ -930,4 +930,6 @@
     <string name="settingsNotifications_newAssessmentCategoryTitle">Leistungserhebungen</string>
     <string name="settingsNotifications_newAssessmentSettingsTitle">Neue Leistungserhebung</string>
     <string name="settingsNotifications_newAssessmentSettingsSubtitle">Wenn eine neue Leistungserhebung in deiner Klasse freigegeben wird</string>
+    <string name="onboarding_setupNotificationsTitle">Benachrichtigungen aktivieren</string>
+    <string name="onboarding_setupNotificationsSubtitle">Du kannst die Benachrichtigungen in den Profileinstellungen anpassen.</string>
 </resources>
