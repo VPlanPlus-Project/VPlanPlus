@@ -40,7 +40,7 @@ import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.notifications.ui.NotificationSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.profile.notifications.ui.ProfileNotificationSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementTask
 import es.jvbabi.vplanplus.feature.settings.profile.ui.UpdateCredentialsTask
@@ -404,6 +404,14 @@ private fun NavGraphBuilder.settingsScreens(
         )
     }
 
+    composable<Screen.SettingsProfileNotificationsScreen> { backStackEntry ->
+        val args = backStackEntry.toRoute<Screen.SettingsProfileNotificationsScreen>()
+        ProfileNotificationSettingsScreen(
+            navHostController = navController,
+            profileId = UUID.fromString(args.profileId)
+        )
+    }
+
     composable(
         route = Screen.SettingsProfileScreen.route + "?task={task}&schoolId={schoolId}",
         arguments = listOf(
@@ -474,15 +482,6 @@ private fun NavGraphBuilder.settingsScreens(
         popExitTransition = exitSlideTransitionRight
     ) {
         GeneralSettingsScreen(navController)
-    }
-
-    composable<Screen.SettingsNotificationsScreen>(
-        enterTransition = enterSlideTransitionLeft,
-        exitTransition = { fadeOut(tween(300)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = exitSlideTransitionRight
-    ) {
-        NotificationSettingsScreen(navController)
     }
 
     composable(

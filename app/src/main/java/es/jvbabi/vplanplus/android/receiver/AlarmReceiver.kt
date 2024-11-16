@@ -14,6 +14,7 @@ import es.jvbabi.vplanplus.domain.usecase.daily.SendNotificationUseCase
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.util.UUID
@@ -50,7 +51,7 @@ class AlarmReceiver : BroadcastReceiver() {
             if (alarm.tags.contains(TAG_DAILY_REMINDER)) {
                 Log.i("AlarmReceiver", "Alarm with id $alarmId is a daily reminder")
                 val payload = Json.decodeFromString<DailyReminderNotificationData>(alarm.data)
-                val profile = profileRepository.getProfileById(UUID.fromString(payload.profileId)).first() as? ClassProfile ?: return@launch
+                val profile = profileRepository.getProfileById(UUID.fromString(payload.profileId)).firstOrNull() as? ClassProfile ?: return@launch
                 sendDailyNotificationUseCase(profile, payload.dismissCounter)
             }
             alarmManagerRepository.deleteAlarmById(alarmId)

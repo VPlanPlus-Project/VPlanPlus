@@ -51,6 +51,7 @@ import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.time.DayOfWeek
@@ -93,7 +94,7 @@ class DoSyncUseCase(
 ) {
     suspend operator fun invoke(): Boolean {
 
-        if (profileRepository.getProfiles().first().isEmpty()) return true
+        if (profileRepository.getProfiles().firstOrNull().orEmpty().isEmpty()) return true
         val daysAhead = keyValueRepository.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toIntOrNull()
             ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
 
@@ -310,13 +311,14 @@ class DoSyncUseCase(
                 val date = LocalDate.now().plusDays(it - SYNC_DAYS_PAST.toLong())
                 logRecordRepository.log("Sync.Day", "Syncing day $date")
 
-                val profiles = profileRepository.getProfilesBySchool(school.id).first()
+                val profiles = profileRepository.getProfilesBySchool(school.id).firstOrNull().orEmpty()
                 profiles.forEach { profile ->
                     profileDataBefore[profile] =
                         lessonRepository.getLessonsForProfile(profile, date, currentVersion)
-                            .first()
-                            ?.filter { l -> l is Lesson.TimetableLesson || l is Lesson.SubstitutionPlanLesson && (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
-                            ?.toList() ?: emptyList()
+                            .firstOrNull()
+                            .orEmpty()
+                            .filter { l -> l is Lesson.TimetableLesson || l is Lesson.SubstitutionPlanLesson && (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
+                            .toList()
                 }
 
                 val vPlanData = vPlanRepository.getVPlanData(
@@ -658,7 +660,7 @@ class DoSyncUseCase(
         ) == "true")
 
     private suspend fun sendNewPlanNotification(notificationData: NotificationData) {
-
+        if (!notificationData.profile.notificationsEnabled || !notificationData.profile.notificationSettings.newPlanNotificationSetting.isEnabled()) return
         Log.d(
             "SyncWorker.Notification",
             "Sending ${notificationData.notificationType} for ${notificationData.profile.displayName} at ${
