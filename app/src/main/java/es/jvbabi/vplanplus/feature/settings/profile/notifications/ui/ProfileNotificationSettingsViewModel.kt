@@ -62,10 +62,10 @@ class ProfileNotificationSettingsViewModel @Inject constructor(
     fun onEvent(event: ProfileNotificationSettingsEvent) {
         viewModelScope.launch {
             when (event) {
-                is ProfileNotificationSettingsEvent.ToggleNotificationForProfile -> profileNotificationSettingsUseCases.toggleNotificationForProfileUseCase((state?.profile as? ClassProfile) ?: return@launch, event.enabled)
+                is ProfileNotificationSettingsEvent.ToggleNotificationForProfile -> profileNotificationSettingsUseCases.toggleNotificationForProfileUseCase(state?.profile ?: return@launch, event.enabled)
                 is ProfileNotificationSettingsEvent.ToggleNotificationOnNewAssessment -> profileNotificationSettingsUseCases.setNotificationOnNewAssessmentUseCase((state?.profile as? ClassProfile) ?: return@launch, event.enabled)
                 is ProfileNotificationSettingsEvent.ToggleNotificationOnNewHomework -> profileNotificationSettingsUseCases.toggleSendNotificationOnNewHomeworkUseCase(event.enabled)
-                is ProfileNotificationSettingsEvent.ToggleNotificationOnNewPlan -> profileNotificationSettingsUseCases.setNotificationOnNewPlanUseCase((state?.profile as? ClassProfile) ?: return@launch, event.enabled)
+                is ProfileNotificationSettingsEvent.ToggleNotificationOnNewPlan -> profileNotificationSettingsUseCases.setNotificationOnNewPlanUseCase(state?.profile ?: return@launch, event.enabled)
                 is ProfileNotificationSettingsEvent.ToggleDailyReminder -> profileNotificationSettingsUseCases.setDailyReminderEnabledUseCase((state?.profile as? ClassProfile) ?: return@launch, event.enabled)
                 is ProfileNotificationSettingsEvent.SetDailyReminderTime -> profileNotificationSettingsUseCases.setDailyReminderTimeUseCase((state?.profile as? ClassProfile) ?: return@launch, event.dayOfWeek, event.time)
                 is ProfileNotificationSettingsEvent.TriggerNotification -> profileNotificationSettingsUseCases.sendNotificationUseCase((state?.profile as? ClassProfile) ?: return@launch, 0)
