@@ -859,8 +859,6 @@
     <string name="calendar_dayExamReminder">Erinnerung für %1$s</string>
     <string name="home_assessmentReminderTitle">Erinnerungen für Leistungserhebungen</string>
     <string name="home_assessmentReminderSubtitle">Bereite dich langfristig vor!</string>
-    <string name="settings_notificationsTitle">Benachrichtigungen</string>
-    <string name="settings_notificationsSubtitle">Erhalte Infos zu neuen Hausaufgaben und dem nächsten Schultag.</string>
     <string name="settingsNotifications_title">Benachrichtigungen</string>
     <string name="settingsNotifications_notificationsDisabledBannerTitle">Benachrichtigungen deaktiviert</string>
     <string name="settingsNotifications_notificationsDisabledBannerText">VPlanPlus kann keine Benachrichtigungen senden, da diese aktuell deaktiviert sind. Aktiviere Benachrichtigungen in den Einstellungen.</string>
@@ -902,4 +900,25 @@
     <string name="profileManagement_assessmentsSubtitle">Speichere Leistungserhebungen in deinem Plan und erhalte Benachrichtigungen dazu.</string>
     <string name="profileSettings_disableAssessmentsTitle">Leistungserhebungen deaktivieren</string>
     <string name="profileSettings_disableAssessmentsMessage">Es existieren aktuell lokale Leistungserhebungen. Diese werden bei Deaktivierung der Funktion gelöscht.</string>
+    <string name="profileManagement_notificationsTitle">Benachrichtigungen</string>
+    <string name="profileManagement_profileNotificationsTitle">Benachrichtigungen für dieses Profil</string>
+    <string name="profileManagement_profileNotificationsSubtitle">Tippe, um verschiedene Kategorien anzupassen.</string>
+    <string name="profileNotificationSettings_notificationsDisabled">Benachrichtigungen deaktiviert</string>
+    <string name="profileNotificationSettings_notificationsDisabledText">VPlanPlus kann keine Benachrichtigungen an dein Gerät senden. Dies kannst du in den Einstellungen deines Gerätes anpassen.</string>
+    <string name="profileNotificationSettings_profileDisabled">Profilbenachrichtigungen deaktiviert</string>
+    <string name="profileNotificationSettings_profileDisabledText">VPlanPlus kann keine Benachrichtigungen bezüglich dieses Profil senden, da der Benachrichtigungskanal für dieses Profil deaktiviert ist. Dies kannst du in den Einstellungen deines Gerätes anpassen.</string>
+    <string name="profileNotificationSettings_notificationsEnabled">Profilbenachrichtigungen erlauben</string>
+    <string name="profileNotificationSettings_title">Profilbenachrichtigungen</string>
+    <string name="profileNotificationSettings_notificationsSettings">Ton und Haptik</string>
+    <string name="profileNotificationSettings_notificationsSettingsSubtitle">Passe das Verhalten von Benachrichtigungen dieses Profiles an.</string>
+    <string name="profileNotificationSettings_homeworkCategoryTitle">Hausaufgaben</string>
+    <string name="profileNotificationSettings_homeworkSettingsOnNewHomeworkTitle">Bei neuer Hausaufgabe benachrichtigen</string>
+    <string name="profileNotificationSettings_homeworkSettingsSubtitle">Erhalte eine Benachrichtigung, wenn jemand eine Hausaufgabe in deiner Klasse erstellt.</string>
+    <string name="profileNotificationSettings_dailyNotificationsTitle">Tägliche Benachrichtigung</string>
+    <string name="settingsNotifications_planChangedCategory">Planänderungen</string>
+    <string name="settingsNotifications_planChangedTitle">Neuer Stunden- / Vertretungsplan</string>
+    <string name="settingsNotifications_planChangedSubtitle">Benachrichtigung, wenn du von einer Vertretungsplanänderung betroffen bist oder der erste des Schultages veröffentlicht wurde</string>
+    <string name="settingsNotifications_newAssessmentCategoryTitle">Leistungserhebungen</string>
+    <string name="settingsNotifications_newAssessmentSettingsTitle">Neue Leistungserhebung</string>
+    <string name="settingsNotifications_newAssessmentSettingsSubtitle">Wenn eine neue Leistungserhebung in deiner Klasse freigegeben wird</string>
 </resources>

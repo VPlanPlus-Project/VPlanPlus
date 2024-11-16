@@ -101,7 +101,7 @@ class SendNotificationUseCase(
                     task = OpenScreenTask(destination = Json.encodeToString(
                         NotificationDestination(
                             profileId = profile.id.toString(),
-                            screen = "settings/notification",
+                            screen = "settings/profile/notification",
                             payload = null
                         )
                     ))

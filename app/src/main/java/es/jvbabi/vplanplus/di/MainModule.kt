@@ -4,7 +4,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import es.jvbabi.vplanplus.domain.usecase.update.MigrateHomeworkNotificationSettingsToDailyUseCase
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
@@ -67,8 +66,7 @@ object MainModule {
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
         updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase,
-        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
-        getCurrentProfileUseCase: GetCurrentProfileUseCase
+        updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ): SetUpUseCase {
         return SetUpUseCase(
             keyValueRepository = keyValueRepository,
@@ -77,7 +75,6 @@ object MainModule {
             testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository),
             updateFirebaseTokenUseCase = updateFirebaseTokenUseCase,
             updateDailyNotificationAlarmsUseCase = updateDailyNotificationAlarmsUseCase,
-            migrateHomeworkNotificationSettingsToDailyUseCase = MigrateHomeworkNotificationSettingsToDailyUseCase(profileRepository, getCurrentProfileUseCase),
             enableAssessmentsOnlyForCurrentProfileUseCase = EnableAssessmentsOnlyForCurrentProfileUseCase(profileRepository, keyValueRepository)
         )
     }

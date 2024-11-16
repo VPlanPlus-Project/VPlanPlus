@@ -40,14 +40,12 @@ object HomeworkModule {
         profileRepository: ProfileRepository,
         homeworkRepository: HomeworkRepository,
         fileRepository: FileRepository,
-        vppIdRepository: VppIdRepository,
         notificationRepository: NotificationRepository,
         stringRepository: StringRepository
     ) = UpdateHomeworkUseCase(
         profileRepository = profileRepository,
         homeworkRepository = homeworkRepository,
         fileRepository = fileRepository,
-        vppIdRepository = vppIdRepository,
         notificationRepository = notificationRepository,
         stringRepository = stringRepository
     )

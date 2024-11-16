@@ -3,6 +3,7 @@ package es.jvbabi.vplanplus.data.source.database
 import android.database.sqlite.SQLiteException
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteColumn
 import androidx.room.DeleteTable
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -136,7 +137,7 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
 
         DbAlarm::class
     ],
-    version = 49,
+    version = 51,
     exportSchema = true,
     autoMigrations = [
         AutoMigration(from = 5, to = 6), // add messages
@@ -162,6 +163,8 @@ import es.jvbabi.vplanplus.feature.main_grades.view.data.source.database.YearDao
         AutoMigration(from = 46, to = 47), // add alarms
         AutoMigration(from = 47, to = 48, spec = Migration_48::class), // add isDailyNotificationEnabled to profile, remove preferred notification time
         AutoMigration(from = 48, to = 49), // profile isAssessmentsEnabled
+        AutoMigration(from = 49, to = 50), // add notification settings to profiles
+        AutoMigration(from = 50, to = 51, spec = Migration_51::class), // remove isDailyNotificationEnabled from profile
     ],
 )
 @TypeConverters(
@@ -415,3 +418,6 @@ abstract class VppDatabase : RoomDatabase() {
 
 @DeleteTable(tableName = "preferred_notification_time")
 private class Migration_48 : AutoMigrationSpec
+
+@DeleteColumn(tableName = "profile_class", columnName = "is_daily_notification_enabled")
+private class Migration_51 : AutoMigrationSpec

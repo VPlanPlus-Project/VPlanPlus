@@ -67,6 +67,7 @@ class ProfileSettingsViewModel @Inject constructor(
                 is ProfileSettingsEvent.SetCalendar -> setCalendar(event.calendarId)
                 is ProfileSettingsEvent.SetHomeworkEnabled -> updateHomeworkEnabled(event.enabled)
                 is ProfileSettingsEvent.SetAssessmentsEnabled -> profileSettingsUseCases.updateAssessmentsEnabledUseCase(state.profile as? ClassProfile ?: return@launch, event.enabled)
+                is ProfileSettingsEvent.ToggleNotificationForProfile -> profileSettingsUseCases.toggleNotificationForProfileUseCase((state.profile as? ClassProfile) ?: return@launch, event.enabled)
             }
         }
     }
@@ -121,4 +122,6 @@ sealed class ProfileSettingsEvent {
     data class SetCalendar(val calendarId: Long) : ProfileSettingsEvent()
     data class SetHomeworkEnabled(val enabled: Boolean) : ProfileSettingsEvent()
     data class SetAssessmentsEnabled(val enabled: Boolean): ProfileSettingsEvent()
+
+    data class ToggleNotificationForProfile(val enabled: Boolean) : ProfileSettingsEvent()
 }

@@ -7,6 +7,7 @@ import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasPr
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasProfileLocalHomeworkUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateAssessmentsEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.notifications.domain.usecase.ToggleNotificationForProfileUseCase
 
 data class ProfileSettingsUseCases(
     val getProfilesUseCase: GetProfilesUseCase,
@@ -24,4 +25,6 @@ data class ProfileSettingsUseCases(
 
     val hasProfileLocalAssessmentsUseCase: HasProfileLocalAssessmentsUseCase,
     val updateAssessmentsEnabledUseCase: UpdateAssessmentsEnabledUseCase,
+
+    val toggleNotificationForProfileUseCase: ToggleNotificationForProfileUseCase,
 )

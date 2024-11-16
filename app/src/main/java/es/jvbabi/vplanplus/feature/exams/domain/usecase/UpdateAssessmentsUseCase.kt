@@ -96,7 +96,7 @@ class UpdateAssessmentsUseCase(
                     .filter { it.createdBy != profile.vppId }
                     .filter { it.date.isAfter(LocalDate.now()) }
                     .let {
-                        if (it.isEmpty()) return@let
+                        if (it.isEmpty() || !profile.notificationsEnabled || !profile.notificationSettings.onNewAssessmentSetting.isEnabled()) return@let
                         if (it.size == 1) {
                             // one notification
                             notificationRepository.sendNotification(

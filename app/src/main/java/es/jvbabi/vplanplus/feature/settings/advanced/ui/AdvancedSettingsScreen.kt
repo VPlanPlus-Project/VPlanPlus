@@ -121,7 +121,7 @@ private fun AdvancedSettingsScreenContent(
                     title = stringResource(id = R.string.advancedSettings_logsTitle),
                     subtitle = stringResource(id = R.string.advancedSettings_logsSubtitle),
                     type = SettingsType.FUNCTION,
-                    doAction = onLogsClicked
+                    doAction = { onLogsClicked() }
                 )
                 SettingsSetting(
                     icon = Icons.Outlined.DeleteForever,

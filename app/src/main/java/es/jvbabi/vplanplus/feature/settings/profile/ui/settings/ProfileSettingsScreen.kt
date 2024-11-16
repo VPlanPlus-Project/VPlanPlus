@@ -15,6 +15,7 @@ import androidx.compose.material.icons.filled.EditCalendar
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Link
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.TaskAlt
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.CalendarToday
@@ -134,6 +135,9 @@ fun ProfileSettingsScreen(
                 if ((state.profile as? ClassProfile)?.vppId == null) navController.navigate(Screen.SettingsVppIdScreen.route)
                 else navController.navigate(Screen.SettingsVppIdManageScreen.route + "/${state.profile.vppId!!.id}")
             },
+            onOpenProfileNotificationSettings = {
+                navController.navigate(Screen.SettingsProfileNotificationsScreen(state.profile.id))
+            },
             onStartPermissionDialog = {
                 desiredCalendarTypeAfterPermissionSuccess = it
                 calendarPermissionWriteLauncher.launch(android.Manifest.permission.WRITE_CALENDAR)
@@ -149,6 +153,7 @@ private fun ProfileSettingsScreenContent(
     onBackClicked: () -> Unit,
     onOpenDefaultLessons: () -> Unit = {},
     onOpenVppIdSettings: () -> Unit = {},
+    onOpenProfileNotificationSettings: () -> Unit = {},
     onStartPermissionDialog: (setToModeOnSuccess: ProfileCalendarType) -> Unit = {},
     onEvent: (event: ProfileSettingsEvent) -> Unit = {},
     isCalendarPermissionGranted: Boolean
@@ -244,6 +249,22 @@ private fun ProfileSettingsScreenContent(
             )
 
             SettingsCategory(
+                title = stringResource(R.string.profileManagement_notificationsTitle)
+            ) {
+                SettingsSetting(
+                    icon = Icons.Default.Notifications,
+                    title = stringResource(id = R.string.profileManagement_profileNotificationsTitle),
+                    subtitle = stringResource(id = R.string.profileManagement_profileNotificationsSubtitle),
+                    type = SettingsType.CHECKBOX_WITH_BODY,
+                    checked = state.profile.notificationsEnabled,
+                    doAction = { openSettings ->
+                        if (openSettings) onOpenProfileNotificationSettings()
+                        else onEvent(ProfileSettingsEvent.ToggleNotificationForProfile(state.profile.notificationsEnabled.not()))
+                    }
+                )
+            }
+
+            SettingsCategory(
                 title = stringResource(id = R.string.settings_profileManagementCalendarTitle),
             ) {
                 RadioCardGroup(
@@ -303,7 +324,7 @@ private fun ProfileSettingsScreenContent(
                         state.profile.defaultLessons.values.count { !it }
                     ),
                     type = SettingsType.FUNCTION,
-                    doAction = onOpenDefaultLessons
+                    doAction = { onOpenDefaultLessons() }
                 )
             }
 
@@ -348,7 +369,7 @@ private fun ProfileSettingsScreenContent(
                         title = stringResource(id = R.string.profileManagement_vppIDTitle),
                         subtitle = stringResource(id = R.string.profileManagement_vppIDNotLinked),
                         type = SettingsType.FUNCTION,
-                        doAction = onOpenVppIdSettings
+                        doAction = { onOpenVppIdSettings() }
                     )
                 } else {
                     SettingsSetting(
@@ -356,7 +377,7 @@ private fun ProfileSettingsScreenContent(
                         title = stringResource(id = R.string.profileManagement_vppIDTitle),
                         subtitle = state.profile.vppId.name,
                         type = SettingsType.FUNCTION,
-                        doAction = onOpenVppIdSettings
+                        doAction = { onOpenVppIdSettings() }
                     )
                 }
             }

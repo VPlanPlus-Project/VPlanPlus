@@ -119,6 +119,7 @@ import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasPr
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.HasProfileLocalHomeworkUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateAssessmentsEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.notifications.domain.usecase.ToggleNotificationForProfileUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.GetProfilesWhichCanBeUsedForVppIdUseCase
 import es.jvbabi.vplanplus.feature.settings.vpp_id.domain.usecase.SetProfileVppIdUseCase
 import es.jvbabi.vplanplus.shared.data.BsNetworkRepository
@@ -670,7 +671,9 @@ object VppModule {
             updateHomeworkEnabledUseCase = UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository),
 
             hasProfileLocalAssessmentsUseCase = HasProfileLocalAssessmentsUseCase(examRepository, getCurrentProfileUseCase),
-            updateAssessmentsEnabledUseCase = UpdateAssessmentsEnabledUseCase(profileRepository, examRepository)
+            updateAssessmentsEnabledUseCase = UpdateAssessmentsEnabledUseCase(profileRepository, examRepository),
+
+            toggleNotificationForProfileUseCase = ToggleNotificationForProfileUseCase(profileRepository)
         )
     }
 

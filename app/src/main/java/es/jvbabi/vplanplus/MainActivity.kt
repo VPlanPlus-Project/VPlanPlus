@@ -360,8 +360,8 @@ class MainActivity : FragmentActivity() {
                             if (destinationData.payload == null) return@launch
                             navController!!.navigate(Json.decodeFromString<Screen.HomeworkDetailScreen>(destinationData.payload))
                         }
-                        "settings/notification" -> {
-                            navController!!.navigate(Screen.SettingsNotificationsScreen)
+                        "settings/profile/notification" -> {
+                            navController!!.navigate(Screen.SettingsProfileNotificationsScreen(destinationData.profileId!!))
                         }
                         "exam/item" -> {
                             if (destinationData.payload == null) return@launch

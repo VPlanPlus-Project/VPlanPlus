@@ -163,8 +163,8 @@ class SetupUseCase(
             STUDENT -> profileRepository.createClassProfile(
                 group = classes.first { it.name == selectedProfileEntityName },
                 isHomeworkEnabled = isFirstProfile,
-                isDailyNotificationEnabled = isFirstProfile,
-                isAssessmentsEnabled = isFirstProfile
+                isAssessmentsEnabled = isFirstProfile,
+                isNotificationsEnabled = isFirstProfile,
             )
             TEACHER -> profileRepository.createTeacherProfile(teacher = teachers.first { it.acronym == selectedProfileEntityName })
             ROOM -> profileRepository.createRoomProfile(room = rooms.first { it.name == selectedProfileEntityName })
