@@ -81,6 +81,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.DataType
@@ -270,6 +271,7 @@ private fun CalendarScreenContent(
                 })
         },
         floatingActionButton = {
+            if (state.currentProfile is ClassProfile && (state.currentProfile.isAssessmentsEnabled || state.currentProfile.isHomeworkEnabled))
             FloatingActionButton(
                 onClick = { isMultiFabExpanded = !isMultiFabExpanded },
                 modifier = Modifier.onGloballyPositioned { multiFabFabPosition = it.positionOnScreen() },
@@ -398,19 +400,19 @@ private fun CalendarScreenContent(
 
     MultiFab(
         isVisible = isMultiFabExpanded,
-        items = listOf(
-            MultiFabItem(
+        items = listOfNotNull(
+            if (state.currentProfile is ClassProfile && state.currentProfile.isHomeworkEnabled) MultiFabItem(
                 icon = { Icon(imageVector = Icons.AutoMirrored.Default.MenuBook, contentDescription = null) },
                 text = stringResource(R.string.calendar_newHomework),
                 textSuffix = { Spacer8Dp() },
                 onClick = { isMultiFabExpanded = false; addHomeworkSheetInitialValues = AddHomeworkSheetInitialValues(until = state.selectedDate) }
-            ),
-            MultiFabItem(
+            ) else null,
+            if (state.currentProfile is ClassProfile && state.currentProfile.isAssessmentsEnabled) MultiFabItem(
                 icon = { Icon(imageVector = Icons.Default.Edit, contentDescription = null) },
                 text = stringResource(R.string.calendar_newExam),
                 textSuffix = { Spacer8Dp() },
                 onClick = { isMultiFabExpanded = false; showNewAssessmentBottomSheet = true }
-            )
+            ) else null
         ),
         fabPosition = multiFabFabPosition,
         onDismiss = { isMultiFabExpanded = false }

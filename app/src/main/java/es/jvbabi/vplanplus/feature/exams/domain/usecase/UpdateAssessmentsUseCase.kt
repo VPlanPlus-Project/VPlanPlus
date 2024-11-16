@@ -42,6 +42,7 @@ class UpdateAssessmentsUseCase(
             .getProfiles()
             .first()
             .filterIsInstance<ClassProfile>()
+            .filter { it.isAssessmentsEnabled }
             .forEach { profile ->
                 val existingAssessments = examRepository.getExams(profile = profile).first()
                 val data = examRepository.downloadAssessments(profile)
@@ -95,7 +96,7 @@ class UpdateAssessmentsUseCase(
                     .filter { it.createdBy != profile.vppId }
                     .filter { it.date.isAfter(LocalDate.now()) }
                     .let {
-                        if (it.isEmpty()) return@let
+                        if (it.isEmpty() || !profile.notificationsEnabled || !profile.notificationSettings.onNewAssessmentSetting.isEnabled()) return@let
                         if (it.size == 1) {
                             // one notification
                             notificationRepository.sendNotification(
