@@ -7,14 +7,14 @@ import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
 import es.jvbabi.vplanplus.worker.SyncWorker
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 
 class TriggerSyncUseCase(
     private val context: Context,
     private val isSyncRunningUseCase: IsSyncRunningUseCase
 ) {
     suspend operator fun invoke(force: Boolean = false) {
-        if (isSyncRunningUseCase().first() && !force) return
+        if (isSyncRunningUseCase().firstOrNull() == true && !force) return
 
         if (force) WorkManager.getInstance(context).cancelAllWorkByTag("SyncWork")
 

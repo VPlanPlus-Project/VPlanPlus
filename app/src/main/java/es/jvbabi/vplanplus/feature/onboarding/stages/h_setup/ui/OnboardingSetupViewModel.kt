@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase.OnboardingSetupUseCases
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,7 +20,20 @@ class OnboardingSetupViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             state = state.copy(isFirstProfile = onboardingSetupUseCases.isFirstProfileForSchoolUseCase())
-            state = state.copy(isDone = true, hadError = !onboardingSetupUseCases.setupUseCase())
+            onboardingSetupUseCases.setupUseCase().let { profile ->
+                state = state.copy(isDone = true, hadError = profile == null, profile = profile)
+            }
+            if (state.profile != null) onboardingSetupUseCases.getProfileByIdUseCase(state.profile!!.id).collect {
+                state = state.copy(profile = it)
+            }
+        }
+    }
+
+    fun onEvent(event: OnboardingSetupEvent) {
+        viewModelScope.launch {
+            when (event) {
+                is OnboardingSetupEvent.ToggleNotifications -> onboardingSetupUseCases.toggleNotificationForProfileUseCase(state.profile!!, event.enabled)
+            }
         }
     }
 }
@@ -27,5 +41,10 @@ class OnboardingSetupViewModel @Inject constructor(
 data class OnboardingSetupState(
     val isDone: Boolean = false,
     val hadError: Boolean = false,
-    val isFirstProfile: Boolean = false
+    val isFirstProfile: Boolean = false,
+    val profile: Profile? = null,
 )
+
+sealed class OnboardingSetupEvent {
+    data class ToggleNotifications(val enabled: Boolean) : OnboardingSetupEvent()
+}
