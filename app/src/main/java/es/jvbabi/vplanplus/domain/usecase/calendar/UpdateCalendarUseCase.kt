@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.repository.PlanRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import java.util.TimeZone
 
 class UpdateCalendarUseCase(
@@ -21,7 +22,7 @@ class UpdateCalendarUseCase(
     private val stringRepository: StringRepository
 ) {
     suspend operator fun invoke() {
-        val profiles = profileRepository.getProfiles().first()
+        val profiles = profileRepository.getProfiles().firstOrNull().orEmpty()
             .filter { it.calendarType != ProfileCalendarType.NONE && it.calendarId != null }
 
         val dates = planRepository.getLocalPlanDates()
