@@ -16,7 +16,6 @@ import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
 import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.GradeRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.AdvancedSettingsUseCases
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.DeleteCacheUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.IsFcmDebugModeUseCase
@@ -44,7 +43,6 @@ object AdvancedSettingsModule {
         timetableRepository: TimetableRepository,
         holidayRepository: HolidayRepository,
         updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
-        homeworkReminderUseCase: HomeworkReminderUseCase,
         isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase
     ): AdvancedSettingsUseCases {
         return AdvancedSettingsUseCases(
@@ -63,7 +61,6 @@ object AdvancedSettingsModule {
             toggleFcmDebugModeUseCase = ToggleFcmDebugModeUseCase(keyValueRepository),
             isFcmDebugModeUseCase = IsFcmDebugModeUseCase(keyValueRepository),
             resetBalloonsUseCase = ResetBalloonsUseCase(keyValueRepository),
-            homeworkReminderUseCase = homeworkReminderUseCase,
             toggleDeveloperModeUseCase = ToggleDeveloperModeUseCase(keyValueRepository, isDeveloperModeEnabledUseCase)
         )
     }

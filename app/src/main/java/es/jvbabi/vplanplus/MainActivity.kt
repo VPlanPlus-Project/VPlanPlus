@@ -32,9 +32,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -51,6 +53,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
@@ -63,6 +67,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.OPEN_TASK_NOTIFICATION_TAG
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.OpenTaskNotificationOnClickTaskPayload
+import es.jvbabi.vplanplus.ui.common.CrashAnalyticsDialog
 import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.NotificationDestination
@@ -192,6 +197,8 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             while (!initDone) delay(50)
             setContent {
+                val scope = rememberCoroutineScope()
+
                 isAppInDarkMode.value = appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
                 VPlanPlusTheme(cs = colorScheme.value, darkTheme = isAppInDarkMode.value) {
                     LaunchedEffect(key1 = Unit) {
@@ -309,6 +316,20 @@ class MainActivity : FragmentActivity() {
                                 VppIdAuthWrapper(task = authTask, onFinished = { authTask = null })
                             }
                         }
+
+                        val hasSetCrashlyticsSettings by mainUseCases.hasSetCrashlyticsSettingsUseCase().collectAsState(initial = true)
+                        if (!hasSetCrashlyticsSettings) {
+                            CrashAnalyticsDialog(
+                                onAccept = {
+                                    Firebase.crashlytics.setCrashlyticsCollectionEnabled(true)
+                                    scope.launch { mainUseCases.setCrashlyticsSettingsUseCase() }
+                                },
+                                onDeny = {
+                                    Firebase.crashlytics.setCrashlyticsCollectionEnabled(false)
+                                    scope.launch { mainUseCases.setCrashlyticsSettingsUseCase() }
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -360,8 +381,8 @@ class MainActivity : FragmentActivity() {
                             if (destinationData.payload == null) return@launch
                             navController!!.navigate(Json.decodeFromString<Screen.HomeworkDetailScreen>(destinationData.payload))
                         }
-                        "settings/notification" -> {
-                            navController!!.navigate(Screen.SettingsNotificationsScreen)
+                        "settings/profile/notification" -> {
+                            navController!!.navigate(Screen.SettingsProfileNotificationsScreen(destinationData.profileId!!))
                         }
                         "exam/item" -> {
                             if (destinationData.payload == null) return@launch

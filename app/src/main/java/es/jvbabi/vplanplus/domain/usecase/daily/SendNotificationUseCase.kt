@@ -66,7 +66,7 @@ class SendNotificationUseCase(
                 append(")")
                 append("\n")
             }
-            if (assessmentsForNextDay.isNotEmpty()) {
+            if (assessmentsForNextDay.isNotEmpty() && profile.isAssessmentsEnabled) {
                 append("✍\uFE0F ")
                 append(stringRepository.getPlural(R.plurals.dailyReminderNotification_assessments, assessmentsForNextDay.size, assessmentsForNextDay.size))
                 append(" (")
@@ -101,7 +101,7 @@ class SendNotificationUseCase(
                     task = OpenScreenTask(destination = Json.encodeToString(
                         NotificationDestination(
                             profileId = profile.id.toString(),
-                            screen = "settings/notification",
+                            screen = "settings/profile/notification",
                             payload = null
                         )
                     ))

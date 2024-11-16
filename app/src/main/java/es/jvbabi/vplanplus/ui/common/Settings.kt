@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -58,7 +60,7 @@ fun SettingsSetting(
     subtitle: String? = null,
     type: SettingsType,
     checked: Boolean? = null,
-    doAction: () -> Unit,
+    doAction: (wasBodyClicked: Boolean) -> Unit,
     enabled: Boolean = true,
     clickable: Boolean = true,
     isLoading: Boolean = false,
@@ -104,7 +106,7 @@ private fun Settings(
     subtitle: String? = null,
     type: SettingsType,
     checked: Boolean? = null,
-    doAction: () -> Unit,
+    doAction: (wasBodyClicked: Boolean) -> Unit,
     enabled: Boolean = true,
     clickable: Boolean = true,
     isLoading: Boolean = false,
@@ -118,7 +120,7 @@ private fun Settings(
             modifier = Modifier
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(24.dp))
-                .clickable(enabled && clickable) { if (enabled) doAction() }
+                .clickable(enabled && clickable) { if (enabled) doAction(true) }
                 .padding(vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
@@ -174,9 +176,25 @@ private fun Settings(
                     SettingsType.TOGGLE -> {
                         Switch(
                             checked = checked ?: false,
-                            onCheckedChange = { doAction() },
+                            onCheckedChange = { doAction(false) },
                             enabled = enabled
                         )
+                    }
+                    SettingsType.CHECKBOX_WITH_BODY -> {
+                        RowVerticalCenter {
+                            VerticalDivider(Modifier.height(48.dp))
+                            Spacer8Dp()
+                            Box(
+                                modifier = Modifier.size(48.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Checkbox(
+                                    checked = checked ?: false,
+                                    onCheckedChange = { doAction(false) },
+                                    enabled = enabled
+                                )
+                            }
+                        }
                     }
 
                     SettingsType.NUMERIC_INPUT -> {}
@@ -186,7 +204,7 @@ private fun Settings(
                     SettingsType.CHECKBOX -> {
                         Checkbox(
                             checked = checked ?: false,
-                            onCheckedChange = { doAction() },
+                            onCheckedChange = { doAction(false) },
                             enabled = enabled
                         )
                     }
@@ -210,7 +228,7 @@ fun SettingsSetting(
     subtitle: String? = null,
     type: SettingsType,
     checked: Boolean? = null,
-    doAction: () -> Unit,
+    doAction: (wasBodyClicked: Boolean) -> Unit,
     enabled: Boolean = true,
     clickable: Boolean = true,
     isLoading: Boolean = false,
@@ -255,7 +273,8 @@ enum class SettingsType {
     FUNCTION,
     NUMERIC_INPUT,
     SELECT,
-    DISPLAY
+    DISPLAY,
+    CHECKBOX_WITH_BODY
 }
 
 @Composable
@@ -280,7 +299,7 @@ fun SettingsOptionNoIconPreview() {
         isLoading = false,
         title = "Test",
         subtitle = "Test",
-        type = SettingsType.NUMERIC_INPUT,
+        type = SettingsType.CHECKBOX_WITH_BODY,
         checked = true,
         doAction = {},
         enabled = true

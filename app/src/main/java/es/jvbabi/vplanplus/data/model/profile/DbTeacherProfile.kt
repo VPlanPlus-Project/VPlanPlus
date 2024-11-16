@@ -31,4 +31,6 @@ data class DbTeacherProfile(
     @ColumnInfo("calendar_mode") val calendarMode: ProfileCalendarType,
     @ColumnInfo("calendar_id") val calendarId: Long?,
     @ColumnInfo("teacher_id") val teacherId: UUID,
+    @ColumnInfo("is_notifications_enabled", defaultValue = "true") val isNotificationsEnabled: Boolean,
+    @ColumnInfo("notification_settings", defaultValue = "[]") val notificationSettings: String,
 )
