@@ -31,7 +31,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -45,7 +45,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -162,12 +161,14 @@ private fun HomeworkListContent(
         bottomBar = navBar,
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
-        Box(
-            Modifier
+        PullToRefreshBox(
+            isRefreshing = state.isUpdatingHomework,
+            onRefresh = { onEvent(HomeworkListEvent.RefreshHomework) },
+            modifier = Modifier
                 .fillMaxSize()
-                .padding(paddingValues)
-                .nestedScroll(pullRefreshState.nestedScrollConnection)
-        ) contentWrapper@{
+                .padding(paddingValues),
+            state = pullRefreshState
+        ) {
             Column(Modifier.fillMaxSize()) content@{
                 if (state.userUsesFalseProfileType) {
                     BadProfileType()
@@ -279,22 +280,6 @@ private fun HomeworkListContent(
                 }
 
             }
-            PullToRefreshContainer(
-                state = pullRefreshState,
-                modifier = Modifier
-                    .align(Alignment.TopCenter),
-            )
-        }
-
-        if (pullRefreshState.isRefreshing) {
-            LaunchedEffect(key1 = Unit) {
-                pullRefreshState.startRefresh()
-                onEvent(HomeworkListEvent.RefreshHomework)
-            }
-        }
-        LaunchedEffect(state.isUpdatingHomework) {
-            if (state.isUpdatingHomework) pullRefreshState.startRefresh()
-            else pullRefreshState.endRefresh()
         }
     }
 
