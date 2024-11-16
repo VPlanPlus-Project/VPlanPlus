@@ -16,7 +16,6 @@ import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.util.MathTools.cantor
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 
 class GetWebAuthTaskUseCase(
     private val vppIdRepository: VppIdRepository,
@@ -26,7 +25,7 @@ class GetWebAuthTaskUseCase(
     private val stringRepository: StringRepository
 ) {
     suspend operator fun invoke() {
-        val vppIds = vppIdRepository.getActiveVppIds().firstOrNull().orEmpty()
+        val vppIds = vppIdRepository.getActiveVppIds().first()
         vppIds.forEach forEachVppId@{ vppId ->
             val task = vppIdRepository.getAuthTask(vppId)
             if (task.code == GetWebAuthResponse.ERROR) {

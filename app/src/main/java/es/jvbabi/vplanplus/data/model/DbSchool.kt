@@ -20,6 +20,5 @@ data class DbSchool(
     @ColumnInfo("days_per_week") val daysPerWeek: Int,
     @ColumnInfo("fully_compatible") val fullyCompatible: Boolean,
     @ColumnInfo(name = "credentials_valid", defaultValue = "NULL") val credentialsValid: Boolean? = null,
-    @ColumnInfo(name = "school_download_mode") val schoolDownloadMode: SchoolDownloadMode,
-    @ColumnInfo(name = "can_use_timetable") val canUseTimetable: Boolean?,
+    @ColumnInfo(name = "school_download_mode") val schoolDownloadMode: SchoolDownloadMode
 )

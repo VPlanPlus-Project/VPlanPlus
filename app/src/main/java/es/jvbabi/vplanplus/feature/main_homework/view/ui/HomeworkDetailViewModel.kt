@@ -34,7 +34,6 @@ class HomeworkDetailViewModel @Inject constructor(
                 val personalizedHomework = data[0] ?: run { onBack(); return@combine state }
                 state.copy(
                     personalizedHomework = personalizedHomework,
-                    documents = personalizedHomework.homework.documents.map { HomeworkDocumentUi(it) }
                 )
             }.collect {
                 state = it
@@ -49,7 +48,7 @@ class HomeworkDetailViewModel @Inject constructor(
             newTasks = emptyList(),
             editedTasks = emptyList(),
             tasksToDelete = emptyList(),
-            newDocuments = emptyList(),
+            newDocuments = emptyMap(),
             editedDocuments = emptyList(),
             documentsToDelete = emptyList(),
             hasEdited = false,
@@ -73,10 +72,10 @@ class HomeworkDetailViewModel @Inject constructor(
                         val changeDocuments = state.documentsToDelete.isNotEmpty() || state.newDocuments.isNotEmpty() || state.editedDocuments.isNotEmpty()
                         if (changeDocuments) homeworkDetailUseCases.updateDocumentsUseCase(
                             personalizedHomework = state.personalizedHomework!!,
-                            newDocuments = state.newDocuments,
+                            newDocuments = state.newDocuments.keys,
                             editedDocuments = state.editedDocuments,
                             documentsToDelete = state.documentsToDelete,
-                            onUploading = { uri, progress -> state = state.copy(newDocuments = state.newDocuments.map { if (it.uri == uri) it.copy(progress = progress) else it }) }
+                            onUploading = { uri, progress -> state = state.copy(newDocuments = state.newDocuments + (state.newDocuments.keys.first { it.uri == uri } to progress)) }
                         )
 
                         state.editedTasks.forEach { homeworkDetailUseCases.editTaskUseCase(state.personalizedHomework!!.profile, state.personalizedHomework!!.homework.getTaskById(it.id.toInt())!!, it.content) }
@@ -121,15 +120,15 @@ class HomeworkDetailViewModel @Inject constructor(
                 }
 
                 is AddDocumentAction -> {
-                    val newDocument = DocumentUpdate.NewDocument(action.newDocument.uri, size = action.newDocument.size, extension = action.newDocument.extension)
-                    state = state.copy(newDocuments = state.newDocuments + newDocument, hasEdited = true)
+                    val newDocument = DocumentUpdate.NewDocument(action.newDocument.uri, extension = action.newDocument.extension)
+                    state = state.copy(newDocuments = state.newDocuments + (newDocument to null), hasEdited = true)
                 }
 
                 is RenameDocumentAction -> {
                     state = when (action.document) {
                         is DocumentUpdate.NewDocument -> {
-                            val newDocumentItem = state.newDocuments.toList().indexOfFirst { it.uri == action.document.uri }
-                            val newList = if(newDocumentItem == -1) state.newDocuments + action.document else state.newDocuments.toList().mapIndexed { index, pair -> if (index == newDocumentItem) action.document else pair }
+                            val newDocumentItem = state.newDocuments.toList().indexOfFirst { it.first.uri == action.document.uri }
+                            val newList = if(newDocumentItem == -1) state.newDocuments + (action.document to null) else state.newDocuments.toList().mapIndexed { index, pair -> if (index == newDocumentItem) action.document to pair.second else pair }.toMap()
                             state.copy(newDocuments = newList, hasEdited = true)
                         }
                         is DocumentUpdate.EditedDocument -> {
@@ -141,7 +140,7 @@ class HomeworkDetailViewModel @Inject constructor(
 
                 is DeleteDocumentAction -> {
                     state = when (action.document) {
-                        is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments.filter { it.uri != action.document.uri }, hasEdited = true)
+                        is DocumentUpdate.NewDocument -> state.copy(newDocuments = state.newDocuments.filter { it.key.uri != action.document.uri }, hasEdited = true)
                         is DocumentUpdate.EditedDocument -> {
                             state.copy(
                                 documentsToDelete = state.documentsToDelete + state.personalizedHomework!!.homework.documents.first { it.documentId == action.document.documentId },
@@ -151,13 +150,6 @@ class HomeworkDetailViewModel @Inject constructor(
                         }
                     }
                 }
-
-                is DownloadDocumentAction -> {
-                    homeworkDetailUseCases.downloadDocumentUseCase(state.personalizedHomework!!, action.document, onDownloading = { sent, total ->
-                        state = state.copy(documents = state.documents.map { if (it.document.documentId == action.document.documentId) it.copy(progress = sent.toFloat() / total.toFloat()) else it })
-                    })
-                    state = state.copy(documents = state.documents.map { if (it.document.documentId == action.document.documentId) it.copy(progress = null) else it })
-                }
             }
         }
     }
@@ -165,7 +157,6 @@ class HomeworkDetailViewModel @Inject constructor(
 
 data class HomeworkDetailState(
     val personalizedHomework: PersonalizedHomework? = null,
-    val documents: List<HomeworkDocumentUi> = emptyList(),
 
     val isEditing: Boolean = false,
     val isLoading: Boolean = false,
@@ -181,7 +172,7 @@ data class HomeworkDetailState(
     val editedTasks: List<EditedTask> = emptyList(),
 
     val documentsToDelete: List<HomeworkDocument> = emptyList(),
-    val newDocuments: List<DocumentUpdate.NewDocument> = emptyList(),
+    val newDocuments: Map<DocumentUpdate.NewDocument, Float?> = emptyMap(), // Document to Upload progress
     val editedDocuments: List<DocumentUpdate.EditedDocument> = emptyList()
 ) {
     val canEditOrigin: Boolean
@@ -204,8 +195,6 @@ data class AddDocumentAction(val newDocument: DocumentUpdate.NewDocument) : UiAc
 data class RenameDocumentAction(val document: DocumentUpdate) : UiAction()
 data class DeleteDocumentAction(val document: DocumentUpdate) : UiAction()
 
-data class DownloadDocumentAction(val document: HomeworkDocument) : UiAction()
-
 data class AddTaskAction(val newTask: NewTask) : UiAction()
 
 data object DeleteHomework : UiAction()
@@ -222,7 +211,3 @@ class EditedTask(
     content: String
 ) : TaskUpdate(content)
 
-data class HomeworkDocumentUi(
-    val document: HomeworkDocument,
-    val progress: Float? = null,
-)

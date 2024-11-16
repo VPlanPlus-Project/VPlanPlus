@@ -29,7 +29,7 @@ val navBarItems = listOfNotNull(
             )
         },
         label = { Text(text = stringResource(id = R.string.main_home)) },
-        screen = Screen.HomeScreen
+        route = Screen.HomeScreen.route
     ),
     NavigationBarItem(
         onClick = {},
@@ -40,7 +40,7 @@ val navBarItems = listOfNotNull(
             )
         },
         label = { Text(text = stringResource(id = R.string.main_homework)) },
-        screen = Screen.HomeworkScreen
+        route = Screen.HomeworkScreen.route
     ),
     NavigationBarItem(
         onClick = {},
@@ -51,7 +51,7 @@ val navBarItems = listOfNotNull(
             )
         },
         label = { Text(text = stringResource(id = R.string.main_grades)) },
-        screen = Screen.GradesScreen
+        route = Screen.GradesScreen.route
     )
 )
 

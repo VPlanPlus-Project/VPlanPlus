@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package es.jvbabi.vplanplus.feature.settings.profile.ui.settings
 
 import androidx.compose.runtime.Composable
@@ -32,25 +30,16 @@ class ProfileSettingsViewModel @Inject constructor(
     fun init(profileId: UUID) {
         viewModelScope.launch {
             combine(
-                listOf(
-                    profileSettingsUseCases.getProfileByIdUseCase(profileId),
-                    profileSettingsUseCases.getCalendarsUseCase(),
-                    profileSettingsUseCases.hasProfileLocalAssessmentsUseCase(),
-                    profileSettingsUseCases.hasProfileLocalHomeworkUseCase()
-                )
-            ) { data ->
-                val profile = data[0] as? Profile ?: return@combine state.copy(initDone = true)
-                val calendars = data[1] as List<Calendar>
-                val hasProfileLocalAssessments = data[2] as Boolean
-                val hasProfileLocalHomework = data[3] as Boolean
-
+                profileSettingsUseCases.getProfileByIdUseCase(profileId),
+                profileSettingsUseCases.getCalendarsUseCase()
+            ) { profile, calendars ->
+                if (profile == null) return@combine state.copy(initDone = true)
                 state.copy(
                     profile = profile,
                     calendars = calendars,
                     initDone = true,
                     profileCalendar = calendars.firstOrNull { it.id == profile.calendarId },
-                    profileHasLocalHomework = hasProfileLocalHomework,
-                    profileHasLocalAssessments = hasProfileLocalAssessments
+                    profileHasLocalHomework = profile is ClassProfile && profileSettingsUseCases.hasProfileLocalHomeworkUseCase(profile)
                 )
             }.collect {
                 state = it
@@ -66,8 +55,6 @@ class ProfileSettingsViewModel @Inject constructor(
                 is ProfileSettingsEvent.SetCalendarState -> setCalendarMode(event.to)
                 is ProfileSettingsEvent.SetCalendar -> setCalendar(event.calendarId)
                 is ProfileSettingsEvent.SetHomeworkEnabled -> updateHomeworkEnabled(event.enabled)
-                is ProfileSettingsEvent.SetAssessmentsEnabled -> profileSettingsUseCases.updateAssessmentsEnabledUseCase(state.profile as? ClassProfile ?: return@launch, event.enabled)
-                is ProfileSettingsEvent.ToggleNotificationForProfile -> profileSettingsUseCases.toggleNotificationForProfileUseCase(state.profile ?: return@launch, event.enabled)
             }
         }
     }
@@ -112,7 +99,6 @@ data class ProfileSettingsState(
     val dialogCall: @Composable () -> Unit = {},
 
     val profileHasLocalHomework: Boolean = false,
-    val profileHasLocalAssessments: Boolean = false,
 )
 
 sealed class ProfileSettingsEvent {
@@ -121,7 +107,4 @@ sealed class ProfileSettingsEvent {
     data class SetCalendarState(val to: ProfileCalendarType) : ProfileSettingsEvent()
     data class SetCalendar(val calendarId: Long) : ProfileSettingsEvent()
     data class SetHomeworkEnabled(val enabled: Boolean) : ProfileSettingsEvent()
-    data class SetAssessmentsEnabled(val enabled: Boolean): ProfileSettingsEvent()
-
-    data class ToggleNotificationForProfile(val enabled: Boolean) : ProfileSettingsEvent()
 }

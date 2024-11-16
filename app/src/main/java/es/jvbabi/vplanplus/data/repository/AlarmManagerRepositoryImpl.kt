@@ -7,106 +7,40 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import es.jvbabi.vplanplus.android.receiver.AlarmReceiver
-import es.jvbabi.vplanplus.data.source.database.dao.AlarmDao
-import es.jvbabi.vplanplus.domain.model.Alarm
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
-import java.time.ZoneId
-import java.time.ZonedDateTime
 
 class AlarmManagerRepositoryImpl(
-    private val context: Context,
-    private val alarmDao: AlarmDao
+    private val context: Context
 ) : AlarmManagerRepository {
 
     private val service = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    override fun canRequestAlarm(): Boolean {
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) service.canScheduleExactAlarms() else true
-    }
+    override fun setAlarm(epochSecond: Long, tag: String, data: String) {
 
-    override suspend fun addAlarm(time: ZonedDateTime, tags: List<String>, data: String): Alarm {
-        if (time.isBefore(ZonedDateTime.now())) {
-            throw IllegalArgumentException("Alarm scheduled in the past")
-        }
-        val id = alarmDao.insert(
-            time = time,
-            tags = tags.joinToString(";"),
-            data = data
-        ).toInt()
-        Log.d("AlarmManagerRepository", "Adding alarm $id for $time with tags $tags and data $data")
-        val alarm = alarmDao.getAlarmById(id)!!.toModel()
-        createSystemAlarm(context, alarm)
-        return alarm
-    }
-
-    override suspend fun deleteAlarmById(id: Int) {
-        deleteAlarmById(id, true)
-    }
-
-    override suspend fun deleteAlarmsByTag(tag: String) {
-        Log.d("AlarmManagerRepository", "Deleting alarms with tag $tag")
-        alarmDao
-            .getAlarms()
-            .filter { it.tags.contains(tag) }
-            .forEach { deleteAlarmById(it.id, false) }
-        rebuild()
-    }
-
-    override suspend fun deleteIf(predicate: (Alarm) -> Boolean) {
-        Log.d("AlarmManagerRepository", "Deleting alarms with predicate $predicate")
-        alarmDao.getAlarms().map { it.toModel() }.filter(predicate).forEach { deleteAlarmById(it.id, false) }
-        rebuild()
-    }
-
-    private suspend fun deleteAlarmById(id: Int, autoRebuild: Boolean = true) {
-        Log.d("AlarmManagerRepository", "Deleting alarm with id $id")
-        alarmDao.delete(id)
         val intent = Intent(context, AlarmReceiver::class.java).apply {
-            putExtra("id", id)
+            putExtra("tag", tag)
+            putExtra("data", data)
         }
-        PendingIntent.getBroadcast(
-            context, id, intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE
-        )?.let { service.cancel(it) }
-        if (autoRebuild) rebuild()
+
+        val canSendAlarm = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) service.canScheduleExactAlarms() else true
+        if (canSendAlarm) service.setExactAndAllowWhileIdle(
+            AlarmManager.RTC,
+            epochSecond * 1000,
+            PendingIntent.getBroadcast(context, data.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        ) else {
+            Log.e("AlarmManagerRepositoryImpl", "Can't send alarm")
+        }
     }
 
-    private suspend fun rebuild() {
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.UPSIDE_DOWN_CAKE) service.cancelAll()
-        alarmDao.deleteOld(ZonedDateTime.now())
-        alarmDao
-            .getAlarms()
-            .map { it.toModel() }
-            .forEach { alarm ->
-                createSystemAlarm(context, alarm)
-            }
-    }
-
-    private fun createSystemAlarm(context: Context, alarm: Alarm) {
-        val intent = Intent(context, AlarmReceiver::class.java).apply {
-            putExtra("id", alarm.id)
-        }
-        val pendingIntent = PendingIntent.getBroadcast(
-            context, alarm.id, intent,
+    override fun cancelAlarm(data: String) {
+        val intent = Intent(context, AlarmReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(context, data.hashCode(), intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        if (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                service.canScheduleExactAlarms()
-            } else {
-                false
-            }
-        ) service.setExactAndAllowWhileIdle(
-            AlarmManager.RTC,
-            alarm.time.withZoneSameInstant(ZoneId.systemDefault()).toEpochSecond() * 1000,
-            pendingIntent
-        ) else service.setAndAllowWhileIdle(
-            AlarmManager.RTC,
-            alarm.time.withZoneSameInstant(ZoneId.systemDefault()).toEpochSecond() * 1000,
-            pendingIntent
-        )
+        pendingIntent?.let { service.cancel(it) }
     }
 
-    override suspend fun getAlarmById(id: Int): Alarm? {
-        return alarmDao.getAlarmById(id)?.toModel()
+    override fun canRequestAlarm(): Boolean {
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) service.canScheduleExactAlarms() else true
     }
 }

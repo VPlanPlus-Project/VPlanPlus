@@ -4,26 +4,23 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
-import es.jvbabi.vplanplus.domain.usecase.daily.UpdateDailyNotificationAlarmsUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetAppThemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetColorSchemeUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetHomeworkUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.GetSyncIntervalMinutesUseCase
-import es.jvbabi.vplanplus.domain.usecase.home.HasSetCrashlyticsSettingsUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
-import es.jvbabi.vplanplus.domain.usecase.home.SetCrashlyticsSettingsUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
-import es.jvbabi.vplanplus.domain.usecase.update.EnableAssessmentsOnlyForCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.GetWebAuthTaskUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.PickEmojiUseCase
@@ -56,8 +53,6 @@ object MainModule {
             getHomeworkUseCase = GetHomeworkUseCase(homeworkRepository, getCurrentProfileUseCase),
             getAppThemeUseCase = GetAppThemeUseCase(keyValueRepository),
             getSyncIntervalMinutesUseCase = GetSyncIntervalMinutesUseCase(keyValueRepository),
-            hasSetCrashlyticsSettingsUseCase = HasSetCrashlyticsSettingsUseCase(keyValueRepository),
-            setCrashlyticsSettingsUseCase = SetCrashlyticsSettingsUseCase(keyValueRepository),
             setCurrentProfileUseCase = SetCurrentProfileUseCase(keyValueRepository, profileRepository)
         )
     }
@@ -69,17 +64,16 @@ object MainModule {
         homeworkRepository: HomeworkRepository,
         vppIdRepository: VppIdRepository,
         profileRepository: ProfileRepository,
-        updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase,
+        alarmManagerRepository: AlarmManagerRepository,
         updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ): SetUpUseCase {
         return SetUpUseCase(
             keyValueRepository = keyValueRepository,
             homeworkRepository = homeworkRepository,
+            alarmManagerRepository = alarmManagerRepository,
             vppIdRepository = vppIdRepository,
             testForMissingVppIdToProfileConnectionsUseCase = TestForMissingVppIdToProfileConnectionsUseCase(vppIdRepository, profileRepository),
-            updateFirebaseTokenUseCase = updateFirebaseTokenUseCase,
-            updateDailyNotificationAlarmsUseCase = updateDailyNotificationAlarmsUseCase,
-            enableAssessmentsOnlyForCurrentProfileUseCase = EnableAssessmentsOnlyForCurrentProfileUseCase(profileRepository, keyValueRepository)
+            updateFirebaseTokenUseCase = updateFirebaseTokenUseCase
         )
     }
 

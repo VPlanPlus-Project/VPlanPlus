@@ -19,4 +19,7 @@ abstract class KeyValueDao {
 
     @Query("DELETE FROM key_value WHERE id = :key")
     abstract suspend fun delete(key: String)
+
+    @Query("SELECT value FROM key_value WHERE id = :key")
+    abstract fun getOnMainThread(key: String): String?
 }

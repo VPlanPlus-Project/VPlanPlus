@@ -8,7 +8,6 @@ import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.randomSubList
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.UUID
 import kotlin.random.Random
 
 object Lessons {
@@ -20,7 +19,7 @@ object Lessons {
 
         repeat(count) { index ->
             result.add(
-                Lesson.SubstitutionPlanLesson(
+                Lesson(
                     rooms = randomRoom(),
                     teacherIsChanged = Random.nextBoolean(),
                     teachers = randomTeacher(),
@@ -29,14 +28,10 @@ object Lessons {
                     info = "Info",
                     lessonNumber = index + 1,
                     roomIsChanged = Random.nextBoolean(),
-                    group = randomClass(),
-                    subject = randomSubject(),
+                    `class` = randomClass(),
+                    originalSubject = randomSubject(),
                     changedSubject = if (Random.nextBoolean()) randomSubject() else null,
-                    defaultLesson = null,
-                    id = UUID.randomUUID(),
-                    week = null,
-                    weekType = null,
-                    roomBooking = null
+                    defaultLesson = null
                 )
             )
         }

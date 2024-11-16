@@ -154,7 +154,7 @@ fun RadioCardGroup(options: List<RadioCard>, modifier: Modifier = Modifier) {
                     Icon(
                         imageVector = option.icon, contentDescription = null, modifier = Modifier
                             .padding(12.dp)
-                            .size(25.dp), tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            .size(25.dp), tint = MaterialTheme.colorScheme.primary
                     )
                     Column(
                         modifier = Modifier
@@ -164,7 +164,7 @@ fun RadioCardGroup(options: List<RadioCard>, modifier: Modifier = Modifier) {
                         Text(
                             text = option.title,
                             style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer
+                            color = MaterialTheme.colorScheme.primary
                         )
                         val height = animateFloatAsState(targetValue = if (option.selected) 1f else 0f,
                             label = "card animation"
@@ -172,7 +172,7 @@ fun RadioCardGroup(options: List<RadioCard>, modifier: Modifier = Modifier) {
                         Text(
                             text = option.subtitle,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .height(50.dp * height.value)
                         )

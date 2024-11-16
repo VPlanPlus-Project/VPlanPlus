@@ -9,7 +9,6 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.SearchResult
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import java.time.LocalDate
 
 class SearchUseCase(
@@ -44,19 +43,19 @@ class SearchUseCase(
             firstClass.groupId,
             date,
             version
-        ).firstOrNull()?.lessons else null
+        ).first().lessons else null
 
         val firstTeacherPlan = if (firstTeacher != null) planRepository.getDayForTeacher(
             firstTeacher.teacherId,
             date,
             version
-        ).firstOrNull()?.lessons else null
+        ).first().lessons else null
 
         val firstRoomPlan = if (firstRoom != null) planRepository.getDayForRoom(
             firstRoom.roomId,
             date,
             version
-        ).firstOrNull()?.lessons else null
+        ).first().lessons else null
 
         val firstClassResult = if (firstClass != null) SearchResult(
             firstClass.name,

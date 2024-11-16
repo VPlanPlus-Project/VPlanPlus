@@ -15,8 +15,6 @@ open class VppId(
     @SerializedName("state") val state: State = State.ACTIVE,
     @SerializedName("cached_at") val cachedAt: ZonedDateTime = ZonedDateTime.of(1970, 1, 1, 0, 0, 0, 0, ZoneId.of("UTC"))
 ) {
-
-    class Unknown : VppId(-1, "", null, -1, null, "", null, State.ACTIVE)
     fun isActive() = state == State.ACTIVE
 
     class ActiveVppId(

@@ -42,11 +42,7 @@ fun OnboardingWelcomeScreen(
             val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
             intent.data = android.net.Uri.parse("package:${context.packageName}")
             context.startActivity(intent)
-            Toast.makeText(
-                context,
-                context.getString(R.string.onboarding_crashToast),
-                Toast.LENGTH_LONG
-            ).show()
+            Toast.makeText(context, context.getString(R.string.onboarding_crashToast), Toast.LENGTH_LONG).show()
         }
     )
 }
@@ -66,7 +62,7 @@ fun Welcome(
         buttonText = stringResource(id = R.string.lets_go),
         isLoading = false,
         enabled = true,
-        onButtonClick = onNext,
+        onButtonClick = { onNext() },
         content = {
             InfoCard(
                 imageVector = Icons.Default.Error,
@@ -78,10 +74,7 @@ fun Welcome(
         },
         footer = {
             val footerText = buildAnnotatedString {
-                withStyle(
-                    MaterialTheme.typography.labelMedium.toSpanStyle()
-                        .copy(color = MaterialTheme.colorScheme.onSurface)
-                ) {
+                withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(color = MaterialTheme.colorScheme.onSurface)) {
                     append(stringResource(id = R.string.onboarding_welcomeAcceptPrivacyPolicyStart))
                     append(" ")
                     withLink(
@@ -90,10 +83,7 @@ fun Welcome(
                             tag = "PRIVACY_POLICY"
                         )
                     ) {
-                        withStyle(
-                            MaterialTheme.typography.labelMedium.toSpanStyle()
-                                .copy(color = MaterialTheme.colorScheme.primary)
-                        ) {
+                        withStyle(MaterialTheme.typography.labelMedium.toSpanStyle().copy(color = MaterialTheme.colorScheme.primary)) {
                             append(stringResource(id = R.string.onboarding_welcomeAcceptPrivacyPolicy))
                         }
                     }

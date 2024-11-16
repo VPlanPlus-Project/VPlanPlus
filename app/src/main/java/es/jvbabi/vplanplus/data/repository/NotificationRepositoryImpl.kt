@@ -9,15 +9,13 @@ import androidx.core.app.NotificationCompat
 import androidx.core.net.toUri
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
-import es.jvbabi.vplanplus.android.receiver.DailyRemindLaterReceiver
+import es.jvbabi.vplanplus.android.receiver.HomeworkRemindLaterReceiver
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.repository.BroadcastIntentTask
 import es.jvbabi.vplanplus.domain.repository.DoActionTask
 import es.jvbabi.vplanplus.domain.repository.NotificationAction
 import es.jvbabi.vplanplus.domain.repository.NotificationOnClickTask
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
-import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_ASSESSMENTS
-import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_DAILY
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_GRADES
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_HOMEWORK
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_NEWS
@@ -27,6 +25,7 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.OpenLinkTask
 import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
+import es.jvbabi.vplanplus.shared.data.PendingIntentCodes.HOMEWORK_REMINDER_REMIND_LATER
 
 class NotificationRepositoryImpl(
     private val appContext: Context,
@@ -36,7 +35,6 @@ class NotificationRepositoryImpl(
         channelId: String,
         id: Int,
         title: String,
-        subtitle: String?,
         message: String,
         icon: Int,
         onClickTask: NotificationOnClickTask?,
@@ -49,7 +47,7 @@ class NotificationRepositoryImpl(
             when (task) {
                 is OpenScreenTask -> {
                     val intent = Intent(appContext, MainActivity::class.java)
-                        .putExtra("screen", task.destination)
+                        .putExtra("screen", task.route)
 
                     PendingIntent.getActivity(appContext, id, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                 }
@@ -68,18 +66,15 @@ class NotificationRepositoryImpl(
                 }
                 is BroadcastIntentTask -> {
                     val broadcastClass = when (task.tag) {
-                        DailyRemindLaterReceiver.TAG -> DailyRemindLaterReceiver::class.java
+                        HomeworkRemindLaterReceiver.TAG -> HomeworkRemindLaterReceiver::class.java
                         else -> throw IllegalArgumentException("Unknown tag ${task.tag}")
                     }
-                    val intent = Intent(appContext, broadcastClass)
-                        .putExtra("tag", task.tag)
-                        .putExtra("notificationId", id)
-                        .let { if (task.payload != null) it.putExtra("payload", task.payload) else it }
+                    val intent = Intent(appContext, broadcastClass).putExtra("tag", HomeworkRemindLaterReceiver.TAG)
                     PendingIntent.getBroadcast(
                         appContext,
-                        id,
+                        HOMEWORK_REMINDER_REMIND_LATER,
                         intent,
-                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+                        PendingIntent.FLAG_IMMUTABLE
                     )
                 }
                 else -> null
@@ -88,7 +83,6 @@ class NotificationRepositoryImpl(
 
         val builder = NotificationCompat.Builder(appContext, channelId)
             .setContentTitle(title)
-            .setSubText(subtitle)
             .setContentText(message)
             .setPriority(priority)
             .setStyle(
@@ -169,18 +163,6 @@ class NotificationRepositoryImpl(
             context.getString(R.string.notification_systemName),
             context.getString(R.string.notification_systemDescription),
             NotificationManager.IMPORTANCE_HIGH
-        )
-        createChannel(
-            CHANNEL_ID_DAILY,
-            context.getString(R.string.notification_dailyName),
-            context.getString(R.string.notification_dailyDescription),
-            NotificationManager.IMPORTANCE_HIGH
-        )
-        createChannel(
-            CHANNEL_ID_ASSESSMENTS,
-            context.getString(R.string.notification_assessmentsName),
-            context.getString(R.string.notification_assessmentsDescription),
-            NotificationManager.IMPORTANCE_DEFAULT
         )
     }
 

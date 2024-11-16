@@ -22,7 +22,6 @@ import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.map
 import java.time.LocalDate
 import java.util.UUID
 
@@ -34,12 +33,6 @@ class PlanRepositoryImpl(
     private val lessonRepository: LessonRepository,
     private val planDao: PlanDao
 ) : PlanRepository {
-    override fun getDayInfoForSchool(schoolId: Int, date: LocalDate, version: Long): Flow<Plan?> {
-        return planDao.getPlanByDate(schoolId, date, version).map {
-            it?.toModel()
-        }
-    }
-
     override fun getDayForProfile(profile: Profile, date: LocalDate, version: Long): Flow<Day> {
         return when (profile) {
             is ClassProfile -> getDayForGroup(profile.group.groupId, date, version)
@@ -109,10 +102,6 @@ class PlanRepositoryImpl(
         return planDao.getLocalPlanDates().distinct()
     }
 
-    override suspend fun getLocalPlaDatesForSchool(schoolId: Int): List<LocalDate> {
-        return planDao.getLocalPlanDatesForSchool(schoolId).distinct()
-    }
-
     private suspend fun build(
         school: School,
         lessons: List<Lesson>?,
@@ -123,13 +112,12 @@ class PlanRepositoryImpl(
         val dayType = holidayRepository.getDayType(school.id, date)
         val lessonsWithBookings = lessons?.map { lesson ->
             val booking = bookings.firstOrNull { roomBooking ->
-                roomBooking.bookedBy?.group == lesson.group &&
+                roomBooking.bookedBy?.group == lesson.`class` &&
                         lesson.start.isEqual(roomBooking.from) &&
                         lesson.end.isEqual(roomBooking.to.plusSeconds(1)) &&
                         date == roomBooking.from.toLocalDate()
             }
-            if (lesson is Lesson.SubstitutionPlanLesson) lesson.copy(roomBooking = booking)
-            else lesson
+            lesson.copy(roomBooking = booking)
         }
         if (dayType == DayType.NORMAL) {
             return if (lessonsWithBookings == null) {

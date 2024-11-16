@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_homework.view.ui
 
 import android.app.Activity
-import android.net.Uri
 import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.activity.result.IntentSenderRequest
@@ -48,13 +47,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toFile
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.domain.model.DefaultLesson
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocument
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkDocumentType
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
@@ -86,7 +83,6 @@ import es.jvbabi.vplanplus.ui.preview.ProfilePreview.toActiveVppId
 import es.jvbabi.vplanplus.ui.preview.SchoolPreview
 import es.jvbabi.vplanplus.ui.preview.TeacherPreview
 import es.jvbabi.vplanplus.ui.preview.VppIdPreview
-import es.jvbabi.vplanplus.util.getFileSize
 import java.time.ZonedDateTime
 import java.util.UUID
 
@@ -100,12 +96,11 @@ fun HomeworkDetailScreen(
     val state = viewModel.state
     val context = LocalContext.current
 
-    val pickDocumentLauncher = pickDocumentLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, size = it.toFile().getFileSize(), extension = HomeworkDocumentType.PDF.extension))) }
-    val (scanner, scannerLauncher) = rememberScanner { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, size = it.toFile().getFileSize(), extension = HomeworkDocumentType.PDF.extension))) }
+    val pickDocumentLauncher = pickDocumentLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.PDF.extension))) }
+    val (scanner, scannerLauncher) = rememberScanner { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.PDF.extension))) }
 
-    val takePhotoLauncher =
-        rememberTakePhotoLauncher(key1 = state.newDocuments.size) { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, size = it.toFile().getFileSize(), extension = HomeworkDocumentType.JPG.extension))) }
-    val pickPhotosLauncher = rememberPickPhotoLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, size = it.toFile().getFileSize(), extension = HomeworkDocumentType.JPG.extension))) }
+    val takePhotoLauncher = rememberTakePhotoLauncher(key1 = state.newDocuments.size) { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
+    val pickPhotosLauncher = rememberPickPhotoLauncher { viewModel.onAction(AddDocumentAction(DocumentUpdate.NewDocument(it, extension = HomeworkDocumentType.JPG.extension))) }
 
     HomeworkDetailScreenContent(
         onBack = { navHostController.popBackStack() },
@@ -270,14 +265,13 @@ private fun HomeworkDetailScreenContent(
             )
             Spacer8Dp()
             Documents(
-                documentItems = state.documents,
+                documents = state.personalizedHomework?.homework?.documents ?: emptyList(),
                 changedDocuments = state.editedDocuments,
                 newDocuments = state.newDocuments,
                 markedAsRemoveIds = state.documentsToDelete.map { it.documentId },
                 isEditing = state.isEditing && state.canEditOrigin,
                 onRename = { onAction(RenameDocumentAction(it)) },
                 onRemove = { onAction(DeleteDocumentAction(it)) },
-                onDownload = { onAction(DownloadDocumentAction(it)) },
                 onPickPhotoClicked = onPickPhotoClicked,
                 onTakePhotoClicked = onTakePhotoClicked,
                 onPickDocumentClicked = onPickDocumentClicked,
@@ -291,11 +285,11 @@ private fun HomeworkDetailScreenContent(
             icon = Icons.Default.DeleteForever,
             title = stringResource(id = R.string.homework_deleteHomeworkTitle),
             message =
-            when (state.personalizedHomework) {
-                is PersonalizedHomework.CloudHomework -> if (state.personalizedHomework.homework.isPublic) stringResource(id = R.string.homework_deleteHomeworkTextPublic) else stringResource(id = R.string.homework_deleteHomeworkTextPrivate)
-                is PersonalizedHomework.LocalHomework -> stringResource(id = R.string.homework_deleteHomeworkTextLocal)
-                else -> ""
-            },
+                when (state.personalizedHomework) {
+                    is PersonalizedHomework.CloudHomework -> if (state.personalizedHomework.homework.isPublic) stringResource(id = R.string.homework_deleteHomeworkTextPublic) else stringResource(id = R.string.homework_deleteHomeworkTextPrivate)
+                    is PersonalizedHomework.LocalHomework -> stringResource(id = R.string.homework_deleteHomeworkTextLocal)
+                    else -> ""
+                },
             onYes = { onAction(DeleteHomework) },
             onNo = { isDeleteDialogOpen = false },
         )
@@ -316,15 +310,7 @@ fun HomeworkDetailScreenPreview() {
                 homework = HomeworkCore.CloudHomework(
                     id = 1,
                     createdBy = vppId,
-                    documents = listOf(
-                        HomeworkDocument.SavedHomeworkDocument(
-                            documentId = 2,
-                            homeworkId = 1,
-                            type = HomeworkDocumentType.PDF,
-                            name = "Document 2.pdf",
-                            size = 2048*1024
-                        )
-                    ),
+                    documents = emptyList(),
                     tasks = listOf(
                         HomeworkTaskCore(id = 1, content = "Task 1", homeworkId = 1),
                         HomeworkTaskCore(id = 2, content = "Task 2", homeworkId = 1),
@@ -349,18 +335,7 @@ fun HomeworkDetailScreenPreview() {
                     HomeworkTaskDone(id = 2, content = "Task 2", isDone = true, homeworkId = 1),
                     HomeworkTaskDone(id = 3, content = "Task 3", isDone = false, homeworkId = 1)
                 ),
-                profile = ProfilePreview.generateClassProfile(
-                    group, vppId
-                )
-            ),
-            newDocuments = listOf(
-                DocumentUpdate.NewDocument(
-                    name = "Document 1.jpg",
-                    size = 1024,
-                    progress = .4f,
-                    extension = "jpg",
-                    uri = Uri.EMPTY
-                )
+                profile = ProfilePreview.generateClassProfile(group, vppId)
             ),
             isEditing = true,
             isLoading = true,

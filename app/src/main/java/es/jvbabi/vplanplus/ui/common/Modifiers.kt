@@ -1,10 +1,6 @@
 package es.jvbabi.vplanplus.ui.common
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -29,14 +25,4 @@ fun Modifier.grayScale(saturation: Float = 0f): Modifier {
             }
         }
     )
-}
-
-inline fun Modifier.noRippleClickable(
-    crossinline onClick: () -> Unit
-): Modifier = composed {
-    then(Modifier.clickable(
-        indication = null,
-        interactionSource = remember { MutableInteractionSource() }) {
-        onClick()
-    })
 }

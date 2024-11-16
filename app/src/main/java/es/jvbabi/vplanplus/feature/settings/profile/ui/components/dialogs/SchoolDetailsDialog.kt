@@ -34,8 +34,7 @@ fun SchoolDetailsDialog(
                 stringResource(id = R.string.profileManagement_detailsPreferredDownloadMode) to school.schoolDownloadMode.name,
                 stringResource(id = R.string.profileManagement_detailsDaysPerWeek) to school.daysPerWeek.toString(),
                 stringResource(id = R.string.profileManagement_detailsCredentialsValid) to school.credentialsValid.toString(),
-                stringResource(id = R.string.profileManagement_detailsFullyCompatible) to school.fullyCompatible.toString(),
-                stringResource(id = R.string.profileManagement_detailsCanUseTimetable) to school.canUseTimetable.toString()
+                stringResource(id = R.string.profileManagement_detailsFullyCompatible) to school.fullyCompatible.toString()
             )
 
             values.forEach { (key, value) ->
@@ -66,8 +65,7 @@ private fun SchoolDetailsDialogPreview() {
             schoolDownloadMode = SchoolDownloadMode.INDIWARE_MOBIL,
             daysPerWeek = 5,
             credentialsValid = true,
-            fullyCompatible = false,
-            canUseTimetable = true
+            fullyCompatible = false
         ),
         onClose = {}
     )

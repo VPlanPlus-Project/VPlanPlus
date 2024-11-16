@@ -31,6 +31,4 @@ data class DbRoomProfile(
     @ColumnInfo("calendar_mode") val calendarMode: ProfileCalendarType,
     @ColumnInfo("calendar_id") val calendarId: Long?,
     @ColumnInfo("room_id") val roomId: Int,
-    @ColumnInfo("is_notifications_enabled", defaultValue = "true") val isNotificationsEnabled: Boolean,
-    @ColumnInfo("notification_settings", defaultValue = "[]") val notificationSettings: String,
 )

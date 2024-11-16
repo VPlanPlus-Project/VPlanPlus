@@ -12,6 +12,4 @@ interface HolidayRepository {
     suspend fun deleteHolidaysBySchoolId(schoolId: Int)
     suspend fun isHoliday(schoolId: Int, date: LocalDate): Boolean
     suspend fun getDayType(schoolId: Int, date: LocalDate): DayType
-
-    suspend fun deleteAll()
 }
