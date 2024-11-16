@@ -3,7 +3,7 @@ package es.jvbabi.vplanplus.domain.usecase.sync
 import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.repository.FirebaseCloudMessagingManagerRepository
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 
 class UpdateFirebaseTokenUseCase(
     private val profileRepository: ProfileRepository,
@@ -12,13 +12,13 @@ class UpdateFirebaseTokenUseCase(
     suspend operator fun invoke(newToken: String): Boolean {
         firebaseCloudMessagingManagerRepository.resetToken(newToken)
         val vppIds = profileRepository
-            .getProfiles().first()
+            .getProfiles().firstOrNull().orEmpty()
             .filterIsInstance<ClassProfile>()
             .mapNotNull { it.vppId }
             .distinctBy { it.id }
 
         val groups = profileRepository
-            .getProfiles().first()
+            .getProfiles().firstOrNull().orEmpty()
             .filterIsInstance<ClassProfile>()
             .map { it.group }
             .distinctBy { it.groupId }

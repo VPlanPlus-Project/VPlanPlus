@@ -24,6 +24,7 @@ import es.jvbabi.vplanplus.feature.main_grades.view.domain.repository.Schulverwa
 import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.util.MathTools.cantor
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
@@ -38,7 +39,7 @@ class UpdateGradesUseCase(
     suspend operator fun invoke() {
         val unhealthyProfiles = mutableListOf<ClassProfile>()
         profileRepository
-            .getProfiles().first()
+            .getProfiles().firstOrNull().orEmpty()
             .filterIsInstance<ClassProfile>()
             .filter { it.vppId != null }
             .forEach forEachProfile@{ profile ->
