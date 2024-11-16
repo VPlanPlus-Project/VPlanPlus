@@ -40,5 +40,8 @@ data class DbClassProfile(
     @ColumnInfo("calendar_id") val calendarId: Long?,
     @ColumnInfo("class_id") val classId: Int,
     @ColumnInfo("is_homework_enabled") val isHomeworkEnabled: Boolean,
-    @ColumnInfo("vpp_id") val vppId: Int?
+    @ColumnInfo("is_assessments_enabled", defaultValue = "false") val isAssessmentsEnabled: Boolean,
+    @ColumnInfo("vpp_id") val vppId: Int?,
+    @ColumnInfo("is_notifications_enabled", defaultValue = "true") val isNotificationsEnabled: Boolean,
+    @ColumnInfo("notification_settings", defaultValue = "[]") val notificationSettings: String,
 )

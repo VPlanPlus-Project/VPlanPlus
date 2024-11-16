@@ -9,23 +9,24 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import es.jvbabi.vplanplus.domain.repository.StringRepository
-import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkCore
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.HomeworkTaskDone
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.relativeDateStringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 class UpdateHomeworkUseCase(
     private val profileRepository: ProfileRepository,
-    private val vppIdRepository: VppIdRepository,
     private val homeworkRepository: HomeworkRepository,
     private val fileRepository: FileRepository,
     private val notificationRepository: NotificationRepository,
@@ -58,11 +59,10 @@ class UpdateHomeworkUseCase(
         var existingHomework = updateExisting()
         val downloadedHomeworkItems = mutableListOf<HomeworkCore.CloudHomework>()
 
-        val activeVppIds = vppIdRepository.getActiveVppIds().first()
-
         profileRepository
             .getProfiles().first()
             .filterIsInstance<ClassProfile>()
+            .filter { it.isHomeworkEnabled }
             .distinctBy { it.id.toString() + it.vppId?.id } // only unique profile/vpp.ID combinations (including profiles without vpp.ID)
             .sortedBy { it.group.groupId.toString() + if (it.vppId == null) "z" else "a" } // rank profiles with vpp.ID higher
             .forEach { profile ->
@@ -79,7 +79,7 @@ class UpdateHomeworkUseCase(
                             vppId = downloadedHomeworkItem.createdBy,
                             defaultLessonVpId = downloadedHomeworkItem.defaultLesson?.vpId
                         )
-                        if (!profile.isDefaultLessonEnabled(downloadedHomeworkItem.defaultLesson?.vpId)) {
+                        if (downloadedHomeworkItem.shouldBeHidden(profile)) {
                             val hw = homeworkRepository.getHomeworkById(homeworkId).first() as HomeworkCore.CloudHomework
                             homeworkRepository.changeHomeworkVisibilityDb(hw, profile, true)
                         }
@@ -100,14 +100,9 @@ class UpdateHomeworkUseCase(
                             documentId = document.documentId,
                             homeworkId = downloadedHomeworkItem.id,
                             type = document.type,
-                            name = document.name ?: "Untitled"
+                            name = document.name ?: "Untitled",
+                            size = document.size
                         )
-
-                        if (!fileRepository.exists("homework_documents", "${document.documentId}.${document.type.extension}")) {
-                            Log.d("UpdateHomeworkUseCase", "Downloading document ${document.documentId}")
-                            val content = homeworkRepository.downloadHomeworkDocument(profile.vppId, profile.group, downloadedHomeworkItem.id, document.documentId) ?: return false
-                            fileRepository.writeBytes("homework_documents", "${document.documentId}.${document.type.extension}", content)
-                        }
                     }
 
                     val tasksToDelete = existingItem?.tasks.orEmpty().filter { task -> downloadedHomeworkItem.tasks.none { it.id == task.id } }
@@ -142,47 +137,72 @@ class UpdateHomeworkUseCase(
 
         if (!allowNotifications) return stopUpdate(true)
 
-        val profiles = profileRepository.getProfiles().first().filterIsInstance<ClassProfile>()
-        val notificationNewHomeworkItems = downloadedHomeworkItems
-            .filter { it.id !in initialExisting.map { existing -> existing.id } } // is new
-            .filter { it.createdBy.id !in activeVppIds.map { vppId -> vppId.id } } // is not created by current user
-            .filter { profiles.any { profile -> profile.isDefaultLessonEnabled(it.defaultLesson?.vpId) } }
+        profileRepository
+            .getProfiles().first()
+            .filterIsInstance<ClassProfile>()
+            .filter { it.notificationsEnabled && it.notificationSettings.onNewHomeworkNotificationSetting.isEnabled() }
+            .forEach forEachProfile@{ profile ->
+                val notificationNewHomeworkItems = downloadedHomeworkItems
+                    .filter {
+                        it.id !in initialExisting.map { existing -> existing.id } && // is new
+                                it.group.groupId == profile.group.groupId && // is in same group
+                                it.createdBy.id != profile.vppId?.id && // is not created by current user
+                                profile.isDefaultLessonEnabled(it.defaultLesson?.vpId) && // is not created by current user
+                                !it.shouldBeHidden(profile) // is not hidden
+                    }
+                    .ifEmpty { return@forEachProfile }
 
-        if (notificationNewHomeworkItems.isEmpty()) return stopUpdate(true)
-        if (notificationNewHomeworkItems.size == 1) { // detailed notification
-            val notificationHomework = notificationNewHomeworkItems.first()
+                if (notificationNewHomeworkItems.size == 1) { // detailed notification
+                    val notificationHomework = notificationNewHomeworkItems.first()
 
-            val tasksString = stringRepository.getPlural(R.plurals.notification_homeworkNewHomeworkOneContentTasks, notificationHomework.tasks.size, notificationHomework.tasks.size)
-            val relativeDueDateResource = relativeDateStringResource(LocalDate.now(), notificationHomework.until.toLocalDate())
-            val dueToString = if (relativeDueDateResource != null) stringRepository.getString(relativeDueDateResource) else notificationHomework.until.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
-            val messageContent = stringRepository.getString(R.string.notification_homeworkNewHomeworkOneContent, notificationHomework.createdBy.name, tasksString, dueToString)
-            val message = if (notificationHomework.defaultLesson != null) stringRepository.getString(R.string.notification_homeworkNewHomeworkOneContentPrefix, notificationHomework.defaultLesson.subject, messageContent) else messageContent
+                    val tasksString = stringRepository.getPlural(R.plurals.notification_homeworkNewHomeworkOneContentTasks, notificationHomework.tasks.size, notificationHomework.tasks.size)
+                    val relativeDueDateResource = relativeDateStringResource(LocalDate.now(), notificationHomework.until.toLocalDate())
+                    val dueToString = if (relativeDueDateResource != null) stringRepository.getString(relativeDueDateResource) else notificationHomework.until.toLocalDate().format(DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT))
+                    val messageContent = stringRepository.getString(R.string.notification_homeworkNewHomeworkOneContent, notificationHomework.createdBy.name, tasksString, dueToString)
+                    val message = if (notificationHomework.defaultLesson != null) stringRepository.getString(R.string.notification_homeworkNewHomeworkOneContentPrefix, notificationHomework.defaultLesson.subject, messageContent) else messageContent
 
-            Log.d("UpdateHomeworkUseCase", "Sending notification for new homework: $message")
+                    Log.d("UpdateHomeworkUseCase", "Sending notification for new homework: $message")
 
-            notificationRepository.sendNotification(
-                channelId = NotificationRepository.CHANNEL_ID_HOMEWORK,
-                id = CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK,
-                icon = R.drawable.vpp,
-                title = stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
-                message = message,
-                onClickTask = OpenScreenTask(Screen.HomeworkDetailScreen.route + "/${notificationHomework.id}")
-            )
-            return stopUpdate(true)
+                    notificationRepository.sendNotification(
+                        channelId = NotificationRepository.CHANNEL_ID_HOMEWORK,
+                        id = CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK,
+                        icon = R.drawable.vpp,
+                        title = stringRepository.getString(R.string.notification_homeworkNewHomeworkOneTitle),
+                        subtitle = profile.displayName,
+                        message = message,
+                        onClickTask = OpenScreenTask(
+                            destination = Json.encodeToString(NotificationDestination(
+                                profileId = profileRepository.getProfiles().first().firstOrNull { it is ClassProfile && it.group == notificationHomework.group }?.id?.toString(),
+                                screen = "homework/item",
+                                payload = Json.encodeToString(Screen.HomeworkDetailScreen(notificationHomework.id))
+                            )
+                            )
+                        )
+                    )
+                }
+                val message = stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleContent, notificationNewHomeworkItems.size)
+                Log.d("UpdateHomeworkUseCase", "Sending notification for new homework: $message")
+
+                notificationRepository.sendNotification(
+                    channelId = NotificationRepository.CHANNEL_ID_HOMEWORK,
+                    id = CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK,
+                    icon = R.drawable.vpp,
+                    title = stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
+                    subtitle = profile.displayName,
+                    message = message,
+                    onClickTask = OpenScreenTask(
+                        destination = Json.encodeToString(
+                            NotificationDestination(
+                                screen = "homework",
+                            )
+                        ),
+                    )
+                )
         }
-
-        val message = stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleContent, notificationNewHomeworkItems.size)
-        Log.d("UpdateHomeworkUseCase", "Sending notification for new homework: $message")
-
-        notificationRepository.sendNotification(
-            channelId = NotificationRepository.CHANNEL_ID_HOMEWORK,
-            id = CHANNEL_DEFAULT_NOTIFICATION_ID_NEW_HOMEWORK,
-            icon = R.drawable.vpp,
-            title = stringRepository.getString(R.string.notification_homeworkNewHomeworkMultipleTitle),
-            message = message,
-            onClickTask = OpenScreenTask(Screen.HomeworkScreen.route)
-        )
 
         return stopUpdate(true)
     }
 }
+
+private fun HomeworkCore.CloudHomework.shouldBeHidden(profile: ClassProfile): Boolean =
+    !profile.isDefaultLessonEnabled(defaultLesson?.vpId) || until.toLocalDate().isBefore(LocalDate.now().minusDays(3))

@@ -23,7 +23,7 @@ class ClassBaseData(rawXml: String) {
         val serializer: Serializer = Persister()
         val xml = sanitizeXml(rawXml)
         val reader = xml.reader()
-        val rootObject: Splan = serializer.read(Splan::class.java, reader, false)
+        val rootObject = serializer.read(ClassSPlan::class.java, reader, false)
 
         schoolName = rootObject.head!!.schoolName
         daysPerWeek = rootObject.baseData!!.daysPerWeek
@@ -44,9 +44,9 @@ class ClassBaseData(rawXml: String) {
 }
 
 @Root(name = "splan", strict = false)
-private class Splan {
+private class ClassSPlan {
     @field:Element(name = "Kopf")
-    var head: SPlanHead? = null
+    var head: ClassBaseDataHead? = null
 
     @field:ElementList(name = "FreieTage", entry = "ft", required = false)
     var holidays: List<Holiday>? = null
@@ -59,7 +59,7 @@ private class Splan {
 }
 
 @Root(name = "Kopf", strict = false)
-private data class SPlanHead @JvmOverloads constructor(
+private data class ClassBaseDataHead @JvmOverloads constructor(
     @field:Element(name = "schulname")
     var schoolName: String = ""
 )

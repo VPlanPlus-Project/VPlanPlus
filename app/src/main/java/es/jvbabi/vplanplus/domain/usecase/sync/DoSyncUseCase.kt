@@ -11,15 +11,20 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Lesson
 import es.jvbabi.vplanplus.domain.model.Plan
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.xml.DefaultValues
 import es.jvbabi.vplanplus.domain.model.xml.VPlanData
+import es.jvbabi.vplanplus.domain.repository.BaseDataRepository
+import es.jvbabi.vplanplus.domain.repository.BaseDataResponse
 import es.jvbabi.vplanplus.domain.repository.DefaultLessonRepository
 import es.jvbabi.vplanplus.domain.repository.GroupRepository
+import es.jvbabi.vplanplus.domain.repository.HolidayRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.LessonRepository
 import es.jvbabi.vplanplus.domain.repository.LessonTimeRepository
 import es.jvbabi.vplanplus.domain.repository.MessageRepository
+import es.jvbabi.vplanplus.domain.repository.NewTimetableLesson
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_ID_SYSTEM
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CHANNEL_SYSTEM_NOTIFICATION_ID
@@ -30,17 +35,26 @@ import es.jvbabi.vplanplus.domain.repository.RoomRepository
 import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.SystemRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
+import es.jvbabi.vplanplus.domain.repository.TimetableRepository
 import es.jvbabi.vplanplus.domain.repository.VPlanRepository
+import es.jvbabi.vplanplus.domain.repository.WeekRepository
 import es.jvbabi.vplanplus.domain.usecase.calendar.UpdateCalendarUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.usecase.UpdateAssessmentsUseCase
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_grades.common.domain.usecases.UpdateGradesUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
+import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfDay
+import es.jvbabi.vplanplus.util.DateUtils.withDayOfWeek
 import es.jvbabi.vplanplus.util.MathTools
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -68,14 +82,19 @@ class DoSyncUseCase(
     private val lessonSchoolEntityCrossoverDao: LessonSchoolEntityCrossoverDao,
     private val planRepository: PlanRepository,
     private val systemRepository: SystemRepository,
+    private val holidayRepository: HolidayRepository,
+    private val baseDataRepository: BaseDataRepository,
     private val notificationRepository: NotificationRepository,
+    private val timetableRepository: TimetableRepository,
+    private val weekRepository: WeekRepository,
     private val updateCalendarUseCase: UpdateCalendarUseCase,
     private val updateHomeworkUseCase: UpdateHomeworkUseCase,
-    private val updateGradesUseCase: UpdateGradesUseCase
+    private val updateGradesUseCase: UpdateGradesUseCase,
+    private val updateAssessmentsUseCase: UpdateAssessmentsUseCase,
 ) {
     suspend operator fun invoke(): Boolean {
 
-        if (profileRepository.getProfiles().first().isEmpty()) return true
+        if (profileRepository.getProfiles().firstOrNull().orEmpty().isEmpty()) return true
         val daysAhead = keyValueRepository.get(Keys.SETTINGS_SYNC_DAY_DIFFERENCE)?.toIntOrNull()
             ?: Keys.SETTINGS_SYNC_DAY_DIFFERENCE_DEFAULT
 
@@ -84,6 +103,7 @@ class DoSyncUseCase(
 
         logRecordRepository.log("Sync.Homework", "Syncing homework")
         updateHomeworkUseCase(currentVersion != -1L)
+        updateAssessmentsUseCase()
 
         logRecordRepository.log("Sync", "Syncing $daysAhead days ahead")
 
@@ -101,37 +121,215 @@ class DoSyncUseCase(
         val notifications = mutableListOf<NotificationData>()
 
         schoolRepository.getSchools().filter { it.credentialsValid != false }.forEach school@{ school ->
+            val times = mutableListOf<Pair<String, Long>>()
+            times.add("Start" to System.currentTimeMillis())
             logRecordRepository.log("Sync.School", "Syncing school ${school.name}")
             logRecordRepository.log("Sync.Messages", "Syncing messages for school ${school.name}")
             messageRepository.updateMessages(school.id)
+            times.add("Messages" to System.currentTimeMillis())
 
             logRecordRepository.log(
                 "Sync.RoomBookings",
                 "Syncing room bookings for school ${school.name}"
             )
             roomRepository.fetchRoomBookings(school)
+            times.add("RoomBookings" to System.currentTimeMillis())
+
+            val baseDataResponse = baseDataRepository.getBaseData(school.sp24SchoolId, school.username, school.password)
+            val baseData = (baseDataResponse as? BaseDataResponse.Success)?.baseData
+            times.add("BaseData Download" to System.currentTimeMillis())
+            if (baseData != null) {
+                val holidays = holidayRepository.getHolidaysBySchoolId(school.id).map { it.date }
+                val holidaysToRemove = holidays.filter { it in baseData.holidays }
+                if (holidaysToRemove.isNotEmpty()) holidayRepository.deleteHolidaysBySchoolId(school.id)
+
+                val newHolidays = baseData.holidays.filter { it !in holidays || holidaysToRemove.isNotEmpty() }
+                newHolidays.forEach { holidayRepository.insertHoliday(school.id, it) }
+            }
+
+            if (school.canUseTimetable != false) {
+
+                logRecordRepository.log(
+                    "Sync.Timetable",
+                    "Syncing timetable for school ${school.name}"
+                )
+                val timetable = vPlanRepository.getSPlanData(
+                    sp24SchoolId = school.sp24SchoolId,
+                    username = school.username,
+                    password = school.password
+                )
+                times.add("Timetable Download" to System.currentTimeMillis())
+
+                val teachers = teacherRepository.getTeachersBySchoolId(school.id)
+                val rooms = roomRepository.getRoomsBySchool(school)
+                val groups = groupRepository.getGroupsBySchool(school)
+
+                //timetableRepository.clearTimetableForSchool(school)
+                timetable.data?.sPlan?.schoolWeekTypes?.forEach forEachWeekType@{ type ->
+                    if (type.type.isEmpty()) return@forEachWeekType
+                    weekRepository.insertWeekType(school, type.type)
+                }
+                val weekTypes = weekRepository.getWeekTypesBySchool(school)
+                timetable.data?.sPlan?.weeks?.forEach { week ->
+                    val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+                    weekRepository.insertWeek(
+                        school = school,
+                        startDate = LocalDate.parse(week.dateFrom, formatter),
+                        endDate = LocalDate.parse(week.dateTo, formatter),
+                        weekType = weekTypes.first { it.name == week.type },
+                        weekNumber = week.weekNumber
+                    )
+                }
+                val newTimetableLessons = timetable.data?.sPlan?.classes.orEmpty().map { group ->
+                    groupRepository.getGroupBySchoolAndName(school.id, group.schoolClass)?.let { groupObj ->
+                        val lessonTimes = lessonTimesRepository.getLessonTimesByGroup(groupObj)
+                        if (lessonTimes.isNotEmpty()) return@let
+                        lessonTimesRepository.deleteLessonTimes(groupObj)
+                        group.lessonTimes.orEmpty().forEach forEachLessonTime@{ lessonTime ->
+                            if (lessonTime.lessonNumber == null || lessonTime.start == null || lessonTime.end == null || !(lessonTime.start?:"a").matches(Regex("\\d+:\\d+")) || !(lessonTime.end?:"a").matches(Regex("\\d+:\\d+"))) return@forEachLessonTime
+                            lessonTimesRepository.insertLessonTime(
+                                groupId = groupObj.groupId,
+                                lessonNumber = lessonTime.lessonNumber!!,
+                                from = lessonTime.start!!.substringBefore(":").toInt() * 60 * 60 + lessonTime.start!!.substringAfter(":").toInt() * 60L,
+                                to = lessonTime.end!!.substringBefore(":").toInt() * 60 * 60 + lessonTime.end!!.substringAfter(":").toInt() * 60L,
+                            )
+                        }
+                    }
+                    group.lessons.orEmpty().mapNotNull forEachLesson@{ lesson ->
+                        NewTimetableLesson(
+                            group = groups.firstOrNull { it.name == group.schoolClass } ?: return@forEachLesson null,
+                            subject = lesson.subjectShort,
+                            lessonNumber = lesson.lessonNumber,
+                            teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },
+                            rooms = rooms.filter { it.name == lesson.roomShort },
+                            dayOfWeek = DayOfWeek.of(lesson.dayOfWeek),
+                            weekType = lesson.weekType?.let { weekTypes.firstOrNull { wt -> wt.name == it } },
+                            week = null
+                        )
+                    }
+                }.flatten()
+                timetableRepository.insertTimetableLessons(newTimetableLessons)
+                times.add("Timetable Insert" to System.currentTimeMillis())
+            }
+
+            var weeks = weekRepository.getWeeksBySchool(school)
+            if (weeks.isEmpty()) run handleWeeks@{
+                val week1Response = vPlanRepository.getSPlanDataViaWPlan6(
+                    school.buildAccess(),
+                    weekNumber = 1
+                )
+                times.add("Weeks Download" to System.currentTimeMillis())
+                if (week1Response.data == null) return@handleWeeks
+                week1Response.data.schoolWeeks.orEmpty().map { it.weekType }.distinct().forEach {
+                    weekRepository.insertWeekType(school, it)
+                }
+
+                val weekTypes = weekRepository.getWeekTypesBySchool(school)
+                week1Response.data.schoolWeeks.orEmpty().forEach { week ->
+                    weekRepository.insertWeek(
+                        school = school,
+                        startDate = LocalDate.parse(week.dateFrom, DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                        endDate = LocalDate.parse(week.dateTo, DateTimeFormatter.ofPattern("dd.MM.yyyy")),
+                        weekType = weekTypes.first { it.name == week.weekType },
+                        weekNumber = week.weekNumber
+                    )
+                }
+                weeks = weekRepository.getWeeksBySchool(school)
+            }
+            weeks = weekRepository.getWeeksBySchool(school)
+            val weekTypes = weekRepository.getWeekTypesBySchool(school)
+
+            // refresh splan
+            val sPlanResponse = vPlanRepository.getSPlanDataViaWPlan6(
+                school.buildAccess(),
+                weekNumber = weeks.firstOrNull { LocalDate.now() in it.start..it.end.withDayOfWeek(6) }?.weekNumber ?: 1,
+                allowFallback = true
+            )
+            times.add("SPlan Download" to System.currentTimeMillis())
+            if (sPlanResponse.data != null) {
+                val teachers = teacherRepository.getTeachersBySchoolId(school.id)
+                val rooms = roomRepository.getRoomsBySchool(school)
+                val groups = groupRepository.getGroupsBySchool(school)
+                val timetable = timetableRepository.getWeekTimetableForSchool(school, null)
+                val newLessons = mutableListOf<NewTimetableLesson>()
+                val removeLessons = timetable.toMutableSet()
+                sPlanResponse.data.classes.orEmpty().forEach { group ->
+                    groups.firstOrNull { it.name == group.schoolClass }?.let { groupObj ->
+                        val lessonTimes = lessonTimesRepository.getLessonTimesByGroup(groupObj)
+                        if (lessonTimes.isNotEmpty()) return@let
+                        lessonTimesRepository.deleteLessonTimes(groupObj)
+                        group.lessonTimes.orEmpty().forEach forEachLessonTime@{ lessonTime ->
+                            if (lessonTime.lessonNumber == null || lessonTime.start == null || lessonTime.end == null || !(lessonTime.start?:"a").matches(Regex("\\d+:\\d+")) || !(lessonTime.end?:"a").matches(Regex("\\d+:\\d+"))) return@forEachLessonTime
+                            lessonTimesRepository.insertLessonTime(
+                                groupId = groupObj.groupId,
+                                lessonNumber = lessonTime.lessonNumber!!,
+                                from = lessonTime.start!!.substringBefore(":").toInt() * 60 * 60 + lessonTime.start!!.substringAfter(":").toInt() * 60L,
+                                to = lessonTime.end!!.substringBefore(":").toInt() * 60 * 60 + lessonTime.end!!.substringAfter(":").toInt() * 60L,
+                            )
+                        }
+                    }
+                    group.lessons?.forEach forEachLesson@{ lesson ->
+                        val lessonRooms = getRoomsFromRawData(lesson.roomShort, rooms)
+                        val existingLessons = timetable.filter { l ->
+                            l.lessonNumber == lesson.lessonNumber &&
+                                    l.group.name == group.schoolClass &&
+                                    l.dayOfWeek.value == lesson.dayOfWeek &&
+                                    l.weekType?.name == lesson.weekType &&
+                                    l.subject == lesson.subjectShort &&
+                                    l.teachers.map { it.acronym }.containsAll(lesson.teacherShort.split(",")) &&
+                                    l.rooms.map { it.name }.containsAll(lessonRooms)
+                        }.toSet()
+                        if (existingLessons.count() != 1) {
+                            newLessons.add(
+                                NewTimetableLesson(
+                                    group = groups.firstOrNull { it.name == group.schoolClass } ?: groupRepository.getGroupBySchoolAndName(school.id, group.schoolClass) ?: run {
+                                        Log.e("Sync.Timetable", "Group ${group.schoolClass} not found")
+                                        return@forEachLesson
+                                    },
+                                    weekType = weekTypes.firstOrNull { it.name == lesson.weekType },
+                                    lessonNumber = lesson.lessonNumber,
+                                    teachers = teachers.filter { it.acronym in lesson.teacherShort.split(",") },
+                                    subject = lesson.subjectShort,
+                                    rooms = rooms.filter { it.name in lessonRooms },
+                                    dayOfWeek = DayOfWeek.of(lesson.dayOfWeek),
+                                    week = null
+                                )
+                            )
+                        } else {
+                            removeLessons.removeAll(existingLessons)
+                        }
+                    }
+                }
+                Log.d("Sync.Timetable", "Inserting ${newLessons.size} new lessons")
+                Log.d("Sync.Timetable", "Removing ${removeLessons.size} old lessons")
+                timetableRepository.deleteFromTimetableById(removeLessons.map { it.id })
+                timetableRepository.insertTimetableLessons(newLessons)
+                times.add("SPlan Insert" to System.currentTimeMillis())
+            }
 
             repeat(daysAhead + SYNC_DAYS_PAST) {
                 val date = LocalDate.now().plusDays(it - SYNC_DAYS_PAST.toLong())
                 logRecordRepository.log("Sync.Day", "Syncing day $date")
 
-                val profiles = profileRepository.getProfilesBySchool(school.id).first()
+                val profiles = profileRepository.getProfilesBySchool(school.id).firstOrNull().orEmpty()
                 profiles.forEach { profile ->
                     profileDataBefore[profile] =
                         lessonRepository.getLessonsForProfile(profile, date, currentVersion)
-                            .first()
-                            ?.filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
-                            ?.toList() ?: emptyList()
+                            .firstOrNull()
+                            .orEmpty()
+                            .filter { l -> l is Lesson.TimetableLesson || l is Lesson.SubstitutionPlanLesson && (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
+                            .toList()
                 }
 
-                val data = vPlanRepository.getVPlanData(
+                val vPlanData = vPlanRepository.getVPlanData(
                     sp24SchoolId = school.sp24SchoolId,
                     username = school.username,
                     password = school.password,
                     date = date,
                     preferredDownloadMode = school.schoolDownloadMode
                 )
-                if (data.response == HttpStatusCode.Unauthorized) {
+                times.add("VPlan.$date Download" to System.currentTimeMillis())
+                if (vPlanData.response == HttpStatusCode.Unauthorized) {
                     Log.d("Sync.VPlan", "Unauthorized")
                     schoolRepository.updateCredentialsValid(school, false)
                     val notificationId = CHANNEL_SYSTEM_NOTIFICATION_ID + 100 + school.id
@@ -141,17 +339,17 @@ class DoSyncUseCase(
                         title = context.getString(R.string.notification_syncErrorCredentialsIncorrectTitle),
                         message = context.getString(R.string.notification_syncErrorCredentialsIncorrectText, school.username, school.sp24SchoolId, school.name),
                         icon = R.drawable.vpp,
-                        OpenScreenTask("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${school.id}")
+                        onClickTask = OpenScreenTask("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${school.id}")
                     )
                     return@school
                 }
 
-                if (!listOf(HttpStatusCode.OK, HttpStatusCode.NotFound).contains(data.response)) {
+                if (!listOf(HttpStatusCode.OK, HttpStatusCode.NotFound).contains(vPlanData.response)) {
                     logRecordRepository.log("Sync.VPlan", "Failed to sync VPlan for $date")
                     return false
                 }
 
-                if (data.response == HttpStatusCode.NotFound) {
+                if (vPlanData.response == HttpStatusCode.NotFound) {
                     logRecordRepository.log(
                         "SyncWorker",
                         "No data available for ${school.id} (${school.name} at $date)"
@@ -159,13 +357,14 @@ class DoSyncUseCase(
                     return@repeat
                 }
 
-                processVPlanData(data.data ?: return@school)
+                processVPlanData(vPlanData.data ?: return@school)
+                times.add("VPlan.$date Insert" to System.currentTimeMillis())
                 profiles.forEach profile@{ profile ->
                     // check if plan has changed
                     val day =
                         planRepository.getDayForProfile(profile, date, currentVersion + 1).first()
                     val importantLessons = day.lessons
-                        .filter { l -> (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
+                        .filter { l -> l is Lesson.TimetableLesson || l is Lesson.SubstitutionPlanLesson && (profile as? ClassProfile)?.isDefaultLessonEnabled(l.defaultLesson?.vpId) ?: true }
                     val changedLessons = importantLessons.filter { l ->
                         !profileDataBefore[profile]!!.map { prevData -> prevData.toHash() }
                             .contains(l.toHash())
@@ -179,6 +378,12 @@ class DoSyncUseCase(
 
                 }
             }
+
+            times.forEachIndexed { i, (name, time) ->
+                if (i == 0) return@forEachIndexed
+                logRecordRepository.log("Sync.Times", "$name took ${time - times[i - 1].second}ms")
+                Log.d("Sync.Times", "$name took ${time - times[i - 1].second}ms")
+            }
         }
 
         currentVersion += 1
@@ -186,8 +391,11 @@ class DoSyncUseCase(
             Keys.LESSON_VERSION_NUMBER,
             currentVersion.toString()
         )
-        keyValueRepository.set(Keys.LAST_SYNC_TS, ZonedDateTimeConverter().zonedDateTimeToTimestamp(
-            ZonedDateTime.now()).toString())
+        keyValueRepository.set(
+            Keys.LAST_SYNC_TS, ZonedDateTimeConverter().zonedDateTimeToTimestamp(
+                ZonedDateTime.now()
+            ).toString()
+        )
         lessonRepository.deleteLessonsByVersion(currentVersion - 1)
         planRepository.deletePlansByVersion(currentVersion - 1)
 
@@ -284,29 +492,7 @@ class DoSyncUseCase(
                 val rawRoomNames = if (DefaultValues.isEmpty(lesson.room.room)) null
                 else lesson.room.room
 
-                val lessonRooms = mutableListOf<String>()
-
-                // this algorithm tries to find existing rooms within the raw room string. It splits the string by spaces and tries to find a room with the joined string.
-                // An example would be "TH 1 TH 2" where it's not clear where to split.
-                // Time for another angry checkpoint: While teachers are separated by commas, rooms are separated by spaces. But sometimes, there are spaces in room names.
-                if (rawRoomNames != null) {
-                    if (rooms.map { r -> r.name }.contains(lesson.room.room)) {
-                        lessonRooms.add(lesson.room.room)
-                    } else {
-                        val split = lesson.room.room.split(" ")
-                        var join = 0
-                        var start = 0
-                        for (a in 0..split.size) {
-                            val joined = split.subList(start, join).joinToString(" ")
-                            if (rooms.map { r -> r.name }.contains(joined)) {
-                                lessonRooms.add(joined)
-                                start = join
-                            }
-                            join += 1
-                        }
-                        if (start == 0) lessonRooms.add(lesson.room.room)
-                    }
-                }
+                val lessonRooms = getRoomsFromRawData(rawRoomNames, rooms)
 
                 // add teachers and rooms to db if they don't exist
                 val addTeachers = rawTeacherAcronyms.filter { t ->
@@ -378,7 +564,7 @@ class DoSyncUseCase(
                         defaultLessonId = defaultLessonDbId,
                         changedSubject = changedSubject,
                         groupId = `class`.groupId,
-                        version = currentVersion+1,
+                        version = currentVersion + 1,
                         roomBookingId = bookings.firstOrNull { booking ->
                             booking.from
                                 .isEqual(planDate) && booking.from.toLocalTime().isBefore(
@@ -437,13 +623,44 @@ class DoSyncUseCase(
         )
     }
 
+    /**
+     * This algorithm tries to find existing rooms within the raw room string. It splits the string by spaces and tries to find a room with the joined string.
+     * An example would be "TH 1 TH 2" where it's not clear where to split.
+     * Time for another angry checkpoint: While teachers are separated by commas, rooms are separated by spaces. But sometimes, there are spaces in room names.
+     */
+    private fun getRoomsFromRawData(
+        rawRoomNames: String?,
+        rooms: List<Room>,
+    ): List<String> {
+        val result = mutableListOf<String>()
+        if (rawRoomNames != null) {
+            if (rooms.map { r -> r.name }.contains(rawRoomNames)) {
+                result.add(rawRoomNames)
+            } else {
+                val split = rawRoomNames.split(" ")
+                var join = 0
+                var start = 0
+                for (a in 0..split.size) {
+                    val joined = split.subList(start, join).joinToString(" ")
+                    if (rooms.map { r -> r.name }.contains(joined)) {
+                        result.add(joined)
+                        start = join
+                    }
+                    join += 1
+                }
+                if (start == 0) result.add(rawRoomNames)
+            }
+        }
+        return result
+    }
+
     private suspend fun canSendNotification() =
         (!systemRepository.isAppInForeground() || keyValueRepository.get(
             Keys.SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE
         ) == "true")
 
     private suspend fun sendNewPlanNotification(notificationData: NotificationData) {
-
+        if (!notificationData.profile.notificationsEnabled || !notificationData.profile.notificationSettings.newPlanNotificationSetting.isEnabled()) return
         Log.d(
             "SyncWorker.Notification",
             "Sending ${notificationData.notificationType} for ${notificationData.profile.displayName} at ${
@@ -479,20 +696,26 @@ class DoSyncUseCase(
         }
 
         notificationRepository.sendNotification(
-            "PROFILE_${notificationData.profile.id.toString().lowercase()}",
-            MathTools.cantor(
+            channelId = "PROFILE_${notificationData.profile.id.toString().lowercase()}",
+            id = MathTools.cantor(
                 notificationData.profile.id.hashCode(),
                 notificationData.date.toString().replace("-", "").toInt()
             ),
-            context.getString(
+            title = context.getString(
                 when (notificationData.notificationType) {
                     SyncNotificationType.NEW_PLAN -> R.string.notification_newPlanTitle
                     SyncNotificationType.CHANGED_LESSONS -> R.string.notification_planChangedTitle
                 }
             ),
-            message,
-            R.drawable.vpp,
-            OpenScreenTask(route = "plan/${notificationData.profile.id}/${notificationData.date}")
+            message = message,
+            icon = R.drawable.vpp,
+            onClickTask = OpenScreenTask(destination = Json.encodeToString(
+                NotificationDestination(
+                    screen = "calendar",
+                    profileId = notificationData.profile.id.toString(),
+                    payload = Json.encodeToString(Screen.CalendarScreen(notificationData.date))
+                )
+            ))
         )
     }
 

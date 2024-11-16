@@ -24,7 +24,6 @@ import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
@@ -97,15 +96,6 @@ fun SettingsScreen(navController: NavHostController) {
                 type = SettingsType.FUNCTION,
                 doAction = {
                     navController.navigate(Screen.SettingsProfileScreen.route)
-                }
-            )
-            SettingsSetting(
-                painter = painterResource(id = R.drawable.edit_document),
-                title = stringResource(id = R.string.settings_homeworkTitle),
-                subtitle = stringResource(id = R.string.settings_subjectsSubtitle),
-                type = SettingsType.FUNCTION,
-                doAction = {
-                    navController.navigate(Screen.SettingsHomeworkScreen.route)
                 }
             )
             SettingsSetting(

@@ -1,9 +1,11 @@
 package es.jvbabi.vplanplus.ui.preview
 
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.ClassProfileNotificationSetting
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.RoomProfile
+import es.jvbabi.vplanplus.domain.model.RoomProfileNotificationSetting
 import es.jvbabi.vplanplus.domain.model.State
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.ui.preview.GroupPreview.classNames
@@ -12,7 +14,12 @@ import java.util.UUID
 
 object ProfilePreview {
 
-    fun generateClassProfile(group: Group, vppId: VppId.ActiveVppId? = null): ClassProfile {
+    fun generateClassProfile(
+        group: Group,
+        vppId: VppId.ActiveVppId? = null,
+        isAssessmentsEnabled: Boolean = true,
+        isNotificationsEnabled: Boolean = true
+    ): ClassProfile {
         val name = classNames.random()
         return ClassProfile(
             id = UUID.randomUUID(),
@@ -23,7 +30,10 @@ object ProfilePreview {
             defaultLessons = mapOf(),
             vppId = vppId,
             isHomeworkEnabled = true,
-            group = group
+            isAssessmentsEnabled = isAssessmentsEnabled,
+            group = group,
+            notificationsEnabled = isNotificationsEnabled,
+            notificationSettings = ClassProfileNotificationSetting()
         )
     }
 
@@ -35,7 +45,9 @@ object ProfilePreview {
             displayName = name.first(),
             calendarType = ProfileCalendarType.NONE,
             calendarId = null,
-            room = room
+            room = room,
+            notificationsEnabled = true,
+            notificationSettings = RoomProfileNotificationSetting()
         )
     }
 

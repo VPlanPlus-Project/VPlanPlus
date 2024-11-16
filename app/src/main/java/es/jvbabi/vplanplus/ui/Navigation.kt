@@ -15,7 +15,9 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.google.gson.Gson
+import es.jvbabi.vplanplus.feature.exams.ui.details.ExamDetailsScreen
 import es.jvbabi.vplanplus.feature.logs.ui.LogsScreen
+import es.jvbabi.vplanplus.feature.main_calendar.home.ui.CalendarScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCalculatorScreen
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.calculator.GradeCollection
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.GradesScreen
@@ -38,7 +40,7 @@ import es.jvbabi.vplanplus.feature.room_search.ui.RoomSearch
 import es.jvbabi.vplanplus.feature.settings.about.ui.AboutScreen
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.AdvancedSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.general.ui.GeneralSettingsScreen
-import es.jvbabi.vplanplus.feature.settings.homework.ui.HomeworkSettingsScreen
+import es.jvbabi.vplanplus.feature.settings.profile.notifications.ui.ProfileNotificationSettingsScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementScreen
 import es.jvbabi.vplanplus.feature.settings.profile.ui.ProfileManagementTask
 import es.jvbabi.vplanplus.feature.settings.profile.ui.UpdateCredentialsTask
@@ -57,6 +59,8 @@ import es.jvbabi.vplanplus.ui.common.Transition.slideInFromBottom
 import es.jvbabi.vplanplus.ui.common.Transition.slideOutFromBottom
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.id_link.VppIdLinkScreen
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.io.encoding.Base64
@@ -67,6 +71,7 @@ fun NavigationGraph(
     navController: NavHostController,
     goToOnboarding: Boolean,
     navBar: @Composable (expanded: Boolean) -> Unit,
+    navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit,
     onNavigationChanged: (String?) -> Unit
 ) {
     NavHost(
@@ -79,14 +84,26 @@ fun NavigationGraph(
 
         deepLinks(navController)
         onboarding(navController)
-        mainScreens(navController, navBar)
+        mainScreens(navController, navBar, navRail)
         newsScreens(navController)
         settingsScreens(navController)
         gradesScreens(navController)
 
+        examScreens(navController)
+
         composable(route = Screen.SearchAvailableRoomScreen.route) {
             RoomSearch(navHostController = navController)
         }
+    }
+}
+
+private fun NavGraphBuilder.examScreens(navController: NavHostController) {
+    composable<Screen.ExamDetailsScreen> { backStackEntry ->
+        val args = backStackEntry.toRoute<Screen.ExamDetailsScreen>()
+        ExamDetailsScreen(
+            navHostController = navController,
+            examId = args.examId
+        )
     }
 }
 
@@ -224,29 +241,9 @@ private fun NavGraphBuilder.onboarding(
 
 private fun NavGraphBuilder.mainScreens(
     navController: NavHostController,
-    navBar: @Composable (expanded: Boolean) -> Unit
+    navBar: @Composable (expanded: Boolean) -> Unit,
+    navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit
 ) {
-    composable(
-        route = Screen.HomeScreen.route + "/{startDate}",
-        enterTransition = { fadeIn(tween(300)) },
-        exitTransition = { fadeOut(tween(300)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = { fadeOut(tween(300)) },
-        arguments = listOf(
-            navArgument("startDate") {
-                type = NavType.StringType
-                nullable = true
-                defaultValue = null
-            }
-        )
-    ) {
-        HomeScreen(
-            navHostController = navController,
-            navBar = navBar,
-            startDate = LocalDate.parse(it.arguments?.getString("startDate") ?: LocalDate.now().toString())
-        )
-    }
-
     composable(
         route = Screen.HomeScreen.route,
         enterTransition = { fadeIn(tween(300)) },
@@ -256,8 +253,7 @@ private fun NavGraphBuilder.mainScreens(
     ) {
         HomeScreen(
             navHostController = navController,
-            navBar = navBar,
-            startDate = LocalDate.now()
+            navBar = navBar
         )
     }
 
@@ -269,6 +265,21 @@ private fun NavGraphBuilder.mainScreens(
         popExitTransition = slideOutFromBottom
     ) {
         SearchView(navHostController = navController)
+    }
+
+    composable<Screen.CalendarScreen>(
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) }
+    ) { navStackEntry ->
+        val args = navStackEntry.toRoute<Screen.CalendarScreen>()
+        CalendarScreen(
+            navHostController = navController,
+            startDate = LocalDate.parse(args.dateString),
+            navBar = navBar,
+            navRail = navRail
+        )
     }
 
     composable(
@@ -284,15 +295,9 @@ private fun NavGraphBuilder.mainScreens(
         )
     }
 
-    composable(
-        route = Screen.HomeworkDetailScreen.route + "/{homeworkId}",
-        arguments = listOf(
-            navArgument(name = "homeworkId") {
-                type = NavType.IntType
-            }
-        )
-    ) {
-        HomeworkDetailScreen(navHostController = navController, homeworkId = it.arguments!!.getInt("homeworkId"))
+    composable<Screen.HomeworkDetailScreen> { backStackEntry ->
+        val args = backStackEntry.toRoute<Screen.HomeworkDetailScreen>()
+        HomeworkDetailScreen(navHostController = navController, homeworkId = args.homeworkId)
     }
 
     composable(
@@ -399,6 +404,14 @@ private fun NavGraphBuilder.settingsScreens(
         )
     }
 
+    composable<Screen.SettingsProfileNotificationsScreen> { backStackEntry ->
+        val args = backStackEntry.toRoute<Screen.SettingsProfileNotificationsScreen>()
+        ProfileNotificationSettingsScreen(
+            navHostController = navController,
+            profileId = UUID.fromString(args.profileId)
+        )
+    }
+
     composable(
         route = Screen.SettingsProfileScreen.route + "?task={task}&schoolId={schoolId}",
         arguments = listOf(
@@ -472,16 +485,6 @@ private fun NavGraphBuilder.settingsScreens(
     }
 
     composable(
-        route = Screen.SettingsHomeworkScreen.route,
-        enterTransition = enterSlideTransitionLeft,
-        exitTransition = { fadeOut(tween(300)) },
-        popEnterTransition = { fadeIn(tween(300)) },
-        popExitTransition = exitSlideTransitionRight
-    ) {
-        HomeworkSettingsScreen(navController)
-    }
-
-    composable(
         route = Screen.SettingsHelpFeedbackScreen.route,
         enterTransition = enterSlideTransitionLeft,
         exitTransition = { fadeOut(tween(300)) },
@@ -524,3 +527,10 @@ private fun NavGraphBuilder.gradesScreens(navController: NavHostController) {
         GradeCalculatorScreen(navHostController = navController, grades = grades.toList(), isSek2 = it.arguments?.getBoolean("isSek2")?: false)
     }
 }
+
+@Serializable
+data class NotificationDestination(
+    @SerialName("profile_id") val profileId: String? = null,
+    @SerialName("screen") val screen: String,
+    @SerialName("payload") val payload: String? = null
+)

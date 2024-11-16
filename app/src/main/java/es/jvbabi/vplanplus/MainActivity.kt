@@ -19,25 +19,31 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.MenuBook
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.zIndex
 import androidx.core.animation.doOnEnd
-import androidx.core.content.IntentSanitizer
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -48,6 +54,8 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.google.gson.Gson
 import dagger.hilt.android.AndroidEntryPoint
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
@@ -60,8 +68,10 @@ import es.jvbabi.vplanplus.domain.usecase.home.Colors
 import es.jvbabi.vplanplus.domain.usecase.home.MainUseCases
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.OPEN_TASK_NOTIFICATION_TAG
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.OpenTaskNotificationOnClickTaskPayload
+import es.jvbabi.vplanplus.ui.common.CrashAnalyticsDialog
 import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.NavigationGraph
+import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.overlay.vpp_web_auth.VppIdAuthWrapper
 import es.jvbabi.vplanplus.ui.theme.VPlanPlusTheme
@@ -71,7 +81,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
+import kotlinx.serialization.json.Json
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -188,9 +198,13 @@ class MainActivity : FragmentActivity() {
         lifecycleScope.launch {
             while (!initDone) delay(50)
             setContent {
-                isAppInDarkMode.value =
-                    appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
+                val scope = rememberCoroutineScope()
+
+                isAppInDarkMode.value = appTheme.value == AppThemeMode.DARK || (appTheme.value == AppThemeMode.SYSTEM && isSystemInDarkTheme())
                 VPlanPlusTheme(cs = colorScheme.value, darkTheme = isAppInDarkMode.value) {
+                    LaunchedEffect(key1 = Unit) {
+                        enableEdgeToEdge()
+                    }
                     navController = rememberNavController()
 
                     var selectedIndex by rememberSaveable {
@@ -210,17 +224,25 @@ class MainActivity : FragmentActivity() {
                                 )
                             },
                             label = { Text(text = stringResource(id = R.string.main_home)) },
-                            route = Screen.HomeScreen.route
+                            screen = Screen.HomeScreen
                         ),
-                        if (currentProfile is ClassProfile) NavigationBarItem(
+                        NavigationBarItem(
                             onClick = {
                                 if (selectedIndex == 1) return@NavigationBarItem
                                 selectedIndex = 1
-                                navController!!.navigate(Screen.HomeworkScreen.route) {
-                                    popUpTo(
-                                        Screen.HomeScreen.route
-                                    )
-                                }
+                                navController!!.navigate(Screen.CalendarScreen()) { popUpTo(Screen.HomeScreen.route) }
+                            },
+                            icon = {
+                                Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null)
+                            },
+                            label = { Text(text = stringResource(id = R.string.main_calendar)) },
+                            screen = Screen.CalendarScreen()
+                        ),
+                        if (currentProfile is ClassProfile) NavigationBarItem(
+                            onClick = {
+                                if (selectedIndex == 2) return@NavigationBarItem
+                                selectedIndex = 2
+                                navController!!.navigate(Screen.HomeworkScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
                                 Icon(
@@ -229,12 +251,12 @@ class MainActivity : FragmentActivity() {
                                 )
                             },
                             label = { Text(text = stringResource(id = R.string.main_homework)) },
-                            route = Screen.HomeworkScreen.route
+                            screen = Screen.HomeworkScreen
                         ) else null,
                         if (currentProfile is ClassProfile) NavigationBarItem(
                             onClick = {
-                                if (selectedIndex == 2) return@NavigationBarItem
-                                selectedIndex = 2
+                                if (selectedIndex == 3) return@NavigationBarItem
+                                selectedIndex = 3
                                 navController!!.navigate(Screen.GradesScreen.route) { popUpTo(Screen.HomeScreen.route) }
                             },
                             icon = {
@@ -244,7 +266,7 @@ class MainActivity : FragmentActivity() {
                                 )
                             },
                             label = { Text(text = stringResource(id = R.string.main_grades)) },
-                            route = Screen.GradesScreen.route
+                            screen = Screen.GradesScreen
                         ) else null
                     )
 
@@ -254,18 +276,17 @@ class MainActivity : FragmentActivity() {
                             enter = expandVertically(tween(250)),
                             exit = shrinkVertically(tween(250))
                         ) {
-                            NavigationBar(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer
-                            ) {
-                                navBarItems.forEachIndexed { index, item ->
-                                    NavigationBarItem(
-                                        selected = index == selectedIndex,
-                                        onClick = item.onClick,
-                                        icon = item.icon,
-                                        label = item.label
-                                    )
-                                }
-                            }
+                            navBarItems.BottomBar(selectedIndex)
+                        }
+                    }
+
+                    val navRail = @Composable { expanded: Boolean, fab: @Composable () -> Unit ->
+                        AnimatedVisibility(
+                            visible = expanded,
+                            enter = expandVertically(tween(250)),
+                            exit = shrinkVertically(tween(250))
+                        ) {
+                            navBarItems.RailBar(selectedIndex, fab)
                         }
                     }
 
@@ -280,9 +301,10 @@ class MainActivity : FragmentActivity() {
                                 navController = navController!!,
                                 goToOnboarding = goToOnboarding!!,
                                 navBar = navBar,
+                                navRail = navRail,
                                 onNavigationChanged = { route ->
                                     val item =
-                                        navBarItems.firstOrNull { route?.startsWith(it.route) == true }
+                                        navBarItems.firstOrNull { route?.startsWith(it.screen.route) == true || route?.startsWith(it.screen::class.qualifiedName?:"-") == true }
                                     if (item != null && navBarItems.indexOf(item) != selectedIndex) {
                                         selectedIndex = navBarItems.indexOf(item)
                                         Log.d("Navigation", "Selected index: $selectedIndex")
@@ -294,6 +316,20 @@ class MainActivity : FragmentActivity() {
                             Box(modifier = Modifier.zIndex(500f)) {
                                 VppIdAuthWrapper(task = authTask, onFinished = { authTask = null })
                             }
+                        }
+
+                        val hasSetCrashlyticsSettings by mainUseCases.hasSetCrashlyticsSettingsUseCase().collectAsState(initial = true)
+                        if (!hasSetCrashlyticsSettings) {
+                            CrashAnalyticsDialog(
+                                onAccept = {
+                                    Firebase.crashlytics.setCrashlyticsCollectionEnabled(true)
+                                    scope.launch { mainUseCases.setCrashlyticsSettingsUseCase() }
+                                },
+                                onDeny = {
+                                    Firebase.crashlytics.setCrashlyticsCollectionEnabled(false)
+                                    scope.launch { mainUseCases.setCrashlyticsSettingsUseCase() }
+                                }
+                            )
                         }
                     }
                 }
@@ -328,19 +364,39 @@ class MainActivity : FragmentActivity() {
             showSplashScreen = false
             lifecycleScope.launch {
                 while (currentProfile == null || navController == null) delay(50)
-                val screen = intent.getStringExtra("screen") ?: Screen.HomeScreen.route
-                if (screen.startsWith("plan/")) {
-                    val args = screen.split("/")
-                    val profileId = UUID.fromString(args[1])
-                    val date = LocalDate.parse(args[2])
-                    mainUseCases.setCurrentProfileUseCase(profileId)
-                    navController!!.navigate(Screen.HomeScreen.route + "/$date")
-                } else when (screen) {
+                val destination = intent.getStringExtra("screen") ?: Screen.HomeScreen.route
+                if (destination.startsWith("{")) {
+                    val destinationData = Json.decodeFromString<NotificationDestination>(destination)
+                    if (destinationData.profileId != null) {
+                        mainUseCases.setCurrentProfileUseCase(UUID.fromString(destinationData.profileId))
+                    }
+                    when (destinationData.screen) {
+                        "calendar" -> {
+                            if (destinationData.payload == null) navController!!.navigate(Screen.CalendarScreen)
+                            else navController!!.navigate(Json.decodeFromString<Screen.CalendarScreen>(destinationData.payload))
+                        }
+                        "grades" -> {
+                            navController!!.navigate(Screen.GradesScreen.route)
+                        }
+                        "homework/item" -> {
+                            if (destinationData.payload == null) return@launch
+                            navController!!.navigate(Json.decodeFromString<Screen.HomeworkDetailScreen>(destinationData.payload))
+                        }
+                        "settings/profile/notification" -> {
+                            navController!!.navigate(Screen.SettingsProfileNotificationsScreen(destinationData.profileId!!))
+                        }
+                        "exam/item" -> {
+                            if (destinationData.payload == null) return@launch
+                            navController!!.navigate(Json.decodeFromString<Screen.ExamDetailsScreen>(destinationData.payload))
+                        }
+                        "home" -> Unit
+                    }
+                } else when (destination) {
                     "grades" -> navController!!.navigate(Screen.GradesScreen.route)
                     "homework" -> navController!!.navigate(Screen.HomeworkScreen.route)
                     else -> {
-                        Log.d("MainActivity.Intent", "Navigating to $screen")
-                        navController!!.navigate(screen)
+                        Log.d("MainActivity.Intent", "Navigating to $destination")
+                        navController!!.navigate(destination)
                     }
                 }
             }
@@ -367,35 +423,47 @@ class MainActivity : FragmentActivity() {
         }
     }
 
-
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        this.finish()
-        val sanitized = IntentSanitizer.Builder()
-            .allowExtra("profileId", String::class.java)
-            .allowExtra("dateStr", String::class.java)
-            .allowExtra("screen", String::class.java)
-            .allowData { true }
-            .allowFlags(0x10000000)
-            .allowAnyComponent()
-            .allowPackage { true }
-            .allowAction(Intent.ACTION_VIEW)
-            .allowCategory(Intent.CATEGORY_BROWSABLE)
-            .build()
-            .sanitizeByFiltering(intent)
-        startActivity(sanitized)
-        processIntent(intent)
-    }
-
     private fun doInit(calledBySplashScreen: Boolean) {
         if (!calledBySplashScreen) setTheme(R.style.Theme_VPlanPlus)
         enableEdgeToEdge()
     }
 }
 
+@Composable
+fun List<NavigationBarItem>.BottomBar(selectedIndex: Int) {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer
+    ) {
+        forEachIndexed { index, item ->
+            NavigationBarItem(
+                selected = index == selectedIndex,
+                onClick = item.onClick,
+                icon = item.icon,
+                label = item.label
+            )
+        }
+    }
+}
+
+@Composable
+fun List<NavigationBarItem>.RailBar(selectedIndex: Int, fab: @Composable () -> Unit) {
+    NavigationRail(
+        header = { fab() }
+    ) {
+        forEachIndexed { index, item ->
+            NavigationRailItem(
+                selected = index == selectedIndex,
+                onClick = item.onClick,
+                icon = item.icon,
+                label = item.label
+            )
+        }
+    }
+}
+
 data class NavigationBarItem(
     val onClick: () -> Unit,
-    val route: String,
+    val screen: Screen,
     val icon: @Composable () -> Unit,
     val label: @Composable () -> Unit
 )

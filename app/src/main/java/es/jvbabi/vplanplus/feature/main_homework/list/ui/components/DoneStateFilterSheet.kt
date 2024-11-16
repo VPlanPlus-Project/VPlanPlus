@@ -25,6 +25,7 @@ import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.ui.common.CustomModal
 import es.jvbabi.vplanplus.ui.common.ModalOption
 import es.jvbabi.vplanplus.ui.common.Option
+import es.jvbabi.vplanplus.ui.common.OptionTextTitle
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,7 +51,7 @@ fun DoneStateFilterSheet(
                 .border(1.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(8.dp))
         ) {
             Option(
-                title = stringResource(id = R.string.homework_filterSheetAll),
+                title = OptionTextTitle(stringResource(id = R.string.homework_filterSheetAll)),
                 icon = Icons.AutoMirrored.Default.List,
                 enabled = true,
                 state = state == null,
@@ -83,7 +84,7 @@ fun DoneStateFilterSheet(
                 )
             ).forEach { entry ->
                 Option(
-                    title = entry.title,
+                    title = OptionTextTitle(entry.title),
                     icon = entry.icon,
                     state = entry.isSelected,
                     enabled = entry.isEnabled,

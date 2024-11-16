@@ -5,13 +5,16 @@ import es.jvbabi.vplanplus.data.source.database.dao.ProfileDao
 import es.jvbabi.vplanplus.data.source.database.dao.ProfileDefaultLessonsCrossoverDao
 import es.jvbabi.vplanplus.domain.model.Calendar
 import es.jvbabi.vplanplus.domain.model.ClassProfile
+import es.jvbabi.vplanplus.domain.model.ClassProfileNotificationSetting
 import es.jvbabi.vplanplus.domain.model.Group
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.ProfileCalendarType
 import es.jvbabi.vplanplus.domain.model.Room
 import es.jvbabi.vplanplus.domain.model.RoomProfile
+import es.jvbabi.vplanplus.domain.model.RoomProfileNotificationSetting
 import es.jvbabi.vplanplus.domain.model.Teacher
 import es.jvbabi.vplanplus.domain.model.TeacherProfile
+import es.jvbabi.vplanplus.domain.model.TeacherProfileNotificationSetting
 import es.jvbabi.vplanplus.domain.model.VppId
 import es.jvbabi.vplanplus.domain.repository.ProfileRepository
 import kotlinx.coroutines.flow.Flow
@@ -64,7 +67,8 @@ class ProfileRepositoryImpl(
         }
     }
 
-    override fun getProfileById(profileId: UUID) = flow {
+    override fun getProfileById(profileId: UUID) =
+        flow {
         combine(
             profileDao.getClassProfiles(),
             profileDao.getTeacherProfiles(),
@@ -87,6 +91,8 @@ class ProfileRepositoryImpl(
         calendar: Calendar?,
         calendarType: ProfileCalendarType,
         isHomeworkEnabled: Boolean,
+        isAssessmentsEnabled: Boolean,
+        isNotificationsEnabled: Boolean,
         vppId: VppId?
     ): UUID {
         val calendarId = calendar?.id
@@ -100,6 +106,8 @@ class ProfileRepositoryImpl(
             calendarId = calendarId,
             classId = classId,
             isHomeworkEnabled = isHomeworkEnabled,
+            isAssessmentsEnabled = isAssessmentsEnabled,
+            isNotificationsEnabled = isNotificationsEnabled,
             vppId = vppIdInt
         )
         return profileId
@@ -163,6 +171,10 @@ class ProfileRepositoryImpl(
         profileDao.setHomeworkEnabledForClassProfile(profile.id, enabled)
     }
 
+    override suspend fun setAssessmentEnabled(profile: ClassProfile, enabled: Boolean) {
+        profileDao.setAssessmentEnabledForClassProfile(profile.id, enabled)
+    }
+
     override suspend fun setVppIdForProfile(classProfile: ClassProfile, vppId: VppId.ActiveVppId?) {
         profileDao.setVppIdForClassProfile(classProfile.id, vppId?.id)
     }
@@ -190,5 +202,68 @@ class ProfileRepositoryImpl(
             is TeacherProfile -> profileDao.setCustomNameForTeacherProfile(profile.id, newName)
             is RoomProfile -> profileDao.setCustomNameForRoomProfile(profile.id, newName)
         }
+    }
+
+    override suspend fun updateClassProfile(
+        profile: ClassProfile,
+        displayName: String,
+        calendarMode: ProfileCalendarType,
+        calendarId: Long?,
+        isHomeworkEnabled: Boolean,
+        isAssessmentsEnabled: Boolean,
+        vppId: VppId.ActiveVppId?,
+        isNotificationEnabled: Boolean,
+        notificationSettings: ClassProfileNotificationSetting
+    ) {
+        profileDao.updateClassProfile(
+            profileId = profile.id,
+            customName = displayName,
+            calendarMode = calendarMode,
+            calendarId = calendarId,
+            classId = profile.group.groupId,
+            isHomeworkEnabled = isHomeworkEnabled,
+            isAssessmentsEnabled = isAssessmentsEnabled,
+            vppId = vppId?.id,
+            isNotificationsEnabled = isNotificationEnabled,
+            notificationSettings = notificationSettings.toJson()
+        )
+    }
+
+    override suspend fun updateRoomProfile(
+        profile: RoomProfile,
+        displayName: String,
+        calendarMode: ProfileCalendarType,
+        calendarId: Long?,
+        isNotificationEnabled: Boolean,
+        notificationSettings: RoomProfileNotificationSetting
+    ) {
+        profileDao.updateRoomProfile(
+            profileId = profile.id,
+            customName = displayName,
+            calendarMode = calendarMode,
+            calendarId = calendarId,
+            roomId = profile.room.roomId,
+            isNotificationsEnabled = isNotificationEnabled,
+            notificationSettings = notificationSettings.toJson()
+        )
+    }
+
+    override suspend fun updateTeacherProfile(
+        profile: TeacherProfile,
+        displayName: String,
+        calendarMode: ProfileCalendarType,
+        calendarId: Long?,
+        isNotificationEnabled: Boolean,
+        notificationSettings: TeacherProfileNotificationSetting
+    ) {
+        profileDao.updateTeacherProfile(
+            profileId = profile.id,
+            customName = displayName,
+            calendarMode = calendarMode,
+            calendarId = calendarId,
+            teacherId = profile.teacher.teacherId,
+            isNotificationsEnabled = isNotificationEnabled,
+            notificationSettings = notificationSettings.toJson()
+        )
     }
 }

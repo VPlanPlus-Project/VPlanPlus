@@ -1,6 +1,8 @@
 package es.jvbabi.vplanplus.domain.repository
 
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import kotlinx.coroutines.flow.Flow
+import java.time.DayOfWeek
 
 interface KeyValueRepository {
 
@@ -10,11 +12,10 @@ interface KeyValueRepository {
     suspend fun delete(key: String)
     fun getFlow(key: String): Flow<String?>
     fun getFlowOrDefault(key: String, defaultValue: String): Flow<String>
-
-    fun getOnMainThread(key: String): String?
 }
 
 object Keys {
+    const val APP_DEVELOPER_MODE = "APP_DEVELOPER_MODE"
     const val ACTIVE_PROFILE = "ACTIVE_PROFILE"
 
     const val SETTINGS_NOTIFICATION_SHOW_NOTIFICATION_IF_APP_IS_VISIBLE =
@@ -46,18 +47,12 @@ object Keys {
 
     const val VPPID_SERVER = "VPPID_SERVER"
 
-    const val SHOW_NOTIFICATION_ON_NEW_HOMEWORK = "SHOW_NOTIFICATION_ON_NEW_HOMEWORK"
-    const val SHOW_NOTIFICATION_ON_NEW_HOMEWORK_DEFAULT = "true"
+    @Deprecated("") const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK = "SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK"
+    @Deprecated("") const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_DEFAULT = "false"
+    @Deprecated("") const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS = "SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS"
+    @Deprecated("") const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS_DEFAULT = (30*60).toString()
 
-    const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK = "SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK"
-    const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_DEFAULT = "false"
-    const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS = "SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS"
-    const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS_DEFAULT = (30*60).toString()
-
-    const val SETTINGS_PREFERRED_NOTIFICATION_TIME = "SETTINGS_PREFERRED_NOTIFICATION_TIME"
-    const val SETTINGS_PREFERRED_NOTIFICATION_TIME_DEFAULT = (60*60*15) + (60*30L) // 15:30
-
-    const val SHOW_HOMEWORK_NOTIFICATION_BANNER = "SHOW_HOMEWORK_NOTIFICATION_BANNER"
+    const val SETTINGS_DAILY_LATER_DEFAULT_SECONDS = 15*60
 
     const val LAST_VERSION_HINTS_VERSION = "LAST_VERSION_HINTS_VERSION"
 
@@ -67,8 +62,16 @@ object Keys {
 
     const val INVALID_VPP_SESSION = "INVALID_VPP_SESSION"
 
+    const val HAS_SET_CRASHLYTICS_SETTINGS = "HAS_SET_CRASHLYTICS_SETTINGS"
+
     const val SHOW_ROOM_BOOKING_DISCLAIMER_BANNER = "SHOW_ROOM_BOOKING_DISCLAIMER_BANNER"
     const val MISSING_VPP_ID_TO_PROFILE_CONNECTION = "MISSING_VPP_ID_TO_PROFILE_CONNECTION"
 
     const val LAST_KNOWN_APP_VERSION = "LAST_KNOWN_APP_VERSION"
+
+    const val SHOW_TIMETABLE_INFO_BANNER = "SHOW_TIMETABLE_INFO_BANNER"
+
+    private const val DAILY_REMINDER_TIME = "DAILY_REMINDER_TIME"
+
+    fun dailyReminderTime(profile: ClassProfile, dayOfWeek: DayOfWeek) = DAILY_REMINDER_TIME + "_" + profile.id + "_" + dayOfWeek.name
 }

@@ -19,7 +19,6 @@ import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.data.repository.HomeworkRepositoryImpl
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.ChangeTaskDoneStateUseCase
-import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.HomeworkReminderUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.usecase.UpdateHomeworkUseCase
 import javax.inject.Singleton
 
@@ -41,14 +40,12 @@ object HomeworkModule {
         profileRepository: ProfileRepository,
         homeworkRepository: HomeworkRepository,
         fileRepository: FileRepository,
-        vppIdRepository: VppIdRepository,
         notificationRepository: NotificationRepository,
         stringRepository: StringRepository
     ) = UpdateHomeworkUseCase(
         profileRepository = profileRepository,
         homeworkRepository = homeworkRepository,
         fileRepository = fileRepository,
-        vppIdRepository = vppIdRepository,
         notificationRepository = notificationRepository,
         stringRepository = stringRepository
     )
@@ -65,28 +62,12 @@ object HomeworkModule {
     ): HomeworkRepository {
         return HomeworkRepositoryImpl(
             homeworkDao = db.homeworkDao,
-            homeworkNotificationTimeDao = db.homeworkNotificationTimeDao,
             homeworkDocumentDao = db.homeworkDocumentDao,
+            keyValueDao = db.keyValueDao,
             vppIdRepository = vppIdRepository,
             vppIdNetworkRepository = VppModule.provideVppIdNetworkRepository(keyValueRepository, logRecordRepository),
             defaultLessonRepository = defaultLessonRepository,
             context = context
         )
     }
-
-    @Provides
-    @Singleton
-    fun provideHomeworkReminderUseCase(
-        homeworkRepository: HomeworkRepository,
-        profileRepository: ProfileRepository,
-        notificationRepository: NotificationRepository,
-        stringRepository: StringRepository,
-        keyValueRepository: KeyValueRepository,
-    ) = HomeworkReminderUseCase(
-        homeworkRepository = homeworkRepository,
-        profileRepository = profileRepository,
-        notificationRepository = notificationRepository,
-        stringRepository = stringRepository,
-        keyValueRepository = keyValueRepository,
-    )
 }
