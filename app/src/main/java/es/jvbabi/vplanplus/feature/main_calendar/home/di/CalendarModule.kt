@@ -6,6 +6,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.IsBalloonUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CalendarViewUseCases
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CanShowTimetableInfoBannerUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.DismissTimetableInfoBannerUseCase
@@ -34,6 +36,8 @@ object CalendarModule {
 
         canShowTimetableInfoBannerUseCase = CanShowTimetableInfoBannerUseCase(keyValueRepository),
         dismissTimetableInfoBannerUseCase = DismissTimetableInfoBannerUseCase(keyValueRepository),
-        getCurrentDataVersionUseCase = GetCurrentDataVersionUseCase(keyValueRepository)
+        getCurrentDataVersionUseCase = GetCurrentDataVersionUseCase(keyValueRepository),
+        isBalloonUseCase = IsBalloonUseCase(keyValueRepository),
+        setBalloonUseCase = SetBalloonUseCase(keyValueRepository)
     )
 }

@@ -6,7 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
+import es.jvbabi.vplanplus.domain.usecase.general.CALENDAR_ASSESSMENT_FAB_BALLOON
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.CalendarViewUseCases
 import kotlinx.coroutines.Job
@@ -33,20 +35,23 @@ class CalendarViewModel @Inject constructor(
                     calendarViewUseCases.getCurrentProfileUseCase(),
                     calendarViewUseCases.getLastSyncUseCase(),
                     calendarViewUseCases.canShowTimetableInfoBannerUseCase(),
-                    calendarViewUseCases.getCurrentDataVersionUseCase()
+                    calendarViewUseCases.getCurrentDataVersionUseCase(),
+                    calendarViewUseCases.isBalloonUseCase(CALENDAR_ASSESSMENT_FAB_BALLOON, false)
                 )
             ) { data ->
                 val profile = data[0] as? Profile
                 val lastSyncTimestamp = data[1] as? ZonedDateTime
-                val canShowTimetableInfoBanner = data[2] as? Boolean ?: true
+                val canShowTimetableInfoBanner = data[2] as Boolean
                 val version = data[3] as? Int ?: 0
+                val showAssessmentFabBalloon = data[4] as Boolean
 
                 if (profile == null) return@combine state
                 state.copy(
                     currentProfile = profile,
                     lastSync = lastSyncTimestamp,
                     canShowTimetableInfoBanner = canShowTimetableInfoBanner,
-                    version = if (state.version == -1) -1 else version
+                    version = if (state.version == -1) -1 else version,
+                    showAssessmentFabBalloon = showAssessmentFabBalloon && (profile as? ClassProfile)?.isAssessmentsEnabled == true
                 )
             }.collect {
                 state = it
@@ -79,6 +84,9 @@ class CalendarViewModel @Inject constructor(
 
                 is CalendarViewAction.DismissTimetableInfoBanner -> {
                     calendarViewUseCases.dismissTimetableInfoBannerUseCase()
+                }
+                is CalendarViewAction.DismissAssessmentFabBalloon -> {
+                    calendarViewUseCases.setBalloonUseCase(CALENDAR_ASSESSMENT_FAB_BALLOON, false)
                 }
             }
         }
@@ -118,7 +126,9 @@ data class CalendarViewState(
     val lastSync: ZonedDateTime? = null,
     val enabledFilters: List<DayViewFilter> = emptyList(),
     val canShowTimetableInfoBanner: Boolean = true,
-    val version: Int = -1
+    val version: Int = -1,
+
+    val showAssessmentFabBalloon: Boolean = false
 )
 
 sealed class CalendarViewAction {
@@ -126,6 +136,7 @@ sealed class CalendarViewAction {
     data class ToggleFilter(val filter: DayViewFilter) : CalendarViewAction()
 
     data object DismissTimetableInfoBanner : CalendarViewAction()
+    data object DismissAssessmentFabBalloon : CalendarViewAction()
 }
 
 enum class DayViewFilter {

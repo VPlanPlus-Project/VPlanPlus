@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase.OnboardingSetupUseCases
 import kotlinx.coroutines.launch
@@ -33,6 +34,8 @@ class OnboardingSetupViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 is OnboardingSetupEvent.ToggleNotifications -> onboardingSetupUseCases.toggleNotificationForProfileUseCase(state.profile!!, event.enabled)
+                is OnboardingSetupEvent.ToggleHomework -> onboardingSetupUseCases.updateHomeworkEnabledUseCase((state.profile as? ClassProfile) ?: return@launch, event.enabled)
+                is OnboardingSetupEvent.ToggleAssessments -> onboardingSetupUseCases.updateAssessmentsEnabledUseCase((state.profile as? ClassProfile) ?: return@launch, event.enabled)
             }
         }
     }
@@ -47,4 +50,6 @@ data class OnboardingSetupState(
 
 sealed class OnboardingSetupEvent {
     data class ToggleNotifications(val enabled: Boolean) : OnboardingSetupEvent()
+    data class ToggleHomework(val enabled: Boolean) : OnboardingSetupEvent()
+    data class ToggleAssessments(val enabled: Boolean) : OnboardingSetupEvent()
 }

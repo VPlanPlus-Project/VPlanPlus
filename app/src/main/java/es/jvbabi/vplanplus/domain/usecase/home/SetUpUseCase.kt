@@ -7,6 +7,8 @@ import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.domain.repository.Keys
 import es.jvbabi.vplanplus.domain.repository.VppIdRepository
 import es.jvbabi.vplanplus.domain.usecase.daily.UpdateDailyNotificationAlarmsUseCase
+import es.jvbabi.vplanplus.domain.usecase.general.CALENDAR_ASSESSMENT_FAB_BALLOON
+import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.domain.usecase.update.EnableAssessmentsOnlyForCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
@@ -22,7 +24,8 @@ class SetUpUseCase(
     private val testForMissingVppIdToProfileConnectionsUseCase: TestForMissingVppIdToProfileConnectionsUseCase,
     private val updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
     private val updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase,
-    private val enableAssessmentsOnlyForCurrentProfileUseCase: EnableAssessmentsOnlyForCurrentProfileUseCase
+    private val enableAssessmentsOnlyForCurrentProfileUseCase: EnableAssessmentsOnlyForCurrentProfileUseCase,
+    private val setBalloonUseCase: SetBalloonUseCase
 ) {
 
     suspend operator fun invoke() {
@@ -47,6 +50,7 @@ class SetUpUseCase(
         keyValueRepository.set(Keys.LAST_KNOWN_APP_VERSION, currentVersion.toString())
 
         if (previousVersion <= 328) enableAssessmentsOnlyForCurrentProfileUseCase()
+        if (previousVersion <= 316) setBalloonUseCase(CALENDAR_ASSESSMENT_FAB_BALLOON, true)
     }
 
     private suspend fun testForInvalidSessions() {

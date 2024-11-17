@@ -923,4 +923,8 @@
     <string name="settingsNotifications_newAssessmentSettingsSubtitle">Wenn eine neue Leistungserhebung in deiner Klasse freigegeben wird</string>
     <string name="onboarding_setupNotificationsTitle">Benachrichtigungen aktivieren</string>
     <string name="onboarding_setupNotificationsSubtitle">Du kannst die Benachrichtigungen in den Profileinstellungen anpassen.</string>
+    <string name="onboarding_setupEnableHomework">Hausaufgaben aktivieren</string>
+    <string name="onboarding_setupEnableAssessments">Leistungserhebungen aktivieren</string>
+    <string name="calendar_assessmentFabBalloonTitle">Leistungserhebungen verfügbar!</string>
+    <string name="calendar_assessmentFabBalloonDescription">Du kannst jetzt anstehende Arbeiten und Projekte in VPlanPlus speichern.</string>
 </resources>

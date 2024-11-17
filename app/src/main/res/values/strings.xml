@@ -925,4 +925,8 @@
     <string name="settingsNotifications_newAssessmentSettingsSubtitle">When someone creates a new assessment in your class</string>
     <string name="onboarding_setupNotificationsTitle">Enable notifications</string>
     <string name="onboarding_setupNotificationsSubtitle">You can choose which notifications you want to receive in profile settings later.</string>
+    <string name="onboarding_setupEnableHomework">Enable homework</string>
+    <string name="onboarding_setupEnableAssessments">Enable assessments</string>
+    <string name="calendar_assessmentFabBalloonTitle">Assessments available!</string>
+    <string name="calendar_assessmentFabBalloonDescription">Now you can save your upcoming assessments and projects in VPlanPlus.</string>
 </resources>
