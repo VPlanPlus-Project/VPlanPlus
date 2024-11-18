@@ -49,9 +49,11 @@ fun SelectDateModal(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        modifier = Modifier.padding(top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding() + 16.dp).fillMaxSize(),
+        modifier = Modifier
+            .padding(top = WindowInsets.systemBars.asPaddingValues().calculateTopPadding() + 16.dp)
+            .fillMaxSize(),
         dragHandle = { SmallDragHandler() },
-        windowInsets = BottomSheetDefaults.windowInsets.only(WindowInsetsSides.Bottom),
+        contentWindowInsets = { BottomSheetDefaults.windowInsets.only(WindowInsetsSides.Bottom) },
     ) {
         Column(Modifier.fillMaxSize()) {
             Column(Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {

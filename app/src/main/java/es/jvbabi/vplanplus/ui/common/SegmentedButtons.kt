@@ -225,7 +225,7 @@ object SegmentedButtonsDefaults {
 }
 
 @Stable
-data class SegmentedButtonColors internal constructor(
+data class SegmentedButtonColors(
     val selectedTextColor: Color,
     val selectedIconColor: Color,
     val unselectedTextColor: Color,
