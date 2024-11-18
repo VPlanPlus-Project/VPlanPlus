@@ -66,5 +66,7 @@ object Keys {
 
     private const val DAILY_REMINDER_TIME = "DAILY_REMINDER_TIME"
 
+    const val SHOW_NEW_HOME_DRAWER = "SHOW_NEW_HOME_DRAWER"
+
     fun dailyReminderTime(profile: ClassProfile, dayOfWeek: DayOfWeek) = DAILY_REMINDER_TIME + "_" + profile.id + "_" + dayOfWeek.name
 }

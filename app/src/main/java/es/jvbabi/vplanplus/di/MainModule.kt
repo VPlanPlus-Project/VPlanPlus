@@ -23,6 +23,7 @@ import es.jvbabi.vplanplus.domain.usecase.home.SetUpUseCase
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.GetProfilesUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.domain.usecase.update.EnableAssessmentsOnlyForCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.update.EnableNewHomeDrawerUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.GetWebAuthTaskUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.PickEmojiUseCase
@@ -77,7 +78,8 @@ object MainModule {
             updateFirebaseTokenUseCase = updateFirebaseTokenUseCase,
             updateDailyNotificationAlarmsUseCase = updateDailyNotificationAlarmsUseCase,
             enableAssessmentsOnlyForCurrentProfileUseCase = EnableAssessmentsOnlyForCurrentProfileUseCase(profileRepository, keyValueRepository),
-            setBalloonUseCase = SetBalloonUseCase(keyValueRepository)
+            setBalloonUseCase = SetBalloonUseCase(keyValueRepository),
+            enableNewHomeDrawerUseCase = EnableNewHomeDrawerUseCase(keyValueRepository)
         )
     }
 

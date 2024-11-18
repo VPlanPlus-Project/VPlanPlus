@@ -87,7 +87,8 @@ private fun Title(
                     when (exam.getAuthor()) {
                         null -> stringResource(id = R.string.homework_thisDevice)
                         (currentProfile as? ClassProfile)?.vppId -> stringResource(id = R.string.homework_you)
-                        else -> exam.createdBy.name
+                        else -> exam.
+                        createdBy.name
                     }
                 )
                 if (isReminder) {

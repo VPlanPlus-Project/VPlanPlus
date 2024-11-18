@@ -927,4 +927,7 @@
     <string name="onboarding_setupEnableAssessments">Leistungserhebungen aktivieren</string>
     <string name="calendar_assessmentFabBalloonTitle">Leistungserhebungen verfügbar!</string>
     <string name="calendar_assessmentFabBalloonDescription">Du kannst jetzt anstehende Arbeiten und Projekte in VPlanPlus speichern.</string>
+    <string name="home_newHomeDrawer_openCalendar">Zum Kalender</string>
+    <string name="home_newHomeDrawer_text">Wir haben die Startseite neu gestaltet, damit es während des Schultages einfacher ist, relevante Informationen zu erhalten. Den Stundenplan sowie weitere Events findest Du nun unter \'Kalender\'.</string>
+    <string name="home_newHomeDrawer_title">Die neue Startseite</string>
 </resources>

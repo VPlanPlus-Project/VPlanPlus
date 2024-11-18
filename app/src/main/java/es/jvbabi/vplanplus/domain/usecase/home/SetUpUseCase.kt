@@ -11,6 +11,7 @@ import es.jvbabi.vplanplus.domain.usecase.general.CALENDAR_ASSESSMENT_FAB_BALLOO
 import es.jvbabi.vplanplus.domain.usecase.general.SetBalloonUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
 import es.jvbabi.vplanplus.domain.usecase.update.EnableAssessmentsOnlyForCurrentProfileUseCase
+import es.jvbabi.vplanplus.domain.usecase.update.EnableNewHomeDrawerUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.TestForMissingVppIdToProfileConnectionsUseCase
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import kotlinx.coroutines.flow.first
@@ -25,9 +26,9 @@ class SetUpUseCase(
     private val updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase,
     private val updateDailyNotificationAlarmsUseCase: UpdateDailyNotificationAlarmsUseCase,
     private val enableAssessmentsOnlyForCurrentProfileUseCase: EnableAssessmentsOnlyForCurrentProfileUseCase,
-    private val setBalloonUseCase: SetBalloonUseCase
+    private val setBalloonUseCase: SetBalloonUseCase,
+    private val enableNewHomeDrawerUseCase: EnableNewHomeDrawerUseCase
 ) {
-
     suspend operator fun invoke() {
         try {
             postUpdateTasks()
@@ -50,7 +51,10 @@ class SetUpUseCase(
         keyValueRepository.set(Keys.LAST_KNOWN_APP_VERSION, currentVersion.toString())
 
         if (previousVersion <= 328) enableAssessmentsOnlyForCurrentProfileUseCase()
-        if (previousVersion <= 316) setBalloonUseCase(CALENDAR_ASSESSMENT_FAB_BALLOON, true)
+        if (previousVersion <= 316) {
+            setBalloonUseCase(CALENDAR_ASSESSMENT_FAB_BALLOON, true)
+            enableNewHomeDrawerUseCase()
+        }
     }
 
     private suspend fun testForInvalidSessions() {
