@@ -79,6 +79,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import com.skydoves.balloon.compose.Balloon
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.data.source.database.converter.ZonedDateTimeConverter
 import es.jvbabi.vplanplus.domain.model.ClassProfile
@@ -100,14 +101,18 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.lessons.Less
 import es.jvbabi.vplanplus.feature.main_grades.view.ui.view.components.grades.GradeRecord
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
+import es.jvbabi.vplanplus.ui.common.DefaultBalloonDescription
+import es.jvbabi.vplanplus.ui.common.DefaultBalloonTitle
 import es.jvbabi.vplanplus.ui.common.MultiFab
 import es.jvbabi.vplanplus.ui.common.MultiFabItem
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer16Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.openLink
+import es.jvbabi.vplanplus.ui.common.rememberDefaultBalloon
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils.atStartOfWeek
+import kotlinx.coroutines.delay
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -271,16 +276,31 @@ private fun CalendarScreenContent(
                 })
         },
         floatingActionButton = {
-            if (state.currentProfile is ClassProfile && (state.currentProfile.isAssessmentsEnabled || state.currentProfile.isHomeworkEnabled))
-            FloatingActionButton(
-                onClick = { isMultiFabExpanded = !isMultiFabExpanded },
-                modifier = Modifier.onGloballyPositioned { multiFabFabPosition = it.positionOnScreen() },
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier.rotate(animateFloatAsState(if (isMultiFabExpanded) 180+45f else 0f,  label = "close button").value)
-                )
+            if (state.currentProfile is ClassProfile && (state.currentProfile.isAssessmentsEnabled || state.currentProfile.isHomeworkEnabled)) Balloon(
+                builder = rememberDefaultBalloon(),
+                balloonContent = {
+                    Column {
+                        DefaultBalloonTitle(stringResource(id = R.string.calendar_assessmentFabBalloonTitle))
+                        DefaultBalloonDescription(stringResource(id = R.string.calendar_assessmentFabBalloonDescription))
+                    }
+                }
+            ) { balloon ->
+                LaunchedEffect(state.showAssessmentFabBalloon) {
+                    if (!state.showAssessmentFabBalloon) return@LaunchedEffect
+                    delay(1000)
+                    balloon.showAlignTop()
+                }
+                balloon.setOnBalloonDismissListener { doAction(CalendarViewAction.DismissAssessmentFabBalloon) }
+                FloatingActionButton(
+                    onClick = { isMultiFabExpanded = !isMultiFabExpanded },
+                    modifier = Modifier.onGloballyPositioned { multiFabFabPosition = it.positionOnScreen() },
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.rotate(animateFloatAsState(if (isMultiFabExpanded) 180+45f else 0f,  label = "close button").value)
+                    )
+                }
             }
         },
         bottomBar = { navBar(localConfiguration.orientation == Configuration.ORIENTATION_PORTRAIT && addHomeworkSheetInitialValues == null) },

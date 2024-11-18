@@ -50,8 +50,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.MainActivity
 import es.jvbabi.vplanplus.R
+import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.feature.onboarding.ui.common.OnboardingScreen
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
+import es.jvbabi.vplanplus.ui.preview.GroupPreview
+import es.jvbabi.vplanplus.ui.preview.ProfilePreview
 import es.jvbabi.vplanplus.ui.screens.Screen
 
 @Composable
@@ -100,35 +103,83 @@ private fun StartAppScreen(
         onButtonClick = { onClick() },
         footer = {
             if (!state.isFirstProfile) {
-                RowVerticalCenter(
+                Column(
                     modifier = Modifier
-                        .padding(bottom = 16.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .clickable { doAction(OnboardingSetupEvent.ToggleNotifications((state.profile?.notificationsEnabled ?: false).not())) }
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
-                        .padding(8.dp)
+                        .padding(bottom = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
-                    Column(
+                    RowVerticalCenter(
                         modifier = Modifier
-                            .weight(1f, true)
-                            .padding(horizontal = 8.dp)
-                    ) {
-                        Text(
-                            text = stringResource(id = R.string.onboarding_setupNotificationsTitle),
-                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                        Text(
-                            text = stringResource(id = R.string.onboarding_setupNotificationsSubtitle),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            .clip(RoundedCornerShape(16.dp))
+                            .clickable { doAction(OnboardingSetupEvent.ToggleNotifications((state.profile?.notificationsEnabled == true).not())) }
+                            .fillMaxWidth()
+                            .background(MaterialTheme.colorScheme.surfaceVariant)
+                            .padding(8.dp)
+                    ) notifications@{
+                        Column(
+                            modifier = Modifier
+                                .weight(1f, true)
+                                .padding(horizontal = 8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.onboarding_setupNotificationsTitle),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = stringResource(id = R.string.onboarding_setupNotificationsSubtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                        Switch(
+                            checked = state.profile?.notificationsEnabled == true,
+                            onCheckedChange = { doAction(OnboardingSetupEvent.ToggleNotifications(it)) },
                         )
                     }
-                    Switch(
-                        checked = state.profile?.notificationsEnabled ?: false,
-                        onCheckedChange = { doAction(OnboardingSetupEvent.ToggleNotifications(it)) },
-                    )
+
+                    if (state.profile is ClassProfile) {
+                        RowVerticalCenter(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable { doAction(OnboardingSetupEvent.ToggleHomework((state.profile.isHomeworkEnabled == true).not())) }
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.onboarding_setupEnableHomework),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .weight(1f, true)
+                                    .padding(horizontal = 8.dp)
+                            )
+                            Switch(
+                                checked = state.profile.isHomeworkEnabled,
+                                onCheckedChange = { doAction(OnboardingSetupEvent.ToggleHomework(it)) },
+                            )
+                        }
+                        RowVerticalCenter(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .clickable { doAction(OnboardingSetupEvent.ToggleAssessments((state.profile.isAssessmentsEnabled == true).not())) }
+                                .fillMaxWidth()
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = stringResource(id = R.string.onboarding_setupEnableAssessments),
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier
+                                    .weight(1f, true)
+                                    .padding(horizontal = 8.dp)
+                            )
+                            Switch(
+                                checked = state.profile.isAssessmentsEnabled,
+                                onCheckedChange = { doAction(OnboardingSetupEvent.ToggleAssessments(it)) },
+                            )
+                        }
+                    }
                 }
             }
         },
@@ -149,7 +200,7 @@ private fun StartAppScreen(
             painter = rememberAnimatedVectorPainter(animatedImageVector = drawable, atEnd = atEnd),
             contentDescription = null,
             modifier = Modifier
-                .size(300.dp)
+                .size(256.dp)
                 .background(MaterialTheme.colorScheme.surface)
         )
     }
@@ -217,7 +268,12 @@ private fun SetupDonePreview() {
 private fun SetupDonePreviewPixel4XL() {
     StartAppScreen(
         onClick = {},
-        state = OnboardingSetupState(isDone = true, hadError = false, isFirstProfile = false),
+        state = OnboardingSetupState(
+            isDone = true,
+            hadError = false,
+            isFirstProfile = false,
+            profile = ProfilePreview.generateClassProfile(GroupPreview.generateGroup())
+        ),
     )
 }
 

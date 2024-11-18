@@ -15,10 +15,14 @@ import es.jvbabi.vplanplus.domain.repository.SchoolRepository
 import es.jvbabi.vplanplus.domain.repository.TeacherRepository
 import es.jvbabi.vplanplus.domain.usecase.settings.profiles.shared.GetProfileByIdUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.UpdateFirebaseTokenUseCase
+import es.jvbabi.vplanplus.feature.exams.domain.repository.ExamRepository
+import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
 import es.jvbabi.vplanplus.feature.onboarding.stages.d_profiletype.domain.usecase.IsFirstProfileForSchoolUseCase
 import es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase.OnboardingSetupUseCases
 import es.jvbabi.vplanplus.feature.onboarding.stages.h_setup.domain.usecase.SetupUseCase
 import es.jvbabi.vplanplus.feature.settings.advanced.domain.usecase.UpdateFcmTokenUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateAssessmentsEnabledUseCase
+import es.jvbabi.vplanplus.feature.settings.profile.domain.usecase.profile.UpdateHomeworkEnabledUseCase
 import es.jvbabi.vplanplus.feature.settings.profile.notifications.domain.usecase.ToggleNotificationForProfileUseCase
 import javax.inject.Singleton
 
@@ -38,6 +42,8 @@ object OnboardingSetupModule {
         keyValueRepository: KeyValueRepository,
         lessonTimeRepository: LessonTimeRepository,
         profileRepository: ProfileRepository,
+        homeworkRepository: HomeworkRepository,
+        examRepository: ExamRepository,
         updateFirebaseTokenUseCase: UpdateFirebaseTokenUseCase
     ) = OnboardingSetupUseCases(
         setupUseCase = SetupUseCase(
@@ -54,6 +60,8 @@ object OnboardingSetupModule {
         ),
         isFirstProfileForSchoolUseCase = IsFirstProfileForSchoolUseCase(keyValueRepository),
         getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository),
-        toggleNotificationForProfileUseCase = ToggleNotificationForProfileUseCase(profileRepository)
+        toggleNotificationForProfileUseCase = ToggleNotificationForProfileUseCase(profileRepository),
+        updateHomeworkEnabledUseCase = UpdateHomeworkEnabledUseCase(profileRepository, homeworkRepository),
+        updateAssessmentsEnabledUseCase = UpdateAssessmentsEnabledUseCase(profileRepository, examRepository)
     )
 }

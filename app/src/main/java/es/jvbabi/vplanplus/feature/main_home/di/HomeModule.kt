@@ -17,6 +17,8 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetNextDayUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.domain.usecase.update.DisableNewHomeDrawerUseCase
+import es.jvbabi.vplanplus.domain.usecase.update.IsNewHomeDrawerUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.ChangeProfileUseCase
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.GetHideFinishedLessonsUseCase
@@ -100,7 +102,9 @@ object HomeModule {
             getNextSchoolDayUseCase = GetNextSchoolDayUseCase(
                 getCurrentProfileUseCase = getCurrentProfileUseCase,
                 getNextDayUseCase = getNextDayUseCase
-            )
+            ),
+            isNewHomeDrawerUseCase = IsNewHomeDrawerUseCase(keyValueRepository),
+            hideNewHomeDrawerUseCase = DisableNewHomeDrawerUseCase(keyValueRepository)
         )
     }
 }

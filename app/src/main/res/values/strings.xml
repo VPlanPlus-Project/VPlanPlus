@@ -935,4 +935,11 @@
     <string name="settingsNotifications_newAssessmentSettingsSubtitle">When someone creates a new assessment in your class</string>
     <string name="onboarding_setupNotificationsTitle">Enable notifications</string>
     <string name="onboarding_setupNotificationsSubtitle">You can choose which notifications you want to receive in profile settings later.</string>
+    <string name="onboarding_setupEnableHomework">Enable homework</string>
+    <string name="onboarding_setupEnableAssessments">Enable assessments</string>
+    <string name="calendar_assessmentFabBalloonTitle">Assessments available!</string>
+    <string name="calendar_assessmentFabBalloonDescription">Now you can save your upcoming assessments and projects in VPlanPlus.</string>
+    <string name="home_newHomeDrawer_openCalendar">Open calendar</string>
+    <string name="home_newHomeDrawer_text">We\'ve redesigned the homepage to give you better access to the most important information throughout your school day. Your timetable is now accessible in the new \'Calendar\' tab.</string>
+    <string name="home_newHomeDrawer_title">The new homepage</string>
 </resources>
