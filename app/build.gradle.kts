@@ -18,7 +18,7 @@ plugins {
 
 android {
     namespace = "es.jvbabi.vplanplus"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "es.jvbabi.vplanplus"

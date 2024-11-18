@@ -776,6 +776,7 @@
     <string name="webAuth_title">Verify login request</string>
     <string name="webAuth_error">Couldn\'t verify, please try again.</string>
     <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
+    <string name="unknownVersion">Unknown Version</string>
     <string name="advancedSettings_sendFirebaseReportsTitle">Send crash info</string>
     <string name="advancedSettings_sendFirebaseReportsHasCrashes">Some crashes have been detected. Help the developers to understand the error by sending it. No personal information will be attached.</string>
     <string name="advancedSettings_sendFirebaseReportsHasNoCrashes">There are no crashes</string>

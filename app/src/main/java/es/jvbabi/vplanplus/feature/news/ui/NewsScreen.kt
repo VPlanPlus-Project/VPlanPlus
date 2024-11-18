@@ -36,11 +36,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -51,7 +50,6 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -73,7 +71,6 @@ import es.jvbabi.vplanplus.ui.common.DOT
 import es.jvbabi.vplanplus.ui.preview.News
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.util.DateUtils
-import kotlinx.coroutines.delay
 import java.time.ZonedDateTime
 
 @Composable
@@ -119,31 +116,23 @@ fun NewsScreenContent(
             )
         }
     ) { paddingValues ->
-        Column (modifier = Modifier.fillMaxSize()) {
-            val pullRefreshState = rememberPullToRefreshState()
-            if (pullRefreshState.isRefreshing) {
-                LaunchedEffect(key1 = Unit, block = {
-                    refresh()
-                    delay(500)
-                    while (state.isLoading) {
-                        delay(100)
-                    }
-                    pullRefreshState.endRefresh()
-                })
-            }
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .nestedScroll(pullRefreshState.nestedScrollConnection)
-            ) {
+        val pullRefreshState = rememberPullToRefreshState()
+        PullToRefreshBox(
+            isRefreshing = state.isLoading,
+            onRefresh = { refresh() },
+            state = pullRefreshState,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Column(modifier = Modifier.fillMaxSize()) {
                 var unreadDone = false
                 if (state.news.isNotEmpty() || !state.initialized) {
                     LazyColumn(
                         modifier = Modifier
                             .fillMaxSize()
                     ) {
-                        items(state.news.sortedBy { (!it.isRead).toString()+(it.date.toInstant().epochSecond) }.reversed()) {
+                        items(state.news.sortedBy { (!it.isRead).toString() + (it.date.toInstant().epochSecond) }.reversed()) {
                             if (!unreadDone && it.isRead && state.news.any { n -> !n.isRead }) {
                                 unreadDone = true
                                 Box(
@@ -159,9 +148,11 @@ fun NewsScreenContent(
                                             .padding(horizontal = 8.dp),
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
-                                        Icon(imageVector = Icons.Outlined.Archive, contentDescription = null, modifier = Modifier
-                                            .padding(end = 4.dp)
-                                            .size(20.dp))
+                                        Icon(
+                                            imageVector = Icons.Outlined.Archive, contentDescription = null, modifier = Modifier
+                                                .padding(end = 4.dp)
+                                                .size(20.dp)
+                                        )
                                         Text(text = "Archiv")
                                     }
                                 }
@@ -175,8 +166,7 @@ fun NewsScreenContent(
                             )
                         }
                     }
-                }
-                else {
+                } else {
                     val colorScheme = MaterialTheme.colorScheme
                     Box(
                         modifier = Modifier
@@ -198,7 +188,6 @@ fun NewsScreenContent(
                         }
                     }
                 }
-                PullToRefreshContainer(state = pullRefreshState, modifier = Modifier.align(alignment = Alignment.TopCenter))
             }
         }
     }
@@ -278,7 +267,12 @@ fun NewsScreenPreview() {
 @Composable
 private fun NewsCardPreview() {
     Column {
-        NewsCard(title = "Example with a very, very long title", content = "Example <b>with</b> HTML " + es.jvbabi.vplanplus.ui.preview.Text.LOREM_IPSUM_100, date = ZonedDateTime.now(), isRead = false) {}
+        NewsCard(
+            title = "Example with a very, very long title",
+            content = "Example <b>with</b> HTML " + es.jvbabi.vplanplus.ui.preview.Text.LOREM_IPSUM_100,
+            date = ZonedDateTime.now(),
+            isRead = false
+        ) {}
     }
 }
 
@@ -295,6 +289,7 @@ fun Spanned.toAnnotatedString(): AnnotatedString = buildAnnotatedString {
                 Typeface.ITALIC -> addStyle(SpanStyle(fontStyle = FontStyle.Italic), start, end)
                 Typeface.BOLD_ITALIC -> addStyle(SpanStyle(fontWeight = FontWeight.Bold, fontStyle = FontStyle.Italic), start, end)
             }
+
             is UnderlineSpan -> addStyle(SpanStyle(textDecoration = TextDecoration.Underline), start, end)
             is ForegroundColorSpan -> addStyle(SpanStyle(color = Color(span.foregroundColor)), start, end)
         }
@@ -305,8 +300,8 @@ fun Modifier.strikethrough(colorScheme: ColorScheme, thickness: Float = 9f) = th
     drawContent()
     scale(1.3f) {
         rotate(45f) {
-            drawLine(colorScheme.onSurface, Offset(0f, (size.height / 2)+thickness/2), Offset(size.width, (size.height / 2)+thickness/2), thickness)
-            drawLine(colorScheme.surface, Offset(0f, (size.height / 2)-thickness/2), Offset(size.width, (size.height / 2)-thickness/2), thickness)
+            drawLine(colorScheme.onSurface, Offset(0f, (size.height / 2) + thickness / 2), Offset(size.width, (size.height / 2) + thickness / 2), thickness)
+            drawLine(colorScheme.surface, Offset(0f, (size.height / 2) - thickness / 2), Offset(size.width, (size.height / 2) - thickness / 2), thickness)
         }
     }
 }

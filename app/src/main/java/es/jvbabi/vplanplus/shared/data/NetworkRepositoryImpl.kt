@@ -26,8 +26,8 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.parameters
-import io.ktor.util.toByteArray
 import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.toByteArray
 import kotlinx.coroutines.runBlocking
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -94,10 +94,10 @@ open class NetworkRepositoryImpl(
                     if (requestBody is ByteArray) setBody(ByteReadChannel(requestBody))
                     else if (requestBody != null) setBody(requestBody)
                     onUpload { bytesSentTotal, contentLength ->
-                        onUploading(bytesSentTotal, contentLength)
+                        onUploading(bytesSentTotal, contentLength ?: 0)
                         Log.d("Network", "Uploading $bytesSentTotal/$contentLength")
                     }
-                    onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
+                    onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength ?: 0) }
                 }
             }
             if (!listOf(
@@ -156,8 +156,8 @@ open class NetworkRepositoryImpl(
                 if (requestMethod != HttpMethod.Get) {
                     if (requestBody is ByteArray) setBody(ByteReadChannel(requestBody))
                     else if (requestBody != null) setBody(requestBody)
-                    onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
-                    onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
+                    onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength ?: 0) }
+                    onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength ?: 0) }
                 }
             }
             if (!listOf(
@@ -218,8 +218,8 @@ open class NetworkRepositoryImpl(
                 }
                 queries.forEach { (key, value) -> parameter(key, value) }
 
-                onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength) }
-                onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength) }
+                onUpload { bytesSentTotal, contentLength -> onUploading(bytesSentTotal, contentLength ?: 0) }
+                onDownload { bytesReceivedTotal, contentLength -> onDownloading(bytesReceivedTotal, contentLength ?: 0) }
             }
             if (!listOf(
                     HttpStatusCode.OK,
