@@ -42,8 +42,8 @@ import io.ktor.client.request.headers
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.isSuccess
-import io.ktor.util.toByteArray
 import io.ktor.utils.io.ByteReadChannel
+import io.ktor.utils.io.toByteArray
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -90,7 +90,7 @@ class HomeworkRepositoryImpl(
                 group = group,
                 defaultLesson = defaultLessonRepository.getDefaultLessonByGroupId(group.groupId).firstOrNull { it.vpId == homework.vpId },
                 tasks = homework.tasks.map {
-                    if (vppId != null) HomeworkTaskDone(it.id, homework.id.toInt(), it.content, it.done ?: false)
+                    if (vppId != null) HomeworkTaskDone(it.id, homework.id.toInt(), it.content, it.done == true)
                     else HomeworkTaskCore(it.id, homework.id.toInt(), it.content)
                 },
                 documents = homework.documentIds.mapNotNull documents@{ documentId ->
@@ -115,7 +115,7 @@ class HomeworkRepositoryImpl(
                 (if (vppId == null) group.school.buildAccess().buildVppAuthentication()
                 else BearerAuthentication(vppId.vppIdToken)).toHeader().let { append(it.first, it.second) }
             }
-            onDownload { bytesSentTotal, contentLength -> onDownloading(bytesSentTotal, contentLength) }
+            onDownload { bytesSentTotal, contentLength -> onDownloading(bytesSentTotal, contentLength ?: 0) }
         }
         if (!response.status.isSuccess()) return null
         val channel: ByteReadChannel = response.body()
@@ -132,7 +132,7 @@ class HomeworkRepositoryImpl(
         )
         if (response.response != HttpStatusCode.OK || response.data == null) return null
         val data = ResponseDataWrapper.fromJson<HomeworkDocumentResponse>(response.data)!!
-        val exists = File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == homeworkDocumentId } ?: false
+        val exists = File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == homeworkDocumentId } == true
         return if (exists) HomeworkDocument.SavedHomeworkDocument(
             documentId = homeworkDocumentId,
             homeworkId = homeworkId,
@@ -249,7 +249,7 @@ class HomeworkRepositoryImpl(
                 fileName = name,
                 homeworkId = homeworkId.toLong(),
                 fileType = type.extension,
-                isDownloaded = isDownloaded ?: File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == id } ?: false,
+                isDownloaded = (isDownloaded ?: File(context.filesDir, "homework_documents").listFiles()?.any { it.name.substringBefore(".").toInt() == id }) == true,
                 size = size
             )
         )

@@ -50,7 +50,7 @@ fun NewExamBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
         dragHandle = { SmallDragHandler() },
-        windowInsets = BottomSheetDefaults.windowInsets.only(WindowInsetsSides.Bottom),
+        contentWindowInsets = { BottomSheetDefaults.windowInsets.only(WindowInsetsSides.Bottom) },
         modifier = Modifier.padding(top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding() + 8.dp),
         containerColor = MaterialTheme.colorScheme.surface
     ) {
