@@ -131,8 +131,9 @@ private fun ProfileNotificationSettingsContent(
                 }
             )
         },
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection)
     ) { innerPadding ->
-        val canSendProfileNotifications = (state?.profile?.notificationsEnabled ?: true) && state?.notificationState == ProfileNotificationSettingsNotificationState.ENABLED
+        val canSendProfileNotifications = (state?.profile?.notificationsEnabled != false) && state?.notificationState == ProfileNotificationSettingsNotificationState.ENABLED
         if (state == null) {
             FullSizeLoadingCircle()
             return@Scaffold
@@ -142,7 +143,6 @@ private fun ProfileNotificationSettingsContent(
                 .fillMaxSize()
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .nestedScroll(scrollBehavior.nestedScrollConnection)
         ) {
             Spacer8Dp()
             if (state.notificationState != ProfileNotificationSettingsNotificationState.ENABLED) Box(

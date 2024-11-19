@@ -4,6 +4,8 @@ import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentProfileUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetCurrentTimeUseCase
 import es.jvbabi.vplanplus.domain.usecase.general.GetVppIdServerUseCase
 import es.jvbabi.vplanplus.domain.usecase.sync.IsSyncRunningUseCase
+import es.jvbabi.vplanplus.domain.usecase.update.DisableNewHomeDrawerUseCase
+import es.jvbabi.vplanplus.domain.usecase.update.IsNewHomeDrawerUseCase
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.usecase.GetDayUseCase
 
 data class HomeUseCases(
@@ -32,5 +34,8 @@ data class HomeUseCases(
     val ignoreInvalidVppIdSessionsUseCase: IgnoreInvalidVppIdSessionsUseCase,
     val hasMissingVppIdToProfileLinksUseCase: HasMissingVppIdToProfileLinksUseCase,
 
-    val getVppIdServerUseCase: GetVppIdServerUseCase
+    val getVppIdServerUseCase: GetVppIdServerUseCase,
+
+    val isNewHomeDrawerUseCase: IsNewHomeDrawerUseCase,
+    val hideNewHomeDrawerUseCase: DisableNewHomeDrawerUseCase,
 )

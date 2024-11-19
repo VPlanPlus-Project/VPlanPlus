@@ -14,8 +14,8 @@ import es.jvbabi.vplanplus.domain.repository.MessageRepository
 import es.jvbabi.vplanplus.domain.repository.NotificationRepository
 import es.jvbabi.vplanplus.shared.data.API_VERSION
 import es.jvbabi.vplanplus.shared.data.NetworkRepositoryImpl
-import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.Flow
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.first
 
 class NewsRepositoryImpl(
@@ -92,7 +92,7 @@ fun getAppVersion(
             packageManager.getPackageInfo(packageName, 0)
         }
         AppVersion(
-            versionName = packageInfo.versionName,
+            versionName = packageInfo.versionName ?: context.getString(R.string.unknownVersion),
             versionNumber = PackageInfoCompat.getLongVersionCode(packageInfo),
         )
     } catch (e: Exception) {

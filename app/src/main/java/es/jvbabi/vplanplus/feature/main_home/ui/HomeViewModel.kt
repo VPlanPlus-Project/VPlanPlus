@@ -68,7 +68,8 @@ class HomeViewModel @Inject constructor(
                     homeUseCases.hasInvalidVppIdSessionUseCase(),
                     homeUseCases.getVppIdServerUseCase(),
                     homeUseCases.hasMissingVppIdToProfileLinksUseCase(),
-                    homeUseCases.getHolidaysUseCase()
+                    homeUseCases.getHolidaysUseCase(),
+                    homeUseCases.isNewHomeDrawerUseCase()
                 )
             ) { data ->
                 val currentProfile = data[0] as Profile?
@@ -83,6 +84,7 @@ class HomeViewModel @Inject constructor(
                 val server = data[9] as VppIdServer
                 val hasMissingVppIdToProfileLinks = data[10] as Boolean
                 val holidays = data[11] as List<LocalDate>
+                val showNewHomeDrawer = data[12] as Boolean
 
                 val bookings = homeUseCases.getRoomBookingsForTodayUseCase().filter { it.bookedBy?.group?.groupId == (currentProfile as? ClassProfile)?.group?.groupId }
 
@@ -99,7 +101,8 @@ class HomeViewModel @Inject constructor(
                     hasInvalidVppIdSession = hasInvalidVppIdSession,
                     server = server,
                     hasMissingVppIdToProfileLinks = hasMissingVppIdToProfileLinks,
-                    holidays = holidays
+                    holidays = holidays,
+                    showNewHomeDrawer = showNewHomeDrawer
                 )
             }.collect {
                 state = it
@@ -164,6 +167,12 @@ class HomeViewModel @Inject constructor(
             homeUseCases.ignoreInvalidVppIdSessionsUseCase()
         }
     }
+
+    fun hideNewHomeDrawer() {
+        viewModelScope.launch {
+            homeUseCases.hideNewHomeDrawerUseCase()
+        }
+    }
 }
 
 data class HomeState(
@@ -190,5 +199,7 @@ data class HomeState(
     val hasInvalidVppIdSession: Boolean = false,
     val hasMissingVppIdToProfileLinks: Boolean = false,
 
-    val nextSchoolDay: SchoolDay? = null
+    val nextSchoolDay: SchoolDay? = null,
+
+    val showNewHomeDrawer: Boolean = false,
 )

@@ -43,7 +43,7 @@ import es.jvbabi.vplanplus.util.blendColor
 fun rememberModalBottomSheetStateWithoutFullExpansion(): SheetState {
     return rememberModalBottomSheetState(
         skipPartiallyExpanded = false,
-        confirmValueChange = { it != SheetValue.Expanded }
+        confirmValueChange = { it != SheetValue.PartiallyExpanded }
     )
 }
 

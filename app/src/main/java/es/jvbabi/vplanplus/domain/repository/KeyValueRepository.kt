@@ -47,11 +47,6 @@ object Keys {
 
     const val VPPID_SERVER = "VPPID_SERVER"
 
-    @Deprecated("") const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK = "SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK"
-    @Deprecated("") const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_DEFAULT = "false"
-    @Deprecated("") const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS = "SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS"
-    @Deprecated("") const val SETTINGS_REMIND_OF_UNFINISHED_HOMEWORK_LATER_SECONDS_DEFAULT = (30*60).toString()
-
     const val SETTINGS_DAILY_LATER_DEFAULT_SECONDS = 15*60
 
     const val LAST_VERSION_HINTS_VERSION = "LAST_VERSION_HINTS_VERSION"
@@ -72,6 +67,8 @@ object Keys {
     const val SHOW_TIMETABLE_INFO_BANNER = "SHOW_TIMETABLE_INFO_BANNER"
 
     private const val DAILY_REMINDER_TIME = "DAILY_REMINDER_TIME"
+
+    const val SHOW_NEW_HOME_DRAWER = "SHOW_NEW_HOME_DRAWER"
 
     fun dailyReminderTime(profile: ClassProfile, dayOfWeek: DayOfWeek) = DAILY_REMINDER_TIME + "_" + profile.id + "_" + dayOfWeek.name
 }
