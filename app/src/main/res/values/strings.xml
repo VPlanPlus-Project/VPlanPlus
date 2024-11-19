@@ -776,6 +776,8 @@
     <string name="webAuth_title">Verify login request</string>
     <string name="webAuth_error">Couldn\'t verify, please try again.</string>
     <string name="webAuth_description">Someone tries to access the account \'%1$s\'. If that\'s you, tap the matching emoji. If you\'re not trying to log in, please cancel.</string>
+    <string name="unknownVersion">Unknown Version</string>
+
     <string name="homework_detailViewDocumentOnline">Online</string>
     <string name="main_calendar">Calendar</string>
     <string name="calendar_title">Calendar</string>
