@@ -59,6 +59,7 @@ import es.jvbabi.vplanplus.feature.main_calendar.home.ui.components.exam.ExamSec
 import es.jvbabi.vplanplus.feature.main_home.feature_search.ui.components.menu.Menu
 import es.jvbabi.vplanplus.feature.main_home.ui.components.Head
 import es.jvbabi.vplanplus.feature.main_home.ui.components.ImportantHeader
+import es.jvbabi.vplanplus.feature.main_home.ui.components.NewHomeDrawer
 import es.jvbabi.vplanplus.feature.main_home.ui.components.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.components.PagerSwitcher
 import es.jvbabi.vplanplus.feature.main_home.ui.components.QuickActions
@@ -172,6 +173,8 @@ fun HomeScreen(
         onSendFeedback = remember { { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) } },
         onOpenHomework = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
         onOpenExam = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
+        onNewHomeDrawerClosed = remember { { homeViewModel.hideNewHomeDrawer() } },
+        onOpenCalendar = remember { { navHostController.navigate(Screen.CalendarScreen()) } }
     )
 }
 
@@ -203,7 +206,9 @@ fun HomeScreenContent(
 
     onSendFeedback: () -> Unit = {},
 
-    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
+    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {},
+    onNewHomeDrawerClosed: () -> Unit = {},
+    onOpenCalendar: () -> Unit = {},
 ) {
     if (state.currentProfile == null) return
 
@@ -212,6 +217,9 @@ fun HomeScreenContent(
         hint = state.versionHint,
         onCloseUntilNextTime = { onVersionHintsClosed(false) },
         onCloseUntilNextVersion = { onVersionHintsClosed(true) }
+    ) else if (state.showNewHomeDrawer) NewHomeDrawer(
+        onClose = onNewHomeDrawerClosed,
+        onOpenCalendar = { onNewHomeDrawerClosed(); onOpenCalendar() }
     )
 
     var addHomeworkSheetInitialValues by rememberSaveable<MutableState<AddHomeworkSheetInitialValues?>> {
@@ -292,7 +300,7 @@ fun HomeScreenContent(
                             .fillMaxSize()
                             .align(Alignment.Center)) {
                         TodayContent(
-                            today = state.today ?: return@Column,
+                            today = state.today,
                             currentProfile = state.currentProfile,
                             onOpenExam = onOpenExam
                         )
@@ -308,7 +316,7 @@ fun HomeScreenContent(
                     ) { page ->
                         when (page) {
                             0 -> TodayContent(
-                                today = state.today ?: return@HorizontalPager,
+                                today = state.today,
                                 currentProfile = state.currentProfile,
                                 onOpenExam = onOpenExam
                             )
@@ -330,7 +338,7 @@ fun HomeScreenContent(
                     )
                 } else if (nextDayHasData) {
                     NextDayPreparation(
-                        nextSchoolDay = state.nextSchoolDay ?: return@Column,
+                        nextSchoolDay = state.nextSchoolDay,
                         currentProfile = state.currentProfile,
                         onOpenHomework = onOpenHomework,
                         onOpenExam = onOpenExam

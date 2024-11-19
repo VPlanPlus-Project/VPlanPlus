@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.domain.usecase.daily
 
+import android.annotation.SuppressLint
 import es.jvbabi.vplanplus.R
 import es.jvbabi.vplanplus.android.receiver.DailyRemindLaterReceiver
 import es.jvbabi.vplanplus.domain.model.ClassProfile
@@ -11,12 +12,11 @@ import es.jvbabi.vplanplus.domain.repository.NotificationRepository.Companion.CH
 import es.jvbabi.vplanplus.domain.repository.OpenScreenTask
 import es.jvbabi.vplanplus.domain.repository.StringRepository
 import es.jvbabi.vplanplus.domain.usecase.general.GetNextDayUseCase
-import es.jvbabi.vplanplus.domain.usecase.general.IsDeveloperModeEnabledUseCase
 import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.util.MathTools.cantor
 import es.jvbabi.vplanplus.util.maxLength
 import es.jvbabi.vplanplus.util.removeAllSurrounding
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -28,19 +28,15 @@ class SendNotificationUseCase(
     private val notificationRepository: NotificationRepository,
     private val stringRepository: StringRepository,
     private val getNextDayUseCase: GetNextDayUseCase,
-    private val isDeveloperModeEnabledUseCase: IsDeveloperModeEnabledUseCase
 ) {
     suspend operator fun invoke(profile: ClassProfile, dismissCounter: Int) {
-        val day = getNextDayUseCase(profile = profile, fast = false).first()
+        val day = getNextDayUseCase(profile = profile, fast = false).firstOrNull() ?: return
 
         val homeworkForNextDay = day.homework
         val assessmentsForNextDay = day.actualExams()
         val lessons = day.actualLessons()
 
         val notificationText = buildString {
-            if (isDeveloperModeEnabledUseCase().first()) {
-                append("Dismiss:$dismissCounter; ")
-            }
             if (day.lessons.isNotEmpty()) {
                 append("\uD83D\uDCC5 " + day.date.format(DateTimeFormatter.ofPattern("EEEE, d. MMMM")))
                 append("\n")
@@ -111,6 +107,7 @@ class SendNotificationUseCase(
     }
 }
 
+@SuppressLint("UnsafeOptInUsageError")
 @Serializable
 data class DailyReminderNotificationData(
     @SerialName("profile_id") val profileId: String,

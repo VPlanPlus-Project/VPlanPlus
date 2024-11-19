@@ -15,7 +15,7 @@ class GetNextDayUseCase(
     /**
      * @param fast If true, it will load the lessons, emit them and then load the exams and homeworks. If false, it will wait until all the data is loaded before emitting the school day.
      */
-    suspend operator fun invoke(profile: Profile, fast: Boolean = true) = flow {
+    operator fun invoke(profile: Profile, fast: Boolean = true) = flow {
         val dates = planRepository.getLocalPlaDatesForSchool(profile.getSchool().id)
             .filter { it.isAfter(LocalDate.now()) }
         val holidays = holidayRepository.getHolidaysBySchoolId(profile.getSchool().id)
@@ -34,7 +34,9 @@ class GetNextDayUseCase(
                 date = date.plusDays(1)
             }
             return@firstDayAfterHolidays date
-        } ?: return@flow
+        } ?: return@flow run {
+            emit(null)
+        }
 
         getDayUseCase(date, profile, fast).collect {
             emit(it)

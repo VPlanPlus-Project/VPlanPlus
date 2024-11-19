@@ -8,7 +8,6 @@ class CancelBookingUseCase(
 ) {
     suspend operator fun invoke(booking: RoomBooking): CancelBookingResult {
         return when (vppIdRepository.cancelRoomBooking(booking)) {
-            null -> CancelBookingResult.NO_INTERNET
             true -> CancelBookingResult.SUCCESS
             false -> CancelBookingResult.ERROR
         }
