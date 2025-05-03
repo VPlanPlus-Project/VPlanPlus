@@ -67,7 +67,8 @@ fun NavigationGraph(
     navController: NavHostController,
     goToOnboarding: Boolean,
     navBar: @Composable (expanded: Boolean) -> Unit,
-    onNavigationChanged: (String?) -> Unit
+    onNavigationChanged: (String?) -> Unit,
+    onNewAppClicked: () -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -79,7 +80,7 @@ fun NavigationGraph(
 
         deepLinks(navController)
         onboarding(navController)
-        mainScreens(navController, navBar)
+        mainScreens(navController, navBar, onNewAppClicked)
         newsScreens(navController)
         settingsScreens(navController)
         gradesScreens(navController)
@@ -224,7 +225,8 @@ private fun NavGraphBuilder.onboarding(
 
 private fun NavGraphBuilder.mainScreens(
     navController: NavHostController,
-    navBar: @Composable (expanded: Boolean) -> Unit
+    navBar: @Composable (expanded: Boolean) -> Unit,
+    onNewAppClicked: () -> Unit,
 ) {
     composable(
         route = Screen.HomeScreen.route + "/{startDate}",
@@ -243,7 +245,8 @@ private fun NavGraphBuilder.mainScreens(
         HomeScreen(
             navHostController = navController,
             navBar = navBar,
-            startDate = LocalDate.parse(it.arguments?.getString("startDate") ?: LocalDate.now().toString())
+            startDate = LocalDate.parse(it.arguments?.getString("startDate") ?: LocalDate.now().toString()),
+            onNewAppClicked = onNewAppClicked
         )
     }
 
@@ -257,7 +260,8 @@ private fun NavGraphBuilder.mainScreens(
         HomeScreen(
             navHostController = navController,
             navBar = navBar,
-            startDate = LocalDate.now()
+            startDate = LocalDate.now(),
+            onNewAppClicked = onNewAppClicked
         )
     }
 

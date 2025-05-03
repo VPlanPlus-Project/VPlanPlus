@@ -24,7 +24,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
@@ -51,11 +50,9 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Upgrade
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -63,11 +60,11 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -311,44 +308,6 @@ class MainActivity : FragmentActivity() {
                             exit = shrinkVertically(tween(250))
                         ) {
                             Column {
-                                Row(
-                                    modifier = Modifier
-                                        .padding(horizontal = 16.dp)
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(MaterialTheme.colorScheme.primary)
-                                        .clickable { showNewAppPage = true }
-                                        .padding(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
-                                        Icon(
-                                            imageVector = Icons.Default.Upgrade,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                        Column(
-                                            modifier = Modifier
-                                                .padding(horizontal = 8.dp)
-                                                .weight(1f)
-                                        ) {
-                                            Text(
-                                                text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
-                                                style = MaterialTheme.typography.titleMedium
-                                            )
-                                            Text(
-                                                text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
-                                                style = MaterialTheme.typography.bodyMedium
-                                            )
-                                        }
-                                        Icon(
-                                            imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(24.dp)
-                                        )
-                                    }
-                                }
-                                Spacer(Modifier.size(8.dp))
                                 NavigationBar(
                                     containerColor = MaterialTheme.colorScheme.surfaceContainer
                                 ) {
@@ -376,6 +335,7 @@ class MainActivity : FragmentActivity() {
                                 navController = navController!!,
                                 goToOnboarding = goToOnboarding,
                                 navBar = navBar,
+                                onNewAppClicked = remember { { showNewAppPage = true } },
                                 onNavigationChanged = { route ->
                                     val item =
                                         navBarItems.firstOrNull { route?.startsWith(it.route) == true }

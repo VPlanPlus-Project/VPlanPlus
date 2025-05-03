@@ -9,26 +9,35 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.NoAccounts
+import androidx.compose.material.icons.filled.Upgrade
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -38,6 +47,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -91,7 +101,8 @@ fun HomeScreen(
     navHostController: NavHostController,
     navBar: @Composable (expanded: Boolean) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
-    startDate: LocalDate = LocalDate.now()
+    startDate: LocalDate = LocalDate.now(),
+    onNewAppClicked: () -> Unit
 ) {
     val state = homeViewModel.state
     val context = LocalContext.current
@@ -116,6 +127,7 @@ fun HomeScreen(
             homeViewModel.onMenuOpenedChange(false)
             navHostController.navigate("${Screen.SettingsProfileScreen.route}/${it.id}")
         },
+        onNewAppClicked = onNewAppClicked,
         onOpenNews = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.NewsScreen.route) },
         onOpenSettings = { homeViewModel.onMenuOpenedChange(false); navHostController.navigate(Screen.SettingsScreen.route) },
         onPrivacyPolicyClicked = {
@@ -167,6 +179,7 @@ fun HomeScreenContent(
     onFixCredentialsClicked: () -> Unit = {},
 
     onSendFeedback: () -> Unit = {},
+    onNewAppClicked: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
@@ -253,6 +266,44 @@ fun HomeScreenContent(
                         expand = state.currentProfile.getSchool().credentialsValid == false,
                         onFixCredentialsClicked = onFixCredentialsClicked
                     )
+
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp)
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(MaterialTheme.colorScheme.primary)
+                            .clickable { onNewAppClicked() }
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
+                            Icon(
+                                imageVector = Icons.Default.Upgrade,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Column(
+                                modifier = Modifier
+                                    .padding(horizontal = 8.dp)
+                                    .weight(1f)
+                            ) {
+                                Text(
+                                    text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+                                Text(
+                                    text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
+                    }
 
                     QuickActions(
                         modifier = Modifier.padding(vertical = 16.dp),
