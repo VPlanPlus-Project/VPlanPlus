@@ -1,6 +1,9 @@
 ![Android](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)
 ![Kotlin](https://img.shields.io/badge/kotlin-%237F52FF.svg?style=for-the-badge&logo=kotlin&logoColor=white)
 
+> [!NOTE]
+> Diese App wird durch die [neue Generation](https://github.com/VPlanPlus-Project/app) von VPlanPlus ersetzt. Eine Migration der Einstellungen und Daten aus der alten App wird zum Release möglich sein.
+
 # <img src="https://vplan.plus/favicon.svg" height="35px"> VPlanPlus für Android
 
 [<img src="https://raw.githubusercontent.com/Julius-Babies/Julius-Babies/main/static/ghreleases.png" alt="Get it on Github Releases" height="50px">](https://github.com/Julius-Babies/VPlanPlus/releases)
