@@ -72,7 +72,8 @@ fun NavigationGraph(
     goToOnboarding: Boolean,
     navBar: @Composable (expanded: Boolean) -> Unit,
     navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit,
-    onNavigationChanged: (String?) -> Unit
+    onNavigationChanged: (String?) -> Unit,
+    onNewAppClicked: () -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -84,7 +85,7 @@ fun NavigationGraph(
 
         deepLinks(navController)
         onboarding(navController)
-        mainScreens(navController, navBar, navRail)
+        mainScreens(navController, navBar, onNewAppClicked, navRail)
         newsScreens(navController)
         settingsScreens(navController)
         gradesScreens(navController)
@@ -242,6 +243,7 @@ private fun NavGraphBuilder.onboarding(
 private fun NavGraphBuilder.mainScreens(
     navController: NavHostController,
     navBar: @Composable (expanded: Boolean) -> Unit,
+    onNewAppClicked: () -> Unit,
     navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit
 ) {
     composable(
@@ -253,7 +255,8 @@ private fun NavGraphBuilder.mainScreens(
     ) {
         HomeScreen(
             navHostController = navController,
-            navBar = navBar
+            navBar = navBar,
+            onNewAppClicked = onNewAppClicked
         )
     }
 
