@@ -40,6 +40,7 @@ class GenerateMigrationTextUseCase(
                             homework = if (profile is ClassProfile) homeworkRepository.getAllByProfile(profile).first().filter { it.homework.id < 0 }.map { homework ->
                                 HomeworkMigration(
                                     vpId = homework.homework.defaultLesson?.vpId,
+                                    date = homework.homework.until.toLocalDate().toString(),
                                     tasks = homework.tasks.map { task ->
                                         HomeworkTaskMigration(
                                             task = task.content,
@@ -92,6 +93,7 @@ data class DefaultLessonMigration(
 
 data class HomeworkMigration(
     @SerializedName("vp_id") val vpId: Int?,
+    @SerializedName("date") val date: String,
     @SerializedName("tasks") val tasks: List<HomeworkTaskMigration>,
 )
 
