@@ -278,6 +278,43 @@ fun HomeScreenContent(
                 onFixCredentialsClicked = onFixCredentialsClicked
             )
 
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clickable { onNewAppClicked() }
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
+                    Icon(
+                        imageVector = Icons.Default.Upgrade,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Column(
+                        modifier = Modifier
+                            .padding(horizontal = 8.dp)
+                            .weight(1f)
+                    ) {
+                        Text(
+                            text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
+            }
             QuickActions(
                 modifier = Modifier.padding(bottom = 8.dp),
                 onNewHomeworkClicked = {
