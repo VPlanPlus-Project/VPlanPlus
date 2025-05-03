@@ -7,10 +7,12 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,13 +24,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.NoAccounts
+import androidx.compose.material.icons.filled.Upgrade
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -103,6 +110,7 @@ fun HomeScreen(
     navHostController: NavHostController,
     navBar: @Composable (expanded: Boolean) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    onNewAppClicked: () -> Unit
 ) {
     val state = homeViewModel.state
     val context = LocalContext.current
@@ -172,6 +180,7 @@ fun HomeScreen(
         onSendFeedback = remember { { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) } },
         onOpenHomework = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
         onOpenExam = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
+        onNewAppClicked = onNewAppClicked
     )
 }
 
@@ -203,7 +212,8 @@ fun HomeScreenContent(
 
     onSendFeedback: () -> Unit = {},
 
-    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
+    onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {},
+    onNewAppClicked: () -> Unit
 ) {
     if (state.currentProfile == null) return
 
@@ -294,7 +304,8 @@ fun HomeScreenContent(
                         TodayContent(
                             today = state.today ?: return@Column,
                             currentProfile = state.currentProfile,
-                            onOpenExam = onOpenExam
+                            onOpenExam = onOpenExam,
+                            onNewAppClicked = onNewAppClicked
                         )
                     }
                 } else if (todayHasData) {
@@ -310,13 +321,15 @@ fun HomeScreenContent(
                             0 -> TodayContent(
                                 today = state.today ?: return@HorizontalPager,
                                 currentProfile = state.currentProfile,
-                                onOpenExam = onOpenExam
+                                onOpenExam = onOpenExam,
+                                onNewAppClicked = onNewAppClicked
                             )
                             1 -> NextDayPreparation(
                                 nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
                                 currentProfile = state.currentProfile,
                                 onOpenHomework = onOpenHomework,
-                                onOpenExam = onOpenExam
+                                onOpenExam = onOpenExam,
+                                onNewAppClicked = onNewAppClicked
                             )
                         }
                     }
@@ -333,7 +346,8 @@ fun HomeScreenContent(
                         nextSchoolDay = state.nextSchoolDay ?: return@Column,
                         currentProfile = state.currentProfile,
                         onOpenHomework = onOpenHomework,
-                        onOpenExam = onOpenExam
+                        onOpenExam = onOpenExam,
+                        onNewAppClicked = onNewAppClicked
                     )
                 } else {
                     Box(
@@ -388,6 +402,7 @@ private fun HomeScreenPreview() {
         onBookRoomClicked = {},
         onOpenMenu = {},
         onSwitchProfile = {},
+        onNewAppClicked = {}
     )
 }
 
@@ -407,7 +422,8 @@ fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Compos
 private fun TodayContent(
     today: SchoolDay,
     currentProfile: Profile,
-    onOpenExam: (examId: Int) -> Unit
+    onOpenExam: (examId: Int) -> Unit,
+    onNewAppClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -415,6 +431,44 @@ private fun TodayContent(
             .verticalScroll(rememberScrollState())
             .padding(bottom = 56.dp)
     ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .clickable { onNewAppClicked() }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
+                Icon(
+                    imageVector = Icons.Default.Upgrade,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+        Spacer(Modifier.size(8.dp))
         val currentOrNextLessons = today.getCurrentOrNextLesson()
         currentOrNextLessons?.let { currentOrNextLesson ->
             CurrentOrNextTitle(
@@ -491,6 +545,7 @@ private fun NextDayPreparation(
     currentProfile: Profile?,
     onOpenHomework: (homeworkId: Int) -> Unit,
     onOpenExam: (examId: Int) -> Unit,
+    onNewAppClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -498,6 +553,44 @@ private fun NextDayPreparation(
             .verticalScroll(rememberScrollState())
             .padding(bottom = 52.dp)
     ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .clickable { onNewAppClicked() }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
+                Icon(
+                    imageVector = Icons.Default.Upgrade,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+        Spacer(Modifier.size(8.dp))
         Column(
             Modifier.padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
