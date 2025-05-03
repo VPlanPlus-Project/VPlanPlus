@@ -14,6 +14,13 @@
 
     <uses-permission android:name="android.permission.CAMERA" />
 
+    <uses-permission android:name="android.permission.REQUEST_DELETE_PACKAGES" />
+
+    <queries>
+        <package android:name="plus.vplan.app" />
+        <package android:name="com.android.vending" />
+    </queries>
+
     <application
         android:name=".VppApplication"
         android:allowBackup="true"
