@@ -7,6 +7,7 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,13 +23,18 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.NoAccounts
+import androidx.compose.material.icons.filled.Upgrade
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -104,6 +110,7 @@ fun HomeScreen(
     navHostController: NavHostController,
     navBar: @Composable (expanded: Boolean) -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel(),
+    onNewAppClicked: () -> Unit
 ) {
     val state = homeViewModel.state
     val context = LocalContext.current
@@ -135,6 +142,7 @@ fun HomeScreen(
             )
             }
         },
+        onNewAppClicked = onNewAppClicked,
         onOpenSettings = remember {
             {
                 homeViewModel.onMenuOpenedChange(false); navHostController.navigate(
@@ -205,6 +213,7 @@ fun HomeScreenContent(
     onOpenExam: (examId: Int) -> Unit = {},
 
     onSendFeedback: () -> Unit = {},
+    onNewAppClicked: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {},
     onNewHomeDrawerClosed: () -> Unit = {},
@@ -283,8 +292,7 @@ fun HomeScreenContent(
                 },
                 onFindAvailableRoomClicked = onBookRoomClicked,
                 onSendFeedback = onSendFeedback,
-                allowHomeworkQuickAction = (state.currentProfile as? ClassProfile)?.isHomeworkEnabled
-                    ?: false
+                allowHomeworkQuickAction = (state.currentProfile as? ClassProfile)?.isHomeworkEnabled == true
             )
 
             Spacer16Dp()
@@ -302,6 +310,7 @@ fun HomeScreenContent(
                         TodayContent(
                             today = state.today,
                             currentProfile = state.currentProfile,
+                            onNewAppClicked = onNewAppClicked,
                             onOpenExam = onOpenExam
                         )
                     }
@@ -318,12 +327,14 @@ fun HomeScreenContent(
                             0 -> TodayContent(
                                 today = state.today,
                                 currentProfile = state.currentProfile,
+                                onNewAppClicked = onNewAppClicked,
                                 onOpenExam = onOpenExam
                             )
                             1 -> NextDayPreparation(
                                 nextSchoolDay = state.nextSchoolDay ?: return@HorizontalPager,
                                 currentProfile = state.currentProfile,
                                 onOpenHomework = onOpenHomework,
+                                onNewAppClicked = onNewAppClicked,
                                 onOpenExam = onOpenExam
                             )
                         }
@@ -341,6 +352,7 @@ fun HomeScreenContent(
                         nextSchoolDay = state.nextSchoolDay,
                         currentProfile = state.currentProfile,
                         onOpenHomework = onOpenHomework,
+                        onNewAppClicked = onNewAppClicked,
                         onOpenExam = onOpenExam
                     )
                 } else {
@@ -415,7 +427,8 @@ fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Compos
 private fun TodayContent(
     today: SchoolDay,
     currentProfile: Profile,
-    onOpenExam: (examId: Int) -> Unit
+    onOpenExam: (examId: Int) -> Unit,
+    onNewAppClicked: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -423,6 +436,44 @@ private fun TodayContent(
             .verticalScroll(rememberScrollState())
             .padding(bottom = 56.dp)
     ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .clickable { onNewAppClicked() }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
+                Icon(
+                    imageVector = Icons.Default.Upgrade,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+        Spacer8Dp()
         val currentOrNextLessons = today.getCurrentOrNextLesson()
         currentOrNextLessons?.let { currentOrNextLesson ->
             CurrentOrNextTitle(
@@ -498,6 +549,7 @@ private fun NextDayPreparation(
     nextSchoolDay: SchoolDay,
     currentProfile: Profile?,
     onOpenHomework: (homeworkId: Int) -> Unit,
+    onNewAppClicked: () -> Unit,
     onOpenExam: (examId: Int) -> Unit,
 ) {
     Column(
@@ -506,6 +558,44 @@ private fun NextDayPreparation(
             .verticalScroll(rememberScrollState())
             .padding(bottom = 52.dp)
     ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(16.dp))
+                .background(MaterialTheme.colorScheme.primary)
+                .clickable { onNewAppClicked() }
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
+                Icon(
+                    imageVector = Icons.Default.Upgrade,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+                Column(
+                    modifier = Modifier
+                        .padding(horizontal = 8.dp)
+                        .weight(1f)
+                ) {
+                    Text(
+                        text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+                    Text(
+                        text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(24.dp)
+                )
+            }
+        }
+        Spacer8Dp()
         Column(
             Modifier.padding(horizontal = 12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
