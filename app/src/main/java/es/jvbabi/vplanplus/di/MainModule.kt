@@ -32,6 +32,7 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.PickEmojiUseCase
 import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.WebAuthTaskUseCases
 import es.jvbabi.vplanplus.feature.logs.data.repository.LogRecordRepository
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.repository.HomeworkRepository
+import es.jvbabi.vplanplus.feature.migration.usecase.GenerateMigrationTextUseCase
 import javax.inject.Singleton
 
 @Module
@@ -63,6 +64,18 @@ object MainModule {
             setCurrentProfileUseCase = SetCurrentProfileUseCase(keyValueRepository, profileRepository)
         )
     }
+
+    @Provides
+    @Singleton
+    fun provideGenerateMigrationTextUseCase(
+        profileRepository: ProfileRepository,
+        keyValueRepository: KeyValueRepository,
+        homeworkRepository: HomeworkRepository
+    ) = GenerateMigrationTextUseCase(
+        profileRepository = profileRepository,
+        keyValueRepository = keyValueRepository,
+        homeworkRepository = homeworkRepository
+    )
 
     @Provides
     @Singleton
