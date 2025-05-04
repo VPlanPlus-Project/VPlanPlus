@@ -15,13 +15,13 @@ plugins {
 
 android {
     namespace = "es.jvbabi.vplanplus"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "es.jvbabi.vplanplus"
         minSdk = 26
         targetSdk = 35
-        versionCode = 316
+        versionCode = 341
         versionName = "VPP_${LocalDate.now().format(DateTimeFormatter.ofPattern("YYYYMMdd"))}-android1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
