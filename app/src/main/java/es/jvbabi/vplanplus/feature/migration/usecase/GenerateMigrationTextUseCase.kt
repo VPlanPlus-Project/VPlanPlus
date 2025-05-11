@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.migration.usecase
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.domain.model.ClassProfile
@@ -11,11 +12,13 @@ import kotlinx.coroutines.flow.first
 import java.nio.charset.StandardCharsets
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import androidx.core.content.edit
 
 class GenerateMigrationTextUseCase(
     private val profileRepository: ProfileRepository,
     private val keyValueRepository: KeyValueRepository,
-    private val homeworkRepository: HomeworkRepository
+    private val homeworkRepository: HomeworkRepository,
+    private val context: Context
 ) {
     @OptIn(ExperimentalEncodingApi::class)
     suspend operator fun invoke(): String {
@@ -60,6 +63,11 @@ class GenerateMigrationTextUseCase(
             )
         ).let {
             Base64.encode(Gson().toJson(it).toByteArray(StandardCharsets.UTF_8))
+        }.also {
+            val sharedProperties = context.getSharedPreferences("shared_prefs", Context.MODE_PRIVATE)
+            sharedProperties.edit {
+                putString("migration_text", it)
+            }
         }
     }
 }
