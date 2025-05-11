@@ -2,9 +2,6 @@ package es.jvbabi.vplanplus
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +10,6 @@ import android.view.animation.AccelerateInterpolator
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -24,7 +20,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,12 +41,11 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.MenuBook
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
-import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -72,9 +66,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import androidx.core.animation.doOnEnd
@@ -105,8 +97,8 @@ import es.jvbabi.vplanplus.domain.usecase.vpp_id.web_auth.OpenTaskNotificationOn
 import es.jvbabi.vplanplus.feature.migration.usecase.GenerateMigrationTextUseCase
 import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.NavigationGraph
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
-import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.screens.Screen
 import es.jvbabi.vplanplus.ui.screens.overlay.vpp_web_auth.VppIdAuthWrapper
@@ -179,6 +171,7 @@ class MainActivity : FragmentActivity() {
             Log.i("MainActivity.Setup", "Run preparation")
             mainUseCases.setUpUseCase()
 
+            var hasBuiltMigrationText = false
             combine(
                 listOf(
                     mainUseCases.getColorSchemeUseCase(),
@@ -190,7 +183,9 @@ class MainActivity : FragmentActivity() {
                 currentProfile = data[1] as Profile?
                 appTheme.value = AppThemeMode.valueOf(data[2] as String)
             }.collect {
+                if (!hasBuiltMigrationText) generateMigrationTextUseCase()
                 initDone = true
+                hasBuiltMigrationText = true
             }
         }
 
@@ -410,9 +405,8 @@ class MainActivity : FragmentActivity() {
                                                 Text(
                                                     text = when (step) {
                                                         0 -> "Lade die neue App herunter"
-                                                        1 -> "Kopiere diesen Text"
-                                                        2 -> "Füge den Text in der neuen App ein"
-                                                        3 -> "Lösche die alte App"
+                                                        1 -> "Öffne die neue App"
+                                                        2 -> "Lösche die alte App"
                                                         else -> ""
                                                     },
                                                     style = MaterialTheme.typography.headlineSmall
@@ -477,64 +471,19 @@ class MainActivity : FragmentActivity() {
                                                         }
                                                     }
                                                     1 -> {
-                                                        Text(
-                                                            text = "Dieser Text beinhaltet deine Einstellungen, sodass die neue App schneller an dich angepasst ist. Diesen Text wirst du in der neuen App einfügen. Bitte teile ihn nicht, da in ihm auch Anmeldedaten enthalten sein können."
-                                                        )
-                                                        Spacer4Dp()
-                                                        Box(modifier = Modifier
-                                                            .fillMaxWidth()
-                                                            .clip(RoundedCornerShape(4.dp))
-                                                            .background(MaterialTheme.colorScheme.surfaceVariant)
-                                                            .combinedClickable(
-                                                                enabled = migrationText != null,
-                                                                onClick = { migrationText?.let { context.copyToClipboard(it) } },
-                                                                onLongClick = { migrationText?.let { context.copyToClipboard(it) } }
-                                                            )
-                                                            .padding(4.dp)
-                                                        ) {
-                                                            AnimatedContent(
-                                                                targetState = migrationText,
-                                                                modifier = Modifier.fillMaxWidth()
-                                                            ) { text ->
-                                                                if (text == null) Box(
-                                                                    modifier = Modifier.fillMaxWidth(),
-                                                                    contentAlignment = Alignment.Center
-                                                                ) {
-                                                                    CircularProgressIndicator()
-                                                                }
-                                                                else Text(
-                                                                    text = text,
-                                                                    style = MaterialTheme.typography.bodySmall,
-                                                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                                                    fontFamily = FontFamily.Monospace,
-                                                                    maxLines = 10,
-                                                                    overflow = TextOverflow.Ellipsis
-                                                                )
-                                                            }
-                                                        }
+                                                        Text("Öffne die neue VPlanPlus-App tippe auf 'Aus VPlanPlus importieren'.")
                                                         Spacer8Dp()
-                                                        Button(
-                                                            onClick = { migrationText?.let { context.copyToClipboard(it) } },
-                                                            enabled = migrationText != null
-                                                        ) {
-                                                            RowVerticalCenter {
-                                                                Icon(
-                                                                    imageVector = Icons.Default.ContentCopy,
-                                                                    contentDescription = null,
-                                                                    modifier = Modifier.size(18.dp)
-                                                                )
-                                                                Spacer8Dp()
-                                                                Text("Kopieren")
-                                                            }
-                                                        }
-                                                    }
-                                                    2 -> {
-                                                        Text("Öffne die neue VPlanPlus-App tippe auf 'Aus VPlanPlus importieren' und füge den Text ein.")
+                                                        InfoCard(
+                                                            imageVector = Icons.Default.Info,
+                                                            title = "Wichtig",
+                                                            text = "Um deine Daten zu importieren, musst du die neue VPlanPlus-App über die Schaltfläche weiter unten öffnen."
+                                                        )
                                                         Spacer8Dp()
                                                         Button(
                                                             onClick = {
                                                                 val intent = applicationContext.packageManager.getLaunchIntentForPackage("plus.vplan.app") ?: return@Button
                                                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                                intent.putExtra("migration_data", migrationText ?: return@Button)
                                                                 startActivity(intent)
                                                             }
                                                         ) {
@@ -549,7 +498,7 @@ class MainActivity : FragmentActivity() {
                                                             }
                                                         }
                                                     }
-                                                    3 -> {
+                                                    2 -> {
                                                         Text("Wenn die neue App eingerichtet ist, kannst du diese App löschen. Vielen Dank, dass du VPlanPlus in seinen frühen Tagen verwendet hast.")
                                                         Spacer8Dp()
                                                         Button(onClick = {
@@ -697,9 +646,3 @@ data class NavigationBarItem(
     val icon: @Composable () -> Unit,
     val label: @Composable () -> Unit
 )
-
-fun Context.copyToClipboard(text: CharSequence) {
-    val clipboard = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("vpp-upgrade", text)
-    clipboard.setPrimaryClip(clip)
-}
