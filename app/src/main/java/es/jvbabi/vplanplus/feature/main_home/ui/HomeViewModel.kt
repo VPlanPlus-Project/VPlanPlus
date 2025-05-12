@@ -21,6 +21,7 @@ import es.jvbabi.vplanplus.domain.model.DayType
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
+import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
 import es.jvbabi.vplanplus.feature.settings.advanced.ui.components.VppIdServer
@@ -37,7 +38,8 @@ import javax.inject.Inject
 @Suppress("UNCHECKED_CAST")
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeUseCases: HomeUseCases
+    private val homeUseCases: HomeUseCases,
+    private val keyValueRepository: KeyValueRepository
 ) : ViewModel() {
     var state by mutableStateOf(HomeState())
 
@@ -53,6 +55,11 @@ class HomeViewModel @Inject constructor(
                 isVersionHintsDialogOpen = hint != null,
                 currentVersion = versionName
             )
+        }
+        viewModelScope.launch {
+            keyValueRepository.getFlow("newappbannertype").collect {
+                state = state.copy(newAppBanner = NewAppBannerType.valueOf(it ?: NewAppBannerType.SHOW.name))
+            }
         }
         viewModelScope.launch {
             homeUseCases.getCurrentTimeUseCase().collect { state = state.copy(currentTime = it) }
@@ -188,6 +195,18 @@ class HomeViewModel @Inject constructor(
             homeUseCases.ignoreInvalidVppIdSessionsUseCase()
         }
     }
+
+    fun onNewAppBannerClicked() {
+        viewModelScope.launch {
+            keyValueRepository.set("newappbannertype", NewAppBannerType.CAN_HIDE.name)
+        }
+    }
+
+    fun onNewAppBannerClosed() {
+        viewModelScope.launch {
+            keyValueRepository.set("newappbannertype", NewAppBannerType.HIDDEN.name)
+        }
+    }
 }
 
 data class HomeState(
@@ -213,11 +232,16 @@ data class HomeState(
     val server: VppIdServer = servers.first(),
 
     val hasInvalidVppIdSession: Boolean = false,
-    val hasMissingVppIdToProfileLinks: Boolean = false
+    val hasMissingVppIdToProfileLinks: Boolean = false,
+    val newAppBanner: NewAppBannerType = NewAppBannerType.SHOW
 ) {
     val nextSchoolDayWithData: LocalDate?
         get() = days.entries.firstOrNull { it.key.isAfter(currentTime.toLocalDate()) && it.value.state == DayDataState.DATA && it.value.type == DayType.NORMAL }?.key
 
     val autoNextDay: Boolean
         get() = nextSchoolDayWithData != null && days.entries.firstOrNull { it.key.isEqual(currentTime.toLocalDate()) }?.value?.lessons?.none { currentTime.progress(it.start, it.end) < 1f } ?: true
+}
+
+enum class NewAppBannerType {
+    SHOW, CAN_HIDE, HIDDEN
 }
