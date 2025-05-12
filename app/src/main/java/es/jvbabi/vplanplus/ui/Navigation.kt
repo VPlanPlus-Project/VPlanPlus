@@ -247,6 +247,27 @@ private fun NavGraphBuilder.mainScreens(
     navRail: @Composable (expanded: Boolean, fab: @Composable () -> Unit) -> Unit
 ) {
     composable(
+        route = Screen.HomeScreen.route + "/{startDate}",
+        enterTransition = { fadeIn(tween(300)) },
+        exitTransition = { fadeOut(tween(300)) },
+        popEnterTransition = { fadeIn(tween(300)) },
+        popExitTransition = { fadeOut(tween(300)) },
+        arguments = listOf(
+            navArgument("startDate") {
+                type = NavType.StringType
+                nullable = true
+                defaultValue = null
+            }
+        )
+    ) {
+        HomeScreen(
+            navHostController = navController,
+            navBar = navBar,
+            onNewAppClicked = onNewAppClicked
+        )
+    }
+
+    composable(
         route = Screen.HomeScreen.route,
         enterTransition = { fadeIn(tween(300)) },
         exitTransition = { fadeOut(tween(300)) },
