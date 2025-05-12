@@ -1,8 +1,10 @@
 package es.jvbabi.vplanplus.di
 
+import android.content.Context
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import es.jvbabi.vplanplus.domain.repository.AlarmManagerRepository
 import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
@@ -63,11 +65,13 @@ object MainModule {
     fun provideGenerateMigrationTextUseCase(
         profileRepository: ProfileRepository,
         keyValueRepository: KeyValueRepository,
-        homeworkRepository: HomeworkRepository
+        homeworkRepository: HomeworkRepository,
+        @ApplicationContext context: Context
     ) = GenerateMigrationTextUseCase(
         profileRepository = profileRepository,
         keyValueRepository = keyValueRepository,
-        homeworkRepository = homeworkRepository
+        homeworkRepository = homeworkRepository,
+        context = context
     )
 
     @Provides
