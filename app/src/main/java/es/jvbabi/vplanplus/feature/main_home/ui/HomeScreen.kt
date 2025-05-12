@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
@@ -9,35 +12,26 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PageSize
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.NoAccounts
-import androidx.compose.material.icons.filled.Upgrade
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -47,7 +41,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -57,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -78,8 +72,11 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
+import es.jvbabi.vplanplus.feature.migration.ui.components.BetaTestAdvert
+import es.jvbabi.vplanplus.feature.migration.ui.components.NewAppCard
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
+import es.jvbabi.vplanplus.ui.common.Spacer8Dp
 import es.jvbabi.vplanplus.ui.common.keyboardAsState
 import es.jvbabi.vplanplus.ui.common.openLink
 import es.jvbabi.vplanplus.ui.preview.GroupPreview
@@ -148,7 +145,9 @@ fun HomeScreen(
         onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
         onFixCredentialsClicked = { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentProfile?.getSchool()?.id}") },
-        onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) }
+        onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) },
+        onNewAppBannerClicked = { homeViewModel.onNewAppBannerClicked() },
+        onNewAppBannerClosed = { homeViewModel.onNewAppBannerClosed() },
     )
 }
 
@@ -180,6 +179,9 @@ fun HomeScreenContent(
 
     onSendFeedback: () -> Unit = {},
     onNewAppClicked: () -> Unit = {},
+
+    onNewAppBannerClicked: () -> Unit = {},
+    onNewAppBannerClosed: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
@@ -267,43 +269,20 @@ fun HomeScreenContent(
                         onFixCredentialsClicked = onFixCredentialsClicked
                     )
 
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .fillMaxWidth()
-                            .clip(RoundedCornerShape(16.dp))
-                            .background(MaterialTheme.colorScheme.primary)
-                            .clickable { onNewAppClicked() }
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
-                            Icon(
-                                imageVector = Icons.Default.Upgrade,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Column(
-                                modifier = Modifier
-                                    .padding(horizontal = 8.dp)
-                                    .weight(1f)
-                            ) {
-                                Text(
-                                    text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                                Text(
-                                    text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                    val context = LocalContext.current
+                    if (isPackageInstalled(context, "plus.vplan.app")) NewAppCard(onNewAppClicked)
+                    Spacer8Dp()
+                    if (state.newAppBanner != NewAppBannerType.HIDDEN) BetaTestAdvert(
+                        onClicked = {
+                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                data = "https://beta.vplan.plus?ref=old_app".toUri()
                             }
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                                contentDescription = null,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
+                            context.startActivity(intent)
+                            onNewAppBannerClicked()
+                        },
+                        canClose = state.newAppBanner == NewAppBannerType.CAN_HIDE,
+                        onCloseClicked = onNewAppBannerClosed
+                    )
 
                     QuickActions(
                         modifier = Modifier.padding(vertical = 16.dp),
@@ -459,4 +438,16 @@ fun Collapsable(modifier: Modifier = Modifier, expand: Boolean, content: @Compos
     ) {
         content()
     }
+}
+
+fun isPackageInstalled(context: Context, packageName: String?): Boolean {
+    var result = false
+    try {
+        // is the application installed?
+        context.packageManager.getPackageInfo(packageName!!, PackageManager.GET_ACTIVITIES)
+        result = true
+    } catch (e: PackageManager.NameNotFoundException) {
+        //Not installed
+    }
+    return result
 }
