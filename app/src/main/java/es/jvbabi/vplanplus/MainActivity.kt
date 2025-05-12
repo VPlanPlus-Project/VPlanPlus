@@ -51,6 +51,7 @@ import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Grade
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -70,6 +71,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -113,6 +115,7 @@ import es.jvbabi.vplanplus.feature.settings.general.domain.data.AppThemeMode
 import es.jvbabi.vplanplus.ui.NavigationGraph
 import es.jvbabi.vplanplus.ui.NotificationDestination
 import es.jvbabi.vplanplus.ui.common.CrashAnalyticsDialog
+import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
 import es.jvbabi.vplanplus.ui.common.Spacer4Dp
 import es.jvbabi.vplanplus.ui.common.Spacer8Dp
@@ -188,6 +191,7 @@ class MainActivity : FragmentActivity() {
             Log.i("MainActivity.Setup", "Run preparation")
             mainUseCases.setUpUseCase()
 
+            var hasBuiltMigrationText = false
             combine(
                 listOf(
                     mainUseCases.getColorSchemeUseCase(),
@@ -199,7 +203,9 @@ class MainActivity : FragmentActivity() {
                 currentProfile = data[1] as Profile?
                 appTheme.value = AppThemeMode.valueOf(data[2] as String)
             }.collect {
+                if (!hasBuiltMigrationText) generateMigrationTextUseCase()
                 initDone = true
+                hasBuiltMigrationText = true
             }
         }
 
@@ -381,6 +387,202 @@ class MainActivity : FragmentActivity() {
                         if (authTask != null) {
                             Box(modifier = Modifier.zIndex(500f)) {
                                 VppIdAuthWrapper(task = authTask, onFinished = { authTask = null })
+                            }
+                        }
+
+                        AnimatedVisibility(
+                            visible = showNewAppPage,
+                            enter = fadeIn(tween(250)),
+                            exit = fadeOut(tween(250))
+                        ) {
+                            BackHandler(enabled = showNewAppPage) { showNewAppPage = false }
+
+                            var migrationText by rememberSaveable { mutableStateOf<String?>(null) }
+                            LaunchedEffect(Unit) {
+                                migrationText = generateMigrationTextUseCase()
+                            }
+
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(MaterialTheme.colorScheme.surface)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .weight(1f)
+                                        .padding(top = WindowInsets.safeContent.asPaddingValues().calculateTopPadding())
+                                        .padding(horizontal = 8.dp)
+                                        .verticalScroll(rememberScrollState())
+                                ) {
+                                    Text(
+                                        text = "Wechsle jetzt zur neuen VPlanPlus-App",
+                                        style = MaterialTheme.typography.titleLarge,
+                                    )
+                                    Text("und profitiere von vielen neuen Funktionen, z.B. ein Kalender, eine deutlich höhere Zuverlässigkeit, Leistungserhebungen und vielem mehr.")
+                                    Spacer8Dp()
+                                    Spacer8Dp()
+
+                                    repeat(3) { step ->
+                                        Spacer(Modifier.size(8.dp))
+                                        Row(Modifier.padding(horizontal = 8.dp)) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(32.dp)
+                                                    .border(
+                                                        1.dp,
+                                                        MaterialTheme.colorScheme.outline,
+                                                        RoundedCornerShape(16.dp)
+                                                    ),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Text(
+                                                    text = "${step+1}.",
+                                                    color = MaterialTheme.colorScheme.outline,
+                                                    style = MaterialTheme.typography.titleMedium
+                                                )
+                                            }
+                                            Spacer8Dp()
+                                            Spacer8Dp()
+                                            Column {
+                                                Text(
+                                                    text = when (step) {
+                                                        0 -> "Lade die neue App herunter"
+                                                        1 -> "Öffne die neue App"
+                                                        2 -> "Lösche die alte App"
+                                                        else -> ""
+                                                    },
+                                                    style = MaterialTheme.typography.headlineSmall
+                                                )
+                                                when (step) {
+                                                    0 -> {
+                                                        Text("Öffne den Google PlayStore und suche nach 'VPlanPlus: Digitaler Schultag'")
+                                                        Spacer8Dp()
+                                                        RowVerticalCenter {
+                                                            Image(
+                                                                painter = painterResource(R.drawable.app_new),
+                                                                contentDescription = null,
+                                                                modifier = Modifier
+                                                                    .size(48.dp)
+                                                                    .clip(RoundedCornerShape(8.dp))
+                                                            )
+                                                            Spacer8Dp()
+                                                            Column {
+                                                                Text(
+                                                                    text = "VPlanPlus: Digitaler Schultag",
+                                                                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold)
+                                                                )
+                                                                Text(
+                                                                    text = "Familie Babies",
+                                                                    style = MaterialTheme.typography.labelLarge,
+                                                                    color = MaterialTheme.colorScheme.secondary
+                                                                )
+                                                            }
+                                                        }
+                                                        Spacer8Dp()
+                                                        Button(onClick = {
+                                                            val intent = Intent(Intent.ACTION_VIEW)
+                                                            val referrer = "VPP_Legacy"
+                                                            val id = "plus.vplan.app"
+                                                            val callerId = BuildConfig.APPLICATION_ID
+                                                            intent.setPackage("com.android.vending")
+                                                            val deepLinkUrl = "https://play.google.com/d?id=$id&referrer=$referrer"
+                                                            intent.data = deepLinkUrl.toUri()
+                                                            intent.putExtra("overlay", true)
+                                                            intent.putExtra("callerId", callerId)
+                                                            val packageManager = context.packageManager
+                                                            if (intent.resolveActivity(packageManager) != null) {
+                                                                startActivityForResult(intent, 0)
+                                                            } else {
+                                                                val intent = Intent(Intent.ACTION_VIEW).apply {
+                                                                    data = "https://play.google.com/store/apps/details?id=$id".toUri()
+                                                                    setPackage("com.android.vending")
+                                                                }
+
+                                                                startActivity(intent)
+                                                            }
+                                                        }) {
+                                                            RowVerticalCenter {
+                                                                Icon(
+                                                                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                                                                    contentDescription = null,
+                                                                    modifier = Modifier.size(18.dp)
+                                                                )
+                                                                Spacer8Dp()
+                                                                Text("Im Google PlayStore fortfahren")
+                                                            }
+                                                        }
+                                                    }
+                                                    1 -> {
+                                                        Text("Öffne die neue VPlanPlus-App tippe auf 'Aus VPlanPlus importieren'.")
+                                                        Spacer8Dp()
+                                                        InfoCard(
+                                                            imageVector = Icons.Default.Info,
+                                                            title = "Wichtig",
+                                                            text = "Um deine Daten zu importieren, musst du die neue VPlanPlus-App über die Schaltfläche weiter unten öffnen."
+                                                        )
+                                                        Spacer8Dp()
+                                                        Button(
+                                                            onClick = {
+                                                                val intent = applicationContext.packageManager.getLaunchIntentForPackage("plus.vplan.app") ?: return@Button
+                                                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                                                intent.putExtra("migration_data", migrationText ?: return@Button)
+                                                                startActivity(intent)
+                                                            }
+                                                        ) {
+                                                            RowVerticalCenter {
+                                                                Icon(
+                                                                    imageVector = Icons.AutoMirrored.Default.OpenInNew,
+                                                                    contentDescription = null,
+                                                                    modifier = Modifier.size(18.dp)
+                                                                )
+                                                                Spacer8Dp()
+                                                                Text("Neue App öffnen")
+                                                            }
+                                                        }
+                                                    }
+                                                    2 -> {
+                                                        Text("Wenn die neue App eingerichtet ist, kannst du diese App löschen. Vielen Dank, dass du VPlanPlus in seinen frühen Tagen verwendet hast.")
+                                                        Spacer8Dp()
+                                                        Button(onClick = {
+                                                            val intent = Intent(Intent.ACTION_DELETE)
+                                                            intent.data = "package:${BuildConfig.APPLICATION_ID}".toUri()
+                                                            startActivity(intent)
+                                                        }) {
+                                                            RowVerticalCenter {
+                                                                Icon(
+                                                                    imageVector = Icons.Default.Delete,
+                                                                    contentDescription = null,
+                                                                    modifier = Modifier.size(18.dp)
+                                                                )
+                                                                Spacer8Dp()
+                                                                Text("App löschen")
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    Spacer(Modifier.size(64.dp))
+                                }
+                                OutlinedButton(
+                                    onClick = { showNewAppPage = false },
+                                    modifier = Modifier
+                                        .padding(horizontal = 8.dp)
+                                        .padding(bottom = WindowInsets.safeContent.asPaddingValues().calculateBottomPadding() + 8.dp)
+                                        .fillMaxWidth()
+                                ) {
+                                    RowVerticalCenter {
+                                        Icon(
+                                            imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                            contentDescription = null
+                                        )
+                                        Spacer8Dp()
+                                        Text(text = "Zurück")
+                                    }
+                                }
                             }
                         }
 
