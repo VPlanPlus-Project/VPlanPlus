@@ -1,5 +1,8 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandHorizontally
@@ -53,6 +56,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -84,6 +88,8 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.Lessons
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
+import es.jvbabi.vplanplus.feature.migration.ui.components.BetaTestAdvert
+import es.jvbabi.vplanplus.feature.migration.ui.components.NewAppCard
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
 import es.jvbabi.vplanplus.ui.common.RowVerticalCenter
@@ -180,7 +186,9 @@ fun HomeScreen(
         onSendFeedback = remember { { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) } },
         onOpenHomework = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
         onOpenExam = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
-        onNewAppClicked = onNewAppClicked
+        onNewAppClicked = onNewAppClicked,
+        onNewAppBannerClicked = { homeViewModel.onNewAppBannerClicked() },
+        onNewAppBannerClosed = { homeViewModel.onNewAppBannerClosed() },
     )
 }
 
@@ -211,6 +219,9 @@ fun HomeScreenContent(
     onOpenExam: (examId: Int) -> Unit = {},
 
     onSendFeedback: () -> Unit = {},
+
+    onNewAppBannerClicked: () -> Unit = {},
+    onNewAppBannerClosed: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {},
     onNewAppClicked: () -> Unit
@@ -278,43 +289,20 @@ fun HomeScreenContent(
                 onFixCredentialsClicked = onFixCredentialsClicked
             )
 
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.primary)
-                    .clickable { onNewAppClicked() }
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onPrimary) {
-                    Icon(
-                        imageVector = Icons.Default.Upgrade,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Column(
-                        modifier = Modifier
-                            .padding(horizontal = 8.dp)
-                            .weight(1f)
-                    ) {
-                        Text(
-                            text = "\uD83D\uDE80 Die neue VPlanPlus-App ist da!",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = "Wechsle jetzt zur neuen Generation von VPlanPlus. Schneller, einfacher und zuverlässiger. Tippe hier für mehr Informationen.",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
+            val context = LocalContext.current
+                    if (isPackageInstalled(context, "plus.vplan.app")) NewAppCard(onNewAppClicked)
+                    Spacer8Dp()
+                        if (state.newAppBanner != NewAppBannerType.HIDDEN) BetaTestAdvert(
+                        onClicked = {
+                    val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = "https://beta.vplan.plus?ref=old_app".toUri()
+                        }
+                            context.startActivity(intent)
+                            onNewAppBannerClicked()
+                    },
+                        canClose = state.newAppBanner == NewAppBannerType.CAN_HIDE,
+                            onCloseClicked = onNewAppBannerClosed
+            )
             QuickActions(
                 modifier = Modifier.padding(bottom = 8.dp),
                 onNewHomeworkClicked = {
@@ -748,4 +736,16 @@ private fun NoData(
             }
         }
     }
+}
+
+fun isPackageInstalled(context: Context, packageName: String?): Boolean {
+    var result = false
+    try {
+        // is the application installed?
+        context.packageManager.getPackageInfo(packageName!!, PackageManager.GET_ACTIVITIES)
+        result = true
+    } catch (e: PackageManager.NameNotFoundException) {
+        //Not installed
+    }
+    return result
 }

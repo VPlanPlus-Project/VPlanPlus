@@ -422,7 +422,7 @@ class MainActivity : FragmentActivity() {
                                     Spacer8Dp()
                                     Spacer8Dp()
 
-                                    repeat(4) { step ->
+                                    repeat(3) { step ->
                                         Spacer(Modifier.size(8.dp))
                                         Row(Modifier.padding(horizontal = 8.dp)) {
                                             Box(
