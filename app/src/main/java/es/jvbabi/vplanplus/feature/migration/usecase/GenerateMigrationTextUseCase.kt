@@ -1,5 +1,6 @@
 package es.jvbabi.vplanplus.feature.migration.usecase
 
+import android.content.Context
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import es.jvbabi.vplanplus.domain.model.ClassProfile
@@ -11,11 +12,13 @@ import kotlinx.coroutines.flow.first
 import java.nio.charset.StandardCharsets
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import androidx.core.content.edit
 
 class GenerateMigrationTextUseCase(
     private val profileRepository: ProfileRepository,
     private val keyValueRepository: KeyValueRepository,
-    private val homeworkRepository: HomeworkRepository
+    private val homeworkRepository: HomeworkRepository,
+    private val context: Context
 ) {
     @OptIn(ExperimentalEncodingApi::class)
     suspend operator fun invoke(): String {
@@ -40,6 +43,7 @@ class GenerateMigrationTextUseCase(
                             homework = if (profile is ClassProfile) homeworkRepository.getAllByProfile(profile).first().filter { it.homework.id < 0 }.map { homework ->
                                 HomeworkMigration(
                                     vpId = homework.homework.defaultLesson?.vpId,
+                                    date = homework.homework.until.toLocalDate().toString(),
                                     tasks = homework.tasks.map { task ->
                                         HomeworkTaskMigration(
                                             task = task.content,
@@ -59,6 +63,11 @@ class GenerateMigrationTextUseCase(
             )
         ).let {
             Base64.encode(Gson().toJson(it).toByteArray(StandardCharsets.UTF_8))
+        }.also {
+            val sharedProperties = context.getSharedPreferences("shared_prefs", Context.MODE_PRIVATE)
+            sharedProperties.edit {
+                putString("migration_text", it)
+            }
         }
     }
 }
@@ -92,6 +101,7 @@ data class DefaultLessonMigration(
 
 data class HomeworkMigration(
     @SerializedName("vp_id") val vpId: Int?,
+    @SerializedName("date") val date: String,
     @SerializedName("tasks") val tasks: List<HomeworkTaskMigration>,
 )
 
