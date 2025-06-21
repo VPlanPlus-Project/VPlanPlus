@@ -18,7 +18,6 @@ import es.jvbabi.vplanplus.domain.model.ClassProfile
 import es.jvbabi.vplanplus.domain.model.Profile
 import es.jvbabi.vplanplus.domain.model.RoomBooking
 import es.jvbabi.vplanplus.domain.model.VersionHints
-import es.jvbabi.vplanplus.domain.repository.KeyValueRepository
 import es.jvbabi.vplanplus.feature.main_calendar.home.domain.model.SchoolDay
 import es.jvbabi.vplanplus.feature.main_home.domain.usecase.HomeUseCases
 import es.jvbabi.vplanplus.feature.main_homework.shared.domain.model.PersonalizedHomework
@@ -34,8 +33,7 @@ import javax.inject.Inject
 @Suppress("UNCHECKED_CAST")
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val homeUseCases: HomeUseCases,
-    private val keyValueRepository: KeyValueRepository
+    private val homeUseCases: HomeUseCases
 ) : ViewModel() {
     var state by mutableStateOf(HomeState())
 
@@ -49,11 +47,6 @@ class HomeViewModel @Inject constructor(
                 isVersionHintsDialogOpen = hint != null,
                 currentVersion = versionName
             )
-        }
-        viewModelScope.launch {
-            keyValueRepository.getFlow("newappbannertype").collect {
-                state = state.copy(newAppBanner = NewAppBannerType.valueOf(it ?: NewAppBannerType.SHOW.name))
-            }
         }
         viewModelScope.launch {
             homeUseCases.getCurrentTimeUseCase().collect { state = state.copy(currentTime = it) }
@@ -175,18 +168,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onNewAppBannerClicked() {
-        viewModelScope.launch {
-            keyValueRepository.set("newappbannertype", NewAppBannerType.CAN_HIDE.name)
-        }
-    }
-
-    fun onNewAppBannerClosed() {
-        viewModelScope.launch {
-            keyValueRepository.set("newappbannertype", NewAppBannerType.HIDDEN.name)
-        }
-    }
-
     fun hideNewHomeDrawer() {
         viewModelScope.launch {
             homeUseCases.hideNewHomeDrawerUseCase()
@@ -219,11 +200,5 @@ data class HomeState(
     val hasMissingVppIdToProfileLinks: Boolean = false,
 
     val nextSchoolDay: SchoolDay? = null,
-
     val showNewHomeDrawer: Boolean = false,
-    val newAppBanner: NewAppBannerType = NewAppBannerType.SHOW
 )
-
-enum class NewAppBannerType {
-    SHOW, CAN_HIDE, HIDDEN
-}
