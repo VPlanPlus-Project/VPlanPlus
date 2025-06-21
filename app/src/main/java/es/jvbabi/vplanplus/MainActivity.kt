@@ -2,9 +2,6 @@ package es.jvbabi.vplanplus
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -125,7 +122,6 @@ import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-
 
 @AndroidEntryPoint
 class MainActivity : FragmentActivity() {
@@ -326,20 +322,7 @@ class MainActivity : FragmentActivity() {
                             enter = expandVertically(tween(250)),
                             exit = shrinkVertically(tween(250))
                         ) {
-                            Column {
-                                NavigationBar(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainer
-                                ) {
-                                    navBarItems.forEachIndexed { index, item ->
-                                        NavigationBarItem(
-                                            selected = index == selectedIndex,
-                                            onClick = item.onClick,
-                                            icon = item.icon,
-                                            label = item.label
-                                        )
-                                    }
-                                }
-                            }
+                            navBarItems.BottomBar(selectedIndex)
                         }
                     }
 
@@ -727,9 +710,3 @@ data class NavigationBarItem(
     val icon: @Composable () -> Unit,
     val label: @Composable () -> Unit
 )
-
-fun Context.copyToClipboard(text: CharSequence) {
-    val clipboard = this.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-    val clip = ClipData.newPlainText("vpp-upgrade", text)
-    clipboard.setPrimaryClip(clip)
-}

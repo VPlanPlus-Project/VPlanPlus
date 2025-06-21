@@ -315,7 +315,7 @@ fun HomeScreenContent(
             Spacer16Dp()
 
             val todayHasData = state.today != null && (state.today.dataType != DataType.NO_DATA || state.today.type != DayType.NORMAL)
-            val todayIsOver = state.today?.isDayOver() ?: false
+            val todayIsOver = state.today?.isDayOver() == true
             val nextDayHasData = state.nextSchoolDay != null
 
             Box(Modifier.fillMaxSize()) {
@@ -671,7 +671,7 @@ fun isPackageInstalled(context: Context, packageName: String?): Boolean {
         // is the application installed?
         context.packageManager.getPackageInfo(packageName!!, PackageManager.GET_ACTIVITIES)
         result = true
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (_: PackageManager.NameNotFoundException) {
         //Not installed
     }
     return result
