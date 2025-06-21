@@ -21,7 +21,7 @@ class GenerateMigrationTextUseCase(
     private val context: Context
 ) {
     @OptIn(ExperimentalEncodingApi::class)
-    suspend operator fun invoke(): String {
+    suspend operator fun invoke(): String? {
         return Migration(
             schools = profileRepository.getProfiles().first().map { it.getSchool() }.distinctBy { it.id }.map { school ->
                 SchoolMigration(
@@ -57,7 +57,7 @@ class GenerateMigrationTextUseCase(
                         )
                     }
                 )
-            },
+            }.ifEmpty { return null },
             settings = SettingsMigration(
                 protectGrades = keyValueRepository.get(Keys.GRADES_BIOMETRIC_ENABLED)?.toBooleanStrict() == true
             )
