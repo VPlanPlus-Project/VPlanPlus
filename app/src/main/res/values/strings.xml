@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">VPlanPlus</string>
+    <string name="app_name">VPlanPlus (legacy)</string>
     <string name="onboarding_welcomeText">Welcome to VplanPlus! The onboarding process will help you connect to your schools stundenplan24 instance.</string>
     <string name="lets_go">Let\'s go!</string>
     <string name="onboarding_schoolIdTitle">Enter your schools id</string>
