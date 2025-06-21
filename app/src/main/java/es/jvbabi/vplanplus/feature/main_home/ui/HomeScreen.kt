@@ -302,14 +302,13 @@ fun HomeScreenContent(
                 },
                 onFindAvailableRoomClicked = onBookRoomClicked,
                 onSendFeedback = onSendFeedback,
-                allowHomeworkQuickAction = (state.currentProfile as? ClassProfile)?.isHomeworkEnabled
-                    ?: false
+                allowHomeworkQuickAction = (state.currentProfile as? ClassProfile)?.isHomeworkEnabled == true
             )
 
             Spacer16Dp()
 
             val todayHasData = state.today != null && (state.today.dataType != DataType.NO_DATA || state.today.type != DayType.NORMAL)
-            val todayIsOver = state.today?.isDayOver() ?: false
+            val todayIsOver = state.today?.isDayOver() == true
             val nextDayHasData = state.nextSchoolDay != null
 
             Box(Modifier.fillMaxSize()) {
@@ -319,7 +318,7 @@ fun HomeScreenContent(
                             .fillMaxSize()
                             .align(Alignment.Center)) {
                         TodayContent(
-                            today = state.today ?: return@Column,
+                            today = state.today,
                             currentProfile = state.currentProfile,
                             onOpenExam = onOpenExam,
                             onNewAppClicked = onNewAppClicked
@@ -336,7 +335,7 @@ fun HomeScreenContent(
                     ) { page ->
                         when (page) {
                             0 -> TodayContent(
-                                today = state.today ?: return@HorizontalPager,
+                                today = state.today,
                                 currentProfile = state.currentProfile,
                                 onOpenExam = onOpenExam,
                                 onNewAppClicked = onNewAppClicked
@@ -360,7 +359,7 @@ fun HomeScreenContent(
                     )
                 } else if (nextDayHasData) {
                     NextDayPreparation(
-                        nextSchoolDay = state.nextSchoolDay ?: return@Column,
+                        nextSchoolDay = state.nextSchoolDay,
                         currentProfile = state.currentProfile,
                         onOpenHomework = onOpenHomework,
                         onOpenExam = onOpenExam,
@@ -666,7 +665,7 @@ fun isPackageInstalled(context: Context, packageName: String?): Boolean {
         // is the application installed?
         context.packageManager.getPackageInfo(packageName!!, PackageManager.GET_ACTIVITIES)
         result = true
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (_: PackageManager.NameNotFoundException) {
         //Not installed
     }
     return result
