@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -50,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -82,7 +80,6 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.content.today.Lessons
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
-import es.jvbabi.vplanplus.feature.migration.ui.components.BetaTestAdvert
 import es.jvbabi.vplanplus.feature.migration.ui.components.NewAppCard
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -180,9 +177,7 @@ fun HomeScreen(
         onSendFeedback = remember { { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) } },
         onOpenHomework = remember { { homeworkId -> navHostController.navigate(Screen.HomeworkDetailScreen(homeworkId)) } },
         onOpenExam = remember { { examId -> navHostController.navigate(Screen.ExamDetailsScreen(examId)) } },
-        onNewAppClicked = onNewAppClicked,
-        onNewAppBannerClicked = { homeViewModel.onNewAppBannerClicked() },
-        onNewAppBannerClosed = { homeViewModel.onNewAppBannerClosed() },
+        onNewAppClicked = onNewAppClicked
     )
 }
 
@@ -213,9 +208,6 @@ fun HomeScreenContent(
     onOpenExam: (examId: Int) -> Unit = {},
 
     onSendFeedback: () -> Unit = {},
-
-    onNewAppBannerClicked: () -> Unit = {},
-    onNewAppBannerClosed: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {},
     onNewAppClicked: () -> Unit
@@ -284,17 +276,9 @@ fun HomeScreenContent(
             )
 
             val context = LocalContext.current
-            if (state.newAppBanner != NewAppBannerType.HIDDEN) BetaTestAdvert(
-                onClicked = {
-                    val intent = Intent(Intent.ACTION_VIEW).apply {
-                        data = "https://beta.vplan.plus?ref=old_app".toUri()
-                    }
-                    context.startActivity(intent)
-                    onNewAppBannerClicked()
-                },
-                canClose = state.newAppBanner == NewAppBannerType.CAN_HIDE,
-                onCloseClicked = onNewAppBannerClosed
-            )
+            if (isPackageInstalled(context, "plus.vplan.app")) NewAppCard(onNewAppClicked)
+            Spacer8Dp()
+
             QuickActions(
                 modifier = Modifier.padding(bottom = 8.dp),
                 onNewHomeworkClicked = {
@@ -302,14 +286,13 @@ fun HomeScreenContent(
                 },
                 onFindAvailableRoomClicked = onBookRoomClicked,
                 onSendFeedback = onSendFeedback,
-                allowHomeworkQuickAction = (state.currentProfile as? ClassProfile)?.isHomeworkEnabled
-                    ?: false
+                allowHomeworkQuickAction = (state.currentProfile as? ClassProfile)?.isHomeworkEnabled == true
             )
 
             Spacer16Dp()
 
             val todayHasData = state.today != null && (state.today.dataType != DataType.NO_DATA || state.today.type != DayType.NORMAL)
-            val todayIsOver = state.today?.isDayOver() ?: false
+            val todayIsOver = state.today?.isDayOver() == true
             val nextDayHasData = state.nextSchoolDay != null
 
             Box(Modifier.fillMaxSize()) {
@@ -319,7 +302,7 @@ fun HomeScreenContent(
                             .fillMaxSize()
                             .align(Alignment.Center)) {
                         TodayContent(
-                            today = state.today ?: return@Column,
+                            today = state.today,
                             currentProfile = state.currentProfile,
                             onOpenExam = onOpenExam,
                             onNewAppClicked = onNewAppClicked
@@ -336,7 +319,7 @@ fun HomeScreenContent(
                     ) { page ->
                         when (page) {
                             0 -> TodayContent(
-                                today = state.today ?: return@HorizontalPager,
+                                today = state.today,
                                 currentProfile = state.currentProfile,
                                 onOpenExam = onOpenExam,
                                 onNewAppClicked = onNewAppClicked
@@ -360,7 +343,7 @@ fun HomeScreenContent(
                     )
                 } else if (nextDayHasData) {
                     NextDayPreparation(
-                        nextSchoolDay = state.nextSchoolDay ?: return@Column,
+                        nextSchoolDay = state.nextSchoolDay,
                         currentProfile = state.currentProfile,
                         onOpenHomework = onOpenHomework,
                         onOpenExam = onOpenExam,
@@ -666,7 +649,7 @@ fun isPackageInstalled(context: Context, packageName: String?): Boolean {
         // is the application installed?
         context.packageManager.getPackageInfo(packageName!!, PackageManager.GET_ACTIVITIES)
         result = true
-    } catch (e: PackageManager.NameNotFoundException) {
+    } catch (_: PackageManager.NameNotFoundException) {
         //Not installed
     }
     return result
