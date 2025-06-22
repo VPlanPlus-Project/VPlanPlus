@@ -1,7 +1,6 @@
 package es.jvbabi.vplanplus.feature.main_home.ui
 
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
@@ -50,7 +49,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.net.toUri
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import es.jvbabi.vplanplus.R
@@ -72,7 +70,6 @@ import es.jvbabi.vplanplus.feature.main_home.ui.components.views.NoData
 import es.jvbabi.vplanplus.feature.main_home.ui.preview.navBar
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheet
 import es.jvbabi.vplanplus.feature.main_homework.add.ui.AddHomeworkSheetInitialValues
-import es.jvbabi.vplanplus.feature.migration.ui.components.BetaTestAdvert
 import es.jvbabi.vplanplus.feature.migration.ui.components.NewAppCard
 import es.jvbabi.vplanplus.feature.settings.vpp_id.ui.onLogin
 import es.jvbabi.vplanplus.ui.common.InfoCard
@@ -145,9 +142,7 @@ fun HomeScreen(
         onFixVppIdLinksClicked = { navHostController.navigate(Screen.SettingsVppIdScreen.route) },
         onIgnoreInvalidVppIdSessions = homeViewModel::ignoreInvalidVppIdSessions,
         onFixCredentialsClicked = { navHostController.navigate("${Screen.SettingsProfileScreen.route}?task=update_credentials&schoolId=${state.currentProfile?.getSchool()?.id}") },
-        onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) },
-        onNewAppBannerClicked = { homeViewModel.onNewAppBannerClicked() },
-        onNewAppBannerClosed = { homeViewModel.onNewAppBannerClosed() },
+        onSendFeedback = { navHostController.navigate(Screen.SettingsHelpFeedbackScreen.route) }
     )
 }
 
@@ -179,9 +174,6 @@ fun HomeScreenContent(
 
     onSendFeedback: () -> Unit = {},
     onNewAppClicked: () -> Unit = {},
-
-    onNewAppBannerClicked: () -> Unit = {},
-    onNewAppBannerClosed: () -> Unit = {},
 
     onVersionHintsClosed: (untilNextVersion: Boolean) -> Unit = {}
 ) {
@@ -272,17 +264,6 @@ fun HomeScreenContent(
                     val context = LocalContext.current
                     if (isPackageInstalled(context, "plus.vplan.app")) NewAppCard(onNewAppClicked)
                     Spacer8Dp()
-                    if (state.newAppBanner != NewAppBannerType.HIDDEN) BetaTestAdvert(
-                        onClicked = {
-                            val intent = Intent(Intent.ACTION_VIEW).apply {
-                                data = "https://beta.vplan.plus?ref=old_app".toUri()
-                            }
-                            context.startActivity(intent)
-                            onNewAppBannerClicked()
-                        },
-                        canClose = state.newAppBanner == NewAppBannerType.CAN_HIDE,
-                        onCloseClicked = onNewAppBannerClosed
-                    )
 
                     QuickActions(
                         modifier = Modifier.padding(vertical = 16.dp),
