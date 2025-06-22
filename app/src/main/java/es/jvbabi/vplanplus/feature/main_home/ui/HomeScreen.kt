@@ -275,8 +275,6 @@ fun HomeScreenContent(
                 onFixCredentialsClicked = onFixCredentialsClicked
             )
 
-            val context = LocalContext.current
-            if (isPackageInstalled(context, "plus.vplan.app")) NewAppCard(onNewAppClicked)
             Spacer8Dp()
 
             QuickActions(
