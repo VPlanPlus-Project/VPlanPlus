@@ -499,12 +499,10 @@ class MainActivity : FragmentActivity() {
                                             }
                                         },
                                         if (migrationText != null) "Öffne die neue App" to {
-                                            Text("Öffne die neue VPlanPlus-App tippe auf 'Aus VPlanPlus importieren'.")
-                                            Spacer8Dp()
                                             InfoCard(
                                                 imageVector = Icons.Default.Info,
                                                 title = "Wichtig",
-                                                text = "Um deine Daten zu importieren, musst du die neue VPlanPlus-App über die Schaltfläche weiter unten öffnen."
+                                                text = "Um deine Daten zu importieren, musst du die neue VPlanPlus-App über die folgende Schaltfläche öffnen."
                                             )
                                             Spacer8Dp()
                                             Button(
